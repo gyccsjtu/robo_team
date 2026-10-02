@@ -1,0 +1,32 @@
+import importlib.util
+from pathlib import Path
+import unittest
+import xml.etree.ElementTree as ET
+
+spec = importlib.util.spec_from_file_location('models', Path(__file__).parents[1] / 'scripts/radar_fleet_models.py')
+models = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(models)
+
+SOURCE = '''<sdf version="1.6"><model name="typhoon_h480"><link name="base_link">
+<sensor name="laser" type="ray"><update_rate>500</update_rate><ray><range><min>0.5</min><max>20</max></range></ray>
+<plugin name="laser" filename="libgazebo_ros_laser.so"><robotNamespace/><topicName>scan</topicName><frameName>laser_2d</frameName></plugin></sensor>
+<sensor name="camera" type="camera"><plugin name="camera" filename="libgazebo_ros_camera.so"><cameraName>/cgo3_camera</cameraName><frameName>optical</frameName></plugin></sensor></link>
+<plugin name="motor" filename="libgazebo_motor_model.so"><robotNamespace/></plugin>
+<plugin name="mavlink_interface" filename="libgazebo_mavlink_interface.so"><mavlink_tcp_port>4560</mavlink_tcp_port><mavlink_udp_port>14560</mavlink_udp_port><sdk_udp_port>14540</sdk_udp_port></plugin>
+<plugin name="gps" filename="libgazebo_gps_plugin.so"/></model></sdf>'''
+
+
+class ModelTests(unittest.TestCase):
+    def test_six_models_preserve_sensors_and_isolate_topics(self):
+        for i in range(1, 7):
+            uid = 'uav_%d' % i
+            row = dict(model_name=uid, uav_id=uid, scan_topic='/%s/scan' % uid,
+                       simulator_tcp_port=4560+i, simulator_udp_port=14560+i, mavros_local_port=14540+i)
+            root = ET.fromstring(models.adapt(SOURCE, row, '/runtime/gps'))
+            self.assertEqual(models.sensor_signature(root), models.sensor_signature(ET.fromstring(SOURCE)))
+            self.assertEqual(root.find('.//topicName').text, '/%s/scan' % uid)
+            self.assertEqual(root.find('.//frameName').text, uid + '/laser_2d')
+            self.assertEqual(root.find('.//mavlink_tcp_port').text, str(4560+i))
+            motor = root.find(".//plugin[@name='motor']/robotNamespace")
+            self.assertIsNone(motor.text)  # Gazebo already includes the model in its transport topic.
+            self.assertEqual(root.find('.//cameraName').text, 'cgo3_camera')

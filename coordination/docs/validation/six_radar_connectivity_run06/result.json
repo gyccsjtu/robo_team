@@ -1,0 +1,96 @@
+{
+  "status": "SIX_RADAR_CONNECTED",
+  "formal_competition_pass": false,
+  "fixture_only": true,
+  "armed": false,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        0.013359551317989826,
+        -0.018989436328411102,
+        -0.14572906494140625
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 7.088,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        -0.0027966517955064774,
+        0.0033704466186463833,
+        -0.08159302920103073
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 7.088,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        0.0014273099368438125,
+        0.003755750600248575,
+        -0.1272919476032257
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 7.088,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        -0.010727476328611374,
+        0.00276872212998569,
+        -0.16194093227386475
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 7.088,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        0.0032794764265418053,
+        -0.008987991139292717,
+        -0.11199081689119339
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 7.088,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        0.005340059753507376,
+        -0.0003827321343123913,
+        -0.10083957016468048
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 7.092,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  }
+}

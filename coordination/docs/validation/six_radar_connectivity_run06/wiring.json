@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "purpose": "RADAR_FLEET_WIRING_ONLY",
+  "px4_build": "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default",
+  "source_sha256": {
+    "px4-rc.mavlink": "e607500c12553d10879b581101c9e03aa47c73bf37faf359bb0c0ad56424452c",
+    "px4-rc.simulator": "a42ec8ab069e4d3e5662910ce4a5e203eaa949f3045abc5998aa0ec66cef1ee0",
+    "rcS": "2f6ab039693b60d95cb275fe90e2bbaec279f6ddf6d221330f8a6a62920a191d"
+  },
+  "simulator_udp_origin": "adapter SDF base 14560; must be matched when generating models",
+  "spawn_clearance_verified": false,
+  "flight_ready": false,
+  "uavs": [
+    {
+      "uav_id": "uav_1",
+      "model_name": "uav_1",
+      "px4_instance": 1,
+      "mavros_namespace": "/uav_1/mavros",
+      "scan_topic": "/uav_1/scan",
+      "mavlink_system_id": 2,
+      "px4_local_port": 14581,
+      "mavros_local_port": 14541,
+      "simulator_tcp_port": 4561,
+      "simulator_udp_port": 14561,
+      "fcu_url": "udp://:14541@127.0.0.1:14581",
+      "lock_key": "uav_1"
+    },
+    {
+      "uav_id": "uav_2",
+      "model_name": "uav_2",
+      "px4_instance": 2,
+      "mavros_namespace": "/uav_2/mavros",
+      "scan_topic": "/uav_2/scan",
+      "mavlink_system_id": 3,
+      "px4_local_port": 14582,
+      "mavros_local_port": 14542,
+      "simulator_tcp_port": 4562,
+      "simulator_udp_port": 14562,
+      "fcu_url": "udp://:14542@127.0.0.1:14582",
+      "lock_key": "uav_2"
+    },
+    {
+      "uav_id": "uav_3",
+      "model_name": "uav_3",
+      "px4_instance": 3,
+      "mavros_namespace": "/uav_3/mavros",
+      "scan_topic": "/uav_3/scan",
+      "mavlink_system_id": 4,
+      "px4_local_port": 14583,
+      "mavros_local_port": 14543,
+      "simulator_tcp_port": 4563,
+      "simulator_udp_port": 14563,
+      "fcu_url": "udp://:14543@127.0.0.1:14583",
+      "lock_key": "uav_3"
+    },
+    {
+      "uav_id": "uav_4",
+      "model_name": "uav_4",
+      "px4_instance": 4,
+      "mavros_namespace": "/uav_4/mavros",
+      "scan_topic": "/uav_4/scan",
+      "mavlink_system_id": 5,
+      "px4_local_port": 14584,
+      "mavros_local_port": 14544,
+      "simulator_tcp_port": 4564,
+      "simulator_udp_port": 14564,
+      "fcu_url": "udp://:14544@127.0.0.1:14584",
+      "lock_key": "uav_4"
+    },
+    {
+      "uav_id": "uav_5",
+      "model_name": "uav_5",
+      "px4_instance": 5,
+      "mavros_namespace": "/uav_5/mavros",
+      "scan_topic": "/uav_5/scan",
+      "mavlink_system_id": 6,
+      "px4_local_port": 14585,
+      "mavros_local_port": 14545,
+      "simulator_tcp_port": 4565,
+      "simulator_udp_port": 14565,
+      "fcu_url": "udp://:14545@127.0.0.1:14585",
+      "lock_key": "uav_5"
+    },
+    {
+      "uav_id": "uav_6",
+      "model_name": "uav_6",
+      "px4_instance": 6,
+      "mavros_namespace": "/uav_6/mavros",
+      "scan_topic": "/uav_6/scan",
+      "mavlink_system_id": 7,
+      "px4_local_port": 14586,
+      "mavros_local_port": 14546,
+      "simulator_tcp_port": 4566,
+      "simulator_udp_port": 14566,
+      "fcu_url": "udp://:14546@127.0.0.1:14586",
+      "lock_key": "uav_6"
+    }
+  ]
+}
