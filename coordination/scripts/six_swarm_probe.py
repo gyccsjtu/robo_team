@@ -12,6 +12,7 @@ def run(out, wiring, spawn, env, seconds):
     import rospy
     from gazebo_msgs.msg import ModelStates
     from mavros_msgs.msg import State
+    from nav_msgs.msg import OccupancyGrid
     from robocup_swarm.msg import UavStatus
     from std_msgs.msg import String
     repo = Path(__file__).resolve().parents[2]
@@ -46,6 +47,7 @@ def run(out, wiring, spawn, env, seconds):
     status = {}
     armed_uavs = set()
     completion_messages = []
+    observed_maps = {}
     record = (out / 'six_truth.jsonl').open('w')
 
     def truth_cb(message):
@@ -75,6 +77,8 @@ def run(out, wiring, spawn, env, seconds):
             if message.armed:
                 armed_uavs.add(uid)
         subscriptions.append(rospy.Subscriber(row['mavros_namespace'] + '/state', State, arm_cb))
+        subscriptions.append(rospy.Subscriber('/' + row['uav_id'] + '/radar_observed_map', OccupancyGrid,
+                             lambda msg, uid=row['uav_id']: observed_maps.update({uid: msg})))
     processes = []
     try:
         processes.append(spawn(['python3', str(scripts / 'swarm_manager.py'), '_uav_ids:=' + ','.join(ids)], 'swarm_manager', flight_env))
@@ -116,6 +120,14 @@ def run(out, wiring, spawn, env, seconds):
             reasons.append('TRAJECTORY_EVIDENCE_GAP')
         if 'MISSION_FINISHED' in completion_messages:
             reasons.append('UNVERIFIED_MISSION_FINISHED_IN_FIXTURE')
+        map_counts = {uid: dict(unknown=msg.data.count(-1), free=msg.data.count(0), occupied=msg.data.count(100),
+            frame=msg.header.frame_id, sample_s=msg.header.stamp.to_sec(), version=msg.header.seq)
+                      for uid, msg in observed_maps.items()}
+        map_verified = (set(observed_maps) == set(ids)
+                        and all(c['unknown'] > 0 and c['free'] > 0 and c['frame'] == 'map'
+                                and 0 <= rospy.Time.now().to_sec()-c['sample_s'] <= 1. for c in map_counts.values()))
+        if not map_verified:
+            reasons.append('ONLINE_OBSERVATION_MAP_MISSING_OR_STALE')
         verified = not reasons
         return dict(status='SIX_SEARCH_FLIGHT_OBSERVED' if verified else 'SIX_SEARCH_FLIGHT_INCOMPLETE',
                     prototype_search_verified=verified, simulated_seconds=rospy.Time.now().to_sec()-start,
@@ -125,6 +137,7 @@ def run(out, wiring, spawn, env, seconds):
                     failure_reasons=reasons, maximum_truth_gap_s=sample_gap,
                     armed_during_run_uavs=sorted(armed_uavs),
                     mission_completion_messages=completion_messages,
+                    online_observation_maps_verified=map_verified, online_map_counts=map_counts,
                     formal_competition_pass=False, fixture_only=True)
     finally:
         for subscriber in subscriptions:

@@ -1,0 +1,188 @@
+{
+  "status": "SIX_SEARCH_FLIGHT_OBSERVED",
+  "formal_competition_pass": false,
+  "fixture_only": true,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        0.003391911741346121,
+        0.003197049256414175,
+        -0.1407957524061203
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 6.128,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        0.004810305777937174,
+        0.006529608741402626,
+        -0.12232654541730881
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 6.128,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        0.002421240322291851,
+        0.005098390392959118,
+        -0.1204943135380745
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 6.128,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        0.010786166414618492,
+        0.0012021302245557308,
+        -0.0017889520386233926
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 6.12,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        0.005853554699569941,
+        -0.0007289545610547066,
+        -0.04973774403333664
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 6.12,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        0.00468521099537611,
+        0.0008098894613794982,
+        -0.09923458099365234
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 6.124,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  },
+  "connectivity_armed": false,
+  "prototype_search_verified": true,
+  "simulated_seconds": 60.076,
+  "maximum_true_altitude_m": 4.994249902319009,
+  "minimum_sampled_separation_m": 5.426367192039907,
+  "maximum_displacement_m": {
+    "uav_1": 21.639549270547217,
+    "uav_2": 21.490319153588228,
+    "uav_3": 29.00850826491167,
+    "uav_4": 22.650595247646496,
+    "uav_5": 28.050169015063616,
+    "uav_6": 21.175382332060963
+  },
+  "climbed": {
+    "uav_1": true,
+    "uav_2": true,
+    "uav_3": true,
+    "uav_4": true,
+    "uav_5": true,
+    "uav_6": true
+  },
+  "granted_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "truth_samples": 1122,
+  "collision_result": "ABSTAIN_NO_CONTACT_EVIDENCE",
+  "failure_reasons": [],
+  "maximum_truth_gap_s": 0.1280000000000001,
+  "armed_during_run_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "mission_completion_messages": [],
+  "online_observation_maps_verified": true,
+  "online_map_counts": {
+    "uav_4": {
+      "unknown": 7730,
+      "free": 4814,
+      "occupied": 0,
+      "frame": "map",
+      "sample_s": 66.604,
+      "version": 119
+    },
+    "uav_5": {
+      "unknown": 8714,
+      "free": 3830,
+      "occupied": 0,
+      "frame": "map",
+      "sample_s": 66.568,
+      "version": 118
+    },
+    "uav_2": {
+      "unknown": 7435,
+      "free": 5109,
+      "occupied": 0,
+      "frame": "map",
+      "sample_s": 66.936,
+      "version": 119
+    },
+    "uav_6": {
+      "unknown": 9323,
+      "free": 3221,
+      "occupied": 0,
+      "frame": "map",
+      "sample_s": 66.716,
+      "version": 118
+    },
+    "uav_1": {
+      "unknown": 8467,
+      "free": 4077,
+      "occupied": 0,
+      "frame": "map",
+      "sample_s": 66.656,
+      "version": 118
+    },
+    "uav_3": {
+      "unknown": 9616,
+      "free": 2928,
+      "occupied": 0,
+      "frame": "map",
+      "sample_s": 66.656,
+      "version": 118
+    }
+  }
+}

@@ -41,6 +41,8 @@ from route_endpoint import connect_exact_goal
 from publisher_authority import PublisherAuthority
 from fcu_configuration import configure as configure_fcu_parameters
 from fleet_motion_guard import MotionCache, protect as protect_fleet_motion
+from radar_observed_map import ObservedMap
+from nav_msgs.msg import OccupancyGrid
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -342,6 +344,10 @@ class SwarmAgent(object):
         # ---- A* 避障 ----
         self.md, _ = load_metadata(METADATA_PATH)
         self.grid = inflate_grid(GridMap.from_metadata(self.md), INFLATE_M)
+        self._online_map = ObservedMap(self.grid.width, self.grid.height, self.grid.resolution, self.grid.origin)
+        self._online_map_offset = None
+        self._online_map_epoch_s = None
+        self._map_pub = None
         self.path = []              # 当前全局路径（世界坐标航点列表）
         self.path_target = None     # 当前路径终点（格中心），用于判断是否需重规划
         self._last_plan_t = 0.0
@@ -443,6 +449,7 @@ class SwarmAgent(object):
         # ---- 发布 ----
         self.status_pub = rospy.Publisher("/swarm/uav_status", UavStatus, queue_size=5)
         self._motion_pub = rospy.Publisher('/swarm/motion_state', String, queue_size=10)
+        self._map_pub = rospy.Publisher('/' + self.uav_id + '/radar_observed_map', OccupancyGrid, queue_size=1)
         rospy.Subscriber('/swarm/motion_state', String, self._motion_cb, queue_size=100)
         self.detect_pub = rospy.Publisher("/swarm/detection", TargetDetection, queue_size=10)
         self.vel_pub = rospy.Publisher(self.mavros_ns + '/setpoint_velocity/cmd_vel',
@@ -579,6 +586,30 @@ class SwarmAgent(object):
     def _scan_cb(self, msg):
         self._scan = msg
         self._scan_t = msg.header.stamp.to_sec()
+        observed = getattr(self, '_online_map', None)
+        if (observed is None or self._map_pub is None or self.world_xy is None or self._local_prev_t is None
+                or (observed.last_scan_s is not None and self._scan_t-observed.last_scan_s < .5)):
+            return
+        # A changed local->world transform invalidates previously positioned evidence.
+        if self._online_map_offset != self.offset:
+            observed = self._online_map = ObservedMap(self.grid.width, self.grid.height, self.grid.resolution, self.grid.origin)
+            self._online_map_offset = self.offset
+            self._online_map_epoch_s = self._scan_t
+        now = rospy.Time.now().to_sec()
+        if not observed.feed(msg.ranges, self.world_xy, self.yaw, msg.angle_min, msg.angle_increment,
+                             msg.range_min, msg.range_max, self._scan_t, self._local_prev_t, now):
+            return
+        output = OccupancyGrid()
+        output.header.stamp = msg.header.stamp
+        output.header.seq = observed.version
+        output.header.frame_id = 'map'
+        output.info.width, output.info.height = observed.width, observed.height
+        output.info.resolution = observed.resolution
+        output.info.map_load_time = rospy.Time.from_sec(self._online_map_epoch_s or self._scan_t)
+        output.info.origin.position.x, output.info.origin.position.y = observed.origin
+        output.info.origin.orientation.w = 1.
+        output.data = observed.snapshot(now)
+        self._map_pub.publish(output)
 
     def _velocity_cb(self, msg):
         self._velocity_sample = (msg.twist.linear.x, msg.twist.linear.y,
