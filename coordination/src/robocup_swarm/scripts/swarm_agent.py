@@ -37,6 +37,8 @@ from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from csv_logger import logger
 from radar_velocity_guard import guard_velocity
 from task_authority import TaskGate
+from route_endpoint import connect_exact_goal
+from publisher_authority import PublisherAuthority
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -85,9 +87,9 @@ TRACK_REPLAN_SEC  = 2.0    # 距上次规划超过此时间才重规划 (s)
 # A* 失败时不能直飞：当前地图含建筑，直飞会把一次规划失败升级为撞楼。
 # 需要恢复旧的实验行为时仍可显式设置 PLAN_FALLBACK=1。
 PLAN_FALLBACK = int(os.environ.get("PLAN_FALLBACK", "0"))
-MAX_SPEED       = 5.0     # 巡航速度上限 m/s（比赛无限制，实测可跑 10+m/s）
+MAX_SPEED       = float(os.environ.get('SWARM_MAX_SPEED', '5.0'))
 POS_KP          = 0.8     # 位置 P 控制增益
-ARRIVE_TOL      = 0.8     # 到达格中心判定半径 m（< 此值视为已到，开始原地搜索）
+ARRIVE_TOL      = float(os.environ.get('SWARM_ARRIVE_TOL', '0.8'))
 PUB_RATE        = 10.0    # 状态发布频率 Hz
 CTRL_RATE       = 20.0    # 控制频率 Hz
 DETECT_RATE     = 5.0     # 目标检测发布频率 Hz（规则3 几何判定）
@@ -305,6 +307,7 @@ class SwarmAgent(object):
     def __init__(self, uav_id, model_name):
         self.uav_id = uav_id
         self.model_name = model_name
+        self.mavros_ns = rospy.get_param('~mavros_namespace', '/%s/mavros' % uav_id).rstrip('/')
 
         # ---- 高度层分配（基于 ID，6m 以内）----
         # uav_1/2 -> 5.0m, uav_3/4 -> 5.5m, uav_5/6 -> 6.0m（层间距 0.5m）
@@ -404,25 +407,25 @@ class SwarmAgent(object):
         self._friend_positions = {}  # 其他无人机位置 {uav_id: (x, y, z)}
 
         # ---- MAVROS 服务 ----
-        self.arm_srv = rospy.ServiceProxy("/%s/mavros/cmd/arming" % uav_id, CommandBool)
-        self.mode_srv = rospy.ServiceProxy("/%s/mavros/set_mode" % uav_id, SetMode)
-        self.param_srv = rospy.ServiceProxy("/%s/mavros/param/set" % uav_id, ParamSet)
+        self.arm_srv = rospy.ServiceProxy(self.mavros_ns + '/cmd/arming', CommandBool)
+        self.mode_srv = rospy.ServiceProxy(self.mavros_ns + '/set_mode', SetMode)
+        self.param_srv = rospy.ServiceProxy(self.mavros_ns + '/param/set', ParamSet)
 
         # ---- 订阅 ----
         # 注意：**不订阅 /gazebo/model_states**。它是 250Hz × 687 模型 × 6.4MB/s 的
         # 巨型消息，每个 agent 都要用 Python 反序列化，实测每机吃掉 ~37% CPU
         # （比 PX4 还高），6 机时是灾难。改为只订阅轻量的 MAVROS local_position，
         # 启动时用一次 model_states 标定「局部->世界」的恒定平移即可。
-        rospy.Subscriber("/%s/mavros/state" % uav_id, State, self._state_cb)
+        rospy.Subscriber(self.mavros_ns + '/state', State, self._state_cb)
         # 官方剩余 actor 清单：权威的「谁还在场上」，用来剔掉已被删除的目标
         rospy.Subscriber("/left_actors", String, self._left_actors_cb, queue_size=5)
         # 别机认领广播：防止多架机扎堆确认同一个目标
         rospy.Subscriber("/swarm/orbit_claim", String, self._claim_cb, queue_size=20)
         self._claim_pub = rospy.Publisher("/swarm/orbit_claim", String, queue_size=10)
-        rospy.Subscriber("/%s/mavros/local_position/pose" % uav_id, PoseStamped, self._local_cb)
-        rospy.Subscriber("/%s/mavros/local_position/velocity_local" % uav_id,
+        rospy.Subscriber(self.mavros_ns + '/local_position/pose', PoseStamped, self._local_cb)
+        rospy.Subscriber(self.mavros_ns + '/local_position/velocity_local',
                          TwistStamped, self._velocity_cb, queue_size=1)
-        rospy.Subscriber("/%s/scan" % uav_id, LaserScan, self._scan_cb,
+        rospy.Subscriber(rospy.get_param('~scan_topic', '/%s/scan' % uav_id), LaserScan, self._scan_cb,
                  queue_size=1)
         self._authority_ack_pub = rospy.Publisher('/swarm/authority_ack', String, queue_size=10)
         rospy.Subscriber('/swarm/authorized_assignment', String, self._authorized_cb, queue_size=100)
@@ -433,7 +436,7 @@ class SwarmAgent(object):
         # ---- 发布 ----
         self.status_pub = rospy.Publisher("/swarm/uav_status", UavStatus, queue_size=5)
         self.detect_pub = rospy.Publisher("/swarm/detection", TargetDetection, queue_size=10)
-        self.vel_pub = rospy.Publisher("/%s/mavros/setpoint_velocity/cmd_vel" % uav_id,
+        self.vel_pub = rospy.Publisher(self.mavros_ns + '/setpoint_velocity/cmd_vel',
                                        TwistStamped, queue_size=5)
 
         self.ctrl_rate = rospy.Rate(CTRL_RATE)
@@ -1319,7 +1322,7 @@ class SwarmAgent(object):
             rospy.logwarn("[%s] A* 规划到 (%.1f,%.1f) 失败: %s",
                           self.uav_id, goal_xy[0], goal_xy[1], route.reason)
             return [], goal_xy, False
-        path = smooth_path(route.points, samples_per_segment=6)
+        path = connect_exact_goal(smooth_path(route.points, samples_per_segment=6), goal_xy, self.grid)
         rospy.loginfo("[%s] A* 规划：%d 航点 -> %d 平滑点",
                       self.uav_id, len(route.points), len(path))
         return path, goal_xy, True
@@ -2181,4 +2184,8 @@ if __name__ == "__main__":
     uav_id = rospy.get_param("~uav_id", "uav_1")
     model_name = rospy.get_param("~model_name", "iris_1")
     rospy.loginfo("swarm_agent 启动: uav_id=%s model=%s node=%s", uav_id, model_name, node_name)
-    SwarmAgent(uav_id, model_name).run()
+    with PublisherAuthority(model_name):
+        try:
+            SwarmAgent(uav_id, model_name).run()
+        except rospy.ROSInterruptException:
+            pass

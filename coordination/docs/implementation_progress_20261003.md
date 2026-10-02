@@ -55,3 +55,13 @@ python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/authority_ros_smoke.py 
 已在当前WSL完成 catkin 两包构建。ROS自测实例化本仓库真实manager和六个agent，并走真实授权/ACK话题；验证六个搜索授权、停稳换目标、拒绝目标双持有者、拒绝旧运行指令。它使用合成位姿/速度数据，不启动Gazebo或PX4，不能作六机物理飞行证明。输出目录必须新建，不覆盖旧证据；脚本只终止自己启动的独立roscore进程组。实际控制源码SHA写入result.json。
 
 新增任务授权16条边界测试通过。最后全套200条中197通过，3条错误仍为原基线 replan_route 缺失。ROS复验run03通过，证据位于工作区根目录 tmp/evidence_archive/robo_team_authority_ros_20261003_run03/result.json 和 authority_events.jsonl，带本轮控制源码SHA；没有残留本轮roscore或仿真进程。后续继续本仓库实际飞行、命名空间/端口审计和几何预约接入。
+
+## 后续真实飞行：单机两段任务
+
+本仓库 SwarmAgent + manager任务授权的单机仿真已经跑通两轮（run02/run03）。修复真实暴露的末段缺陷：A*栅格中心不同于任务点，只有同一已知自由格内才追加精确目标连接；不能向占据格或别的格猜连接段。
+
+补充显式逻辑ID→MAVROS/scan映射、按模型隔离的setpoint进程锁、单机runner锁及共享PX4端口占用拒绝。单机例程仍是任务用例，未启动正常全覆盖拍卖和视觉搜索；六机正常搜索仍是后续目标。
+
+任务本地停止后，STOPPED状态不能不断续原代次；需走协调STOP/停稳确认和新代次恢复，避免异常被旧续约永久卡住。
+
+run03独立最终误差0.27484m、末速0.06122m/s、最高高度4.82664m，STOPPED_ACK一次。原型到达验证true，碰撞ABSTAIN、正式比赛false。可执行步骤见 single_swarm_product_quickstart.md，完整证据与执行源码快照已入 docs/validation/single_swarm_run03。全套207条中204通过，3条基线错误仍在；快照SHA全部匹配，端口占用拒绝实测通过。

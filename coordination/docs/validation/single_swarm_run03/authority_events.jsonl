@@ -1,0 +1,6 @@
+{"schema_version": 2, "run_id": "dd9a55fd-496f-44a7-a73e-8d13a2002d59", "sim_s": 1971.232, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 1, "key": ["search", 9, 8]}}
+{"schema_version": 2, "run_id": "dd9a55fd-496f-44a7-a73e-8d13a2002d59", "sim_s": 1982.032, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "dd9a55fd-496f-44a7-a73e-8d13a2002d59", "sim_s": 1983.068, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "dd9a55fd-496f-44a7-a73e-8d13a2002d59", "sim_s": 1983.068, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 9, 8]}}
+{"schema_version": 2, "run_id": "dd9a55fd-496f-44a7-a73e-8d13a2002d59", "sim_s": 1983.068, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 2, "key": ["search", 9, 7]}}
+{"schema_version": 2, "run_id": "dd9a55fd-496f-44a7-a73e-8d13a2002d59", "sim_s": 1988.168, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 9, 8]}}

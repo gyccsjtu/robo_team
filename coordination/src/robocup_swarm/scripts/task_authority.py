@@ -37,6 +37,7 @@ class TaskAuthority:
         self.active, self.pending, self.locks = {}, {}, {}
         self.seq, self.generation, self.ack_seq, self.last_state = {}, {}, {}, {}
         self._stop_samples = {}
+        self._last_ack_status = {}
         self.events, self.last_s = [], 0.
 
     def _time(self, now):
@@ -88,7 +89,8 @@ class TaskAuthority:
         active = self.active.get(uid)
         if active and not active['stopping'] and active['key'] == key and now < active['expires_s']:
             active['task'] = copy.deepcopy(task)
-            if 0 <= now - self.last_state.get(uid, -100.) <= .5:
+            if (self._last_ack_status.get(uid) == 'STATE'
+                    and 0 <= now - self.last_state.get(uid, -100.) <= .5):
                 active['expires_s'] = now + self.lease_s
             self.locks[key]['point'] = (task['target_x'], task['target_y'])
             return [self._message(uid, active, 'GRANT', now)]
@@ -122,6 +124,7 @@ class TaskAuthority:
             return []
         self.ack_seq[uid] = message['seq']
         self.last_state[uid] = message['sample_s']
+        self._last_ack_status[uid] = message['status']
         for key, lock in list(self.locks.items()):
             if lock['owner'] == uid and lock['retired']:
                 d = math.hypot(message['xyz'][0] - lock['point'][0], message['xyz'][1] - lock['point'][1])
@@ -158,7 +161,8 @@ class TaskAuthority:
                     self.pending.setdefault(uid, copy.deepcopy(active['task']))
                     self._event('STOP_REQUESTED', uid, now, generation=active['generation'])
                 outputs.append(self._message(uid, active, 'STOP', now))
-            elif 0 <= now - self.last_state.get(uid, -100.) <= .5:
+            elif (self._last_ack_status.get(uid) == 'STATE'
+                  and 0 <= now - self.last_state.get(uid, -100.) <= .5):
                 active['expires_s'] = now + self.lease_s
                 outputs.append(self._message(uid, active, 'GRANT', now))
         for uid in self.fleet:

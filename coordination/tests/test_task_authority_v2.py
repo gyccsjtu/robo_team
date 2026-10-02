@@ -125,6 +125,13 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(self.ack(2.2, duration=101.), [])
         self.assertEqual(self.core.generation['uav_1'], 1)
 
+    def test_local_stop_claim_does_not_renew_same_generation_forever(self):
+        self.core.offer('uav_1', task(), 0.)
+        self.ack(1., status='STOPPED')
+        renewals = self.core.tick(1.1)
+        self.assertEqual(renewals, [])
+        self.assertEqual(self.core.tick(3.1)[0]['action'], 'STOP')
+
 
 class GateTests(unittest.TestCase):
     def setUp(self):

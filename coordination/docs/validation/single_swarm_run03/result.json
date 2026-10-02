@@ -1,0 +1,35 @@
+{
+  "status": "SINGLE_SWARM_TASKS_REACHED",
+  "phases": [
+    {
+      "phase": 0,
+      "sim_s": 1982.032,
+      "position": [
+        7.96997809689492,
+        -3.0120664397254586,
+        4.499116897583008
+      ],
+      "error_xy_m": 0.03235604477835549
+    },
+    {
+      "phase": 1,
+      "sim_s": 1992.332,
+      "position": [
+        7.901626351289451,
+        -9.91539089474827,
+        4.50688362121582
+      ],
+      "error_xy_m": 0.1297539034176803
+    }
+  ],
+  "final_position": [
+    7.901626351289451,
+    -9.91539089474827,
+    4.50688362121582
+  ],
+  "speed_mps": 0.024578000137669996,
+  "physical_aircraft": 1,
+  "fixture_only": true,
+  "formal_competition_pass": false,
+  "collision_verdict": "ABSTAIN"
+}
