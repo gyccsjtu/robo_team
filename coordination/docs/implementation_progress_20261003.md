@@ -4,6 +4,8 @@
 
 ## 六机接入里程碑
 
+后续六机正常拍卖飞行已真实运行60s，六机均起飞并执行授权搜索，但最小采样间距2.0797m，结果失败；详情与证据见 `docs/six_swarm_search_progress.md`。已修复MAVROS参数列表未就绪导致飞控设置静默失败，新增pull/set/get读回流程。下一阶段必须修正实际分配与几何通行，不能将起飞成功替代协同验收。
+
 新增由实际PX4构建产物派生的机队接线和六份雷达模型生成，解决旧fleet端口与当前环境不一致。`scripts/six_radar_connectivity.py` 已在独立空世界验证六个真实PX4/MAVROS、六路定位及512束雷达，逐机定位/传感器帧隔离；不解锁、不起飞。run06完整执行源码/模型/启动日志证据位于 `docs/validation/six_radar_connectivity_run06/`，复现命令见 `docs/six_radar_connectivity_quickstart.md`。这不是六机协同飞行验收；实际manager/agent六机搜索、在线地图和几何预约仍须继续。
 
 ## 本次实现

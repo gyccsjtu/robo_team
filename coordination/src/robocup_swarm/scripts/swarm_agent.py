@@ -39,6 +39,7 @@ from radar_velocity_guard import guard_velocity
 from task_authority import TaskGate
 from route_endpoint import connect_exact_goal
 from publisher_authority import PublisherAuthority
+from fcu_configuration import configure as configure_fcu_parameters
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -765,8 +766,19 @@ class SwarmAgent(object):
 
     def _configure_fcu(self):
         """SITL 无遥控器会触发 RC 失联 failsafe，拒绝解锁/进 OFFBOARD。"""
-        self._set_param("NAV_RCL_ACT", 0)
-        self._set_param("COM_RCL_EXCEPT", 4)
+        from mavros_msgs.srv import ParamPull, ParamGet
+        pull_srv = rospy.ServiceProxy(self.mavros_ns + '/param/pull', ParamPull)
+        get_srv = rospy.ServiceProxy(self.mavros_ns + '/param/get', ParamGet)
+        rospy.wait_for_service(self.mavros_ns + '/param/pull', timeout=30)
+        def pull():
+            response = pull_srv(True)
+            return response.success and response.param_received > 0
+        def get(name):
+            response = get_srv(name)
+            return response.value.integer if response.success else None
+        configure_fcu_parameters(pull, self._set_param, get,
+                                 {'NAV_RCL_ACT': 0, 'COM_RCL_EXCEPT': 4})
+        rospy.loginfo('[%s] FCU autonomous-flight parameters read back and verified', self.uav_id)
 
     def _arm_and_offboard(self):
         """预热 setpoint → 切 OFFBOARD → 解锁。与单机避障已验证的时序一致。

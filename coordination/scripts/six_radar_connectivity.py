@@ -4,6 +4,7 @@ import argparse
 import fcntl
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import signal
@@ -38,7 +39,11 @@ def main():
     parser.add_argument('--source-sdf', default='/root/vendor_eval/d43bac6/models/typhoon_h480_lidar/typhoon_h480_lidar.sdf')
     parser.add_argument('--master-port', type=int, default=11375)
     parser.add_argument('--gazebo-port', type=int, default=11376)
+    parser.add_argument('--flight-seconds', type=float, default=0,
+                        help='Run real swarm search after connectivity in this empty development fixture')
     args = parser.parse_args()
+    if not math.isfinite(args.flight_seconds) or not 0 <= args.flight_seconds <= 120:
+        parser.error('--flight-seconds must be between 0 and 120 simulated seconds')
     px4 = Path(args.px4)
     build = px4 / 'build/px4_sitl_default'
     wiring = derive(build)
@@ -51,11 +56,11 @@ def main():
     script_directory = Path(__file__).resolve().parent
     snapshot = out / 'execution_sources'
     snapshot.mkdir()
-    for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py'):
+    for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py', 'six_swarm_probe.py'):
         shutil.copyfile(script_directory / name, snapshot / name)
     (out / 'execution_sources.json').write_text(json.dumps({name:
         hashlib.sha256((script_directory / name).read_bytes()).hexdigest()
-        for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py')}, indent=2))
+        for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py', 'six_swarm_probe.py')}, indent=2))
     def interrupted(signum, frame):
         raise RuntimeError('CHECK_INTERRUPTED_OR_WALL_TIMEOUT')
     signal.signal(signal.SIGTERM, interrupted)
@@ -92,7 +97,7 @@ def main():
 </world></sdf>''')
         env = dict(os.environ, ROS_MASTER_URI='http://127.0.0.1:%d' % args.master_port,
                    GAZEBO_MASTER_URI='http://127.0.0.1:%d' % args.gazebo_port,
-                   ROBOCUP_LEGACY_GPS_MODEL='1', GAZEBO_MODEL_DATABASE_URI='')
+                   ROBOCUP_LEGACY_GPS_MODEL='1', GAZEBO_MODEL_DATABASE_URI='', PYTHONUNBUFFERED='1')
         libraries = ':'.join(str(runtime / name) for name in ('gazebo', 'gps', 'actor_lib'))
         env['LD_LIBRARY_PATH'] = libraries + ':/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:' + env.get('LD_LIBRARY_PATH', '')
         env['GAZEBO_PLUGIN_PATH'] = env['LD_LIBRARY_PATH'] + ':' + env.get('GAZEBO_PLUGIN_PATH', '')
@@ -127,8 +132,8 @@ def main():
         from geometry_msgs.msg import Pose, PoseStamped
         from mavros_msgs.msg import State
         from sensor_msgs.msg import LaserScan
+        subprocess.run(['rosparam', 'set', '/use_sim_time', 'true'], env=env, check=True, timeout=10)
         rospy.init_node('six_radar_connectivity', anonymous=True, disable_signals=True)
-        rospy.set_param('/use_sim_time', True)
         spawn(['gzserver', '--verbose', '-s', 'libgazebo_ros_api_plugin.so', str(world)], 'gzserver')
         rospy.wait_for_service('/gazebo/spawn_sdf_model', timeout=90)
         spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
@@ -164,6 +169,14 @@ def main():
                               rospy.Subscriber(row['scan_topic'], LaserScan, record(uid, 'scan'))]
         launch_path = out / 'mavros.launch'
         launch_path.write_text(launch.tostring(root, encoding='unicode'))
+        flight_etc = out / 'px4_etc'
+        shutil.copytree(build / 'etc', flight_etc)
+        post = flight_etc / 'init.d-posix/airframes/6011_typhoon_h480.post'
+        post_text = post.read_text()
+        if '-u 14558 ' not in post_text or '-o 14530 ' not in post_text:
+            raise RuntimeError('Unsupported typhoon camera MAVLink ports')
+        post.write_text(post_text.replace('-u 14558 ', '-u $((14600+px4_instance)) ')
+                       .replace('-o 14530 ', '-o $((14630+px4_instance)) '))
         for index, row in enumerate(wiring['uavs']):
             uid = row['uav_id']
             pose = Pose()
@@ -176,7 +189,7 @@ def main():
             work = out / ('px4_' + uid)
             work.mkdir()
             flight_env = dict(env, PX4_SIM_MODEL='typhoon_h480', PATH=str(build / 'bin') + ':' + env['PATH'])
-            spawn([str(build / 'bin/px4'), '-d', str(build / 'etc'), '-s', 'etc/init.d-posix/rcS',
+            spawn([str(build / 'bin/px4'), '-d', str(flight_etc), '-s', 'etc/init.d-posix/rcS',
                    '-i', str(row['px4_instance']), '-w', str(work)], 'px4_' + uid, flight_env)
             print('Spawned ' + uid, flush=True)
         spawn(['roslaunch', str(launch_path)], 'mavros')
@@ -203,6 +216,12 @@ def main():
                                   range_min=values['scan'][1].range_min, range_max=values['scan'][1].range_max)
                                          for uid, values in observations.items()})
                 print(json.dumps(report), flush=True)
+                if args.flight_seconds:
+                    from six_swarm_probe import run
+                    report['connectivity_armed'] = report.pop('armed')
+                    report.update(run(out, wiring, spawn, env, args.flight_seconds))
+                    print(json.dumps(report), flush=True)
+                    return 0 if report['prototype_search_verified'] else 1
                 return 0
             time.sleep(.5)
         raise RuntimeError('SIX_RADAR_HEALTH_TIMEOUT; samples=' + str({uid: list(v) for uid, v in observations.items()}))

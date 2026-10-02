@@ -1,0 +1,126 @@
+{
+  "status": "SIX_SEARCH_FLIGHT_INCOMPLETE",
+  "formal_competition_pass": false,
+  "fixture_only": true,
+  "armed": false,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        -0.000667794025503099,
+        -0.014984961599111557,
+        -0.172659233212471
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 6.524,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        0.0033312207087874413,
+        0.0023706788197159767,
+        -0.15168114006519318
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 6.52,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        0.0026185503229498863,
+        -0.012594470754265785,
+        -0.15173204243183136
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 6.52,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        0.004487555008381605,
+        -0.001732739619910717,
+        -0.17322786152362823
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 6.52,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        -0.0010247419122606516,
+        0.011672007851302624,
+        -0.09810037165880203
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 6.52,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        0.006582581903785467,
+        0.0033031320199370384,
+        -0.06947377324104309
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 6.52,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  },
+  "prototype_search_verified": false,
+  "simulated_seconds": 60.07600000000001,
+  "maximum_true_altitude_m": 5.065256954197618,
+  "minimum_sampled_separation_m": 2.079717532995386,
+  "maximum_displacement_m": {
+    "uav_1": 14.844907845393193,
+    "uav_2": 14.537374089150015,
+    "uav_3": 29.61616972654597,
+    "uav_4": 23.196822855558963,
+    "uav_5": 4.858418886625897,
+    "uav_6": 7.9814292160121
+  },
+  "climbed": {
+    "uav_1": true,
+    "uav_2": true,
+    "uav_3": true,
+    "uav_4": true,
+    "uav_5": true,
+    "uav_6": true
+  },
+  "granted_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "truth_samples": 1123,
+  "collision_result": "ABSTAIN_NO_CONTACT_EVIDENCE"
+}
