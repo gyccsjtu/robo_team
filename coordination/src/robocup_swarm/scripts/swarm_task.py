@@ -487,7 +487,7 @@ class TaskAllocator(object):
                     best = b
         return best * (1.0 - age / _PRIORITY_DECAY)
 
-    def allocate(self, uavs, risk_map=None):
+    def allocate(self, uavs, risk_map=None, candidate_filter=None):
         """集中式分配一轮。uavs: {id: (x,y)}，返回 {id: cell_key 或 None}。
 
         贪心：按当前「收益最高」逐机分配（每机取剩余格中自身效用最大者），
@@ -523,7 +523,9 @@ class TaskAllocator(object):
             # 也排除正在执行任务的其他飞机的目标位置
             other_executing = {oid: pos for oid, pos in executing_uav_targets.items() if oid != uav_id}
 
-            for key in remaining:
+            for key in sorted(remaining):
+                if candidate_filter is not None and not candidate_filter(uav_id, key, assigned):
+                    continue
                 u = self.utility(uav_id, ux, uy, key, assigned_positions, risk_map, task_counts, other_uavs, other_executing) + self._priority_bonus(key, n_prio)
                 if u > best_u:
                     best_u = u

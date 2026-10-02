@@ -24,6 +24,8 @@ import re
 import traceback
 import threading
 from task_authority import TaskAuthority
+from allocation_geometry import screen_leg
+from search_completion import completion_state, parse_actor_list
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from std_msgs.msg import String, Float32
@@ -471,7 +473,10 @@ class SwarmManager(object):
 
     def _left_cb(self, msg):
         """官方裁判发布的剩余 actor：'[]' 或 '[0, 2, 5]'。"""
-        ids = [int(x) for x in re.findall(r'-?\d+', str(msg.data))]
+        ids = parse_actor_list(str(msg.data))
+        if ids is None:
+            rospy.logwarn_throttle(5, '[manager] Invalid official actor list; retaining previous evidence')
+            return
         if ids != self._left_actors:
             rospy.loginfo("[manager] 官方剩余 actor: %s", ids)
         self._left_actors = ids
@@ -1096,7 +1101,21 @@ class SwarmManager(object):
                 pass
 
         # 拍卖（每机取剩余格中自身效用最大者，不重复）
-        assign = self.allocator.allocate(uavs)
+        positions = {uid: (st.x, st.y) for uid, st in self.status.items() if uid in self.uav_ids}
+        executing = {uid: key for uid, key in self._active_leases.items() if uid in positions}
+        def waypoint(key):
+            if key in self._cell_waypoint:
+                return self._cell_waypoint[key]
+            cell = self.grid.cell(key)
+            return (cell.cx, cell.cy)
+        def candidate_filter(uid, key, already_assigned):
+            peer_goals = dict(executing)
+            peer_goals.update({owner: cell_key for owner, cell_key in already_assigned.items() if cell_key is not None})
+            legs = [(positions[owner], waypoint(cell_key)) for owner, cell_key in peer_goals.items()
+                    if owner != uid and owner in positions]
+            return screen_leg(positions[uid], waypoint(key),
+                              [position for owner, position in positions.items() if owner != uid], legs)
+        assign = self.allocator.allocate(uavs, candidate_filter=candidate_filter)
         self._auction_cycle += 1
         for _d in self.allocator.last_allocation:
             _key = _d["cell_key"]
@@ -1137,6 +1156,19 @@ class SwarmManager(object):
 
         # === 终局行为 ===
         if not all_assigned:
+            unfinished = any(c.state != STATE_COVERED for key, c in self.grid.cells.items()
+                             if key not in self._blocked_cells)
+            decision = completion_state(unfinished, self._left_seen, self._left_actors,
+                [t for t in self.tracker.targets if t not in self._eliminated])
+            if decision == 'SEARCH_OR_WAIT_FOR_ROUTE':
+                rospy.loginfo_throttle(5, '[manager] No complete allocation; unfinished tasks remain, keep searching/waiting')
+                self._last_alloc_t = now
+                return
+            if decision == 'OFFICIAL_EVIDENCE_MISSING':
+                rospy.logwarn_throttle(10, '[manager] Official result missing; cannot broadcast mission completion')
+                self._reopen_covered_cells()
+                self._last_alloc_t = now
+                return
             # 没有更多搜索格可用，检查是否有未消除的目标
             remaining_targets = [t for t in self.tracker.targets if t not in self._eliminated]
             n_left = len(self._left_actors)
@@ -1311,4 +1343,7 @@ if __name__ == "__main__":
     if isinstance(uav_ids, str):
         uav_ids = uav_ids.split(",")
     rospy.loginfo("swarm_manager 启动，机队: %s", uav_ids)
-    SwarmManager(uav_ids).run()
+    try:
+        SwarmManager(uav_ids).run()
+    except rospy.ROSInterruptException:
+        pass  # Owning runner shutdown is expected, not an algorithm failure.

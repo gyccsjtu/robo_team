@@ -45,6 +45,7 @@ def run(out, wiring, spawn, env, seconds):
     grants = set()
     status = {}
     armed_uavs = set()
+    completion_messages = []
     record = (out / 'six_truth.jsonl').open('w')
 
     def truth_cb(message):
@@ -67,6 +68,7 @@ def run(out, wiring, spawn, env, seconds):
 
     subscriptions = [rospy.Subscriber('/gazebo/model_states', ModelStates, truth_cb),
                      rospy.Subscriber('/swarm/authorized_assignment', String, assignment_cb),
+                     rospy.Subscriber('/swarm/finish', String, lambda msg: completion_messages.append(msg.data)),
                      rospy.Subscriber('/swarm/uav_status', UavStatus, lambda msg: status.update({msg.uav_id: msg}))]
     for row in wiring['uavs']:
         def arm_cb(message, uid=row['uav_id']):
@@ -112,6 +114,8 @@ def run(out, wiring, spawn, env, seconds):
         sample_gap = max((b['sim_s'] - a['sim_s'] for a, b in zip(truth, truth[1:])), default=float('inf'))
         if sample_gap > .2:
             reasons.append('TRAJECTORY_EVIDENCE_GAP')
+        if 'MISSION_FINISHED' in completion_messages:
+            reasons.append('UNVERIFIED_MISSION_FINISHED_IN_FIXTURE')
         verified = not reasons
         return dict(status='SIX_SEARCH_FLIGHT_OBSERVED' if verified else 'SIX_SEARCH_FLIGHT_INCOMPLETE',
                     prototype_search_verified=verified, simulated_seconds=rospy.Time.now().to_sec()-start,
@@ -120,6 +124,7 @@ def run(out, wiring, spawn, env, seconds):
                     truth_samples=len(truth), collision_result='ABSTAIN_NO_CONTACT_EVIDENCE',
                     failure_reasons=reasons, maximum_truth_gap_s=sample_gap,
                     armed_during_run_uavs=sorted(armed_uavs),
+                    mission_completion_messages=completion_messages,
                     formal_competition_pass=False, fixture_only=True)
     finally:
         for subscriber in subscriptions:

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "prototype_motion_metrics_passed": true,
+  "search_completion_verified": false,
+  "formal_competition_pass": false,
+  "reason": "Manager entered its completion branch without official actor feedback when some geometry candidates were rejected; original flight observer did not subscribe to the finish topic.",
+  "evidence_kind": "manager log and executed source branch; completion topic was not directly recorded",
+  "repair_validation": "run07 adds finish-topic recording and observes no MISSION_FINISHED in the same empty-world search fixture"
+}
