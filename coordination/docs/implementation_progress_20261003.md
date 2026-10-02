@@ -35,3 +35,23 @@ bash -n run_match.sh
 SearchAssignment 的运行标识/授权代次、目标唯一锁、停止确认、失败接替和几何通道占用尚未统一。覆盖标记和转追踪任务仍能绕过搜索格 owner 生命周期，不能把局部租约保留称为完整安全预约。新雷达制动参数须用本仓库实测标定；本版输出零速不证明已物理停止。
 
 下阶段先做任务/目标授权接口及生命周期边界测试，再薄接入 manager/agent；随后用隔离且可移植的启动入口跑本仓库代码。旧根目录一键脚本仍有硬编码路径和宽泛进程清理，当前不得直接在共享 WSL 环境执行。正式比赛、碰撞和完整六机搜索均未判 PASS。
+
+## 后续实现：Swarm 任务授权 v2
+
+已将纯 Python TaskAuthority/TaskGate 接入上述实际 manager/agent：新 JSON 话题带运行 ID、逐机序号和授权代次；旧 SearchAssignment 话题仅诊断，不能直接驱动 agent。同一目标只获一份执行授权；已持锁的目标不会再派盘旋备份机，也不会由搜索 agent 私自启动盘旋。
+
+换任务必须STOP，并由核心独立累计新鲜速度样本连续1s停稳，再接收STOPPED；停止后旧锁保留，直到原持有者新鲜位置证明离开旧任务点。TTL、单条声称停稳、失联与其他飞机检测均不能替代这些证据。该机制已接入ROS，几何通道和三维路径证明仍未完成。
+
+规划请求增加代次/请求序号保护，任务切换或旧规划迟到不能提交旧路径；相同在途请求合并，避免频繁请求使后台规划无法提交。任务完成广播后仍持续发布停止设定点，避免在空中直接退出OFFBOARD发布循环。
+
+构建命令（WSL，源码只读，输出独立）：
+
+```bash
+TEAM_BUILD_DIR=/root/robo_team_build/codex_authority_v2 bash /mnt/d/a/.robocup/robo_team/coordination/scripts/build_isolated_swarm.sh
+source /root/robo_team_build/codex_authority_v2/devel/setup.bash
+python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/authority_ros_smoke.py --output /tmp/robo_team_authority_smoke_new_run
+```
+
+已在当前WSL完成 catkin 两包构建。ROS自测实例化本仓库真实manager和六个agent，并走真实授权/ACK话题；验证六个搜索授权、停稳换目标、拒绝目标双持有者、拒绝旧运行指令。它使用合成位姿/速度数据，不启动Gazebo或PX4，不能作六机物理飞行证明。输出目录必须新建，不覆盖旧证据；脚本只终止自己启动的独立roscore进程组。实际控制源码SHA写入result.json。
+
+新增任务授权16条边界测试通过。最后全套200条中197通过，3条错误仍为原基线 replan_route 缺失。ROS复验run03通过，证据位于工作区根目录 tmp/evidence_archive/robo_team_authority_ros_20261003_run03/result.json 和 authority_events.jsonl，带本轮控制源码SHA；没有残留本轮roscore或仿真进程。后续继续本仓库实际飞行、命名空间/端口审计和几何预约接入。

@@ -27,6 +27,7 @@ set -uo pipefail
 
 # ============================ 路径与配置 ====================================
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export ROBOCUP_RUN_ID="${ROBOCUP_RUN_ID:-$(python3 -c 'import uuid; print(uuid.uuid4())')}"
 ROS_SETUP="${ROBOCUP_ROS_SETUP:-/opt/ros/noetic/setup.bash}"
 WS_SETUP="${ROBOCUP_WS_SETUP:-$HOME/catkin_ws/devel/setup.bash}"
 PX4_ROOT="${PX4_ROOT:-$HOME/PX4_Firmware}"

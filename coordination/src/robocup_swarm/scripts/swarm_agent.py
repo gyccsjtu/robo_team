@@ -23,6 +23,7 @@ import threading
 import rospy
 import math
 import traceback
+import json
 from gazebo_msgs.msg import ModelStates
 from geometry_msgs.msg import PoseStamped, TwistStamped
 from sensor_msgs.msg import LaserScan
@@ -35,6 +36,7 @@ from robocup_navigation.astar import load_metadata, GridMap, plan
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from csv_logger import logger
 from radar_velocity_guard import guard_velocity
+from task_authority import TaskGate
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -323,6 +325,12 @@ class SwarmAgent(object):
         self._scan = None            # 最近一帧 2D LaserScan
         self._scan_t = 0.0           # 最近雷达帧的 ROS 时间
         self._velocity_sample = None  # (vx, vy, sample_s), ENU measured motion
+        self._velocity_z = 0.
+        self._pose_sample_s = 0.
+        self._authority_lock = threading.RLock()
+        self._gate = TaskGate(os.environ.get('ROBOCUP_RUN_ID', ''), uav_id)
+        self._ack_seq = 0
+        self._stopped_since = None
         self.state = State()
         self.assignment = None      # SearchAssignment 当前任务
 
@@ -340,6 +348,8 @@ class SwarmAgent(object):
         # 改为后台守护线程：主循环只投递请求、立即继续发速度；规划好后原子提交路径。
         self._plan_lock = threading.Lock()
         self._plan_pending = None    # 最新待规划目标 (x, y)（旧请求被新请求覆盖合并）
+        self._plan_ticket = 0
+        self._plan_inflight = None
         self._plan_event = threading.Event()
         self._plan_fail_t = 0.0      # 上次规划失败时刻（失败后 2s 冷却，避免刷屏）
         self._takeoff_done = False   # 是否已完成起飞垂直爬升
@@ -414,7 +424,8 @@ class SwarmAgent(object):
                          TwistStamped, self._velocity_cb, queue_size=1)
         rospy.Subscriber("/%s/scan" % uav_id, LaserScan, self._scan_cb,
                  queue_size=1)
-        rospy.Subscriber("/swarm/assignment", SearchAssignment, self._assign_cb)
+        self._authority_ack_pub = rospy.Publisher('/swarm/authority_ack', String, queue_size=10)
+        rospy.Subscriber('/swarm/authorized_assignment', String, self._authorized_cb, queue_size=100)
         rospy.Subscriber("/swarm/target_states", TargetState, self._target_cb)
         rospy.Subscriber("/swarm/finish", String, self._finish_cb)
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._friend_status_cb)
@@ -524,6 +535,7 @@ class SwarmAgent(object):
         self.state = msg
 
     def _local_cb(self, msg):
+        self._pose_sample_s = msg.header.stamp.to_sec()
         self.local_z = msg.pose.position.z
         new_xy = (msg.pose.position.x, msg.pose.position.y)
         now = rospy.Time.now().to_sec()
@@ -559,6 +571,62 @@ class SwarmAgent(object):
     def _velocity_cb(self, msg):
         self._velocity_sample = (msg.twist.linear.x, msg.twist.linear.y,
                                  msg.header.stamp.to_sec())
+        self._velocity_z = msg.twist.linear.z
+
+    def _authorized_cb(self, msg):
+        try:
+            message = json.loads(msg.data)
+            with self._authority_lock:
+                previous_generation = self._gate.generation
+                if not self._gate.receive(message, rospy.Time.now().to_sec()):
+                    return
+                if self._gate.stopping:
+                    self._last_flight_v = (0., 0.)
+                    self.path, self.path_target = [], None
+                    return
+                if previous_generation != self._gate.generation:
+                    self._stopped_since = None
+                    self.path, self.path_target = [], None
+                    self._last_flight_v = (0., 0.)
+                    self._orbit_target = self._orbit_center = self._target_to_orbit = None
+                    self._look_at = None
+                    with self._plan_lock:
+                        self._plan_ticket += 1
+                        self._plan_pending = None
+                assignment = SearchAssignment()
+                assignment.uav_id = self.uav_id
+                for name, value in self._gate.task.items():
+                    setattr(assignment, name, value)
+                self._assign_cb(assignment)
+        except (ValueError, TypeError, KeyError) as exc:
+            rospy.logwarn_throttle(2., '[%s] AUTHORITY_MESSAGE_REJECTED %s', self.uav_id, exc)
+
+    def _publish_authority_state(self):
+        now = rospy.Time.now().to_sec()
+        velocity = self._velocity_sample
+        xyz = self.world_xy
+        if (xyz is None or self.local_z is None or velocity is None
+                or not 0 <= now - self._pose_sample_s <= .5
+                or not 0 <= now - velocity[2] <= .5):
+            self._stopped_since = None
+            return
+        speed = math.sqrt(velocity[0] ** 2 + velocity[1] ** 2 + self._velocity_z ** 2)
+        if not all(math.isfinite(v) for v in (*xyz, self.local_z, speed)):
+            self._stopped_since = None
+            return
+        if self._gate.stopping and speed <= .15:
+            if self._stopped_since is None or now < self._stopped_since:
+                self._stopped_since = now
+        else:
+            self._stopped_since = None
+        duration = now - self._stopped_since if self._stopped_since is not None else 0.
+        self._ack_seq += 1
+        message = dict(schema_version=2, run_id=self._gate.run_id, uav_id=self.uav_id,
+                       seq=self._ack_seq, generation=self._gate.generation,
+                       sample_s=min(self._pose_sample_s, velocity[2]),
+                       xyz=[xyz[0], xyz[1], self.local_z], speed_mps=speed,
+                       stopped_s=duration, status='STOPPED' if duration >= 1. else 'STATE')
+        self._authority_ack_pub.publish(String(data=json.dumps(message, allow_nan=False)))
 
     def _assign_cb(self, msg):
         if msg.uav_id != self.uav_id:
@@ -1108,6 +1176,8 @@ class SwarmAgent(object):
         # acceleration changes, including bounds recovery. Braking must not be
         # undone by the ordinary acceleration limiter on this or the next tick.
         vx, vy = self._radar_guard_velocity(cmd.twist.linear.x, cmd.twist.linear.y)
+        if not self._gate.can_move(rospy.Time.now().to_sec()):
+            vx, vy = 0., 0.
         cmd.twist.linear.x, cmd.twist.linear.y = vx, vy
         self._last_cmd_v = (vx, vy)
         _now = rospy.Time.now().to_sec()
@@ -1258,7 +1328,12 @@ class SwarmAgent(object):
     def _request_plan(self, goal_xy):
         """投递一个规划请求并立即返回（不阻塞控制循环）。多次请求只保留最新目标。"""
         with self._plan_lock:
-            self._plan_pending = (float(goal_xy[0]), float(goal_xy[1]))
+            candidate = (float(goal_xy[0]), float(goal_xy[1]))
+            if any(request is not None and request[:2] == (candidate, self._gate.generation)
+                   for request in (self._plan_pending, self._plan_inflight)):
+                return
+            self._plan_ticket += 1
+            self._plan_pending = (candidate, self._gate.generation, self._plan_ticket)
         self._plan_event.set()
 
     def _planner_loop(self):
@@ -1266,33 +1341,37 @@ class SwarmAgent(object):
         while not rospy.is_shutdown():
             self._plan_event.wait()
             with self._plan_lock:
-                goal = self._plan_pending
-                if goal is None:
+                request = self._plan_pending
+                if request is None:
                     self._plan_event.clear()
                     continue
                 self._plan_pending = None
                 self._plan_event.clear()
+                self._plan_inflight = request
+            goal, generation, ticket = request
             try:
                 path, target, ok = self._compute_plan(goal)
             except Exception as exc:
                 rospy.logerr("[%s] 规划线程异常: %s\n%s",
                              self.uav_id, exc, traceback.format_exc())
                 ok = False
-            if ok:
-                # list/引用赋值在 GIL 下原子，主循环只会看到「旧路径」或「新路径」
-                self.path = path
-                self.path_target = target
-            else:
-                # 保留上一条已经通过 A* 的路径。移动目标或临时 GOAL_OCCUPIED
-                # 不应让速度每次规划失败都归零，否则会产生「短脉冲 + 长悬停」；
-                # 初始尚无安全路径时才悬停等待下一次规划。
-                _wxy = self.world_xy
-                _out = (_wxy is not None and
-                        self.grid.world_to_cell(_wxy) is None)
-                if not self.path or _out:
-                    self.path = []
-                    self._last_flight_v = (0.0, 0.0)
-                self._plan_fail_t = rospy.Time.now().to_sec()
+            with self._plan_lock:
+                if self._plan_inflight == request:
+                    self._plan_inflight = None
+            with self._authority_lock:
+                if (generation != self._gate.generation or ticket != self._plan_ticket
+                        or not self._gate.can_move(rospy.Time.now().to_sec())):
+                    continue
+                if ok:
+                    self.path = path
+                    self.path_target = target
+                else:
+                    _wxy = self.world_xy
+                    _out = (_wxy is not None and self.grid.world_to_cell(_wxy) is None)
+                    if not self.path or _out:
+                        self.path = []
+                        self._last_flight_v = (0.0, 0.0)
+                    self._plan_fail_t = rospy.Time.now().to_sec()
 
     def _stream_last_v(self):
         """规划未就绪时的兜底：继续发上一次水平速度（无则悬停）。
@@ -1351,6 +1430,10 @@ class SwarmAgent(object):
         return self.path[-1]
 
     def _control(self):
+        if not self._gate.can_move(rospy.Time.now().to_sec()):
+            self._look_at = None
+            self._send_vel(0., 0.)
+            return
         """有任务 → A* 绕障飞向格中心；无任务 → 原地悬停。"""
         # === 降落模式 ===
         if self._landing:
@@ -1684,11 +1767,18 @@ class SwarmAgent(object):
 
     def _check_start_orbit(self):
         """检查是否需要开始盘旋（发现可确认的目标）"""
+        # A search assignment is not a target lock. Discovery is reported to
+        # manager; only a current target grant permits autonomous confirmation.
+        if (not self._gate.can_move(rospy.Time.now().to_sec()) or not self._gate.task
+                or self._gate.task['task_type'] != 1):
+            return
         wx = self.world_xy
         if wx is None:
             return
 
         for tid, (tx, ty, _, _) in self.targets.items():
+            if tid != self._gate.task['target_id']:
+                continue
             dist = math.hypot(tx - wx[0], ty - wx[1])
             # 在检测范围内且 LOS 可见
             if dist >= DETECT_RADIUS or not self.los.visible(wx[0], wx[1], tx, ty):
@@ -2059,18 +2149,23 @@ class SwarmAgent(object):
 
         rospy.loginfo("[%s] 开始协同搜索（高度层 %.1f m），等待管理器分配任务", self.uav_id, self.altitude_layer)
         while not rospy.is_shutdown():
-            # 收到任务完成广播后退出搜索循环（但如果有降落任务，先执行降落）
-            if self._mission_finished and not self._landing:
-                rospy.loginfo("[%s] 任务已完成，退出搜索循环", self.uav_id)
-                break
             try:
-                self._control()
+                with self._authority_lock:
+                    if self._mission_finished and not self._landing:
+                        self._gate.stopping = True
+                        self._send_vel(0., 0.)
+                    else:
+                        self._control()
+                    self._publish_authority_state()
                 self._detect_targets()      # 规则3：几何判定，命中即上报管理器
                 if (rospy.Time.now() - self._last_status_t).to_sec() >= 1.0 / PUB_RATE:
                     self._publish_status()
                     self._last_status_t = rospy.Time.now()
             except Exception as e:
                 rospy.logerr("[%s] 主循环异常: %s\n%s", self.uav_id, e, traceback.format_exc())
+                with self._authority_lock:
+                    self._gate.stopping = True
+                    self._send_vel(0., 0.)
             self.ctrl_rate.sleep()
 
 

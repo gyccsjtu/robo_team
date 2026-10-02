@@ -22,6 +22,8 @@ import time
 from swarm_task import LineOfSight
 import re
 import traceback
+import threading
+from task_authority import TaskAuthority
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from std_msgs.msg import String, Float32
@@ -205,6 +207,10 @@ def _search_bounds():
 class SwarmManager(object):
     def __init__(self, uav_ids):
         self.uav_ids = uav_ids
+        self._authority_lock = threading.RLock()
+        self._authority = TaskAuthority(os.environ.get('ROBOCUP_RUN_ID', ''), uav_ids)
+        self._authority_event_cursor = 0
+        self._authority_log = None
         # 每机最新状态
         self.status = {}          # uav_id -> UavStatus
         # 每机最近一次上报时间（用于租约续租判定）
@@ -275,6 +281,8 @@ class SwarmManager(object):
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._status_cb)
         rospy.Subscriber("/swarm/detection", TargetDetection, self._detection_cb)
         self.assign_pub = rospy.Publisher("/swarm/assignment", SearchAssignment, queue_size=10)
+        self._authority_pub = rospy.Publisher('/swarm/authorized_assignment', String, queue_size=100)
+        rospy.Subscriber('/swarm/authority_ack', String, self._authority_ack_cb, queue_size=100)
         # 消除指令发给 target_sim_node（"eliminate:<target_id>"）
         self.cmd_pub = rospy.Publisher("/swarm/target_command", String, queue_size=10)
         # 任务完成广播
@@ -373,6 +381,40 @@ class SwarmManager(object):
         return blocked
 
     # ---------------- 回调 ----------------
+    def _emit_authority(self, outputs):
+        for message in outputs:
+            self._authority_pub.publish(String(data=json.dumps(message, allow_nan=False)))
+        if self._authority_log is None:
+            directory = os.path.expanduser(os.environ.get('ROBOCUP_LOG_DIR', '~/robocup_logs'))
+            os.makedirs(directory, exist_ok=True)
+            self._authority_log = open(os.path.join(directory, 'authority_events.jsonl'), 'a', encoding='utf-8')
+        for event in self._authority.events[self._authority_event_cursor:]:
+            self._authority_log.write(json.dumps(event, allow_nan=False) + '\n')
+        self._authority_log.flush()
+        self._authority_event_cursor = len(self._authority.events)
+
+    def _authorized_publish(self, msg):
+        task = {name: getattr(msg, name) for name in
+                ('cell_ix', 'cell_iy', 'target_x', 'target_y', 'task_type', 'target_id')}
+        with self._authority_lock:
+            self._emit_authority(self._authority.offer(msg.uav_id, task, rospy.Time.now().to_sec()))
+        # Legacy topic is diagnostics only. No current agent executes it.
+        self.assign_pub.publish(msg)
+
+    def _target_authority_held(self, tid):
+        with self._authority_lock:
+            return ('target', tid) in self._authority.locks
+
+    def _authority_ack_cb(self, msg):
+        try:
+            message = json.loads(msg.data)
+            if not isinstance(message, dict):
+                return
+            with self._authority_lock:
+                self._emit_authority(self._authority.ack(message, rospy.Time.now().to_sec()))
+        except (ValueError, TypeError) as exc:
+            rospy.logwarn_throttle(2., '[manager] AUTHORITY_ACK_REJECTED %s', exc)
+
     def _status_cb(self, msg):
         self.status[msg.uav_id] = msg
         self.last_report[msg.uav_id] = rospy.Time.now()
@@ -578,6 +620,8 @@ class SwarmManager(object):
             if tid in self._tracking:
                 self._update_tracker_position(tid, tx, ty)
                 continue
+            if self._target_authority_held(tid):
+                continue
             busy = set(self._tracking.values()) | set(self._backup.values())
             best, best_d = None, None
             for uid, st in self.status.items():
@@ -615,7 +659,7 @@ class SwarmManager(object):
             if hasattr(msg, "target_id"):
                 msg.target_id = tid
             msg.task_type = 1  # 目标确认/追踪
-            self.assign_pub.publish(msg)
+            self._authorized_publish(msg)
             rospy.loginfo("[manager] 派追踪：%s → 目标 %s @ (%.1f, %.1f), 距离 %.1fm",
                           best, tid, tx_c, ty_c, best_d)
 
@@ -669,6 +713,10 @@ class SwarmManager(object):
         if target_id in self._tracking:
             existing_uav = self._tracking[target_id]
             rospy.loginfo("[manager] 目标 %s 已被 %s 追踪，跳过派遣", target_id, existing_uav)
+            return
+        if self._target_authority_held(target_id):
+            rospy.logwarn_throttle(5., '[manager] TARGET_AUTHORITY_HELD %s; waiting for verified exit',
+                                   target_id)
             return
 
         idle = self._idle_uavs()
@@ -757,7 +805,7 @@ class SwarmManager(object):
         if hasattr(msg, "target_id"):
             msg.target_id = target_id
         msg.task_type = 1  # 目标确认/追踪
-        self.assign_pub.publish(msg)
+        self._authorized_publish(msg)
         # 记录追踪任务
         self._tracking[target_id] = best_uav
         # === 算法层日志：派遣时的目标/无人机/距离/阈值/捕获判定 ===
@@ -790,7 +838,7 @@ class SwarmManager(object):
         if hasattr(msg, "target_id"):
             msg.target_id = target_id
         msg.task_type = 1  # 目标确认/追踪
-        self.assign_pub.publish(msg)
+        self._authorized_publish(msg)
         # 备份机同步更新目标位置，否则它会飞向旧坐标
         bid = self._backup.get(target_id)
         if bid is not None:
@@ -804,7 +852,7 @@ class SwarmManager(object):
             if hasattr(msg2, "target_id"):
                 msg2.target_id = target_id
             msg2.task_type = 1
-            self.assign_pub.publish(msg2)
+            self._authorized_publish(msg2)
 
     def _dispatch_backup(self):
         """确认期冗余派机：用 CooperativeTracker.needs_backup() 定向增派。
@@ -828,6 +876,10 @@ class SwarmManager(object):
         busy = set(self._tracking.values()) | set(self._backup.values())
 
         for tid, reason in needs:
+            # A backup observer is not a second execution owner. No separately
+            # proven waiting/observer position is available in this interface.
+            if self._target_authority_held(tid):
+                continue
             if tid in self._backup:
                 continue
             aid = self._tid_to_actor(tid)
@@ -875,7 +927,7 @@ class SwarmManager(object):
             msg.task_type = 1
             if hasattr(msg, "target_id"):
                 msg.target_id = tid
-            self.assign_pub.publish(msg)
+            self._authorized_publish(msg)
             rospy.loginfo("[manager] 冗余派机：%s 协同确认 %s @ (%.1f,%.1f), "
                           "距离 %.1fm, 原因=%s, observers=%s",
                           best, tid, tx_c, ty_c, best_d, reason,
@@ -1169,7 +1221,7 @@ class SwarmManager(object):
         msg.target_x = _wp[0]
         msg.target_y = _wp[1]
         msg.task_type = 0  # 搜索
-        self.assign_pub.publish(msg)
+        self._authorized_publish(msg)
         rospy.loginfo("[manager] 分配 %s → 格 (%d,%d) 中心 (%.1f,%.1f)",
                       uid, key[0], key[1], cell.cx, cell.cy)
 
@@ -1190,7 +1242,7 @@ class SwarmManager(object):
             msg.target_x = 0.0
             msg.target_y = 0.0
             msg.task_type = 2  # RTL
-            self.assign_pub.publish(msg)
+            self._authorized_publish(msg)
         rospy.loginfo("[manager] RTL 返航: %s", rtl_uavs)
 
     def _publish_land(self, uavs):
@@ -1210,7 +1262,7 @@ class SwarmManager(object):
             msg.target_x = 0.0
             msg.target_y = 0.0
             msg.task_type = 3  # 降落
-            self.assign_pub.publish(msg)
+            self._authorized_publish(msg)
         rospy.loginfo("[manager] 降落: %s", uavs)
 
     # ---------------- 主循环 ----------------
@@ -1221,6 +1273,8 @@ class SwarmManager(object):
             now = rospy.Time.now()
 
             try:
+                with self._authority_lock:
+                    self._emit_authority(self._authority.tick(rospy.Time.now().to_sec()))
                 # 任务已完成，跳过分配
                 if self._mission_finished:
                     rate.sleep()
