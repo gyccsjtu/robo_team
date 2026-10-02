@@ -35,6 +35,7 @@ def run(out, wiring, spawn, env, seconds):
     flight_env = dict(env, ROBOCUP_RUN_ID=str(uuid.uuid4()), ROBOCUP_LOG_DIR=str(out / 'algorithm'),
         ROBOCUP_METADATA=str(path), ROBOCUP_WS=str(snapshot / 'coordination'), SEED_TRUTH='0',
         VIS_ENABLE='0', RADAR_GUARD='1', SWARM_MAX_SPEED='1.0', ALT_BASE='4.5',
+        SWARM_UAV_IDS=','.join(r['uav_id'] for r in wiring['uavs']),
         ALT_NLAYER='1', ALT_TARGET_CAP='4.5', SWARM_ARRIVE_TOL='0.15')
     flight_env.pop('SWARM_CALIB', None)
     flight_env['PYTHONPATH'] = str(snapshot / 'coordination/src/robocup_navigation/src') + ':' + env.get('PYTHONPATH', '')

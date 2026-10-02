@@ -40,6 +40,7 @@ from task_authority import TaskGate
 from route_endpoint import connect_exact_goal
 from publisher_authority import PublisherAuthority
 from fcu_configuration import configure as configure_fcu_parameters
+from fleet_motion_guard import MotionCache, protect as protect_fleet_motion
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -406,6 +407,11 @@ class SwarmAgent(object):
 
         # ---- 友机避碰 ----
         self._friend_positions = {}  # 其他无人机位置 {uav_id: (x, y, z)}
+        fleet = os.environ.get('SWARM_UAV_IDS', 'uav_1,uav_2,uav_3,uav_4,uav_5,uav_6').split(',')
+        self._motion_cache = MotionCache(os.environ.get('ROBOCUP_RUN_ID', ''), fleet)
+        if self.uav_id not in fleet:
+            raise ValueError('Agent missing from SWARM_UAV_IDS')
+        self._motion_seq = 0
 
         # ---- MAVROS 服务 ----
         self.arm_srv = rospy.ServiceProxy(self.mavros_ns + '/cmd/arming', CommandBool)
@@ -436,6 +442,8 @@ class SwarmAgent(object):
 
         # ---- 发布 ----
         self.status_pub = rospy.Publisher("/swarm/uav_status", UavStatus, queue_size=5)
+        self._motion_pub = rospy.Publisher('/swarm/motion_state', String, queue_size=10)
+        rospy.Subscriber('/swarm/motion_state', String, self._motion_cb, queue_size=100)
         self.detect_pub = rospy.Publisher("/swarm/detection", TargetDetection, queue_size=10)
         self.vel_pub = rospy.Publisher(self.mavros_ns + '/setpoint_velocity/cmd_vel',
                                        TwistStamped, queue_size=5)
@@ -576,6 +584,35 @@ class SwarmAgent(object):
         self._velocity_sample = (msg.twist.linear.x, msg.twist.linear.y,
                                  msg.header.stamp.to_sec())
         self._velocity_z = msg.twist.linear.z
+        self._publish_motion()
+
+    def _motion_cb(self, message):
+        try:
+            with self._authority_lock:
+                self._motion_cache.receive(json.loads(message.data), rospy.Time.now().to_sec())
+        except (ValueError, TypeError):
+            return
+
+    def _publish_motion(self):
+        if (getattr(self, '_motion_pub', None) is None or self.world_xy is None
+                or self._velocity_sample is None or self._local_prev_t is None):
+            return
+        with self._authority_lock:
+            self._motion_seq += 1
+            vx, vy, stamp = self._velocity_sample
+            message = dict(schema_version=1, run_id=self._motion_cache.run_id,
+                uav_id=self.uav_id, seq=self._motion_seq,
+                sample_s=min(stamp, self._local_prev_t), frame='world_enu_xy',
+                position_xy=list(self.world_xy), velocity_xy=[vx, vy])
+            self._motion_cache.receive(message, rospy.Time.now().to_sec())
+            self._motion_pub.publish(String(data=json.dumps(message)))
+
+    def _friend_guard_velocity(self, vx, vy):
+        result = protect_fleet_motion((vx, vy), self.uav_id, self._motion_cache,
+                                      rospy.Time.now().to_sec())
+        if result['reason'] != 'CLEAR':
+            rospy.logwarn_throttle(2, '[%s] fleet_guard=%s', self.uav_id, result['reason'])
+        return result['velocity_xy']
 
     def _authorized_cb(self, msg):
         try:
@@ -1193,6 +1230,7 @@ class SwarmAgent(object):
         vx, vy = self._radar_guard_velocity(cmd.twist.linear.x, cmd.twist.linear.y)
         if not self._gate.can_move(rospy.Time.now().to_sec()):
             vx, vy = 0., 0.
+        vx, vy = self._friend_guard_velocity(vx, vy)
         cmd.twist.linear.x, cmd.twist.linear.y = vx, vy
         self._last_cmd_v = (vx, vy)
         _now = rospy.Time.now().to_sec()

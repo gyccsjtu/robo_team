@@ -1055,6 +1055,14 @@ class SwarmManager(object):
 
     def _allocate(self):
         """只给空闲机拍卖分配未搜索格 → 授租约 → 发布 assignment。"""
+        # Do not auction against a partially initialized fleet. Existing task
+        # locks remain held; final motion protection handles a missing peer.
+        if any(uid not in self.status or not self.status[uid].connected
+               or uid not in self.last_report
+               or not 0 <= (rospy.Time.now() - self.last_report[uid]).to_sec() < 1.
+               for uid in self.uav_ids):
+            rospy.logwarn_throttle(5, '[manager] Waiting for the complete fresh fleet before auction')
+            return
         now = rospy.Time.now()
 
         # Expiry is not a stopped acknowledgement: keep the task occupied.

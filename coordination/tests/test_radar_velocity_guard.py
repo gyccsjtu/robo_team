@@ -126,6 +126,7 @@ class AdapterTests(unittest.TestCase):
             _last_cmd_v=(5., 0.), local_z=4., altitude_layer=4.,
             _compute_desired_altitude=lambda: 0., _last_csv_t=10.1, _look_at=None,
             _gate=types.SimpleNamespace(can_move=lambda now: True),
+            _friend_guard_velocity=lambda x, y: (x, y),
             vel_pub=types.SimpleNamespace(publish=published.append))
         obj._radar_guard_velocity = types.MethodType(self.methods['_radar_guard_velocity'], obj)
         self.methods['rospy'].logerr_throttle = lambda *a: None

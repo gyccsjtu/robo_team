@@ -51,6 +51,7 @@ env.update(ROBOCUP_RUN_ID=str(uuid.uuid4()), ROBOCUP_LOG_DIR=str(out/'algorithm'
            ROBOCUP_WS=str(source/'coordination'),
            ROBOCUP_METADATA=str(source/'coordination/src/robocup_training_worlds/worlds/generated/robocup_base.json'),
            VIS_ENABLE='0', SEED_TRUTH='0', RADAR_GUARD='1',
+           SWARM_UAV_IDS='uav_1',
            SWARM_MAX_SPEED='1.0', SWARM_ARRIVE_TOL='0.15',
            ALT_BASE='4.5', ALT_NLAYER='1', ALT_TARGET_CAP='4.5')
 env.pop('SWARM_CALIB', None)

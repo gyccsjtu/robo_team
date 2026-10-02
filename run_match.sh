@@ -656,6 +656,7 @@ do_start(){
 
         # 集中式管理器
         UAV_CSV="$(IFS=,; echo "${UAVS[*]}")"
+        export SWARM_UAV_IDS="$UAV_CSV"
         rosparam set /swarm_manager/uav_ids "$UAV_CSV"
         start_group swarm_manager "$LOGDIR/06_swarm_manager.log" bash -c \
             "cd '$SWARM_SCRIPTS' && python3 -u swarm_manager.py"

@@ -2,6 +2,8 @@
 
 此入口已在当前 WSL 验证六个真实 PX4、六路 MAVROS 定位及六路雷达连接。它不启动 manager/agent，不解锁或起飞；空场景用于核对接线，不是六机搜索、在线建图或比赛验收。
 
+默认仍为不解锁的接入检查。新增 `--flight-seconds 60` 可运行本仓库实际六机manager/agent，须先source isolated catkin的devel；飞行模式结果与边界见 `six_swarm_search_progress.md`，不得把两种模式混为同一验收。
+
 依赖复用单机 quickstart 的已验证环境：Ubuntu-20.04、ROS Noetic、Gazebo11、PX4 编译产物、`stereo_20261002T140417Z` runtime、模型缓存与 X0。模型原件默认 `/root/vendor_eval/d43bac6/models/typhoon_h480_lidar/typhoon_h480_lidar.sdf`。不会修改这些来源文件。
 
 从 Windows 运行（输出目录必须不存在）：
