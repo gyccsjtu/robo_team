@@ -34,6 +34,7 @@ from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDe
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from csv_logger import logger
+from radar_velocity_guard import guard_velocity
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -100,6 +101,8 @@ RADAR_GUARD     = int(os.environ.get('RADAR_GUARD', '1'))
 RADAR_FRESH_S   = float(os.environ.get('RADAR_FRESH_S', '0.5'))
 RADAR_WARN_R    = float(os.environ.get('RADAR_WARN_R', '4.0'))
 RADAR_STOP_R    = float(os.environ.get('RADAR_STOP_R', '1.2'))
+RADAR_LATENCY_S = float(os.environ.get('RADAR_LATENCY_S', '0.5'))
+RADAR_BRAKE_MPS2 = float(os.environ.get('RADAR_BRAKE_MPS2', '0.5'))
 MAP_GUARD_MARGIN = float(os.environ.get('MAP_GUARD_MARGIN', '1.0'))
 MAP_GUARD_SOFT   = float(os.environ.get('MAP_GUARD_SOFT', '2.0'))   # 硬边界外的软减速带宽 m
 # 越界主动回收：旧逻辑越界后 A* 起点在外拒绝规划、栅格守卫把界外当墙、
@@ -319,6 +322,7 @@ class SwarmAgent(object):
         self.yaw = 0.0              # 机体 yaw（ENU 弧度，供雷达 body->world）
         self._scan = None            # 最近一帧 2D LaserScan
         self._scan_t = 0.0           # 最近雷达帧的 ROS 时间
+        self._velocity_sample = None  # (vx, vy, sample_s), ENU measured motion
         self.state = State()
         self.assignment = None      # SearchAssignment 当前任务
 
@@ -406,6 +410,8 @@ class SwarmAgent(object):
         rospy.Subscriber("/swarm/orbit_claim", String, self._claim_cb, queue_size=20)
         self._claim_pub = rospy.Publisher("/swarm/orbit_claim", String, queue_size=10)
         rospy.Subscriber("/%s/mavros/local_position/pose" % uav_id, PoseStamped, self._local_cb)
+        rospy.Subscriber("/%s/mavros/local_position/velocity_local" % uav_id,
+                         TwistStamped, self._velocity_cb, queue_size=1)
         rospy.Subscriber("/%s/scan" % uav_id, LaserScan, self._scan_cb,
                  queue_size=1)
         rospy.Subscriber("/swarm/assignment", SearchAssignment, self._assign_cb)
@@ -548,7 +554,11 @@ class SwarmAgent(object):
 
     def _scan_cb(self, msg):
         self._scan = msg
-        self._scan_t = rospy.Time.now().to_sec()
+        self._scan_t = msg.header.stamp.to_sec()
+
+    def _velocity_cb(self, msg):
+        self._velocity_sample = (msg.twist.linear.x, msg.twist.linear.y,
+                                 msg.header.stamp.to_sec())
 
     def _assign_cb(self, msg):
         if msg.uav_id != self.uav_id:
@@ -842,57 +852,27 @@ class SwarmAgent(object):
         return 0.0
 
     def _radar_guard_velocity(self, vx, vy):
-        """用 2D 雷达给当前 ENU 速度加一层近障安全约束。
-
-        雷达角度在机体系内，0 弧度为机头方向。这里只改水平速度，
-        不接管 OFFBOARD，也不另发 MAVROS 设定点。
-        """
-        if not RADAR_GUARD or self._scan is None:
+        """Final planar constraint; cannot add unverified lateral motion."""
+        if not RADAR_GUARD:
             return vx, vy
         now = rospy.Time.now().to_sec()
-        if now - self._scan_t > RADAR_FRESH_S:
-            return vx, vy
-        speed = math.hypot(vx, vy)
-        if speed < 0.05:
-            return vx, vy
-
         scan = self._scan
-        front, left, right = scan.range_max, scan.range_max, scan.range_max
-        for i, raw in enumerate(scan.ranges):
-            r = float(raw)
-            if not math.isfinite(r) or r < scan.range_min or r > scan.range_max:
-                continue
-            angle = scan.angle_min + i * scan.angle_increment
-            deg = math.degrees(angle)
-            if -30.0 <= deg <= 30.0:
-                front = min(front, r)
-            elif 30.0 < deg <= 100.0:
-                left = min(left, r)
-            elif -100.0 <= deg < -30.0:
-                right = min(right, r)
-
-        if front >= RADAR_WARN_R:
-            return vx, vy
-
-        # 优先选择净空更大的侧面；正前方两侧都未知时固定向左，避免左右抖动。
-        side = 1.0 if left >= right else -1.0
-        if abs(left - right) < 0.25:
-            side = 1.0
-        forward = max(0.0, min(speed * 0.35,
-                                speed * (front - RADAR_STOP_R) /
-                                max(RADAR_WARN_R - RADAR_STOP_R, 1e-6)))
-        lateral = min(speed, 1.2 * (RADAR_WARN_R - front) /
-                       max(RADAR_WARN_R - RADAR_STOP_R, 1e-6))
-        body_x, body_y = forward, side * lateral
-        cy, sy = math.cos(self.yaw), math.sin(self.yaw)
-        guarded = (cy * body_x - sy * body_y,
-                   sy * body_x + cy * body_y)
-        rospy.logwarn_throttle(2.0,
-                               '[%s] 2D雷达近障 front=%.2fm left=%.2f right=%.2f '
-                               '-> vin=(%.2f,%.2f) vout=(%.2f,%.2f)',
-                               self.uav_id, front, left, right,
-                               vx, vy, guarded[0], guarded[1])
-        return guarded
+        velocity = self._velocity_sample
+        pose_age = now - self._local_prev_t
+        if (scan is None or velocity is None or not 0 <= pose_age <= RADAR_FRESH_S
+                or not 0 <= now - velocity[2] <= RADAR_FRESH_S):
+            rospy.logwarn_throttle(2., '[%s] RADAR_INPUT_MISSING_OR_STALE -> horizontal stop',
+                                   self.uav_id)
+            return 0., 0.
+        result = guard_velocity(
+            (vx, vy), velocity[:2], self.yaw, scan.ranges,
+            scan.angle_min, scan.angle_increment, scan.range_min, scan.range_max,
+            scan.header.stamp.to_sec(), now, max_age=RADAR_FRESH_S,
+            radius=RADAR_STOP_R, latency=RADAR_LATENCY_S, brake_accel=RADAR_BRAKE_MPS2)
+        if result['reason'] not in ('CLEAR', 'REQUESTED_STOP'):
+            rospy.logwarn_throttle(2., '[%s] radar_guard=%s clearance=%s',
+                                   self.uav_id, result['reason'], result['clearance_m'])
+        return result['velocity_xy']
 
     def _grid_blocked(self, wx, wy):
         """世界点在栅格上是否不可通行（障碍或越界；越界也视为墙，防冲出地图）。"""
@@ -1047,8 +1027,6 @@ class SwarmAgent(object):
                 self.uav_id, vx, vy,
                 self.world_xy[0], self.world_xy[1])
         else:
-            # 雷达先修正水平速度，再经过统一的加速度限幅和高度护栏。
-            vx, vy = self._radar_guard_velocity(vx, vy)
             # 无激光时栅格兜底（雷达在线也再过一道，双保险）
             vx, vy = self._grid_guard_velocity(vx, vy)
             vx, vy = self._map_guard_velocity(vx, vy)
@@ -1126,6 +1104,12 @@ class SwarmAgent(object):
                            cmd.twist.linear.x, cmd.twist.linear.y)
             cmd.twist.linear.x = cmd.twist.linear.x * ALT_EMERG_HSCALE
             cmd.twist.linear.y = cmd.twist.linear.y * ALT_EMERG_HSCALE
+        # Final horizontal authority: check the command after all direction/
+        # acceleration changes, including bounds recovery. Braking must not be
+        # undone by the ordinary acceleration limiter on this or the next tick.
+        vx, vy = self._radar_guard_velocity(cmd.twist.linear.x, cmd.twist.linear.y)
+        cmd.twist.linear.x, cmd.twist.linear.y = vx, vy
+        self._last_cmd_v = (vx, vy)
         _now = rospy.Time.now().to_sec()
         if _now - self._last_csv_t >= 0.2:
             _target = self.assignment

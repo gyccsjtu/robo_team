@@ -567,16 +567,21 @@ class TaskAllocator(object):
 
 
 class LeaseManager(object):
-    """任务租约：掉线/卡死/超时 → 租约到期自动重分配，防重复搜索。"""
+    """Search lease v2: expiry reports uncertainty, retaining ownership."""
+
+    schema_version = 2
 
     def __init__(self, grid, duration=LEASE_DURATION):
         self.grid = grid
         self.duration = duration
+        self._expired_reported = set()
 
     def grant(self, uav_id, cell_key, now, duration=None):
         """授租约，duration 默认自适应（基于飞行距离）。"""
         c = self.grid.cell(cell_key)
         if c is None:
+            return False
+        if c.state == STATE_ASSIGNED and c.owner not in (None, uav_id):
             return False
         # 自适应租约：飞行时间 × 系数 + 缓冲，最短 30s
         if duration is None:
@@ -585,6 +590,7 @@ class LeaseManager(object):
         c.state = STATE_ASSIGNED
         c.owner = uav_id
         c.lease_until = now + duration
+        self._expired_reported.discard(cell_key)
         return duration  # 返回实际租约时长（用于日志）
 
     def renew(self, uav_id, cell_key, now):
@@ -592,17 +598,21 @@ class LeaseManager(object):
         c = self.grid.cell(cell_key)
         if c is not None and c.owner == uav_id and c.state == STATE_ASSIGNED:
             c.lease_until = now + self.duration
+            self._expired_reported.discard(cell_key)
             return True
         return False
 
     def expire(self, now):
-        """收集所有租约到期的格，回退为未分配，返回待重分配的格 key 列表。"""
+        """Report newly expired leases, keeping owner until an explicit handoff.
+
+        The returned keys are alerts, never proof that the previous UAV stopped.
+        """
         expired = []
         for key, c in self.grid.cells.items():
-            if c.state == STATE_ASSIGNED and c.lease_until < now:
-                c.state = STATE_FREE
-                c.owner = None
-                c.lease_until = 0.0
+            if c.state != STATE_ASSIGNED:
+                self._expired_reported.discard(key)
+            elif c.lease_until < now and key not in self._expired_reported:
+                self._expired_reported.add(key)
                 expired.append(key)
         return expired
 
@@ -869,7 +879,8 @@ if __name__ == "__main__":
     # 不续租 → 30s 到期（uav_1 续到 50s 后断联，55s 时到期）
     expired = lm.expire(55.0)
     assert assign["uav_1"] in expired, expired
-    print("任务租约 OK: 续租后不到期，断联 %ds 后到期重分配" % LEASE_DURATION)
+    assert g.cell(assign["uav_1"]).owner == "uav_1", "超时不证明旧机已停，必须保留 owner"
+    print("任务租约 v2 OK: 续租后不到期，断联超时保留占用")
 
     # ---- 3) 覆盖标记：观测半径覆盖 ----
     # 观测点 (0,0) 半径 8m：格中心 (±5,±5) 距原点 7.07m，应覆盖 4 个相邻格

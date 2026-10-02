@@ -95,10 +95,14 @@ RADAR_ALT="5.5"
 RADAR_HANDOFF="${RADAR_HANDOFF:-stop}"
 # 1=由 swarm_agent 消费 /scan 并在唯一速度控制器内做雷达安全层；
 # 0=启动旧版 radar_avoid 独立位置控制器（仅用于单独雷达实验）。
-RADAR_GUARD="${RADAR_GUARD:-1}"
-export RADAR_GUARD
 # 默认跳过雷达：协同层（YOLO 桥 + swarm）为主链路，agent 自主起飞
 SKIP_RADAR="${SKIP_RADAR:-1}"
+if [ "$SKIP_RADAR" = "1" ]; then
+    RADAR_GUARD="${RADAR_GUARD:-0}"
+else
+    RADAR_GUARD="${RADAR_GUARD:-1}"
+fi
+export RADAR_GUARD
 # 场景 launch 默认值（按 SKIP_RADAR 联动）：
 #  SKIP_RADAR=1 → robocup_nolidar.launch（无 gpu_ray）
 #    根因：robocup.world 自带 6 个挂 ActorCollisionsPlugin 的 actor（共约 126 个随骨骼动画

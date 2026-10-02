@@ -1005,13 +1005,11 @@ class SwarmManager(object):
         """只给空闲机拍卖分配未搜索格 → 授租约 → 发布 assignment。"""
         now = rospy.Time.now()
 
-        # 到期租约先回退（掉线/卡死的机占用的格释放回候选池）
+        # Expiry is not a stopped acknowledgement: keep the task occupied.
         expired = self.lease.expire(now.to_sec())
         if expired:
-            rospy.loginfo("[manager] 租约到期重分配 %d 格", len(expired))
-            for uid, key in list(self._active_leases.items()):
-                if key in expired:
-                    self._active_leases.pop(uid, None)
+            rospy.logwarn("[manager] SEARCH_LEASE_EXPIRED_HELD %d 格；未证明旧机停止，保留占用",
+                          len(expired))
 
         # 建筑内格中心标记为 STATE_COVERED（agent 无法到达，视为无需搜索）
         for key in self._blocked_cells:
@@ -1068,7 +1066,10 @@ class SwarmManager(object):
             dist = math.hypot(_wp0[0] - uav_pos[0], _wp0[1] - uav_pos[1])
             duration = max(10.0, dist / 3.0 * 1.5 + 10.0)  # 3.0 m/s 巡航速度（30→10：30s 下限是吞吐瓶颈，
                                                    #   600s 每机最多 20 格，实测只扫到 44/247）
-            self.lease.grant(uid, key, now.to_sec(), duration)
+            if self.lease.grant(uid, key, now.to_sec(), duration) is False:
+                rospy.logerr('[manager] SEARCH_LEASE_CONFLICT %s -> %s; assignment rejected',
+                             uid, key)
+                continue
             self._active_leases[uid] = key
             rospy.loginfo("[manager] 分配 %s → 格 (%d,%d) 飞行距离 %.1fm 租约 %.1fs",
                           uid, key[0], key[1], dist, duration)
@@ -1129,7 +1130,7 @@ class SwarmManager(object):
         for uid in self.uav_ids:
             if uid not in self.last_report:
                 continue
-            # 3 秒内无上报 → 不续租，等 _allocate 里 expire 回收
+            # 3 秒内无上报 -> 不续租；expire 保留占用，不能凭失联回收。
             if (now - self.last_report[uid]).to_sec() >= 3.0:
                 continue
             key = self._active_leases.get(uid)
