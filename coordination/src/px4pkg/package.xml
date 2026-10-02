@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>px4_shim</name>
+  <version>1.0.0</version>
+  <description>
+    Cloud-env leftover shim (hardcoded /root/team_ws paths). Renamed from
+    "px4" to px4_shim so it no longer shadows the real firmware package at
+    /home/gycc/PX4_Firmware in ROS package resolution. It builds nothing.
+  </description>
+  <maintainer email="ros@todo.todo">ros</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+
+  <export>
+  </export>
+</package>

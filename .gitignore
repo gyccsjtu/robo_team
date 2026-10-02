@@ -1,0 +1,20 @@
+# Python 编译缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+
+# catkin/ROS 构建产物
+coordination/build/
+coordination/devel/
+coordination/logs/
+build/
+devel/
+logs/
+
+# 日志与临时文件
+*.log
+core
+*.swp
+.DS_Store

@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<!-- ============================================================================
+  团队版六机场景 launch —— 与官方 PX4_Firmware/launch/robocup.launch 逐字等价，
+  唯一区别：每架机的 SDF 由 typhoon_h480 改为 typhoon_h480_lidar
+  （机顶加装 2D hokuyo 雷达，发布 /typhoon_h480_N/scan，供 radar_avoid 使用）。
+
+  PX4 固件侧 vehicle 仍为 typhoon_h480（PX4_SIM_MODEL 不变），
+  spawn 出的模型名仍是 typhoon_h480_0..5，命名空间不变。
+
+  来源：~/PX4_Firmware/launch/robocup.launch（XTDrone multi-vehicle generator 产物）
+  用法：roslaunch <本文件绝对路径> gui:=false
+============================================================================ -->
+<launch>
+    <!-- MAVROS posix SITL environment launch script -->
+    <!-- launches Gazebo environment and 6x: MAVROS, PX4 SITL, and spawns vehicle -->
+    <!-- vehicle model and world -->
+    <arg name="est" default="ekf2"/>
+    <arg name="world" default="$(find mavlink_sitl_gazebo)/worlds/robocup.world"/>
+    <!-- gazebo configs -->
+    <arg name="gui" default="true"/>
+    <arg name="debug" default="false"/>
+    <arg name="verbose" default="false"/>
+    <arg name="paused" default="false"/>
+    <!-- Gazebo sim -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="world_name" value="$(arg world)"/>
+        <arg name="debug" value="$(arg debug)"/>
+        <arg name="verbose" value="$(arg verbose)"/>
+        <arg name="paused" value="$(arg paused)"/>
+    </include>
+     <!-- typhoon_h480_0 -->
+     <group ns="typhoon_h480_0">
+        <!-- MAVROS and vehicle configs -->
+            <arg name="ID" value="0"/>
+            <arg name="ID_in_group" value="0"/>
+            <arg name="fcu_url" default="udp://:24540@localhost:34580"/>
+        <!-- PX4 SITL and vehicle spawn -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="0"/>
+            <arg name="y" value="-3"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_lidar"/>
+            <arg name="spawn_delay" value="0"/>
+            <arg name="mavlink_udp_port" value="18570"/>
+            <arg name="mavlink_tcp_port" value="4560"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <!-- MAVROS -->
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+     <!-- typhoon_h480_1 -->
+     <group ns="typhoon_h480_1">
+        <!-- MAVROS and vehicle configs -->
+            <arg name="ID" value="1"/>
+            <arg name="ID_in_group" value="1"/>
+            <arg name="fcu_url" default="udp://:24541@localhost:34581"/>
+        <!-- PX4 SITL and vehicle spawn -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="3"/>
+            <arg name="y" value="-3"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_lidar"/>
+            <arg name="spawn_delay" value="6"/>
+            <arg name="mavlink_udp_port" value="18571"/>
+            <arg name="mavlink_tcp_port" value="4561"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <!-- MAVROS -->
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+     <!-- typhoon_h480_2 -->
+     <group ns="typhoon_h480_2">
+        <!-- MAVROS and vehicle configs -->
+            <arg name="ID" value="2"/>
+            <arg name="ID_in_group" value="2"/>
+            <arg name="fcu_url" default="udp://:24542@localhost:34582"/>
+        <!-- PX4 SITL and vehicle spawn -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="0"/>
+            <arg name="y" value="0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_lidar"/>
+            <arg name="spawn_delay" value="12"/>
+            <arg name="mavlink_udp_port" value="18572"/>
+            <arg name="mavlink_tcp_port" value="4562"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <!-- MAVROS -->
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+     <!-- typhoon_h480_3 -->
+     <group ns="typhoon_h480_3">
+        <!-- MAVROS and vehicle configs -->
+            <arg name="ID" value="3"/>
+            <arg name="ID_in_group" value="3"/>
+            <arg name="fcu_url" default="udp://:24543@localhost:34583"/>
+        <!-- PX4 SITL and vehicle spawn -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="3"/>
+            <arg name="y" value="0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_lidar"/>
+            <arg name="spawn_delay" value="18"/>
+            <arg name="mavlink_udp_port" value="18573"/>
+            <arg name="mavlink_tcp_port" value="4563"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <!-- MAVROS -->
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+     <!-- typhoon_h480_4 -->
+     <group ns="typhoon_h480_4">
+        <!-- MAVROS and vehicle configs -->
+            <arg name="ID" value="4"/>
+            <arg name="ID_in_group" value="4"/>
+            <arg name="fcu_url" default="udp://:24544@localhost:34584"/>
+        <!-- PX4 SITL and vehicle spawn -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="0"/>
+            <arg name="y" value="3"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_lidar"/>
+            <arg name="spawn_delay" value="24"/>
+            <arg name="mavlink_udp_port" value="18574"/>
+            <arg name="mavlink_tcp_port" value="4564"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <!-- MAVROS -->
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+     <!-- typhoon_h480_5 -->
+     <group ns="typhoon_h480_5">
+        <!-- MAVROS and vehicle configs -->
+            <arg name="ID" value="5"/>
+            <arg name="ID_in_group" value="5"/>
+            <arg name="fcu_url" default="udp://:24545@localhost:34585"/>
+        <!-- PX4 SITL and vehicle spawn -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="3"/>
+            <arg name="y" value="3"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_lidar"/>
+            <arg name="spawn_delay" value="30"/>
+            <arg name="mavlink_udp_port" value="18575"/>
+            <arg name="mavlink_tcp_port" value="4565"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <!-- MAVROS -->
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+</launch>
+<!--the launch file is based on XTDrone multi-vehicle generator.py robocup.launch, sdf swapped to typhoon_h480_lidar -->
