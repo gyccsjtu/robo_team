@@ -183,6 +183,17 @@ class TargetBridgeCore(object):
         tr = self.tracks[tag]
         if t < tr.t_obs:
             return
+        if t - tr.t_obs > COAST_TIME:
+            # A reacquisition can follow an official teleport or a different
+            # geometric red slot. Do not derive velocity across the lost track,
+            # or reuse its old activation count as fresh three-frame evidence.
+            tr.obs = []
+            tr.vx = tr.vy = 0.
+            tr._last_fx = tr._last_fy = tr._last_ft = None
+            tr._high_conf_count = 0
+            tr._motion_history = []
+            tr._last_vel_mag = 0.
+            tr.alive = False
         w = conf * conf if conf > 0.0 else 1e-6
         # 先裁剪过期观测：一致性锚点只在 OBS_WINDOW 内有效。
         # 2026-10-01 复盘：旧实现锚点永不过期，YOLO 跟丢 >0.6s 后演员走出

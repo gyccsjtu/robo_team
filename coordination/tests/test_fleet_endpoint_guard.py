@@ -27,7 +27,18 @@ class EndpointTests(unittest.TestCase):
                 module.check_endpoints(set(), {occupied.getsockname()[1]})
 
     def test_tcp_does_not_block_unrelated_udp_on_same_number(self):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as occupied:
-            occupied.bind(('0.0.0.0', 0))
-            occupied.listen(1)
-            module.check_endpoints(set(), {occupied.getsockname()[1]})
+        # A TCP ephemeral port may already have an unrelated UDP listener
+        # during a live ROS run. Establish that the UDP fixture is free first.
+        for _ in range(32):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as occupied:
+                occupied.bind(('0.0.0.0', 0))
+                port = occupied.getsockname()[1]
+                with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+                    try:
+                        probe.bind(('0.0.0.0', port))
+                    except OSError:
+                        continue
+                occupied.listen(1)
+                module.check_endpoints(set(), {port})
+                return
+        self.fail('Could not allocate a TCP fixture with a free UDP counterpart')

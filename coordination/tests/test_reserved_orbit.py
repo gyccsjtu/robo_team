@@ -13,7 +13,8 @@ methods = [node for cls in tree.body if isinstance(cls, ast.ClassDef)
            for node in cls.body if isinstance(node, ast.FunctionDef)
            and node.name in ('_fly_orbit', '_orbit_stale', '_adaptive_speed')]
 scope = dict(math=math, rospy=SimpleNamespace(Time=SimpleNamespace(
-    now=lambda: SimpleNamespace(to_sec=lambda: 10.))), ORBIT_RADIUS=8., POS_KP=1.,MAX_SPEED=3.,FLEE_CHASE_SPEED=2.6)
+    now=lambda: SimpleNamespace(to_sec=lambda: 10.))), ORBIT_RADIUS=8., POS_KP=1.,MAX_SPEED=3.,FLEE_CHASE_SPEED=2.6,
+    TRACK_GUIDANCE_TTL=1.5)
 exec(compile(ast.fix_missing_locations(ast.Module(body=methods, type_ignores=[])), str(source), 'exec'), scope)
 
 
@@ -74,8 +75,20 @@ class ReservedOrbitTests(unittest.TestCase):
         a._orbit_target = None
         a._t_seen = {}
         self.assertTrue(scope['_orbit_stale'](a))
-        for stamp in (8.9, 10.1):
+        for stamp in (8.499, 10.1):
             a._t_seen = {'t5': stamp}
             self.assertTrue(scope['_orbit_stale'](a))
         a._t_seen = {'t5': 9.9}
         self.assertFalse(scope['_orbit_stale'](a))
+
+    def test_guidance_bridges_camera_delivery_gap_without_refreshing_evidence(self):
+        a = self.agent()
+        # A valid image arrived at age 0.6 s. Before the next 2 Hz reply,
+        # its original sample can be 1.2 s old despite a healthy camera stream.
+        a._t_seen = {'t5': 8.8}
+        self.assertFalse(scope['_orbit_stale'](a))
+        self.assertEqual(a._t_seen, {'t5': 8.8})
+        a._t_seen = {'t5': 8.5}
+        self.assertFalse(scope['_orbit_stale'](a))
+        a._t_seen = {'t5': 8.499}
+        self.assertTrue(scope['_orbit_stale'](a))

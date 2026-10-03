@@ -51,6 +51,7 @@ from radar_observed_map import ObservedMap
 from nav_msgs.msg import OccupancyGrid
 from online_radar_planner import OnlinePlanner, fixture_seed
 from search_completion import parse_actor_list
+from red_observations import actor_slot_remaining
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -235,6 +236,9 @@ CONFIRM_TIME    = 15.0     # 连续确认时间才消除（规则5）
 
 # ---- 盘旋放弃 / 防扎堆（2026-09-27：修「飞机被已消除目标占死 571s」）----
 TARGET_STALE    = float(os.environ.get("TARGET_STALE", "6.0"))    # 给 bridge/备份机留接力窗口 s
+# Guidance may coast between valid 2 Hz camera messages. Evidence acceptance
+# stays at 1.0 s in VisualEvidence; coasting never creates an observation.
+TRACK_GUIDANCE_TTL = 1.5
 ORBIT_GIVEUP    = float(os.environ.get("ORBIT_GIVEUP", "30.0"))   # 满 15s 后官方这么久还没消除 → 放弃 s
 GIVEUP_COOLDOWN = float(os.environ.get("GIVEUP_COOLDOWN", "45.0"))# 放弃后这段时间内不再自动盘旋该目标 s
 CLAIM_ENABLE    = int(os.environ.get("CLAIM_ENABLE", "1"))        # 防扎堆：别机正在确认的目标不再抢
@@ -1976,7 +1980,9 @@ class SwarmAgent(object):
             m = re.match(r'^t(\d+)$', str(tid))
             if m is None:
                 continue
-            if int(m.group(1)) not in ids:
+            # Red task IDs are geometric camera slots, not official actor IDs.
+            # Neither slot is retired while either official red actor remains.
+            if not actor_slot_remaining(int(m.group(1)), ids):
                 self.targets.pop(tid, None)
                 self._t_seen.pop(tid, None)
                 self._giveup_until[tid] = float('inf')   # 已消除，永不追
@@ -2070,7 +2076,7 @@ class SwarmAgent(object):
         return uid
 
     def _orbit_stale(self):
-        """当前盘旋目标是否已经没有位置更新（多半已被官方删除）。"""
+        """Bound guidance coasting without refreshing the original image time."""
         tid = self._orbit_target or getattr(self.assignment, 'target_id', None)
         if tid is None:
             return False
@@ -2078,7 +2084,7 @@ class SwarmAgent(object):
         if not t_seen:
             return True
         age = rospy.Time.now().to_sec() - t_seen
-        return not 0 <= age <= 1.0
+        return not 0 <= age <= TRACK_GUIDANCE_TTL
 
     def _update_orbit(self):
         """更新盘旋状态：检查目标是否可见，更新确认时间"""

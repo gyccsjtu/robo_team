@@ -43,6 +43,25 @@ class VisualTests(unittest.TestCase):
         self.assertLess(abs(core.tick(12.2)[0]['x']-4.4), .1)
         self.assertEqual(track.t_obs, 12.)
 
+    def test_reacquisition_cannot_inherit_teleport_velocity_or_activation(self):
+        core = TargetBridgeCore()
+        for stamp in (10., 10.2, 10.4):
+            core.report(stamp, 'brown', 2.*(stamp-10.), 0., .9)
+        self.assertTrue(core.tracks['brown'].alive)
+        core.report(30., 'brown', 100., 50., .9)
+        track = core.tracks['brown']
+        self.assertEqual((track.vx, track.vy), (0., 0.))
+        self.assertFalse(track.alive)
+        self.assertEqual(track._high_conf_count, 1)
+        self.assertFalse(core.tick(30.2))
+        core.report(30.2, 'brown', 100.2, 50., .9)
+        self.assertFalse(track.alive)
+        core.report(30.4, 'brown', 100.4, 50., .9)
+        self.assertTrue(track.alive)
+        self.assertLess(track.vx, 1.01)
+        self.assertEqual(track.vy, 0.)
+        self.assertEqual(track.t_obs, 30.4)
+
     def message(self, uid='a', seq=1, stamp=10.):
         return dict(schema_version=2, run_id='run', uav_id=uid, seq=seq, sample_s=stamp,
             target_id='green', frame_id='world_enu', xyz=[1., 2., 0.], confidence=.8,
