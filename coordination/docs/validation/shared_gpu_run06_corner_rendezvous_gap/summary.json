@@ -1,0 +1,25 @@
+{
+  "simulated_seconds": 174.41999999999985,
+  "maximum_actual_altitude_m": 4.541178812636117,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 39.01527528853763,
+    "uav_2": 44.38834902944534,
+    "uav_3": 65.44018157289962,
+    "uav_4": 89.08704807547727,
+    "uav_5": 70.50210072553901,
+    "uav_6": 6.45572807929822
+  },
+  "eliminated_count": 0,
+  "formal_competition_pass": false,
+  "stop_reason": "Apply actual detected rendezvous distance and official report gap fixes",
+  "contact_audit": {
+    "kind": "CONTACT_OBSERVER_STOPPED",
+    "frames": 39910,
+    "first_sample_s": 1945.492,
+    "last_sample_s": 2105.128,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 18684,
+    "body_pairs": 0
+  },
+  "collision_verdict": "PARTIAL_OBSERVATION_NO_BODY_CONTACT"
+}

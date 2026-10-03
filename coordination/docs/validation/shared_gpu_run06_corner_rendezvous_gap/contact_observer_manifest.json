@@ -1,0 +1,15 @@
+{
+  "fleet_models": [
+    "typhoon_h480_0",
+    "typhoon_h480_1",
+    "typhoon_h480_2",
+    "typhoon_h480_3",
+    "typhoon_h480_4",
+    "typhoon_h480_5"
+  ],
+  "sonar_model_sha256": "89a3ffd33f484888a8f1b2e5d0adba13a641b3dd7deb74bd77a2c16152c1492e",
+  "source_sha256": "51c29e4dd28321714a18d3af9cabad3f6d7e142c71122b4e042a46d3b6001db4",
+  "invalid_preliminary": "city_contacts_invalid_logical_names.jsonl: wrong logical IDs, cannot prove absence of contacts",
+  "coverage": "partial run; begins after initialization",
+  "control_input": false
+}
