@@ -1,0 +1,19 @@
+CITY_JUDGE_CLOCK_READY 1930.944000
+
+(Multi-UAV search simulation competition judgment system:2818): dbind-WARNING **: 23:28:18.085: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+find actor_0
+find actor_0
+find actor_0
+find actor_4
+actor_0 tracking success
+find actor_0
+find actor_3
+find actor_3
+find actor_3
+actor_4 is OK
+Time usage: 43.45600000000013
+score: 324.9
+find actor_0
+find actor_0
+find actor_0
+find actor_3
