@@ -9,6 +9,7 @@ import unittest
 SCRIPTS = Path(__file__).parents[1]/'src/robocup_swarm/scripts'
 sys.path.insert(0,str(SCRIPTS))
 from visual_observation import VisualEvidence, TAG_TO_TID
+from target_motion import TargetMotion
 
 
 class TargetMessage:
@@ -27,6 +28,7 @@ class ConfirmedVisualAdaptersTests(unittest.TestCase):
         exec(compile(ast.Module(body=[function],type_ignores=[]),str(SCRIPTS/file),'exec'),scope)
         received=[]
         instance=SimpleNamespace(_authority_lock=threading.RLock(),_visual_evidence=VisualEvidence('current',['uav_1']),
+            _visual_motion=TargetMotion(),
             _target_cb=received.append,_detection_cb=received.append,_last_detect=previous or {},_t_seen=previous or {})
         return lambda m:scope['_confirmed_visual_cb'](instance,SimpleNamespace(data=json.dumps(m))),received
 
@@ -64,3 +66,12 @@ class ConfirmedVisualAdaptersTests(unittest.TestCase):
             self.assertEqual(received,[])
             callback(self.observation(seq=2,sample_s=10.7,observation_id='current:uav_1:2'))
             self.assertEqual(len(received),1)
+
+    def test_actual_executor_adapter_estimates_flee_motion_without_refreshing_image_time(self):
+        callback,received=self.adapter('swarm_agent.py')
+        for seq,stamp in enumerate((9.9,10.2,10.5,10.8),1):
+            callback(self.observation(seq=seq,sample_s=stamp,xyz=[2*(stamp-9.9),0.,1.25],
+                                     observation_id='current:uav_1:%d'%seq))
+        self.assertEqual(received[-1].state,1)
+        self.assertAlmostEqual(received[-1].vx,2.)
+        self.assertEqual(received[-1].header.stamp,10.8)

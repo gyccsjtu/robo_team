@@ -1,0 +1,35 @@
+CITY_JUDGE_CLOCK_READY 1930.360000
+
+(Multi-UAV search simulation competition judgment system:2801): dbind-WARNING **: 20:35:46.298: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+actor_0 tracking success
+find actor_0
+find actor_3
+actor_3 tracking success
+find actor_3
+actor_0 is OK
+Time usage: 47.92399999999998
+score: 354.9
+find actor_3
+find actor_3
+find actor_3
+find actor_3
+find actor_3
+find actor_3
+Traceback (most recent call last):
+  File "/root/robocup_runs/codex_city_shared_clock_fixed_20261003/flight/execution_sources/start_city_judge.py", line 25, in <module>
+    main()
+  File "/root/robocup_runs/codex_city_shared_clock_fixed_20261003/flight/execution_sources/start_city_judge.py", line 21, in main
+    runpy.run_path(str(script),run_name='__main__')
+  File "/usr/lib/python3.8/runpy.py", line 265, in run_path
+    return _run_module_code(code, init_globals, run_name,
+  File "/usr/lib/python3.8/runpy.py", line 97, in _run_module_code
+    _run_code(code, mod_globals, init_globals,
+  File "/usr/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/root/robocup_runs/codex_city_shared_clock_fixed_20261003/scene/score_cal.py", line 375, in <module>
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request

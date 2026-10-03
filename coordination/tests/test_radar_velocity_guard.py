@@ -135,6 +135,38 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(obj._last_cmd_v, (0., 0.))
         self.assertEqual(obj._last_flight_v, (0., 0.))
 
+    def test_city_altitude_profile_overrides_even_explicit_climb(self):
+        city = SCRIPTS.parents[2] / 'scripts/city_swarm_run.py'
+        tree = ast.parse(city.read_text(encoding='utf-8'))
+        profile = next(n for n in ast.walk(tree) if isinstance(n, ast.Call)
+                       and any(k.arg == 'ALT_BASE' for k in n.keywords))
+        values = {k.arg: float(ast.literal_eval(k.value)) for k in profile.keywords
+                  if k.arg and k.arg.startswith('ALT_')}
+        original = {k: self.methods.get(k) for k in values}
+        extra = {'ALT_HARD_DESCENT': -1., 'ALT_PANIC_DESCENT': -1.5,
+                 'ALT_EMERG_DESCENT': -2., 'ALT_EMERG_HSCALE': .35,
+                 '_alt_guard_hit': lambda *args: None}
+        original.update({k: self.methods.get(k) for k in extra})
+        self.methods.update(values); self.methods.update(extra)
+        try:
+            for z, expected in ((4.11, -1.), (4.31, -1.5), (4.51, -2.)):
+                with self.subTest(local_z=z):
+                    published = []
+                    obj = types.SimpleNamespace(
+                        _bounds_recovery_velocity=lambda: None, world_xy=(0., 0.),
+                        _grid_guard_velocity=lambda x, y: (x, y),
+                        _map_guard_velocity=lambda x, y: (x, y),
+                        _last_cmd_v=(0., 0.), local_z=z, altitude_layer=values['ALT_BASE'],
+                        _compute_desired_altitude=lambda: 0., _last_csv_t=10.1, _look_at=None,
+                        _gate=types.SimpleNamespace(can_move=lambda now: True),
+                        _radar_guard_velocity=lambda x, y: (x, y),
+                        _friend_guard_velocity=lambda x, y: (x, y),
+                        _publish_command=published.append, uav_id='uav_5')
+                    self.methods['_send_vel'](obj, 0., 0., vz=1.)
+                    self.assertEqual(published[0].twist.linear.z, expected)
+        finally:
+            self.methods.update(original)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,16 @@
+{
+  "status": "OFFICIAL_JUDGE_TARGET_ELIMINATION_CHECKPOINT",
+  "run_id": "845b5274-d20e-4ec9-a737-7e07f3672146",
+  "left_actors": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "official_targets_eliminated": 1,
+  "last_event_s": 1980.604,
+  "evidence_origin": "/root/robocup_runs/codex_city_shared_clock_fixed_20261003/flight",
+  "full_run_complete": false,
+  "formal_competition_pass": false
+}

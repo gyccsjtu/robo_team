@@ -1,0 +1,35 @@
+ the complete fresh fleet before auction
+[WARN] [1791031270.375996, 1956.444000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791031334.130835, 1961.544000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791031357.719821, 1963.432000]: [manager] 发现新目标 t0 @ (-5.6, -2.5)，由 uav_5 首次检测
+[INFO] [1791031357.721983, 1963.432000]: [manager] 无空闲机，尝试中断搜索机去追踪 t0
+[INFO] [1791031357.723255, 1963.432000]: [manager] 中断 uav_5 的搜索任务去追踪 t0（预计 3.1s）
+[INFO] [1791031357.726241, 1963.432000]: [ALGO] dispatch target=t0 pos=(-5.57,-2.49) | uav=uav_5 pos=(-12.69,3.29) | dist=9.170m | detect_radius=20.0m | is_captured=False | flight_time_est=3.1s
+[INFO] [1791031357.728200, 1963.432000]: [manager] 派遣 uav_5 追踪目标 t0 @ (-5.6, -2.5), 距离 9.2m
+[INFO] [1791031358.419591, 1963.488000]: [manager] 官方首次发现 t0 → 规则4 计时起点对齐 1963.5
+[INFO] [1791031363.968755, 1963.932000]: [manager] 发现新目标 t3 @ (-4.6, 7.5)，由 uav_5 首次检测
+[INFO] [1791031363.970576, 1963.932000]: [manager] 无空闲机，尝试中断搜索机去追踪 t3
+[INFO] [1791031363.971587, 1963.932000]: [manager] 中断 uav_3 的搜索任务去追踪 t3（预计 3.0s）
+[INFO] [1791031363.974401, 1963.932000]: [ALGO] dispatch target=t3 pos=(-4.60,7.55) | uav=uav_3 pos=(-0.01,-0.03) | dist=8.865m | detect_radius=20.0m | is_captured=False | flight_time_est=3.0s
+[INFO] [1791031363.975502, 1963.932000]: [manager] 派遣 uav_3 追踪目标 t3 @ (-4.6, 7.5), 距离 8.9m
+[INFO] [1791031364.666092, 1963.988000]: [manager] 官方首次发现 t3 → 规则4 计时起点对齐 1964.0
+[INFO] [1791031370.382380, 1964.444000]: [manager] 目标 t0 确认进度 7% (confirm_since=1.0s, resets=0, rejects=0, observers=uav_5)
+[WARN] [1791031397.881990, 1966.644000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791031445.388631, 1970.444000]: [manager] 目标 t0 确认进度 47% (confirm_since=7.0s, resets=0, rejects=0, observers=uav_2,uav_5)
+[WARN] [1791031461.635087, 1971.744000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791031482.895826, 1973.444000]: [manager] 目标 t3 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791031489.151840, 1973.944000]: [manager] 分配 uav_3 → 格 (8,9) 飞行距离 11.5m 租约 15.8s
+[INFO] [1791031489.157570, 1973.944000]: [manager] 分配 uav_3 → 格 (8,9) 中心 (9.5,6.5)
+[INFO] [1791031513.834003, 1975.920000]: [manager] 无空闲机，尝试中断搜索机去追踪 t3
+[INFO] [1791031513.837446, 1975.920000]: [manager] 中断 uav_1 的搜索任务去追踪 t3（预计 3.0s）
+[INFO] [1791031513.840891, 1975.920000]: [ALGO] dispatch target=t3 pos=(5.97,2.88) | uav=uav_1 pos=(-0.30,-3.77) | dist=9.137m | detect_radius=20.0m | is_captured=False | flight_time_est=3.0s
+[INFO] [1791031513.842225, 1975.920000]: [manager] 派遣 uav_1 追踪目标 t3 @ (6.0, 2.9), 距离 9.1m
+[INFO] [1791031515.933685, 1976.088000]: [manager] 官方首次发现 t3 → 规则4 计时起点对齐 1976.1
+[INFO] [1791031520.398557, 1976.444000]: [manager] 目标 t0 确认进度 87% (confirm_since=13.0s, resets=0, rejects=0, observers=uav_2,uav_5)
+[WARN] [1791031525.386448, 1976.844000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791031546.753117, 1978.540000]: [manager] 官方剩余 actor: [1, 2, 3, 4, 5]
+[INFO] [1791031546.755192, 1978.540000]: [manager] 官方已消除 t0（不在 left_actors），释放 uav_5 回归搜索
+[INFO] [1791031551.796572, 1978.944000]: [manager] 分配 uav_5 → 格 (4,9) 飞行距离 7.0m 租约 13.5s
+[INFO] [1791031551.799968, 1978.944000]: [manager] 分配 uav_5 → 格 (4,9) 中心 (-18.5,6.5)
+[WARN] [1791031594.290712, 1982.344000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791031595.542410, 1982.444000]: [manager] 目标 t3 确认进度 7% (confirm_since=1.0s, resets=2, rejects=0, observers=uav_1,uav_3,uav_5)

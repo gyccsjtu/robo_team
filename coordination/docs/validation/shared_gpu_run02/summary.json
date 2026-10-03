@@ -1,0 +1,18 @@
+{
+  "status": "INTERRUPTED_TO_FIX_FLEE_EXECUTION",
+  "evidence_origin": "/root/robocup_runs/codex_city_shared_clock_fixed_20261003/flight",
+  "checkpoint_span_s": 209.7639999999999,
+  "last_left_actors": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "official_targets_eliminated": 1,
+  "maximum_altitude_m": 5.556793235172451,
+  "minimum_sampled_separation_m": 2.9514520030765405,
+  "all_six_displaced": true,
+  "formal_competition_pass": false,
+  "collision_verdict": "ABSTAIN"
+}

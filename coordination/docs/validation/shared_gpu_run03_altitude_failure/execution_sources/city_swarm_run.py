@@ -62,11 +62,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         SWARM_UAV_IDS=','.join(r['uav_id'] for r in wiring['uavs']),
         ONLINE_RADAR_PLANNING='1',RADAR_START_CLEARANCE_FILE=str(clearance),
         SEED_TRUTH='0',VIS_ENABLE='0',RADAR_GUARD='1',SWARM_MAX_SPEED='3.0',PR_RECENT_MOTION_WINDOW='4.0',FLEE_CHASE_SPEED='2.6',
-        # The last real flight reached world z=6.019 while MAVROS reported
-        # z=4.747. Reserve height for that observed estimator discrepancy;
-        # world truth remains an independent audit input, not a controller input.
-        ALT_BASE='3.5',ALT_NLAYER='1',ALT_TARGET_CAP='3.5',
-        ALT_HARD_CEIL='4.1',ALT_PANIC='4.3',ALT_EMERG_CEIL='4.5',
+        ALT_BASE='4.5',ALT_NLAYER='1',ALT_TARGET_CAP='4.5',
         SWARM_ROUTE_CLEARANCE_M='2.5',SWARM_FLEET_SEPARATION_M='2.5',
         SAFE_3D='2.8',DANGER_3D='2.0',SLOWDOWN_DIST='4.0',
         PYTHONDONTWRITEBYTECODE='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1')
@@ -78,9 +74,6 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         maximum_speed_mps=3.,visual_fusion_revision='v2.4',tracker_selection_revision='v1.3',
         person_motion_revision='v1.4',recent_motion_window_s=4.,
         target_motion_revision='v1.5',flee_chase_speed_mps=2.6,
-        altitude_configuration_revision='v1.6',altitude_reference='MAVROS_LOCAL',
-        cruise_altitude_m=3.5,altitude_hard_m=4.1,altitude_panic_m=4.3,
-        altitude_emergency_m=4.5,
         formal_competition_pass=False),indent=2))
     # Let PX4 initialize at 250Hz, then slow physics without changing sensors.
     physics=rospy.ServiceProxy('/gazebo/get_physics_properties',GetPhysicsProperties)()

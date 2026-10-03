@@ -11,9 +11,9 @@ source = Path(__file__).parents[1]/'src/robocup_swarm/scripts/swarm_agent.py'
 tree = ast.parse(source.read_text(encoding='utf-8'))
 methods = [node for cls in tree.body if isinstance(cls, ast.ClassDef)
            for node in cls.body if isinstance(node, ast.FunctionDef)
-           and node.name in ('_fly_orbit', '_orbit_stale')]
+           and node.name in ('_fly_orbit', '_orbit_stale', '_adaptive_speed')]
 scope = dict(math=math, rospy=SimpleNamespace(Time=SimpleNamespace(
-    now=lambda: SimpleNamespace(to_sec=lambda: 10.))), ORBIT_RADIUS=8., POS_KP=1.)
+    now=lambda: SimpleNamespace(to_sec=lambda: 10.))), ORBIT_RADIUS=8., POS_KP=1.,MAX_SPEED=3.,FLEE_CHASE_SPEED=2.6)
 exec(compile(ast.fix_missing_locations(ast.Module(body=methods, type_ignores=[])), str(source), 'exec'), scope)
 
 
@@ -23,6 +23,7 @@ class ReservedOrbitTests(unittest.TestCase):
             assignment=SimpleNamespace(target_id='t5'), _t_seen={'t5': 9.9},
             targets={'t5': (0., 0., 0., 0.)}, _online_planner=object(),
             _send_vel=Mock(), _request_plan=Mock(), _pick_local_goal=Mock(return_value=(8., 1.)),
+            _target_fleeing=lambda tid:False,
             _apply_friend_avoidance=lambda x, y: (x, y), _publish_claim=Mock(), path_target=None)
         a._orbit_stale = lambda: scope['_orbit_stale'](a)
         return a
@@ -43,6 +44,17 @@ class ReservedOrbitTests(unittest.TestCase):
         scope['_fly_orbit'](a)
         self.assertEqual(a._send_vel.call_args.args, (0., 1.5))
         a._publish_claim.assert_called_once()
+
+    def test_fleeing_orbit_leg_and_downstream_speed_limit_can_keep_up_with_two_meter_target(self):
+        a=self.agent();a._target_fleeing=lambda tid:True
+        point=(8.*math.cos(.2),8.*math.sin(.2))
+        a._reserved_orbit_goal=((0.,0.),point);a.path_target=point
+        a._pick_local_goal.return_value=(8.,4.)
+        scope['_fly_orbit'](a)
+        self.assertEqual(a._send_vel.call_args.args,(0.,2.6))
+        a._last_heading=None
+        limited=scope['_adaptive_speed'](a,0.,2.6)
+        self.assertEqual(limited,(0.,2.6))
 
     def test_target_without_orbit_state_still_requires_fresh_camera(self):
         a = self.agent()

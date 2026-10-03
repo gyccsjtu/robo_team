@@ -1,0 +1,8 @@
+{
+  "sim_s": 1993.868,
+  "previous_update_rate": 20.0,
+  "new_update_rate": 40.0,
+  "sensor_parameters_changed": false,
+  "reason": "20Hz artificial slowdown causes wall-clock MAVROS heartbeat timeout; shared GPU perception age monitored",
+  "formal_competition_pass": false
+}

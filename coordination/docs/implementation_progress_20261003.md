@@ -18,6 +18,10 @@
 - 城市启用人物近期运动证据v1.4，4秒原图测量窗口替代终身位移资格；预测不补证据。原图实际显示静止车辆被误标green。真实人物久停的漏检风险尚待验证。
 - 全套328项核心/接入边界测试通过；codex_city_shared_tracker_fix_20261003因裁判启动时钟为0、随后跳到1930秒而立即误判600秒超时。原始结果归档validation/city_judge_clock_failure。新增启动包装器等待本进程ROS时钟就绪，官方裁判源码和哈希不变。codex_city_shared_clock_fixed_20261003已记录CITY_JUDGE_CLOCK_READY 1930.360，继续实飞验证。
 
+- shared_gpu_first_elimination：时钟修复轮官方裁判打印actor_0 is OK，剩余清单[1,2,3,4,5]，比赛计时47.924秒完成首个绿色目标15秒消除。uav_5实际接获后续搜索任务；仍在运行，不能称六目标完成。独立窗口绿色原图最大误差0.287224m、裁判上报最大误差0.573176m，仅该窗口成立。检查点位于validation/shared_gpu_first_elimination。全套331项测试通过。该轮后来为修复追逃执行主动中断，完整检查点见shared_gpu_run02。
+
+- 追逃执行v1.5：生产原图回调固定速度0导致FLEE从未触发；新增逐相机原图运动估计，原图时间不刷新，在线盘旋和下游限速允许城市2.6m/s追逃。全套338项测试通过，尚待下一轮实体验证。共享入口默认开发40Hz，经实际窗口检查，MAVROS心跳超时计数停止增长，图像约0.5–0.7秒，原传感器参数不变。
+
 开发GUI已通过独立Windows X显示通道显示，绕过本机WSLg透明窗口故障；显示客户端不发布飞行控制。当前仍有自身相机Gazebo姿态依赖、出生检查矩形近似、完整碰撞证据不足等正式环境限制，不能将运行成功等同正式合规。失联或到期不释放物理占用的接口语义保持不变。
 
 仓库：gyccsjtu/robo_team，基线 86eb484，开发分支 codex/radar-coordination-20261003。
@@ -125,3 +129,7 @@ python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/authority_ros_smoke.py 
 任务本地停止后，STOPPED状态不能不断续原代次；需走协调STOP/停稳确认和新代次恢复，避免异常被旧续约永久卡住。
 
 run03独立最终误差0.27484m、末速0.06122m/s、最高高度4.82664m，STOPPED_ACK一次。原型到达验证true，碰撞ABSTAIN、正式比赛false。可执行步骤见 single_swarm_product_quickstart.md，完整证据与执行源码快照已入 docs/validation/single_swarm_run03。全套207条中204通过，3条基线错误仍在；快照SHA全部匹配，端口占用拒绝实测通过。
+
+## 六机共享GPU：目标消除、追逃修复与高度失败后续
+
+shared_gpu_run02真实六机轮曾由未改动官方裁判消除actor_0，剩余[1,2,3,4,5]；累计209.764仿真秒后主动中止以修复追逃速度链路，不是六目标完成。新增target_motion v1.5由每台飞机原始相机时间序列估计逃跑状态，追逃盘旋上限2.6m/s不再被后级1.5m/s覆盖。随后shared_gpu_run03_altitude_failure在41.208仿真秒由裁判因uav_5真实高度6.018827m判0分并终止，0/6目标；同期本地高度约4.747343m。已保存原始失败结果。城市高度配置v1.6巡航3.5m，MAVROS护栏4.1/4.3/4.5m，真实位置仍仅审计。339项测试通过；新物理轮codex_city_altitude_v16_20261003已启动，目标仍是完整六机协同和六目标，尚未完成验收。共享GPU客户端CPU环境与单服务CUDA环境已配置并实际起栈，WSL内存配置未改变。

@@ -40,6 +40,7 @@ from csv_logger import logger
 from radar_velocity_guard import guard_velocity
 from task_authority import TaskGate
 from visual_observation import VisualEvidence, TAG_TO_TID
+from target_motion import TargetMotion
 from route_reservation import RouteGate, exclude_peers, valid_points
 from route_endpoint import connect_exact_goal
 from publisher_authority import PublisherAuthority
@@ -416,6 +417,7 @@ class SwarmAgent(object):
                                    cell_size=self.grid.resolution, origin=self.grid.origin)
         self.targets = {}           # target_id -> (x, y, vx, vy)，来自 /swarm/target_states
         self._target_state = {}    # target_id -> (state, t)，目标运动状态（1=FLEE）
+        self._visual_motion = TargetMotion()
         self._detect_log_t = {}     # tid -> 上次 [ALGO] detect 日志时刻（按 target 分别节流）
         self._last_detect_t = 0.0
 
@@ -844,8 +846,13 @@ class SwarmAgent(object):
                 target.header.stamp = rospy.Time.from_sec(observation['sample_s'])
                 target.target_id = tid
                 target.x, target.y, _ = observation['xyz']
-                # Position is original image evidence; no guessed motion renews it.
-                target.vx = target.vy = 0.
+                # Motion is fitted per camera; original image time remains unchanged.
+                motion = self._visual_motion.observe(tid,observation['uav_id'],
+                    observation['sample_s'],target.x,target.y)
+                if motion is None:
+                    return
+                target.vx,target.vy,fleeing = motion
+                target.state = 1 if fleeing else 0
                 self._target_cb(target)
         except (ValueError, TypeError, KeyError):
             return
@@ -871,7 +878,7 @@ class SwarmAgent(object):
             return
         self.targets[msg.target_id] = (msg.x, msg.y, msg.vx, msg.vy)
         self._target_state[msg.target_id] = (
-            int(msg.state), rospy.Time.now().to_sec())
+            int(msg.state), sample_s)
         self._t_seen[msg.target_id] = sample_s
 
     def _friend_status_cb(self, msg):
@@ -1891,7 +1898,7 @@ class SwarmAgent(object):
             return False
         state, t = ent
         return state == 1 and \
-            (rospy.Time.now().to_sec() - t) <= FLEE_STATE_FRESH
+            0 <= (rospy.Time.now().to_sec() - t) <= FLEE_STATE_FRESH
 
     # ---- 已消除目标清理 / 盘旋放弃 / 防扎堆（2026-09-27 新增）----
     def _left_actors_cb(self, msg):
@@ -2140,8 +2147,9 @@ class SwarmAgent(object):
                 return
             vx, vy = POS_KP*(local_goal[0]-wx), POS_KP*(local_goal[1]-wy)
             speed = math.hypot(vx, vy)
-            if speed > 1.5:
-                vx, vy = vx*1.5/speed, vy*1.5/speed
+            cap = min(MAX_SPEED,FLEE_CHASE_SPEED) if self._target_fleeing(self._orbit_target) else min(MAX_SPEED,1.5)
+            if speed > cap:
+                vx, vy = vx*cap/speed, vy*cap/speed
             vx, vy = self._apply_friend_avoidance(vx, vy)
             self._send_vel(vx, vy)
             # Camera observations and the official judge establish confirmation;
@@ -2199,7 +2207,7 @@ class SwarmAgent(object):
 
         # 1. 追踪目标时降速（确认需要稳定）
         if self._orbit_target is not None:
-            base_speed = 1.5
+            base_speed = min(MAX_SPEED,FLEE_CHASE_SPEED) if self._target_fleeing(self._orbit_target) else min(MAX_SPEED,1.5)
         # 2. ORCA 激活时（友机近）降速
         elif self._friend_positions:
             # 检查是否有近距友机

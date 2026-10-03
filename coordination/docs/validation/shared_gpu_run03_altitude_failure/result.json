@@ -1,0 +1,138 @@
+{
+  "status": "CITY_MOTION_BLOCKED",
+  "formal_competition_pass": false,
+  "fixture_only": false,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        0.010098171420395374,
+        -0.0011932447087019682,
+        -0.0704612284898758
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 1928.56,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        0.00310282944701612,
+        6.915437552379444e-06,
+        -0.07080094516277313
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 1928.56,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        0.011141802184283733,
+        0.0015306194545701146,
+        0.06251395493745804
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 1928.564,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        0.009213452227413654,
+        -0.0004890374257229269,
+        -0.023020552471280098
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 1928.564,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        0.003047240898013115,
+        -0.00332463625818491,
+        -0.06578229367733002
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 1928.568,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        0.008088908158242702,
+        -0.001288025639951229,
+        -0.053767748177051544
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 1928.568,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  },
+  "connectivity_armed": false,
+  "six_aircraft_motion_observed": false,
+  "official_targets_eliminated": 0,
+  "all_targets_eliminated": false,
+  "maximum_altitudes_m": {
+    "uav_1": 4.9444391950869475,
+    "uav_2": 5.524689370571647,
+    "uav_3": 4.823276476223353,
+    "uav_4": 4.9259693788002235,
+    "uav_5": 6.018827417159223,
+    "uav_6": 5.15280027342488
+  },
+  "maximum_displacements_m": {
+    "uav_1": 0.24638045603953412,
+    "uav_2": 15.57996896467596,
+    "uav_3": 0.21503215875450518,
+    "uav_4": 0.3131886888324728,
+    "uav_5": 18.430536806657244,
+    "uav_6": 11.378720740759533
+  },
+  "simulated_seconds": 41.207999999999856,
+  "minimum_sampled_separation_m": 2.8966022146919523,
+  "component_error": "CITY_COMPONENT_EXIT:[{'pid': 2902, 'returncode': 0, 'command': ['bash', '-c', 'cd \"$1\" && exec python3 -u \"$2\" \"$1/score_cal.py\" typhoon_h480', 'city-judge', '/root/robocup_runs/codex_city_flee_fix_20261003/scene', '/root/robocup_runs/codex_city_flee_fix_20261003/flight/execution_sources/start_city_judge.py']}]",
+  "evidence_streams_verified": true,
+  "armed_during_run_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "left_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "score": 0,
+  "visual_count": 68,
+  "target_grants": 0
+}
