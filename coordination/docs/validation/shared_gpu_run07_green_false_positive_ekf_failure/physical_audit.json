@@ -1,0 +1,40 @@
+{
+  "simulated_duration_s": 397.2360000000001,
+  "six_targets_eliminated": false,
+  "eliminated": 1,
+  "max_world_altitude_m": 4.143482665620446,
+  "body_contact_log_rows": 2156,
+  "last_body_contact_s": 2327.732,
+  "last_native_heartbeat": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 99629,
+    "first_sample_s": 1929.664,
+    "last_sample_s": 2328.176,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 191993,
+    "body_pairs": 189040
+  },
+  "contacts_missing_trajectory": 36,
+  "formal_competition_pass": false,
+  "note": "Ground contact classification is descriptive; >1m is an audit discriminator, not an official collision rule. Startup rows before trajectory are unclassified.",
+  "body_rows_aligned_above_1m_count": 590,
+  "first_aligned_airborne_contact": {
+    "contact": {
+      "kind": "UAV_BODY_CONTACT",
+      "sample_s": 2114.5,
+      "collision1": "gas_station_73::link::collision",
+      "collision2": "typhoon_h480_5::base_link::base_link_collision"
+    },
+    "nearest_trajectory_gap_s": 0.032000000000152795,
+    "positions": {
+      "uav_6": [
+        5.506722989513777,
+        30.22454729743601,
+        3.8904622319622755
+      ]
+    }
+  },
+  "airborne_contacts_by_uav": {
+    "uav_6": 590
+  }
+}

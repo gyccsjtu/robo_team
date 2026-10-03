@@ -65,7 +65,10 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         # The last real flight reached world z=6.019 while MAVROS reported
         # z=4.747. Reserve height for that observed estimator discrepancy;
         # world truth remains an independent audit input, not a controller input.
-        ALT_BASE='3.5',ALT_NLAYER='1',ALT_TARGET_CAP='3.5',
+        # The previous flight hit a ~3.98m canopy with the body at 3.89m
+        # while its laser plane was 0.2m above the body. Trial a lower
+        # cruise height; this does not turn planar lidar into 3D clearance.
+        ALT_BASE='3.0',ALT_NLAYER='1',ALT_TARGET_CAP='3.0',
         ALT_HARD_CEIL='4.1',ALT_PANIC='4.3',ALT_EMERG_CEIL='4.5',
         SWARM_ROUTE_CLEARANCE_M='2.5',SWARM_FLEET_SEPARATION_M='2.5',
         PR_PERSON_VERIFY_WEIGHTS=str(repo/'weights/yolo11n_person.pt'),
@@ -87,8 +90,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         person_verifier_weights_sha256=hashlib.sha256((repo/'weights/yolo11n_person.pt').read_bytes()).hexdigest(),
         red_matching_revision='organizer_clarification_20261003_v1',
         red_report_topic='/actor_red_info',red_coordination_identity='geometric_track_slot_not_actor_id',
-        altitude_configuration_revision='v1.6',altitude_reference='MAVROS_LOCAL',
-        cruise_altitude_m=3.5,altitude_hard_m=4.1,altitude_panic_m=4.3,
+        altitude_configuration_revision='v1.13',altitude_reference='MAVROS_LOCAL',
+        cruise_altitude_m=3.0,altitude_hard_m=4.1,altitude_panic_m=4.3,
         altitude_emergency_m=4.5,
         formal_competition_pass=False),indent=2))
     # Let PX4 initialize at 250Hz, then slow physics without changing sensors.
@@ -286,7 +289,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
                for r in wiring['uavs']}
     audit=audit_jsonl([out/'city_events.jsonl',out/'city_trajectory.jsonl',out/'city_commands.jsonl'])
     moving=(not error and audit['valid'] and len(armed)==6
-            and all(3.5<z<6. for z in heights.values()) and all(d>1. for d in movements.values()))
+            and all(2.5<=z<6. for z in heights.values()) and all(d>1. for d in movements.values()))
     return dict(status='CITY_SIX_AIRCRAFT_MOVING' if moving else 'CITY_MOTION_BLOCKED',
         six_aircraft_motion_observed=moving,official_targets_eliminated=(6-len(latest['left_actors']))
             if latest['left_actors'] is not None else None,
