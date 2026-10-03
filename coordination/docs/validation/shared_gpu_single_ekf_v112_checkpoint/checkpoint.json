@@ -1,0 +1,72 @@
+{
+  "simulated_seconds": 186.15600000000018,
+  "remaining": [
+    0,
+    1,
+    2,
+    3,
+    5
+  ],
+  "maximum_altitude_m": 4.231561604909699,
+  "latest_positions": {
+    "sample_s": 2117.436,
+    "positions": {
+      "uav_1": [
+        9.18112215104231,
+        15.548343991646641,
+        3.789473178079002
+      ],
+      "uav_2": [
+        71.1835501779515,
+        -52.89044095833632,
+        3.820619925000275
+      ],
+      "uav_3": [
+        1.1842212726245251,
+        -46.6607109894179,
+        3.863517879610026
+      ],
+      "uav_4": [
+        37.2514371953139,
+        -12.608424236698294,
+        3.696749272891629
+      ],
+      "uav_5": [
+        -24.013366255513187,
+        4.992525191960787,
+        3.7858358149962883
+      ],
+      "uav_6": [
+        -32.82986394443646,
+        16.426775123683985,
+        3.797615516441366
+      ]
+    }
+  },
+  "last_body_contact": {
+    "kind": "UAV_BODY_CONTACT",
+    "sample_s": 1943.592,
+    "collision1": "ground_plane::link::collision",
+    "collision2": "typhoon_h480_4::left_leg::collision"
+  },
+  "contact_observer": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 47060,
+    "first_sample_s": 1930.012,
+    "last_sample_s": 2118.248,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 91788,
+    "body_pairs": 49197
+  },
+  "px4_faults": {
+    "px4_uav_2": [],
+    "px4_uav_5": [],
+    "px4_uav_1": [],
+    "px4_uav_3": [],
+    "px4_uav_4": [],
+    "px4_uav_6": []
+  },
+  "green_reports_in_initial_audit": 0,
+  "formal_competition_pass": false,
+  "run_finished": false
+}

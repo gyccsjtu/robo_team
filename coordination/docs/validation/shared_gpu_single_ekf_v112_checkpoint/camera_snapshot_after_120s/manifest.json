@@ -1,0 +1,32 @@
+{
+  "uav_1": {
+    "image": "uav_1.png",
+    "sample_s": 2063.916,
+    "control_input": false
+  },
+  "uav_2": {
+    "image": "uav_2.png",
+    "sample_s": 2063.916,
+    "control_input": false
+  },
+  "uav_3": {
+    "image": "uav_3.png",
+    "sample_s": 2063.916,
+    "control_input": false
+  },
+  "uav_4": {
+    "image": "uav_4.png",
+    "sample_s": 2063.916,
+    "control_input": false
+  },
+  "uav_5": {
+    "image": "uav_5.png",
+    "sample_s": 2063.916,
+    "control_input": false
+  },
+  "uav_6": {
+    "image": "uav_6.png",
+    "sample_s": 2063.916,
+    "control_input": false
+  }
+}
