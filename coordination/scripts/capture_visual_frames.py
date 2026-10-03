@@ -17,11 +17,12 @@ def main():
     parser.add_argument('--output',required=True)
     parser.add_argument('--wall-seconds',type=float,default=600.)
     parser.add_argument('--limit-per-tag',type=int,default=24)
+    parser.add_argument('--minimum-period',type=float,default=2.)
     args=parser.parse_args()
     output=Path(args.output);output.mkdir(parents=True,exist_ok=False)
     rospy.init_node('read_only_visual_frame_capture',anonymous=True)
     buffers={'uav_%d'%i:deque(maxlen=20) for i in range(1,7)}
-    lock=threading.Lock();counts={};bridge=CvBridge()
+    lock=threading.Lock();counts={};last_saved={};bridge=CvBridge()
     log=(output/'frames.jsonl').open('x')
     def image_cb(message,uid):
         with lock:buffers[uid].append(message)
@@ -35,10 +36,12 @@ def main():
             frames=list(buffers[uid])
             if not frames:return
             stamp=float(observation['sample_s'])
+            if stamp-last_saved.get(tag,float('-inf'))<args.minimum_period:return
             image=min(frames,key=lambda m:abs(m.header.stamp.to_sec()-stamp))
             delta=abs(image.header.stamp.to_sec()-stamp)
             if delta>.01:return  # Never substitute a different image as evidence.
             counts[tag]=counts.get(tag,0)+1
+            last_saved[tag]=stamp
             name='%s_%s_%03d.png'%(uid,tag,counts[tag])
             try:
                 pixels=bridge.imgmsg_to_cv2(image,'bgr8')

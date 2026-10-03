@@ -1,0 +1,36 @@
+{
+  "simulated_seconds": 61.64800000000014,
+  "remaining_actors": [
+    0,
+    1,
+    2,
+    3,
+    5
+  ],
+  "eliminated_actor": 4,
+  "eliminated_count": 1,
+  "maximum_actual_altitude_m": 4.143482665620446,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 2.874884681098968,
+    "uav_2": 27.040658635535877,
+    "uav_3": 11.351304207978844,
+    "uav_4": 18.369686703288885,
+    "uav_5": 22.388148089181644,
+    "uav_6": 21.420578589602062
+  },
+  "first_red_elimination_rule_time_s": 43.456,
+  "official_score_at_elimination": 324.9,
+  "contact_observer": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 15865,
+    "first_sample_s": 1929.664,
+    "last_sample_s": 1993.12,
+    "maximum_sample_gap_s": 0.00400000000013,
+    "sonar_virtual_pairs": 47192,
+    "body_pairs": 50902
+  },
+  "body_contact_rows": 418,
+  "last_body_contact_s": 1943.176,
+  "in_progress": true,
+  "formal_competition_pass": false
+}
