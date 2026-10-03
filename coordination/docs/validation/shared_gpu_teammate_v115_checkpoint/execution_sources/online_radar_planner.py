@@ -5,7 +5,6 @@ import hashlib
 import json
 from pathlib import Path
 import xml.etree.ElementTree as ET
-import threading
 from robocup_navigation.astar import GridMap, plan
 
 
@@ -68,70 +67,40 @@ class OnlinePlanner:
         self.seed_xy, self.seed_radius, self.radius = tuple(seed_xy), seed_radius, radius
         self.body_proof = set()
         self.epoch = None
-        self._body_lock = threading.RLock()
-        self._body_sample_s = None
-
-    def _body_cells(self, observed, position):
-        resolution = observed.resolution
-        ix = math.floor((position[0]-observed.origin[0])/resolution)
-        iy = math.floor((position[1]-observed.origin[1])/resolution)
-        retained_radius = self.radius+resolution/2
-        extent = math.ceil(retained_radius/resolution)
-        cells = set()
-        for dy in range(-extent, extent+1):
-            for dx in range(-extent, extent+1):
-                x, y = ix+dx, iy+dy
-                if not (0 <= x < observed.width and 0 <= y < observed.height):
-                    continue
-                point = (observed.origin[0]+(x+.5)*resolution,
-                         observed.origin[1]+(y+.5)*resolution)
-                if math.dist(point, position) <= retained_radius:
-                    cells.add(y*observed.width+x)
-        return cells
-
-    def _retain_body(self, observed, values, position, epoch, sample_s):
-        body_cells = self._body_cells(observed, position)
-        with self._body_lock:
-            # A planner's frozen snapshot must not roll back newer scan proof.
-            if self._body_sample_s is not None and sample_s < self._body_sample_s:
-                return self.body_proof & body_cells if epoch == self.epoch else set()
-            if epoch != self.epoch:
-                self.body_proof.clear()
-                self.epoch = epoch
-                for i in body_cells:
-                    x, y = i % observed.width, i // observed.width
-                    point = (observed.origin[0]+(x+.5)*observed.resolution,
-                             observed.origin[1]+(y+.5)*observed.resolution)
-                    if math.dist(point, self.seed_xy) <= self.seed_radius:
-                        self.body_proof.add(i)
-            self.body_proof &= body_cells
-            self.body_proof |= {i for i in body_cells if values[i] == 0}
-            self.body_proof -= {i for i in body_cells if values[i] == 100}
-            self._body_sample_s = sample_s
-            return set(self.body_proof)
-
-    def carry_body_proof(self, observed, position, now, epoch):
-        """Carry previously observed cells under the body on each fresh scan.
-
-        Planning is intermittent; the robot can cross an old free cell before
-        that cell enters the scan's 0.5m blind zone. Unknown cells are never
-        added, and hits revoke proof. This does not certify any future route.
-        """
-        if observed.last_scan_s is None or not 0 <= now-observed.last_scan_s <= .5:
-            return
-        cells = self._body_cells(observed, position)
-        values = {i: observed.cells[i] if observed.observed_s[i] is not None
-                  and 0 <= now-observed.observed_s[i] <= 3. else -1 for i in cells}
-        self._retain_body(observed, values, position, epoch, observed.last_scan_s)
 
     def grid(self, observed, position, now, epoch):
         values = observed.snapshot(now)
         base = GridMap(observed.width, observed.height, observed.resolution, observed.origin,
                        bytes(0 if value == 0 else 1 for value in values), 'map')
-        proof = self._retain_body(observed, values, position, epoch,
-                                  observed.last_scan_s if observed.last_scan_s is not None else now)
+        if epoch != self.epoch:
+            self.body_proof.clear()
+            self.epoch = epoch
+            # Only the externally verified startup patch can initialize the blind region.
+            for iy in range(base.height):
+                for ix in range(base.width):
+                    point = base.cell_to_world((ix, iy))
+                    if math.dist(point, self.seed_xy) <= self.seed_radius:
+                        self.body_proof.add(iy*base.width+ix)
+        body_cells = set()
+        center = base.world_to_cell(position)
+        if center is not None:
+            # Inflation tests cell centers out to radius + half a cell. Retain
+            # the same already-certified footprint; the smaller disk erased
+            # diagonal startup cells and made our own start become occupied.
+            retained_radius = self.radius+base.resolution/2
+            extent = math.ceil(retained_radius/base.resolution)
+            for dy in range(-extent, extent+1):
+                for dx in range(-extent, extent+1):
+                    cell = center[0]+dx, center[1]+dy
+                    if base.in_bounds(cell) and math.dist(base.cell_to_world(cell), position) <= retained_radius:
+                        body_cells.add(cell[1]*base.width+cell[0])
+        # Carry only already certified free cells under the current protected footprint.
+        # New unknown cells are never added. Fresh hits revoke the carried certificate.
+        self.body_proof &= body_cells
+        self.body_proof |= {i for i in body_cells if values[i] == 0}
+        self.body_proof -= {i for i in body_cells if values[i] == 100}
         raw = bytearray(base.cells)
-        for i in proof:
+        for i in self.body_proof:
             if values[i] == -1:
                 raw[i] = 0
         radius_cells = math.ceil(self.radius/base.resolution)

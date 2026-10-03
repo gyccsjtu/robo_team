@@ -87,6 +87,7 @@ def install_stubs():
 
     mvm.ParamValue = _Simple
     mvm.State = _Simple
+    mvm.EstimatorStatus = _Simple
     mv.msg = mvm
     sys.modules['mavros_msgs'] = mv
     sys.modules['mavros_msgs.msg'] = mvm

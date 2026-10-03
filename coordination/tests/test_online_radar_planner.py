@@ -53,6 +53,56 @@ class OnlinePlanningTests(unittest.TestCase):
         self.assertFalse(planner.command_clear(grid, (3.,0.), (2.,0.)))
         self.assertFalse(planner.command_clear(grid, (9.5,0.), (1.,0.)))
 
+    def test_scan_carries_observed_footprint_between_infrequent_planning_calls(self):
+        observed = self.observed()
+        planner = OnlinePlanner((0.,0.))
+        old = OnlinePlanner((0.,0.))
+        planner.grid(observed, (0.,0.), 10., 'epoch')
+        old.grid(observed, (0.,0.), 10., 'epoch')
+        # Traversed free cells enter the blind region while no route replan runs.
+        for stamp, position in ((11.,(1.,0.)), (12.,(2.,0.)), (13.,(3.,0.))):
+            observed.last_scan_s = stamp
+            planner.carry_body_proof(observed, position, stamp, 'epoch')
+        observed.observed_s = [14. if v == 0 else None for v in observed.cells]
+        observed.last_scan_s = 14.
+        hole = observed.index(3.,0.)
+        observed.cells[hole], observed.observed_s[hole] = -1, None
+        position = (3.,0.)
+        carried = planner.grid(observed, position, 14., 'epoch')
+        missed = old.grid(observed, position, 14., 'epoch')
+        self.assertTrue(carried.is_free(carried.world_to_cell(position)))
+        self.assertFalse(missed.is_free(missed.world_to_cell(position)))
+        # A fresh physical obstacle revokes the retained cell immediately.
+        observed.cells[hole], observed.observed_s[hole] = 100, 14.1
+        observed.last_scan_s = 14.1
+        planner.carry_body_proof(observed, position, 14.1, 'epoch')
+        hit = planner.grid(observed, position, 14.1, 'epoch')
+        self.assertFalse(hit.is_free(hit.world_to_cell(position)))
+
+    def test_body_carry_never_fills_unseen_cells_or_crosses_map_reset(self):
+        observed = self.observed()
+        planner = OnlinePlanner((0.,0.))
+        planner.grid(observed, (0.,0.), 10., 'epoch')
+        unseen = observed.index(8.,0.)
+        planner.carry_body_proof(observed, (8.,0.), 10., 'epoch')
+        self.assertNotIn(unseen, planner.body_proof)
+        observed.cells = [-1] * (observed.width*observed.height)
+        observed.observed_s = [None] * len(observed.cells)
+        observed.last_scan_s = 11.
+        planner.carry_body_proof(observed, (8.,0.), 11., 'new_epoch')
+        self.assertFalse(planner.body_proof)
+
+    def test_frozen_plan_cannot_roll_back_newer_footprint_proof(self):
+        observed = self.observed()
+        planner = OnlinePlanner((0.,0.))
+        planner.grid(observed, (0.,0.), 10., 'epoch')
+        observed.last_scan_s = 11.
+        planner.carry_body_proof(observed, (1.,0.), 11., 'epoch')
+        latest = set(planner.body_proof)
+        frozen = self.observed()  # Older scan, and old aircraft position.
+        planner.grid(frozen, (0.,0.), 10., 'epoch')
+        self.assertEqual(planner.body_proof, latest)
+
     def test_fine_grid_retains_radius_but_avoids_diagonal_quantization_stall(self):
         import math
         def scanned_grid(resolution, distance):

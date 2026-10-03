@@ -65,10 +65,12 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         # The last real flight reached world z=6.019 while MAVROS reported
         # z=4.747. Reserve height for that observed estimator discrepancy;
         # world truth remains an independent audit input, not a controller input.
-        # The previous flight hit a ~3.98m canopy with the body at 3.89m
-        # while its laser plane was 0.2m above the body. Trial a lower
-        # cruise height; this does not turn planar lidar into 3D clearance.
-        ALT_BASE='3.0',ALT_NLAYER='1',ALT_TARGET_CAP='3.0',
+        # v1.15 hit a fast-food protrusion below 3m with its leg while
+        # the body was at world 3.15m and the lidar above that protrusion.
+        # Local 2.8m produced world ~3.0-3.4m. Trial local 2.2m, aiming
+        # for the teammate's *actual* 2.5-3m suggestion; audit world height
+        # independently. No Gazebo truth feeds this height controller.
+        ALT_BASE='2.2',ALT_NLAYER='1',ALT_TARGET_CAP='2.2',CLIMB_DONE_ALT='2.0',
         ALT_HARD_CEIL='4.1',ALT_PANIC='4.3',ALT_EMERG_CEIL='4.5',
         SWARM_ROUTE_CLEARANCE_M='2.5',SWARM_FLEET_SEPARATION_M='2.5',
         PR_PERSON_VERIFY_WEIGHTS=str(repo/'weights/yolo11n_person.pt'),
@@ -81,6 +83,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         control_truth_input=False, own_camera_pose_source='DEVELOPMENT_GAZEBO_LINK_POSE',
         clearance_configuration_revision='v1.2',route_clearance_m=2.5,fleet_separation_m=2.5,
         observed_grid_revision='v1.14',observed_grid_resolution_m=.25,
+        observed_body_proof_revision='v1.16_scan_carry',
         maximum_speed_mps=3.,visual_fusion_revision='v2.4',tracker_selection_revision='v1.3',
         person_motion_revision='v1.4',recent_motion_window_s=4.,
         target_motion_revision='v1.5',flee_chase_speed_mps=2.6,
@@ -88,11 +91,15 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         visual_rendezvous_revision='v1.9',official_short_coast_revision='v1.10',
         green_person_verification_revision='v1.11',
         estimator_configuration_revision='v1.12',
+        estimator_jump_handling_revision='v1.15_quarantine_without_reanchor',
+        teammate_radar_source_commit='f45671b04bb8d7a6d2dcad5f891879e02ba0f6d5',
         person_verifier_weights_sha256=hashlib.sha256((repo/'weights/yolo11n_person.pt').read_bytes()).hexdigest(),
         red_matching_revision='organizer_clarification_20261003_v1',
         red_report_topic='/actor_red_info',red_coordination_identity='geometric_track_slot_not_actor_id',
-        altitude_configuration_revision='v1.13',altitude_reference='MAVROS_LOCAL',
-        cruise_altitude_m=3.0,altitude_hard_m=4.1,altitude_panic_m=4.3,
+        altitude_configuration_revision='v1.17',altitude_reference='MAVROS_LOCAL',
+        cruise_altitude_m=2.2,horizontal_takeoff_gate_local_m=2.,
+        motion_evidence_minimum_world_height_m=1.,
+        actual_height_trial_goal_m=[2.5,3.],altitude_hard_m=4.1,altitude_panic_m=4.3,
         altitude_emergency_m=4.5,
         formal_competition_pass=False),indent=2))
     # Let PX4 initialize at 250Hz, then slow physics without changing sensors.
@@ -289,8 +296,11 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
     movements={r['uav_id']:max((math.dist(s['positions'][r['uav_id']][:2],r['spawn_xy']) for s in samples),default=0.)
                for r in wiring['uavs']}
     audit=audit_jsonl([out/'city_events.jsonl',out/'city_trajectory.jsonl',out/'city_commands.jsonl'])
+    # This is only evidence of airborne motion, not competition completion.
+    # The former 2.5m minimum was a trial-height assumption, not an official
+    # minimum altitude. Low-altitude development flights still count as motion.
     moving=(not error and audit['valid'] and len(armed)==6
-            and all(2.5<=z<6. for z in heights.values()) and all(d>1. for d in movements.values()))
+            and all(1.<=z<6. for z in heights.values()) and all(d>1. for d in movements.values()))
     return dict(status='CITY_SIX_AIRCRAFT_MOVING' if moving else 'CITY_MOTION_BLOCKED',
         six_aircraft_motion_observed=moving,official_targets_eliminated=(6-len(latest['left_actors']))
             if latest['left_actors'] is not None else None,

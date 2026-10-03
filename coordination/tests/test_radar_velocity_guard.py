@@ -28,6 +28,26 @@ class RadarGuardTests(unittest.TestCase):
     def test_clear_scan_preserves_request(self):
         self.assertEqual(self.check()['velocity_xy'], (1., 0.))
 
+    def test_teammate_grazing_wall_hits_on_skipped_indices_still_brake(self):
+        # Reproduce f45671b's grazing wall with every even-index echo missing.
+        # The six-aircraft final guard must still consume all 512 beams.
+        n = 512
+        increment = 2 * math.pi / n
+        ranges = [math.inf] * n
+        for i in range(1, n, 2):
+            angle = -math.pi + i * increment
+            if math.sin(angle) <= 1e-6:
+                continue
+            x = .55 / math.tan(angle)
+            if 2. <= x <= 8.:
+                ranges[i] = .55 / math.sin(angle)
+        self.assertTrue(any(math.isfinite(r) for r in ranges))
+        self.assertTrue(all(r == math.inf for r in ranges[::2]))
+        result = self.check(request=(3., 0.), measured=(3., 0.), ranges=ranges,
+                            angle_increment=increment)
+        self.assertEqual(result['reason'], 'BRAKING_REQUIRED')
+        self.assertEqual(result['velocity_xy'], (0., 0.))
+
     def test_missing_delayed_and_future_scan_stop(self):
         for change in (dict(ranges=None), dict(scan_s=9.), dict(scan_s=11.),
                        dict(ranges=[]), dict(ranges=[math.inf] * 90)):

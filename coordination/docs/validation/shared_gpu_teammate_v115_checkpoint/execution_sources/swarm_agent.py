@@ -333,7 +333,7 @@ class SwarmAgent(object):
         self.local_xy = None        # (x, y) MAVROS 局部坐标（轻量、高频）
         self.offset = None          # 局部->世界 的恒定平移 (dx, dy)，启动时标定一次
         self._offset_param = None   # 注入的起飞点世界坐标（EKF 重锚定基准）
-        self._anchor_done = False   # 起飞锚定完成后启用定位突跳隔离
+        self._anchor_done = False   # EKF 稳定锚定完成后才启用跳变检测
         self._local_prev_t = 0.0    # 上一帧 local_position 的 ROS 时间（跳变检测）
         self.local_z = None         # 高度（来自 local_position）
         self.yaw = 0.0              # 机体 yaw（ENU 弧度，供雷达 body->world）
@@ -515,7 +515,7 @@ class SwarmAgent(object):
         """世界坐标 = 局部坐标 + 标定偏移（偏移未标定好前返回 None）。"""
         if (self.local_xy is None or self.offset is None
                 or getattr(self, '_pose_quality', None) is not None
-                and self._pose_quality.fault is not None):
+                and not self._pose_quality.usable(rospy.Time.now().to_sec())):
             return None
         return (self.local_xy[0] + self.offset[0], self.local_xy[1] + self.offset[1])
 
@@ -615,14 +615,8 @@ class SwarmAgent(object):
     def _scan_cb(self, msg):
         self._scan = msg
         self._scan_t = msg.header.stamp.to_sec()
-        quality = getattr(self, '_pose_quality', None)
-        if quality is not None and not quality.usable(rospy.Time.now().to_sec()):
-            return
         observed = getattr(self, '_online_map', None)
-        if observed is None or self._map_pub is None:
-            return
-        position = self.world_xy
-        if (position is None or self._local_prev_t is None
+        if (observed is None or self._map_pub is None or self.world_xy is None or self._local_prev_t is None
                 or (observed.last_scan_s is not None and self._scan_t-observed.last_scan_s < .5)):
             return
         now = rospy.Time.now().to_sec()
@@ -633,12 +627,9 @@ class SwarmAgent(object):
                 observed = self._online_map = ObservedMap(self.grid.width, self.grid.height, self.grid.resolution, self.grid.origin)
                 self._online_map_offset = self.offset
                 self._online_map_epoch_s = self._scan_t
-            if not observed.feed(msg.ranges, position, self.yaw, msg.angle_min, msg.angle_increment,
+            if not observed.feed(msg.ranges, self.world_xy, self.yaw, msg.angle_min, msg.angle_increment,
                                  msg.range_min, msg.range_max, self._scan_t, self._local_prev_t, now):
                 return
-            planner = getattr(self, '_online_planner', None)
-            if planner is not None:
-                planner.carry_body_proof(observed, position, now, self._online_map_epoch_s)
             map_epoch, values, version = self._online_map_epoch_s, observed.snapshot(now), observed.version
         output = OccupancyGrid()
         output.header.stamp = msg.header.stamp
@@ -666,9 +657,6 @@ class SwarmAgent(object):
             return
 
     def _publish_motion(self):
-        quality = getattr(self, '_pose_quality', None)
-        if quality is not None and not quality.usable(rospy.Time.now().to_sec()):
-            return
         if (getattr(self, '_motion_pub', None) is None or self.world_xy is None
                 or self._velocity_sample is None or self._local_prev_t is None):
             return
@@ -724,10 +712,6 @@ class SwarmAgent(object):
 
     def _publish_authority_state(self):
         now = rospy.Time.now().to_sec()
-        quality = getattr(self, '_pose_quality', None)
-        if quality is not None and not quality.usable(now):
-            self._stopped_since = None
-            return
         velocity = self._velocity_sample
         xyz = self.world_xy
         if (xyz is None or self.local_z is None or velocity is None
@@ -1012,7 +996,7 @@ class SwarmAgent(object):
             rospy.loginfo("[%s] 已在空中 OFFBOARD（z=%.2f）→ 跳过起飞等待",
                           self.uav_id, self.local_z)
             # 已离地，无法用「起飞点=当前位置」重锚定，沿用参数 offset；
-            # 后续突跳必须隔离，不能凭相邻坐标自行推定世界偏移。
+            # 但仍启用跳变检测，EKF 飞行中原点重置时保持 world_xy 连续。
             self._anchor_done = True
             return True
 
@@ -1049,7 +1033,7 @@ class SwarmAgent(object):
                               self._offset_param[1] - self.local_xy[1])
             self.offset = (self._offset_param[0] - self.local_xy[0],
                            self._offset_param[1] - self.local_xy[1])
-        self._anchor_done = True   # 此后 _local_cb 启用定位突跳隔离
+        self._anchor_done = True   # 此后 _local_cb 启用跳变重锚定
 
         # 预热：持续发纯零速，让 OFFBOARD setpoint 生效（vz=0 而非爬升）
         for _ in range(120):
@@ -2470,9 +2454,6 @@ class SwarmAgent(object):
 
     # ---------------- 状态上报 ----------------
     def _publish_status(self):
-        quality = getattr(self, '_pose_quality', None)
-        if quality is not None and not quality.usable(rospy.Time.now().to_sec()):
-            return
         if self.world_xy is None:
             return
 

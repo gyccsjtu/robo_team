@@ -1,0 +1,40 @@
+{
+  "status": "RUNNING_CHECKPOINT_NOT_FINAL",
+  "source_run": "/root/robocup_runs/codex_city_teammate_v115_20261004/flight",
+  "simulated_seconds": 207.0239999999999,
+  "highest_world_altitude_m": 3.3860874948700346,
+  "remaining": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "official_targets_eliminated": 2,
+  "non_ground_body_contact_log_rows": 13,
+  "first_non_ground_body_contact": {
+    "kind": "UAV_BODY_CONTACT",
+    "sample_s": 2127.02,
+    "collision1": "fast_food_93::link::collision",
+    "collision2": "typhoon_h480_5::left_leg::collision"
+  },
+  "contact_observer_last_heartbeat": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 52724,
+    "first_sample_s": 1929.316,
+    "last_sample_s": 2140.208,
+    "maximum_sample_gap_s": 0.00800000000004,
+    "sonar_virtual_pairs": 79270,
+    "body_pairs": 50948
+  },
+  "agent_exceptions": {
+    "agent_uav_5": 1,
+    "agent_uav_4": 0,
+    "agent_uav_3": 0,
+    "agent_uav_1": 0,
+    "agent_uav_2": 0,
+    "agent_uav_6": 0
+  },
+  "formal_competition_pass": false,
+  "six_target_goal_complete": false,
+  "source_note": "Run uses v1.15 startup snapshot. Repo freshness-race and v1.16 body-proof fixes are not running in this checkpoint."
+}
