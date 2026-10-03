@@ -33,7 +33,11 @@
 实飞目录：`/root/robocup_runs/codex_city_teammate_v115_20261004/`。
 本轮为600仿真秒的同种子17城市任务，共享GPU单服务、六客户端CPU回退、物理更新40Hz。
 保持WSL内存配置，清理范围仅本轮创建的进程。执行源码快照和SHA在`flight/swarm_source_manifest.json`。
-**本页编写时实飞尚在进行，尚无完整六目标结果。** 后续实际结果须以归档为准。
+本轮已跑满600.092秒，最终3/6、存在快餐店接触，尚未完成六目标。
+最终证据见[run10归档](validation/shared_gpu_run10_teammate_v115/README.md)；
+4号/5号机的脚下未知卡点及其修正没有在v1.15启动快照中解除。
+随后只启动一轮同种子对照`/root/robocup_runs/codex_city_teammate_v118_20261004/`，
+以局部2.2m和已提交的卡点/追踪修正核查真实效果；此处不预先填写通过结论。
 
 ## 实飞中发现并修正的代码问题
 

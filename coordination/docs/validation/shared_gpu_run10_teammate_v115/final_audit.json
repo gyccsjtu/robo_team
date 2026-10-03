@@ -1,0 +1,40 @@
+{
+  "source_run_id": "b5c981f0-54ce-49d2-bc24-d6e5a9ba4fb7",
+  "contact_log_non_ground_rows": 13,
+  "row_count_is_not_independent_collision_count": true,
+  "non_ground_pairs": {
+    "fast_food_93::link::collision + typhoon_h480_5::left_leg::collision": 7,
+    "fast_food_93::link::collision + typhoon_h480_5::right_leg::collision": 3,
+    "fast_food_93::link::collision + typhoon_h480_5::base_link::base_link_collision": 3
+  },
+  "contact_observer_final": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 150297,
+    "first_sample_s": 1929.316,
+    "last_sample_s": 2530.5,
+    "maximum_sample_gap_s": 0.00800000000004,
+    "sonar_virtual_pairs": 174866,
+    "body_pairs": 50948
+  },
+  "first_non_ground": {
+    "kind": "UAV_BODY_CONTACT",
+    "sample_s": 2127.02,
+    "collision1": "fast_food_93::link::collision",
+    "collision2": "typhoon_h480_5::left_leg::collision"
+  },
+  "last_non_ground": {
+    "kind": "UAV_BODY_CONTACT",
+    "sample_s": 2130.844,
+    "collision1": "fast_food_93::link::collision",
+    "collision2": "typhoon_h480_5::left_leg::collision"
+  },
+  "flight_completed_s": 600.0920000000001,
+  "no_collision_pass": false,
+  "full_task_complete": false,
+  "next_code_not_executed_in_this_run": [
+    "v1.16_scan_carry",
+    "v1.17_local2.2",
+    "v1.18_guidance_red_agent",
+    "v2.6_reacquisition_reset"
+  ]
+}
