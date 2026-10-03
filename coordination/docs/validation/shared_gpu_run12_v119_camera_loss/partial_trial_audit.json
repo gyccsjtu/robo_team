@@ -1,0 +1,18 @@
+{
+  "intentional_development_stop": true,
+  "completed_600_seconds": false,
+  "remaining_actors": [
+    0,
+    1,
+    2,
+    4,
+    5
+  ],
+  "targets_eliminated": 1,
+  "non_ground_body_contact_log_rows": 0,
+  "maximum_sampled_altitude_m": 3.041005764366833,
+  "all_targets_eliminated": false,
+  "formal_competition_pass": false,
+  "source_tracking_policy": "v1.3_without_camera_takeover",
+  "next_v120_not_executed_in_this_run": true
+}

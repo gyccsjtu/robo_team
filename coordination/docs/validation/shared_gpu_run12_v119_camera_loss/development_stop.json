@@ -1,0 +1,16 @@
+{
+  "reason": "CAMERA_OWNER_HANDOFF_AND_FRAME_THROTTLE_DEFECT_CONFIRMED",
+  "intentional_development_stop": true,
+  "actual_last_sample_s": 2283.32,
+  "elapsed_from_judge_ready_s": 352.3120000000001,
+  "remaining_actors": [
+    0,
+    1,
+    2,
+    4,
+    5
+  ],
+  "completed_600_seconds": false,
+  "formal_competition_pass": false,
+  "stopped_own_launcher_pid": 607
+}

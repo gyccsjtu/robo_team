@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!--
+  官方 RoboCup 世界 + 真机（单架）启动文件
+  基于 XTDrone 官方 outdoor1.launch 改造，仅两处差异：
+    1) world 指向官方 ~/XTDrone/robocup/base.world（原为 mavlink_sitl_gazebo 内置世界）
+    2) 起飞点改为建筑净空 6m 的安全点，避免出生就卡在楼里
+  spawn 出的模型名 = typhoon_h480_0，与官方裁判 score_cal.py 期望的命名一致。
+-->
+<launch>
+    <!-- 世界与起飞点 -->
+    <arg name="world" default="$(env HOME)/XTDrone/robocup/base.world"/>
+    <arg name="x"     default="-6.0"/>
+    <arg name="y"     default="4.0"/>
+    <arg name="z"     default="0.2"/>
+    <arg name="Y"     default="0.0"/>
+    <!-- gazebo -->
+    <arg name="gui"     default="false"/>
+    <arg name="verbose" default="false"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui"        value="$(arg gui)"/>
+        <arg name="world_name" value="$(arg world)"/>
+        <arg name="verbose"    value="$(arg verbose)"/>
+        <arg name="paused"     value="false"/>
+        <arg name="use_sim_time" value="true"/>
+    </include>
+
+    <!-- typhoon_h480_0 -->
+    <group ns="typhoon_h480_0">
+        <arg name="fcu_url" default="udp://:24540@localhost:34580"/>
+        <include file="$(find px4)/launch/single_vehicle_spawn_xtd.launch">
+            <arg name="x" value="$(arg x)"/>
+            <arg name="y" value="$(arg y)"/>
+            <arg name="z" value="$(arg z)"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="$(arg Y)"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf"     value="typhoon_h480"/>
+            <arg name="mavlink_udp_port" value="18570"/>
+            <arg name="mavlink_tcp_port" value="4560"/>
+            <arg name="udp_gimbal_port"  value="13030"/>
+            <arg name="ID" value="0"/>
+            <arg name="ID_in_group" value="0"/>
+        </include>
+        <!-- MAVROS -->
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="1"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+</launch>

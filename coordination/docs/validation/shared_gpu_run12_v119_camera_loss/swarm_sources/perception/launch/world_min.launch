@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+  轻量世界：只含官方 base.world 的【世界头 + ground_plane + 6 个 actor】，
+  剔除 311~7682 行的城市场景模型。
+
+  为什么需要它
+  ============
+  实测：这台 VM 上 gzserver 加载完整 base.world 会 **Segmentation fault**，
+  而且必现（连试 3 次：roslaunch 带 screen / roslaunch 重定向 / 直接 gzserver 带 verbose）。
+  对照实验：
+    · 空 world（empty_world.launch）            -> 正常
+    · actor_min.world（本文件，319 行）          -> 正常加载 6 个 actor 插件，不崩
+    · base.world（7682 行，含 city_terrain/ocean/house_*/lamp_post...） -> 崩
+  所以崩点在**城市模型那 7000 行**，与 actor、世界头、Gazebo 环境无关。
+
+  对"真飞 + 验证 YOLO"这个目标，需要的只有：能起飞 + 有会走路的 actor 可检。
+  城市场景不参与，反而 8vCPU/8G 的 VM 上负载低得多（RTF 更好，这是真飞的关键瓶颈）。
+
+  生成方式（可复现）：
+    cd ~/XTDrone/robocup
+    END=$(grep -n "</actor>" base.world | tail -1 | cut -d: -f1)   # =317
+    { sed -n "1,${END}p" base.world; echo "</world>"; echo "</sdf>"; } > actor_min.world
+-->
+<launch>
+    <arg name="world" default="$(env HOME)/XTDrone/robocup/actor_min.world"/>
+    <arg name="gui"   default="false"/>
+    <arg name="verbose" default="false"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui"        value="$(arg gui)"/>
+        <arg name="world_name" value="$(arg world)"/>
+        <arg name="verbose"    value="$(arg verbose)"/>
+        <arg name="paused"     value="false"/>
+        <arg name="use_sim_time" value="true"/>
+    </include>
+</launch>

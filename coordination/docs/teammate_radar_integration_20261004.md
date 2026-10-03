@@ -143,3 +143,11 @@ manager仍等待同轮新鲜1秒停稳ACK、退休锁退出证据；失联、TTL
 这些核心修改可交给WorkBuddy接入核查：版本为任务schema2/v2.2、视觉schema2/v2.8；
 升级manager、task_authority、tracker_selection和perception整套源码，保留唯一setpoint发布者及同轮run_id。
 失败/已知限制仍包括持续定位、二维雷达三维盲区与正式自身相机位姿来源；完整六目标尚未完成。
+
+## v1.19结束与v1.20启动
+
+v1.19开发裁判在340.660秒确认白色消除，最终1/6；352.312秒主动结束以使上述接替与原图发送修正进入快照。
+原始中断失败未改写，非地面机体接触记录0条、采样最高真实高度3.041006m，仅覆盖短段。
+证据见[run12归档](validation/shared_gpu_run12_v119_camera_loss/README.md)。
+北京时间约05:19，仅启动一套`codex_city_teammate_v120_20261004/flight`，600秒计划，
+共享GPU、原WSL内存、局部2.2m与原传感器参数；代码397项测试通过，运动效果仍待该轮记录。
