@@ -191,6 +191,11 @@ BUILDING_DIST    = 5.0      # 建筑判定距离 m（小于此值视为建筑附
 # （control_actor.py:53）—— 半径 < 7m 时 actor 会主动推 UAV，根本稳不住。
 # 8m 仍 << DETECT_RADIUS=20m，且 ORBIT_SPEED*ORBIT_RADIUS=0.96 m/s < 1.0 m/s 逃跑阈值。
 ORBIT_RADIUS    = 8.0     # 盘旋半径 m
+# === 2026-10-03 我方补 ===
+# 够不着的距离（m）。官方判据是"误差<1m 连续 15s"，实测单目测距 7m 内误差
+# 0.26~0.69m、15.98m 时误差 1.1m 已越界 ⇒ bridge 距离闸门默认 12m。
+# 超过这个距离还没播报成功 = 还没飞到看得清的距离，不该判"播报被拒"而放弃目标。
+CLOSE_ENOUGH_M  = float(os.environ.get("CLOSE_ENOUGH_M", "11.0"))
 # 线速度 = ORBIT_SPEED * ORBIT_RADIUS，必须 < 1.0 m/s。
 # 官方 control_actor.py:211 —— 飞机以 >1.0 m/s 在 actor 20m 内连续待 2s，
 # actor 就进入逃跑态（速度 1.0 -> 2.0 且主动远离），坐标误差随之翻倍，
@@ -201,6 +206,13 @@ ORBIT_SPEED     = 0.12     # 盘旋角速度 rad/s（r=8m 时线速度 0.96 m/s�
 # 确实攒不满 2s tracking_flag；但若中途建筑挡视线或 UAV 悬停几秒就会踩线。
 SPOOK_DIST      = 22.0    # 进入此距离就压速（官方逃跑判定边界 20m，我们提前 2m 保险）
 SPOOK_SPEED     = 0.8     # 必须 < 1.0 m/s，比旧版 0.9 更保守
+# 2026-10-03：最终下发给 PX4 的通道。pos=位置设定点（默认，实测唯一能起飞
+# 且跟踪正常的通道）；vel=旧的 setpoint_velocity 通道（本机实测垂向跟踪只有
+# 20%、地面 vz>0 起不来，留作对照）。
+FLIGHT_OUTPUT   = os.environ.get("FLIGHT_OUTPUT", "pos")
+POS_SP_STEP_MAX = float(os.environ.get("POS_SP_STEP_MAX", "0.6"))  # 单帧位置增量上限 m
+POS_SP_LEAD     = float(os.environ.get("POS_SP_LEAD", "0.35"))      # 位置设定点前瞻 s
+POS_SPV         = int(os.environ.get("POS_SPV", "0"))                # 1=打印位置设定点诊断
 # 目标已进入 FLEE（state=1，实测逃跑 2.0 m/s）时，慢速 0.8 必然被甩开跟丢。
 # 此时短暂提速咬住（须略 >2.0）；目标不在逃跑时仍用 SPOOK_SPEED 防惊吓。
 FLEE_CHASE_SPEED  = float(os.environ.get('FLEE_CHASE_SPEED', '2.2'))
@@ -418,6 +430,18 @@ class SwarmAgent(object):
         self.detect_pub = rospy.Publisher("/swarm/detection", TargetDetection, queue_size=10)
         self.vel_pub = rospy.Publisher("/%s/mavros/setpoint_velocity/cmd_vel" % uav_id,
                                        TwistStamped, queue_size=5)
+        # 2026-10-03：位置设定点输出通道。
+        # 实测（本 VM，PX4 v1.13.2 + typhoon_h480 + robocup.world）：
+        #   纯速度设定点 setpoint_velocity/cmd_vel 的跟踪能力只有指令的 ~20%
+        #   （指令 vz=+1.0，真实爬升 ~0.16 m/s；且在地面上 vz>0 根本起不来，
+        #     垂向平衡点卡在 z≈0.8m，飞机趴在地上 forever）；
+        #   位置设定点 setpoint_position/local 正常：3s 爬到 2.3m 并稳住。
+        # 因此默认走位置模式：把 _send_vel 算出的速度积分成位置设定点下发，
+        # 水平逻辑/避障/限幅全部保留不变；FLIGHT_OUTPUT=vel 可切回旧行为。
+        self.pos_pub = rospy.Publisher("/%s/mavros/setpoint_position/local" % uav_id,
+                                       PoseStamped, queue_size=5)
+        self._pos_sp = None          # 本地 ENU 位置设定点 [x, y, z]
+        self._pos_sp_t = 0.0
 
         self.ctrl_rate = rospy.Rate(CTRL_RATE)
         self.pub_rate = rospy.Rate(PUB_RATE)
@@ -1201,7 +1225,68 @@ class SwarmAgent(object):
             cmd.twist.angular.z = _yr
         # 记录最终下发的水平速度（供路径未就绪时继续发，保证 offboard 不断流）
         self._last_flight_v = (vx, vy)
-        self.vel_pub.publish(cmd)
+        if FLIGHT_OUTPUT == "pos":
+            self._publish_pos_output(vx, vy, target_alt, vz)
+        else:
+            self.vel_pub.publish(cmd)
+
+    def _publish_pos_output(self, vx, vy, target_alt, vz=None):
+        """速度 → 位置设定点。
+
+        速度指令本身已经过加速度限幅 / 雷达 / 栅格 / 地图边界四层守卫，这里只做
+        「积分成位置」这一个动作，逻辑与限幅全部保留：
+
+          sp = 当前位置 + v * POS_SP_LEAD
+
+        每帧都以**实际 localize 位置**为基准重算（不累积上次结果），因此不存在
+        积分漂移；单帧增量再夹在 POS_SP_STEP_MAX 内，防止守卫给出的速度很大时
+        一步跳太远。高度直接用 target_alt（官方 >6m 判 0，这里目标 2.8m）。
+        """
+        lxy = self.local_xy
+        if lxy is None or self.local_z is None:
+            # 位置还没就绪 → 退回速度通道保持 offboard 流不断
+            m = TwistStamped()
+            m.header.stamp = rospy.Time.now()
+            m.header.frame_id = 'world'
+            m.twist.linear.x = vx
+            m.twist.linear.y = vy
+            m.twist.linear.z = 0.0
+            self.vel_pub.publish(m)
+            return
+        step_x = vx * POS_SP_LEAD
+        step_y = vy * POS_SP_LEAD
+        step = math.hypot(step_x, step_y)
+        if step > POS_SP_STEP_MAX and step > 1e-9:
+            k = POS_SP_STEP_MAX / step
+            step_x *= k
+            step_y *= k
+        sp = PoseStamped()
+        sp.header.stamp = rospy.Time.now()
+        sp.header.frame_id = 'map'
+        sp.pose.position.x = lxy[0] + step_x
+        sp.pose.position.y = lxy[1] + step_y
+        # 高度：降落段必须真降，否则位置模式会一直保持 target_alt 悬停；
+        # 其余情况用 target_alt（官方 >6m 判 0，这里目标 2.8m，天然安全）。
+        if self._landing:
+            z = max(0.0, self.local_z - 0.6)
+        elif target_alt is not None:
+            z = target_alt
+        else:
+            z = self.local_z
+        sp.pose.position.z = z
+        sp.pose.orientation.w = 1.0
+        self._pos_sp = (sp.pose.position.x, sp.pose.position.y, sp.pose.position.z)
+        self._pos_sp_t = rospy.Time.now().to_sec()
+        self.pos_pub.publish(sp)
+        # === 诊断埋点（POS_SPV 开启时打印，验证方向与限幅是否符合预期） ===
+        if POS_SPV:
+            rospy.loginfo_throttle(
+                1.0,
+                "[%s][SPV] v=(%.2f,%.2f) cur_local=(%.2f,%.2f) cur_world=%s "
+                "sp_local=(%.2f,%.2f,%.2f)",
+                self.uav_id, vx, vy, lxy[0], lxy[1],
+                ("%.2f,%.2f" % self.world_xy) if self.world_xy else "None",
+                sp.pose.position.x, sp.pose.position.y, sp.pose.position.z)
 
     def _need_replan_track(self, goal):
         """追踪移动目标时的 A* 重规划节流。
@@ -1628,6 +1713,26 @@ class SwarmAgent(object):
         # 镜像官方窗口：把自己的确认计时也归零，ORBIT_GIVEUP 的语义才成立
         self._confirm_start = rospy.Time.now().to_sec()
         self._last_confirm_t = self._confirm_start
+        # === 2026-10-03 我方补：先判"是不是根本够不着" ===
+        # 官方裁判判据是"误差<1m 连续 15s"，而我方 yolo_target_bridge 加了
+        # 距离闸门（默认 12m）：估计距离超出闸门时我们**故意不播报**，裁判自然
+        # 收不到消息 → 15s 计时反复清零 → /find_actor_N 反复重置。
+        # 这种"重置"不是"播报了但坐标错"，而是"还没飞到能看清的距离"。
+        # 旧逻辑会据此判定播报被拒 → 退避 60s 去搜别处，目标永远丢；
+        # 现在够不着就继续靠近（缩短 ORBIT 目标点、拉近观察距离），
+        # 让距离闸门自然放开，而不是放弃目标。
+        _wxy = self.world_xy
+        _tgt = self._orbit_center or self._target_to_orbit
+        if _wxy is not None and _tgt is not None:
+            _d = math.hypot(_tgt[0] - _wxy[0], _tgt[1] - _wxy[1])
+            if _d > CLOSE_ENOUGH_M:
+                rospy.loginfo_throttle(
+                    5.0,
+                    '[%s] %s 确认被重置：距目标 %.1fm > %.1fm（还没飞到看得清的距离，'
+                    '不放弃，继续靠近）',
+                    self.uav_id, tid, _d, CLOSE_ENOUGH_M)
+                self._reset_n[actor_idx] = 0      # 够不着不算"被拒绝"
+                return
         if BACKOFF_ENABLE and self._reset_n[actor_idx] >= CONFIRM_RESET_MAX:
             self._giveup_until[tid] = rospy.Time.now().to_sec() + BACKOFF_COOLDOWN
             self._abort_orbit('官方已重置 %d 次确认，退避 %.0fs 去搜别处'
