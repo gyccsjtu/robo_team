@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from red_judge_compat import adapt_red_judge
 
 SPAWNS = [(0., -3.), (3., -3.), (0., 0.), (3., 0.), (0., 3.), (3., 3.)]
 
@@ -64,17 +65,35 @@ def prepare(source, output, seed=17):
     control = control.replace("os.path.expanduser('~/XTDrone/robocup/black_box.txt')", repr(str(output/'black_box.txt')))
     control = control.replace('self.left_actors = range(self.actor_num)', 'self.left_actors = list(range(self.actor_num))')
     control = control.replace('self.teleportation_interval = 25', 'self.teleportation_interval = 30')
+    # Python 2-style print formatting crashed actor_1 on a transient service
+    # disconnect. Retry without substituting a fictitious (0,0) actor pose.
+    control = control.replace(
+        'print("Gazebo model state service"+self.id+"  call failed: %s") % e\n'
+        '                self.current_pose.x = 0.0\n'
+        '                self.current_pose.y = 0.0\n'
+        '                self.current_pose.z = 1.25',
+        'print(("Gazebo model state service"+self.id+"  call failed: %s") % e)\n'
+        '                rate.sleep()\n'
+        '                continue')
     (output/'control_actor.py').write_text(control)
+    # Only the isolated judge copy implements the organizer clarification.
+    judge = output/'score_cal.py'
+    judge.write_text(adapt_red_judge(judge.read_text()))
     report = dict(schema_version=1, development_scene=True, formal_competition_pass=False,
         source_directory=str(source), seed=selected, attempts=attempts,
         positions={'uav_%d'%(i+1):list(p) for i,p in enumerate(SPAWNS)},
         startup_checks={'uav_%d'%(i+1):dict(free_radius_m=2., rectangle_clearance_m=d)
                         for i,d in enumerate(distances)},
         actor_ids=[a.get('name') for a in world.findall('actor')],
+        red_matching_revision='organizer_clarification_20261003_v1',
+        red_matching_source='User-relayed organizer clarification; either red truth matches a red report',
+        adapted_judge_sha256=hashlib.sha256(judge.read_bytes()).hexdigest(),
         source_sha256={p.name:hashlib.sha256((source/p.name).read_bytes()).hexdigest()
                        for p in output.iterdir() if (source/p.name).is_file()},
         adaptations=['isolated output paths', 'seeded map randomness', '250Hz PX4-compatible physics',
-                     'Python3 actor range', '30s teleport per rule; platform copy used 25s'])
+                     'Python3 actor range', '30s teleport per rule; platform copy used 25s',
+                     'actor transient service retry without Python2 print crash or fictitious pose',
+                     'red reports match either remaining red actor; isolated judge copy only'])
     (output/'scene_manifest.json').write_text(json.dumps(report,indent=2))
     return report
 

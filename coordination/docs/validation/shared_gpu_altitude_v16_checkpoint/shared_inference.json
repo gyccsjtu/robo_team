@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "port": 19731,
+  "device": "0",
+  "conf": 0.4,
+  "reason": "six independent CUDA contexts were the largest reclaimable memory in the 2026-10-03 OOM; sensors unchanged"
+}

@@ -1,0 +1,27 @@
+{
+  "checkpoint_only": true,
+  "formal_competition_pass": false,
+  "terminal": false,
+  "run_directory": "/root/robocup_runs/codex_city_altitude_v16_20261003/flight",
+  "sample_s": 1998.32,
+  "simulated_seconds": 68.25199999999995,
+  "left_actors": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "maximum_actual_altitude_m": 4.775620800784688,
+  "maximum_horizontal_displacements_m": {
+    "uav_1": 2.743636434196,
+    "uav_2": 16.408903311351366,
+    "uav_3": 10.34745708762199,
+    "uav_4": 24.52890970180499,
+    "uav_5": 22.469981703187536,
+    "uav_6": 21.445546233933044
+  },
+  "test_count": 339,
+  "test_result": "OK",
+  "commit": "5752707"
+}

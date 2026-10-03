@@ -83,7 +83,7 @@ class AdapterTests(unittest.TestCase):
         # constructing the large map/control node.
         tree = ast.parse((SCRIPTS / 'swarm_agent.py').read_text(encoding='utf-8'))
         agent = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'SwarmAgent')
-        names = {'_radar_guard_velocity', '_scan_cb', '_velocity_cb', '_send_vel'}
+        names = {'_radar_guard_velocity', '_grid_guard_velocity', '_scan_cb', '_velocity_cb', '_send_vel'}
         selected = [n for n in agent.body if isinstance(n, ast.FunctionDef) and n.name in names]
         module = ast.fix_missing_locations(ast.Module(body=selected, type_ignores=[]))
         env = dict(RADAR_GUARD=1, RADAR_FRESH_S=.5, RADAR_STOP_R=1.2,
@@ -101,6 +101,24 @@ class AdapterTests(unittest.TestCase):
             logwarn_throttle=lambda *a: None)
         exec(compile(module, 'swarm_agent_adapter', 'exec'), env)
         cls.methods = env
+
+    def test_online_guard_slows_inside_known_corridor_without_unreserved_turn(self):
+        from online_radar_planner import OnlinePlanner
+        from robocup_navigation.astar import GridMap
+        # A three-cell-wide observed corridor: diagonal cone probes are blocked,
+        # but the requested centerline and a reduced stopping distance are clear.
+        cells=bytes(0 if 3 <= iy <= 5 and ix < 12 else 1
+                    for iy in range(9) for ix in range(20))
+        grid=GridMap(20,9,.5,(0.,-2.25),cells,'map')
+        a=types.SimpleNamespace(world_xy=(4.,0.),_online_planner=OnlinePlanner((4.,0.)),
+            _online_safe_grid=grid,_online_safe_s=10.,_online_safe_epoch=1.,_online_map_epoch_s=1.)
+        self.methods['GRID_GUARD']=1
+        vx,vy=self.methods['_grid_guard_velocity'](a,2.,0.)
+        self.assertGreater(vx,0.);self.assertLess(vx,2.);self.assertEqual(vy,0.)
+        self.assertTrue(a._online_planner.command_clear(grid,a.world_xy,(vx,vy)))
+        for stamp,epoch in ((8.,1.),(10.2,1.),(10.,2.)):
+            a._online_safe_s=stamp;a._online_safe_epoch=epoch
+            self.assertEqual(self.methods['_grid_guard_velocity'](a,2.,0.),(0.,0.))
 
     def test_missing_measured_velocity_stops_adapter(self):
         obj = types.SimpleNamespace(_scan=object(), _velocity_sample=None,

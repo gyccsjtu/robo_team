@@ -75,3 +75,20 @@ class ConfirmedVisualAdaptersTests(unittest.TestCase):
         self.assertEqual(received[-1].state,1)
         self.assertAlmostEqual(received[-1].vx,2.)
         self.assertEqual(received[-1].header.stamp,10.8)
+
+    def test_approach_follows_fresh_assigned_target_without_other_target_or_stale_redirect(self):
+        tree=ast.parse((SCRIPTS/'swarm_agent.py').read_text(encoding='utf-8'))
+        cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='SwarmAgent')
+        fn=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='_target_cb')
+        scope=dict(TARGET_TTL=1.,rospy=SimpleNamespace(Time=SimpleNamespace(
+            now=lambda:SimpleNamespace(to_sec=lambda:10.8))))
+        exec(compile(ast.Module(body=[fn],type_ignores=[]),'actual_target_cb','exec'),scope)
+        a=SimpleNamespace(assignment=SimpleNamespace(task_type=1,target_id='t5'),
+            targets={},_target_state={},_t_seen={},_target_to_orbit=(0.,0.))
+        def feed(tid,stamp,xy):
+            scope['_target_cb'](a,SimpleNamespace(eliminated=False,target_id=tid,
+                header=SimpleNamespace(stamp=SimpleNamespace(to_sec=lambda:stamp)),
+                x=xy[0],y=xy[1],vx=2.,vy=0.,state=1))
+        feed('t5',10.5,(3.,4.));self.assertEqual(a._target_to_orbit,(3.,4.))
+        feed('t3',10.6,(8.,9.));self.assertEqual(a._target_to_orbit,(3.,4.))
+        feed('t5',8.,(20.,20.));self.assertEqual(a._target_to_orbit,(3.,4.))

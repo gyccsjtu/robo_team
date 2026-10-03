@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Start the isolated platform judge copy after its own ROS clock is ready."""
+"""Start the unmodified platform judge only after its own ROS clock is ready."""
 import runpy
 import sys
 import time

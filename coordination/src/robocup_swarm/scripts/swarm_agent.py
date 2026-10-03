@@ -858,7 +858,7 @@ class SwarmAgent(object):
             return
 
     def _target_cb(self, msg):
-        """缓存恐怖分子真值位置（几何判定用；真机上是视觉/裁判给出的观测）。"""
+        """Cache confirmed camera coordinates and update this assigned target."""
         if msg.eliminated:
             self.targets.pop(msg.target_id, None)
             self._target_state.pop(msg.target_id, None)
@@ -880,6 +880,12 @@ class SwarmAgent(object):
         self._target_state[msg.target_id] = (
             int(msg.state), sample_s)
         self._t_seen[msg.target_id] = sample_s
+        assignment = getattr(self, 'assignment', None)
+        if (getattr(assignment, 'task_type', None) == 1
+                and getattr(assignment, 'target_id', None) == msg.target_id):
+            # Assignment supplies the initial rendezvous, not a permanent point:
+            # keep the approach aimed at fresh observations of the locked target.
+            self._target_to_orbit = (msg.x, msg.y)
 
     def _friend_status_cb(self, msg):
         """接收友机位置和高度，用于避碰"""
@@ -1170,6 +1176,21 @@ class SwarmAgent(object):
         wx = self.world_xy
         if wx is None:
             return vx, vy
+        planner = getattr(self, '_online_planner', None)
+        if planner is not None:
+            # The online grid already includes obstacle and peer envelopes.
+            # Legacy cone steering can leave the committed route and get stopped
+            # by the route gate. Slow along the requested direction instead.
+            now = rospy.Time.now().to_sec()
+            if (self._online_safe_grid is None or self._online_safe_s is None
+                    or self._online_safe_epoch != self._online_map_epoch_s
+                    or not 0 <= now-self._online_safe_s <= 1.5):
+                return 0., 0.
+            for scale in (1., .8, .6, .4, .2):
+                candidate = (vx*scale, vy*scale)
+                if planner.command_clear(self._online_safe_grid, wx, candidate):
+                    return candidate
+            return 0., 0.
         spd = math.hypot(vx, vy)
         if spd < 0.05:
             return vx, vy
@@ -2141,7 +2162,11 @@ class SwarmAgent(object):
             if now-getattr(self, '_last_orbit_request_s', -100.) >= 1.:
                 self._request_plan(point)
                 self._last_orbit_request_s = now
-            local_goal = self._pick_local_goal() if self.path_target == point else None
+            # A moving target changes the next requested endpoint before its
+            # replacement route is granted. Keep following the committed route
+            # in this task generation; _send_vel still enforces its live grant.
+            # STOP and generation changes clear path_target in _authorized_cb.
+            local_goal = self._pick_local_goal() if self.path_target is not None else None
             if local_goal is None:
                 self._send_vel(0., 0.)
                 return

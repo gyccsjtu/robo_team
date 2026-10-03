@@ -29,6 +29,7 @@ import re
 import threading
 from visual_observation import VisualEvidence, TAG_TO_TID
 from search_completion import parse_actor_list
+from red_observations import RedObservations, actor_slot_remaining
 
 # ---- 身份映射（对齐 ~/XTDrone/robocup/score_cal.py 的 actor_id_dict）----
 TAG_TO_TID = {
@@ -260,7 +261,7 @@ class TargetBridgeCore(object):
         newly = []
         for tr in self.tracks.values():
             idx = ACTOR_INDEX_OF_TAG[tr.tag]
-            if idx in remaining:
+            if actor_slot_remaining(idx, remaining):
                 continue
             if tr.tag in self.eliminated or tr.elim_pending:
                 continue
@@ -339,6 +340,7 @@ class YoloTargetBridge(object):
         self._TargetState = TargetState
         self._ActorInfo = ActorInfo
         self.core = TargetBridgeCore()
+        self._red_observations = RedObservations()
         self._lock = threading.RLock()
         self.evidence = VisualEvidence(os.environ.get('ROBOCUP_RUN_ID', ''),
             os.environ.get('SWARM_UAV_IDS', 'uav_1,uav_2,uav_3,uav_4,uav_5,uav_6').split(','))
@@ -353,7 +355,7 @@ class YoloTargetBridge(object):
         self._actor_pubs = {}
         for tag in TAG_TO_TID:
             self._actor_pubs[tag] = rospy.Publisher(
-                "/actor_%s_info" % tag, ActorInfo, queue_size=3)
+                "/actor_%s_info" % ('red' if tag in ('red1','red2') else tag), ActorInfo, queue_size=3)
         rospy.Subscriber('/swarm/visual_observation', _msg_string_cls(), self._visual_cb, queue_size=50)
         rospy.Subscriber("/left_actors", _msg_string_cls(),
                          self._left_cb, queue_size=5)
@@ -382,6 +384,11 @@ class YoloTargetBridge(object):
                     return
                 tag, stamp = observation['target_id'], observation['sample_s']
                 x, y, _ = observation['xyz']
+                if tag in ('red1','red2'):
+                    tag = self._red_observations.observe(stamp,(x,y))
+                    if tag is None:
+                        return
+                    observation['target_id'] = tag
                 self.core.report(stamp, tag, x, y, observation['confidence'])
                 track = self.core.tracks[tag]
                 if not track.alive or track.t_obs != stamp or tag in self.core.eliminated:

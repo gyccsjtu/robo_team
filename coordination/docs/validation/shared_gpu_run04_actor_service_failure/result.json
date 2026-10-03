@@ -1,0 +1,137 @@
+{
+  "status": "CITY_MOTION_BLOCKED",
+  "formal_competition_pass": false,
+  "fixture_only": false,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        0.004901707638055086,
+        0.00018211484712082893,
+        -0.07124011218547821
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 1928.4,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        0.002216705121099949,
+        0.004687899257987738,
+        -0.04813167452812195
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 1928.4,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        0.015913531184196472,
+        -0.0007595771457999945,
+        0.07183128595352173
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 1928.4,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        0.0005231795366853476,
+        0.0052426899783313274,
+        -0.04332660138607025
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 1928.404,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        0.008551770821213722,
+        0.00446970434859395,
+        -0.03999738022685051
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 1928.404,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        -0.0012769236927852035,
+        -0.0005900954711250961,
+        -0.05361562594771385
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 1928.404,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  },
+  "connectivity_armed": false,
+  "six_aircraft_motion_observed": false,
+  "official_targets_eliminated": 1,
+  "all_targets_eliminated": false,
+  "maximum_altitudes_m": {
+    "uav_1": 3.938316511558993,
+    "uav_2": 4.6388995563314355,
+    "uav_3": 4.0469259506082125,
+    "uav_4": 4.142718165168449,
+    "uav_5": 4.775620800784688,
+    "uav_6": 4.541383486443074
+  },
+  "maximum_displacements_m": {
+    "uav_1": 25.28823583561735,
+    "uav_2": 66.60195960551756,
+    "uav_3": 52.60051839994335,
+    "uav_4": 107.14946801558696,
+    "uav_5": 34.95882532986832,
+    "uav_6": 67.43353964807973
+  },
+  "simulated_seconds": 238.62799999999993,
+  "minimum_sampled_separation_m": 2.951749126753601,
+  "component_error": "CITY_COMPONENT_EXIT:[{'pid': 2851, 'returncode': 1, 'command': ['bash', '-c', 'cd \"$1\" && exec python3 -u control_actor.py \"$2\"', 'city-actor', '/root/robocup_runs/codex_city_altitude_v16_20261003/scene', '1']}]",
+  "evidence_streams_verified": true,
+  "armed_during_run_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "left_actors": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "score": 485,
+  "visual_count": 296,
+  "target_grants": 1065
+}

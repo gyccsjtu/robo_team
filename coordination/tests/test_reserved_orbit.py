@@ -56,6 +56,19 @@ class ReservedOrbitTests(unittest.TestCase):
         limited=scope['_adaptive_speed'](a,0.,2.6)
         self.assertEqual(limited,(0.,2.6))
 
+    def test_moving_target_keeps_committed_leg_while_replacement_is_pending(self):
+        a=self.agent(); a._target_fleeing=lambda tid: True
+        old_point=(8.*math.cos(.2),8.*math.sin(.2))
+        a.path_target=old_point
+        a._reserved_orbit_goal=((0.,0.),old_point)
+        a.targets['t5']=(1.,0.,2.,0.)
+        a._pick_local_goal.return_value=(8.,4.)
+        scope['_fly_orbit'](a)
+        self.assertNotEqual(a._reserved_orbit_goal[1],old_point)
+        a._request_plan.assert_called_once_with(a._reserved_orbit_goal[1])
+        a._pick_local_goal.assert_called_once()
+        self.assertEqual(a._send_vel.call_args.args,(0.,2.6))
+
     def test_target_without_orbit_state_still_requires_fresh_camera(self):
         a = self.agent()
         a._orbit_target = None

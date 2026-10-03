@@ -1,0 +1,10 @@
+{
+  "terminal": true,
+  "formal_competition_pass": false,
+  "simulated_seconds": 238.628,
+  "targets_eliminated": 1,
+  "maximum_height_m": 4.7756208,
+  "all_six_horizontal_motion_observed": true,
+  "reason": "actor_1 Python2-style print raises TypeError after Gazebo service disconnect",
+  "red_judge_policy": "old fixed red identity; superseded by user-relayed organizer clarification"
+}

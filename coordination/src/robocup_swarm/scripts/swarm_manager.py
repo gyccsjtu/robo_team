@@ -29,6 +29,7 @@ from fleet_motion_guard import MotionCache
 from allocation_geometry import screen_leg
 from search_completion import completion_state, parse_actor_list
 from visual_observation import VisualEvidence, TAG_TO_TID
+from red_observations import actor_slot_remaining
 from tracker_selection import tracker_rank
 from search_occupancy import apply_authority_release
 
@@ -529,7 +530,7 @@ class SwarmManager(object):
         """
         for tid in list(self._tracking.keys()):
             aid = self._tid_to_actor(tid)
-            if aid is None or aid in left_ids:
+            if aid is None or actor_slot_remaining(aid, left_ids):
                 continue
             uav = self._tracking.pop(tid)
             bu = self._backup.pop(tid, None)
@@ -543,7 +544,7 @@ class SwarmManager(object):
         # 顺带把 tracker 里同样已消除、但当时没派机的目标也标掉
         for tid in list(self.tracker.targets.keys()):
             aid = self._tid_to_actor(tid)
-            if aid is not None and aid not in left_ids:
+            if aid is not None and not actor_slot_remaining(aid, left_ids):
                 self._eliminated.add(tid)
 
     def _left_cb(self, msg):
@@ -998,7 +999,7 @@ class SwarmManager(object):
             if tid in self._backup:
                 continue
             aid = self._tid_to_actor(tid)
-            if self._left_seen and aid is not None and aid not in self._left_actors:
+            if self._left_seen and aid is not None and not actor_slot_remaining(aid, self._left_actors):
                 continue
             ct = self.tracker.targets.get(tid)
             if ct is None or ct.eliminated:
@@ -1108,7 +1109,7 @@ class SwarmManager(object):
             if ev == "confirmed":
                 self._eliminated.add(tid)
                 aid = self._tid_to_actor(tid)
-                if aid is None or (self._left_seen and aid not in self._left_actors):
+                if aid is None or (self._left_seen and not actor_slot_remaining(aid, self._left_actors)):
                     self.cmd_pub.publish(String(data="eliminate:%s" % tid))
                 else:
                     rospy.loginfo("[manager] 规则5：%s 团队侧已确认，"

@@ -1,0 +1,22 @@
+{
+  "run_id": "48450c4a-ba0f-4dba-a45e-1837986c9e99",
+  "control_truth_input": false,
+  "own_camera_pose_source": "DEVELOPMENT_GAZEBO_LINK_POSE",
+  "clearance_configuration_revision": "v1.2",
+  "route_clearance_m": 2.5,
+  "fleet_separation_m": 2.5,
+  "maximum_speed_mps": 3.0,
+  "visual_fusion_revision": "v2.4",
+  "tracker_selection_revision": "v1.3",
+  "person_motion_revision": "v1.4",
+  "recent_motion_window_s": 4.0,
+  "target_motion_revision": "v1.5",
+  "flee_chase_speed_mps": 2.6,
+  "altitude_configuration_revision": "v1.6",
+  "altitude_reference": "MAVROS_LOCAL",
+  "cruise_altitude_m": 3.5,
+  "altitude_hard_m": 4.1,
+  "altitude_panic_m": 4.3,
+  "altitude_emergency_m": 4.5,
+  "formal_competition_pass": false
+}
