@@ -166,3 +166,12 @@ v1.8轮蓝色目标已有相机确认，候选机距目标18.5m，却被两处15
 v1.8轮独立红色精度观察：11条原图时间对齐坐标平均误差0.249785m；51条上报均<1m，最大0.523870m，均值0.270777m，但相邻上报存在>1s断档导致裁判反复find。对外上报原在原图年龄1s后停发，早于既有COAST_TIME=1.5s预测窗口。现在仅允许在该既有短遮挡窗口内继续发布已有速度补偿坐标；原图时间戳不刷新，确认感知schema和manager/agent证据校验不放宽，长失联、未来时间、死亡/已消除轨迹仍停发。实际_emit方法覆盖1.4s预测、1.5s边界、过期/未来拒绝及保留原图时间，全套362项通过。是否足以累计15s必须由下一轮真实裁判验证。
 
 同轮绿色独立精度观察的12条原图与20条上报均不满足<1m，误差约80m；这是尚未解决的绿色感知/误检问题，不得用红色准确度代表所有颜色，也不能把本地确认进度当裁判消除。
+
+v1.8轮最终174.42仿真秒，六机均移动、最高4.541179m、0/6消除；只读contacts覆盖1945.492..2105.128、连续39910帧、最大间隔0.004s、机体接触0。缺失启动段，不能声称整轮无接触。原始结果、精度审计和接触数据已入validation/shared_gpu_run06_corner_rendezvous_gap。已主动中止该轮以应用上述两项修复，新物理轮codex_city_rendezvous_v110_20261003持续运行，40Hz开发物理、共享GPU，原生接触观察从解锁前开始；地面停放接触也如实记录，飞行碰撞需按实际高度和时段区分。
+
+新增capture_visual_frames.py为只读相机取证：缓存六路20帧，收到视觉上报时只保存与原图时间相差≤0.01s的真实图像和原schema2消息；不同帧不冒充证据，每颜色最多24张。当前新轮已启动该取证，用于定位绿色误检；无发布控制话题、无真值输入控制。运行示例（另一个终端，仅取证、不启停仿真）：
+```bash
+source /root/robo_team_build/codex_authority_v2/devel/setup.bash
+export ROS_MASTER_URI=http://127.0.0.1:11375
+python3 coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames_new --wall-seconds 600
+```
