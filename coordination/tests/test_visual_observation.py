@@ -9,6 +9,27 @@ from yolo_target_bridge import TargetBridgeCore, parse_left_actors, YoloTargetBr
 
 
 class VisualTests(unittest.TestCase):
+    def test_real_white_confidence_range_activates_after_three_original_frames(self):
+        core = TargetBridgeCore()
+        for index, conf in enumerate((.617, .435, .499)):
+            core.report(10.+index*.2, 'white', index*.2, 0., conf)
+            self.assertEqual(core.tracks['white'].alive, index == 2)
+        for stamp in (10., 10.2, 10.4):
+            core.report(stamp, 'green', 0., 0., .5)
+        self.assertFalse(core.tracks['green'].alive)
+        self.assertEqual(core.tracks['white'].t_obs, 10.4)
+
+    def test_previous_high_confidence_cannot_activate_later_low_confidence_frames(self):
+        core = TargetBridgeCore()
+        core.report(10., 'green', 0., 0., .95)
+        for stamp in (10.1, 10.2, 10.3):
+            core.report(stamp, 'green', 0., 0., .3)
+        self.assertFalse(core.tracks['green'].alive)
+        self.assertEqual(core.tracks['green']._high_conf_count, 0)
+        for stamp in (10., 10.2, 10.4):
+            core.report(stamp, 'white', 0., 0., .3)
+        self.assertFalse(core.tracks['white'].alive)
+
     def test_prediction_has_no_fixed_advance_at_original_observation_time(self):
         core = TargetBridgeCore()
         for stamp in (10.,10.2,10.4):

@@ -1,0 +1,132 @@
+{
+  "control_input": false,
+  "formal_competition_pass": false,
+  "samples": [
+    {
+      "image": "uav_5_white_001.png",
+      "observation": {
+        "schema_version": 2,
+        "run_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2",
+        "uav_id": "uav_5",
+        "seq": 1,
+        "sample_s": 1961.88,
+        "target_id": "white",
+        "frame_id": "world_enu",
+        "xyz": [
+          -8.89,
+          -2.19,
+          1.25
+        ],
+        "confidence": 0.617,
+        "observation_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2:uav_5:1"
+      },
+      "original_image_error_m": 0.23851707441813824,
+      "image_sample_s": 1961.88
+    },
+    {
+      "image": "uav_5_white_002.png",
+      "observation": {
+        "schema_version": 2,
+        "run_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2",
+        "uav_id": "uav_5",
+        "seq": 2,
+        "sample_s": 1964.072,
+        "target_id": "white",
+        "frame_id": "world_enu",
+        "xyz": [
+          -7.78,
+          -0.41,
+          1.25
+        ],
+        "confidence": 0.435,
+        "observation_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2:uav_5:2"
+      },
+      "original_image_error_m": 0.6469344128563915,
+      "image_sample_s": 1964.072
+    },
+    {
+      "image": "uav_5_white_003.png",
+      "observation": {
+        "schema_version": 2,
+        "run_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2",
+        "uav_id": "uav_5",
+        "seq": 4,
+        "sample_s": 1966.248,
+        "target_id": "white",
+        "frame_id": "world_enu",
+        "xyz": [
+          -5.85,
+          1.16,
+          1.25
+        ],
+        "confidence": 0.447,
+        "observation_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2:uav_5:4"
+      },
+      "original_image_error_m": 0.2712133023434811,
+      "image_sample_s": 1966.248
+    },
+    {
+      "image": "uav_1_white_004.png",
+      "observation": {
+        "schema_version": 2,
+        "run_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2",
+        "uav_id": "uav_1",
+        "seq": 11,
+        "sample_s": 1976.84,
+        "target_id": "white",
+        "frame_id": "world_enu",
+        "xyz": [
+          3.91,
+          3.68,
+          1.25
+        ],
+        "confidence": 0.668,
+        "observation_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2:uav_1:11"
+      },
+      "original_image_error_m": 0.2109527942257793,
+      "image_sample_s": 1976.84
+    },
+    {
+      "image": "uav_1_white_005.png",
+      "observation": {
+        "schema_version": 2,
+        "run_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2",
+        "uav_id": "uav_1",
+        "seq": 16,
+        "sample_s": 1978.988,
+        "target_id": "white",
+        "frame_id": "world_enu",
+        "xyz": [
+          6.32,
+          3.76,
+          1.25
+        ],
+        "confidence": 0.865,
+        "observation_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2:uav_1:16"
+      },
+      "original_image_error_m": 0.1267411852599035,
+      "image_sample_s": 1978.988
+    },
+    {
+      "image": "uav_4_white_006.png",
+      "observation": {
+        "schema_version": 2,
+        "run_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2",
+        "uav_id": "uav_4",
+        "seq": 55,
+        "sample_s": 2007.316,
+        "target_id": "white",
+        "frame_id": "world_enu",
+        "xyz": [
+          29.61,
+          -6.15,
+          1.25
+        ],
+        "confidence": 0.905,
+        "observation_id": "e2a3c57a-d240-4a30-b2ea-81913eef2fd2:uav_4:55"
+      },
+      "original_image_error_m": 0.6164565157056484,
+      "image_sample_s": 2007.316
+    }
+  ]
+}

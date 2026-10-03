@@ -62,6 +62,9 @@ DROP_TIME = float(os.environ.get("BRIDGE_DROP_TIME", "6.0"))
 # 2026-10-01 复盘：3 条 0.43~0.61 的 red1 误检（真身为 green 演员）建出鬼影轨
 # t4，全队盘旋假目标并广播假消除。已激活轨不受此限（延续观测允许低置信度）。
 NEW_TRACK_CONF = float(os.environ.get("BRIDGE_NEW_TRACK_CONF", "0.7"))
+# Actual white-person camera observations are often below the other colors'
+# threshold. Preserve their measured confidence; do not relabel it as 0.7.
+WHITE_NEW_TRACK_CONF = float(os.environ.get("BRIDGE_WHITE_NEW_TRACK_CONF", "0.4"))
 
 # ---- 国家一等奖标准改进：多帧验证 + 自适应参数 ----
 # 多帧验证：新轨迹需要连续 N 帧高置信度观测才能激活
@@ -243,7 +246,8 @@ class TargetBridgeCore(object):
         
         # 新轨激活逻辑：需要连续多帧高置信度 + 运动一致性校验
         if not tr.alive:
-            if tr.conf >= NEW_TRACK_CONF:
+            threshold = WHITE_NEW_TRACK_CONF if tag == 'white' else NEW_TRACK_CONF
+            if conf >= threshold:
                 tr._high_conf_count += 1
                 # 额外校验：运动一致性（误检目标通常运动异常）
                 motion_ok = True
