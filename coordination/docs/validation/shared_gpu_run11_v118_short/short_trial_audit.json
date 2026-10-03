@@ -1,0 +1,33 @@
+{
+  "intentional_development_stop": true,
+  "completed_600_seconds": false,
+  "formal_competition_pass": false,
+  "remaining_actors": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "targets_eliminated": 2,
+  "maximum_sampled_altitude_m": 3.7007883233788377,
+  "maximum_sampled_displacement_m": {
+    "uav_1": 16.517538840432234,
+    "uav_2": 28.82442222421506,
+    "uav_3": 65.48772024202692,
+    "uav_4": 41.58225099669758,
+    "uav_5": 71.11861184809325,
+    "uav_6": 46.26878568442017
+  },
+  "non_ground_body_contact_log_rows": 0,
+  "contact_final_heartbeat": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 43019,
+    "first_sample_s": 1928.768,
+    "last_sample_s": 2100.84,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 135784,
+    "body_pairs": 51501
+  },
+  "all_targets_eliminated": false,
+  "white_activation_v2_7_not_executed": true
+}
