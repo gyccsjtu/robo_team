@@ -1,0 +1,2 @@
+Time out, mission failed
+score: -5.1000000000000005

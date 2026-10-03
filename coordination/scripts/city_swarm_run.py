@@ -161,8 +161,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
     for index in range(6):
         processes.append(spawn(['bash','-c','cd "$1" && exec python3 -u control_actor.py "$2"',
             'city-actor',str(city),str(index)],'actor_'+str(index),flight_env))
-    processes.append(spawn(['bash','-c','cd "$1" && exec python3 -u score_cal.py typhoon_h480',
-        'city-judge',str(city)],'judge',flight_env))
+    processes.append(spawn(['bash','-c','cd "$1" && exec python3 -u "$2" "$1/score_cal.py" typhoon_h480',
+        'city-judge',str(city),str(out/'execution_sources/start_city_judge.py')],'judge',flight_env))
     records=JsonlEvidence(out/'city_events.jsonl')
     trajectory=JsonlEvidence(out/'city_trajectory.jsonl')
     commands=JsonlEvidence(out/'city_commands.jsonl')

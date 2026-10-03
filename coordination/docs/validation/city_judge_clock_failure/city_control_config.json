@@ -1,0 +1,14 @@
+{
+  "run_id": "6b44532b-0044-4d2e-a04a-500fd92d830f",
+  "control_truth_input": false,
+  "own_camera_pose_source": "DEVELOPMENT_GAZEBO_LINK_POSE",
+  "clearance_configuration_revision": "v1.2",
+  "route_clearance_m": 2.5,
+  "fleet_separation_m": 2.5,
+  "maximum_speed_mps": 3.0,
+  "visual_fusion_revision": "v2.4",
+  "tracker_selection_revision": "v1.3",
+  "person_motion_revision": "v1.4",
+  "recent_motion_window_s": 4.0,
+  "formal_competition_pass": false
+}
