@@ -1,8 +1,8 @@
 # 2026 多旋翼无人机集群协同搜索仿真赛项环境
 
-本工程是独立的、可替换的比赛开发环境。当前已包含单机静态已知地图 A* 训练基线，但仍不包含目标检测、完整搜索、动态避障或多机协同。它不会修改 `../pre.data`，也不会运行或修补历史 `robocup_new.py` 与 `ego_planner.zip`。
+本仓库实际多机实现位于robocup_swarm，当前雷达迁移入口为根目录run_radar_swarm.sh，运行说明见 [六机在线雷达](docs/online_radar_quickstart.md)，验证与限制见 [实施进度](docs/implementation_progress_20261003.md)。以下单机基线是历史记录，不是当前多机实现的完整说明。
 
-工程实际路径为 `D:\a\.robocup\robocup_ws`。赛事规范给出的 XTDrone 网址确实是官方指定的公共仿真平台来源；目前已经按其 Ubuntu 20.04 / ROS Noetic / PX4 1.13.2 配置完成单机基线。最终比赛场景、裁判程序和接口仍应以赛项方后续交付为准，但不妨碍现在进行单机起飞、控制和避障训练。
+当前工程路径为 `D:\a\.robocup\robo_team`。ROS Noetic/Gazebo11/PX4与完整runtime复用已验证环境；官方规则优先于旧文档和样例脚本。开发用例不代表正式比赛验收。
 
 ## 已完成
 

@@ -1,0 +1,7 @@
+{
+  "status": "FAILED",
+  "formal_competition_pass": false,
+  "fixture_only": true,
+  "armed": false,
+  "error": "SIX_RADAR_HEALTH_TIMEOUT; samples={'uav_1': ['scan', 'state'], 'uav_2': ['scan', 'state', 'pose'], 'uav_3': ['scan', 'state', 'pose'], 'uav_4': ['scan', 'state', 'pose'], 'uav_5': ['scan', 'state', 'pose'], 'uav_6': ['scan', 'state', 'pose']}"
+}

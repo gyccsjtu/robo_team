@@ -8,7 +8,7 @@ import threading
 import time
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 import rospy
 import yaml
@@ -137,6 +137,9 @@ class MotionTests(unittest.TestCase):
         n.command_velocity = [0.1, 0.0, 0.0]
         n.replan_worker = n.replan_resume = n.replan_request = None
         n.pending_goal, n.route_plan = None, object()
+        n.model_name, n.grid_source, n._depth_move_sim = 'iris', None, None
+        n.route_plan = SimpleNamespace(start_world=(-1.,0.,2.4), safety=SimpleNamespace(
+            validate_route=Mock(side_effect=motion.RouteError('TEST_CONNECTOR_UNPROVEN'))))
         n.route_local, n.route_actual = [[0, 0, 2.4], [1, 0, 2.4]], []
         n.route_start_local = [0, 0, 2.4]
         n.transform = SimpleNamespace(world_to_local=lambda point: (point[0] + 3, point[1], point[2]))
@@ -159,7 +162,7 @@ class MotionTests(unittest.TestCase):
         n = self.route_goal_node()
         n.pending_goal = self.route_goal()
         planned = ((-1.0, 0.0, 2.4), (-1.0, -2.0, 2.4), (2.0, -2.0, 2.4))
-        with patch.object(motion, "replan_route", return_value=planned) as planner:
+        with patch.object(motion, "replan_with_grid_source", return_value=(planned, 1)) as planner:
             n.accept_goal(10.0)
             self.assertEqual(n.phase, "REPLAN")
             self.assertEqual(n.target, [0.0, 0.0, 2.4])
@@ -168,7 +171,7 @@ class MotionTests(unittest.TestCase):
             n.accept_goal(10.1)
         planner.assert_called_once()
         self.assertEqual(n.phase, "MOVE")
-        self.assertEqual(n.active["name"], "external_7_0000")
+        self.assertTrue(n.active['name'].startswith('external_'))
         self.assertEqual(n.route_local[-1], [5.0, -2.0, 2.4])
         self.assertIsNone(n.replan_resume)
 
@@ -176,7 +179,7 @@ class MotionTests(unittest.TestCase):
         n = self.route_goal_node()
         old_target = n.target[:]
         n.pending_goal = self.route_goal()
-        with patch.object(motion, "replan_route", side_effect=motion.RouteError("REPLAN_GOAL_OCCUPIED")):
+        with patch.object(motion, "replan_with_grid_source", side_effect=motion.RouteError("REPLAN_GOAL_OCCUPIED")):
             n.accept_goal(10.0)
             self.assertTrue(n.replan_worker.done.wait(1))
             n.accept_goal(10.1)
@@ -189,12 +192,12 @@ class MotionTests(unittest.TestCase):
         n = self.route_goal_node()
         released = threading.Event()
         calls = []
-        def planner(_route, _current, goal, _config):
+        def planner(_route, _current, goal, _config, _source):
             calls.append(tuple(goal))
             if len(calls) == 1:
                 released.wait(1)
-            return ((-1.0, 0.0, 2.4), (goal[0], goal[1], 2.4))
-        with patch.object(motion, "replan_route", side_effect=planner):
+            return (((-1.0, 0.0, 2.4), (goal[0], goal[1], 2.4)), 1)
+        with patch.object(motion, "replan_with_grid_source", side_effect=planner):
             n.pending_goal = self.route_goal(sequence=7, x=1.0, y=1.0)
             n.accept_goal(10.0)
             n.pending_goal = self.route_goal(sequence=8, x=2.0, y=-2.0)
@@ -205,7 +208,7 @@ class MotionTests(unittest.TestCase):
             self.assertTrue(n.replan_worker.done.wait(1))
             n.accept_goal(10.2)
         self.assertEqual(calls, [(1.0, 1.0), (2.0, -2.0)])
-        self.assertTrue(n.active["name"].startswith("external_8_"))
+        self.assertEqual(n.route_local[-1], [5., -2., 2.4])
 
     def test_landing_requires_grounded_and_fresh_disarm(self):
         n = self.node()

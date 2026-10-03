@@ -1,0 +1,118 @@
+{
+  "status": "SIX_RADAR_CONNECTED",
+  "formal_competition_pass": false,
+  "fixture_only": true,
+  "armed": false,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        0.008465033024549484,
+        -0.021581018343567848,
+        -0.014957240782678127
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 10.42,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        0.021386560052633286,
+        0.002435660222545266,
+        0.017935775220394135
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 10.412,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        0.00508629996329546,
+        -0.002238190034404397,
+        -0.03196391463279724
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 10.412,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        0.01006733626127243,
+        0.001613945933058858,
+        -0.08880799263715744
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 10.412,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        0.007293086498975754,
+        -0.008705129846930504,
+        -0.093764528632164
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 10.416,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        0.0035682732705026865,
+        -0.0017941126134246588,
+        -0.10458450019359589
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 10.416,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  },
+  "camera_actor_probe_verified": true,
+  "physical_rendered_yolo_verified": true,
+  "actual_perception_observations_verified": true,
+  "actual_bridge_forwarding_verified": true,
+  "actual_manager_real_observation_verified": true,
+  "camera_topic": "/uav_1/cgo3_camera/image_raw",
+  "fixed_camera_mount": true,
+  "synthetic_observations": false,
+  "physical_coordinate_accuracy_verified": false,
+  "detections": [
+    {
+      "class_name": "green",
+      "confidence": 0.9047461152076721,
+      "xyxy": [
+        205.17779541015625,
+        203.27920532226562,
+        230.64105224609375,
+        265.4554748535156
+      ]
+    }
+  ],
+  "weights_sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2"
+}

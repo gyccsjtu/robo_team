@@ -1,0 +1,8 @@
+{
+  "original_result_preserved": true,
+  "finding": "All 15497 originally reported box contacts name the sonar virtual sensing collision; no physical body collision appears in that list. The first classifier incorrectly treated sensor intersections as body collisions.",
+  "upstream_source": "https://github.com/gazebosim/gazebo-classic/blob/gazebo11/gazebo/sensors/SonarSensor.cc",
+  "repeat_validation": "six_obstacles_run14",
+  "formal_competition_pass": false,
+  "note": "Do not silently rewrite the original result to PASS. Run14 uses an exact verified virtual-sensor registry and saves all contact records separately."
+}

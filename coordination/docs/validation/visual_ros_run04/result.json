@@ -1,0 +1,20 @@
+{
+  "visual_ros_wiring_verified": true,
+  "synthetic_observations": true,
+  "physical_vision_verified": false,
+  "formal_competition_pass": false,
+  "run_id": "aa83e71a-150e-4f0f-8167-4d3d6b56c994",
+  "replay_and_old_run_rejected": true,
+  "coast_does_not_extend_official_reports": true,
+  "official_red_class": "red",
+  "red1_target_id": "t5",
+  "detections": 1,
+  "official_messages": 10,
+  "state_messages": 19,
+  "busy_fleet_official_completion_fenced": true,
+  "source_sha256": {
+    "coordination/src/robocup_swarm/scripts/visual_observation.py": "4ed2e25d78b4d1e91aa369af0dc2b68890d3138df17e8727a87e4cef99a15bc7",
+    "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py": "5744219a799c60118a8af49584b0a50d98540fdedae1a4dfbfdf18d572a463ee",
+    "coordination/src/robocup_swarm/scripts/swarm_manager.py": "094d685dedec1026a5b14d921d8b8ba0dc3bfa17be241be051d8524819f35619"
+  }
+}

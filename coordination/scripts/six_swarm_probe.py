@@ -6,12 +6,13 @@ from pathlib import Path
 import shutil
 import time
 import uuid
+from fixture_contacts import classify, sonar_virtual_collisions
 
 
 def run(out, wiring, spawn, env, seconds):
     import rospy
-    from gazebo_msgs.msg import ModelStates
-    from mavros_msgs.msg import State
+    from gazebo_msgs.msg import ModelStates, ContactsState
+    from mavros_msgs.msg import State, PositionTarget
     from nav_msgs.msg import OccupancyGrid
     from robocup_swarm.msg import UavStatus
     from std_msgs.msg import String
@@ -38,6 +39,13 @@ def run(out, wiring, spawn, env, seconds):
         VIS_ENABLE='0', RADAR_GUARD='1', SWARM_MAX_SPEED='1.0', ALT_BASE='4.5',
         SWARM_UAV_IDS=','.join(r['uav_id'] for r in wiring['uavs']),
         ALT_NLAYER='1', ALT_TARGET_CAP='4.5', SWARM_ARRIVE_TOL='0.15')
+    clearance = out / 'startup_clearance.json'
+    world = out / 'connectivity.world'
+    obstacle_fixture = 'fixture_box_' in world.read_text()
+    clearance.write_text(json.dumps(dict(schema_version=2 if obstacle_fixture else 1, run_id=flight_env['ROBOCUP_RUN_ID'],
+        world_path=str(world), world_sha256=hashlib.sha256(world.read_bytes()).hexdigest(),
+        positions={row['uav_id']: [-20 + index*8, 0.] for index, row in enumerate(wiring['uavs'])})))
+    flight_env.update(ONLINE_RADAR_PLANNING='1', RADAR_START_CLEARANCE_FILE=str(clearance))
     flight_env.pop('SWARM_CALIB', None)
     flight_env['PYTHONPATH'] = str(snapshot / 'coordination/src/robocup_navigation/src') + ':' + env.get('PYTHONPATH', '')
     scripts = snapshot / 'coordination/src/robocup_swarm/scripts'
@@ -48,7 +56,29 @@ def run(out, wiring, spawn, env, seconds):
     armed_uavs = set()
     completion_messages = []
     observed_maps = {}
+    contact_samples, box_contacts = {}, []
+    virtual_contacts = set()
+    sonar_intersections = 0
+    contact_record = (out / 'fixture_contacts.jsonl').open('w') if obstacle_fixture else None
+    virtual = set()
+    if obstacle_fixture:
+        model_root = next(Path(p) for p in env['GAZEBO_MODEL_PATH'].split(':') if p and (Path(p)/'sonar/model.sdf').is_file())
+        virtual = sonar_virtual_collisions(model_root, ids)
+        shutil.copy2(model_root/'sonar/model.sdf', out/'sonar_source.sdf')
     record = (out / 'six_truth.jsonl').open('w')
+    execution_record = (out/'executor_telemetry.jsonl').open('w')
+    command_counts = {uid: 0 for uid in ids}
+
+    def execution_cb(msg, uid):
+        command_counts[uid] += 1
+        execution_record.write(json.dumps(dict(kind='raw_setpoint', uav_id=uid,
+            sample_s=msg.header.stamp.to_sec(), frame=msg.coordinate_frame, mask=msg.type_mask,
+            local_position=[msg.position.x,msg.position.y,msg.position.z],
+            velocity=[msg.velocity.x,msg.velocity.y,msg.velocity.z], yaw_rate=msg.yaw_rate))+'\n')
+
+    def motion_cb(msg):
+        execution_record.write(json.dumps(dict(kind='motion_state', received_s=rospy.Time.now().to_sec(),
+                                               message=json.loads(msg.data)))+'\n')
 
     def truth_cb(message):
         now = rospy.Time.now().to_sec()
@@ -69,10 +99,30 @@ def run(out, wiring, spawn, env, seconds):
             grants.add(command['uav_id'])
 
     subscriptions = [rospy.Subscriber('/gazebo/model_states', ModelStates, truth_cb),
+                     rospy.Subscriber('/swarm/motion_state', String, motion_cb, queue_size=100),
                      rospy.Subscriber('/swarm/authorized_assignment', String, assignment_cb),
                      rospy.Subscriber('/swarm/finish', String, lambda msg: completion_messages.append(msg.data)),
                      rospy.Subscriber('/swarm/uav_status', UavStatus, lambda msg: status.update({msg.uav_id: msg}))]
+    if obstacle_fixture:
+        def contact_cb(msg, index):
+            nonlocal sonar_intersections
+            contact_samples[index] = msg.header.stamp.to_sec()
+            for state in msg.states:
+                kind = classify(state.collision1_name, state.collision2_name, ids, virtual)
+                item = dict(sample_s=msg.header.stamp.to_sec(), box=index, classification=kind,
+                            collision1=state.collision1_name, collision2=state.collision2_name)
+                contact_record.write(json.dumps(item)+'\n')
+                if kind == 'UAV_BODY_CONTACT':
+                    box_contacts.append(item)
+                elif kind == 'SONAR_SENSOR_INTERSECTION':
+                    sonar_intersections += 1
+                    virtual_contacts.add(state.collision1_name if state.collision1_name in virtual else state.collision2_name)
+        for index in range(6):
+            subscriptions.append(rospy.Subscriber('/fixture/contacts/fixture_box_%d' % index,
+                                                  ContactsState, contact_cb, callback_args=index))
     for row in wiring['uavs']:
+        subscriptions.append(rospy.Subscriber(row['mavros_namespace']+'/setpoint_raw/local', PositionTarget,
+                                              execution_cb, callback_args=row['uav_id'], queue_size=10))
         def arm_cb(message, uid=row['uav_id']):
             if message.armed:
                 armed_uavs.add(uid)
@@ -113,7 +163,7 @@ def run(out, wiring, spawn, env, seconds):
             reasons.append('TASK_MOTION_INCOMPLETE')
         if maximum_z >= 6:
             reasons.append('ALTITUDE_LIMIT_VIOLATION')
-        if min_separation <= 3:
+        if min_separation <= 4.5:
             reasons.append('SPACING_VIOLATION')
         sample_gap = max((b['sim_s'] - a['sim_s'] for a, b in zip(truth, truth[1:])), default=float('inf'))
         if sample_gap > .2:
@@ -128,6 +178,29 @@ def run(out, wiring, spawn, env, seconds):
                                 and 0 <= rospy.Time.now().to_sec()-c['sample_s'] <= 1. for c in map_counts.values()))
         if not map_verified:
             reasons.append('ONLINE_OBSERVATION_MAP_MISSING_OR_STALE')
+        route_commits = {uid: (out / ('agent_'+uid+'.log')).read_text(errors='replace').count('ROUTE_COMMITTED') for uid in ids}
+        online_plans = {uid: (out / ('agent_'+uid+'.log')).read_text(errors='replace').count('ONLINE_PLAN') for uid in ids}
+        if not all(route_commits.values()):
+            reasons.append('ACTUAL_ROUTE_COMMIT_EVIDENCE_MISSING')
+        if not all(online_plans.values()):
+            reasons.append('ONLINE_PLANNING_EVIDENCE_MISSING')
+        if not all(command_counts.values()):
+            reasons.append('ACTUAL_RAW_SETPOINT_EVIDENCE_MISSING')
+        contact_verified = (obstacle_fixture and len(contact_samples) == 6
+            and all(0 <= rospy.Time.now().to_sec()-stamp <= .5 for stamp in contact_samples.values()))
+        min_box_clearance = None
+        if obstacle_fixture:
+            min_box_clearance = min(math.hypot(max(abs(p[0]-(-20+index*8))-1.5, 0),
+                                              max(abs(p[1]+9)-1.5, 0))
+                for sample in truth for p in sample['positions'].values() for index in range(6))
+            if min_box_clearance <= 1.2:
+                reasons.append('BOX_PROTECTIVE_CLEARANCE_VIOLATION')
+            if box_contacts:
+                reasons.append('BOX_CONTACT_OBSERVED')
+            if not contact_verified:
+                reasons.append('BOX_CONTACT_EVIDENCE_MISSING_OR_STALE')
+            if not any(count['occupied'] > 0 for count in map_counts.values()):
+                reasons.append('RADAR_OBSTACLE_OBSERVATION_MISSING')
         verified = not reasons
         return dict(status='SIX_SEARCH_FLIGHT_OBSERVED' if verified else 'SIX_SEARCH_FLIGHT_INCOMPLETE',
                     prototype_search_verified=verified, simulated_seconds=rospy.Time.now().to_sec()-start,
@@ -138,8 +211,16 @@ def run(out, wiring, spawn, env, seconds):
                     armed_during_run_uavs=sorted(armed_uavs),
                     mission_completion_messages=completion_messages,
                     online_observation_maps_verified=map_verified, online_map_counts=map_counts,
+                    route_commits=route_commits, online_plans=online_plans,
+                    raw_setpoint_counts=command_counts,
+                    obstacle_fixture=obstacle_fixture, minimum_box_clearance_m=min_box_clearance,
+                    box_contact_observation_verified=contact_verified, box_contacts=box_contacts,
+                    sonar_sensor_intersections=sonar_intersections, verified_virtual_collision_names=sorted(virtual_contacts),
                     formal_competition_pass=False, fixture_only=True)
     finally:
         for subscriber in subscriptions:
             subscriber.unregister()
         record.close()
+        execution_record.close()
+        if contact_record is not None:
+            contact_record.close()

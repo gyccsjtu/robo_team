@@ -1,0 +1,5 @@
+{
+  "url": "https://github.com/gazebosim/gazebo-classic/blob/gazebo11/gazebo/sensors/SonarSensor.cc",
+  "blob_sha": "3ff9240740bedf8deed0317da394143e54c76f20",
+  "finding": "Gazebo11 creates a SENSOR_COLLISION cone with collideWithoutContact=true for sonar. Exact verified virtual shapes are classified separately; physical body contacts remain failures."
+}

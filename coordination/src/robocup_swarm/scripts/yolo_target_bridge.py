@@ -3,9 +3,8 @@
 """YOLO→swarm 桥：把合法感知链路替换真值订阅。
 
 输入（己方 YOLO 输出，合法）：
-  /coordination/target_report  std_msgs/String，6 个 perception_real 实例共写，
-      裸 JSON：{"target_id","frame_id":"world_enu","xyz":[x,y,z],
-                "confidence","observation_id"}
+  /swarm/visual_observation std_msgs/String，冻结schema2实际相机证据；
+      运行/机号/序号/原采样时间/位置/实际置信度均校验。
       target_id ∈ green / blue / brown / white / red1 / red2
   /left_actors  std_msgs/String，官方裁判发布的剩余 actor 清单（权威消除信号）。
 
@@ -15,7 +14,7 @@
       因此本桥替换 target_sim / official_target_bridge 后二者零算法改动。
 
 身份映射与官方裁判一致（score_cal.py:16）：
-  green→t0(actor_0) blue→t1 brown→t2 white→t3 red1→t4 red2→t5
+  green→t0(actor_0) blue→t1 brown→t2 white→t3 red1→t5 red2→t4
 
 合规说明：本节点不订阅 /gazebo/model_states、/gazebo/link_states，
 不读 obstacle.txt / black_box.txt，不启动 target_sim。
@@ -28,6 +27,9 @@ import json
 import math
 import os
 import re
+import threading
+from visual_observation import VisualEvidence, TAG_TO_TID
+from search_completion import parse_actor_list
 
 # ---- 身份映射（对齐 ~/XTDrone/robocup/score_cal.py 的 actor_id_dict）----
 TAG_TO_TID = {
@@ -35,8 +37,8 @@ TAG_TO_TID = {
     "blue": "t1",
     "brown": "t2",
     "white": "t3",
-    "red1": "t4",
-    "red2": "t5",
+    "red1": "t5",
+    "red2": "t4",
 }
 TID_TO_TAG = dict((v, k) for k, v in TAG_TO_TID.items())
 ACTOR_INDEX_OF_TAG = dict((tag, int(tid[1:])) for tag, tid in TAG_TO_TID.items())
@@ -151,28 +153,14 @@ def parse_report(payload):
 def parse_left_actors(raw):
     """解析官方 /left_actors 字符串为剩余 actor 下标集合。
 
-    官方脚本（py3）初始值是 range 对象，str 后为 "range(0, 6)"：
-      - 含 "range" 且数字形如 (a,b)：视为区间 [a, b)，初始即 0..5 全在；
-      - 形如 "[..]"：取其中 0..5 的整数；
-      - 恰为 "[]"：全部已消除（返回空集合）。
+    已核验375行官方脚本使用list(range(actor_num))，发布明确整数清单。
+    与manager共用严格JSON解析，不接受旧快照的range表达式。
     无法识别时返回 None，调用方必须忽略本条，绝不当作空清单。
     """
-    s = str(raw).strip()
-    if not s:
-        return None
-    if "range" in s:
-        nums = [int(v) for v in re.findall(r"-?\d+", s)]
-        if len(nums) >= 2:
-            lo, hi = nums[0], nums[1]
-            return set(range(max(0, lo), min(6, hi)))
-        return None
-    if s == "[]":
-        return set()
-    nums = set(int(v) for v in re.findall(r"-?\d+", s))
-    ids = set(v for v in nums if 0 <= v <= 5)
-    if not ids and not s.startswith("["):
-        return None
-    return ids
+    parsed = parse_actor_list(str(raw))
+    if parsed is not None:
+        return set(parsed)
+    return None
 
 
 class TargetBridgeCore(object):
@@ -181,6 +169,7 @@ class TargetBridgeCore(object):
     def __init__(self):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
+        self._left_seen = False
 
     # ---- 感知输入 ----
     def report(self, t, target_id, x, y, conf):
@@ -191,6 +180,8 @@ class TargetBridgeCore(object):
         if tag in self.eliminated:
             return                      # 已消除目标的残余观测，不复活
         tr = self.tracks[tag]
+        if t < tr.t_obs:
+            return
         w = conf * conf if conf > 0.0 else 1e-6
         # 先裁剪过期观测：一致性锚点只在 OBS_WINDOW 内有效。
         # 2026-10-01 复盘：旧实现锚点永不过期，YOLO 跟丢 >0.6s 后演员走出
@@ -259,8 +250,10 @@ class TargetBridgeCore(object):
     def set_left(self, t, raw):
         """处理一条 /left_actors。返回本次标记消除的 tag 列表。"""
         remaining = parse_left_actors(raw)
-        if remaining is None:
+        if remaining is None or (not remaining and not self._left_seen):
             return []
+        if remaining:
+            self._left_seen = True
         newly = []
         for tr in self.tracks.values():
             idx = ACTOR_INDEX_OF_TAG[tr.tag]
@@ -271,6 +264,7 @@ class TargetBridgeCore(object):
             # 只消除桥已观测到的目标：官方消除必先有 YOLO 上报，
             # 桥与裁判同时启动时二者集合一致；晚启动则保守不动。
             if not tr.alive:
+                self.eliminated.add(tr.tag)
                 continue
             tr.elim_pending = True
             newly.append(tr.tag)
@@ -340,6 +334,13 @@ class YoloTargetBridge(object):
         self._TargetState = TargetState
         self._ActorInfo = ActorInfo
         self.core = TargetBridgeCore()
+        self._lock = threading.RLock()
+        self.evidence = VisualEvidence(os.environ.get('ROBOCUP_RUN_ID', ''),
+            os.environ.get('SWARM_UAV_IDS', 'uav_1,uav_2,uav_3,uav_4,uav_5,uav_6').split(','))
+        from robocup_swarm.msg import TargetDetection
+        self._TargetDetection = TargetDetection
+        self._detection_pub = rospy.Publisher('/swarm/detection', TargetDetection, queue_size=50)
+        self._confirmed_pub = rospy.Publisher('/swarm/confirmed_visual_observation', _msg_string_cls(), queue_size=50)
 
         self.pub = rospy.Publisher("/swarm/target_states", TargetState, queue_size=30)
         # 同时向官方话题发布 ActorInfo：用多机融合坐标，保证 10Hz 上报连续，
@@ -348,15 +349,14 @@ class YoloTargetBridge(object):
         for tag in TAG_TO_TID:
             self._actor_pubs[tag] = rospy.Publisher(
                 "/actor_%s_info" % tag, ActorInfo, queue_size=3)
-        rospy.Subscriber("/coordination/target_report",
-                         _msg_string_cls(), self._report_cb, queue_size=50)
+        rospy.Subscriber('/swarm/visual_observation', _msg_string_cls(), self._visual_cb, queue_size=50)
         rospy.Subscriber("/left_actors", _msg_string_cls(),
                          self._left_cb, queue_size=5)
 
         pub_hz = float(os.environ.get("BRIDGE_PUB_HZ", "10"))
         self._timer = rospy.Timer(rospy.Duration(1.0 / max(1.0, pub_hz)),
                                   self._tick)
-        rospy.loginfo("yolo_target_bridge 启动：target_report → /swarm/target_states"
+        rospy.loginfo("yolo_target_bridge 启动：visual_observation v2 → /swarm/target_states"
                       "（%d 个固定目标槽）", len(TAG_TO_TID))
 
     def _now(self):
@@ -369,15 +369,39 @@ class YoloTargetBridge(object):
         except ValueError as exc:
             self._rospy.logwarn_throttle(5, "丢弃 target_report：%s", exc)
 
+    def _visual_cb(self, msg):
+        try:
+            with self._lock:
+                observation = self.evidence.receive(json.loads(msg.data), self._now())
+                if observation is None:
+                    return
+                tag, stamp = observation['target_id'], observation['sample_s']
+                x, y, _ = observation['xyz']
+                self.core.report(stamp, tag, x, y, observation['confidence'])
+                track = self.core.tracks[tag]
+                if not track.alive or track.t_obs != stamp or tag in self.core.eliminated:
+                    return
+                detection = self._TargetDetection()
+                detection.header.stamp = self._rospy.Time.from_sec(stamp)
+                detection.header.frame_id = 'map'
+                detection.uav_id, detection.target_id = observation['uav_id'], TAG_TO_TID[tag]
+                detection.x, detection.y, detection.confidence, detection.source = x, y, observation['confidence'], 1
+                self._detection_pub.publish(detection)
+                self._confirmed_pub.publish(_msg_string_cls()(data=json.dumps(observation, allow_nan=False)))
+        except (ValueError, TypeError, KeyError):
+            return
+
     def _left_cb(self, msg):
-        newly = self.core.set_left(self._now(), msg.data)
+        with self._lock:
+            newly = self.core.set_left(self._now(), msg.data)
         for tag in newly:
             self._rospy.loginfo("官方清单已无 %s(%s)，补发 eliminated",
                                 tag, TAG_TO_TID[tag])
 
     def _emit(self, ev):
         m = self._TargetState()
-        m.header.stamp = self._rospy.Time.now()
+        track = self.core.tracks[ev['tag']]
+        m.header.stamp = self._rospy.Time.from_sec(max(0., track.t_obs))
         m.header.frame_id = "map"
         m.target_id = ev["tid"]
         m.x, m.y = ev["x"], ev["y"]
@@ -393,16 +417,17 @@ class YoloTargetBridge(object):
         tag = TID_TO_TAG.get(ev["tid"])
         if (tag is not None and tag in self._actor_pubs
                 and not ev["eliminated"]
-                and ev.get("state", 0) != 3):
+                and ev.get("state", 0) != 3 and 0 <= self._now()-track.t_obs <= 1.):
             am = self._ActorInfo()
-            am.cls = tag
+            am.cls = 'red' if tag in ('red1', 'red2') else tag
             am.x = round(ev["x"], 3)
             am.y = round(ev["y"], 3)
             self._actor_pubs[tag].publish(am)
 
     def _tick(self, _evt):
-        for ev in self.core.tick(self._now()):
-            self._emit(ev)
+        with self._lock:
+            for ev in self.core.tick(self._now()):
+                self._emit(ev)
 
 
 def _msg_string_cls():
@@ -434,12 +459,15 @@ def _self_test():
     c = TargetBridgeCore()
     c.report(0.0, "green", 0.0, 0.0, 0.8)
     c.report(0.05, "green", 0.1, 0.0, 0.9)      # 同窗近帧
-    ev = c.tick(0.05)
+    assert c.tick(.05) == []  # Two images cannot satisfy three-frame activation.
+    c.report(.1, 'green', .2, 0., .9)
+    ev = c.tick(.1)
     assert len(ev) == 1 and ev[0]["tid"] == "t0" and ev[0]["state"] == 0
     for k in range(1, 10):                      # 匀速 2m/s 移动
         c.report(k * 0.2, "green", k * 0.4, 0.0, 0.9)
     ev = c.tick(1.8)
-    assert ev[0]["state"] == 1 and ev[0]["vx"] > 1.0, ev[0]
+    # Smoothed speed approaches 2m/s from below; no measured threshold crossing yet.
+    assert ev[0]["state"] == 0 and 1.0 < ev[0]["vx"] < FLEE_SPEED, ev[0]
     print("2) 融合/速度 OK: vx=%.2f" % ev[0]["vx"])
 
     # 3) coast 保持 → 接力窗口结束后停发
@@ -459,9 +487,9 @@ def _self_test():
     assert c.tick(8.8) == []
     print("4) eliminated 补发/鬼影忽略 OK")
 
-    # 5) /left_actors 形态：range 串、[]、噪声
-    assert parse_left_actors("range(0, 6)") == {0, 1, 2, 3, 4, 5}
-    assert parse_left_actors("range(2, 5)") == {2, 3, 4}
+    # 5) /left_actors accepts only explicit unique JSON integer IDs.
+    assert parse_left_actors("range(0, 6)") is None
+    assert parse_left_actors("range(2, 5)") is None
     assert parse_left_actors("[]") == set()
     assert parse_left_actors("[0, 2, 4]") == {0, 2, 4}
     assert parse_left_actors("") is None
@@ -470,11 +498,13 @@ def _self_test():
 
     # 6) 全消除
     c2 = TargetBridgeCore()
-    c2.report(0, "blue", 1, 1, 0.9)
-    c2.set_left(0, "range(0, 6)")               # range 串 = 全在，不消除
-    assert c2.set_left(0.1, "[]") == ["blue"]
-    assert c2.tick(0.1)[0]["eliminated"]
-    print("6) range 不误杀 / [] 全消除 OK")
+    assert c2.set_left(0, '[]') == []  # Initial empty feedback is not completion.
+    for t in (0., .2, .4):
+        c2.report(t, "blue", 1, 1, 0.9)
+    c2.set_left(.4, '[0,1,2,3,4,5]')
+    assert c2.set_left(.5, "[]") == ["blue"]
+    assert c2.tick(.5)[0]["eliminated"]
+    print("6) initial empty ignored / established completion OK")
 
     print("\nyolo_target_bridge 内核自测全部通过")
 

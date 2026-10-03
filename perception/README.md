@@ -1,5 +1,7 @@
 # RoboCup 多旋翼集群搜索 — 机载感知节点（双目版）
 
+2026-10-03迁移补充：几何参数从实际CameraInfo读取，缺标定或图像尺寸不符不输出世界坐标。原双目话题默认保留；雷达机型须指定PR_CAM_TOPIC=/uav_1/cgo3_camera/image_raw、PR_CAM_LINK=uav_1::cgo3_camera_link、PR_CAM_OFF_BL=0,0,-0.162，按实际模型核对。协同控制使用visual_observation v2，旧target_report仅诊断。视觉持续观测与官方成功分开验证，详见coordination/docs/visual_observation_v2.md。
+
 把双目相机的图像变成**目标在世界坐标系里的位置**，并同时喂给两路下游：
 **官方裁判**（决定得分）和**团队协同核心**（决定任务分配）。
 

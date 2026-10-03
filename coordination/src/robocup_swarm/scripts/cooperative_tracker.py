@@ -105,8 +105,9 @@ class CooperativeTarget(object):
 
     def __init__(self, target_id, t0=0.0, confirm_time=CONFIRM_TIME,
                  evade_time=EVADE_TIME, obs_ttl=OBS_TTL,
-                 err_tol=ERR_TOL, gap_tol=GAP_TOL):
+                 err_tol=ERR_TOL, gap_tol=GAP_TOL, official_only=False):
         self.target_id = target_id
+        self.official_only = official_only
         self.confirm_time = confirm_time
         self.evade_time = evade_time
         self.obs_ttl = obs_ttl
@@ -257,7 +258,7 @@ class CooperativeTarget(object):
                     if self._first_confirm_t is None:
                         self._first_confirm_t = now  # 规则4 计时起点：首次进入确认状态
                 self.last_ok_t = now
-                if now - self.confirm_since >= self.confirm_time:
+                if not self.official_only and now - self.confirm_since >= self.confirm_time:
                     self.eliminated = True
                     self._evade_fired = True
                     return "confirmed"
@@ -276,7 +277,7 @@ class CooperativeTarget(object):
 
         # 规则4：裁判首次收到合格上报起 25 s 墙钟跨度未消除 → 瞬移
         # 与 control_actor.actor_teleportation_callback 对齐：teleportation_interval = 25s
-        if (not self._evade_fired and self._first_confirm_t is not None
+        if (not self.official_only and not self._evade_fired and self._first_confirm_t is not None
                 and now - self._first_confirm_t >= self.evade_time):
             self.evaded = True
             self._evade_fired = True
@@ -311,7 +312,8 @@ class CooperativeTracker(object):
     """全部目标的协同确认管理器。"""
 
     def __init__(self, confirm_time=CONFIRM_TIME, evade_time=EVADE_TIME,
-                 obs_ttl=OBS_TTL, err_tol=ERR_TOL, gap_tol=GAP_TOL):
+                 obs_ttl=OBS_TTL, err_tol=ERR_TOL, gap_tol=GAP_TOL, official_only=False):
+        self.official_only = official_only
         self.confirm_time = confirm_time
         self.evade_time = evade_time
         self.obs_ttl = obs_ttl
@@ -324,7 +326,7 @@ class CooperativeTracker(object):
         self.targets[target_id] = CooperativeTarget(
             target_id, t0=now, confirm_time=self.confirm_time,
             evade_time=self.evade_time, obs_ttl=self.obs_ttl,
-            err_tol=self.err_tol, gap_tol=self.gap_tol)
+            err_tol=self.err_tol, gap_tol=self.gap_tol, official_only=self.official_only)
         return self.targets[target_id]
 
     def assign_observers(self, target_id, uav_ids):

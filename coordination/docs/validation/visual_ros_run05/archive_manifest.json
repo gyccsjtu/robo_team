@@ -1,0 +1,11 @@
+{
+  "source": "/tmp/robo_team_visual_ros_20261003_run05",
+  "archive_sha256": "85329eaf17db6e9e956f557e78f6a76d6ef8a06edbae2ad40e9d3551a9d5fab4",
+  "members": [
+    "algorithm",
+    "metadata.json",
+    "result.json",
+    "roscore.log"
+  ],
+  "note": "Executed source is the frozen run copy; subsequent workspace edits are not flight evidence."
+}

@@ -1,0 +1,2242 @@
+{
+  "status": "SIX_SEARCH_FLIGHT_INCOMPLETE",
+  "formal_competition_pass": false,
+  "fixture_only": true,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        0.0033972111996263266,
+        0.0059600272215902805,
+        -0.023819247260689735
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 6.372,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        0.0005343385273590684,
+        0.0027657777536660433,
+        0.027275964617729187
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 6.372,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        -0.0013516874751076102,
+        0.010467436164617538,
+        -0.006763694807887077
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 6.372,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        0.008579779416322708,
+        -0.004293499514460564,
+        -0.12386996299028397
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 6.376,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        0.007369973696768284,
+        -0.002366916975006461,
+        -0.09088875353336334
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 6.376,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        -0.00024180757463909686,
+        0.0035590247716754675,
+        -0.1508030891418457
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 6.376,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  },
+  "connectivity_armed": false,
+  "prototype_search_verified": false,
+  "simulated_seconds": 120.172,
+  "maximum_true_altitude_m": 5.262962312863786,
+  "minimum_sampled_separation_m": 7.23693243292565,
+  "maximum_displacement_m": {
+    "uav_1": 21.475663288277865,
+    "uav_2": 19.53416949854806,
+    "uav_3": 29.2912952967123,
+    "uav_4": 25.113896530510694,
+    "uav_5": 28.67267092718595,
+    "uav_6": 13.793141552936838
+  },
+  "climbed": {
+    "uav_1": true,
+    "uav_2": true,
+    "uav_3": true,
+    "uav_4": true,
+    "uav_5": true,
+    "uav_6": true
+  },
+  "granted_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "truth_samples": 2307,
+  "collision_result": "ABSTAIN_NO_CONTACT_EVIDENCE",
+  "failure_reasons": [
+    "BOX_PROTECTIVE_CLEARANCE_VIOLATION",
+    "BOX_CONTACT_OBSERVED"
+  ],
+  "maximum_truth_gap_s": 0.136000000000001,
+  "armed_during_run_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "mission_completion_messages": [],
+  "online_observation_maps_verified": true,
+  "online_map_counts": {
+    "uav_2": {
+      "unknown": 8175,
+      "free": 4314,
+      "occupied": 55,
+      "frame": "map",
+      "sample_s": 127.812,
+      "version": 235
+    },
+    "uav_4": {
+      "unknown": 9222,
+      "free": 3262,
+      "occupied": 60,
+      "frame": "map",
+      "sample_s": 127.756,
+      "version": 234
+    },
+    "uav_1": {
+      "unknown": 9864,
+      "free": 2654,
+      "occupied": 26,
+      "frame": "map",
+      "sample_s": 127.668,
+      "version": 236
+    },
+    "uav_3": {
+      "unknown": 10077,
+      "free": 2465,
+      "occupied": 2,
+      "frame": "map",
+      "sample_s": 127.82,
+      "version": 232
+    },
+    "uav_5": {
+      "unknown": 8294,
+      "free": 4250,
+      "occupied": 0,
+      "frame": "map",
+      "sample_s": 127.332,
+      "version": 229
+    },
+    "uav_6": {
+      "unknown": 9405,
+      "free": 3109,
+      "occupied": 30,
+      "frame": "map",
+      "sample_s": 127.6,
+      "version": 229
+    }
+  },
+  "route_commits": {
+    "uav_1": 87,
+    "uav_2": 86,
+    "uav_3": 83,
+    "uav_4": 88,
+    "uav_5": 77,
+    "uav_6": 55
+  },
+  "online_plans": {
+    "uav_1": 96,
+    "uav_2": 101,
+    "uav_3": 89,
+    "uav_4": 97,
+    "uav_5": 83,
+    "uav_6": 90
+  },
+  "obstacle_fixture": true,
+  "minimum_box_clearance_m": 0.3682760186296363,
+  "box_contact_observation_verified": true,
+  "box_contacts": [
+    {
+      "sample_s": 121.272,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.292,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.292,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.312,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.312,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.412,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.432,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.432,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.432,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.632,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.652,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.652,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.652,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.672,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.672,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.692,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.692,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.712,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.712,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.712,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.732,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.732,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.772,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.772,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.792,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.792,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.792,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.812,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.812,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.832,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.832,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.832,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.852,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.852,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.872,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.872,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.892,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.892,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.912,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.912,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.932,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.932,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.972,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.972,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 121.992,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.012,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.032,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.032,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.052,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.052,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.092,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.092,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.112,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.112,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.132,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.132,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.152,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.152,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.172,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.172,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.192,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.192,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.192,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.192,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.192,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.232,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.232,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.232,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.252,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.252,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.252,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.252,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.252,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.252,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.292,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.312,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.312,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.312,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.412,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.412,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.412,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.472,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.472,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.512,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.552,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.552,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.572,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.572,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.572,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.592,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.592,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.612,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.612,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.672,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.672,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.692,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.712,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.712,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.712,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.712,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.712,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.732,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.732,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.732,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.732,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.732,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.732,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.732,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.752,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.752,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.752,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.752,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.752,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.752,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.752,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.752,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.772,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.772,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.772,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.832,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.832,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.852,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.852,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.852,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.872,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.872,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.872,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.872,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.872,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.892,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.912,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.912,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.932,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.932,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.932,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 122.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.012,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.032,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.032,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.052,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.052,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.052,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.052,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.132,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.152,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.192,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.192,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.192,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.192,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.212,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.252,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.252,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.252,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.272,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.272,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.272,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.292,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.292,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.332,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.352,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.372,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.392,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.412,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.412,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.412,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.412,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.412,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.432,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.432,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.452,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.472,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.472,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.472,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.472,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.472,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.472,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.492,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.512,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.532,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.532,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.532,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.532,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.532,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.532,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.552,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.552,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::base_link::base_link_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.632,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.632,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.652,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.912,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.932,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.932,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.932,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.952,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 123.972,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 124.052,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 124.052,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 124.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 124.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 124.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 124.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 124.072,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    },
+    {
+      "sample_s": 124.092,
+      "box": 4,
+      "classification": "UAV_BODY_CONTACT",
+      "collision1": "uav_6::rotor_4::rotor_4_collision",
+      "collision2": "fixture_box_4::box::collision"
+    }
+  ],
+  "sonar_sensor_intersections": 41626,
+  "verified_virtual_collision_names": [
+    "uav_1::sonar::link::default::uav_1::sonar::link::sonarsensor_collision",
+    "uav_2::sonar::link::default::uav_2::sonar::link::sonarsensor_collision",
+    "uav_4::sonar::link::default::uav_4::sonar::link::sonarsensor_collision",
+    "uav_6::sonar::link::default::uav_6::sonar::link::sonarsensor_collision"
+  ]
+}

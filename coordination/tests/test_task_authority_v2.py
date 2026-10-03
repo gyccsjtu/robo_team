@@ -37,6 +37,33 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(self.core.offer('uav_2', task(), .1), [])
         self.assertEqual(self.core.locks[('target', 't0')]['owner'], 'uav_1')
 
+    def test_refresh_preserves_unique_owner_and_fences_old_generation(self):
+        old = self.core.offer('uav_1', task(), 0.)[0]
+        self.gate.receive(old, 0.)
+        stop = self.core.refresh('uav_1', .1)[0]
+        self.gate.receive(stop, .1)
+        self.assertFalse(self.gate.can_move(.1))
+        self.assertEqual(self.core.offer('uav_2', task(), .2), [])
+        new = self.stop_for(1.4)[0]
+        self.assertEqual(new['generation'], 2)
+        self.assertEqual(new['task'], old['task'])
+        self.assertTrue(self.gate.receive(new, 1.4))
+        self.assertEqual(self.core.locks[('target', 't0')]['owner'], 'uav_1')
+        self.assertFalse(self.gate.receive(old, 1.5))
+
+    def test_close_cancels_pending_and_never_restarts_after_measured_stop(self):
+        self.core.offer('uav_1', task(), 0.)
+        self.core.offer('uav_1', task('t1', 20.), .1)
+        self.core.offer('uav_2', task(), .2)
+        stop = self.core.close(.3)
+        self.assertEqual([m['action'] for m in stop], ['STOP'])
+        self.assertEqual(self.core.pending, {})
+        self.assertEqual(self.core.offer('uav_2', task('new'), .4), [])
+        self.assertEqual(self.stop_for(1.5), [])
+        self.assertEqual(self.core.tick(10.), [])
+        self.assertTrue(self.core.locks[('target', 't0')]['retired'])
+        self.assertEqual(self.core.close(11.), [])
+
     def test_switch_requires_stopped_ack_and_retains_old_lock(self):
         grant = self.core.offer('uav_1', task(), 0.)[0]
         self.assertTrue(self.gate.receive(grant, 0.))

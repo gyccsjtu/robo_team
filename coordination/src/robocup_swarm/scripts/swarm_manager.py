@@ -24,8 +24,11 @@ import re
 import traceback
 import threading
 from task_authority import TaskAuthority
+from route_reservation import RouteAuthority
+from fleet_motion_guard import MotionCache
 from allocation_geometry import screen_leg
 from search_completion import completion_state, parse_actor_list
+from visual_observation import VisualEvidence, TAG_TO_TID
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from std_msgs.msg import String, Float32
@@ -67,7 +70,7 @@ BACKUP_MAX_DIST = float(os.environ.get("BACKUP_MAX_DIST", "60.0"))  # 距离超�
 # 1=把官方 actor 真值直接播种给 tracker（现状，等于"上帝视角"直接派机）
 # 0=只能靠 /swarm/detection（飞机自己的观测）发现目标 —— 这才是接 YOLO 后的真实链路
 # 关掉它才能量出协同搜索算法的真实能力，否则覆盖栅格/拍卖/分区全是摆设。
-SEED_TRUTH = int(os.environ.get("SEED_TRUTH", "1"))
+SEED_TRUTH = int(os.environ.get("SEED_TRUTH", "0"))
 MAP_BOUNDS_FROM_META = os.environ.get("MAP_BOUNDS_FROM_META", "1") not in ("0", "false", "False")
 # 覆盖记忆：把各机当前位置探测半径内的格子标记为已覆盖。
 # COVER_MARK=0 关闭（复现旧行为）；比例可调（1.0 = 用满 DETECT_RADIUS）
@@ -97,7 +100,9 @@ CLEARANCE_MAX = float(os.environ.get("CLEARANCE_MAX", "24.0"))  # 距离场最�
 # ---- LOS 感知 next-best-view（2026-09-28）----
 # 与 W_EDGE 的区别：EDGE 是静态的「贴楼加分」（实测成共同吸引子，6 架挤一起）；
 # NBV 是动态的「从这个视点能看见多少久未见的区域」，且派单即承诺 → 次模贪心自动分散。
-VIS_ENABLE = os.environ.get("VIS_ENABLE", "1") not in ("0", "false", "False", "")
+ONLINE_RADAR_PLANNING = os.environ.get('ONLINE_RADAR_PLANNING', '0') == '1'
+VIS_ENABLE = (not ONLINE_RADAR_PLANNING
+              and os.environ.get("VIS_ENABLE", "1") not in ("0", "false", "False", ""))
 VIS_RADIUS = float(os.environ.get("VIS_RADIUS", "20.0"))   # 与 DETECT_RADIUS 一致
 VIS_COMMIT = os.environ.get("VIS_COMMIT", "1") not in ("0", "false", "False", "")
 # 飞机抵达分配格的判定半径：距格代表点 < 此值即认为已搜索该格，
@@ -211,6 +216,11 @@ class SwarmManager(object):
         self.uav_ids = uav_ids
         self._authority_lock = threading.RLock()
         self._authority = TaskAuthority(os.environ.get('ROBOCUP_RUN_ID', ''), uav_ids)
+        self._routes = RouteAuthority(self._authority.run_id, uav_ids)
+        self._route_motion = MotionCache(self._authority.run_id, uav_ids)
+        self._visual_evidence = VisualEvidence(self._authority.run_id, uav_ids)
+        self._route_log_cursor = 0
+        self._route_log = None
         self._authority_event_cursor = 0
         self._authority_log = None
         # 每机最新状态
@@ -227,6 +237,8 @@ class SwarmManager(object):
         self.grid = CoverageGrid(_bx0, _bx1, _by0, _by1, GRID_SIZE_M, len(uav_ids))
         self.allocator = TaskAllocator(self.grid, W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE,
                                        w_distance=W_DISTANCE, w_zone=W_ZONE, cruise_speed=CRUISE_SPEED)
+        if ONLINE_RADAR_PLANNING:
+            self.allocator.vis_enable = False
         self.lease = LeaseManager(self.grid, duration=LEASE_DURATION)
 
         # ---- 过滤「格中心落在建筑内」的格子：这些格 agent 的 A* 无法到达 ----
@@ -255,7 +267,7 @@ class SwarmManager(object):
                 self._vis_set = {}
 
         # ---- 目标确认/消除（规则4/5）----
-        self.tracker = CooperativeTracker()
+        self.tracker = CooperativeTracker(official_only=True)
         self._truth_cache = {}     # target_id -> (x, y, t) 缓存，t 为检测上报时间，超 TRUTH_TTL 作废
         self._truth_pos = {}      # target_id -> (x, y) 仅真值源写入（SEED_TRUTH=1），tracker 误差门槛用
         self._cur_targets = {}    # target_id -> 本周期是否有检测（用于 lose 判定）
@@ -281,9 +293,17 @@ class SwarmManager(object):
 
         # ---- 订阅 / 发布 ----
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._status_cb)
-        rospy.Subscriber("/swarm/detection", TargetDetection, self._detection_cb)
+        if SEED_TRUTH:
+            rospy.Subscriber('/swarm/detection', TargetDetection, self._detection_cb)
+        else:
+            rospy.Subscriber('/swarm/confirmed_visual_observation', String, self._confirmed_visual_cb, queue_size=100)
         self.assign_pub = rospy.Publisher("/swarm/assignment", SearchAssignment, queue_size=10)
         self._authority_pub = rospy.Publisher('/swarm/authorized_assignment', String, queue_size=100)
+        self._route_pub = rospy.Publisher('/swarm/route_grant', String, queue_size=100)
+        self._route_snapshot_pub = rospy.Publisher('/swarm/route_reservations', String, queue_size=1)
+        self._last_route_snapshot_s = -1.
+        rospy.Subscriber('/swarm/route_offer', String, self._route_offer_cb, queue_size=100)
+        rospy.Subscriber('/swarm/motion_state', String, self._route_motion_cb, queue_size=100)
         rospy.Subscriber('/swarm/authority_ack', String, self._authority_ack_cb, queue_size=100)
         # 消除指令发给 target_sim_node（"eliminate:<target_id>"）
         self.cmd_pub = rospy.Publisher("/swarm/target_command", String, queue_size=10)
@@ -302,7 +322,8 @@ class SwarmManager(object):
             rospy.Subscriber("/find_actor_%d" % _i, Float32,
                              self._make_find_cb(_i), queue_size=5)
         # 官方 actor 真值（official_target_bridge 从 /gazebo/model_states 转发）
-        rospy.Subscriber("/swarm/target_states", TargetState, self._truth_cb, queue_size=30)
+        if SEED_TRUTH:
+            rospy.Subscriber('/swarm/target_states', TargetState, self._truth_cb, queue_size=30)
 
         self._last_alloc_t = rospy.Time.now()
         self._last_lease_t = rospy.Time.now()
@@ -323,6 +344,12 @@ class SwarmManager(object):
         blocked = set()
         waypoint = {}
         edge = {}
+        if ONLINE_RADAR_PLANNING:
+            self._g_infl = None
+            self._cell_waypoint = {key: (cell.cx, cell.cy) for key, cell in self.grid.cells.items()}
+            self._cell_edge = {}
+            rospy.loginfo('[manager] Online mode: metadata bounds only, no stored obstacle or LOS prior')
+            return blocked
         try:
             if EDGE_ENABLE:
                 md, _ = load_metadata(METADATA_PATH)
@@ -413,9 +440,44 @@ class SwarmManager(object):
             if not isinstance(message, dict):
                 return
             with self._authority_lock:
-                self._emit_authority(self._authority.ack(message, rospy.Time.now().to_sec()))
+                cursor = len(self._authority.events)
+                outputs = self._authority.ack(message, rospy.Time.now().to_sec())
+                for event in self._authority.events[cursor:]:
+                    if event['event'] == 'STOPPED_ACKED':
+                        self._routes.retire_stopped(event['uav_id'], event['details']['generation'])
+                self._emit_authority(outputs)
         except (ValueError, TypeError) as exc:
             rospy.logwarn_throttle(2., '[manager] AUTHORITY_ACK_REJECTED %s', exc)
+
+    def _emit_routes(self, outputs):
+        for message in outputs:
+            self._route_pub.publish(String(data=json.dumps(message, allow_nan=False)))
+        if self._route_log is None:
+            directory = os.path.expanduser(os.environ.get('ROBOCUP_LOG_DIR', '~/robocup_logs'))
+            os.makedirs(directory, exist_ok=True)
+            self._route_log = open(os.path.join(directory, 'route_events.jsonl'), 'a', encoding='utf-8')
+        for event in self._routes.events[self._route_log_cursor:]:
+            self._route_log.write(json.dumps(event, allow_nan=False)+'\n')
+        self._route_log.flush()
+        self._route_log_cursor = len(self._routes.events)
+
+    def _route_motion_cb(self, msg):
+        try:
+            with self._authority_lock:
+                self._route_motion.receive(json.loads(msg.data), rospy.Time.now().to_sec())
+        except (ValueError, TypeError):
+            return
+
+    def _route_offer_cb(self, msg):
+        try:
+            message = json.loads(msg.data)
+            if not isinstance(message, dict):
+                return
+            with self._authority_lock:
+                self._emit_routes(self._routes.offer(message, rospy.Time.now().to_sec(),
+                                 self._authority.active, self._route_motion))
+        except (ValueError, TypeError, KeyError) as exc:
+            rospy.logwarn_throttle(2., '[manager] ROUTE_OFFER_REJECTED %s', exc)
 
     def _status_cb(self, msg):
         self.status[msg.uav_id] = msg
@@ -486,6 +548,19 @@ class SwarmManager(object):
                 self._left_seen = True
             return
         self._release_finished(ids)
+        if not ids:
+            self._complete_official_run()
+
+    def _complete_official_run(self):
+        """Official nonempty-to-empty evidence ends even a fully busy fleet."""
+        with self._authority_lock:
+            if self._mission_finished:
+                return
+            self._mission_finished = True
+            self._emit_authority(self._authority.close(rospy.Time.now().to_sec()))
+        # No descent permission is inferred from horizontal radar clearance.
+        self.finish_pub.publish(String(data="MISSION_FINISHED"))
+        rospy.loginfo('[manager] Official actor list completed; task generations fenced, holding position')
 
     def _build_visibility(self):
         """预计算「从每个候选视点能看见哪些格」（20m 半径 + LOS 不穿楼）。
@@ -669,6 +744,26 @@ class SwarmManager(object):
                           best, tid, tx_c, ty_c, best_d)
 
     # ---------------- 目标检测与消除（规则4/5） ----------------
+    def _confirmed_visual_cb(self, msg):
+        try:
+            with self._authority_lock:
+                observation = self._visual_evidence.receive(json.loads(msg.data), rospy.Time.now().to_sec())
+                if observation is None:
+                    return
+                tid = TAG_TO_TID[observation['target_id']]
+                if observation['sample_s'] < self._last_detect.get(tid, -1.):
+                    return
+                detection = TargetDetection()
+                detection.header.stamp = rospy.Time.from_sec(observation['sample_s'])
+                detection.header.frame_id = 'map'
+                detection.uav_id = observation['uav_id']
+                detection.target_id = tid
+                detection.x, detection.y, _ = observation['xyz']
+                detection.confidence, detection.source = observation['confidence'], 1
+                self._detection_cb(detection)
+        except (ValueError, TypeError, KeyError):
+            return
+
     def _detection_cb(self, msg):
         """收到某机对某目标的检测 → 喂给 CooperativeTracker。
 
@@ -679,8 +774,14 @@ class SwarmManager(object):
             return
         tid = msg.target_id
         now = rospy.Time.now().to_sec()
-        self._last_detect[tid] = now
-        self._truth_cache[tid] = (msg.x, msg.y, now)
+        sample_s = msg.header.stamp.to_sec()
+        if (msg.uav_id not in self.uav_ids or tid not in ('t0', 't1', 't2', 't3', 't4', 't5')
+                or not all(math.isfinite(v) for v in (msg.x, msg.y, msg.confidence, sample_s))
+                or not 0 <= msg.confidence <= 1 or not 0 <= now-sample_s <= 1.
+                or (not SEED_TRUTH and msg.source != 1)):
+            return
+        self._last_detect[tid] = sample_s
+        self._truth_cache[tid] = (msg.x, msg.y, sample_s)
 
         # CooperativeTracker 还不知道这个目标？登记
         if tid not in self.tracker.targets:
@@ -700,7 +801,7 @@ class SwarmManager(object):
         # SEED_TRUTH=0 时传 None，tracker 退化为「看得见即合格」口径（无真值）。
         tp = self._truth_pos.get(tid)
         truth = tp if (SEED_TRUTH and tp is not None) else None
-        self.tracker.report(msg.uav_id, tid, now, msg.x, msg.y, truth=truth)
+        self.tracker.report(msg.uav_id, tid, sample_s, msg.x, msg.y, truth=truth)
         self._cur_targets[tid] = (msg.x, msg.y, msg.uav_id)
 
         # 已在追踪？更新盘旋位置
@@ -969,9 +1070,8 @@ class SwarmManager(object):
             if _tpos is not None and _tpos[0] is not None and _st is not None:
                 _dist = math.sqrt((_st.x - _tpos[0]) ** 2 +
                                   (_st.y - _tpos[1]) ** 2 + _st.z ** 2)
-            _captured = (ct.confirm_since is not None and
-                         (ct.last_err is None or ct.last_err <= ct.err_tol))
-            _error_ok = ct.last_err is None or ct.last_err <= ct.err_tol
+            _captured = False  # Only official feedback proves elimination.
+            _error_ok = None if ct.last_err is None else ct.last_err <= ct.err_tol
             _gap_s = ((now - ct.last_ok_t) if ct.last_ok_t is not None else None)
             _gap_ok = ct.last_ok_t is None or _gap_s <= ct.gap_tol
             self._csv.write(
@@ -1198,15 +1298,7 @@ class SwarmManager(object):
                 # 2026-09-28：实测这里误判过 —— tracker 瞬间为空 + _left_actors 还没到
                 # 就被当成「搜完了」，把空闲机降下来，一架落地就再也救不回来（见
                 # patch_guard2）。默认不再自动降落，宁可继续巡逻。
-                if not AUTO_LAND:
-                    rospy.loginfo_throttle(
-                        20, "[manager] 疑似全部完成（tracker 空且剩余 0），但 AUTO_LAND=0"
-                            " → 继续巡逻，不降落")
-                else:
-                    rospy.loginfo("[manager] 全部任务完成，各机降落")
-                    self._publish_land(idle)
-                # 广播任务完成消息
-                self.finish_pub.publish(String(data="MISSION_FINISHED"))
+                self._complete_official_run()
 
         self._last_alloc_t = now
 
@@ -1314,7 +1406,17 @@ class SwarmManager(object):
 
             try:
                 with self._authority_lock:
+                    if not any(a['stopping'] for a in self._authority.active.values()):
+                        for uid, active in self._authority.active.items():
+                            if uid in self._routes.current and now.to_sec()-active['started_s'] >= 30.:
+                                self._emit_authority(self._authority.refresh(uid, rospy.Time.now().to_sec()))
+                                break
                     self._emit_authority(self._authority.tick(rospy.Time.now().to_sec()))
+                    self._emit_routes(self._routes.tick(rospy.Time.now().to_sec(), self._authority.active,
+                                                       self._route_motion))
+                    if now.to_sec()-self._last_route_snapshot_s >= .5:
+                        self._route_snapshot_pub.publish(String(data=json.dumps(self._routes.snapshot(), allow_nan=False)))
+                        self._last_route_snapshot_s = now.to_sec()
                 # 任务已完成，跳过分配
                 if self._mission_finished:
                     rate.sleep()

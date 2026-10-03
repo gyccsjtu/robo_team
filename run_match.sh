@@ -72,9 +72,17 @@ TAKEOFF_Y=(-3 -3 0 0 3 3)
 # 6 架飞机（官方 robocup.launch 的命名空间）
 UAVS=(typhoon_h480_0 typhoon_h480_1 typhoon_h480_2
       typhoon_h480_3 typhoon_h480_4 typhoon_h480_5)
+# Identity must be identical before perception, bridge and manager start.
+export SWARM_UAV_IDS="$(IFS=,; echo "${UAVS[*]}")"
 # 感知节点默认 6 机全起：每架带各自相机 YOLO，飞出后才不致盲（32核可承载）。
 # 只调试单机时可用 PR_UAVS="typhoon_h480_0" 覆盖。
 read -r -a PR_UAV_ARR <<< "${PR_UAVS:-${UAVS[*]}}"
+PR_SENSOR_PROFILE="${PR_SENSOR_PROFILE:-stereo}"
+case "$PR_SENSOR_PROFILE" in
+    cgo3) PR_IMAGE_SUFFIX="cgo3_camera/image_raw"; PR_LINK_SUFFIX="cgo3_camera_link"; PR_SENSOR_OFFSET="0,0,-0.162" ;;
+    stereo) PR_IMAGE_SUFFIX="stereo_camera/left/image_raw"; PR_LINK_SUFFIX="base_link"; PR_SENSOR_OFFSET="0.12,0.06,-0.05" ;;
+    *) echo "Unsupported PR_SENSOR_PROFILE: $PR_SENSOR_PROFILE" >&2; exit 2 ;;
+esac
 
 # 场景 launch：默认与 SKIP_RADAR 联动（默认值在下方 SKIP_RADAR 解析后确定）；
 # 可显式覆盖，如 SCENE_LAUNCH="px4 robocup.launch"
@@ -505,7 +513,8 @@ do_start(){
     step "④ 起感知 perception_real.py（CUDA_VISIBLE_DEVICES 置空，CPU 推理）"
     for u in "${PR_UAV_ARR[@]}"; do
         start_group "pr_$u" "$LOGDIR/04_perception_$u.log" bash -c \
-            "cd '$PERC_DIR' && CUDA_VISIBLE_DEVICES='' PR_UAV='$u' PR_CAM_LINK='$u::base_link' python3 -u perception_real.py"
+            'cd "$1" && CUDA_VISIBLE_DEVICES="" PR_UAV="$2" PR_CAM_LINK="$2::$3" PR_CAM_OFF_BL="$4" PR_CAM_TOPIC="/$2/$5" exec "${VISION_PYTHON:-python3}" -u perception_real.py' \
+            perception "$PERC_DIR" "$u" "$PR_LINK_SUFFIX" "$PR_SENSOR_OFFSET" "$PR_IMAGE_SUFFIX"
     done
 
     # ---- ④b YOLO→swarm 桥：合法检测 → /swarm/target_states ----
@@ -532,7 +541,7 @@ do_start(){
             # 暂停启动时世界未步进、相机无帧——帧验证推迟到 unpause 之后；
             # 此处只判节点存活，避免 120s 空等误报。
             if [ "$START_PAUSED" != "1" ]; then
-                timeout 8 rostopic echo -n1 "/$u/stereo_camera/left/image_raw" \
+                timeout 8 rostopic echo -n1 "/$u/$PR_IMAGE_SUFFIX" \
                     >/dev/null 2>&1 || return 1
             fi
         done
@@ -802,18 +811,7 @@ do_stop(){
     stop_group scene
     sleep 3
 
-    # 残留兜底：每条单独容错
-    pkill -9 -f '[r]adar_avoid.py'          2>/dev/null || true
-    pkill -9 -f '[p]erception_real.py'      2>/dev/null || true
-    pkill -9 -f '[m]ultirotor_communication.py' 2>/dev/null || true
-    pkill -9 -f '[c]ontrol_actor.py'        2>/dev/null || true
-    if [ "${FULL_TEARDOWN:-0}" = "1" ]; then
-        pkill -9 -f '[m]avros_node' 2>/dev/null || true
-        pkill -9 -f '[b]in/px4'     2>/dev/null || true
-        pkill -9 -x gzserver        2>/dev/null || true
-        pkill -9 -x gzclient        2>/dev/null || true
-        pkill -9 -f '[r]osmaster'   2>/dev/null || true
-    fi
+    # Only registered process groups belong to this run. Never kill by name.
     mv "$REG" "$REG.stopped.$STAMP" 2>/dev/null || true
     ok "已停止全场比赛。"
 }

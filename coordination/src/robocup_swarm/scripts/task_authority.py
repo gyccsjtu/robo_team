@@ -39,6 +39,31 @@ class TaskAuthority:
         self._stop_samples = {}
         self._last_ack_status = {}
         self.events, self.last_s = [], 0.
+        self.closed = False
+
+    def close(self, now):
+        """Fence the run permanently; retain occupancy until measured stop/exit."""
+        self._time(now)
+        self.closed = True
+        self.pending.clear()
+        outputs = []
+        for uid, active in self.active.items():
+            if not active['stopping']:
+                self._event('STOP_REQUESTED', uid, now, generation=active['generation'], reason='RUN_CLOSED')
+            active['stopping'] = True
+            outputs.append(self._message(uid, active, 'STOP', now))
+        return outputs
+
+    def refresh(self, uid, now):
+        """Stop and fence an old route generation before retrying its task."""
+        self._time(now)
+        active = self.active.get(uid)
+        if self.closed or active is None or active['stopping']:
+            return []
+        self.pending[uid] = copy.deepcopy(active['task'])
+        active['stopping'] = True
+        self._event('STOP_REQUESTED', uid, now, generation=active['generation'], reason='ROUTE_REFRESH')
+        return [self._message(uid, active, 'STOP', now)]
 
     def _time(self, now):
         if not finite(now) or now < self.last_s:
@@ -72,7 +97,7 @@ class TaskAuthority:
         generation = self.generation.get(uid, 0) + 1
         self.generation[uid] = generation
         active = dict(task=copy.deepcopy(task), key=key, generation=generation,
-                      expires_s=now + self.lease_s, stopping=False)
+                      expires_s=now + self.lease_s, stopping=False, started_s=now)
         self.active[uid] = active
         self._stop_samples.pop(uid, None)
         self.locks[key] = dict(owner=uid, generation=generation,
@@ -83,6 +108,8 @@ class TaskAuthority:
 
     def offer(self, uid, task, now):
         self._time(now)
+        if self.closed:
+            return []
         if uid not in self.fleet:
             raise ValueError('UNKNOWN_UAV')
         key = self._key(uid, task)

@@ -1,0 +1,11 @@
+# 视觉观测证据 v2（2026-10-03 冻结）
+
+新增 `/swarm/visual_observation` String JSON：schema_version=2、run_id、uav_id、seq（逐感知实例递增）、sample_s（实际当前图像采样时刻）、target_id（颜色/槽位tag）、frame_id=world_enu、xyz（三个有限数）、confidence（实际模型置信度0..1）、observation_id（含run/机号/序号）。同轮显式fleet成员才接受；旧运行、旧序号、同目标重复图像时间、未来或超过1s的采样拒绝。预测/coast帧不能生成新观测。缺机号/采样证据的旧 `/coordination/target_report` 仅兼容诊断，不再作为生产确认输入。
+
+YOLO桥可用融合预测位置辅助任务调度，但只有有效、新鲜实际观测才能发 `/swarm/detection` 的source=1消息或续官方坐标上报；预测重发不能重置观测时间。manager在生产模式拒绝source=0的几何伪观测，确认使用原采样时间。内部计时不能代替官方ID/坐标/连续15s验收。
+
+核对官方375行score_cal.py：green→t0、blue→t1、brown→t2、white→t3；`/actor_red1_info`→t5，`/actor_red2_info`→t4，两个红色消息的ActorInfo.cls都必须是red。修正旧桥把red1映射t4并发cls=red1的错误。此身份映射版本为2，旧日志不重新解释；旧任务/缓存不能跨run迁移。
+
+集中调度允许性仍以官方书面规则为准；本证据接口不声明已经通过视觉识别精度、定位误差或比赛验收。模块是单轮进程，单独重启感知节点需新source身份或完整换run，不能复用低序号冒充旧实例。
+
+兼容增补v2.1：桥仅在本轮有效实际图像通过三帧轨迹激活后，向`/swarm/confirmed_visual_observation`转发完整、未经改写的schema2原观测。manager与agent在生产模式使用各自VisualEvidence复验运行、机号、序号、原采样时间和重复帧；颜色到t0..t5的映射同本版本。旧`/swarm/detection`和`/swarm/target_states`保留诊断，生产执行不以其缺少run_id的消息更新目标。SEED_TRUTH=1开发模式仍允许旧消息，不能标为正式或真实视觉证明。没有增加/删除payload字段，不需要改ROS自定义消息；新增接入必须整套升级，旧生产manager/agent不具备该隔离语义。

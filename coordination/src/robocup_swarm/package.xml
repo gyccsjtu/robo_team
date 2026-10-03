@@ -70,4 +70,5 @@
 
   </export>
   <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>ros_actor_cmd_pose_plugin_msgs</exec_depend>
 </package>

@@ -20,6 +20,7 @@
 import os
 import re
 import threading
+import time
 import rospy
 import math
 import traceback
@@ -27,7 +28,8 @@ import json
 from gazebo_msgs.msg import ModelStates
 from geometry_msgs.msg import PoseStamped, TwistStamped
 from sensor_msgs.msg import LaserScan
-from mavros_msgs.msg import State
+from mavros_msgs.msg import State, PositionTarget
+from position_brake import PositionBrake
 from mavros_msgs.srv import CommandBool, SetMode, ParamSet
 from std_msgs.msg import String, Float32
 
@@ -37,12 +39,16 @@ from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from csv_logger import logger
 from radar_velocity_guard import guard_velocity
 from task_authority import TaskGate
+from visual_observation import VisualEvidence, TAG_TO_TID
+from route_reservation import RouteGate, exclude_peers, valid_points
 from route_endpoint import connect_exact_goal
 from publisher_authority import PublisherAuthority
 from fcu_configuration import configure as configure_fcu_parameters
 from fleet_motion_guard import MotionCache, protect as protect_fleet_motion
 from radar_observed_map import ObservedMap
 from nav_msgs.msg import OccupancyGrid
+from online_radar_planner import OnlinePlanner, fixture_seed
+from search_completion import parse_actor_list
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -336,6 +342,15 @@ class SwarmAgent(object):
         self._pose_sample_s = 0.
         self._authority_lock = threading.RLock()
         self._gate = TaskGate(os.environ.get('ROBOCUP_RUN_ID', ''), uav_id)
+        self._visual_evidence = VisualEvidence(self._gate.run_id,
+            os.environ.get('SWARM_UAV_IDS', 'uav_1,uav_2,uav_3,uav_4,uav_5,uav_6').split(','))
+        self._route_gate = RouteGate(self._gate.run_id, uav_id)
+        self._route_pending = None
+        self._route_pending_s = 0.
+        self._route_offer_id = 0
+        self._peer_routes = None
+        self._peer_routes_seq = 0
+        self._peer_routes_s = None
         self._ack_seq = 0
         self._stopped_since = None
         self.state = State()
@@ -347,6 +362,17 @@ class SwarmAgent(object):
         self._online_map = ObservedMap(self.grid.width, self.grid.height, self.grid.resolution, self.grid.origin)
         self._online_map_offset = None
         self._online_map_epoch_s = None
+        self._online_map_lock = threading.RLock()
+        self._online_planner = None
+        self._online_safe_grid = None
+        self._online_safe_epoch = None
+        self._online_safe_s = None
+        self._last_online_request_s = 0.
+        if os.environ.get('ONLINE_RADAR_PLANNING', '0') == '1':
+            seed = fixture_seed(os.environ['RADAR_START_CLEARANCE_FILE'], os.environ['ROBOCUP_RUN_ID'], uav_id)
+            self._online_planner = OnlinePlanner(seed)
+            self.grid = GridMap(self.grid.width, self.grid.height, self.grid.resolution,
+                                self.grid.origin, bytes([1])*(self.grid.width*self.grid.height), 'map')
         self._map_pub = None
         self.path = []              # 当前全局路径（世界坐标航点列表）
         self.path_target = None     # 当前路径终点（格中心），用于判断是否需重规划
@@ -385,6 +411,9 @@ class SwarmAgent(object):
             lambda ix, iy: (not raw_grid.in_bounds((ix, iy)))
                            or (not raw_grid.is_free((ix, iy))),
             cell_size=raw_grid.resolution, origin=raw_grid.origin)
+        if self._online_planner is not None:
+            self.los = LineOfSight(lambda ix, iy: not self.grid.is_free((ix, iy)),
+                                   cell_size=self.grid.resolution, origin=self.grid.origin)
         self.targets = {}           # target_id -> (x, y, vx, vy)，来自 /swarm/target_states
         self._target_state = {}    # target_id -> (state, t)，目标运动状态（1=FLEE）
         self._detect_log_t = {}     # tid -> 上次 [ALGO] detect 日志时刻（按 target 分别节流）
@@ -441,8 +470,14 @@ class SwarmAgent(object):
         rospy.Subscriber(rospy.get_param('~scan_topic', '/%s/scan' % uav_id), LaserScan, self._scan_cb,
                  queue_size=1)
         self._authority_ack_pub = rospy.Publisher('/swarm/authority_ack', String, queue_size=10)
+        self._route_offer_pub = rospy.Publisher('/swarm/route_offer', String, queue_size=10)
+        rospy.Subscriber('/swarm/route_grant', String, self._route_grant_cb, queue_size=100)
+        rospy.Subscriber('/swarm/route_reservations', String, self._route_snapshot_cb, queue_size=1)
         rospy.Subscriber('/swarm/authorized_assignment', String, self._authorized_cb, queue_size=100)
-        rospy.Subscriber("/swarm/target_states", TargetState, self._target_cb)
+        if os.environ.get('SEED_TRUTH', '0') == '1':
+            rospy.Subscriber('/swarm/target_states', TargetState, self._target_cb)
+        else:
+            rospy.Subscriber('/swarm/confirmed_visual_observation', String, self._confirmed_visual_cb, queue_size=100)
         rospy.Subscriber("/swarm/finish", String, self._finish_cb)
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._friend_status_cb)
 
@@ -452,8 +487,9 @@ class SwarmAgent(object):
         self._map_pub = rospy.Publisher('/' + self.uav_id + '/radar_observed_map', OccupancyGrid, queue_size=1)
         rospy.Subscriber('/swarm/motion_state', String, self._motion_cb, queue_size=100)
         self.detect_pub = rospy.Publisher("/swarm/detection", TargetDetection, queue_size=10)
-        self.vel_pub = rospy.Publisher(self.mavros_ns + '/setpoint_velocity/cmd_vel',
-                                       TwistStamped, queue_size=5)
+        self.vel_pub = rospy.Publisher(self.mavros_ns + '/setpoint_raw/local',
+                                       PositionTarget, queue_size=5)
+        self._position_brake = PositionBrake()
 
         self.ctrl_rate = rospy.Rate(CTRL_RATE)
         self.pub_rate = rospy.Rate(PUB_RATE)
@@ -590,25 +626,28 @@ class SwarmAgent(object):
         if (observed is None or self._map_pub is None or self.world_xy is None or self._local_prev_t is None
                 or (observed.last_scan_s is not None and self._scan_t-observed.last_scan_s < .5)):
             return
-        # A changed local->world transform invalidates previously positioned evidence.
-        if self._online_map_offset != self.offset:
-            observed = self._online_map = ObservedMap(self.grid.width, self.grid.height, self.grid.resolution, self.grid.origin)
-            self._online_map_offset = self.offset
-            self._online_map_epoch_s = self._scan_t
         now = rospy.Time.now().to_sec()
-        if not observed.feed(msg.ranges, self.world_xy, self.yaw, msg.angle_min, msg.angle_increment,
-                             msg.range_min, msg.range_max, self._scan_t, self._local_prev_t, now):
-            return
+        with self._online_map_lock:
+            observed = self._online_map
+            # Reset, feed and freeze one epoch atomically against planner snapshots.
+            if self._online_map_offset != self.offset:
+                observed = self._online_map = ObservedMap(self.grid.width, self.grid.height, self.grid.resolution, self.grid.origin)
+                self._online_map_offset = self.offset
+                self._online_map_epoch_s = self._scan_t
+            if not observed.feed(msg.ranges, self.world_xy, self.yaw, msg.angle_min, msg.angle_increment,
+                                 msg.range_min, msg.range_max, self._scan_t, self._local_prev_t, now):
+                return
+            map_epoch, values, version = self._online_map_epoch_s, observed.snapshot(now), observed.version
         output = OccupancyGrid()
         output.header.stamp = msg.header.stamp
-        output.header.seq = observed.version
+        output.header.seq = version
         output.header.frame_id = 'map'
         output.info.width, output.info.height = observed.width, observed.height
         output.info.resolution = observed.resolution
-        output.info.map_load_time = rospy.Time.from_sec(self._online_map_epoch_s or self._scan_t)
+        output.info.map_load_time = rospy.Time.from_sec(map_epoch or self._scan_t)
         output.info.origin.position.x, output.info.origin.position.y = observed.origin
         output.info.origin.orientation.w = 1.
-        output.data = observed.snapshot(now)
+        output.data = values
         self._map_pub.publish(output)
 
     def _velocity_cb(self, msg):
@@ -653,10 +692,14 @@ class SwarmAgent(object):
                 if not self._gate.receive(message, rospy.Time.now().to_sec()):
                     return
                 if self._gate.stopping:
+                    self._route_gate.clear()
+                    self._route_pending = None
                     self._last_flight_v = (0., 0.)
                     self.path, self.path_target = [], None
                     return
                 if previous_generation != self._gate.generation:
+                    self._route_gate.clear()
+                    self._route_pending = None
                     self._stopped_since = None
                     self.path, self.path_target = [], None
                     self._last_flight_v = (0., 0.)
@@ -700,6 +743,50 @@ class SwarmAgent(object):
                        stopped_s=duration, status='STOPPED' if duration >= 1. else 'STATE')
         self._authority_ack_pub.publish(String(data=json.dumps(message, allow_nan=False)))
 
+    def _route_grant_cb(self, msg):
+        try:
+            message = json.loads(msg.data)
+            with self._authority_lock:
+                if not self._gate.can_move(rospy.Time.now().to_sec()):
+                    return
+                pending = self._route_pending
+                expected = pending[0] if pending else self._route_offer_id
+                if not self._route_gate.receive(message, rospy.Time.now().to_sec(), self._gate.generation, expected):
+                    return
+                if pending:
+                    ticket, path, target, generation = pending
+                    if ticket != self._plan_ticket or generation != self._gate.generation or message['points'] != path:
+                        self._route_gate.clear()
+                        return
+                    self.path, self.path_target = path, target
+                    self._route_offer_id = ticket
+                    self._route_pending = None
+                    rospy.loginfo('[%s] ROUTE_COMMITTED offer=%s points=%s', self.uav_id, ticket, len(path))
+        except (ValueError, TypeError, KeyError):
+            return
+
+    def _route_snapshot_cb(self, msg):
+        try:
+            snapshot = json.loads(msg.data)
+            if (set(snapshot) != {'schema_version', 'run_id', 'seq', 'reservations'}
+                    or snapshot['schema_version'] != 1 or snapshot['run_id'] != self._gate.run_id
+                    or type(snapshot['seq']) is not int or snapshot['seq'] <= self._peer_routes_seq
+                    or not isinstance(snapshot['reservations'], dict)):
+                return
+            for uid, record in snapshot['reservations'].items():
+                if (uid not in self._motion_cache.fleet or set(record) != {'generation', 'segments'}
+                        or type(record['generation']) is not int or record['generation'] < 1
+                        or not isinstance(record['segments'], list) or len(record['segments']) > 65536
+                        or not all(valid_points(pair) and len(pair) == 2 for pair in record['segments'])):
+                    return
+            with self._authority_lock:
+                if snapshot['seq'] <= self._peer_routes_seq:
+                    return
+                self._peer_routes_seq, self._peer_routes = snapshot['seq'], snapshot['reservations']
+                self._peer_routes_s = rospy.Time.now().to_sec()
+        except (ValueError, TypeError, KeyError):
+            return
+
     def _assign_cb(self, msg):
         if msg.uav_id != self.uav_id:
             return
@@ -738,6 +825,25 @@ class SwarmAgent(object):
             # 否则同一目标以后再次派给本机会被误判为重复而忽略。
             self._track_assigned_id = None
 
+    def _confirmed_visual_cb(self, msg):
+        try:
+            with self._authority_lock:
+                observation = self._visual_evidence.receive(json.loads(msg.data), rospy.Time.now().to_sec())
+                if observation is None:
+                    return
+                tid = TAG_TO_TID[observation['target_id']]
+                if observation['sample_s'] < self._t_seen.get(tid, -1.):
+                    return
+                target = TargetState()
+                target.header.stamp = rospy.Time.from_sec(observation['sample_s'])
+                target.target_id = tid
+                target.x, target.y, _ = observation['xyz']
+                # Position is original image evidence; no guessed motion renews it.
+                target.vx = target.vy = 0.
+                self._target_cb(target)
+        except (ValueError, TypeError, KeyError):
+            return
+
     def _target_cb(self, msg):
         """缓存恐怖分子真值位置（几何判定用；真机上是视觉/裁判给出的观测）。"""
         if msg.eliminated:
@@ -754,10 +860,13 @@ class SwarmAgent(object):
                 self._track_assigned_id = None
                 self._target_to_orbit = None
             return
+        sample_s = msg.header.stamp.to_sec()
+        if not 0 <= rospy.Time.now().to_sec()-sample_s <= TARGET_TTL:
+            return
         self.targets[msg.target_id] = (msg.x, msg.y, msg.vx, msg.vy)
         self._target_state[msg.target_id] = (
             int(msg.state), rospy.Time.now().to_sec())
-        self._t_seen[msg.target_id] = rospy.Time.now().to_sec()
+        self._t_seen[msg.target_id] = sample_s
 
     def _friend_status_cb(self, msg):
         """接收友机位置和高度，用于避碰"""
@@ -781,6 +890,8 @@ class SwarmAgent(object):
         注意只用水平距离 —— 无人机在 6m 高度、目标在地面，垂直差恒定，
         水平距才是决定「能否看到」的量（与比赛判定的平面几何一致）。
         """
+        if os.environ.get('SEED_TRUTH', '0') != '1':
+            return  # Actual camera evidence is published once by the YOLO bridge.
         wx = self.world_xy
         if wx is None:
             return
@@ -1262,6 +1373,19 @@ class SwarmAgent(object):
         if not self._gate.can_move(rospy.Time.now().to_sec()):
             vx, vy = 0., 0.
         vx, vy = self._friend_guard_velocity(vx, vy)
+        route_gate = getattr(self, '_route_gate', None)
+        if route_gate is not None and abs(vx)+abs(vy) > 0:
+            measured = self._velocity_sample[:2] if self._velocity_sample is not None else (float('nan'),)*2
+            if not route_gate.command_clear(self.world_xy, (vx, vy), measured,
+                                            rospy.Time.now().to_sec(), self._gate.generation):
+                rospy.logwarn_throttle(2, '[%s] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop', self.uav_id)
+                vx, vy = 0., 0.
+        if getattr(self, '_online_planner', None) is not None and (abs(vx)+abs(vy) > 0):
+            if (self._online_safe_grid is None or self._online_safe_epoch != self._online_map_epoch_s
+                    or self._online_safe_s is None or rospy.Time.now().to_sec()-self._online_safe_s > 1.5
+                    or not self._online_planner.command_clear(self._online_safe_grid, self.world_xy, (vx, vy))):
+                rospy.logwarn_throttle(2, '[%s] ONLINE_SPACE_UNKNOWN -> horizontal stop', self.uav_id)
+                vx, vy = 0., 0.
         cmd.twist.linear.x, cmd.twist.linear.y = vx, vy
         self._last_cmd_v = (vx, vy)
         _now = rospy.Time.now().to_sec()
@@ -1339,7 +1463,20 @@ class SwarmAgent(object):
             cmd.twist.angular.z = _yr
         # 记录最终下发的水平速度（供路径未就绪时继续发，保证 offboard 不断流）
         self._last_flight_v = (vx, vy)
-        self.vel_pub.publish(cmd)
+        self._publish_command(cmd)
+
+    def _publish_command(self, cmd):
+        position = self.local_xy if (self._pose_sample_s is not None
+            and 0 <= rospy.Time.now().to_sec()-self._pose_sample_s <= .5) else None
+        fields = self._position_brake.encode((cmd.twist.linear.x, cmd.twist.linear.y, cmd.twist.linear.z),
+                                             cmd.twist.angular.z, position, self.offset)
+        message = PositionTarget()
+        message.header.stamp = rospy.Time.now()
+        message.coordinate_frame, message.type_mask = fields['coordinate_frame'], fields['type_mask']
+        message.position.x, message.position.y = fields['position_xy']
+        message.velocity.x, message.velocity.y, message.velocity.z = fields['velocity_xyz']
+        message.yaw_rate = fields['yaw_rate']
+        self.vel_pub.publish(message)
 
     def _need_replan_track(self, goal):
         """追踪移动目标时的 A* 重规划节流。
@@ -1365,6 +1502,34 @@ class SwarmAgent(object):
         不修改 self.path / self.path_target（由后台线程调用，提交交给主循环视角）。"""
         if self.world_xy is None:
             return [], goal_xy, False
+        if self._online_planner is not None:
+            if self._offset_param is None or math.dist(self._offset_param, self._online_planner.seed_xy) > .05:
+                raise ValueError('Startup clearance does not match the injected coordinate transform')
+            with self._online_map_lock:
+                current = self._online_map
+                frozen = ObservedMap(current.width, current.height, current.resolution, current.origin)
+                frozen.cells, frozen.observed_s = current.cells[:], current.observed_s[:]
+                frozen.last_scan_s, frozen.version = current.last_scan_s, current.version
+                epoch = self._online_map_epoch_s
+            now = rospy.Time.now().to_sec()
+            grid = self._online_planner.grid(frozen, self.world_xy, now, epoch)
+            with self._authority_lock:
+                peer_now = rospy.Time.now().to_sec()
+                if self._peer_routes is None or self._peer_routes_s is None or not 0 <= peer_now-self._peer_routes_s <= 1.5:
+                    return [], goal_xy, False
+                motion = MotionCache(self._motion_cache.run_id, self._motion_cache.fleet)
+                motion.samples = dict(self._motion_cache.samples)
+                peers = self._peer_routes
+            try:
+                grid = exclude_peers(grid, self.uav_id, motion, peers, peer_now)
+            except ValueError:
+                rospy.logwarn_throttle(2, '[%s] ONLINE_PLAN waiting for fresh fleet evidence', self.uav_id)
+                return [], goal_xy, False
+            result = self._online_planner.route(grid, self.world_xy, goal_xy)
+            self.grid = self._online_safe_grid = grid
+            self._online_safe_s, self._online_safe_epoch = frozen.last_scan_s, epoch
+            rospy.loginfo('[%s] ONLINE_PLAN %s version=%s', self.uav_id, result['reason'], frozen.version)
+            return list(result['points']), goal_xy, result['ok']
         route = plan(self.grid, self.world_xy, goal_xy, connectivity=8)
         if not route.success and route.reason == "START_OCCUPIED":
             # 起点落在膨胀障碍内（刚起飞/贴墙）→ 找最近自由栅格重试
@@ -1413,6 +1578,10 @@ class SwarmAgent(object):
         """投递一个规划请求并立即返回（不阻塞控制循环）。多次请求只保留最新目标。"""
         with self._plan_lock:
             candidate = (float(goal_xy[0]), float(goal_xy[1]))
+            pending = self._route_pending
+            if (pending is not None and pending[2] == candidate and pending[3] == self._gate.generation
+                    and 0 <= rospy.Time.now().to_sec()-self._route_pending_s < 1.):
+                return
             if any(request is not None and request[:2] == (candidate, self._gate.generation)
                    for request in (self._plan_pending, self._plan_inflight)):
                 return
@@ -1447,8 +1616,14 @@ class SwarmAgent(object):
                         or not self._gate.can_move(rospy.Time.now().to_sec())):
                     continue
                 if ok:
-                    self.path = path
-                    self.path_target = target
+                    if self.world_xy is None:
+                        continue
+                    path = [list(self.world_xy)] + [list(p) for p in path]
+                    self._route_pending = (ticket, path, target, generation)
+                    self._route_pending_s = rospy.Time.now().to_sec()
+                    self._route_offer_pub.publish(String(data=json.dumps(dict(schema_version=1,
+                        run_id=self._gate.run_id, uav_id=self.uav_id, generation=generation,
+                        offer_id=ticket, points=path), allow_nan=False)))
                 else:
                     _wxy = self.world_xy
                     _out = (_wxy is not None and self.grid.world_to_cell(_wxy) is None)
@@ -1629,6 +1804,9 @@ class SwarmAgent(object):
         self._look_at = None   # 未在盘旋/追踪，交回 PX4 自管偏航
 
         goal = (self.assignment.target_x, self.assignment.target_y)
+        if self._online_planner is not None and rospy.Time.now().to_sec()-self._last_online_request_s >= 1.:
+            self._request_plan(goal)
+            self._last_online_request_s = rospy.Time.now().to_sec()
         dist = math.hypot(goal[0] - self.world_xy[0], goal[1] - self.world_xy[1])
 
         if dist < ARRIVE_TOL:
@@ -1709,9 +1887,10 @@ class SwarmAgent(object):
         _update_orbit 的「目标已消失」分支永远不触发，飞机对着一个已经不存在的
         actor 盘旋到超时（实测 uav_5/uav_6 对 t1 盘旋 571.3s，4/6 架机全程空转）。
         """
-        ids = set(int(x) for x in re.findall(r'-?\d+', str(msg.data)))
-        if not ids:
-            return                      # 空清单不采信（可能只是还没发布 / 任务已结束）
+        parsed = parse_actor_list(str(msg.data))
+        if parsed is None or (not parsed and not self._left_seen):
+            return
+        ids = set(parsed)
         self._left_seen = True
         for tid in list(self.targets.keys()):
             m = re.match(r'^t(\d+)$', str(tid))
@@ -1812,13 +1991,14 @@ class SwarmAgent(object):
 
     def _orbit_stale(self):
         """当前盘旋目标是否已经没有位置更新（多半已被官方删除）。"""
-        tid = self._orbit_target
+        tid = self._orbit_target or getattr(self.assignment, 'target_id', None)
         if tid is None:
             return False
         t_seen = self._t_seen.get(tid, 0.0)
         if not t_seen:
-            return False
-        return (rospy.Time.now().to_sec() - t_seen) > TARGET_STALE
+            return True
+        age = rospy.Time.now().to_sec() - t_seen
+        return not 0 <= age <= 1.0
 
     def _update_orbit(self):
         """更新盘旋状态：检查目标是否可见，更新确认时间"""
@@ -1923,6 +2103,35 @@ class SwarmAgent(object):
         self._orbit_center = (tx, ty)
         self._look_at = (tx, ty)       # 盘旋全程机头持续指向目标中心
         now = rospy.Time.now().to_sec()
+
+        # Every orbit leg follows the same observed-space planner and serial
+        # route authority as search. A raw circle velocity has no reservation.
+        if self._online_planner is not None:
+            previous = getattr(self, '_reserved_orbit_goal', None)
+            changed = previous is None or math.dist(previous[0], (tx, ty)) > .5
+            arrived = previous is not None and math.dist(previous[1], (wx, wy)) < .5
+            if changed or arrived:
+                angle = math.atan2(wy-ty, wx-tx) + .2
+                point = (tx+ORBIT_RADIUS*math.cos(angle), ty+ORBIT_RADIUS*math.sin(angle))
+                self._reserved_orbit_goal = ((tx, ty), point)
+            point = self._reserved_orbit_goal[1]
+            if now-getattr(self, '_last_orbit_request_s', -100.) >= 1.:
+                self._request_plan(point)
+                self._last_orbit_request_s = now
+            local_goal = self._pick_local_goal() if self.path_target == point else None
+            if local_goal is None:
+                self._send_vel(0., 0.)
+                return
+            vx, vy = POS_KP*(local_goal[0]-wx), POS_KP*(local_goal[1]-wy)
+            speed = math.hypot(vx, vy)
+            if speed > 1.5:
+                vx, vy = vx*1.5/speed, vy*1.5/speed
+            vx, vy = self._apply_friend_avoidance(vx, vy)
+            self._send_vel(vx, vy)
+            # Camera observations and the official judge establish confirmation;
+            # orbit duration alone never establishes a 15-second capture.
+            self._publish_claim()
+            return
 
         # 计算当前相对于目标的角度
         angle = math.atan2(wy - ty, wx - tx)

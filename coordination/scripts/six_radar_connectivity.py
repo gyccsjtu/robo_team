@@ -41,7 +41,11 @@ def main():
     parser.add_argument('--gazebo-port', type=int, default=11376)
     parser.add_argument('--flight-seconds', type=float, default=0,
                         help='Run real swarm search after connectivity in this empty development fixture')
+    parser.add_argument('--obstacle-fixture', action='store_true', help='Add six static box obstacles with contact observations')
+    parser.add_argument('--camera-actor-probe', action='store_true', help='Grounded camera/YOLO probe with one actor; no flight')
     args = parser.parse_args()
+    if args.camera_actor_probe and args.flight_seconds:
+        parser.error('The grounded camera actor probe cannot arm or fly')
     if not math.isfinite(args.flight_seconds) or not 0 <= args.flight_seconds <= 120:
         parser.error('--flight-seconds must be between 0 and 120 simulated seconds')
     px4 = Path(args.px4)
@@ -56,11 +60,11 @@ def main():
     script_directory = Path(__file__).resolve().parent
     snapshot = out / 'execution_sources'
     snapshot.mkdir()
-    for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py', 'six_swarm_probe.py'):
+    for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py', 'six_swarm_probe.py', 'fixture_contacts.py', 'camera_actor_probe.py'):
         shutil.copyfile(script_directory / name, snapshot / name)
     (out / 'execution_sources.json').write_text(json.dumps({name:
         hashlib.sha256((script_directory / name).read_bytes()).hexdigest()
-        for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py', 'six_swarm_probe.py')}, indent=2))
+        for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py', 'six_swarm_probe.py', 'fixture_contacts.py', 'camera_actor_probe.py')}, indent=2))
     def interrupted(signum, frame):
         raise RuntimeError('CHECK_INTERRUPTED_OR_WALL_TIMEOUT')
     signal.signal(signal.SIGTERM, interrupted)
@@ -95,9 +99,40 @@ def main():
 <include><uri>model://ground_plane</uri></include><include><uri>model://sun</uri></include>
 <physics name="default_physics" type="ode"><max_step_size>0.004</max_step_size><real_time_update_rate>250</real_time_update_rate></physics>
 </world></sdf>''')
+        if args.camera_actor_probe:
+            import xml.etree.ElementTree as ET
+            repo = script_directory.parents[1]
+            source_world = repo/'perception/worlds/actor_min.world'
+            actor = ET.parse(source_world).find("world/actor[@name='actor_0']")
+            actor.find("plugin[@filename='libros_actor_cmd_pose_plugin.so']/init_pose").text = '-15 3 1.25 1.57 0 0'
+            world.write_text(world.read_text().replace('</world>', ET.tostring(actor, encoding='unicode')+'</world>'))
+            # Camera-only fixed mount, never a flight/clearance certificate.
+            camera_model = out/'models/uav_1.sdf'
+            model_tree = ET.parse(camera_model)
+            model = model_tree.getroot().find('model')
+            mount = ET.SubElement(model, 'joint', name='camera_fixture_mount', type='fixed')
+            ET.SubElement(mount, 'parent').text = 'world'
+            ET.SubElement(mount, 'child').text = 'base_link'
+            model_tree.write(camera_model, encoding='unicode')
+            shutil.copy2(source_world, out/'actor_source.world')
+        if args.obstacle_fixture:
+            boxes = []
+            for index in range(6):
+                name, x = 'fixture_box_%d' % index, -20+index*8
+                boxes.append('''<model name="%s"><static>true</static><pose>%s -9 5 0 0 0</pose>
+<link name="box"><collision name="collision"><geometry><box><size>3 3 10</size></box></geometry></collision>
+<visual name="visual"><geometry><box><size>3 3 10</size></box></geometry></visual>
+<sensor name="contact" type="contact"><always_on>true</always_on><update_rate>50</update_rate>
+<contact><collision>collision</collision></contact><plugin name="contacts" filename="libgazebo_ros_bumper.so">
+<bumperTopicName>/fixture/contacts/%s</bumperTopicName><frameName>map</frameName></plugin></sensor>
+</link></model>''' % (name, x, name))
+            world.write_text(world.read_text().replace('</world>', ''.join(boxes)+'</world>'))
         env = dict(os.environ, ROS_MASTER_URI='http://127.0.0.1:%d' % args.master_port,
                    GAZEBO_MASTER_URI='http://127.0.0.1:%d' % args.gazebo_port,
                    ROBOCUP_LEGACY_GPS_MODEL='1', GAZEBO_MODEL_DATABASE_URI='', PYTHONUNBUFFERED='1')
+        # WSL's Mesa D3D12 backend rendered animated people invisible in the
+        # original camera. Keep stock sensors; select a working renderer.
+        env.setdefault('LIBGL_ALWAYS_SOFTWARE', '1')
         libraries = ':'.join(str(runtime / name) for name in ('gazebo', 'gps', 'actor_lib'))
         env['LD_LIBRARY_PATH'] = libraries + ':/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:' + env.get('LD_LIBRARY_PATH', '')
         env['GAZEBO_PLUGIN_PATH'] = env['LD_LIBRARY_PATH'] + ':' + env.get('GAZEBO_PLUGIN_PATH', '')
@@ -134,7 +169,11 @@ def main():
         from sensor_msgs.msg import LaserScan
         subprocess.run(['rosparam', 'set', '/use_sim_time', 'true'], env=env, check=True, timeout=10)
         rospy.init_node('six_radar_connectivity', anonymous=True, disable_signals=True)
-        spawn(['gzserver', '--verbose', '-s', 'libgazebo_ros_api_plugin.so', str(world)], 'gzserver')
+        server = ['gzserver', '--verbose', '-s', 'libgazebo_ros_api_plugin.so']
+        if args.camera_actor_probe and env.get('RENDER_OBSERVER_PLUGIN'):
+            server += ['-s', env['RENDER_OBSERVER_PLUGIN']]
+            env['RENDER_OBSERVER_OUTPUT'] = str(out/'render_observer.log')
+        spawn(server + [str(world)], 'gzserver')
         rospy.wait_for_service('/gazebo/spawn_sdf_model', timeout=90)
         spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
         observations = {row['uav_id']: {} for row in wiring['uavs']}
@@ -181,7 +220,7 @@ def main():
             uid = row['uav_id']
             pose = Pose()
             pose.position.x = -20 + index * 8
-            pose.position.z = .2
+            pose.position.z = 2.2 if args.camera_actor_probe and index == 0 else .2
             pose.orientation.w = 1
             response = spawn_model(uid, (out / 'models' / (uid + '.sdf')).read_text(), uid, pose, 'world')
             if not response.success:
@@ -216,11 +255,16 @@ def main():
                                   range_min=values['scan'][1].range_min, range_max=values['scan'][1].range_max)
                                          for uid, values in observations.items()})
                 print(json.dumps(report), flush=True)
+                if args.camera_actor_probe:
+                    from camera_actor_probe import run as camera_run
+                    report.update(camera_run(out, spawn, env))
+                    return 0 if report['camera_actor_probe_verified'] else 1
                 if args.flight_seconds:
                     from six_swarm_probe import run
                     report['connectivity_armed'] = report.pop('armed')
                     report.update(run(out, wiring, spawn, env, args.flight_seconds))
-                    print(json.dumps(report), flush=True)
+                    print(json.dumps({k: v for k, v in report.items() if k != 'box_contacts'},
+                                     allow_nan=False), flush=True)
                     return 0 if report['prototype_search_verified'] else 1
                 return 0
             time.sleep(.5)
@@ -231,6 +275,8 @@ def main():
         return 1
     finally:
         watchdog.cancel()
+        if 'rospy' in locals():
+            rospy.signal_shutdown('Owned fixture completed')
         for process, log in reversed(children):
             if process.poll() is None:
                 os.killpg(process.pid, signal.SIGTERM)

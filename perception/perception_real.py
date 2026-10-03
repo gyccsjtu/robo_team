@@ -63,7 +63,8 @@ import numpy as np
 import rospy
 from cv_bridge import CvBridge
 from gazebo_msgs.srv import GetLinkState
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CameraInfo
+from camera_geometry import calibration, aligned_translation
 from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
 from std_msgs.msg import String
 # 集中指派消息 + 目标融合状态（coordination 工作区）。导入失败时退化为仅距离闸门。
@@ -108,6 +109,7 @@ CAM_LINK = os.environ.get("PR_CAM_LINK", "typhoon_h480_0::base_link")
 CAM_OFF_BL = np.array([float(x) for x in
                        os.environ.get("PR_CAM_OFF_BL", "0.12,0.06,-0.05").split(",")])
 CAM_TOPIC = os.environ.get("PR_CAM_TOPIC", "/%s/stereo_camera/left/image_raw" % UAV)
+CAM_INFO_TOPIC = os.environ.get('PR_CAM_INFO_TOPIC', CAM_TOPIC.rsplit('/', 1)[0]+'/camera_info')
 ROI_TOP = int(os.environ.get("PR_ROI_TOP", "60"))      # 忽略画面顶部：无人机自身部件常被误检成 blue
 ROI_BOT = int(os.environ.get("PR_ROI_BOT", "478"))
 MAX_RANGE = float(os.environ.get("PR_MAX_RANGE", "60"))
@@ -121,12 +123,12 @@ CLASSES = ["red", "green", "blue", "white", "brown"]
 H_MIN = float(os.environ.get("PR_H_MIN", "1.15"))
 H_MAX = float(os.environ.get("PR_H_MAX", "2.10"))
 AR_MIN = float(os.environ.get("PR_AR_MIN", "0.55"))
-AR_MAX = float(os.environ.get("PR_AR_MAX", "2.20"))
+AR_MAX = float(os.environ.get("PR_AR_MAX", "3.80"))
 # 宽松档：用于**已确认** track 的关联（保链路优先，宁可放进噪声）
 H_MIN_L = float(os.environ.get("PR_H_MIN_L", "0.80"))
 H_MAX_L = float(os.environ.get("PR_H_MAX_L", "3.20"))
 AR_MIN_L = float(os.environ.get("PR_AR_MIN_L", "0.40"))
-AR_MAX_L = float(os.environ.get("PR_AR_MAX_L", "3.00"))
+AR_MAX_L = float(os.environ.get("PR_AR_MAX_L", "4.50"))
 CONFIRM_HITS = int(os.environ.get("PR_CONFIRM_HITS", "5"))   # 达到后转宽松档
 
 H_REF = float(os.environ.get("PR_H_REF", "1.75"))      # 身高似然中心 (m)
@@ -393,6 +395,7 @@ DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
 _lock = threading.Lock()
 _latest = {"img": None, "stamp": 0.0, "recv_wall": 0.0}
 _pose_history = []  # (ROS time, x, y, z, rotation matrix)
+_pose_history_lock = threading.Lock()
 _model = None
 
 # 统计：几何门限拦下多少
@@ -416,10 +419,22 @@ def on_img(msg):
         return
     with _lock:
         _latest["img"] = img
-        _latest["stamp"] = (msg.header.stamp.to_sec()
-                             if msg.header.stamp.to_sec() > 0.0
-                             else rospy.Time.now().to_sec())
+        _latest["stamp"] = msg.header.stamp.to_sec()
         _latest["recv_wall"] = time.time()
+
+
+def on_camera_info(msg):
+    global FX, FY, CX, CY, IMG_W, IMG_H, _camera_ready
+    try:
+        values = calibration(msg.width, msg.height, msg.K, msg.D)
+    except (ValueError, TypeError):
+        return
+    with _lock:
+        FX, FY, CX, CY, IMG_W, IMG_H = values
+        _camera_ready = True
+
+
+_camera_ready = False
 
 
 def pose_at_stamp(stamp, fallback):
@@ -427,21 +442,28 @@ def pose_at_stamp(stamp, fallback):
 
     Gazebo's GetLinkState service returns the current pose only. A short history
     lets a delayed image use the camera position from its acquisition time.
-    Orientation uses the newest sample because the camera is rigidly mounted.
+    Interpolate camera orientation too: the radar model has a moving gimbal.
     """
-    if stamp <= 0.0 or len(_pose_history) < 2:
-        return fallback
-    first, second = _pose_history[-2], _pose_history[-1]
-    dt = second[0] - first[0]
-    if dt <= 1e-6:
-        return fallback
-    alpha = (stamp - second[0]) / dt
-    alpha = max(-2.0, min(0.5, alpha))
-    vx = (second[1] - first[1]) / dt
-    vy = (second[2] - first[2]) / dt
-    vz = (second[3] - first[3]) / dt
-    return (second[1] + vx * alpha, second[2] + vy * alpha,
-            second[3] + vz * alpha, second[4])
+    if stamp <= 0.0:
+        return None
+    with _pose_history_lock:
+        history = list(_pose_history)
+    if len(history) < 2:
+        return None
+    first, second = history[-2], history[-1]
+    for earlier, later in zip(history, history[1:]):
+        if earlier[0] <= stamp <= later[0]:
+            first, second = earlier, later
+            break
+    try:
+        xyz = aligned_translation(stamp, first[:4], second[:4])
+    except ValueError:
+        return None
+    alpha = min(1., max(0., (stamp-first[0])/(second[0]-first[0])))
+    # Project the small-interval matrix blend back to a proper rotation.
+    left, _, right = np.linalg.svd((1.-alpha)*first[4]+alpha*second[4])
+    correction = np.diag([1., 1., np.linalg.det(left@right)])
+    return xyz+(left@correction@right,)
 
 
 def person_likelihood(h):
@@ -533,6 +555,7 @@ class Track(object):
         self.x, self.y = x, y
         self.vx, self.vy = 0.0, 0.0
         self.t = t
+        self.observed_s = t
         self.hits = 1
         self.miss = 0
         self.conf = conf
@@ -587,6 +610,9 @@ class Track(object):
 
     def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None):
         """更新track状态，可选更新外观特征用于多层次关联"""
+        if not math.isfinite(t) or t <= self.observed_s or dt <= 0:
+            return False
+        self.observed_s = t
         px, py = self.predict(dt)
         rx, ry = zx - px, zy - py
         self.x = px + ALPHA * rx
@@ -639,6 +665,7 @@ class Track(object):
 
     def coast(self, dt):
         self.x, self.y = self.predict(dt)
+        self.t += dt
         self.miss += 1
         self.remember_travel()
 
@@ -823,6 +850,7 @@ def main():
         pubs[c] = [rospy.Publisher(t, ActorInfo, queue_size=1) for t in topics]
     # 契约通道：一条消息 = 一个目标（形状见文件上方"协同上报"段）
     coord = rospy.Publisher("/coordination/target_report", String, queue_size=50)
+    visual_coord = rospy.Publisher('/swarm/visual_observation', String, queue_size=50)
     # 调试通道：一帧一条、含全部 dets 的快照，供 rec_snap.py / analyze_snap.py 离线复盘
     dbg = rospy.Publisher(DEBUG_TOPIC, String, queue_size=5)
     # YOLO 实时视角（带检测框，调试可视化）
@@ -830,8 +858,34 @@ def main():
                      if YOLO_VIEW else None)
 
     rospy.Subscriber(CAM_TOPIC, Image, on_img, queue_size=1)
+    rospy.Subscriber(CAM_INFO_TOPIC, CameraInfo, on_camera_info, queue_size=1)
     rospy.wait_for_service("/gazebo/get_link_state", timeout=90)
     gls = rospy.ServiceProxy("/gazebo/get_link_state", GetLinkState)
+    pose_sampler = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
+
+    def _sample_camera_pose(event):
+        before = rospy.Time.now().to_sec()
+        try:
+            response = pose_sampler(CAM_LINK, 'world')
+            after = rospy.Time.now().to_sec()
+            if not response.success or not 0 <= after-before <= .1:
+                return
+            pose = response.link_state.pose
+            q = pose.orientation
+            rotation = quat_to_R(q.x, q.y, q.z, q.w)
+            offset = rotation @ CAM_OFF_BL
+            sample = ((before+after)*.5, pose.position.x+offset[0],
+                      pose.position.y+offset[1], pose.position.z+offset[2], rotation)
+            with _pose_history_lock:
+                if _pose_history and sample[0] <= _pose_history[-1][0]:
+                    return
+                _pose_history.append(sample)
+                del _pose_history[:-200]
+        except Exception as error:
+            rospy.logwarn_throttle(5, 'Camera pose sampler: %s', error)
+
+    # Pose acquisition must not wait for slow CPU inference or delayed images.
+    _camera_pose_timer = rospy.Timer(rospy.Duration(.05), _sample_camera_pose)
 
     tracks = []
     # red 双流的槽位绑定：red_slots[i] = 该槽当前锁定的 track id（None = 空）。
@@ -896,10 +950,12 @@ def main():
         except Exception as e:
             print("[pr] 建标注目录失败: %s" % e, flush=True)
 
+    _processed_image_stamp = 0.
     while not rospy.is_shutdown():
         n_loop += 1
         now = rospy.Time.now().to_sec()
         dets = []
+        new_frame = False
 
         # ---------- 1) 检测 + 几何过滤 ----------
         if n_loop % DETECT_EVERY == 0:
@@ -907,9 +963,13 @@ def main():
                 img = None if _latest["img"] is None else _latest["img"].copy()
                 frame_stamp = _latest["stamp"]
             frame_age = max(0.0, now - frame_stamp) if frame_stamp > 0.0 else None
-            if img is not None:
+            if (img is not None and _camera_ready and img.shape[:2] == (IMG_H, IMG_W)
+                    and frame_stamp > _processed_image_stamp and 0 <= now-frame_stamp <= 1.):
                 try:
-                    ls = gls(CAM_LINK, "world").link_state
+                    response = gls(CAM_LINK, "world")
+                    if not response.success:
+                        raise ValueError('Camera link pose unavailable')
+                    ls = response.link_state
                     px, py, pz = ls.pose.position.x, ls.pose.position.y, ls.pose.position.z
                     o = ls.pose.orientation
                     R = quat_to_R(o.x, o.y, o.z, o.w)
@@ -920,9 +980,6 @@ def main():
                     px, py, pz = px + _off[0], py + _off[1], pz + _off[2]
                     # 相机水平偏航（视差判据要用）：取旋转矩阵第一列的水平分量
                     yaw_cam = math.atan2(R[1, 0], R[0, 0])
-                    _pose_history.append((now, px, py, pz, R))
-                    if len(_pose_history) > 20:
-                        del _pose_history[:-20]
                     px, py, pz, R = pose_at_stamp(
                         frame_stamp, (px, py, pz, R))
                     yaw_cam = math.atan2(R[1, 0], R[0, 0])
@@ -939,6 +996,8 @@ def main():
                     cam_full = None
 
                 if R is not None:
+                    _processed_image_stamp = frame_stamp
+                    new_frame = True
                     _infer_t0 = time.time()
                     res = _model(img, conf=CONF, verbose=False)[0]
                     inference_s = time.time() - _infer_t0
@@ -1058,8 +1117,8 @@ def main():
         used = [False] * len(dets)
         # 外观相似度权重（国赛创新点：颜色特征辅助关联）
         APP_W = 0.3  # 外观权重，可根据实际效果调整
-        for tk in tracks:
-            dt = max(1e-3, now - tk.t)
+        for tk in (tracks if new_frame else []):
+            dt = max(1e-3, frame_stamp - tk.t)
             tx, ty = tk.predict(dt)
             # 已确认 track 用 dt 缩放门限（见 GATE_DYN 注释）：走路的人 0.1 s 挪不了 3 m
             gate = assoc_gate(dt, tk.hits)
@@ -1103,7 +1162,7 @@ def main():
                     _stat["n_appear_feat"] = _stat.get("n_appear_feat", 0) + 1
                 # v4：传递外观特征用于后续关联
                 tk.update(d["xyz"][0], d["xyz"][1], dt, d["conf"],
-                          d["uv"], d["wh"], d["range"], d["h"], now, uav,
+                          d["uv"], d["wh"], d["range"], d["h"], frame_stamp, uav,
                           appearance_feat=appear_feat)
             else:
                 tk.coast(dt)
@@ -1117,7 +1176,7 @@ def main():
                 _stat["n_new"] += 1
                 # v4：创建track时保存外观特征
                 tracks.append(Track(d["cls"], d["xyz"][0], d["xyz"][1], d["conf"],
-                                    d["uv"], d["wh"], d["range"], d["h"], now, uav,
+                                    d["uv"], d["wh"], d["range"], d["h"], frame_stamp, uav,
                                     appearance_feat=d.get("appearance")))
 
         # ---------- 3) 清理 ----------
@@ -1342,6 +1401,16 @@ def main():
                     "xyz": [round(_cx, 2), round(_cy, 2), TARGET_Z],
                     "confidence": 1.0,
                     "observation_id": "obs-%s-%d" % (_tag, _obs_seq)})))
+                # Only an actual match in this camera frame creates new evidence.
+                # Track prediction/coast may support UI, but cannot extend confirmation.
+                if _tk.miss == 0 and 0 < _tk.observed_s <= now <= _tk.observed_s+1.:
+                    _logical_uid = os.environ.get('PR_LOGICAL_UAV_ID', UAV)
+                    _visual_run = os.environ.get('ROBOCUP_RUN_ID', '')
+                    visual_coord.publish(String(data=json.dumps(dict(schema_version=2,
+                        run_id=_visual_run, uav_id=_logical_uid, seq=_obs_seq, sample_s=_tk.observed_s,
+                        target_id=_tag, frame_id='world_enu', xyz=[round(_tk.x, 2), round(_tk.y, 2), TARGET_Z],
+                        confidence=float(_tk.conf), observation_id='%s:%s:%d' % (_visual_run, _logical_uid, _obs_seq)),
+                        allow_nan=False)))
                 # === 仿真环境日志：YOLO 检测输出 + ROS 时间戳 ===
                 # 排查感知延迟/位置滞后：同时打检测框(uv)、世界坐标(xyz)、置信度、时间戳
                 _uv = getattr(_tk, 'uv', (None, None))

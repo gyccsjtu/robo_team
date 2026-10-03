@@ -1,0 +1,24 @@
+{
+  "source": "/tmp/robo_team_camera_20261003_run16",
+  "archive_sha256": "2bfcc70d2607be68923eb0226c1105cdc403dea21e41c39109f6e6850b47b64d",
+  "members": [
+    "actor_source.world",
+    "connectivity.world",
+    "execution_sources",
+    "execution_sources.json",
+    "gzserver.log",
+    "mavros.launch",
+    "mavros.log",
+    "models",
+    "px4_uav_1.log",
+    "px4_uav_2.log",
+    "px4_uav_3.log",
+    "px4_uav_4.log",
+    "px4_uav_5.log",
+    "px4_uav_6.log",
+    "result.json",
+    "roscore.log",
+    "wiring.json"
+  ],
+  "note": "Executed source is the frozen run copy; subsequent workspace edits are not flight evidence."
+}
