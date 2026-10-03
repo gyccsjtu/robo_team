@@ -17,6 +17,20 @@ SOURCE = '''<sdf version="1.6"><model name="typhoon_h480"><link name="base_link"
 
 
 class ModelTests(unittest.TestCase):
+    def test_city_hides_only_debug_rays_preserving_physical_sensor_signature(self):
+        source = SOURCE.replace('<update_rate>500</update_rate>',
+            '<visualize>true</visualize><update_rate>500</update_rate>')
+        row = dict(model_name='typhoon_h480_0', uav_id='uav_1', scan_topic='/uav_1/scan',
+                   simulator_tcp_port=4561, simulator_udp_port=14561, mavros_local_port=14541)
+        original = ET.fromstring(source)
+        ordinary = ET.fromstring(models.adapt(source, row, '/runtime/gps'))
+        city = ET.fromstring(models.adapt(source, row, '/runtime/gps', hide_ray_visuals=True))
+        self.assertEqual(ordinary.find('.//visualize').text, 'true')
+        self.assertEqual(city.find('.//visualize').text, 'false')
+        self.assertEqual(models.sensor_signature(city), models.sensor_signature(original))
+        self.assertEqual(city.find('.//update_rate').text, '500')
+        self.assertEqual(city.find('.//ray/range/max').text, '20')
+
     def test_six_models_preserve_sensors_and_isolate_topics(self):
         for i in range(1, 7):
             uid = 'uav_%d' % i

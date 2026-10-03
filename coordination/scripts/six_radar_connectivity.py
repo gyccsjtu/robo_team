@@ -43,14 +43,26 @@ def main():
                         help='Run real swarm search after connectivity in this empty development fixture')
     parser.add_argument('--obstacle-fixture', action='store_true', help='Add six static box obstacles with contact observations')
     parser.add_argument('--camera-actor-probe', action='store_true', help='Grounded camera/YOLO probe with one actor; no flight')
+    parser.add_argument('--flight-actor-probe', action='store_true', help='Observe real camera-to-target execution during development flight')
+    parser.add_argument('--city-scene', help='Prepared isolated platform city directory; six targets and judge')
     args = parser.parse_args()
     if args.camera_actor_probe and args.flight_seconds:
         parser.error('The grounded camera actor probe cannot arm or fly')
-    if not math.isfinite(args.flight_seconds) or not 0 <= args.flight_seconds <= 120:
-        parser.error('--flight-seconds must be between 0 and 120 simulated seconds')
+    if args.flight_actor_probe and (not args.flight_seconds or args.camera_actor_probe):
+        parser.error('--flight-actor-probe requires flight and cannot use the grounded probe')
+    if args.city_scene and (args.obstacle_fixture or args.camera_actor_probe or args.flight_actor_probe):
+        parser.error('City scene cannot be combined with development fixtures')
+    if not math.isfinite(args.flight_seconds) or not 0 <= args.flight_seconds <= (600 if args.city_scene else 120):
+        parser.error('Invalid duration; city limit is 600s, fixture limit is 120s')
     px4 = Path(args.px4)
     build = px4 / 'build/px4_sitl_default'
     wiring = derive(build)
+    city = Path(args.city_scene).resolve() if args.city_scene else None
+    if city:
+        scene = json.loads((city/'scene_manifest.json').read_text())
+        for index, row in enumerate(wiring['uavs']):
+            row['model_name'] = 'typhoon_h480_%d' % index
+            row['spawn_xy'] = scene['positions'][row['uav_id']]
     runtime = Path(args.runtime)
     children = []
     locks = []
@@ -60,17 +72,24 @@ def main():
     script_directory = Path(__file__).resolve().parent
     snapshot = out / 'execution_sources'
     snapshot.mkdir()
-    for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py', 'six_swarm_probe.py', 'fixture_contacts.py', 'camera_actor_probe.py'):
+    source_names = ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py',
+                    'six_swarm_probe.py', 'fixture_contacts.py', 'camera_actor_probe.py',
+                    'flight_actor_probe.py', 'evidence_writer.py', 'city_swarm_run.py')
+    for name in source_names:
         shutil.copyfile(script_directory / name, snapshot / name)
     (out / 'execution_sources.json').write_text(json.dumps({name:
         hashlib.sha256((script_directory / name).read_bytes()).hexdigest()
-        for name in ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py', 'six_swarm_probe.py', 'fixture_contacts.py', 'camera_actor_probe.py')}, indent=2))
+        for name in source_names}, indent=2))
     def interrupted(signum, frame):
         raise RuntimeError('CHECK_INTERRUPTED_OR_WALL_TIMEOUT')
     signal.signal(signal.SIGTERM, interrupted)
     signal.signal(signal.SIGINT, interrupted)
     signal.signal(signal.SIGUSR1, interrupted)
-    watchdog = threading.Timer(360, lambda: os.kill(os.getpid(), signal.SIGUSR1))
+    city_rate = float(os.environ.get('CITY_PHYSICS_RATE', '20'))
+    if not math.isfinite(city_rate) or not 1 <= city_rate <= 250:
+        parser.error('CITY_PHYSICS_RATE must be finite and between 1 and 250')
+    watchdog = threading.Timer(args.flight_seconds*250/city_rate*1.5+360 if city else (780 if args.flight_actor_probe else 360),
+                               lambda: os.kill(os.getpid(), signal.SIGUSR1))
     watchdog.daemon = True
     watchdog.start()
     try:
@@ -93,12 +112,14 @@ def main():
         if not Path('/tmp/.X11-unix/X0').exists():
             raise RuntimeError('Camera-preserving model requires the verified X0 display')
         (out / 'wiring.json').write_text(json.dumps(wiring, indent=2))
-        generate(args.source_sdf, wiring, runtime / 'gps', out / 'models')
+        generate(args.source_sdf, wiring, runtime / 'gps', out / 'models', hide_ray_visuals=bool(city))
         world = out / 'connectivity.world'
         world.write_text('''<sdf version="1.6"><world name="default">
 <include><uri>model://ground_plane</uri></include><include><uri>model://sun</uri></include>
 <physics name="default_physics" type="ode"><max_step_size>0.004</max_step_size><real_time_update_rate>250</real_time_update_rate></physics>
 </world></sdf>''')
+        if city:
+            shutil.copyfile(city/'robocup.world', world)
         if args.camera_actor_probe:
             import xml.etree.ElementTree as ET
             repo = script_directory.parents[1]
@@ -175,6 +196,19 @@ def main():
             env['RENDER_OBSERVER_OUTPUT'] = str(out/'render_observer.log')
         spawn(server + [str(world)], 'gzserver')
         rospy.wait_for_service('/gazebo/spawn_sdf_model', timeout=90)
+        # API registration precedes completion of large city-world loading.
+        # Require physical simulation ticks before submitting model insertion.
+        from rosgraph_msgs.msg import Clock
+        clock_start = rospy.wait_for_message('/clock', Clock, timeout=90).clock.to_sec()
+        ready_deadline = time.monotonic() + 90
+        while time.monotonic() < ready_deadline:
+            tick = rospy.wait_for_message('/clock', Clock, timeout=10).clock.to_sec()
+            if tick > clock_start + .1:
+                (out/'world_ready.json').write_text(json.dumps(dict(
+                    first_clock_s=clock_start, advancing_clock_s=tick)))
+                break
+        else:
+            raise RuntimeError('WORLD_NOT_ADVANCING_BEFORE_SPAWN')
         spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
         observations = {row['uav_id']: {} for row in wiring['uavs']}
         subscriptions = []
@@ -219,10 +253,10 @@ def main():
         for index, row in enumerate(wiring['uavs']):
             uid = row['uav_id']
             pose = Pose()
-            pose.position.x = -20 + index * 8
+            pose.position.x, pose.position.y = row.get('spawn_xy', [-20+index*8, 0.])
             pose.position.z = 2.2 if args.camera_actor_probe and index == 0 else .2
             pose.orientation.w = 1
-            response = spawn_model(uid, (out / 'models' / (uid + '.sdf')).read_text(), uid, pose, 'world')
+            response = spawn_model(row['model_name'], (out / 'models' / (row['model_name'] + '.sdf')).read_text(), uid, pose, 'world')
             if not response.success:
                 raise RuntimeError('SPAWN_FAILED_' + uid + ':' + response.status_message)
             work = out / ('px4_' + uid)
@@ -260,9 +294,38 @@ def main():
                     report.update(camera_run(out, spawn, env))
                     return 0 if report['camera_actor_probe_verified'] else 1
                 if args.flight_seconds:
+                    if city:
+                        from city_swarm_run import run as run_city
+                        report['connectivity_armed'] = report.pop('armed')
+                        infrastructure = tuple(children)
+                        def owned_health_check():
+                            dead = [dict(pid=p.pid, returncode=p.returncode, command=p.args)
+                                    for p, _ in infrastructure if p.poll() is not None]
+                            if dead:
+                                raise RuntimeError('OWNED_CHILD_EXITED:' + str(dead))
+                        report.update(run_city(out, wiring, spawn, env, args.flight_seconds, city,
+                                               owned_health_check=owned_health_check))
+                        print(json.dumps(report), flush=True)
+                        return 0 if report['six_aircraft_motion_observed'] else 1
                     from six_swarm_probe import run
                     report['connectivity_armed'] = report.pop('armed')
-                    report.update(run(out, wiring, spawn, env, args.flight_seconds))
+                    report.update(run(out, wiring, spawn, env, args.flight_seconds, actor_probe=args.flight_actor_probe))
+                    from evidence_writer import audit_jsonl
+                    required = [out/'six_truth.jsonl', out/'executor_telemetry.jsonl',
+                        out/'algorithm/authority_events.jsonl', out/'algorithm/route_events.jsonl']
+                    if args.flight_actor_probe:
+                        required.append(out/'target_execution_events.jsonl')
+                    if args.obstacle_fixture:
+                        required.append(out/'fixture_contacts.jsonl')
+                    audit = audit_jsonl(list(dict.fromkeys(required + list(out.glob('*.jsonl'))
+                        + list((out/'algorithm').glob('*.jsonl')))))
+                    (out/'evidence_stream_audit.json').write_text(json.dumps(audit, indent=2))
+                    report['evidence_streams_verified'] = audit['valid']
+                    if not audit['valid']:
+                        report['failure_reasons'].append('EVIDENCE_STREAM_INVALID')
+                        report['prototype_search_verified'] = False
+                        report['physical_visual_tracking_verified'] = False
+                        report['status'] = 'SIX_SEARCH_FLIGHT_INCOMPLETE'
                     print(json.dumps({k: v for k, v in report.items() if k != 'box_contacts'},
                                      allow_nan=False), flush=True)
                     return 0 if report['prototype_search_verified'] else 1

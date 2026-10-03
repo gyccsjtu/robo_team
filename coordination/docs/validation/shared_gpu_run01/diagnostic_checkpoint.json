@@ -1,0 +1,6 @@
+{
+  "status": "DIAGNOSTIC_CHECKPOINT_NOT_FINAL",
+  "last_sample_s": 2033.976,
+  "formal_competition_pass": false,
+  "reason": "Stop after identifying blind tracker selection and stationary vehicle false target; next source snapshot tests fixes"
+}

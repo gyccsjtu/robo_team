@@ -1,0 +1,9 @@
+{
+  "run_id": "bc6341f6-04d2-4a40-8230-87dc047536fd",
+  "control_truth_input": false,
+  "own_camera_pose_source": "DEVELOPMENT_GAZEBO_LINK_POSE",
+  "clearance_configuration_revision": "v1.1",
+  "route_clearance_m": 2.5,
+  "fleet_separation_m": 2.5,
+  "formal_competition_pass": false
+}

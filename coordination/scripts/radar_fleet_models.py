@@ -15,16 +15,26 @@ def sensor_signature(root):
         physical = copy.deepcopy(sensor)
         for plugin in list(physical.findall('plugin')):
             physical.remove(plugin)
+        if physical.get('type') == 'ray':
+            visual = physical.find('visualize')
+            if visual is not None:
+                physical.remove(visual)  # GUI debug rays, not sensor measurements
         result.append(ET.tostring(physical, encoding='unicode'))
     return result
 
 
-def adapt(source, row, overlay):
+def adapt(source, row, overlay, hide_ray_visuals=False):
     root = ET.fromstring(source)
     model = root.find('model')
     if model is None:
         raise ValueError('Expected top-level model')
     before = sensor_signature(root)
+    if hide_ray_visuals:
+        for sensor in root.findall(".//sensor[@type='ray']"):
+            visual = sensor.find('visualize')
+            if visual is None:
+                visual = ET.SubElement(sensor, 'visualize')
+            visual.text = 'false'
     model.set('name', row['model_name'])
     replacements = {'libgazebo_gps_plugin.so': 'librobocup_legacy_model_gps_plugin.so',
                     'libgazebo_mavlink_interface.so': 'librobocup_legacy_gps_mavlink_interface.so'}
@@ -62,14 +72,14 @@ def adapt(source, row, overlay):
     return ET.tostring(root, encoding='unicode')
 
 
-def generate(source_path, wiring, overlay, output):
+def generate(source_path, wiring, overlay, output, hide_ray_visuals=False):
     if wiring.get('schema_version') != 1 or len(wiring.get('uavs', [])) != 6:
         raise ValueError('Expected six-aircraft wiring v1')
     for name in ('librobocup_legacy_model_gps_plugin.so', 'librobocup_legacy_gps_mavlink_interface.so'):
         if not (Path(overlay) / name).is_file():
             raise ValueError('Missing runtime overlay: ' + name)
     source = Path(source_path).read_text()
-    copies = {row['model_name']: adapt(source, row, overlay) for row in wiring['uavs']}
+    copies = {row['model_name']: adapt(source, row, overlay, hide_ray_visuals) for row in wiring['uavs']}
     if len(copies) != 6:
         raise ValueError('Duplicate model names')
     output = Path(output)
@@ -81,6 +91,7 @@ def generate(source_path, wiring, overlay, output):
         hashes[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
     report = dict(schema_version=1, source_sha256=hashlib.sha256(Path(source_path).read_bytes()).hexdigest(),
                   generated_sha256=hashes, sensor_parameters_preserved=True,
+                  gui_ray_visualizations_disabled=bool(hide_ray_visuals),
                   competition_equivalence_verified=False)
     (output / 'model_manifest.json').write_text(json.dumps(report, indent=2))
     return report

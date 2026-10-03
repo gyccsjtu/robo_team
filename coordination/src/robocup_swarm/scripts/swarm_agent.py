@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 """集群搜索单机节点（每架无人机跑一个实例，自建实现）。
 
-职责（步骤 1：两机共享状态）：
-  1. 从 /gazebo/model_states 读自身模型的世界坐标（地图系，与生成器 metadata 一致），
-     从 /uav_N/mavros/local_position/pose 读高度与连接状态；
+当前实际接入：
+  1. 从逐机MAVROS读取自身位姿/实测速率，以显式出生偏移转换到地图ENU；
+     只有显式开发标定模式才读取一次自身Gazebo模型位姿；
   2. 发布 /swarm/uav_status（UavStatus 自建消息）给集中式管理器；
-  3. 订阅 /swarm/assignment（SearchAssignment），过滤出指派给自己的搜索格，
-     用 ENU 速度控制飞向格中心。
+  3. 复验schema2任务授权和schema1路线授权，在线雷达地图规划/最终保护，
+     唯一发布setpoint_raw/local；旧SearchAssignment只是内部意图表示。
 
 坐标系说明（关键，避免多机坐标系踩坑）：
   世界/地图系与 gazebo 世界都是 ENU（x 东 y 北 z 上），各机本地 ENU 系只是
   原点不同、轴向平行。因此「世界坐标差」算出的速度向量可直接作为
-  setpoint_velocity/cmd_vel 下发，无需逐机做 TF 变换。
+  raw/local速度字段下发；停止XY使用逐机局部位置环保持。
 
 只依赖标准库 + rospy + 标准消息，无 ROS 自定义依赖之外的第三方库。
 """
@@ -679,7 +679,8 @@ class SwarmAgent(object):
 
     def _friend_guard_velocity(self, vx, vy):
         result = protect_fleet_motion((vx, vy), self.uav_id, self._motion_cache,
-                                      rospy.Time.now().to_sec())
+                                      rospy.Time.now().to_sec(),
+                                      separation=float(os.environ.get('SWARM_FLEET_SEPARATION_M', '4.5')))
         if result['reason'] != 'CLEAR':
             rospy.logwarn_throttle(2, '[%s] fleet_guard=%s', self.uav_id, result['reason'])
         return result['velocity_xy']
@@ -791,6 +792,11 @@ class SwarmAgent(object):
         if msg.uav_id != self.uav_id:
             return
         self.assignment = msg
+        if getattr(self, '_online_planner', None) is not None and msg.task_type in (2, 3):
+            self._landing = False
+            self._look_at = None
+            rospy.logwarn('[%s] VERTICAL_ROUTE_EVIDENCE_MISSING -> hold', self.uav_id)
+            return
         # 处理特殊任务类型
         if msg.task_type == 1:  # 目标确认/追踪
             tid = getattr(msg, 'target_id', '')
@@ -1080,6 +1086,10 @@ class SwarmAgent(object):
         - 建筑附近：-0.5m（保持距离）
         - 开阔区域：0m（常规搜索）
         """
+        # A horizontal scan does not certify a lower flight plane. Keep the
+        # configured search height in online mode, including while tracking.
+        if getattr(self, '_online_planner', None) is not None:
+            return 0.0
         wx, wy = self.world_xy
         if wx is None:
             return 0.0
@@ -1689,6 +1699,11 @@ class SwarmAgent(object):
         return self.path[-1]
 
     def _control(self):
+        if (getattr(self, '_online_planner', None) is not None
+                and self._gate.task is not None and self._gate.task['task_type'] in (2, 3)):
+            self._look_at = None
+            self._send_vel(0., 0.)
+            return
         if not self._gate.can_move(rospy.Time.now().to_sec()):
             self._look_at = None
             self._send_vel(0., 0.)
@@ -1830,6 +1845,7 @@ class SwarmAgent(object):
         if local_goal is None:
             self._stream_last_v()
             return
+        self._look_at = local_goal
         err_x = local_goal[0] - self.world_xy[0]
         err_y = local_goal[1] - self.world_xy[1]
         vx = POS_KP * err_x

@@ -5,10 +5,28 @@ import ast
 import threading
 import numpy as np
 sys.path.insert(0, str(Path(__file__).parents[2]/'perception'))
-from camera_geometry import calibration, aligned_translation
+from camera_geometry import calibration, aligned_translation, vertical_extent
 
 
 class CameraGeometryTests(unittest.TestCase):
+    def test_vertical_height_at_image_edge_does_not_use_radial_range(self):
+        # Same upright 1.8m actor on-axis and 45 degrees off-axis.
+        for y in (0., 10., -10.):
+            self.assertAlmostEqual(vertical_extent((0.,0.,4.5), (10.,y),
+                (1.,y/10.,(1.8-4.5)/10.)), 1.8)
+
+    def test_vertical_height_is_invariant_to_ray_scale_and_camera_position(self):
+        # A pitched camera changes the ray's optical-depth normalization;
+        # the world-space top and foot remain the same vertical line.
+        for scale in (.2,1.,3.):
+            ray = tuple(v*scale for v in (8.,5.,-2.7))
+            self.assertAlmostEqual(vertical_extent((2.,-3.,4.5),(10.,2.),ray),1.8)
+
+    def test_missing_or_degenerate_top_ray_cannot_supply_person_height(self):
+        for ray in ((0.,0.,-1.),(float('nan'),1.,1.),(-1.,0.,-1.)):
+            with self.assertRaises(ValueError):
+                vertical_extent((0.,0.,4.5),(10.,0.),ray)
+
     def actual_pose_alignment(self, history):
         source = Path(__file__).parents[2]/'perception/perception_real.py'
         function = next(n for n in ast.parse(source.read_text(encoding='utf-8')).body

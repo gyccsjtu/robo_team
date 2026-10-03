@@ -29,6 +29,8 @@ from fleet_motion_guard import MotionCache
 from allocation_geometry import screen_leg
 from search_completion import completion_state, parse_actor_list
 from visual_observation import VisualEvidence, TAG_TO_TID
+from tracker_selection import tracker_rank
+from search_occupancy import apply_authority_release
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from std_msgs.msg import String, Float32
@@ -50,7 +52,7 @@ MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 # 2026-09-28：默认必须与 swarm_task.py 一致（那边已是 7.0）。
 # 10.0 vs 7.0 会导致 manager 的栅格与 task 的拍卖栅格错位（不传 env 时必踩）。
 GRID_SIZE_M = float(os.environ.get("GRID_SIZE_M", "7.0"))   # 搜索格边长（与 swarm_task 必须一致，都读同一个环境变量）
-CRUISE_SPEED = 5.0              # 拍卖飞行时间估算用巡航速度（与 agent MAX_SPEED 一致）
+CRUISE_SPEED = float(os.environ.get('SWARM_MAX_SPEED', '5.0'))
 ALLOC_PERIOD = 2.0              # 拍卖周期 s（任务完成后重分配）
 LEASE_CHECK_PERIOD = 1.0        # 租约到期检查周期 s
 TARGET_CHECK_PERIOD = 1.0       # 目标确认计时更新周期 s（规则5 的 15s 按此粒度累计）
@@ -418,6 +420,11 @@ class SwarmManager(object):
             os.makedirs(directory, exist_ok=True)
             self._authority_log = open(os.path.join(directory, 'authority_events.jsonl'), 'a', encoding='utf-8')
         for event in self._authority.events[self._authority_event_cursor:]:
+            if apply_authority_release(self.grid, event, self._authority.run_id, self._authority.locks):
+                uid = event['uav_id']
+                released = tuple(event['details']['key'][1:])
+                if self._active_leases.get(uid) == released:
+                    del self._active_leases[uid]
             self._authority_log.write(json.dumps(event, allow_nan=False) + '\n')
         self._authority_log.flush()
         self._authority_event_cursor = len(self._authority.events)
@@ -432,7 +439,13 @@ class SwarmManager(object):
 
     def _target_authority_held(self, tid):
         with self._authority_lock:
-            return ('target', tid) in self._authority.locks
+            return self._authority.intended_owner(('target', tid)) is not None
+
+    def _tracker_rank(self, tid, uid, distance):
+        observations = [(owner, stamp) for (owner, tag), stamp in
+                        tuple(self._visual_evidence.stamps.items()) if TAG_TO_TID[tag] == tid]
+        return tracker_rank(uid, distance, observations, rospy.Time.now().to_sec(),
+                            DETECT_RADIUS - DISPATCH_MARGIN)
 
     def _authority_ack_cb(self, msg):
         try:
@@ -708,7 +721,7 @@ class SwarmManager(object):
                 if not getattr(st, "connected", False) or uid in busy:
                     continue
                 d = math.hypot(st.x - tx, st.y - ty)
-                if best_d is None or d < best_d:
+                if best_d is None or self._tracker_rank(tid, uid, d) < self._tracker_rank(tid, best, best_d):
                     best, best_d = uid, d
             if best is None:
                 continue
@@ -835,7 +848,7 @@ class SwarmManager(object):
                 continue
             ux, uy = self.status[uid].x, self.status[uid].y
             dist = math.hypot(tx - ux, ty - uy)
-            if dist < best_dist:
+            if best_uav is None or self._tracker_rank(target_id, uid, dist) < self._tracker_rank(target_id, best_uav, best_dist):
                 best_dist = dist
                 best_uav = uid
 
@@ -866,16 +879,12 @@ class SwarmManager(object):
 
             if candidate_uavs:
                 # 按飞行时间排序，选最快的（15s 内能到的优先）
-                candidate_uavs.sort(key=lambda x: x[2])
+                candidate_uavs.sort(key=lambda x: self._tracker_rank(target_id, x[0], x[1]))
                 best_uav, best_dist, flight_time = candidate_uavs[0]
                 rospy.loginfo("[manager] 中断 %s 的搜索任务去追踪 %s（预计 %.1fs）",
                               best_uav, target_id, flight_time)
-                # 释放该机的搜索格租约
-                for key, c in self.grid.cells.items():
-                    if c.state == STATE_ASSIGNED and c.owner == best_uav:
-                        c.state = STATE_FREE
-                        c.owner = None
-                        c.lease_until = 0.0
+                # Keep the search cell occupied through STOP and verified exit.
+                # TASK_RELEASED later reconciles auction occupancy.
             else:
                 rospy.loginfo("[manager] 无可中断的搜索机，无法派遣追踪 %s", target_id)
                 return
@@ -918,7 +927,7 @@ class SwarmManager(object):
         # 重点：打印「算法内部计算的距离」，排查坐标系/单位错位导致的不消除。
         _ux, _uy = self.status[best_uav].x, self.status[best_uav].y
         _dist = math.hypot(tx - _ux, ty - _uy)
-        _captured = _dist < DETECT_RADIUS
+        _captured = False  # Dispatch/in-range is not an official capture.
         rospy.loginfo(
             "[ALGO] dispatch target=%s pos=(%.2f,%.2f) | uav=%s pos=(%.2f,%.2f) "
             "| dist=%.3fm | detect_radius=%.1fm | is_captured=%s | flight_time_est=%.1fs",
@@ -1214,7 +1223,8 @@ class SwarmManager(object):
             legs = [(positions[owner], waypoint(cell_key)) for owner, cell_key in peer_goals.items()
                     if owner != uid and owner in positions]
             return screen_leg(positions[uid], waypoint(key),
-                              [position for owner, position in positions.items() if owner != uid], legs)
+                              [position for owner, position in positions.items() if owner != uid], legs,
+                              separation=float(os.environ.get('SWARM_FLEET_SEPARATION_M', '4.5')))
         assign = self.allocator.allocate(uavs, candidate_filter=candidate_filter)
         self._auction_cycle += 1
         for _d in self.allocator.last_allocation:

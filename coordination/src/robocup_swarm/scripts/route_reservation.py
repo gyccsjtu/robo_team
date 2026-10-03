@@ -1,7 +1,12 @@
 """Single-writer actual polyline reservation and final horizontal executor gate."""
 import copy
 import math
+import os
 from allocation_geometry import point_segment_distance, segment_distance
+
+ROUTE_CLEARANCE = float(os.environ.get('SWARM_ROUTE_CLEARANCE_M', '6.0'))
+if not math.isfinite(ROUTE_CLEARANCE) or ROUTE_CLEARANCE < 2.5:
+    raise ValueError('Invalid shared route clearance')
 
 
 def valid_points(points):
@@ -23,7 +28,7 @@ def exclude_peers(grid, uid, motion, reservations, now):
     obstacles += [pair for peer, record in reservations.items() if peer != uid for pair in record['segments']]
     cells = bytearray(grid.cells)
     # Every point inside a grid cell must clear the reservation envelope.
-    margin = 6.+math.sqrt(2)*grid.resolution/2
+    margin = ROUTE_CLEARANCE+math.sqrt(2)*grid.resolution/2
     for index, value in enumerate(cells):
         if value:
             continue
@@ -106,8 +111,8 @@ class RouteAuthority:
                 if peer == uid:
                     continue
                 pos = states[peer]['position_xy']
-                if (any(point_segment_distance(pos, a, b) <= 6. for a, b in segments(message['points']))
-                        or any(segment_distance(a, b, c, d) <= 6.
+                if (any(point_segment_distance(pos, a, b) <= ROUTE_CLEARANCE for a, b in segments(message['points']))
+                        or any(segment_distance(a, b, c, d) <= ROUTE_CLEARANCE
                                for a, b in segments(message['points'])
                                for c, d in self.reserved.get(peer, []))):
                     reason = 'ROUTE_CONFLICT'

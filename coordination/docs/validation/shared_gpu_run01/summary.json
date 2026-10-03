@@ -1,0 +1,18 @@
+{
+  "evidence_origin": "/root/robocup_runs/codex_city_shared_gpu_20261003/flight",
+  "checkpoint_span_s": 104.79999999999995,
+  "last_left_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "official_targets_eliminated": 0,
+  "maximum_altitude_m": 5.486741685775329,
+  "minimum_sampled_separation_m": 2.981976783468995,
+  "formal_competition_pass": false,
+  "collision_verdict": "ABSTAIN",
+  "tracking_success_is_not_elimination": true
+}

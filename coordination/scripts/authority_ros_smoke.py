@@ -15,6 +15,7 @@ import sys
 import time
 import uuid
 import hashlib
+import traceback
 
 ROOT = Path(__file__).resolve().parents[2]
 ap = argparse.ArgumentParser()
@@ -25,7 +26,13 @@ out = Path(args.output).resolve()
 out.mkdir(parents=True, exist_ok=False)
 probe = socket.socket()
 try:
+    probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     probe.bind(('127.0.0.1', args.master_port))
+except OSError as error:
+    (out/'result.json').write_text(json.dumps(dict(ros_wiring_verified=False,
+        physical_flight_verified=False, formal_competition_pass=False,
+        error='MASTER_PORT_UNAVAILABLE: '+str(error)),indent=2))
+    raise
 finally:
     probe.close()
 os.environ.update(ROS_MASTER_URI='http://127.0.0.1:%d' % args.master_port,
@@ -91,7 +98,9 @@ try:
     pump(1.5)
     assert agents['uav_1']._gate.generation == 2
     assert agents['uav_1']._gate.task['target_id'] == 't0'
-    assert agents['uav_2']._gate.stopping
+    assert not agents['uav_2']._gate.stopping
+    assert agents['uav_2']._gate.generation == 1
+    assert agents['uav_2']._gate.task['task_type'] == 0
     assert manager._authority.locks[('target', 't0')]['owner'] == 'uav_1'
     # Inject an old-run command over the real authorized topic.
     before = agents['uav_1']._gate.seq
@@ -104,6 +113,7 @@ try:
     assert agents['uav_1']._gate.task['target_id'] == 't0'
     report = dict(ros_wiring_verified=True, aircraft_objects=6,
                   stopped_handoff_verified=True, unique_target_owner='uav_1',
+                  rejected_backup_keeps_search_authorization=True,
                   old_run_rejected=True, physical_flight_verified=False,
                   formal_competition_pass=False, run_id=os.environ['ROBOCUP_RUN_ID'])
     report['source_sha256'] = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -111,6 +121,12 @@ try:
                   for name in ('swarm_agent.py', 'swarm_manager.py', 'task_authority.py', 'radar_velocity_guard.py'))}
     (out / 'result.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
     print(json.dumps(report), flush=True)
+except Exception as error:
+    (out/'failure.log').write_text(traceback.format_exc())
+    (out/'result.json').write_text(json.dumps(dict(ros_wiring_verified=False,
+        physical_flight_verified=False, formal_competition_pass=False,
+        error=str(error), run_id=os.environ['ROBOCUP_RUN_ID']),indent=2))
+    raise
 finally:
     if 'rospy' in sys.modules:
         sys.modules['rospy'].signal_shutdown('owned smoke complete')

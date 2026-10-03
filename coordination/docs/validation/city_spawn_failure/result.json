@@ -1,0 +1,7 @@
+{
+  "status": "FAILED",
+  "formal_competition_pass": false,
+  "fixture_only": true,
+  "armed": false,
+  "error": "SPAWN_FAILED_uav_1:SpawnModel: Entity pushed to spawn queue, but spawn service timed out waiting for entity to appear in simulation under the name typhoon_h480_0"
+}

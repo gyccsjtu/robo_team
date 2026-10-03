@@ -1,0 +1,25 @@
+{
+  "status": "DIAGNOSTIC_CHECKPOINT",
+  "reason": "Visual fusion timestamp and velocity baseline defects; development speed mismatched manager",
+  "simulated_seconds": 181.4119999999998,
+  "left_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "maximum_altitude_m": 5.058219883710662,
+  "minimum_sampled_separation_m": 2.8699278322303594,
+  "maximum_displacements_m": {
+    "uav_1": 21.934583084966995,
+    "uav_2": 66.28542768081049,
+    "uav_3": 33.47515799631358,
+    "uav_4": 23.264149431387207,
+    "uav_5": 70.90622125701651,
+    "uav_6": 48.134208400338984
+  },
+  "formal_competition_pass": false,
+  "collision_verdict": "ABSTAIN"
+}

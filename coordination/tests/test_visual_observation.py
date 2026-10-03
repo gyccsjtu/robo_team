@@ -9,6 +9,40 @@ from yolo_target_bridge import TargetBridgeCore, parse_left_actors, YoloTargetBr
 
 
 class VisualTests(unittest.TestCase):
+    def test_prediction_has_no_fixed_advance_at_original_observation_time(self):
+        core = TargetBridgeCore()
+        for stamp in (10.,10.2,10.4):
+            core.report(stamp,'green',stamp-10.,0.,.9)
+        track = core.tracks['green']
+        track.vx, track.vy = 1., 0.
+        event = core.tick(track.position_s)[0]
+        self.assertAlmostEqual(event['x'],track.x)
+        self.assertAlmostEqual(event['y'],track.y)
+        event = core.tick(track.position_s+.2)[0]
+        self.assertAlmostEqual(event['x'],track.x+.2)
+        self.assertEqual(track.t_obs,10.4)
+
+    def test_fused_position_is_predicted_from_its_actual_weighted_time(self):
+        core = TargetBridgeCore()
+        for stamp in (10., 10.2, 10.4):
+            core.report(stamp, 'green', 2.*(stamp-10.), 0., 1.)
+        track = core.tracks['green']
+        track.vx, track.vy = 2., 0.
+        self.assertAlmostEqual(track.position_s, 10.2)
+        self.assertAlmostEqual(core.tick(10.8)[0]['x'], 1.6)
+        self.assertEqual(track.t_obs, 10.4)
+
+    def test_high_frequency_observations_accumulate_velocity_baseline(self):
+        core = TargetBridgeCore()
+        for index in range(101):
+            stamp = 10. + index*.02
+            core.report(stamp, 'green', 2.*(stamp-10.), 0., 1.)
+        track = core.tracks['green']
+        self.assertGreater(track.vx, 1.9)
+        self.assertLess(track.vx, 2.01)
+        self.assertLess(abs(core.tick(12.2)[0]['x']-4.4), .1)
+        self.assertEqual(track.t_obs, 12.)
+
     def message(self, uid='a', seq=1, stamp=10.):
         return dict(schema_version=2, run_id='run', uav_id=uid, seq=seq, sample_s=stamp,
             target_id='green', frame_id='world_enu', xyz=[1., 2., 0.], confidence=.8,

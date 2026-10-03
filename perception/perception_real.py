@@ -64,7 +64,8 @@ import rospy
 from cv_bridge import CvBridge
 from gazebo_msgs.srv import GetLinkState
 from sensor_msgs.msg import Image, CameraInfo
-from camera_geometry import calibration, aligned_translation
+from camera_geometry import calibration, aligned_translation, vertical_extent
+from recent_motion import RecentMotion
 from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
 from std_msgs.msg import String
 # 集中指派消息 + 目标融合状态（coordination 工作区）。导入失败时退化为仅距离闸门。
@@ -192,6 +193,58 @@ PUB_HZ = float(os.environ.get("PR_PUB_HZ", "10.0"))
 _coast_budget = max(1, int(2.0 * PUB_HZ / max(1, DETECT_EVERY)))
 MAX_COAST_PUB = int(os.environ.get("PR_MAX_COAST_PUB", str(_coast_budget)))
 
+# ---- GPU 显存/CPU 内存瘦身开关（2026-10-03 六机 OOM 后续）----
+# 背景：2026-10-03 六机 GPU 轮全局 OOM，gzserver pid 1154 被内核杀（Free swap=0）。
+# **原相机与雷达参数一律不动**，只动推理侧。
+#
+# 【实测结论，勿再重复推断】以下是本机 vision_cuda_20261003 环境下的真实测量，
+# 与最初假设有出入，改动按此重写：
+#  1. fp16（PR_FP16=1）：**不省内存，反而 +116 MB RSS**（1080->1196 MB），
+#     显存两者同为 1174 MB 无差别。YOLO11n 权重太小，fp16 省下的那点权重
+#     抵不过半精度算子workspace 的额外分配。**故默认关闭且不推荐开。**
+#     保留开关仅为对照实验，正式轮不要开。
+#  2. 线程：8 个 pt_main_thread 各烧 ~47s是真在并行计算，wchan=futex_do_wait
+#     属于自旋后休眠的正常形态。实测 OMP_WAIT_POLICY=passive + GOMP_SPINCOUNT=0
+#     **无效**（24.87s vs 25.00s 噪声内），吞吐反降 24%，故未采用。
+#     PR_TORCH_THREADS 保留为可调项，默认 0=不干预。
+#  3. 真正省内存的路子是**共享推理服务**（6 份 CUDA context -> 1 份），
+#     尚未实现，见 coordination/docs/gpu_memory_optimization_20261003.md。
+PR_FP16 = os.environ.get("PR_FP16", "0") == "1"
+PR_TORCH_THREADS = int(os.environ.get("PR_TORCH_THREADS", "0") or 0)
+PR_MEMORY_FRACTION = float(os.environ.get("PR_MEMORY_FRACTION", "0") or 0.0)
+
+# ---- 共享推理服务（2026-10-03）----
+# 六路各自建CUDA context 是 OOM 里唯一可压缩的大头。PR_SHARED_INFER=1 时
+# 本进程不再加载权重，改连perception/shared_inference_service.py（单份 context）。
+#实测可行性：单流 p50=24.4ms，六路串行 21.4ms/次 ⇒ 每 1000ms 只占 128ms，约 7.8x余量。
+# **默认 0**：共享服务本身尚未在六机轮验证过，正式轮先不开。
+# 失败语义：服务不可用时**自动回退到进程内推理**，绝不因为服务故障让 15s 判据断流。
+PR_SHARED_INFER = os.environ.get("PR_SHARED_INFER", "0") == "1"
+PR_SHARED_PORT = int(os.environ.get("PR_SHARED_PORT", "19731"))
+
+
+class _BoxesShim:
+    """Duck-type stand-in for an ultralytics ``Results``.
+
+    perception_real.py consumes exactly ``res.boxes`` (iterable) and, per box,
+    ``.cls`` / ``.conf`` / ``.xyxy[0]`` -- verified at the single inference call
+    site. Returning this narrow shape is what lets the shared service exist at
+    all: only three numbers per detection cross the process boundary instead of
+    a pickled Results object. If a future edit starts reading another Results
+    attribute, this shim fails loudly (AttributeError) rather than silently
+    reporting wrong geometry.
+    """
+
+    __slots__ = ("boxes", "device")
+
+    def __init__(self, boxes):
+        self.boxes = boxes
+        self.device = "shared"
+
+
+
+
+
 # ---- 时间滞后补偿（发布前把坐标沿目标速度前推这么多秒）----
 # 为什么需要：官方 score_cal_master.py 第 136 行是拿 **接收瞬间的当前真值**
 #   和 msg.x/y 比，判据 <1m。而我们的链路存在相位滞后（实测 0.4~0.5s 仿真时间，
@@ -314,6 +367,7 @@ VERDICT_SP = float(os.environ.get("PR_VERDICT_SP", "0.15"))     # 净位移速�
 # 与世界起点的最大位移 ≥ VERDICT_DISP，就承认它是人。
 # 静止误检的最大位移只有框抖动带来的 ~0.3~0.5 m，2.5 m 足够区分。
 VERDICT_DISP = float(os.environ.get("PR_VERDICT_DISP", "2.5"))  # 生命期最大位移 (m)
+RECENT_MOTION_WINDOW = float(os.environ.get('PR_RECENT_MOTION_WINDOW', '0'))
 # --- 视差判据（v3.5b 新增，专治"机身跟着观测机转向而漏网"）---
 # 踩到的漏网实例：观测机盯人时会不停转向，机身的"假世界坐标"就在以 13 m 为半径
 # 绕圈 -> 净速度 0.74 m/s，运动判据不但拦不住，反而把它判成"在动"。
@@ -421,6 +475,7 @@ def on_img(msg):
         _latest["img"] = img
         _latest["stamp"] = msg.header.stamp.to_sec()
         _latest["recv_wall"] = time.time()
+        _latest["receive_age_s"] = rospy.Time.now().to_sec() - _latest["stamp"]
 
 
 def on_camera_info(msg):
@@ -556,6 +611,9 @@ class Track(object):
         self.vx, self.vy = 0.0, 0.0
         self.t = t
         self.observed_s = t
+        self.recent_motion = RecentMotion(RECENT_MOTION_WINDOW) if RECENT_MOTION_WINDOW > 0 else None
+        if self.recent_motion is not None:
+            self.recent_motion.observe(t,x,y)
         self.hits = 1
         self.miss = 0
         self.conf = conf
@@ -613,6 +671,8 @@ class Track(object):
         if not math.isfinite(t) or t <= self.observed_s or dt <= 0:
             return False
         self.observed_s = t
+        if self.recent_motion is not None:
+            self.recent_motion.observe(t,zx,zy)
         px, py = self.predict(dt)
         rx, ry = zx - px, zy - py
         self.x = px + ALPHA * rx
@@ -715,7 +775,8 @@ class Track(object):
             return False, "range"
         self.motion_factor(now)                 # 刷新 self.sp
         # 当前在动，或者生命期内动过 —— 见 VERDICT_DISP 的注释（治 actor 卡死）
-        if self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP:
+        recent_speed = self.recent_motion.speed(self.observed_s if now is None else now) if self.recent_motion is not None else None
+        if (recent_speed is not None and recent_speed < VERDICT_SP) or (recent_speed is None and self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP):
             return False, "static"
         if self.score_ema < VERDICT_SCORE:
             return False, "score"
@@ -841,8 +902,50 @@ def main():
     print("[pr] v4.0 双目左目适配 | 相机 %s <- %s | 内参 fx=%.1f cx=%.1f cy=%.1f 图 %dx%d"
           % (CAM_LINK, CAM_TOPIC, FX, CX, CY, IMG_W, IMG_H), flush=True)
     print("[pr] 类别顺序 %s" % CLASSES, flush=True)
-    from ultralytics import YOLO
-    _model = YOLO(WEIGHTS)
+    infer_device = os.environ.get('PR_DEVICE', '')
+    device_reported = False
+    _shared = None
+    if PR_SHARED_INFER:
+        # 共享模式：本进程不加载权重，CUDA context 由服务进程独占一份。
+        from shared_inference_client import SharedInferenceClient
+        _shared = SharedInferenceClient(port=PR_SHARED_PORT)
+        _model = None
+        # 等服务就绪再开跑，避免开局全部走回退路径把日志刷满。
+        _deadline = time.time() + 30.0
+        _ready = False
+        while time.time() < _deadline:
+            if _shared.available():
+                _ready = True
+                break
+            time.sleep(0.5)
+        print('[pr] shared_inference port=%d ready=%s (0=将回退进程内推理)'
+              % (PR_SHARED_PORT, _ready), flush=True)
+    else:
+        from ultralytics import YOLO
+        _model = YOLO(WEIGHTS)
+    # torch.inference_mode() 不在此处添加：ultralytics 的 predictor.stream_inference
+    # 已带 @smart_inference_mode()（predictor.py:214），当前 PyTorch(2.4.1) 下内部
+    # 即走 torch.inference_mode()。重复包一层没有收益。
+    #
+    # PR_FP16 经实测不省内存（RSS 反而 +116 MB，显存持平），故默认关闭。
+    # 走ultralytics 原生 half=True 开关（AutoBackend 内 model.half()），
+    # 不手工改模型，避免半精度与设备迁移顺序出错。
+    if PR_TORCH_THREADS > 0:
+        import torch
+        torch.set_num_threads(PR_TORCH_THREADS)
+        try:
+            torch.set_num_interop_threads(PR_TORCH_THREADS)
+        except RuntimeError:
+            # 并行池若已建立则无法再改；不影响正确性，仅记录实际值。
+            pass
+        print('[pr] torch_threads intra=%d inter=%d' %
+              (torch.get_num_threads(), torch.get_num_interop_threads()), flush=True)
+    if PR_MEMORY_FRACTION > 0.0 and infer_device not in ('', 'cpu'):
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.set_per_process_memory_fraction(PR_MEMORY_FRACTION)
+            print('[pr] cuda_memory_fraction=%.3f' % PR_MEMORY_FRACTION, flush=True)
+
 
     # pubs[类][槽号]：单流类只有 1 个槽，red 有 2 个（red1/red2）
     pubs = {}
@@ -857,7 +960,11 @@ def main():
     yolo_view_pub = (rospy.Publisher(YOLO_VIEW_TOPIC, Image, queue_size=1)
                      if YOLO_VIEW else None)
 
-    rospy.Subscriber(CAM_TOPIC, Image, on_img, queue_size=1)
+    # A 640x360 RGB frame is larger than rospy's 64 KiB default receive
+    # buffer. Read complete frames so queue_size=1 can discard old images
+    # instead of leaving seconds of serialized frames in the TCP stream.
+    rospy.Subscriber(CAM_TOPIC, Image, on_img, queue_size=1,
+                     buff_size=8 * 1024 * 1024, tcp_nodelay=True)
     rospy.Subscriber(CAM_INFO_TOPIC, CameraInfo, on_camera_info, queue_size=1)
     rospy.wait_for_service("/gazebo/get_link_state", timeout=90)
     gls = rospy.ServiceProxy("/gazebo/get_link_state", GetLinkState)
@@ -999,8 +1106,35 @@ def main():
                     _processed_image_stamp = frame_stamp
                     new_frame = True
                     _infer_t0 = time.time()
-                    res = _model(img, conf=CONF, verbose=False)[0]
-                    inference_s = time.time() - _infer_t0
+                    # 推理后端二选一：共享服务（省CUDA context）或本进程。
+                    # 共享失败必须回退，不能让 15s 判据因服务故障断流。
+                    _shared_meta = None
+                    if _shared is not None:
+                        _boxes, _shared_meta = _shared.infer(img, uav=UAV)
+                        if _boxes is None:
+                            # 首次回退时才懒加载本进程模型，之后继续用本地。
+                            _shared.note_fallback(_shared.last_error or 'no_reply')
+                            if _model is None:
+                                from ultralytics import YOLO
+                                _model = YOLO(WEIGHTS)
+                                print('[pr] 回退进程内推理（共享服务不可用：%s）'
+                                      % (_shared.last_error or 'no_reply'), flush=True)
+                            res = _model(img, conf=CONF, verbose=False, device=infer_device,
+                                         **({'half': True} if PR_FP16 else {}))[0]
+                            inference_s = time.time() - _infer_t0
+                        else:
+                            res = _BoxesShim(_boxes)
+                            inference_s = time.time() - _infer_t0
+                    else:
+                        res = _model(img, conf=CONF, verbose=False, device=infer_device,
+                                     **({'half': True} if PR_FP16 else {}))[0]
+                        inference_s = time.time() - _infer_t0
+                    if not device_reported:
+                        print('[pr] inference_device=%s first_inference_s=%.4f' %
+                              ((res.device if hasattr(res, 'device') else
+                                (_model.predictor.device if _model is not None else 'shared')),
+                               inference_s), flush=True)
+                        device_reported = True
                     # v4新增：时间戳同步优化 - 推理耗时补偿
                     # 假设推理均匀分布在帧的两端，使用 frame_stamp - inference_s/2 作为更准确的时间戳
                     detection_time = frame_stamp - inference_s * 0.5
@@ -1076,10 +1210,15 @@ def main():
                         # 注意：这里只打标、不丢弃。是否采用由关联/新建阶段按档位决定
                         # （v3.0 在这里硬丢，结果把真人的框也丢了，链路断得比 v2 还狠）
                         w_px, h_px = x2 - x1, y2 - y1
-                        # 必须用真实距离 rng 而不是沿视线参数 t：用 t 会系统性低估身高
-                        # （实测 (-20.5,-4.5) 那处静态红物：t=30 而实距 35.5，真实 2.5 m+
-                        #  的红色物被算成 1.97~2.20 m，正好落进"像人"档而建了轨）。
-                        impl_h = h_px * rng / FY
+                        # Intersect the top ray with the vertical line over
+                        # the bottom pixel's ground point. Radial range is
+                        # for distance gates, not pixel-to-height projection.
+                        top_ray = R @ M_OPT2LINK @ np.array([(u-CX)/FX, (y1-CY)/FY, 1.])
+                        try:
+                            impl_h = vertical_extent((px,py,pz),
+                                (px+t*v_world[0], py+t*v_world[1]), top_ray)
+                        except ValueError:
+                            continue
                         ar = h_px / max(1e-3, w_px)
                         strict = (H_MIN <= impl_h <= H_MAX) and (AR_MIN <= ar <= AR_MAX)
                         loose = (H_MIN_L <= impl_h <= H_MAX_L) and (AR_MIN_L <= ar <= AR_MAX_L)
@@ -1274,6 +1413,9 @@ def main():
 
         pub_list = [(cls, 0, tk) for cls, tk in best_of.items()] + \
                    [("red", si, tk) for si, tk in bound]
+        # Discovery precedes assignment; retain every person check above.
+        # The manager needs these observations before it can assign a tracker.
+        visual_pub_list = tuple(pub_list)
 
         # ---- 官方话题闸门：指派仲裁 + 近距离 + 空间身份一致 ----
         # 未过闸不发布 ActorInfo（在进入内部调试快照链路前剔除）。
@@ -1389,18 +1531,19 @@ def main():
         # 为什么要节流：核心按自己 tick_hz 从单写者队列里取，我按检测频率灌
         # 6 条/帧会把它堆成积压（queue_size=50 + 无界 deque），既不加分也拖延迟。
         # 队友替身用的就是 2 Hz。
-        if COORD_ON and pub_list and (now - _coord_t) >= 1.0 / max(0.1, COORD_HZ):
+        if COORD_ON and visual_pub_list and (now - _coord_t) >= 1.0 / max(0.1, COORD_HZ):
             _coord_t = now
-            for _cls, _si, _tk in pub_list:
+            for _cls, _si, _tk in visual_pub_list:
                 _tag = ("%s%d" % (_cls, _si + 1)) if len(pubs[_cls]) > 1 else _cls
                 _obs_seq += 1
                 _cx, _cy = _tk.pub_xy()      # 与裁判侧同一套补偿，两边坐标必须一致
-                coord.publish(String(data=json.dumps({
+                if (_cls, _si, _tk) in pub_list:
+                    coord.publish(String(data=json.dumps({
                     "target_id": _tag,
                     "frame_id": "world_enu",
                     "xyz": [round(_cx, 2), round(_cy, 2), TARGET_Z],
                     "confidence": 1.0,
-                    "observation_id": "obs-%s-%d" % (_tag, _obs_seq)})))
+                        "observation_id": "obs-%s-%d" % (_tag, _obs_seq)})))
                 # Only an actual match in this camera frame creates new evidence.
                 # Track prediction/coast may support UI, but cannot extend confirmation.
                 if _tk.miss == 0 and 0 < _tk.observed_s <= now <= _tk.observed_s+1.:

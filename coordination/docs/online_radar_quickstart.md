@@ -1,5 +1,7 @@
 # 当前机器：六机在线雷达协同开发场景
 
+雷达平面高度规则v1.1：在线二维雷达模式保持原搜索高度目标；不得因追踪、进入障碍附近而自动降低1m/0.5m。单个水平扫描面不证明下方体积可通行，也不授权RTL/降落；垂直通道需另有证明接口。本修复不改变限高护栏或初始起飞逻辑。
+
 使用本仓库实际manager和六个agent的正常任务拍卖，在线射线地图、实际路径预约与最终速度保护全部接入。依赖沿用 `single_swarm_product_quickstart.md`；尚未迁机验证，不能使用旧README中的他人/home路径。
 
 Windows PowerShell命令，输出目录必须不存在：
@@ -14,4 +16,6 @@ wsl -d Ubuntu-20.04 -- bash -lc 'bash /mnt/d/a/.robocup/robo_team/run_radar_swar
 
 输出：result.json、six_truth.jsonl、fixture_contacts.jsonl、algorithm/route_events.jsonl与authority_events.jsonl、全部控制日志、模型/world、执行源码与SHA。只有明确的prototype_search_verified=true表明当前观察门槛通过；formal_competition_pass始终false。无官方裁判时不得因超时或全部飞机起飞宣布比赛完成。
 
-空场景去掉 `--obstacle-fixture`。本入口还未包含演员、YOLO和官方裁判，六个障碍箱不是官方比赛城市；旧根入口3m出生队形不满足当前保守预约配置，不能套用本用例通过结果。视觉证据v2、完整等待/接替和正式环境迁移继续实施。
+空场景去掉 `--obstacle-fixture`。实体视觉开发用例另加`--flight-actor-probe`，按flight_actor_probe_v1.md执行；当前机器须有已验证的/root/robo_team_build/vision_env及仓库现有权重。六机连接后慢速物理步进保证软件渲染能提供新鲜原图，120秒仿真约需10分钟墙钟，传感器参数不变。演员插入、图像、桥和执行均自动进行，启动后无需人工控制；该场景保留8m出生队形，不是正式随机城市。
+
+记录器现在对并发写入加锁，并逐行核验JSONL；文件缺失/损坏不能通过。run19及实体视觉run04/run05存在旧记录器损坏，新增followup_stream_audit.json并保留原汇总，不能借其汇总声称完整证据PASS。完整等待/接替、旧3m出生队形兼容、正式裁判和随机城市验证仍需继续。

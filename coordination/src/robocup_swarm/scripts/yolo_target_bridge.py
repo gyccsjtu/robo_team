@@ -9,9 +9,8 @@
   /left_actors  std_msgs/String，官方裁判发布的剩余 actor 清单（权威消除信号）。
 
 输出：
-  /swarm/target_states  robocup_swarm/TargetState
-      下游 swarm_manager / swarm_agent 只认本消息，不感知数据来源，
-      因此本桥替换 target_sim / official_target_bridge 后二者零算法改动。
+  /swarm/confirmed_visual_observation：激活后转发原schema2证据，供实际manager/agent复验。
+  /swarm/target_states：融合/预测诊断，生产执行不以此旧runless话题更新目标。
 
 身份映射与官方裁判一致（score_cal.py:16）：
   green→t0(actor_0) blue→t1 brown→t2 white→t3 red1→t5 red2→t4
@@ -76,9 +75,8 @@ FLEE_SPEED = 2.0        # state 粗估：超过即给 FLEE（下游不依赖该�
 # 图像采集+YOLO 推理+传输 (~0.35s) + 感知端内部 EMA + 桥接 0.6s 融合窗加权
 # ≈ 0.65s。演员 1.3m/s 跑动时滞后 ≈0.85m，叠加投影噪声即超 1m → 裁判计数
 # 反复归零（03_judge.log 大量重复 find actor_N）。上报前按估计速度外推：
-#   te = min(gap, EXTRAP_MAX_T) + EXTRAP_DELAY
+#   te = min(gap, EXTRAP_MAX_T)，gap来自原图时间，不能再加固定延迟。
 # 距离限幅 EXTRAP_MAX_D 防速度估计被 YOLO 跳变污染时外推飞掉。
-EXTRAP_DELAY  = float(os.environ.get("BRIDGE_EXTRAP_DELAY", "0.35"))
 EXTRAP_MAX_T  = float(os.environ.get("BRIDGE_EXTRAP_MAX_T", "1.2"))
 EXTRAP_MAX_D  = float(os.environ.get("BRIDGE_EXTRAP_MAX_D", "1.5"))
 
@@ -96,7 +94,7 @@ def _vel_ema(v_old, raw):
 
 class _Track(object):
     __slots__ = ("tag", "obs", "x", "y", "vx", "vy", "conf",
-                 "t_obs", "alive", "elim_pending",
+                 "t_obs", "position_s", "alive", "elim_pending",
                  "_last_fx", "_last_fy", "_last_ft",
                  "_high_conf_count", "_motion_history", "_last_vel_mag")
 
@@ -109,6 +107,7 @@ class _Track(object):
         self.vy = 0.0
         self.conf = 0.0
         self.t_obs = -1e18
+        self.position_s = -1e18    # timestamp of the weighted position, not latest image
         self.alive = False         # 是否正在对外发布
         self.elim_pending = False  # 待补发 eliminated=true
         self._last_fx = None
@@ -205,17 +204,21 @@ class TargetBridgeCore(object):
         sw = sum(o[3] for o in tr.obs)
         fx = sum(o[1] * o[3] for o in tr.obs) / sw
         fy = sum(o[2] * o[3] for o in tr.obs) / sw
+        position_s = sum(o[0] * o[3] for o in tr.obs) / sw
         tr.conf = max(o[4] for o in tr.obs)
 
         # 速度差分 + EMA（用融合位置，保证平滑）
         if tr._last_fx is not None:
-            dt = t - tr._last_ft
+            dt = position_s - tr._last_ft
             if dt >= VEL_DT_MIN:
                 tr.vx = _vel_ema(tr.vx, (fx - tr._last_fx) / dt)
                 tr.vy = _vel_ema(tr.vy, (fy - tr._last_fy) / dt)
-        tr._last_fx, tr._last_fy, tr._last_ft = fx, fy, t
+                tr._last_fx, tr._last_fy, tr._last_ft = fx, fy, position_s
+        else:
+            tr._last_fx, tr._last_fy, tr._last_ft = fx, fy, position_s
 
         tr.x, tr.y = fx, fy
+        tr.position_s = position_s
         tr.t_obs = float(t)
         
         # ---- 国家一等奖标准改进：多帧验证 ----
@@ -309,7 +312,9 @@ class TargetBridgeCore(object):
                 extrap_factor = 1.0
             
             # 时延补偿外推：见 EXTRAP_* 注释。coast 期 te 封顶，位置不漂移。
-            te = (min(gap, EXTRAP_MAX_T) + EXTRAP_DELAY) * extrap_factor
+            # The fused position belongs to the weighted image time.
+            # Latest-image freshness remains governed by t_obs above.
+            te = max(0., min(t - tr.position_s, EXTRAP_MAX_T)) * extrap_factor
             ex, ey = tr.vx * te, tr.vy * te
             ed = math.hypot(ex, ey)
             # 自适应距离限幅

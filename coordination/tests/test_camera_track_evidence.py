@@ -1,9 +1,12 @@
 """Exercise the actual tracker without importing ROS, Torch or a model."""
 import ast
 import math
+import sys
 from pathlib import Path
 import unittest
 import numpy as np
+sys.path.insert(0,str(Path(__file__).parents[2]/'perception'))
+from recent_motion import RecentMotion
 
 
 class CameraTrackEvidenceTests(unittest.TestCase):
@@ -14,7 +17,7 @@ class CameraTrackEvidenceTests(unittest.TestCase):
         scope = dict(math=math, np=np, cam_rel=lambda ux,uy,yaw,x,y:(x-ux,y-uy),
                      person_likelihood=lambda h:1., MOTION_FLOOR=.2, ALPHA=.5,
                      BETA=.15, V_MAX=2., MOTION_REF=1., LAG_COMP=0., PUB_EMA=0.,
-                     wrap_pi=lambda angle:angle)
+                     wrap_pi=lambda angle:angle,RECENT_MOTION_WINDOW=4.,RecentMotion=RecentMotion)
         exec(compile(ast.Module(body=[node], type_ignores=[]), str(source), 'exec'), scope)
         return scope['Track']('green',0.,0.,.9,[10,20],[20,50],6.,1.7,10.)
 
@@ -30,8 +33,10 @@ class CameraTrackEvidenceTests(unittest.TestCase):
         track.coast(.5)
         track.coast(.5)
         self.assertEqual((track.x,track.t,track.observed_s,track.hits,track.miss), (1.,11.,10.,1,2))
+        self.assertEqual(list(track.recent_motion.samples),[(10.,0.,0.)])
 
     def test_new_frame_renews_only_its_original_camera_timestamp(self):
         track = self.track()
         track.update(.4,0.,.5,.9,[10,20],[20,50],6.,1.7,10.5)
         self.assertEqual((track.hits,track.observed_s), (2,10.5))
+        self.assertEqual(track.recent_motion.samples[-1],(10.5,.4,0.))

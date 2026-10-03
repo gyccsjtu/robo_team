@@ -93,8 +93,9 @@ class CoverageGrid(object):
         self.cells = {}
         for ix in range(self.nx):
             for iy in range(self.ny):
-                c = SearchCell(self.x_min + (ix + 0.5) * self.cell_m,
-                               self.y_min + (iy + 0.5) * self.cell_m)
+                x0, y0 = self.x_min+ix*self.cell_m, self.y_min+iy*self.cell_m
+                c = SearchCell((x0+min(x0+self.cell_m,self.x_max))/2.,
+                               (y0+min(y0+self.cell_m,self.y_max))/2.)
                 self.cells[(ix, iy)] = c
 
         # ---- 区域分割：把地图分成 num_uavs 个区域 ----

@@ -37,6 +37,24 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(self.core.offer('uav_2', task(), .1), [])
         self.assertEqual(self.core.locks[('target', 't0')]['owner'], 'uav_1')
 
+    def test_pending_target_handoff_cannot_interrupt_second_searcher(self):
+        self.core.offer('uav_1', task(typ=0, cell=1), 0.)
+        self.core.offer('uav_2', task(typ=0, cell=2), .1)
+        self.core.offer('uav_1', task(), .2)
+        self.assertEqual(self.core.intended_owner(('target','t0')), 'uav_1')
+        self.assertEqual(self.core.offer('uav_2', task(), .3), [])
+        self.assertFalse(self.core.active['uav_2']['stopping'])
+        self.assertNotIn('uav_2', self.core.pending)
+        self.assertEqual(self.core.events[-1]['event'], 'TASK_INTENT_BLOCKED')
+
+    def test_cancelled_intent_does_not_release_old_search_occupancy(self):
+        self.core.offer('uav_1', task(typ=0, cell=1), 0.)
+        self.core.offer('uav_1', task(), .1)
+        self.core.offer('uav_1', task('t1'), .2)
+        self.assertIsNone(self.core.intended_owner(('target','t0')))
+        self.assertEqual(self.core.intended_owner(('target','t1')), 'uav_1')
+        self.assertIn(('search',1,0), self.core.locks)
+
     def test_refresh_preserves_unique_owner_and_fences_old_generation(self):
         old = self.core.offer('uav_1', task(), 0.)[0]
         self.gate.receive(old, 0.)
@@ -80,6 +98,8 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(self.core.offer('uav_2', task(), 1.5), [])
         self.ack(1.6, xyz=(5., 0., 4.), status='STATE')
         messages = self.core.tick(1.7)
+        self.assertFalse(any(m['uav_id'] == 'uav_2' for m in messages))
+        messages = self.core.offer('uav_2', task(), 1.8)
         self.assertTrue(any(m['uav_id'] == 'uav_2' and m['action'] == 'GRANT' for m in messages))
 
     def test_expiry_never_releases_lock(self):

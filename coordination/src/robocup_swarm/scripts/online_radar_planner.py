@@ -13,6 +13,16 @@ def fixture_seed(path, run_id, uid):
     world = Path(certificate['world_path']).read_bytes()
     root = ET.fromstring(world)
     node = root.find('world')
+    if certificate.get('schema_version') == 3:
+        point = certificate['positions'][uid]
+        check = certificate['startup_checks'][uid]
+        if (certificate.get('purpose') != 'DEVELOPMENT_CITY_STARTUP'
+                or certificate['run_id'] != run_id or node is None
+                or hashlib.sha256(world).hexdigest() != certificate['world_sha256']
+                or len(point) != 2 or not all(math.isfinite(v) for v in point)
+                or check.get('free_radius_m') != 2.):
+            raise ValueError('Invalid city startup configuration')
+        return tuple(point)
     if (certificate['schema_version'] not in (1, 2) or certificate['run_id'] != run_id
             or hashlib.sha256(world).hexdigest() != certificate['world_sha256']
             or node is None or node.findall('actor') or node.findall('plugin')
@@ -74,11 +84,15 @@ class OnlinePlanner:
         body_cells = set()
         center = base.world_to_cell(position)
         if center is not None:
-            extent = math.ceil(self.radius/base.resolution)
+            # Inflation tests cell centers out to radius + half a cell. Retain
+            # the same already-certified footprint; the smaller disk erased
+            # diagonal startup cells and made our own start become occupied.
+            retained_radius = self.radius+base.resolution/2
+            extent = math.ceil(retained_radius/base.resolution)
             for dy in range(-extent, extent+1):
                 for dx in range(-extent, extent+1):
                     cell = center[0]+dx, center[1]+dy
-                    if base.in_bounds(cell) and math.dist(base.cell_to_world(cell), position) <= self.radius:
+                    if base.in_bounds(cell) and math.dist(base.cell_to_world(cell), position) <= retained_radius:
                         body_cells.add(cell[1]*base.width+cell[0])
         # Carry only already certified free cells under the current protected footprint.
         # New unknown cells are never added. Fresh hits revoke the carried certificate.

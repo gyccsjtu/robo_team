@@ -7,9 +7,10 @@ import shutil
 import time
 import uuid
 from fixture_contacts import classify, sonar_virtual_collisions
+from evidence_writer import JsonlEvidence
 
 
-def run(out, wiring, spawn, env, seconds):
+def run(out, wiring, spawn, env, seconds, actor_probe=False):
     import rospy
     from gazebo_msgs.msg import ModelStates, ContactsState
     from mavros_msgs.msg import State, PositionTarget
@@ -59,26 +60,29 @@ def run(out, wiring, spawn, env, seconds):
     contact_samples, box_contacts = {}, []
     virtual_contacts = set()
     sonar_intersections = 0
-    contact_record = (out / 'fixture_contacts.jsonl').open('w') if obstacle_fixture else None
+    contact_record = JsonlEvidence(out / 'fixture_contacts.jsonl') if obstacle_fixture else None
     virtual = set()
     if obstacle_fixture:
         model_root = next(Path(p) for p in env['GAZEBO_MODEL_PATH'].split(':') if p and (Path(p)/'sonar/model.sdf').is_file())
         virtual = sonar_virtual_collisions(model_root, ids)
         shutil.copy2(model_root/'sonar/model.sdf', out/'sonar_source.sdf')
-    record = (out / 'six_truth.jsonl').open('w')
-    execution_record = (out/'executor_telemetry.jsonl').open('w')
+    record = JsonlEvidence(out / 'six_truth.jsonl')
+    execution_record = JsonlEvidence(out/'executor_telemetry.jsonl')
     command_counts = {uid: 0 for uid in ids}
+    actor_observer = None
 
     def execution_cb(msg, uid):
+        if actor_observer is not None:
+            actor_observer.observe_command(uid, msg)
         command_counts[uid] += 1
-        execution_record.write(json.dumps(dict(kind='raw_setpoint', uav_id=uid,
+        execution_record.write(dict(kind='raw_setpoint', uav_id=uid,
             sample_s=msg.header.stamp.to_sec(), frame=msg.coordinate_frame, mask=msg.type_mask,
             local_position=[msg.position.x,msg.position.y,msg.position.z],
-            velocity=[msg.velocity.x,msg.velocity.y,msg.velocity.z], yaw_rate=msg.yaw_rate))+'\n')
+            velocity=[msg.velocity.x,msg.velocity.y,msg.velocity.z], yaw_rate=msg.yaw_rate))
 
     def motion_cb(msg):
-        execution_record.write(json.dumps(dict(kind='motion_state', received_s=rospy.Time.now().to_sec(),
-                                               message=json.loads(msg.data)))+'\n')
+        execution_record.write(dict(kind='motion_state', received_s=rospy.Time.now().to_sec(),
+                                               message=json.loads(msg.data)))
 
     def truth_cb(message):
         now = rospy.Time.now().to_sec()
@@ -91,7 +95,7 @@ def run(out, wiring, spawn, env, seconds):
                 sample['positions'][uid] = [pose.x, pose.y, pose.z]
         if len(sample['positions']) == 6:
             truth.append(sample)
-            record.write(json.dumps(sample) + '\n')
+            record.write(sample)
 
     def assignment_cb(message):
         command = json.loads(message.data)
@@ -111,7 +115,7 @@ def run(out, wiring, spawn, env, seconds):
                 kind = classify(state.collision1_name, state.collision2_name, ids, virtual)
                 item = dict(sample_s=msg.header.stamp.to_sec(), box=index, classification=kind,
                             collision1=state.collision1_name, collision2=state.collision2_name)
-                contact_record.write(json.dumps(item)+'\n')
+                contact_record.write(item)
                 if kind == 'UAV_BODY_CONTACT':
                     box_contacts.append(item)
                 elif kind == 'SONAR_SENSOR_INTERSECTION':
@@ -131,6 +135,12 @@ def run(out, wiring, spawn, env, seconds):
                              lambda msg, uid=row['uav_id']: observed_maps.update({uid: msg})))
     processes = []
     try:
+        if actor_probe:
+            from flight_actor_probe import FlightActorProbe
+            actor_observer = FlightActorProbe(out, snapshot, flight_env, spawn)
+            processes.extend(actor_observer.processes)
+            (out / 'swarm_source_manifest.json').write_text(json.dumps({str(p.relative_to(snapshot)):
+                hashlib.sha256(p.read_bytes()).hexdigest() for p in snapshot.rglob('*') if p.is_file()}, indent=2))
         processes.append(spawn(['python3', str(scripts / 'swarm_manager.py'), '_uav_ids:=' + ','.join(ids)], 'swarm_manager', flight_env))
         for index, row in enumerate(wiring['uavs']):
             uid = row['uav_id']
@@ -145,6 +155,8 @@ def run(out, wiring, spawn, env, seconds):
                 raise RuntimeError('SIX_SEARCH_SIM_TIME_TIMEOUT')
             if any(p.poll() is not None for p in processes):
                 raise RuntimeError('SIX_SEARCH_CONTROLLER_EXIT')
+            if actor_observer is not None and truth and 0 <= rospy.Time.now().to_sec()-truth[-1]['sim_s'] <= .2:
+                actor_observer.tick(truth[-1]['positions'])
             time.sleep(.2)
         if not truth:
             raise RuntimeError('SIX_SEARCH_TRUTH_MISSING')
@@ -201,6 +213,9 @@ def run(out, wiring, spawn, env, seconds):
                 reasons.append('BOX_CONTACT_EVIDENCE_MISSING_OR_STALE')
             if not any(count['occupied'] > 0 for count in map_counts.values()):
                 reasons.append('RADAR_OBSTACLE_OBSERVATION_MISSING')
+        actor_result = actor_observer.summary(truth) if actor_observer is not None else {}
+        if actor_probe and not actor_result['physical_visual_tracking_verified']:
+            reasons.append('PHYSICAL_VISUAL_TRACKING_EVIDENCE_INCOMPLETE')
         verified = not reasons
         return dict(status='SIX_SEARCH_FLIGHT_OBSERVED' if verified else 'SIX_SEARCH_FLIGHT_INCOMPLETE',
                     prototype_search_verified=verified, simulated_seconds=rospy.Time.now().to_sec()-start,
@@ -216,8 +231,10 @@ def run(out, wiring, spawn, env, seconds):
                     obstacle_fixture=obstacle_fixture, minimum_box_clearance_m=min_box_clearance,
                     box_contact_observation_verified=contact_verified, box_contacts=box_contacts,
                     sonar_sensor_intersections=sonar_intersections, verified_virtual_collision_names=sorted(virtual_contacts),
-                    formal_competition_pass=False, fixture_only=True)
+                    formal_competition_pass=False, fixture_only=True, **actor_result)
     finally:
+        if actor_observer is not None:
+            actor_observer.close()
         for subscriber in subscriptions:
             subscriber.unregister()
         record.close()

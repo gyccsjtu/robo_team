@@ -106,6 +106,11 @@ class TaskAuthority:
         self._event('TASK_GRANTED', uid, now, generation=generation, key=list(key))
         return [self._message(uid, active, 'GRANT', now)]
 
+    def intended_owner(self, key):
+        if key in self.locks:
+            return self.locks[key]['owner']
+        return next((uid for uid, task in self.pending.items() if self._key(uid, task) == key), None)
+
     def offer(self, uid, task, now):
         self._time(now)
         if self.closed:
@@ -113,6 +118,10 @@ class TaskAuthority:
         if uid not in self.fleet:
             raise ValueError('UNKNOWN_UAV')
         key = self._key(uid, task)
+        owner = self.intended_owner(key)
+        if key[0] == 'target' and owner is not None and owner != uid:
+            self._event('TASK_INTENT_BLOCKED', uid, now, key=list(key), owner=owner)
+            return []
         active = self.active.get(uid)
         if active and not active['stopping'] and active['key'] == key and now < active['expires_s']:
             active['task'] = copy.deepcopy(task)
