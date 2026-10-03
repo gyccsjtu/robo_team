@@ -1,0 +1,317 @@
+{
+  "weights": "best_yolo11n_bino_v2_neg.pt",
+  "names": {
+    "0": "red",
+    "1": "green",
+    "2": "blue",
+    "3": "white",
+    "4": "brown"
+  },
+  "confidence": 0.4,
+  "rows": [
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_3_green_003.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.8811,
+          "xyxy": [
+            137.5,
+            237.2,
+            165.7,
+            286.7
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_3_green_005.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.8159,
+          "xyxy": [
+            175.9,
+            230.7,
+            198.9,
+            270.6
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_3_green_007.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.8202,
+          "xyxy": [
+            198.1,
+            227.2,
+            216.2,
+            266.4
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_3_green_009.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.8013,
+          "xyxy": [
+            209.6,
+            226.3,
+            225.1,
+            265.7
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_3_green_011.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.8537,
+          "xyxy": [
+            216.9,
+            224.8,
+            233.6,
+            262.7
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_4_red1_001.png",
+      "dets": []
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_4_red1_002.png",
+      "dets": [
+        {
+          "cls": 0,
+          "conf": 0.8311,
+          "xyxy": [
+            75.7,
+            208.7,
+            92.1,
+            237.2
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_4_red1_003.png",
+      "dets": [
+        {
+          "cls": 0,
+          "conf": 0.6932,
+          "xyxy": [
+            76.9,
+            210.8,
+            91.1,
+            239.0
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_4_red1_004.png",
+      "dets": [
+        {
+          "cls": 0,
+          "conf": 0.5876,
+          "xyxy": [
+            77.9,
+            211.1,
+            93.7,
+            240.9
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_4_red1_005.png",
+      "dets": [
+        {
+          "cls": 0,
+          "conf": 0.7517,
+          "xyxy": [
+            77.3,
+            213.1,
+            91.1,
+            245.2
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_5_white_001.png",
+      "dets": [
+        {
+          "cls": 3,
+          "conf": 0.8669,
+          "xyxy": [
+            362.3,
+            261.3,
+            386.8,
+            329.9
+          ]
+        },
+        {
+          "cls": 1,
+          "conf": 0.4657,
+          "xyxy": [
+            313.7,
+            199.5,
+            321.3,
+            214.9
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_5_white_002.png",
+      "dets": [
+        {
+          "cls": 3,
+          "conf": 0.8567,
+          "xyxy": [
+            335.1,
+            251.4,
+            357.2,
+            309.2
+          ]
+        },
+        {
+          "cls": 1,
+          "conf": 0.5467,
+          "xyxy": [
+            579.2,
+            240.4,
+            596.6,
+            263.5
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_5_white_003.png",
+      "dets": [
+        {
+          "cls": 3,
+          "conf": 0.8581,
+          "xyxy": [
+            313.2,
+            245.2,
+            340.3,
+            299.8
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames/uav_5_white_004.png",
+      "dets": [
+        {
+          "cls": 3,
+          "conf": 0.9002,
+          "xyxy": [
+            296.6,
+            238.3,
+            325.6,
+            291.9
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames_after_red/uav_3_green_001.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.7501,
+          "xyxy": [
+            533.9,
+            212.6,
+            545.0,
+            236.9
+          ]
+        },
+        {
+          "cls": 1,
+          "conf": 0.5124,
+          "xyxy": [
+            415.3,
+            195.5,
+            422.7,
+            210.5
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames_after_red/uav_3_green_002.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.6362,
+          "xyxy": [
+            593.0,
+            216.7,
+            604.6,
+            245.5
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames_after_red/uav_4_green_003.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.6245,
+          "xyxy": [
+            215.9,
+            201.1,
+            223.8,
+            220.2
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames_after_red/uav_4_green_004.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.8143,
+          "xyxy": [
+            194.6,
+            206.9,
+            205.8,
+            229.8
+          ]
+        }
+      ]
+    },
+    {
+      "file": "/root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames_after_red/uav_4_green_005.png",
+      "dets": [
+        {
+          "cls": 1,
+          "conf": 0.8349,
+          "xyxy": [
+            162.5,
+            214.3,
+            176.1,
+            242.1
+          ]
+        }
+      ]
+    }
+  ]
+}
