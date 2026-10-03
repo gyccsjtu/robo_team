@@ -1,0 +1,58 @@
+{
+  "stop_reason": "USER_REQUEST_PAUSE_SIMULATION_AND_PUSH_CODE",
+  "simulated_seconds": 87.60400000000004,
+  "highest_world_altitude_m": 4.139939468099666,
+  "remaining": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "official_targets_eliminated": 0,
+  "non_ground_contact_log_rows": 3,
+  "first_non_ground_contact": {
+    "kind": "UAV_BODY_CONTACT",
+    "sample_s": 1992.796,
+    "collision1": "gas_station_73::link::collision",
+    "collision2": "typhoon_h480_5::left_leg::collision"
+  },
+  "first_contact_trajectory": {
+    "sample_s": 1992.796,
+    "positions": {
+      "uav_1": [
+        -1.928371167849357,
+        -4.709530638254058,
+        3.2287428306384114
+      ],
+      "uav_2": [
+        -12.644276694247504,
+        -11.98929876039515,
+        3.256864955892153
+      ],
+      "uav_3": [
+        -17.58206496917042,
+        -0.40782576324719927,
+        3.1330750439358326
+      ],
+      "uav_4": [
+        14.629219504557492,
+        0.5132246609257081,
+        3.2293522011539704
+      ],
+      "uav_5": [
+        -10.269092116114255,
+        2.6532707169170955,
+        3.244986959457696
+      ],
+      "uav_6": [
+        0.8849796834976748,
+        13.376220543698858,
+        3.309375252317359
+      ]
+    }
+  },
+  "formal_competition_pass": false,
+  "six_target_goal_complete": false
+}

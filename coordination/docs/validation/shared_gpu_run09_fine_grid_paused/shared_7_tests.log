@@ -1,0 +1,13 @@
+test_client_holds_no_cuda (__main__.TestClientIsolation) ... ok
+test_cpu_device_refused (__main__.TestServiceContract)
+Serving on CPU would add a hop without saving anything. ... ok
+test_green_verifier_rejects_real_garbage_bin_frame (__main__.TestServiceContract) ... ok
+test_malformed_request_survives (__main__.TestServiceContract) ... ok
+test_parity_on_real_frame (__main__.TestServiceContract) ... ok
+test_ready_and_single_reply (__main__.TestServiceContract) ... ok
+test_six_clients_throughput (__main__.TestServiceContract) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 24.074s
+
+OK

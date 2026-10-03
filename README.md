@@ -1,5 +1,7 @@
 # RoboCup 队友协同算法：雷达迁移分支
 
+**2026-10-04交接：** 当前分支已接六机城市仿真、共享GPU、视觉与开发裁判，但完整六目标和不撞墙尚未完成，最新实飞仍有加油站机体接触。仿真已按用户要求暂停。队友请先读 [完成项、失败证据、未完成项与启动方式](coordination/docs/TEAM_HANDOFF_20261004.md)，城市运行入口见 [city_swarm_quickstart.md](coordination/docs/city_swarm_quickstart.md)。下面的小场景入口与城市联调入口不同。
+
 实际修改的是 `coordination/src/robocup_swarm/scripts/swarm_task.py`、`swarm_manager.py`、`swarm_agent.py` 所在执行链。开发分支 `codex/radar-coordination-20261003`；不修改主干。
 
 当前机器已有可执行的六机雷达开发场景。Windows PowerShell：
