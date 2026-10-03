@@ -43,19 +43,26 @@ class SearchOccupancyTests(unittest.TestCase):
             self.assertFalse(apply_authority_release(grid,self.release(),'run',locks))
             self.assertEqual((self.cell.state,self.cell.owner),(state,owner))
 
-    def test_real_dispatch_rejected_by_distance_retains_old_search_cell(self):
+    def test_real_dispatch_outside_sensing_range_retains_cell_until_verified_stop(self):
         tree=ast.parse((SCRIPTS/'swarm_manager.py').read_text(encoding='utf-8'))
         cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='SwarmManager')
         function=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='_dispatch_tracker')
         scope=dict(math=math,STATE_ASSIGNED=STATE_ASSIGNED,CRUISE_SPEED=5.,DETECT_RADIUS=20.,DISPATCH_MARGIN=2.,
-            rospy=SimpleNamespace(loginfo=lambda *a:None,logwarn_throttle=lambda *a:None))
+            SearchAssignment=lambda:SimpleNamespace(header=SimpleNamespace(),target_id=''),
+            rospy=SimpleNamespace(loginfo=lambda *a:None,logwarn_throttle=lambda *a:None,
+                                  Time=SimpleNamespace(now=lambda:0.)))
         exec(compile(ast.Module(body=[function],type_ignores=[]),'swarm_manager.py','exec'),scope)
         grid=self.grid()
+        grid.x_min,grid.x_max,grid.y_min,grid.y_max=-100.,100.,-100.,100.
+        offers=[]
         manager=SimpleNamespace(_tracking={},_target_authority_held=lambda tid:False,_idle_uavs=lambda:[],
             _tracker_rank=lambda tid,uid,d:tracker_rank(uid,d,[],0.,18.),
+            _authorized_publish=offers.append,
             uav_ids=['uav_1'],status={'uav_1':SimpleNamespace(x=0.,y=0.,connected=True)},grid=grid)
         scope['_dispatch_tracker'](manager,'t0',50.,0.)
         self.assertEqual((self.cell.state,self.cell.owner,self.cell.lease_until),(STATE_ASSIGNED,'uav_1',2.))
+        self.assertEqual(len(offers),1)
+        self.assertEqual((offers[0].target_id,offers[0].task_type,offers[0].target_x),('t0',1,50.))
 
     def test_real_core_stop_then_exit_controls_auction_release(self):
         grid=self.grid()

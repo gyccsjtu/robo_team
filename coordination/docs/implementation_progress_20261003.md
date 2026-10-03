@@ -156,3 +156,7 @@ mkdir -p /root/robo_team_build/contact_audit
 g++ -std=c++17 coordination/scripts/city_contact_observer.cc -o /root/robo_team_build/contact_audit/city_contact_observer $(pkg-config --cflags --libs gazebo)
 /root/robo_team_build/contact_audit/city_contact_observer --self-test
 ```
+
+## 新鲜视觉坐标的接近任务（v1.9，待实飞）
+
+v1.8轮蓝色目标已有相机确认，候选机距目标18.5m，却被两处15m派遣门槛拒绝，继续搜索远离目标；这将感知距离误作接近任务距离。已从初次派遣和待派遣重试中移除硬距离拒绝，新鲜相机证据仍经原schema2与时间校验、目标授权、停稳交接及在线路线授权执行。无新坐标、不合法证据或旧持有者尚未退出均不产生新执行授权，目标消除仍只由裁判反馈决定。实际manager方法验证18.5m派遣、已有目标授权拒绝、缺失坐标拒绝；50m接近offer仍保留搜索格直到真实停稳交接，全套359项通过。当前物理轮为冻结v1.8，此修改尚未进入实飞，不把测试派遣当作目标消除。

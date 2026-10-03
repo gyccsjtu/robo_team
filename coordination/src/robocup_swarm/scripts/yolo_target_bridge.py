@@ -12,8 +12,9 @@
   /swarm/confirmed_visual_observation：激活后转发原schema2证据，供实际manager/agent复验。
   /swarm/target_states：融合/预测诊断，生产执行不以此旧runless话题更新目标。
 
-身份映射与官方裁判一致（score_cal.py:16）：
-  green→t0(actor_0) blue→t1 brown→t2 white→t3 red1→t5 red2→t4
+非红色身份映射：green→t0(actor_0) blue→t1 brown→t2 white→t3。
+red1→t5、red2→t4仅为内部几何轨迹槽，不表示官方红色人物身份；
+对外统一上报red和坐标，按用户转述的赛事组口径匹配任一红色真值。
 
 合规说明：本节点不订阅 /gazebo/model_states、/gazebo/link_states，
 不读 obstacle.txt / black_box.txt，不启动 target_sim。
@@ -31,7 +32,7 @@ from visual_observation import VisualEvidence, TAG_TO_TID
 from search_completion import parse_actor_list
 from red_observations import RedObservations, actor_slot_remaining
 
-# ---- 身份映射（对齐 ~/XTDrone/robocup/score_cal.py 的 actor_id_dict）----
+# ---- 非红色身份与内部红色几何槽（红色槽不声明actor身份）----
 TAG_TO_TID = {
     "green": "t0",
     "blue": "t1",

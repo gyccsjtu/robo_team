@@ -726,13 +726,9 @@ class SwarmManager(object):
                     best, best_d = uid, d
             if best is None:
                 continue
-            # 距离余量：只派遣 DETECT_RADIUS 内且有 3m 余量的飞机，
-            # 避免边界处目标飞出视野导致跟丢。
-            if best_d >= DETECT_RADIUS - DISPATCH_MARGIN:
-                rospy.loginfo_throttle(5.0,
-                    "[manager] 目标 %s 最近机 %s 距 %.1fm ≥ 派遣阈值 %.1fm，暂不派遣",
-                    tid, best, best_d, DETECT_RADIUS - DISPATCH_MARGIN)
-                continue
+            # A confirmed camera coordinate permits an approach from outside
+            # the sensing radius. Freshness, task ownership and route authority
+            # govern execution; waiting to be within 15m prevents rendezvous.
             self._tracking[tid] = best
             # CooperativeTracker 的协同关键：派出去的追踪机必须登记为 observer，
             # 否则它看到的观测会被忽略（规则5 需要多机接力 + 误差/间隔判定）。
@@ -893,16 +889,9 @@ class SwarmManager(object):
         if best_uav is None:
             return
 
-        # P2 修复：派遣距离余量。DETECT_RADIUS=20m 是感知上限，贴边派遣后
-        # 目标稍微移动就出视野，6s 内跟丢（实测 dist=19.924 派遣后 6s 跟丢）。
-        # 要求 best_dist < DETECT_RADIUS - DISPATCH_MARGIN 才派遣，否则等更近的
-        # 飞机/目标靠近，避免无效派遣占机。
-        _disp_limit = DETECT_RADIUS - DISPATCH_MARGIN
-        if best_dist >= _disp_limit:
-            rospy.loginfo(
-                "[manager] 目标 %s 最近机 %s 距 %.1fm ≥ 派遣阈值 %.1fm，暂不派遣",
-                target_id, best_uav, best_dist, _disp_limit)
-            return
+        # Detection range describes observation, not permitted approach travel.
+        # This caller already accepted current confirmed camera evidence. Route
+        # and task authorities still stop/reassign the aircraft before execution.
 
         # 发布追踪任务（task_type=1）
         # 2026-10-01 修复：① target_id 必须填上——agent 侧 _orbit_target 靠它
