@@ -1,0 +1,21 @@
+{
+  "simulated_seconds": 301.53599999999983,
+  "highest_world_altitude_m": 4.344349942892145,
+  "remaining": [
+    0,
+    1,
+    2,
+    3,
+    5
+  ],
+  "collision_verified": true,
+  "first_non_ground_contact": {
+    "kind": "UAV_BODY_CONTACT",
+    "sample_s": 2148.828,
+    "collision1": "gas_station_73::link::collision",
+    "collision2": "typhoon_h480_0::base_link::base_link_collision"
+  },
+  "non_ground_contact_log_rows": 314,
+  "formal_competition_pass": false,
+  "interrupted_to_apply_reproduced_canopy_and_quantization_fixes": true
+}

@@ -1,0 +1,383 @@
+[INFO] [1791044206.056855, 0.000000]: swarm_agent 启动: uav_id=uav_6 model=typhoon_h480_5 node=swarm_agent_uav_6
+[INFO] [1791044207.061541, 1931.572000]: [uav_6] MAVROS 已连接
+[INFO] [1791044207.065836, 1931.572000]: [uav_6] 坐标系标定（参数）：offset=(3.00, 3.00)
+[INFO] [1791044211.978313, 1932.360000]: [uav_6] Single-EKF startup parameters read back and verified
+[INFO] [1791044211.983832, 1932.360000]: [uav_6] FCU autonomous-flight parameters read back and verified
+[INFO] [1791044223.852113, 1934.264000]: [uav_6] EKF 已稳定（z=-0.09，连续 40 次采样达标）
+[INFO] [1791044264.808048, 1940.816000]: [uav_6] 已进入 OFFBOARD（重试 1 次）
+[INFO] [1791044271.075725, 1941.816000]: [uav_6] OFFBOARD + 解锁完成（解锁重试 1 次）
+[INFO] [1791044271.077779, 1941.816000]: [uav_6] 开始协同搜索（高度层 3.5 m），等待管理器分配任务
+[INFO] [1791044303.866345, 1947.064000]: [uav_6] 已爬升到 2.5m，开始水平机动
+[INFO] [1791044303.977200, 1947.080000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=25
+[INFO] [1791044303.982337, 1947.080000]: [uav_6] ROUTE_COMMITTED offer=2 points=46
+[INFO] [1791044307.619372, 1947.664000]: [ALGO] ORCA uav=uav_6 in=(0.80,-0.00) out=(0.80,-0.00) n_halfplanes=0 min_friend_d3=3.00m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044310.261878, 1948.084000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=27
+[INFO] [1791044310.272347, 1948.084000]: [uav_6] ROUTE_COMMITTED offer=3 points=56
+[INFO] [1791044311.067657, 1948.216000]: [ALGO] ORCA uav=uav_6 in=(0.38,0.70) out=(0.38,0.70) n_halfplanes=0 min_friend_d3=3.00m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044314.493074, 1948.764000]: [ALGO] ORCA uav=uav_6 in=(0.24,0.76) out=(0.24,0.76) n_halfplanes=0 min_friend_d3=3.17m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044316.499733, 1949.084000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=29
+[INFO] [1791044316.509303, 1949.084000]: [uav_6] ROUTE_COMMITTED offer=4 points=47
+[WARN] [1791044317.317962, 1949.216000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044317.941789, 1949.316000]: [ALGO] ORCA uav=uav_6 in=(0.80,0.01) out=(0.80,0.01) n_halfplanes=0 min_friend_d3=3.57m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044331.696332, 1951.516000]: [uav_6] 收到目标追踪任务 t4 @ (12.8, -0.3)
+[INFO] [1791044332.154011, 1951.584000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=34
+[INFO] [1791044332.161763, 1951.588000]: [uav_6] ROUTE_COMMITTED offer=6 points=29
+[INFO] [1791044332.332987, 1951.616000]: [ALGO] ORCA uav=uav_6 in=(0.80,-0.06) out=(0.80,-0.06) n_halfplanes=0 min_friend_d3=3.88m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044335.745749, 1952.164000]: [ALGO] ORCA uav=uav_6 in=(0.80,-0.05) out=(0.80,-0.05) n_halfplanes=0 min_friend_d3=3.84m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044338.096961, 1952.536000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=36
+[INFO] [1791044338.101822, 1952.540000]: [uav_6] ROUTE_COMMITTED offer=7 points=7
+[WARN] [1791044338.247171, 1952.564000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044339.197958, 1952.716000]: [ALGO] ORCA uav=uav_6 in=(-0.67,-0.44) out=(-0.67,-0.44) n_halfplanes=0 min_friend_d3=3.89m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044340.121319, 1952.864000]: [uav_6] fleet_guard=PREDICTED_APPROACH_STOP
+[INFO] [1791044342.620478, 1953.264000]: [ALGO] ORCA uav=uav_6 in=(-0.87,-0.47) out=(-0.87,-0.47) n_halfplanes=0 min_friend_d3=3.90m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044344.362844, 1953.540000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=38
+[INFO] [1791044344.366358, 1953.540000]: [uav_6] ROUTE_COMMITTED offer=8 points=7
+[INFO] [1791044346.076556, 1953.816000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.37) out=(-0.80,-0.37) n_halfplanes=0 min_friend_d3=3.75m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044349.498159, 1954.364000]: [ALGO] ORCA uav=uav_6 in=(-0.67,-0.23) out=(-0.67,-0.23) n_halfplanes=0 min_friend_d3=3.53m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044350.634623, 1954.544000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=40
+[INFO] [1791044350.638396, 1954.544000]: [uav_6] ROUTE_COMMITTED offer=9 points=6
+[INFO] [1791044352.950732, 1954.916000]: [ALGO] ORCA uav=uav_6 in=(-0.81,-0.06) out=(-0.81,-0.06) n_halfplanes=0 min_friend_d3=3.21m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044356.372521, 1955.464000]: [ALGO] ORCA uav=uav_6 in=(-0.51,0.07) out=(-0.51,0.07) n_halfplanes=0 min_friend_d3=2.97m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044356.896499, 1955.544000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=42
+[INFO] [1791044356.902526, 1955.548000]: [uav_6] ROUTE_COMMITTED offer=10 points=5
+[INFO] [1791044359.840010, 1956.016000]: [ALGO] ORCA uav=uav_6 in=(-0.25,0.12) out=(-0.25,0.12) n_halfplanes=0 min_friend_d3=2.85m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044363.146928, 1956.544000]: [uav_6] ONLINE_PLAN NO_REACHABLE_PROGRESS version=44
+[INFO] [1791044363.249041, 1956.564000]: [ALGO] ORCA uav=uav_6 in=(-0.11,0.12) out=(-0.11,0.12) n_halfplanes=0 min_friend_d3=2.84m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044366.700882, 1957.116000]: [ALGO] ORCA uav=uav_6 in=(-0.03,0.10) out=(-0.03,0.10) n_halfplanes=0 min_friend_d3=2.87m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044369.406521, 1957.548000]: [uav_6] ONLINE_PLAN NO_REACHABLE_PROGRESS version=46
+[INFO] [1791044370.127471, 1957.664000]: [ALGO] ORCA uav=uav_6 in=(-0.01,0.06) out=(-0.01,0.06) n_halfplanes=0 min_friend_d3=2.91m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044375.686365, 1958.552000]: [uav_6] ONLINE_PLAN NO_REACHABLE_PROGRESS version=48
+[INFO] [1791044377.325338, 1958.816000]: [ALGO] ORCA uav=uav_6 in=(-0.03,0.03) out=(-0.03,0.03) n_halfplanes=0 min_friend_d3=2.95m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044380.761205, 1959.364000]: [ALGO] ORCA uav=uav_6 in=(-0.04,0.03) out=(-0.04,0.03) n_halfplanes=0 min_friend_d3=3.01m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044383.845223, 1959.856000]: [uav_6] ONLINE_PLAN NO_REACHABLE_PROGRESS version=51
+[INFO] [1791044384.202823, 1959.916000]: [ALGO] ORCA uav=uav_6 in=(-0.05,0.02) out=(-0.05,0.02) n_halfplanes=0 min_friend_d3=3.14m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044389.205464, 1960.716000]: [ALGO] ORCA uav=uav_6 in=(-0.05,0.03) out=(-0.05,0.03) n_halfplanes=0 min_friend_d3=3.44m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044392.631468, 1961.264000]: [ALGO] ORCA uav=uav_6 in=(-0.05,0.03) out=(-0.05,0.03) n_halfplanes=0 min_friend_d3=3.70m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044396.079412, 1961.816000]: [ALGO] ORCA uav=uav_6 in=(-0.05,0.03) out=(-0.05,0.03) n_halfplanes=0 min_friend_d3=4.07m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044396.678546, 1961.908000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=55
+[INFO] [1791044396.701275, 1961.912000]: [uav_6] ROUTE_COMMITTED offer=15 points=38
+[INFO] [1791044399.504282, 1962.364000]: [ALGO] ORCA uav=uav_6 in=(0.80,0.01) out=(0.80,0.01) n_halfplanes=0 min_friend_d3=4.43m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044401.120498, 1962.604000]: [uav_6] 放弃盘旋 t4：t4 已被官方消除，回归搜索
+[INFO] [1791044401.529158, 1962.668000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=56
+[INFO] [1791044401.552008, 1962.672000]: [uav_6] ROUTE_COMMITTED offer=16 points=40
+[INFO] [1791044477.023061, 1974.744000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=81
+[INFO] [1791044477.051905, 1974.748000]: [uav_6] ROUTE_COMMITTED offer=18 points=41
+[INFO] [1791044477.140012, 1974.764000]: [ALGO] ORCA uav=uav_6 in=(-0.36,0.71) out=(-0.36,0.71) n_halfplanes=0 min_friend_d3=6.22m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044480.586182, 1975.316000]: [ALGO] ORCA uav=uav_6 in=(-0.36,0.72) out=(-0.36,0.72) n_halfplanes=0 min_friend_d3=6.23m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044483.190246, 1975.728000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=83
+[INFO] [1791044483.221935, 1975.736000]: [uav_6] ROUTE_COMMITTED offer=19 points=41
+[INFO] [1791044484.013347, 1975.864000]: [ALGO] ORCA uav=uav_6 in=(-0.41,0.68) out=(-0.41,0.68) n_halfplanes=0 min_friend_d3=6.29m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044487.461757, 1976.416000]: [ALGO] ORCA uav=uav_6 in=(-0.29,0.75) out=(-0.29,0.75) n_halfplanes=0 min_friend_d3=6.36m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044489.459840, 1976.732000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=85
+[INFO] [1791044489.490756, 1976.740000]: [uav_6] ROUTE_COMMITTED offer=20 points=38
+[INFO] [1791044490.895062, 1976.964000]: [ALGO] ORCA uav=uav_6 in=(-0.29,0.75) out=(-0.29,0.75) n_halfplanes=0 min_friend_d3=6.50m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044494.337794, 1977.516000]: [ALGO] ORCA uav=uav_6 in=(-0.31,0.74) out=(-0.31,0.74) n_halfplanes=0 min_friend_d3=6.69m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044495.742787, 1977.740000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=87
+[INFO] [1791044495.773011, 1977.744000]: [uav_6] ROUTE_COMMITTED offer=21 points=37
+[INFO] [1791044497.764834, 1978.064000]: [ALGO] ORCA uav=uav_6 in=(-0.66,0.45) out=(-0.66,0.45) n_halfplanes=0 min_friend_d3=6.87m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044501.213279, 1978.616000]: [ALGO] ORCA uav=uav_6 in=(-0.71,0.36) out=(-0.71,0.36) n_halfplanes=0 min_friend_d3=6.95m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044502.006426, 1978.740000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=89
+[INFO] [1791044502.032844, 1978.744000]: [uav_6] ROUTE_COMMITTED offer=22 points=34
+[INFO] [1791044504.642085, 1979.164000]: [ALGO] ORCA uav=uav_6 in=(-0.77,0.23) out=(-0.77,0.23) n_halfplanes=0 min_friend_d3=6.95m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044508.124552, 1979.720000]: [ALGO] ORCA uav=uav_6 in=(-0.79,0.10) out=(-0.79,0.10) n_halfplanes=0 min_friend_d3=6.90m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044508.302129, 1979.748000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=91
+[INFO] [1791044508.328769, 1979.752000]: [uav_6] ROUTE_COMMITTED offer=23 points=32
+[INFO] [1791044511.519645, 1980.264000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.05) out=(-0.80,0.05) n_halfplanes=0 min_friend_d3=6.81m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044514.557939, 1980.748000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=93
+[INFO] [1791044514.581495, 1980.752000]: [uav_6] ROUTE_COMMITTED offer=24 points=30
+[INFO] [1791044514.978225, 1980.816000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.03) out=(-0.80,0.03) n_halfplanes=0 min_friend_d3=6.67m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044518.392415, 1981.364000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.02) out=(-0.80,0.02) n_halfplanes=0 min_friend_d3=6.55m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044520.610780, 1981.716000]: [uav_6] 官方重置了 t3 的确认（第 1 次）
+[INFO] [1791044520.796879, 1981.748000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=95
+[INFO] [1791044520.816113, 1981.748000]: [uav_6] ROUTE_COMMITTED offer=25 points=28
+[INFO] [1791044521.841667, 1981.916000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.00) out=(-0.80,0.00) n_halfplanes=0 min_friend_d3=6.44m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044525.269375, 1982.464000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.00) out=(-0.80,-0.00) n_halfplanes=0 min_friend_d3=6.36m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044526.223808, 1982.616000]: [uav_6] 官方重置了 t3 的确认（第 2 次）
+[INFO] [1791044527.051100, 1982.748000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=97
+[INFO] [1791044527.078621, 1982.752000]: [uav_6] ROUTE_COMMITTED offer=26 points=27
+[INFO] [1791044528.737867, 1983.016000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.01) out=(-0.80,-0.01) n_halfplanes=0 min_friend_d3=6.30m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044532.152170, 1983.564000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.02) out=(-0.80,-0.02) n_halfplanes=0 min_friend_d3=6.27m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044533.304692, 1983.748000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=99
+[INFO] [1791044533.327076, 1983.752000]: [uav_6] ROUTE_COMMITTED offer=27 points=25
+[INFO] [1791044535.595139, 1984.116000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.02) out=(-0.80,-0.02) n_halfplanes=0 min_friend_d3=6.26m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044539.027356, 1984.664000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.03) out=(-0.80,-0.03) n_halfplanes=0 min_friend_d3=6.27m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044539.511292, 1984.740000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=101
+[INFO] [1791044539.531700, 1984.744000]: [uav_6] ROUTE_COMMITTED offer=28 points=24
+[WARN] [1791044539.977204, 1984.816000]: [uav_6] 官方重置了 t3 的确认（第 3 次）
+[INFO] [1791044542.472160, 1985.216000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.03) out=(-0.80,-0.03) n_halfplanes=0 min_friend_d3=6.33m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044545.642121, 1985.720000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.03) out=(-0.80,-0.03) n_halfplanes=0 min_friend_d3=6.40m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044545.787698, 1985.744000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=103
+[INFO] [1791044545.806470, 1985.748000]: [uav_6] ROUTE_COMMITTED offer=29 points=22
+[INFO] [1791044549.025888, 1986.264000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.03) out=(-0.80,-0.03) n_halfplanes=0 min_friend_d3=6.50m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044551.973011, 1986.732000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=105
+[INFO] [1791044552.025522, 1986.740000]: [uav_6] ROUTE_COMMITTED offer=30 points=83
+[WARN] [1791044552.154983, 1986.764000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044552.491420, 1986.816000]: [ALGO] ORCA uav=uav_6 in=(0.80,-0.03) out=(0.80,-0.03) n_halfplanes=0 min_friend_d3=6.63m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044555.899349, 1987.364000]: [ALGO] ORCA uav=uav_6 in=(0.80,-0.02) out=(0.80,-0.02) n_halfplanes=0 min_friend_d3=6.70m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044558.226995, 1987.736000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=107
+[INFO] [1791044558.288615, 1987.744000]: [uav_6] ROUTE_COMMITTED offer=31 points=83
+[INFO] [1791044559.349838, 1987.916000]: [ALGO] ORCA uav=uav_6 in=(0.80,-0.03) out=(0.80,-0.03) n_halfplanes=0 min_friend_d3=6.64m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044562.775303, 1988.464000]: [ALGO] ORCA uav=uav_6 in=(0.80,-0.02) out=(0.80,-0.02) n_halfplanes=0 min_friend_d3=6.52m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044564.459316, 1988.732000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=109
+[INFO] [1791044564.530612, 1988.744000]: [uav_6] ROUTE_COMMITTED offer=32 points=105
+[INFO] [1791044566.225990, 1989.016000]: [ALGO] ORCA uav=uav_6 in=(0.80,-0.02) out=(0.80,-0.02) n_halfplanes=0 min_friend_d3=6.40m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044569.385928, 1989.520000]: [ALGO] ORCA uav=uav_6 in=(0.80,-0.02) out=(0.80,-0.02) n_halfplanes=0 min_friend_d3=6.33m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044570.611096, 1989.716000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=111
+[INFO] [1791044570.637286, 1989.720000]: [uav_6] ROUTE_COMMITTED offer=33 points=53
+[WARN] [1791044570.902099, 1989.764000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044572.776917, 1990.064000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.01) out=(-0.80,-0.01) n_halfplanes=0 min_friend_d3=6.27m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044576.244833, 1990.616000]: [ALGO] ORCA uav=uav_6 in=(-0.80,-0.00) out=(-0.80,-0.00) n_halfplanes=0 min_friend_d3=6.24m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044576.916433, 1990.720000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=113
+[INFO] [1791044576.939001, 1990.728000]: [uav_6] ROUTE_COMMITTED offer=34 points=51
+[INFO] [1791044579.654377, 1991.164000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.01) out=(-0.80,0.01) n_halfplanes=0 min_friend_d3=6.23m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044583.114432, 1991.716000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.02) out=(-0.80,0.02) n_halfplanes=0 min_friend_d3=6.20m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044583.148617, 1991.720000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=115
+[INFO] [1791044583.171200, 1991.724000]: [uav_6] ROUTE_COMMITTED offer=35 points=50
+[INFO] [1791044586.528313, 1992.264000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.02) out=(-0.80,0.02) n_halfplanes=0 min_friend_d3=6.17m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044589.429747, 1992.724000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=117
+[INFO] [1791044589.455439, 1992.732000]: [uav_6] ROUTE_COMMITTED offer=36 points=49
+[INFO] [1791044589.996244, 1992.816000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.02) out=(-0.80,0.02) n_halfplanes=0 min_friend_d3=6.14m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044593.404639, 1993.364000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.02) out=(-0.80,0.02) n_halfplanes=0 min_friend_d3=6.12m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044595.688617, 1993.728000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=119
+[INFO] [1791044595.714483, 1993.732000]: [uav_6] ROUTE_COMMITTED offer=37 points=50
+[INFO] [1791044596.861832, 1993.916000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.01) out=(-0.80,0.01) n_halfplanes=0 min_friend_d3=6.09m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044600.285200, 1994.464000]: [ALGO] ORCA uav=uav_6 in=(-0.80,0.01) out=(-0.80,0.01) n_halfplanes=0 min_friend_d3=6.07m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044601.941033, 1994.724000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=121
+[INFO] [1791044601.964714, 1994.732000]: [uav_6] ROUTE_COMMITTED offer=38 points=50
+[INFO] [1791044603.750488, 1995.016000]: [ALGO] ORCA uav=uav_6 in=(-2.52,0.01) out=(-2.52,0.01) n_halfplanes=0 min_friend_d3=6.05m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044607.157877, 1995.564000]: [ALGO] ORCA uav=uav_6 in=(-2.45,-0.01) out=(-2.45,-0.01) n_halfplanes=0 min_friend_d3=6.07m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044608.147893, 1995.720000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=123
+[INFO] [1791044608.195276, 1995.728000]: [uav_6] ROUTE_COMMITTED offer=39 points=91
+[WARN] [1791044608.408419, 1995.764000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044610.609423, 1996.116000]: [ALGO] ORCA uav=uav_6 in=(0.72,-2.24) out=(0.72,-2.24) n_halfplanes=0 min_friend_d3=6.13m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044614.048106, 1996.664000]: [ALGO] ORCA uav=uav_6 in=(0.84,-2.27) out=(0.84,-2.27) n_halfplanes=0 min_friend_d3=6.10m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044614.466935, 1996.732000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=125
+[INFO] [1791044614.493170, 1996.736000]: [uav_6] ROUTE_COMMITTED offer=40 points=50
+[INFO] [1791044617.499182, 1997.216000]: [ALGO] ORCA uav=uav_6 in=(-2.52,-0.04) out=(-2.52,-0.04) n_halfplanes=0 min_friend_d3=6.00m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044620.670717, 1997.724000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=127
+[INFO] [1791044620.688389, 1997.728000]: [uav_6] ROUTE_COMMITTED offer=41 points=28
+[INFO] [1791044620.908076, 1997.764000]: [ALGO] ORCA uav=uav_6 in=(-2.15,-0.05) out=(-2.15,-0.05) n_halfplanes=0 min_friend_d3=6.03m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044624.360370, 1998.316000]: [ALGO] ORCA uav=uav_6 in=(-2.30,-0.06) out=(-2.30,-0.06) n_halfplanes=0 min_friend_d3=6.08m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044626.917183, 1998.720000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=129
+[INFO] [1791044626.942528, 1998.728000]: [uav_6] ROUTE_COMMITTED offer=42 points=38
+[INFO] [1791044627.786411, 1998.864000]: [ALGO] ORCA uav=uav_6 in=(-2.20,-0.04) out=(-2.20,-0.04) n_halfplanes=0 min_friend_d3=6.10m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044631.255418, 1999.416000]: [ALGO] ORCA uav=uav_6 in=(-2.41,-0.02) out=(-2.41,-0.02) n_halfplanes=0 min_friend_d3=6.07m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044633.248894, 1999.736000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=131
+[INFO] [1791044633.275226, 1999.740000]: [uav_6] ROUTE_COMMITTED offer=43 points=44
+[INFO] [1791044634.662309, 1999.964000]: [ALGO] ORCA uav=uav_6 in=(-2.24,-0.01) out=(-2.24,-0.01) n_halfplanes=0 min_friend_d3=6.07m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044638.111187, 2000.516000]: [ALGO] ORCA uav=uav_6 in=(-2.40,-0.02) out=(-2.40,-0.02) n_halfplanes=0 min_friend_d3=6.05m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044639.475836, 2000.732000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=133
+[INFO] [1791044639.499741, 2000.736000]: [uav_6] ROUTE_COMMITTED offer=44 points=39
+[INFO] [1791044641.535884, 2001.064000]: [ALGO] ORCA uav=uav_6 in=(-2.21,-0.02) out=(-2.21,-0.02) n_halfplanes=0 min_friend_d3=6.04m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044644.985934, 2001.616000]: [ALGO] ORCA uav=uav_6 in=(-2.47,-0.02) out=(-2.47,-0.02) n_halfplanes=0 min_friend_d3=6.06m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044644.988977, 2001.616000]: [uav_6] fleet_guard=PREDICTED_APPROACH_STOP
+[INFO] [1791044645.789141, 2001.744000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=135
+[INFO] [1791044645.809081, 2001.744000]: [uav_6] ROUTE_COMMITTED offer=45 points=50
+[INFO] [1791044648.412125, 2002.164000]: [ALGO] ORCA uav=uav_6 in=(-2.25,-0.02) out=(-2.25,-0.02) n_halfplanes=0 min_friend_d3=6.15m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044651.872415, 2002.716000]: [ALGO] ORCA uav=uav_6 in=(-2.53,-0.02) out=(-2.53,-0.02) n_halfplanes=0 min_friend_d3=6.28m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044651.945072, 2002.728000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=137
+[INFO] [1791044651.981225, 2002.732000]: [uav_6] ROUTE_COMMITTED offer=46 points=47
+[INFO] [1791044655.290551, 2003.264000]: [ALGO] ORCA uav=uav_6 in=(-2.51,-0.02) out=(-2.51,-0.02) n_halfplanes=0 min_friend_d3=6.24m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044658.152628, 2003.720000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=139
+[INFO] [1791044658.173161, 2003.720000]: [uav_6] ROUTE_COMMITTED offer=47 points=46
+[WARN] [1791044658.414539, 2003.764000]: [uav_6] fleet_guard=PREDICTED_APPROACH_STOP
+[INFO] [1791044658.756990, 2003.816000]: [ALGO] ORCA uav=uav_6 in=(-2.06,-0.02) out=(-2.06,-0.02) n_halfplanes=0 min_friend_d3=5.87m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044662.185842, 2004.364000]: [ALGO] ORCA uav=uav_6 in=(-1.98,-0.41) out=(-1.98,-0.41) n_halfplanes=0 min_friend_d3=5.60m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044664.444565, 2004.720000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=141
+[INFO] [1791044664.455285, 2004.724000]: [uav_6] ROUTE_COMMITTED offer=48 points=45
+[INFO] [1791044681.465257, 2007.444000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=146
+[INFO] [1791044681.479872, 2007.448000]: [uav_6] ROUTE_COMMITTED offer=50 points=45
+[INFO] [1791044681.570930, 2007.464000]: [ALGO] ORCA uav=uav_6 in=(-1.85,-0.23) out=(-1.85,-0.23) n_halfplanes=0 min_friend_d3=5.45m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044683.771152, 2007.816000]: [uav_6] fleet_guard=PREDICTED_APPROACH_STOP
+[INFO] [1791044685.037836, 2008.016000]: [ALGO] ORCA uav=uav_6 in=(-1.80,-0.23) out=(-1.80,-0.23) n_halfplanes=0 min_friend_d3=5.39m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044687.707142, 2008.444000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=148
+[INFO] [1791044687.716424, 2008.444000]: [uav_6] ROUTE_COMMITTED offer=51 points=44
+[INFO] [1791044688.446392, 2008.564000]: [ALGO] ORCA uav=uav_6 in=(-1.66,-0.70) out=(-1.66,-0.70) n_halfplanes=0 min_friend_d3=5.21m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044691.896455, 2009.116000]: [ALGO] ORCA uav=uav_6 in=(-1.48,-0.75) out=(-1.48,-0.75) n_halfplanes=0 min_friend_d3=4.98m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044693.944562, 2009.440000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=150
+[INFO] [1791044693.958821, 2009.444000]: [uav_6] ROUTE_COMMITTED offer=52 points=43
+[INFO] [1791044695.324404, 2009.664000]: [ALGO] ORCA uav=uav_6 in=(-1.32,-0.88) out=(-1.32,-0.88) n_halfplanes=0 min_friend_d3=4.76m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044695.646651, 2009.716000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044698.772446, 2010.216000]: [ALGO] ORCA uav=uav_6 in=(-1.15,-1.00) out=(-1.15,-1.00) n_halfplanes=0 min_friend_d3=4.54m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044700.246039, 2010.448000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=152
+[INFO] [1791044700.260099, 2010.452000]: [uav_6] ROUTE_COMMITTED offer=53 points=42
+[INFO] [1791044702.200489, 2010.764000]: [ALGO] ORCA uav=uav_6 in=(-1.03,-1.13) out=(-1.03,-1.13) n_halfplanes=0 min_friend_d3=4.37m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044705.649303, 2011.316000]: [ALGO] ORCA uav=uav_6 in=(-0.77,-1.48) out=(-0.77,-1.48) n_halfplanes=0 min_friend_d3=4.02m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044706.539391, 2011.456000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=154
+[INFO] [1791044706.558238, 2011.460000]: [uav_6] ROUTE_COMMITTED offer=54 points=40
+[INFO] [1791044709.073979, 2011.864000]: [ALGO] ORCA uav=uav_6 in=(-0.83,-1.41) out=(-0.83,-1.41) n_halfplanes=0 min_friend_d3=3.60m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044712.585017, 2012.416000]: [ALGO] ORCA uav=uav_6 in=(-1.23,-1.22) out=(-1.23,-1.22) n_halfplanes=0 min_friend_d3=3.26m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044712.881553, 2012.464000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=156
+[INFO] [1791044712.900213, 2012.468000]: [uav_6] ROUTE_COMMITTED offer=55 points=36
+[WARN] [1791044714.109286, 2012.664000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044715.980511, 2012.964000]: [ALGO] ORCA uav=uav_6 in=(-1.24,-1.13) out=(-1.24,-1.13) n_halfplanes=0 min_friend_d3=3.08m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044719.199295, 2013.476000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=158
+[INFO] [1791044719.219661, 2013.480000]: [uav_6] ROUTE_COMMITTED offer=56 points=32
+[INFO] [1791044719.431319, 2013.516000]: [ALGO] ORCA uav=uav_6 in=(-0.92,-0.82) out=(-0.92,-0.82) n_halfplanes=0 min_friend_d3=3.00m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044722.855777, 2014.064000]: [ALGO] ORCA uav=uav_6 in=(-0.53,-0.49) out=(-0.53,-0.49) n_halfplanes=0 min_friend_d3=2.99m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044725.523292, 2014.488000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=160
+[INFO] [1791044725.548780, 2014.492000]: [uav_6] ROUTE_COMMITTED offer=57 points=30
+[INFO] [1791044726.322326, 2014.616000]: [ALGO] ORCA uav=uav_6 in=(0.20,-0.22) out=(0.20,-0.22) n_halfplanes=0 min_friend_d3=3.08m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044726.606061, 2014.664000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791044729.730879, 2015.164000]: [ALGO] ORCA uav=uav_6 in=(-2.46,-0.08) out=(-2.46,-0.08) n_halfplanes=0 min_friend_d3=3.17m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044731.793868, 2015.492000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=162
+[INFO] [1791044731.816385, 2015.496000]: [uav_6] ROUTE_COMMITTED offer=58 points=28
+[INFO] [1791044733.180260, 2015.716000]: [ALGO] ORCA uav=uav_6 in=(-2.47,-0.05) out=(-2.47,-0.05) n_halfplanes=0 min_friend_d3=3.04m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044736.605869, 2016.264000]: [ALGO] ORCA uav=uav_6 in=(-2.49,-0.06) out=(-2.49,-0.06) n_halfplanes=0 min_friend_d3=2.97m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044738.043924, 2016.492000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=164
+[INFO] [1791044738.072572, 2016.496000]: [uav_6] ROUTE_COMMITTED offer=59 points=24
+[INFO] [1791044740.058346, 2016.816000]: [ALGO] ORCA uav=uav_6 in=(-2.31,-0.04) out=(-2.31,-0.04) n_halfplanes=0 min_friend_d3=3.32m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044740.984142, 2016.964000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044743.481279, 2017.364000]: [ALGO] ORCA uav=uav_6 in=(-2.25,-0.03) out=(-2.25,-0.03) n_halfplanes=0 min_friend_d3=3.93m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044744.330380, 2017.496000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=166
+[INFO] [1791044744.351827, 2017.500000]: [uav_6] ROUTE_COMMITTED offer=60 points=20
+[INFO] [1791044746.932456, 2017.916000]: [ALGO] ORCA uav=uav_6 in=(-2.52,-0.02) out=(-2.52,-0.02) n_halfplanes=0 min_friend_d3=4.40m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044750.084216, 2018.420000]: [ALGO] ORCA uav=uav_6 in=(-2.47,0.00) out=(-2.47,0.00) n_halfplanes=0 min_friend_d3=4.84m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044750.631364, 2018.504000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=168
+[INFO] [1791044750.652359, 2018.508000]: [uav_6] ROUTE_COMMITTED offer=61 points=18
+[INFO] [1791044753.483938, 2018.964000]: [ALGO] ORCA uav=uav_6 in=(-2.42,0.02) out=(-2.42,0.02) n_halfplanes=0 min_friend_d3=5.31m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044756.621277, 2019.464000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044756.862411, 2019.504000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=170
+[INFO] [1791044756.876500, 2019.504000]: [uav_6] ROUTE_COMMITTED offer=62 points=16
+[INFO] [1791044756.937890, 2019.516000]: [ALGO] ORCA uav=uav_6 in=(-2.39,0.03) out=(-2.39,0.03) n_halfplanes=0 min_friend_d3=5.75m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044760.359617, 2020.064000]: [ALGO] ORCA uav=uav_6 in=(-2.47,0.04) out=(-2.47,0.04) n_halfplanes=0 min_friend_d3=5.52m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044763.072254, 2020.496000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=172
+[INFO] [1791044763.084347, 2020.496000]: [uav_6] ROUTE_COMMITTED offer=63 points=14
+[WARN] [1791044781.317950, 2023.416000]: [uav_6] 官方重置了 t3 的确认（第 4 次）
+[INFO] [1791044786.317863, 2024.212000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=179
+[INFO] [1791044786.372508, 2024.220000]: [uav_6] ROUTE_COMMITTED offer=65 points=55
+[INFO] [1791044786.613996, 2024.264000]: [ALGO] ORCA uav=uav_6 in=(-2.38,0.07) out=(-2.38,0.07) n_halfplanes=0 min_friend_d3=6.42m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044790.064042, 2024.816000]: [ALGO] ORCA uav=uav_6 in=(-2.30,0.07) out=(-2.30,0.07) n_halfplanes=0 min_friend_d3=6.58m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044792.247930, 2025.164000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791044792.593889, 2025.220000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=181
+[INFO] [1791044792.641600, 2025.224000]: [uav_6] ROUTE_COMMITTED offer=66 points=53
+[INFO] [1791044793.490600, 2025.364000]: [ALGO] ORCA uav=uav_6 in=(-2.43,0.07) out=(-2.43,0.07) n_halfplanes=0 min_friend_d3=7.06m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044796.940556, 2025.916000]: [ALGO] ORCA uav=uav_6 in=(-2.37,0.07) out=(-2.37,0.07) n_halfplanes=0 min_friend_d3=7.36m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044798.848927, 2026.220000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=183
+[INFO] [1791044798.887156, 2026.224000]: [uav_6] ROUTE_COMMITTED offer=67 points=53
+[INFO] [1791044800.371306, 2026.464000]: [ALGO] ORCA uav=uav_6 in=(-2.21,0.07) out=(-2.21,0.07) n_halfplanes=0 min_friend_d3=7.49m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044803.819798, 2027.016000]: [ALGO] ORCA uav=uav_6 in=(-2.57,0.08) out=(-2.57,0.08) n_halfplanes=0 min_friend_d3=7.57m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044805.339025, 2027.256000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=185
+[INFO] [1791044805.381426, 2027.264000]: [uav_6] ROUTE_COMMITTED offer=68 points=52
+[WARN] [1791044805.696415, 2027.316000]: [uav_6] 官方重置了 t3 的确认（第 5 次）
+[INFO] [1791044807.241664, 2027.564000]: [ALGO] ORCA uav=uav_6 in=(-2.39,0.09) out=(-2.39,0.09) n_halfplanes=0 min_friend_d3=7.53m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044810.699126, 2028.116000]: [ALGO] ORCA uav=uav_6 in=(-2.33,0.10) out=(-2.33,0.10) n_halfplanes=0 min_friend_d3=7.63m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044810.729340, 2028.120000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044811.283944, 2028.208000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=187
+[INFO] [1791044811.319878, 2028.212000]: [uav_6] ROUTE_COMMITTED offer=69 points=51
+[INFO] [1791044814.119553, 2028.664000]: [ALGO] ORCA uav=uav_6 in=(-2.23,0.11) out=(-2.23,0.11) n_halfplanes=0 min_friend_d3=7.76m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044817.570951, 2029.212000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=189
+[INFO] [1791044817.572368, 2029.216000]: [ALGO] ORCA uav=uav_6 in=(-2.53,0.12) out=(-2.53,0.12) n_halfplanes=0 min_friend_d3=7.94m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044817.613483, 2029.220000]: [uav_6] ROUTE_COMMITTED offer=70 points=49
+[INFO] [1791044820.995673, 2029.764000]: [ALGO] ORCA uav=uav_6 in=(-2.51,0.13) out=(-2.51,0.13) n_halfplanes=0 min_friend_d3=8.17m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044823.508487, 2030.164000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791044823.855569, 2030.220000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=191
+[INFO] [1791044823.894718, 2030.224000]: [uav_6] ROUTE_COMMITTED offer=71 points=47
+[INFO] [1791044824.445009, 2030.316000]: [ALGO] ORCA uav=uav_6 in=(-2.27,0.13) out=(-2.27,0.13) n_halfplanes=0 min_friend_d3=8.23m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044827.872262, 2030.864000]: [ALGO] ORCA uav=uav_6 in=(-2.59,0.14) out=(-2.59,0.14) n_halfplanes=0 min_friend_d3=8.32m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044828.196356, 2030.916000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044830.074589, 2031.216000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=193
+[INFO] [1791044830.114768, 2031.220000]: [uav_6] ROUTE_COMMITTED offer=72 points=47
+[INFO] [1791044831.336795, 2031.416000]: [ALGO] ORCA uav=uav_6 in=(-2.07,0.15) out=(-2.07,0.15) n_halfplanes=0 min_friend_d3=8.35m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044834.747739, 2031.964000]: [ALGO] ORCA uav=uav_6 in=(-1.96,0.55) out=(-1.96,0.55) n_halfplanes=0 min_friend_d3=8.42m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044836.481459, 2032.240000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=195
+[INFO] [1791044836.527580, 2032.248000]: [uav_6] ROUTE_COMMITTED offer=73 points=45
+[INFO] [1791044838.195558, 2032.516000]: [ALGO] ORCA uav=uav_6 in=(-1.68,0.70) out=(-1.68,0.70) n_halfplanes=0 min_friend_d3=8.54m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044841.622404, 2033.064000]: [ALGO] ORCA uav=uav_6 in=(-1.44,0.87) out=(-1.44,0.87) n_halfplanes=0 min_friend_d3=8.70m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044842.260963, 2033.164000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791044842.605901, 2033.216000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=197
+[INFO] [1791044842.655093, 2033.228000]: [uav_6] ROUTE_COMMITTED offer=74 points=44
+[WARN] [1791044844.748801, 2033.564000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044845.085387, 2033.616000]: [ALGO] ORCA uav=uav_6 in=(-1.22,1.17) out=(-1.22,1.17) n_halfplanes=0 min_friend_d3=8.81m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044848.533222, 2034.164000]: [ALGO] ORCA uav=uav_6 in=(-1.10,1.09) out=(-1.10,1.09) n_halfplanes=0 min_friend_d3=9.08m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044848.920573, 2034.224000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=199
+[INFO] [1791044848.964473, 2034.236000]: [uav_6] ROUTE_COMMITTED offer=75 points=44
+[INFO] [1791044851.961581, 2034.716000]: [ALGO] ORCA uav=uav_6 in=(-1.00,0.84) out=(-1.00,0.84) n_halfplanes=0 min_friend_d3=9.42m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044855.059587, 2035.208000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=201
+[INFO] [1791044855.096570, 2035.216000]: [uav_6] ROUTE_COMMITTED offer=76 points=42
+[INFO] [1791044855.381553, 2035.264000]: [ALGO] ORCA uav=uav_6 in=(-0.75,1.57) out=(-0.75,1.57) n_halfplanes=0 min_friend_d3=9.68m | safe3d=2.8 danger3d=2.0
+[INFO] [1791044858.850999, 2035.816000]: [ALGO] ORCA uav=uav_6 in=(-0.53,1.77) out=(-0.53,1.77) n_halfplanes=0 min_friend_d3=9.90m | safe3d=2.8 danger3d=2.0
+[WARN] [1791044861.047372, 2036.164000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791044861.356450, 2036.216000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=203
+[INFO] [1791044861.400257, 2036.224000]: [uav_6] ROUTE_COMMITTED offer=77 points=40
+[INFO] [1791044867.614849, 2037.216000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=205
+[INFO] [1791044867.655575, 2037.224000]: [uav_6] ROUTE_COMMITTED offer=78 points=37
+[WARN] [1791044873.540524, 2038.168000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791044873.884672, 2038.220000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=207
+[INFO] [1791044873.923223, 2038.228000]: [uav_6] ROUTE_COMMITTED offer=79 points=34
+[INFO] [1791044880.198187, 2039.232000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=209
+[INFO] [1791044880.239601, 2039.240000]: [uav_6] ROUTE_COMMITTED offer=80 points=32
+[INFO] [1791044886.454607, 2040.232000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=211
+[INFO] [1791044886.487275, 2040.240000]: [uav_6] ROUTE_COMMITTED offer=81 points=30
+[WARN] [1791044892.286110, 2041.164000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791044892.452936, 2041.192000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=213
+[INFO] [1791044892.475304, 2041.196000]: [uav_6] ROUTE_COMMITTED offer=82 points=28
+[INFO] [1791044898.728894, 2042.196000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=215
+[INFO] [1791044898.750843, 2042.200000]: [uav_6] ROUTE_COMMITTED offer=83 points=25
+[INFO] [1791044904.961112, 2043.192000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=217
+[INFO] [1791044904.986174, 2043.196000]: [uav_6] ROUTE_COMMITTED offer=84 points=23
+[WARN] [1791044911.030587, 2044.164000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791044911.216095, 2044.192000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=219
+[INFO] [1791044911.229180, 2044.196000]: [uav_6] ROUTE_COMMITTED offer=85 points=20
+[INFO] [1791044917.258137, 2045.160000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=221
+[INFO] [1791044917.269607, 2045.160000]: [uav_6] ROUTE_COMMITTED offer=86 points=18
+[WARN] [1791044920.111454, 2045.616000]: [uav_6] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop
+[INFO] [1791044923.478982, 2046.156000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=223
+[INFO] [1791044923.486234, 2046.156000]: [uav_6] ROUTE_COMMITTED offer=87 points=14
+[INFO] [1791044929.772431, 2047.160000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=225
+[INFO] [1791044929.785278, 2047.164000]: [uav_6] ROUTE_COMMITTED offer=88 points=12
+[INFO] [1791044953.002458, 2050.880000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=233
+[INFO] [1791044953.031935, 2050.884000]: [uav_6] ROUTE_COMMITTED offer=90 points=42
+[INFO] [1791044978.996128, 2055.036000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=241
+[INFO] [1791044979.059751, 2055.048000]: [uav_6] ROUTE_COMMITTED offer=92 points=57
+[INFO] [1791044985.181933, 2056.024000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=243
+[INFO] [1791044985.224277, 2056.032000]: [uav_6] ROUTE_COMMITTED offer=93 points=55
+[INFO] [1791044991.545382, 2057.032000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=245
+[INFO] [1791044991.590272, 2057.040000]: [uav_6] ROUTE_COMMITTED offer=94 points=54
+[WARN] [1791044994.857949, 2057.564000]: [uav_6] radar_guard=BRAKING_REQUIRED clearance=1.222615906465199
+[INFO] [1791044997.866118, 2058.044000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=247
+[INFO] [1791044997.913002, 2058.052000]: [uav_6] ROUTE_COMMITTED offer=95 points=55
+[WARN] [1791044997.982835, 2058.064000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791045004.127631, 2059.044000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=249
+[INFO] [1791045004.176000, 2059.052000]: [uav_6] ROUTE_COMMITTED offer=96 points=61
+[WARN] [1791045007.694869, 2059.616000]: [uav_6] radar_guard=SLOW clearance=1.3689494980626105
+[INFO] [1791045010.425541, 2060.052000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=251
+[INFO] [1791045010.480592, 2060.060000]: [uav_6] ROUTE_COMMITTED offer=97 points=57
+[INFO] [1791045016.698608, 2061.056000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=253
+[INFO] [1791045016.755047, 2061.064000]: [uav_6] ROUTE_COMMITTED offer=98 points=57
+[INFO] [1791045022.930587, 2062.052000]: [uav_6] ONLINE_PLAN START_CLEARANCE_UNKNOWN version=255
+[WARN] [1791045022.992480, 2062.064000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[WARN] [1791045023.611367, 2062.164000]: [uav_6] radar_guard=BRAKING_REQUIRED clearance=1.8580131977374688
+[INFO] [1791045029.182375, 2063.052000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=257
+[INFO] [1791045029.240659, 2063.064000]: [uav_6] ROUTE_COMMITTED offer=100 points=57
+[INFO] [1791045041.443127, 2065.016000]: [uav_6] 收到目标追踪任务 t1 @ (-26.4, 13.4)
+[WARN] [1791045375.116834, 2118.364000]: [uav_6] RADAR_INPUT_MISSING_OR_STALE -> horizontal stop
+[INFO] [1791045382.596193, 2119.564000]: [uav_6] 收到目标追踪任务 t5 @ (83.8, -46.0)
+[INFO] [1791045383.182705, 2119.656000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=370
+[INFO] [1791045383.209592, 2119.664000]: [uav_6] ROUTE_COMMITTED offer=103 points=55
+[WARN] [1791045388.534424, 2120.516000]: [uav_6] radar_guard=SLOW clearance=1.4039023190748325
+[WARN] [1791045389.459222, 2120.664000]: [uav_6] ONLINE_SPACE_UNKNOWN -> horizontal stop
+[INFO] [1791045395.976788, 2121.704000]: [uav_6] ONLINE_PLAN OBSERVED_FRONTIER version=375
+[INFO] [1791045396.002601, 2121.708000]: [uav_6] ROUTE_COMMITTED offer=104 points=56
+[INFO] [1791045511.681011, 2140.216000]: [uav_6] 收到目标追踪任务 t1 @ (-26.0, 13.2)
+[INFO] [1791045512.785017, 2140.392000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=412
+[INFO] [1791045512.797695, 2140.392000]: [uav_6] ROUTE_COMMITTED offer=106 points=10
+[INFO] [1791045519.103825, 2141.388000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=414
+[INFO] [1791045519.114023, 2141.388000]: [uav_6] ROUTE_COMMITTED offer=107 points=9
+[INFO] [1791045530.185395, 2143.156000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=417
+[INFO] [1791045530.197526, 2143.164000]: [uav_6] ROUTE_COMMITTED offer=108 points=7
+[INFO] [1791045537.546675, 2144.340000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=420
+[INFO] [1791045537.554887, 2144.340000]: [uav_6] ROUTE_COMMITTED offer=109 points=9
+[INFO] [1791045543.865307, 2145.348000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=422
+[INFO] [1791045543.875982, 2145.352000]: [uav_6] ROUTE_COMMITTED offer=110 points=8
+[INFO] [1791045721.286984, 2173.716000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=479
+[INFO] [1791045721.295117, 2173.720000]: [uav_6] ROUTE_COMMITTED offer=112 points=6
+[INFO] [1791045727.551206, 2174.716000]: [uav_6] ONLINE_PLAN GOAL_OBSERVED version=481
+[INFO] [1791045727.559613, 2174.720000]: [uav_6] ROUTE_COMMITTED offer=113 points=6
+[WARN] [1791045773.873188, 2182.116000]: [uav_6] fleet_guard=MISSING_OR_STALE_FLEET_MOTION
+[WARN] [1791045827.714987, 2190.716000]: [uav_6] fleet_guard=MISSING_OR_STALE_FLEET_MOTION
+[INFO] [1791045857.113500, 2195.416000]: [uav_6] 收到目标追踪任务 t0 @ (69.0, 38.0)
+[WARN] [1791045880.865060, 2199.216000]: [uav_6] fleet_guard=MISSING_OR_STALE_FLEET_MOTION
+[WARN] [1791045937.191781, 2208.216000]: [uav_6] fleet_guard=MISSING_OR_STALE_FLEET_MOTION
+[WARN] [1791045995.968946, 2217.616000]: [uav_6] fleet_guard=MISSING_OR_STALE_FLEET_MOTION
+[WARN] [1791046059.709915, 2227.816000]: [uav_6] fleet_guard=MISSING_OR_STALE_FLEET_MOTION

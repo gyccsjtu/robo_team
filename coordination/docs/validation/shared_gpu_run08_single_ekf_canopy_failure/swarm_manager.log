@@ -1,0 +1,167 @@
+[INFO] [1791044205.676775, 0.000000]: swarm_manager 启动，机队: ['uav_1', 'uav_2', 'uav_3', 'uav_4', 'uav_5', 'uav_6']
+[INFO] [1791044205.679112, 0.000000]: [manager] 搜索栅格边界 x[-50,130] y[-60,60]（元数据）
+[INFO] [1791044205.682470, 0.000000]: [manager] Online mode: metadata bounds only, no stored obstacle or LOS prior
+[INFO] [1791044205.753144, 0.000000]: [manager] 集群管理器启动，机队: ['uav_1', 'uav_2', 'uav_3', 'uav_4', 'uav_5', 'uav_6']
+[WARN] [1791044206.399432, 1931.464000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791044208.024121, 1931.728000]: [manager] 官方剩余 actor: [0, 1, 2, 3, 4, 5]
+[WARN] [1791044238.230065, 1936.564000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791044270.108341, 1941.664000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791044271.423957, 1941.872000]: [manager] 分配 uav_1 → 格 (2,4) 飞行距离 41.3m 租约 30.7s
+[INFO] [1791044271.427285, 1941.872000]: [manager] 分配 uav_1 → 格 (2,4) 中心 (-32.5,-28.5)
+[INFO] [1791044271.428895, 1941.872000]: [manager] 分配 uav_2 → 格 (4,3) 飞行距离 39.0m 租约 29.5s
+[INFO] [1791044271.431703, 1941.872000]: [manager] 分配 uav_2 → 格 (4,3) 中心 (-18.5,-35.5)
+[INFO] [1791044271.434297, 1941.876000]: [manager] 分配 uav_3 → 格 (0,4) 飞行距离 54.6m 租约 37.3s
+[INFO] [1791044271.437647, 1941.876000]: [manager] 分配 uav_3 → 格 (0,4) 中心 (-46.5,-28.5)
+[INFO] [1791044271.439713, 1941.876000]: [manager] 分配 uav_4 → 格 (15,12) 飞行距离 61.9m 租约 41.0s
+[INFO] [1791044271.443147, 1941.876000]: [manager] 分配 uav_4 → 格 (15,12) 中心 (58.5,27.5)
+[INFO] [1791044271.444892, 1941.876000]: [manager] 分配 uav_5 → 格 (0,14) 飞行距离 60.4m 租约 40.2s
+[INFO] [1791044271.447325, 1941.876000]: [manager] 分配 uav_5 → 格 (0,14) 中心 (-46.5,41.5)
+[INFO] [1791044271.448483, 1941.876000]: [manager] 分配 uav_6 → 格 (13,14) 飞行距离 56.6m 租约 38.3s
+[INFO] [1791044271.450804, 1941.876000]: [manager] 分配 uav_6 → 格 (13,14) 中心 (44.5,41.5)
+[INFO] [1791044306.295393, 1947.452000]: [manager] 发现新目标 t5 @ (16.9, -0.0)，由 uav_4 首次检测
+[INFO] [1791044306.297827, 1947.452000]: [manager] 无空闲机，尝试中断搜索机去追踪 t5
+[INFO] [1791044306.299881, 1947.452000]: [manager] 中断 uav_4 的搜索任务去追踪 t5（预计 4.6s）
+[INFO] [1791044306.303049, 1947.452000]: [ALGO] dispatch target=t5 pos=(16.95,-0.02) | uav=uav_4 pos=(3.05,-0.00) | dist=13.903m | detect_radius=20.0m | is_captured=False | flight_time_est=4.6s
+[INFO] [1791044306.304546, 1947.452000]: [manager] 派遣 uav_4 追踪目标 t5 @ (16.9, -0.0), 距离 13.9m
+[INFO] [1791044306.707740, 1947.516000]: [manager] 官方首次发现 t4 → 规则4 计时起点对齐 1947.5
+[INFO] [1791044312.630970, 1948.464000]: [manager] 目标 t5 确认进度 7% (confirm_since=1.0s, resets=0, rejects=0, observers=uav_1,uav_2,uav_4,uav_6)
+[INFO] [1791044321.111021, 1949.820000]: [manager] 发现新目标 t4 @ (14.0, -0.2)，由 uav_6 首次检测
+[INFO] [1791044321.113368, 1949.820000]: [manager] 无空闲机，尝试中断搜索机去追踪 t4
+[INFO] [1791044321.114422, 1949.820000]: [manager] 中断 uav_6 的搜索任务去追踪 t4（预计 3.5s）
+[INFO] [1791044321.119409, 1949.820000]: [ALGO] dispatch target=t4 pos=(13.99,-0.17) | uav=uav_6 pos=(4.06,3.67) | dist=10.643m | detect_radius=20.0m | is_captured=False | flight_time_est=3.5s
+[INFO] [1791044321.121471, 1949.820000]: [manager] 派遣 uav_6 追踪目标 t4 @ (14.0, -0.2), 距离 10.6m
+[INFO] [1791044350.139343, 1954.464000]: [manager] 目标 t4 确认进度 20% (confirm_since=3.0s, resets=0, rejects=0, observers=uav_1,uav_2,uav_3,uav_4,uav_5,uav_6)
+[INFO] [1791044368.887700, 1957.464000]: [manager] 目标 t5 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791044368.903088, 1957.468000]: [manager] 分配 uav_4 → 格 (7,7) 飞行距离 7.5m 租约 13.8s
+[INFO] [1791044368.907888, 1957.468000]: [manager] 分配 uav_4 → 格 (7,7) 中心 (2.5,-7.5)
+[INFO] [1791044400.149997, 1962.464000]: [manager] 目标 t4 确认进度 7% (confirm_since=1.0s, resets=1, rejects=0, observers=uav_1,uav_2,uav_3,uav_4,uav_5,uav_6)
+[INFO] [1791044401.117204, 1962.604000]: [manager] 官方剩余 actor: [0, 1, 2, 3, 5]
+[INFO] [1791044431.515299, 1967.464000]: [manager] uav_4 抵达格 (7,7)，覆盖 28 格，释放租约
+[INFO] [1791044431.532058, 1967.468000]: [manager] 分配 uav_4 → 格 (4,2) 飞行距离 44.3m 租约 32.2s
+[INFO] [1791044431.535350, 1967.468000]: [manager] 分配 uav_4 → 格 (4,2) 中心 (-18.5,-42.5)
+[INFO] [1791044456.521963, 1971.464000]: [manager] 目标 t4 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791044456.544052, 1971.468000]: [manager] 分配 uav_6 → 格 (2,8) 飞行距离 36.2m 租约 28.1s
+[INFO] [1791044456.548038, 1971.468000]: [manager] 分配 uav_6 → 格 (2,8) 中心 (-32.5,-0.5)
+[INFO] [1791044482.514654, 1975.620000]: [manager] 发现新目标 t3 @ (0.2, -10.8)，由 uav_2 首次检测
+[INFO] [1791044482.517830, 1975.620000]: [manager] 无空闲机，尝试中断搜索机去追踪 t3
+[INFO] [1791044482.519781, 1975.620000]: [manager] 中断 uav_2 的搜索任务去追踪 t3（预计 4.8s）
+[INFO] [1791044482.524692, 1975.620000]: [ALGO] dispatch target=t3 pos=(0.25,-10.82) | uav=uav_2 pos=(-12.81,-16.95) | dist=14.425m | detect_radius=20.0m | is_captured=False | flight_time_est=4.8s
+[INFO] [1791044482.527282, 1975.624000]: [manager] 派遣 uav_2 追踪目标 t3 @ (0.2, -10.8), 距离 14.4m
+[INFO] [1791044483.090119, 1975.716000]: [manager] 官方首次发现 t3 → 规则4 计时起点对齐 1975.7
+[INFO] [1791044520.595480, 1981.716000]: [manager] 官方首次发现 t3 → 规则4 计时起点对齐 1981.7
+[INFO] [1791044526.223706, 1982.616000]: [manager] 官方首次发现 t3 → 规则4 计时起点对齐 1982.6
+[INFO] [1791044539.976910, 1984.816000]: [manager] 官方首次发现 t3 → 规则4 计时起点对齐 1984.8
+[INFO] [1791044569.664018, 1989.564000]: [manager] 目标 t3 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791044638.421097, 2000.564000]: [manager] 目标 t3 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791044638.433873, 2000.564000]: [manager] 分配 uav_2 → 格 (5,4) 飞行距离 9.6m 租约 14.8s
+[INFO] [1791044638.438581, 2000.568000]: [manager] 分配 uav_2 → 格 (5,4) 中心 (-11.5,-28.5)
+[INFO] [1791044675.953551, 2006.564000]: [manager] uav_2 抵达格 (5,4)，覆盖 21 格，释放租约
+[INFO] [1791044676.002125, 2006.572000]: [manager] 分配 uav_1 → 格 (10,13) 飞行距离 45.5m 租约 32.7s
+[INFO] [1791044676.006162, 2006.572000]: [manager] 分配 uav_1 → 格 (10,13) 中心 (23.5,34.5)
+[INFO] [1791044676.007875, 2006.572000]: [manager] 分配 uav_2 → 格 (11,1) 飞行距离 50.2m 租约 35.1s
+[INFO] [1791044676.010381, 2006.572000]: [manager] 分配 uav_2 → 格 (11,1) 中心 (30.5,-49.5)
+[INFO] [1791044676.012825, 2006.572000]: [manager] 分配 uav_4 → 格 (13,1) 飞行距离 71.0m 租约 45.5s
+[INFO] [1791044676.016936, 2006.572000]: [manager] 分配 uav_4 → 格 (13,1) 中心 (44.5,-49.5)
+[INFO] [1791044763.495418, 2020.564000]: [manager] uav_6 抵达格 (2,8)，覆盖 23 格，释放租约
+[INFO] [1791044763.504146, 2020.564000]: [manager] 分配 uav_6 → 格 (1,11) 飞行距离 20.9m 租约 20.5s
+[INFO] [1791044763.506964, 2020.564000]: [manager] 分配 uav_6 → 格 (1,11) 中心 (-39.5,20.5)
+[INFO] [1791044780.148012, 2023.228000]: [manager] 无空闲机，尝试中断搜索机去追踪 t3
+[INFO] [1791044780.149743, 2023.228000]: [manager] 中断 uav_1 的搜索任务去追踪 t3（预计 4.3s）
+[INFO] [1791044780.151916, 2023.228000]: [ALGO] dispatch target=t3 pos=(18.47,-6.90) | uav=uav_1 pos=(7.22,-0.46) | dist=12.964m | detect_radius=20.0m | is_captured=False | flight_time_est=4.3s
+[INFO] [1791044780.156322, 2023.228000]: [manager] 派遣 uav_1 追踪目标 t3 @ (18.5, -6.9), 距离 13.0m
+[INFO] [1791044781.317378, 2023.416000]: [manager] 官方首次发现 t3 → 规则4 计时起点对齐 2023.4
+[INFO] [1791044788.506737, 2024.564000]: [manager] 目标 t3 确认进度 7% (confirm_since=1.0s, resets=4, rejects=1, observers=uav_1,uav_2,uav_3,uav_4)
+[INFO] [1791044805.697086, 2027.316000]: [manager] 官方首次发现 t3 → 规则4 计时起点对齐 2027.3
+[INFO] [1791044851.017689, 2034.564000]: [manager] 目标 t3 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791044851.034261, 2034.568000]: [manager] 分配 uav_1 → 格 (8,11) 飞行距离 20.9m 租约 20.5s
+[INFO] [1791044851.038295, 2034.568000]: [manager] 分配 uav_1 → 格 (8,11) 中心 (9.5,20.5)
+[INFO] [1791044932.283767, 2047.564000]: [manager] uav_6 抵达格 (1,11)，覆盖 10 格，释放租约
+[INFO] [1791044932.290858, 2047.564000]: [manager] 分配 uav_6 → 格 (1,5) 飞行距离 38.3m 租约 29.1s
+[INFO] [1791044932.295264, 2047.568000]: [manager] 分配 uav_6 → 格 (1,5) 中心 (-39.5,-21.5)
+[INFO] [1791044957.283513, 2051.564000]: [manager] uav_3 抵达格 (0,4)，覆盖 10 格，释放租约
+[INFO] [1791044957.295771, 2051.564000]: [manager] 分配 uav_3 → 格 (0,1) 飞行距离 24.4m 租约 22.2s
+[INFO] [1791044957.300065, 2051.568000]: [manager] 分配 uav_3 → 格 (0,1) 中心 (-46.5,-49.5)
+[INFO] [1791044957.302419, 2051.568000]: [manager] 分配 uav_6 → 格 (9,1) 飞行距离 86.8m 租约 53.4s
+[INFO] [1791044957.304988, 2051.568000]: [manager] 分配 uav_6 → 格 (9,1) 中心 (16.5,-49.5)
+[INFO] [1791045032.020714, 2063.508000]: [manager] 发现新目标 t1 @ (-26.8, 13.6)，由 uav_6 首次检测
+[INFO] [1791045032.022591, 2063.508000]: [manager] 无空闲机，尝试中断搜索机去追踪 t1
+[INFO] [1791045032.024340, 2063.508000]: [manager] 中断 uav_6 的搜索任务去追踪 t1（预计 2.3s）
+[INFO] [1791045032.027173, 2063.508000]: [ALGO] dispatch target=t1 pos=(-26.82,13.57) | uav=uav_6 pos=(-32.97,16.44) | dist=6.790m | detect_radius=20.0m | is_captured=False | flight_time_est=2.3s
+[INFO] [1791045032.028288, 2063.508000]: [manager] 派遣 uav_6 追踪目标 t1 @ (-26.8, 13.6), 距离 6.8m
+[INFO] [1791045082.415154, 2071.564000]: [manager] 目标 t1 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791045082.421037, 2071.564000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045094.915792, 2073.564000]: [manager] uav_3 抵达格 (0,1)，覆盖 7 格，释放租约
+[INFO] [1791045094.931027, 2073.568000]: [manager] 分配 uav_3 → 格 (3,1) 飞行距离 21.3m 租约 20.7s
+[INFO] [1791045094.937190, 2073.568000]: [manager] 分配 uav_3 → 格 (3,1) 中心 (-25.5,-49.5)
+[INFO] [1791045119.920752, 2077.564000]: [manager] uav_2 抵达格 (11,1)，覆盖 23 格，释放租约
+[INFO] [1791045119.950820, 2077.568000]: [manager] 分配 uav_2 → 格 (14,0) 飞行距离 23.4m 租约 21.7s
+[INFO] [1791045119.953866, 2077.568000]: [manager] 分配 uav_2 → 格 (14,0) 中心 (51.5,-56.5)
+[INFO] [1791045119.955478, 2077.568000]: [manager] 分配 uav_4 → 格 (13,10) 飞行距离 43.1m 租约 31.6s
+[INFO] [1791045119.958505, 2077.568000]: [manager] 分配 uav_4 → 格 (13,10) 中心 (44.5,13.5)
+[INFO] [1791045119.960555, 2077.568000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045157.433619, 2083.564000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045194.935504, 2089.564000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045201.189914, 2090.564000]: [manager] uav_3 抵达格 (3,1)，覆盖 7 格，释放租约
+[INFO] [1791045207.507402, 2091.564000]: [manager] 分配 uav_3 → 格 (6,1) 飞行距离 22.1m 租约 21.0s
+[INFO] [1791045207.513643, 2091.568000]: [manager] 分配 uav_3 → 格 (6,1) 中心 (-4.5,-49.5)
+[INFO] [1791045232.556100, 2095.572000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045251.259639, 2098.564000]: [manager] uav_2 抵达格 (14,0)，覆盖 11 格，释放租约
+[INFO] [1791045258.140027, 2099.664000]: [manager] 分配 uav_2 → 格 (17,1) 飞行距离 21.3m 租约 20.7s
+[INFO] [1791045258.142775, 2099.664000]: [manager] 分配 uav_2 → 格 (17,1) 中心 (72.5,-49.5)
+[INFO] [1791045270.636602, 2101.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045308.211363, 2107.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045313.831393, 2108.564000]: [manager] uav_3 抵达格 (6,1)，覆盖 9 格，释放租约
+[INFO] [1791045320.720243, 2109.664000]: [manager] 分配 uav_3 → 格 (10,5) 飞行距离 38.8m 租约 29.4s
+[INFO] [1791045320.725725, 2109.668000]: [manager] 分配 uav_3 → 格 (10,5) 中心 (23.5,-21.5)
+[INFO] [1791045345.713886, 2113.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045357.590069, 2115.564000]: [manager] uav_2 抵达格 (17,1)，覆盖 12 格，释放租约
+[INFO] [1791045358.226051, 2115.664000]: [manager] 分配 uav_2 → 格 (19,3) 飞行距离 23.2m 租约 21.6s
+[INFO] [1791045358.232256, 2115.668000]: [manager] 分配 uav_2 → 格 (19,3) 中心 (86.5,-35.5)
+[INFO] [1791045375.984943, 2118.508000]: [ALGO] dispatch target=t5 pos=(84.72,-45.61) | uav=uav_6 pos=(-32.95,16.44) | dist=133.027m | detect_radius=20.0m | is_captured=False | flight_time_est=44.3s
+[INFO] [1791045375.987074, 2118.508000]: [manager] 派遣 uav_6 追踪目标 t5 @ (84.7, -45.6), 距离 133.0m
+[INFO] [1791045376.032750, 2118.516000]: [manager] 官方首次发现 t5 → 规则4 计时起点对齐 2118.5
+[INFO] [1791045383.845340, 2119.764000]: [manager] 目标 t5 确认进度 7% (confirm_since=1.0s, resets=1, rejects=0, observers=uav_1,uav_2,uav_3,uav_4,uav_5,uav_6)
+[INFO] [1791045446.350753, 2129.764000]: [manager] 目标 t5 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791045446.355614, 2129.764000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045483.861905, 2135.764000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045505.380451, 2139.208000]: [ALGO] dispatch target=t1 pos=(-26.04,13.24) | uav=uav_6 pos=(-32.60,16.52) | dist=7.331m | detect_radius=20.0m | is_captured=False | flight_time_est=2.4s
+[INFO] [1791045505.382684, 2139.208000]: [manager] 派遣 uav_6 追踪目标 t1 @ (-26.0, 13.2), 距离 7.3m
+[INFO] [1791045540.207925, 2144.764000]: [manager] 目标 t1 确认进度 7% (confirm_since=1.0s, resets=1, rejects=0, observers=uav_6)
+[INFO] [1791045577.085704, 2150.664000]: [manager] uav_2 抵达格 (19,3)，覆盖 16 格，释放租约
+[INFO] [1791045577.097165, 2150.664000]: [manager] 分配 uav_2 → 格 (21,5) 飞行距离 22.5m 租约 21.2s
+[INFO] [1791045577.102273, 2150.668000]: [manager] 分配 uav_2 → 格 (21,5) 中心 (100.5,-21.5)
+[INFO] [1791045583.419099, 2151.664000]: [manager] uav_4 抵达格 (13,10)，覆盖 26 格，释放租约
+[INFO] [1791045589.682411, 2152.664000]: [manager] 分配 uav_4 → 格 (15,12) 飞行距离 21.6m 租约 20.8s
+[INFO] [1791045589.685149, 2152.664000]: [manager] 分配 uav_4 → 格 (15,12) 中心 (58.5,27.5)
+[INFO] [1791045590.925521, 2152.864000]: [manager] 目标 t1 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791045602.178933, 2154.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045639.684674, 2160.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045677.197850, 2166.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045714.701583, 2172.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[WARN] [1791045720.674531, 2173.620000]: [manager] TARGET_AUTHORITY_HELD t1; waiting for verified exit
+[INFO] [1791045728.452230, 2174.864000]: [manager] 目标 t1 确认进度 7% (confirm_since=1.0s, resets=2, rejects=0, observers=uav_6)
+[INFO] [1791045752.300395, 2178.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045771.043896, 2181.664000]: [manager] uav_2 抵达格 (21,5)，覆盖 16 格，释放租约
+[INFO] [1791045777.300312, 2182.664000]: [manager] uav_3 抵达格 (10,5)，覆盖 8 格，释放租约
+[INFO] [1791045777.320270, 2182.668000]: [manager] 分配 uav_2 → 格 (23,7) 飞行距离 21.9m 租约 20.9s
+[INFO] [1791045777.323480, 2182.668000]: [manager] 分配 uav_2 → 格 (23,7) 中心 (114.5,-7.5)
+[INFO] [1791045777.324843, 2182.668000]: [manager] 分配 uav_3 → 格 (13,4) 飞行距离 21.3m 租约 20.6s
+[INFO] [1791045777.327369, 2182.668000]: [manager] 分配 uav_3 → 格 (13,4) 中心 (44.5,-28.5)
+[INFO] [1791045789.800018, 2184.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045802.389220, 2186.664000]: [manager] uav_4 抵达格 (15,12)，覆盖 16 格，释放租约
+[INFO] [1791045802.401409, 2186.664000]: [manager] 分配 uav_4 → 格 (17,14) 飞行距离 22.8m 租约 21.4s
+[INFO] [1791045802.405709, 2186.664000]: [manager] 分配 uav_4 → 格 (17,14) 中心 (72.5,41.5)
+[INFO] [1791045827.398150, 2190.664000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045839.259923, 2192.560000]: [manager] 发现新目标 t0 @ (69.0, 38.0)，由 uav_4 首次检测
+[INFO] [1791045839.262844, 2192.560000]: [ALGO] dispatch target=t0 pos=(68.99,37.97) | uav=uav_6 pos=(-34.78,14.89) | dist=106.306m | detect_radius=20.0m | is_captured=False | flight_time_est=35.4s
+[INFO] [1791045839.264598, 2192.560000]: [manager] 派遣 uav_6 追踪目标 t0 @ (69.0, 38.0), 距离 106.3m
+[INFO] [1791045891.151837, 2200.864000]: [manager] 目标 t0 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791045891.157184, 2200.864000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045928.762052, 2206.864000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791045952.520898, 2210.668000]: [manager] uav_1 抵达格 (8,11)，覆盖 17 格，释放租约
+[INFO] [1791045953.758641, 2210.864000]: [manager] 分配 uav_1 → 格 (10,13) 飞行距离 22.4m 租约 21.2s
+[INFO] [1791045953.762356, 2210.864000]: [manager] 分配 uav_1 → 格 (10,13) 中心 (23.5,34.5)
+[INFO] [1791045966.257573, 2212.864000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791046004.403778, 2218.968000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791046042.547950, 2225.068000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791046080.651601, 2231.164000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting

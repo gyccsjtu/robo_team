@@ -53,6 +53,28 @@ class OnlinePlanningTests(unittest.TestCase):
         self.assertFalse(planner.command_clear(grid, (3.,0.), (2.,0.)))
         self.assertFalse(planner.command_clear(grid, (9.5,0.), (1.,0.)))
 
+    def test_fine_grid_retains_radius_but_avoids_diagonal_quantization_stall(self):
+        import math
+        def scanned_grid(resolution, distance):
+            count = int(20 / resolution)
+            observed = ObservedMap(count, count, resolution,
+                                   (-10-resolution/2, -10-resolution/2))
+            ranges = [math.inf] * 512
+            ranges[320] = distance  # Southwest wall point, behind escape direction.
+            self.assertTrue(observed.feed(ranges, (0.,0.), 0., 0., 2*math.pi/512,
+                                          .5, 20., 10., 10., 10.))
+            # Only the near blind region is certified; outside it comes from rays.
+            planner = OnlinePlanner((0.,0.), seed_radius=.55, radius=1.2)
+            return planner, planner.grid(observed, (0.,0.), 10., 'epoch')
+        coarse, coarse_grid = scanned_grid(.5, 1.58)
+        fine, fine_grid = scanned_grid(.25, 1.58)
+        self.assertEqual(coarse.radius, fine.radius)
+        self.assertFalse(coarse_grid.is_free(coarse_grid.world_to_cell((0.,0.))))
+        self.assertTrue(fine_grid.is_free(fine_grid.world_to_cell((0.,0.))))
+        self.assertTrue(fine.command_clear(fine_grid, (0.,0.), (.25,.25)))
+        _, close_grid = scanned_grid(.25, 1.1)
+        self.assertFalse(close_grid.is_free(close_grid.world_to_cell((0.,0.))))
+
     def test_fixture_clearance_rejects_near_box_hash_change_and_wrong_run(self):
         with tempfile.TemporaryDirectory() as directory:
             world = Path(directory)/'fixture.world'

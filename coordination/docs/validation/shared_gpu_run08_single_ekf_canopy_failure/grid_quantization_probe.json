@@ -1,0 +1,22 @@
+{
+  "source": "stuck_map_uav5.json",
+  "pose_yaw": -2.9682514177119375,
+  "probe_only": true,
+  "note": "Each comparison uses a hypothetical already-certified start patch to isolate obstacle quantization; it does not prove the live body certificate.",
+  "results": [
+    {
+      "resolution": 0.5,
+      "occupied_min_distance": 1.3190871576408447,
+      "start_free": false,
+      "feed_wall_seconds": 0.02011187399989467,
+      "grid_wall_seconds": 0.06982403599999998
+    },
+    {
+      "resolution": 0.25,
+      "occupied_min_distance": 1.672637296200017,
+      "start_free": true,
+      "feed_wall_seconds": 0.043615049999971234,
+      "grid_wall_seconds": 0.4839098960001138
+    }
+  ]
+}

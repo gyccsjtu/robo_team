@@ -44,11 +44,11 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
     scene=json.loads((city/'scene_manifest.json').read_text())
     run_id=str(uuid.uuid4())
     metadata=out/'city_bounds.json'
-    width,height=360,240
+    width,height=720,480
     metadata.write_text(json.dumps(dict(schema='robocup_training_worlds/metadata/v1',
         frame=dict(frame_id='map',convention='ENU',units='m'),
         bounds=dict(x_min=-50.,x_max=130.,y_min=-60.,y_max=60.),
-        grid=dict(width=width,height=height,resolution_m=.5,origin=[-50.25,-60.25],
+        grid=dict(width=width,height=height,resolution_m=.25,origin=[-50.125,-60.125],
                   frame_id='map',encoding='rle_pairs',data=[[0,width*height]]),
         obstacles=[],spawn=dict(center=[0.,0.]),goal_candidates=[],
         generator=dict(name='BOUNDS_ONLY_NOT_OBSTACLE_PRIOR'))))
@@ -80,6 +80,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
     (out/'city_control_config.json').write_text(json.dumps(dict(run_id=run_id,
         control_truth_input=False, own_camera_pose_source='DEVELOPMENT_GAZEBO_LINK_POSE',
         clearance_configuration_revision='v1.2',route_clearance_m=2.5,fleet_separation_m=2.5,
+        observed_grid_revision='v1.14',observed_grid_resolution_m=.25,
         maximum_speed_mps=3.,visual_fusion_revision='v2.4',tracker_selection_revision='v1.3',
         person_motion_revision='v1.4',recent_motion_window_s=4.,
         target_motion_revision='v1.5',flee_chase_speed_mps=2.6,

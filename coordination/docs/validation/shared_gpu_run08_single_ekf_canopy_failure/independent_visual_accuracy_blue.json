@@ -1,0 +1,27 @@
+{
+  "actor": [
+    "actor_1"
+  ],
+  "tag": "blue",
+  "matching_rule": "single color truth",
+  "actor_truth_samples": 1727,
+  "original_image_coordinates": {
+    "total": 21,
+    "aligned": 21,
+    "missing": 0,
+    "maximum_error_m": 143.49226050056595,
+    "mean_error_m": 138.9222201888036,
+    "fraction_strictly_below_1m": 0.0
+  },
+  "official_report_coordinates": {
+    "total": 80,
+    "aligned": 80,
+    "missing": 0,
+    "maximum_error_m": 140.48398985468887,
+    "mean_error_m": 137.89091493264556,
+    "fraction_strictly_below_1m": 0.0
+  },
+  "control_input": false,
+  "official_judge_executed": false,
+  "formal_competition_pass": false
+}
