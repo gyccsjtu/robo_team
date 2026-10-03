@@ -15,6 +15,12 @@
 # 可选环境变量:
 #   BRIDGE_NEW_TRACK_CONF=0.7      建轨置信度门（= 桥源码默认值；调低会放行红色场景误检）
 #   BRIDGE_PUB_MAX_RANGE=12.0      播报距离闸门 m（够不着就不播，避免清零裁判 15s 计时）
+#   PR_ACTOR_CONFIRM_ONLY=1        裁判上报确认门（默认 0）。1 = 只有已确认 track
+#                                  （hits>=PR_CONFIRM_HITS）才发 /actor_*_info，
+#                                  防"近而短命"的误检以 20~40m 误差清零裁判 15s 计时。
+#   PR_COORD_CONF_ONE=1            协同上报 confidence 语义（默认 1 = 方案 A：
+#                                  已确认才发 1.0；核心 `_target()` 只吃 1.0）
+#   COMM_BRIDGE_ON=1              起 XTDrone 通信桥 multirotor_communication.py（默认 0 = 不起）
 #   GATE_TIMEOUT=180
 #   NO_SWARM=1                    不起 swarm_agent（把控制权留给 fly 子命令）
 #
@@ -233,12 +239,34 @@ do_start(){
 
     # ---------------- ② 通信桥 + 6 actor ----------------
     step "② 起 XTDrone 通信桥 + control_actors"
-    start_group comm_0 "$LOGDIR/02_comm_0.log" \
-        python3 -u "$COMM_BRIDGE" typhoon_h480 0
-    sleep 3
+    # 默认**不起**通信桥（COMM_BRIDGE_ON=1 可强制开启）。
+    # 为什么（2026-10-03 实测，绕开 agent 的裸机验收实验）：
+    #   multirotor_communication.py 第 10 行 rate=30Hz、第 59-61 行主循环**无条件**
+    #   publish(target_motion)，而 target_motion 初值 = construct_target(x=0,y=0,z=0)
+    #   （type_mask=0，位置/速度/yaw 全生效）⇒ 它以 30Hz 把
+    #   /<uav>/mavros/setpoint_raw/local 打回**原点**。
+    #   而 setpoint_position/local 与 setpoint_raw/local 走的是**同一个 MAVROS
+    #   插件通道**，谁后到谁生效 ⇒ 桥把 agent 的位置设定点永久顶掉。
+    # 实测指纹（NO_AGENT 场，纯手工 OFFBOARD + setpoint_position z=2.0）：
+    #   桥在   ⇒ 飞机只升到 0.83m 并稳定，电机输出 1544~1590/2000（0.55，远未饱和），
+    #            水平被持续往原点拉（轨迹在 (0,-3) 与 (0,0) 之间来回）；
+    #   杀掉桥 ⇒ 同一条指令立刻升到 truth z=2.44m / mav_z=2.08 并稳定悬停。
+    # 这正是本节第 33 行"同一时刻只能有一个 setpoint 发布者"的实例。
+    # agent 自己负责 ARM/OFFBOARD/位置环，不需要桥；桥的官方指令入口
+    # /xtdrone/typhoon_h480_0/cmd_pose_enu 需要用时再 COMM_BRIDGE_ON=1 打开。
+    if [ "${COMM_BRIDGE_ON:-0}" = "1" ]; then
+        start_group comm_0 "$LOGDIR/02_comm_0.log" \
+            python3 -u "$COMM_BRIDGE" typhoon_h480 0
+        sleep 3
+    else
+        pkill -9 -f '[m]ultirotor_communication.py' 2>/dev/null || true
+        warn "跳过 XTDrone 通信桥（COMM_BRIDGE_ON=0）：防止它 30Hz 灌全零 setpoint_raw 顶掉 agent 的位置设定点"
+    fi
     # 官方 control_actors.sh 里写死 `python`，非登录 shell 的 PATH 无 ~/.local/bin，
     # 这里只给子进程补 PATH，不改官方脚本。
-    start_group actors "$LOGDIR/02_actors.log" bash -c \
+    # stdout 必须丢弃：官方 control_actor.py:112-124 在 25s 瞬移倒计时里 while 忙等
+    # 且每轮 print ⇒ 单场日志可达 3GB，打满根盘后所有实验结论作废（10-03 铁证）。
+    start_group actors /dev/null bash -c \
         "export PATH=\$HOME/.local/bin:\$PATH; cd '$ROBO_DIR' && ./control_actors.sh"
     sleep 8
     nactor="$(count_pattern '[c]ontrol_actor.py')"

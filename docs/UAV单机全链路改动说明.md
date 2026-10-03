@@ -97,3 +97,65 @@
 - 雷达避险层：1100 次调用 → 改向 454 / 透传 646 / 异常 0，最大横向修正 1.07 m。
 - **完整闭环（首次，零人工注入）**：`left_actors [0..5] → [0,1]`、`score = 1175`、6× tracking success、4 次消除。
   对账：`6×50 + 6×80 + 4×100 − 5.1 = 1174.9` ✓
+
+---
+
+## 9. 从队友分支搬入的改动（2026-10-03 晚）
+
+来源两个队友分支，都是**已经他们自己实测过**的东西，只搬实现、不改逻辑：
+
+| 来源分支 | 搬了什么 |
+|---|---|
+| `gyccsjtu/robo_team` → `codex/radar-coordination-20261003` | 飞控参数读回校验、六机相机端口去冲突 |
+| `Zhibanyuan/robocup-yolo` → `mavros-port-iris` | 裁判上报确认门、协同上报 confidence 语义 |
+
+### 9.1 `perception_real.py`：协同上报 confidence 改成「方案 A」（默认已开）
+
+协同核心 `coordination/core.py::_target()` 第一句是 `if d['confidence'] < 1.: return`，
+它的约定是**上游负责确认判定、只有已确认目标才发 1.0**。
+
+- 我方此前是**无条件发 1.0**，比队友还激进：连未确认的误检也会被核心直接吃下去
+  （叠上"红色过敏"就是让全队去追一个消不掉的假目标）。
+- 现在：`PR_COORD_CONF_ONE=1`（**默认**）⇒ 已确认 track（`hits >= CONFIRM_HITS`）
+  发 1.0，未确认的照旧发真实 YOLO 置信度，核心自然忽略。
+
+⚠️ 原始 conf 仍原样留在调试快照与裁判侧，离线复盘不受影响。
+
+### 9.2 `perception_real.py`：新增裁判上报「确认门」（默认关）
+
+官方 `score_cal.py` 只比 x,y 误差（<1m）与上报间隔（<1s），**完全不看 confidence**。
+未确认 track 大多是活不过几秒的误检，一旦发到 `/actor_*_info`，就会以 20~40m 的
+误差把裁判 15s 连续计时**清零**（清零 = 永远消除不了）。
+
+- `PR_ACTOR_CONFIRM_ONLY=1` ⇒ 仅已确认 track 上报；`0`（**默认**）= 旧行为。
+- 与已有的 `ACTOR_PUB_RANGE` 是互补两道门：距离门挡"远而持续"的静态误检
+  （灯柱在 17~23m，真目标 6~9m），确认门挡"近而短命"的误检（靠距离切不开）。
+
+### 9.3 `fcu_configuration.py`（新文件）+ `swarm_agent._configure_fcu`：参数读回
+
+老实现只 `set`、不看返回值。MAVROS 参数表未就绪时 `param/set` 会被**静默拒绝**，
+飞机带着未生效的 `NAV_RCL_ACT`/`COM_RCL_EXCEPT` 继续 arm/OFFBOARD，最后在 RC 失联
+failsafe 上被拦 —— 表象是"解锁失败"，根因在几百行之前。
+
+现在 `pull → set → get` 读回验证，三轮不一致抛 `FCU_CONFIGURATION_NOT_VERIFIED`
+终止启动。**宁可引起不来，也不要带着未生效参数上天。**
+
+### 9.4 `scripts/patch_px4_camera_ports.py`（新增，六机前才需要）
+
+`6011_typhoon_h480.post` 里相机 MAVLink 端口写死 `14558/14530`，六机同跑时
+**互相抢绑**，表现是相机流时断时续，而 PX4 照常启动、不报错（又一个静默失效）。
+
+用法：只把端口改成 `14600+instance` / `14630+instance`，**改的是该轮私有 etc 副本，
+原构建文件一字不动**。单机跑法零影响。
+
+```bash
+python3 scripts/patch_px4_camera_ports.py \
+    /data/PX4_Firmware/build/px4_sitl_default /tmp/robocup_six/px4_etc
+# 之后 px4 -d /tmp/robocup_six/px4_etc -s etc/init.d-posix/rcS -i <n> -w <work>
+```
+
+### 9.5 这几处的验证状态
+
+- 三处代码改动：`ast.parse` 语法校验通过；**尚未上机复跑**（VM 上那份还没同步）。
+- 端口脚本：逻辑照搬队友已验证实现，**未在本机六机场景执行过**。
+

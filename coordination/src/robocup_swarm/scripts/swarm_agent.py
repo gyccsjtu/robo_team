@@ -34,6 +34,8 @@ from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDe
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from csv_logger import logger
+# 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
+from fcu_configuration import configure as configure_fcu_parameters
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -100,6 +102,19 @@ RADAR_GUARD     = int(os.environ.get('RADAR_GUARD', '1'))
 RADAR_FRESH_S   = float(os.environ.get('RADAR_FRESH_S', '0.5'))
 RADAR_WARN_R    = float(os.environ.get('RADAR_WARN_R', '4.0'))
 RADAR_STOP_R    = float(os.environ.get('RADAR_STOP_R', '1.2'))
+# === 2026-10-03 雷达「必须能刹住」硬约束 + 贴墙后退（防撞楼）===
+# 实测事故（02:24 场）：飞机在 world (2.87,-8.78) 顶住 house_2_126 的北立面
+# （该楼 x[-2.5,8.5] y[-18.5,-9.5]，北面 y=-9.5，机身 y=-8.8 ⇒ 净空 0.7m），
+# 雷达 front 长期饱和在量程下限 0.50m；随后 EKF 崩坏、OFFBOARD 失效保护落地。
+# 旧逻辑只在 front < RADAR_STOP_R 时把「前向分量」压零，但：
+#   a) 侧向逃逸分量仍可达 1.5 m/s，没有任何"必须能在接触前停住"的约束；
+#   b) 飞机一旦进了 A* 膨胀带（INFLATE_M=1.5）内侧，网格守卫只看前向 ±30° 锥，
+#      贴墙平行滑动时完全看不见侧面的墙，于是"合法"地一路蹭过去。
+# 这里加两条：① 合速度按刹停距离 v <= sqrt(2*a*(d-安全间隙)) 硬夹；
+#             ② front 近到 RADAR_BACKOFF_R 以内时主动沿机体 -x 后退离开。
+RADAR_SAFE_GAP    = float(os.environ.get('RADAR_SAFE_GAP', '0.8'))    # 期望最小净空 m
+RADAR_BACKOFF_R   = float(os.environ.get('RADAR_BACKOFF_R', '1.2'))   # 触发后退的 front m（= STOP_R）
+RADAR_BACKOFF_SPD = float(os.environ.get('RADAR_BACKOFF_SPD', '0.6')) # 后退速度 m/s
 MAP_GUARD_MARGIN = float(os.environ.get('MAP_GUARD_MARGIN', '1.0'))
 MAP_GUARD_SOFT   = float(os.environ.get('MAP_GUARD_SOFT', '2.0'))   # 硬边界外的软减速带宽 m
 # 越界主动回收：旧逻辑越界后 A* 起点在外拒绝规划、栅格守卫把界外当墙、
@@ -210,9 +225,35 @@ SPOOK_SPEED     = 0.8     # 必须 < 1.0 m/s，比旧版 0.9 更保守
 # 且跟踪正常的通道）；vel=旧的 setpoint_velocity 通道（本机实测垂向跟踪只有
 # 20%、地面 vz>0 起不来，留作对照）。
 FLIGHT_OUTPUT   = os.environ.get("FLIGHT_OUTPUT", "pos")
-POS_SP_STEP_MAX = float(os.environ.get("POS_SP_STEP_MAX", "0.6"))  # 单帧位置增量上限 m
-POS_SP_LEAD     = float(os.environ.get("POS_SP_LEAD", "0.35"))      # 位置设定点前瞻 s
+# === 2026-10-03 位置环增益对齐（单机主链实测，来自 02:24 与 02:38 两场日志）===
+# 位置通道下发 sp = 当前位置 + v * POS_SP_LEAD；PX4 位置环（MPC_XY_P=0.95，
+# 已在机上用 mavros/param/get 读回确认）给出的速度设定点 ≈
+#     MPC_XY_P * (sp - pos) = 0.95 * POS_SP_LEAD * v
+# 旧值 0.35 ⇒ 实际速度只有指令的 **0.33 倍**。实测证据：
+#   [SPV] v=(1.20,0.74) 连续 4 秒，而真值位移 0.32m/1.05s ⇒ 实飞 0.31 m/s。
+# 后果：① 飞机以 1/3 速度爬行，永远飞不到被指派的搜索格（租约 30s 而需 3 倍时间）；
+#       ② 近障时滞空被拉长；③ 位置误差长期存在 ⇒ PX4 速度环积分 windup，
+#       误差消失瞬间过冲（贴墙擦撞）。
+# 取 POS_SP_LEAD ≈ 1/MPC_XY_P ≈ 1.05，使实际速度 ≈ 指令速度。
+# POS_SP_STEP_MAX 必须同步放开，否则高速段又被夹回衰减：取 MAX_SPEED*POS_SP_LEAD。
+POS_SP_LEAD     = float(os.environ.get("POS_SP_LEAD", "1.0"))       # 位置设定点前瞻 s（≈1/MPC_XY_P）
+POS_SP_STEP_MAX = float(os.environ.get("POS_SP_STEP_MAX",
+                                       str(MAX_SPEED * 1.0)))       # 单帧位置增量上限 m
 POS_SPV         = int(os.environ.get("POS_SPV", "0"))                # 1=打印位置设定点诊断
+# === 2026-10-03 位置估计可信性闸门（P0，防"追幻影"）===
+# 实测：飞机贴楼后 PX4 位置估计崩坏 —— MAVROS 自己报出 19.6 m/s 的水平速度
+# （物理上限 5 m/s），local/world 坐标在 100m 量级上振荡，world_xy 因 offset 被
+# 反复"重锚定"而累计偏 3.3m。此时越界回收仍以 3 m/s 追幻影 → 越飞越远。
+# 判据：近 EST_WIN_S 秒的平均位移是否超过物理可能（MAX_SPEED*EST_V_RATIO）。
+EST_GUARD   = int(os.environ.get('EST_GUARD', '1'))       # 0=关闭（A/B 对照）
+EST_V_RATIO = float(os.environ.get('EST_V_RATIO', '2.0'))  # 允许速度 / MAX_SPEED
+EST_WIN_S   = float(os.environ.get('EST_WIN_S', '0.3'))    # 判定窗口 s
+# EKF 跳变时是否沿用旧的"offset 重锚定"。默认 0：实测该逻辑会用垃圾估计污染
+# offset，越锚越偏，最终所有守卫都在错误坐标上工作。改为「标记不可信 → 悬停」。
+EKF_REANCHOR = int(os.environ.get('EKF_REANCHOR', '0'))
+# 跳变后允许采纳的 offset 修正量上限 m。合理的 EKF 原点重置只平移几米；
+# 实测崩坏时曾要求修正 32.56m —— 那种量级必须拒绝（否则守卫全在错误坐标上）。
+EKF_REANCHOR_MAX_M = float(os.environ.get('EKF_REANCHOR_MAX_M', '5.0'))
 # 目标已进入 FLEE（state=1，实测逃跑 2.0 m/s）时，慢速 0.8 必然被甩开跟丢。
 # 此时短暂提速咬住（须略 >2.0）；目标不在逃跑时仍用 SPOOK_SPEED 防惊吓。
 FLEE_CHASE_SPEED  = float(os.environ.get('FLEE_CHASE_SPEED', '2.2'))
@@ -555,20 +596,97 @@ class SwarmAgent(object):
                 jump = math.hypot(new_xy[0] - self.local_xy[0],
                                   new_xy[1] - self.local_xy[1])
                 if jump > max(EKF_JUMP_MIN_M, MAX_SPEED * dt * 3.0):
-                    wx = self.local_xy[0] + self.offset[0]
-                    wy = self.local_xy[1] + self.offset[1]
-                    new_off = (wx - new_xy[0], wy - new_xy[1])
-                    rospy.logwarn("[%s] EKF 原点跳变 %.2fm（dt=%.3fs），offset 重锚定 "
-                                  "(%.2f,%.2f)→(%.2f,%.2f)，world 保持 (%.2f,%.2f)",
-                                  self.uav_id, jump, dt,
-                                  self.offset[0], self.offset[1],
-                                  new_off[0], new_off[1], wx, wy)
-                    self.offset = new_off
+                    if EKF_REANCHOR:
+                        wx = self.local_xy[0] + self.offset[0]
+                        wy = self.local_xy[1] + self.offset[1]
+                        new_off = (wx - new_xy[0], wy - new_xy[1])
+                        rospy.logwarn("[%s] EKF 原点跳变 %.2fm（dt=%.3fs），offset 重锚定 "
+                                      "(%.2f,%.2f)→(%.2f,%.2f)，world 保持 (%.2f,%.2f)",
+                                      self.uav_id, jump, dt,
+                                      self.offset[0], self.offset[1],
+                                      new_off[0], new_off[1], wx, wy)
+                        self.offset = new_off
+                    else:
+                        # 默认路径：不立刻污染 offset。实测"见跳变就重锚定"会把跳变
+                        # 藏进 offset，几次之后 world_xy 累计偏 3.3m，栅格/地图/越界
+                        # 三个守卫全部在错误坐标上工作 —— 越锚越偏。改为先记下"要
+                        # 保持的 world 位置"，等估计重新可信且修正量合理时再一次性采纳。
+                        self._est_jump_pending = (
+                            self.local_xy[0] + self.offset[0],
+                            self.local_xy[1] + self.offset[1])
+                        rospy.logerr("[%s] EKF 局部坐标单帧跳变 %.2fm（dt=%.3fs）→ "
+                                     "位置估计不可信（保持 offset=(%.2f,%.2f)，"
+                                     "待稳定后再校验）", self.uav_id, jump, dt,
+                                     self.offset[0], self.offset[1])
+        self._est_track(new_xy, now)
         self.local_xy = new_xy
         self._local_prev_t = now
         q = msg.pose.orientation
         self.yaw = math.atan2(2.0 * (q.w * q.z + q.x * q.y),
                               1.0 - 2.0 * (q.y * q.y + q.z * q.z))
+        # 跳变后估计重新可信 → 一次性校验 offset（修正量合理才采纳，见常量注释）
+        pend = getattr(self, '_est_jump_pending', None)
+        if pend is not None and self.offset is not None and self._est_trustworthy():
+            new_off = (pend[0] - new_xy[0], pend[1] - new_xy[1])
+            d = math.hypot(new_off[0] - self.offset[0],
+                           new_off[1] - self.offset[1])
+            if d <= EKF_REANCHOR_MAX_M:
+                rospy.logwarn("[%s] 估计已重新稳定，offset 校正 (%.2f,%.2f)→"
+                              "(%.2f,%.2f)，保持 world=(%.2f,%.2f)", self.uav_id,
+                              self.offset[0], self.offset[1],
+                              new_off[0], new_off[1], pend[0], pend[1])
+                self.offset = new_off
+            else:
+                rospy.logerr("[%s] 跳变修正量 %.2fm > %.1fm → 判为估计失控，"
+                             "不采纳 offset 修正，保持 (%.2f,%.2f)", self.uav_id, d,
+                             EKF_REANCHOR_MAX_M, self.offset[0], self.offset[1])
+            self._est_jump_pending = None
+
+    def _est_track(self, xy, now):
+        """维护最近 EST_WIN_S 秒的位置轨迹（判位置估计是否可信）。"""
+        tr = getattr(self, '_est_hist', None)
+        if tr is None:
+            tr = self._est_hist = []
+        tr.append((now, xy[0], xy[1]))
+        while len(tr) > 2 and now - tr[0][0] > max(EST_WIN_S, 0.05):
+            tr.pop(0)
+
+    def _est_recent_speed(self):
+        """近 EST_WIN_S 秒的平均水平速度估计；数据不足返回 None。"""
+        tr = getattr(self, '_est_hist', None)
+        if not tr or len(tr) < 2:
+            return None
+        (t0, x0, y0), (t1, x1, y1) = tr[0], tr[-1]
+        dt = t1 - t0
+        if dt <= 1e-6:
+            return None
+        return math.hypot(x1 - x0, y1 - y0) / dt
+
+    def _est_trustworthy(self):
+        """位置估计是否可信（EST_GUARD）。
+
+        实测（2026-10-03 两场）：飞机贴楼后 PX4 位置估计崩坏 —— MAVROS 自己
+        报出 19.64 m/s 的水平速度（物理上限 5 m/s），local/world 在 100m 量级
+        上振荡，而真值静止在楼边 (6.89,-9.32,0.34)。此时任何基于 world_xy 的
+        决策（越界回收 / 栅格避障 / A* 起点）都是垃圾：`越界主动回收 → (0,3)
+        当前(63.2,-66.1)` 就是在追幻影。判据只用"近窗口内位移是否物理可能"，
+        不依赖任何真值，合规。
+        """
+        if not EST_GUARD:
+            return True
+        if not getattr(self, '_anchor_done', False):
+            return True          # 起飞前不拦（预热阶段 local_xy 可能还没就绪）
+        if self.local_xy is None:
+            return False
+        tr = getattr(self, '_est_hist', None)
+        if not tr or len(tr) < 2:
+            return False
+        if rospy.Time.now().to_sec() - tr[-1][0] > 1.0:
+            return False         # 位置流断了 1s 以上，同样不可信
+        v = self._est_recent_speed()
+        if v is None:
+            return False
+        return v <= MAX_SPEED * EST_V_RATIO
 
     def _scan_cb(self, msg):
         self._scan = msg
@@ -707,9 +825,37 @@ class SwarmAgent(object):
             return False
 
     def _configure_fcu(self):
-        """SITL 无遥控器会触发 RC 失联 failsafe，拒绝解锁/进 OFFBOARD。"""
-        self._set_param("NAV_RCL_ACT", 0)
-        self._set_param("COM_RCL_EXCEPT", 4)
+        """SITL 无遥控器会触发 RC 失联 failsafe，拒绝解锁/进 OFFBOARD。
+
+        2026-10-03 改（取自队友 codex 分支的 fcu_configuration）：
+        原实现只 set、不看返回值 —— MAVROS 参数表尚未就绪时 `param/set` 会被
+        **静默拒绝**，飞机照样往下走 arm / 进 OFFBOARD，最后在 RC 失联 failsafe
+        上被拦下，表象是"解锁失败"，根因却在几百行之前的参数设置处。
+        现在 pull → set → get 读回验证，三轮仍不一致就抛异常终止启动
+        （宁可起不来，也不要带着未生效的参数上天）。
+        """
+        from mavros_msgs.srv import ParamPull, ParamGet
+        _pull_ns = "/%s/mavros/param/pull" % self.uav_id
+        _get_ns = "/%s/mavros/param/get" % self.uav_id
+        try:
+            rospy.wait_for_service(_pull_ns, timeout=30)
+        except rospy.ROSException as exc:
+            raise RuntimeError("FCU_PARAM_PULL_UNAVAILABLE: %s" % exc)
+        pull_srv = rospy.ServiceProxy(_pull_ns, ParamPull)
+        get_srv = rospy.ServiceProxy(_get_ns, ParamGet)
+
+        def _pull():
+            resp = pull_srv(True)
+            return resp.success and resp.param_received > 0
+
+        def _get(name):
+            resp = get_srv(name)
+            return resp.value.integer if resp.success else None
+
+        configure_fcu_parameters(_pull, self._set_param, _get,
+                                 {"NAV_RCL_ACT": 0, "COM_RCL_EXCEPT": 4})
+        rospy.loginfo("[%s] 飞控参数已读回验证：NAV_RCL_ACT=0 COM_RCL_EXCEPT=4",
+                      self.uav_id)
 
     def _arm_and_offboard(self):
         """预热 setpoint → 切 OFFBOARD → 解锁。与单机避障已验证的时序一致。
@@ -895,7 +1041,13 @@ class SwarmAgent(object):
             elif -100.0 <= deg < -30.0:
                 right = min(right, r)
 
+        # 最近净空（三扇区最小值）→ 硬刹停速度上限 v <= sqrt(2*a*(d-安全间隙))
+        d_min = min(front, left, right)
+        v_cap = math.sqrt(max(0.0, 2.0 * MAX_ACC *
+                              max(0.0, d_min - RADAR_SAFE_GAP)))
         if front >= RADAR_WARN_R:
+            if speed > v_cap and speed > 1e-9:
+                return vx * (v_cap / speed), vy * (v_cap / speed)
             return vx, vy
 
         # 优先选择净空更大的侧面；正前方两侧都未知时固定向左，避免左右抖动。
@@ -905,12 +1057,24 @@ class SwarmAgent(object):
         forward = max(0.0, min(speed * 0.35,
                                 speed * (front - RADAR_STOP_R) /
                                 max(RADAR_WARN_R - RADAR_STOP_R, 1e-6)))
+        # 侧向逃逸速度随净空收紧（旧值可达 1.5 m/s，在 0.5m 净空下横滑 = 刮擦）
         lateral = min(speed, 1.2 * (RADAR_WARN_R - front) /
-                       max(RADAR_WARN_R - RADAR_STOP_R, 1e-6))
+                       max(RADAR_WARN_R - RADAR_STOP_R, 1e-6), v_cap)
         body_x, body_y = forward, side * lateral
         cy, sy = math.cos(self.yaw), math.sin(self.yaw)
         guarded = (cy * body_x - sy * body_y,
                    sy * body_x + cy * body_y)
+        # 先按「刹得住」夹合速度（含前向与侧向逃逸）
+        gspd = math.hypot(guarded[0], guarded[1])
+        if gspd > v_cap and gspd > 1e-9:
+            k = v_cap / gspd
+            guarded = (guarded[0] * k, guarded[1] * k)
+        # 再叠加贴墙后退：front 已近到雷达量程下限时，唯一安全的动作是沿机体 -x
+        # 退出（远离障碍，故不受刹停约束；否则 v_cap=0 会把后退也一起夹成 0，
+        # 飞机就永远顶死在墙上 —— 这正是 02:24 场的实况）。
+        if front < RADAR_BACKOFF_R and RADAR_BACKOFF_SPD > 0.0:
+            guarded = (guarded[0] - cy * RADAR_BACKOFF_SPD,
+                       guarded[1] - sy * RADAR_BACKOFF_SPD)
         rospy.logwarn_throttle(2.0,
                                '[%s] 2D雷达近障 front=%.2fm left=%.2f right=%.2f '
                                '-> vin=(%.2f,%.2f) vout=(%.2f,%.2f)',
@@ -1062,6 +1226,31 @@ class SwarmAgent(object):
         vz=None 时按当前高度竖直 P 控制爬升到自适应高度；预热/悬停阶段显式传
         vz=0.0 发纯零速，避免 EKF 未收敛时带爬升速度导致 OFFBOARD 被拒。
         """
+        # === 位置估计可信性闸门（EST_GUARD，2026-10-03，最高优先级）===
+        # 只在自动飞行路径生效（vz is None；预热/降落都显式传 vz，不受影响）。
+        # 估计不可信时绝不做任何基于 world_xy 的决策 —— 实测「越界主动回收 →
+        # (0,3) 当前(63.2,-66.1)」是在追一个 100m 外的幻影，越追越远。
+        if vz is None and not self._est_trustworthy():
+            self._est_hold_n = getattr(self, '_est_hold_n', 0) + 1
+            _cap = min(ALT_TARGET_CAP, ALT_HARD_CEIL - ALT_HARD_MARGIN)
+            _base = self.altitude_layer or ALT_BASE
+            _alt = max(MIN_CRUISE_ALT, min(_cap, _base))
+            rospy.logwarn_throttle(2.0,
+                '[%s] 位置估计不可信（近 %.2fs 平均 %.1f m/s > %.1f m/s）→ 悬停'
+                '等待 EKF 收敛（累计 %d 拍）', self.uav_id, EST_WIN_S,
+                (self._est_recent_speed() or -1.0), MAX_SPEED * EST_V_RATIO,
+                self._est_hold_n)
+            self._last_cmd_v = (0.0, 0.0)
+            self._last_flight_v = (0.0, 0.0)
+            if FLIGHT_OUTPUT == "pos":
+                self._publish_pos_output(0.0, 0.0, _alt, 0.0)
+            else:
+                _m = TwistStamped()
+                _m.header.stamp = rospy.Time.now()
+                _m.header.frame_id = 'world'
+                self.vel_pub.publish(_m)
+            return
+
         # 最高优先级：越界主动回收，绕过其他守卫（界外无障碍）。
         rec = self._bounds_recovery_velocity()
         if rec is not None:

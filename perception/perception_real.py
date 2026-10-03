@@ -239,6 +239,17 @@ PUB_EMA = float(os.environ.get("PR_PUB_EMA", "0.5"))
 # 双闸门：①只有被 manager 指派追踪该目标的飞机可发；②目标必须在近距离内。
 OFFICIAL_ARBITRATED = int(os.environ.get("PR_OFFICIAL_ARBITRATED", "0"))
 ACTOR_PUB_RANGE = float(os.environ.get("PR_ACTOR_PUB_RANGE", "45.0"))
+# ---- 我方 10-03 追加（取自队友 mavros-port-iris 接入侧的裁判门控）：确认门 ----
+# 官方判分 score_cal.py 只比 x,y 误差（<1m）与上报间隔（<1s），**完全不看 confidence**。
+# hits < CONFIRM_HITS 的未确认 track 绝大多数是活不过几秒的误检（灯柱/招牌/红消防栓），
+# 一旦发到 /actor_*_info，就会以 20~40m 的坐标误差把裁判 15s 连续计时清零
+# （清零 = 永远消除不了）。队友 20260929T041507Z 实测：tid=6 @36m、tid=18 @20m
+# 都是 hits=2~3 的假 track。
+#   0（默认）= 旧行为，未确认 track 也上报；
+#   1 = 仅已确认 track（hits >= CONFIRM_HITS）上报。
+# 与 ACTOR_PUB_RANGE 是互补的两道门：距离门挡"远而持续"的静态误检（灯柱在
+# 17~23m，而真目标在 6~9m），确认门挡"近而短命"的误检（位置不固定，靠距离切不开）。
+ACTOR_CONFIRM_ONLY = int(os.environ.get("PR_ACTOR_CONFIRM_ONLY", "0"))
 # ---- 我方 10-02 追加：官方话题直发总开关 ----
 # 比赛链路里 /actor_<color>_info 的唯一合法发布者是 yolo_target_bridge（它做多机
 # 融合后单点 10Hz 统一发）。本机默认 0=不直发，避免与 bridge 双发布导致裁判反复
@@ -430,6 +441,15 @@ TOPIC_OF = {
 #    所以 z 由 TARGET_Z 显式补上（默认取官方 actor 体心高度 1.25m）。
 COORD_ON = int(os.environ.get("PR_COORD_ON", "1"))
 COORD_HZ = float(os.environ.get("PR_COORD_HZ", "2.0"))   # 对齐队友替身；核心按 tick 消费，灌太快会积压
+# ---- 我方 10-03 修（对齐队友 mavros-port-iris 的方案 A）----
+# 协同核心 `coordination/core.py::_target()` 第一句是 `if d['confidence'] < 1.: return`
+# —— 它的约定是"**上游负责融合与确认判定**，只有已确认目标才发 confidence=1.0"。
+# 我方先前是**无条件发 1.0**，比队友的方案 A 更激进：连未确认的误检也会被核心
+# 直接吃下去（叠上"红色过敏"就是让全队去追一个消不掉的假目标）。
+#   1（默认，方案 A）= 已确认 track（hits >= CONFIRM_HITS）发 1.0，其余发真实置信度；
+#   0 = 所有 track 都发 1.0（我方 10-03 之前的旧行为，仅供离线对照 / 诊断）。
+# 原始 conf 不变地留在调试快照与裁判侧，离线复盘不受影响。只改本仓库，核心不动。
+COORD_CONF_ONE = int(os.environ.get("PR_COORD_CONF_ONE", "1"))
 TARGET_Z = float(os.environ.get("PR_TARGET_Z", "1.25"))
 _CSV = logger("perception_%s" % UAV, [
     "ros_time", "event", "target_id", "class_name", "confidence",
@@ -853,6 +873,11 @@ def main():
             tstates[str(msg.target_id)] = (
                 float(msg.x), float(msg.y), msg.header.stamp.to_sec())
 
+    print("[pr] 裁判上报门控：距离门=%.0fm | 确认门=%s（hits>=%d）| 协同上报 confidence=%s"
+          % (ACTOR_PUB_RANGE,
+             "ON" if ACTOR_CONFIRM_ONLY else "off",
+             CONFIRM_HITS,
+             "方案A(已确认才发1.0)" if COORD_CONF_ONE else "恒发1.0(旧)"), flush=True)
     if SearchAssignment is not None:
         rospy.Subscriber("/swarm/assignment", SearchAssignment, _arb_cb)
         print("[pr] 官方话题仲裁开启：仅被指派追踪且目标<=%.0fm 时直发 /actor_*_info"
@@ -1297,6 +1322,8 @@ def main():
             need_tid = TID_OF_RED_SLOT[si] if cls == "red" else TID_OF_COLOR.get(cls)
             if tk.rng > ACTOR_PUB_RANGE:
                 continue
+            if ACTOR_CONFIRM_ONLY and tk.hits < CONFIRM_HITS:
+                continue
             if OFFICIAL_ARBITRATED and cur_tid != need_tid:
                 continue
             if IDENTITY_GATE:
@@ -1437,11 +1464,18 @@ def main():
                     _rng_h = math.hypot(_cx - uav_last[0], _cy - uav_last[1])
                 except Exception:
                     _rng_h = 0.0
+                # 置信度语义见文件顶部 COORD_CONF_ONE：协同核心只消费"已确认"
+                # 目标（confidence=1.0）。先前无条件发 1.0 会把未确认的误检也
+                # 直接喂进核心；改为方案 A 后未确认的照旧发真实置信度，核心
+                # 第一句 `if d['confidence'] < 1.: return` 自然忽略。
+                _coord_conf = max(0.0, min(1.0, float(_tk.conf)))
+                if COORD_CONF_ONE and _tk.hits >= CONFIRM_HITS:
+                    _coord_conf = 1.0
                 coord.publish(String(data=json.dumps({
                     "target_id": _tag,
                     "frame_id": "world_enu",
                     "xyz": [round(_cx, 2), round(_cy, 2), TARGET_Z],
-                    "confidence": 1.0,
+                    "confidence": _coord_conf,
                     "range_m": round(float(_rng_h), 2),
                     # 2026-10-02 我方补：observation_id 必须六机全局唯一。
                     # 队友原版是 "obs-{tag}-{seq}"，seq 是每机本地计数 ⇒ 六机会
