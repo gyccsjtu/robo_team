@@ -74,7 +74,8 @@ def main():
     snapshot.mkdir()
     source_names = ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py',
                     'six_swarm_probe.py', 'fixture_contacts.py', 'camera_actor_probe.py',
-                    'flight_actor_probe.py', 'evidence_writer.py', 'city_swarm_run.py', 'start_city_judge.py')
+                    'flight_actor_probe.py', 'evidence_writer.py', 'city_swarm_run.py', 'start_city_judge.py',
+                    'build_namespaced_gimbal_overlay.py')
     for name in source_names:
         shutil.copyfile(script_directory / name, snapshot / name)
     (out / 'execution_sources.json').write_text(json.dumps({name:
@@ -104,7 +105,7 @@ def main():
             i = row['px4_instance']
             tcp_ports.add(row['simulator_tcp_port'])
             udp_ports.update(row[k] for k in ('simulator_udp_port', 'px4_local_port', 'mavros_local_port'))
-            udp_ports.update((18570+i, 14280+i, 13030+i))
+            udp_ports.update((18570+i, 14280+i, row['px4_gimbal_port'],row['gimbal_local_port']))
         if args.master_port == args.gazebo_port:
             raise ValueError('ROS and Gazebo ports must differ')
         # Check each endpoint's actual protocol; unrelated TCP reservations are irrelevant to UDP.
@@ -112,7 +113,12 @@ def main():
         if not Path('/tmp/.X11-unix/X0').exists():
             raise RuntimeError('Camera-preserving model requires the verified X0 display')
         (out / 'wiring.json').write_text(json.dumps(wiring, indent=2))
-        generate(args.source_sdf, wiring, runtime / 'gps', out / 'models', hide_ray_visuals=bool(city))
+        gimbal_overlay = Path(os.environ.get('ROBOCUP_GIMBAL_RUNTIME',
+            '/root/robocup_runtime/gimbal_namespaced_20261004')) if city else None
+        generate(args.source_sdf, wiring, runtime / 'gps', out / 'models',
+                 hide_ray_visuals=bool(city),gimbal_overlay=gimbal_overlay)
+        if gimbal_overlay is not None:
+            shutil.copyfile(gimbal_overlay/'manifest.json',out/'gimbal_runtime_manifest.json')
         world = out / 'connectivity.world'
         world.write_text('''<sdf version="1.6"><world name="default">
 <include><uri>model://ground_plane</uri></include><include><uri>model://sun</uri></include>

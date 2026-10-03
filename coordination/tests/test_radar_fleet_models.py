@@ -17,6 +17,21 @@ SOURCE = '''<sdf version="1.6"><model name="typhoon_h480"><link name="base_link"
 
 
 class ModelTests(unittest.TestCase):
+    def test_gimbal_identity_and_endpoints_are_per_aircraft_with_sensors_unchanged(self):
+        source=SOURCE.replace('</model>','<plugin name="gimbal_controller" filename="libgazebo_gimbal_controller_plugin.so"/></model>')
+        for i in range(1,7):
+            row=dict(model_name='typhoon_h480_%d'%(i-1),uav_id='uav_%d'%i,
+                scan_topic='/uav_%d/scan'%i,simulator_tcp_port=4560+i,
+                simulator_udp_port=14560+i,mavros_local_port=14540+i,
+                mavlink_system_id=i+1,px4_gimbal_port=13030+i,gimbal_local_port=13280+i)
+            root=ET.fromstring(models.adapt(source,row,'/runtime/gps',gimbal_overlay='/runtime/gimbal'))
+            p=root.find(".//plugin[@name='gimbal_controller']")
+            self.assertEqual(p.get('filename'),'/runtime/gimbal/librobocup_namespaced_gimbal.so')
+            self.assertEqual(p.findtext('mavlink_system_id'),str(i+1))
+            self.assertEqual(p.findtext('px4_udp_port'),str(13030+i))
+            self.assertEqual(p.findtext('gimbal_udp_port'),str(13280+i))
+            self.assertEqual(models.sensor_signature(root),models.sensor_signature(ET.fromstring(source)))
+
     def test_city_hides_only_debug_rays_preserving_physical_sensor_signature(self):
         source = SOURCE.replace('<update_rate>500</update_rate>',
             '<visualize>true</visualize><update_rate>500</update_rate>')

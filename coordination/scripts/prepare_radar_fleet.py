@@ -25,6 +25,8 @@ def derive(build):
     mav = sources['px4-rc.mavlink']
     local = assignment_base(mav, 'udp_offboard_port_local')
     remote = assignment_base(mav, 'udp_offboard_port_remote')
+    gimbal_px4 = assignment_base(mav, 'udp_onboard_gimbal_port_local')
+    gimbal_remote = assignment_base(mav, 'udp_onboard_gimbal_port_remote')
     tcp = assignment_base(sources['px4-rc.simulator'], 'simulator_tcp_port')
     if not re.search(r'param set MAV_SYS_ID\s+\$\(\(px4_instance\+1\)\)', sources['rcS']):
         raise ValueError('Unverified MAV_SYS_ID mapping')
@@ -39,15 +41,18 @@ def derive(build):
                          mavlink_system_id=instance + 1,
                          px4_local_port=local + instance,
                          mavros_local_port=remote + instance,
+                         px4_gimbal_port=gimbal_px4 + instance,
+                         gimbal_local_port=gimbal_remote + instance,
                          simulator_tcp_port=tcp + instance,
                          simulator_udp_port=14560 + instance,
                          fcu_url='udp://:%d@127.0.0.1:%d' % (remote + instance, local + instance),
                          lock_key=uid))
     ports = [row[key] for row in rows for key in
-             ('px4_local_port', 'mavros_local_port', 'simulator_tcp_port', 'simulator_udp_port')]
+             ('px4_local_port', 'mavros_local_port', 'simulator_tcp_port', 'simulator_udp_port',
+              'px4_gimbal_port', 'gimbal_local_port')]
     if len(set(ports)) != len(ports) or not all(1024 <= p <= 65535 for p in ports):
         raise ValueError('Fleet ports overlap or are invalid')
-    return dict(schema_version=1, purpose='RADAR_FLEET_WIRING_ONLY',
+    return dict(schema_version=2, purpose='RADAR_FLEET_WIRING_ONLY',
                 px4_build=str(Path(build).resolve()),
                 source_sha256={name: hashlib.sha256(text.encode()).hexdigest()
                                for name, text in sources.items()},

@@ -23,11 +23,13 @@ def sensor_signature(root):
     return result
 
 
-def adapt(source, row, overlay, hide_ray_visuals=False):
+def adapt(source, row, overlay, hide_ray_visuals=False, gimbal_overlay=None):
     root = ET.fromstring(source)
     model = root.find('model')
     if model is None:
         raise ValueError('Expected top-level model')
+    if gimbal_overlay is not None and len(root.findall(".//plugin[@name='gimbal_controller']")) != 1:
+        raise ValueError('Expected exactly one controllable per-aircraft gimbal')
     before = sensor_signature(root)
     if hide_ray_visuals:
         for sensor in root.findall(".//sensor[@type='ray']"):
@@ -42,6 +44,15 @@ def adapt(source, row, overlay, hide_ray_visuals=False):
         library = plugin.get('filename', '')
         if library in replacements:
             plugin.set('filename', str(Path(overlay) / replacements[library]))
+        if plugin.get('name') == 'gimbal_controller' and gimbal_overlay is not None:
+            plugin.set('filename', str(Path(gimbal_overlay)/'librobocup_namespaced_gimbal.so'))
+            for key, value in [('mavlink_system_id',row['mavlink_system_id']),
+                               ('px4_udp_port',row['px4_gimbal_port']),
+                               ('gimbal_udp_port',row['gimbal_local_port'])]:
+                node = plugin.find(key)
+                if node is None:
+                    node = ET.SubElement(plugin,key)
+                node.text = str(value)
         if library.startswith('libgazebo_ros_'):
             namespace = plugin.find('robotNamespace')
             if namespace is None:
@@ -72,14 +83,20 @@ def adapt(source, row, overlay, hide_ray_visuals=False):
     return ET.tostring(root, encoding='unicode')
 
 
-def generate(source_path, wiring, overlay, output, hide_ray_visuals=False):
-    if wiring.get('schema_version') != 1 or len(wiring.get('uavs', [])) != 6:
-        raise ValueError('Expected six-aircraft wiring v1')
+def generate(source_path, wiring, overlay, output, hide_ray_visuals=False, gimbal_overlay=None):
+    if wiring.get('schema_version') not in (1,2) or len(wiring.get('uavs', [])) != 6:
+        raise ValueError('Expected six-aircraft wiring v1/v2')
+    if gimbal_overlay is not None:
+        library = Path(gimbal_overlay)/'librobocup_namespaced_gimbal.so'
+        manifest = json.loads((Path(gimbal_overlay)/'manifest.json').read_text())
+        if (wiring['schema_version'] != 2 or not library.is_file()
+                or hashlib.sha256(library.read_bytes()).hexdigest() != manifest['library_sha256']):
+            raise ValueError('Unverified namespaced gimbal runtime')
     for name in ('librobocup_legacy_model_gps_plugin.so', 'librobocup_legacy_gps_mavlink_interface.so'):
         if not (Path(overlay) / name).is_file():
             raise ValueError('Missing runtime overlay: ' + name)
     source = Path(source_path).read_text()
-    copies = {row['model_name']: adapt(source, row, overlay, hide_ray_visuals) for row in wiring['uavs']}
+    copies = {row['model_name']: adapt(source, row, overlay, hide_ray_visuals, gimbal_overlay) for row in wiring['uavs']}
     if len(copies) != 6:
         raise ValueError('Duplicate model names')
     output = Path(output)
@@ -92,6 +109,7 @@ def generate(source_path, wiring, overlay, output, hide_ray_visuals=False):
     report = dict(schema_version=1, source_sha256=hashlib.sha256(Path(source_path).read_bytes()).hexdigest(),
                   generated_sha256=hashes, sensor_parameters_preserved=True,
                   gui_ray_visualizations_disabled=bool(hide_ray_visuals),
+                  gimbal_wiring_revision='v1.21' if gimbal_overlay is not None else 'legacy_unverified',
                   competition_equivalence_verified=False)
     (output / 'model_manifest.json').write_text(json.dumps(report, indent=2))
     return report
@@ -102,7 +120,8 @@ if __name__ == '__main__':
     parser.add_argument('--source-sdf', required=True)
     parser.add_argument('--wiring', required=True)
     parser.add_argument('--gps-overlay', required=True)
+    parser.add_argument('--gimbal-overlay',help='Verified independent per-aircraft gimbal runtime; requires wiring v2')
     parser.add_argument('--output', required=True)
     args = parser.parse_args()
     print(json.dumps(generate(args.source_sdf, json.loads(Path(args.wiring).read_text()),
-                              args.gps_overlay, args.output), indent=2))
+                              args.gps_overlay, args.output,gimbal_overlay=args.gimbal_overlay), indent=2))
