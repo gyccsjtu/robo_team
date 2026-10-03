@@ -143,6 +143,43 @@ class OnlinePlanner:
         return dict(ok=True, reason='GOAL_OBSERVED' if complete else 'OBSERVED_FRONTIER', points=points)
 
     @staticmethod
+    def connector_clear(grid, start, end):
+        """Check every crossed grid cell, including cells touched at corners."""
+        if grid is None or any(grid.world_to_cell(p) is None for p in (start,end)):
+            return False
+        a=[(start[i]-grid.origin[i])/grid.resolution for i in (0,1)]
+        b=[(end[i]-grid.origin[i])/grid.resolution for i in (0,1)]
+        cuts={0.,1.}
+        for axis in (0,1):
+            delta=b[axis]-a[axis]
+            if abs(delta)>1e-12:
+                for edge in range(math.floor(min(a[axis],b[axis]))+1,
+                                  math.ceil(max(a[axis],b[axis]))):
+                    fraction=(edge-a[axis])/delta
+                    if 0 < fraction < 1:
+                        cuts.add(fraction)
+        ordered=sorted(cuts)
+        samples=ordered+[(x+y)/2 for x,y in zip(ordered,ordered[1:])]
+        for fraction in samples:
+            axes=[]
+            for axis in (0,1):
+                value=a[axis]+fraction*(b[axis]-a[axis])
+                edge=round(value)
+                axes.append((edge-1,edge) if abs(value-edge)<1e-9 else (math.floor(value),))
+            if any(not grid.is_free((ix,iy)) for ix in axes[0] for iy in axes[1]):
+                return False
+        return True
+
+    @classmethod
+    def visible_goal(cls, grid, position, prefix):
+        # Prefer the farthest original path point whose connecting segment stays
+        # inside known free space; no straight shortcut through an inflated corner.
+        for point in reversed(prefix):
+            if math.dist(position,point) > .05 and cls.connector_clear(grid,position,point):
+                return tuple(point)
+        return None
+
+    @staticmethod
     def command_clear(grid, position, velocity, radius=1.2, latency=.5, brake=.5):
         speed = math.hypot(*velocity)
         if speed < 1e-8:

@@ -1722,8 +1722,16 @@ class SwarmAgent(object):
             seg = math.hypot(x1 - x0, y1 - y0)
             if acc + seg >= LOOKAHEAD:
                 frac = (LOOKAHEAD - acc) / max(seg, 1e-6)
-                return (x0 + (x1 - x0) * frac, y0 + (y1 - y0) * frac)
+                candidate = (x0 + (x1 - x0) * frac, y0 + (y1 - y0) * frac)
+                planner = getattr(self, '_online_planner', None)
+                if planner is not None:
+                    return planner.visible_goal(self._online_safe_grid,self.world_xy,
+                                                self.path[best:i+1]+[candidate])
+                return candidate
             acc += seg
+        planner = getattr(self, '_online_planner', None)
+        if planner is not None:
+            return planner.visible_goal(self._online_safe_grid,self.world_xy,self.path[best:])
         return self.path[-1]
 
     def _control(self):
