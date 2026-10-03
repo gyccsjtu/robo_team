@@ -1,0 +1,58 @@
+{
+  "simulated_seconds": 51.42000000000007,
+  "last_positions": {
+    "uav_1": [
+      -11.298191456305101,
+      -15.735606510053765,
+      3.956721716910314
+    ],
+    "uav_2": [
+      -6.310940763735027,
+      -11.371930883776107,
+      3.8869107161827046
+    ],
+    "uav_3": [
+      -42.38238751151659,
+      -0.7932292440200367,
+      4.095486090674644
+    ],
+    "uav_4": [
+      29.84110245366029,
+      -0.03419213372064965,
+      3.9013833310178065
+    ],
+    "uav_5": [
+      -43.85690550690567,
+      6.877611896376218,
+      4.50778324678933
+    ],
+    "uav_6": [
+      8.699421051098112,
+      4.955362504947587,
+      3.906344927505773
+    ]
+  },
+  "maximum_actual_altitude_m": 4.50778324678933,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 17.023141150065133,
+    "uav_2": 12.523478822083693,
+    "uav_3": 42.555496285938624,
+    "uav_4": 26.840615334308435,
+    "uav_5": 44.02828990500735,
+    "uav_6": 6.45572807929822
+  },
+  "contact_observation": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 9477,
+    "first_sample_s": 1945.492,
+    "last_sample_s": 1983.396,
+    "maximum_sample_gap_s": 0.00400000000013,
+    "sonar_virtual_pairs": 7311,
+    "body_pairs": 0
+  },
+  "eliminated_count": 0,
+  "in_progress": true,
+  "formal_competition_pass": false,
+  "contact_coverage": "Partial run, observer started at 1945.492",
+  "corner_result": "uav_5 passed previous persistent stop at x=-23.5 and continued west"
+}

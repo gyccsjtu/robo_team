@@ -15,6 +15,21 @@ from red_judge_compat import adapt_red_judge
 SPAWNS = [(0., -3.), (3., -3.), (0., 0.), (3., 0.), (0., 3.), (3., 3.)]
 
 
+def adapt_actor_wait(control):
+    """Keep the original teleport deadline without spinning or log flooding."""
+    original = ('while not responce.success:\n'
+                '            if rospy.get_time() - self.teleportation_time < self.teleportation_interval:\n'
+                '                print(rospy.get_time() - self.teleportation_time)\n'
+                '                continue')
+    replacement = ('while not responce.success and not rospy.is_shutdown():\n'
+                   '            if rospy.get_time() - self.teleportation_time < self.teleportation_interval:\n'
+                   '                rospy.sleep(0.02)\n'
+                   '                continue')
+    if original not in control:
+        raise ValueError('ACTOR_TELEPORT_WAIT_SOURCE_CHANGED')
+    return control.replace(original, replacement, 1)
+
+
 def startup_distances(boxes, points=SPAWNS):
     return [min((math.hypot(max(lo[0]-x, 0., x-lo[1]),
                            max(hi[0]-y, 0., y-hi[1])) for lo, hi in boxes),
@@ -75,6 +90,7 @@ def prepare(source, output, seed=17):
         'print(("Gazebo model state service"+self.id+"  call failed: %s") % e)\n'
         '                rate.sleep()\n'
         '                continue')
+    control = adapt_actor_wait(control)
     (output/'control_actor.py').write_text(control)
     # Only the isolated judge copy implements the organizer clarification.
     judge = output/'score_cal.py'
@@ -93,6 +109,7 @@ def prepare(source, output, seed=17):
         adaptations=['isolated output paths', 'seeded map randomness', '250Hz PX4-compatible physics',
                      'Python3 actor range', '30s teleport per rule; platform copy used 25s',
                      'actor transient service retry without Python2 print crash or fictitious pose',
+                     'actor teleport wait yields for 20ms simulated time; original deadline unchanged',
                      'red reports match either remaining red actor; isolated judge copy only'])
     (output/'scene_manifest.json').write_text(json.dumps(report,indent=2))
     return report

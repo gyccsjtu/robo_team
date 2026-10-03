@@ -1,0 +1,51 @@
+{
+  "simulated_seconds": 271.9759999999999,
+  "samples": 1335,
+  "maximum_actual_altitude_m": 4.841627968069457,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 21.941938193036332,
+    "uav_2": 53.49036354184785,
+    "uav_3": 65.30121092618403,
+    "uav_4": 69.56614869554143,
+    "uav_5": 23.682301373527217,
+    "uav_6": 41.318173412011525
+  },
+  "last_positions": {
+    "uav_1": [
+      10.310937265463942,
+      13.765325433048258,
+      3.617006235925742
+    ],
+    "uav_2": [
+      21.470664350718213,
+      -52.89193029756792,
+      3.585604367375936
+    ],
+    "uav_3": [
+      -22.59429773765838,
+      -15.100535997575758,
+      3.5682919171167584
+    ],
+    "uav_4": [
+      66.23651400854443,
+      28.84080445659711,
+      3.608552935972635
+    ],
+    "uav_5": [
+      -23.472459695992722,
+      4.763782908256857,
+      3.5403425169272262
+    ],
+    "uav_6": [
+      39.00191524732381,
+      23.181649858187384,
+      3.5862947418577016
+    ]
+  },
+  "eliminated_count": 0,
+  "stop_reason": "Owned launcher SIGINT to repair persistent corner stall and platform teleport busy wait",
+  "collision_verdict": "ABSTAIN",
+  "formal_competition_pass": false,
+  "actor_1.log_original_bytes": 2284104981,
+  "gzserver.log_original_bytes": 315402651
+}

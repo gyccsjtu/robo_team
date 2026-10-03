@@ -78,7 +78,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         maximum_speed_mps=3.,visual_fusion_revision='v2.4',tracker_selection_revision='v1.3',
         person_motion_revision='v1.4',recent_motion_window_s=4.,
         target_motion_revision='v1.5',flee_chase_speed_mps=2.6,
-        route_continuity_revision='v1.7',red_matching_revision='organizer_clarification_20261003_v1',
+        route_continuity_revision='v1.7',route_corner_guidance_revision='v1.8',
+        red_matching_revision='organizer_clarification_20261003_v1',
         red_report_topic='/actor_red_info',red_coordination_identity='geometric_track_slot_not_actor_id',
         altitude_configuration_revision='v1.6',altitude_reference='MAVROS_LOCAL',
         cruise_altitude_m=3.5,altitude_hard_m=4.1,altitude_panic_m=4.3,
@@ -98,6 +99,27 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         raise RuntimeError('CITY_PHYSICS_SLOWDOWN_FAILED')
     scripts=snapshot/'coordination/src/robocup_swarm/scripts'
     processes=[spawn(['python3','-u',str(scripts/'yolo_target_bridge.py')],'yolo_target_bridge',flight_env)]
+    # Observe native physics contacts before arming. Sonar sensing volumes are
+    # verified separately; logical uav IDs must never substitute model names.
+    contact_binary=Path(flight_env.get('CITY_CONTACT_OBSERVER_BINARY',
+        '/root/robo_team_build/contact_audit/city_contact_observer'))
+    if contact_binary.is_file():
+        from fixture_contacts import sonar_virtual_collisions
+        model_root=next((Path(path) for path in env.get('GAZEBO_MODEL_PATH','').split(':')
+                         if path and (Path(path)/'sonar/model.sdf').is_file()),None)
+        if model_root is None:
+            raise RuntimeError('CONTACT_AUDIT_SONAR_MODEL_MISSING')
+        models=[row['model_name'] for row in wiring['uavs']]
+        whitelist=out/'contact_sonar_whitelist_models.txt'
+        whitelist.write_text('\n'.join(sorted(sonar_virtual_collisions(model_root,models)))+'\n')
+        source=repo/'coordination/scripts/city_contact_observer.cc'
+        shutil.copy2(source,out/source.name)
+        (out/'contact_observer_manifest.json').write_text(json.dumps(dict(
+            fleet_models=models,control_input=False,
+            binary_sha256=hashlib.sha256(contact_binary.read_bytes()).hexdigest(),
+            source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
+            sonar_model_sha256=hashlib.sha256((model_root/'sonar/model.sdf').read_bytes()).hexdigest()),indent=2))
+        processes.append(spawn([str(contact_binary),str(whitelist)],'city_contacts',flight_env))
     python=flight_env.get('VISION_PYTHON','/root/robo_team_build/vision_env/bin/python')
     # Shared inference (2026-10-03): one CUDA context for all six cameras instead of
     # six. Off unless PR_SHARED_INFER=1, and the service refuses device=cpu because on

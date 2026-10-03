@@ -1,0 +1,10 @@
+{
+  "before_rate": 20.0,
+  "requested_rate": 40.0,
+  "verified_rate": 40.0,
+  "success": true,
+  "sample_s": 1950.428,
+  "time_step": 0.004,
+  "sensor_parameters_changed": false,
+  "reason": "Restore previous sharedGPU development rate; launch omitted CITY_PHYSICS_RATE override"
+}

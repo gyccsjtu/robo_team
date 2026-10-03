@@ -141,3 +141,18 @@ shared_gpu_run02真实六机轮曾由未改动官方裁判消除actor_0，剩余
 ## 在线路线拐角引导修复（待实飞验证）
 
 当前红色适配轮中uav_5反复获批前沿路线却零速；检查发现3m路径引导点可能越过折角，生成跨越膨胀障碍的直线捷径。在线模式现在逐格检查当前位置至候选引导点的连接段，选取路径前缀中最远可直达点；格角接触也检查两侧格子，无可行连接则不猜测方向。离线旧模式保持原行为。真实agent方法的L形走廊、直线、断路及格角测试与全套共353项通过。当前运行使用冻结旧快照，此修复尚未实飞，不能据此宣称uav_5已解卡或六机完成。
+
+## v1.8实飞推进与平台等待循环修复
+
+前一段文字记录修复当时状态；随后corner_v18物理轮已验证uav_5越过旧卡点x≈−23.5m，继续至x≈−36.6m。checkpoint见validation/shared_gpu_corner_v18_checkpoint；这是途中证据，尚未完成六目标验收。旧红色轮271.976s、六机均移动、最高4.841628m、0/6消除，主动中止以应用修复；原始结果保留于shared_gpu_run05_red_match_corner_stall，碰撞ABSTAIN。
+
+另发现平台actor_1传送回调在30秒期限之前持续忙等打印，日志达到2284104981字节。开发副本现在每次等待休眠20ms仿真时间，保留原截止条件并响应shutdown；原官方文件不改。实际源码回调边界测试与全套356项通过。新运行最初使用脚本默认20Hz；在仿真1950.428s恢复此前使用的40Hz，服务回读成功，原记录及live_update均保留，不修改传感器参数或仿真截止时间。
+
+新增只读Gazebo原生contacts观察器city_contact_observer.cc，不增加传感器、不向控制器提供真值。模型名称从wiring取typhoon_h480_0..5，不能用逻辑uav_1..6代替；sonar虚拟体按实际SDF验证并精确过滤。初次逻辑名称错误观察文件保留并标无效，不能用于无碰撞结论。原生观察器机体、sonar、非飞机接触及名称前缀自测通过；部分真实物理窗口采样连续0.004s、机体接触0。整轮无碰撞仍待完整范围证据，不能用途中零接触代替。下次启动若已构建观察器，将在解锁前自动启动并纳入本轮进程清理。
+
+WSL构建观察器命令（在仓库根目录运行）：
+```bash
+mkdir -p /root/robo_team_build/contact_audit
+g++ -std=c++17 coordination/scripts/city_contact_observer.cc -o /root/robo_team_build/contact_audit/city_contact_observer $(pkg-config --cflags --libs gazebo)
+/root/robo_team_build/contact_audit/city_contact_observer --self-test
+```
