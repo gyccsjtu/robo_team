@@ -175,3 +175,11 @@ source /root/robo_team_build/codex_authority_v2/devel/setup.bash
 export ROS_MASTER_URI=http://127.0.0.1:11375
 python3 coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_city_rendezvous_v110_20261003/flight/visual_frames_new --wall-seconds 600
 ```
+
+## 2026-10-04：绿色同帧人体核验与单EKF试验配置
+
+真实原图重放定位绿色垃圾箱等静态物体会被旧五色模型识别成人物；加入负样本的v2_neg仍检出同批错误框，未切换该权重。官方COCO预训练YOLO11n人体模型在本轮14张初始真人帧中保留人物，在两张已核查垃圾箱帧中不检出人物；这只证明该样本集效果，不是全场准确率。新增person_verifier.py只核验green框与同一张图上的person框IoU≥0.25，人体阈值0.1，保留原颜色模型坐标和置信度，其余颜色不变；不借用旧帧人体结果。正常共享客户端不加载额外模型，核验在同一服务同一CUDA上下文执行；服务故障时本地CPU回退也执行同一核验。权重路径weights/yolo11n_person.pt，SHA256=0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1，来源https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt；模型说明https://docs.ultralytics.com/models/yolo11/。本模型是通用人体核验，不是比赛规则来源。真实正/负帧共享测试7/7通过，无skip，包含本地/共享数值相同、六客户端吞吐、客户端无CUDA映射；全套核心369项通过。
+
+v1.10轮6号机出现多次primary EKF changed、invalid setpoints、failsafe，以及局部坐标巨大异常；同时物理真值仍在(-24,32)附近，约1m高度。一次原始GPS/局部位姿/真值只读取证见position_drift_audit.json，不能以该瞬间位姿恢复证明整个飞行健康。源码中坐标跳变补偿无独立定位确认，可能累加错误偏移，尚不能宣称已解决。
+
+下一物理轮试验v1.12只在隔离PX4启动副本将EKF2_MULTI_IMU/MAG设0、SENS_IMU_MODE/MAG_MODE设1；PX4本地ekf2_params_multi.c明确0禁用多EKF且需重启，故在估计器初始化前修改，原官方/PX4文件不动。agent在解锁前读回四参数，不符则拒绝运行。此配置旨在排除多实例选择切换，不是已经证明根因或已修好6号机；须结合后续真实轨迹、PX4日志和定位数据验证。

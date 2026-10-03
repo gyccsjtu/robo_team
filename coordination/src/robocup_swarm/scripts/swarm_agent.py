@@ -976,6 +976,12 @@ class SwarmAgent(object):
             return response.value.integer if response.success else None
         configure_fcu_parameters(pull, self._set_param, get,
                                  {'NAV_RCL_ACT': 0, 'COM_RCL_EXCEPT': 4})
+        if os.environ.get('SWARM_EXPECT_SINGLE_EKF')=='1':
+            expected={'EKF2_MULTI_IMU':0,'EKF2_MULTI_MAG':0,'SENS_IMU_MODE':1,'SENS_MAG_MODE':1}
+            actual={name:get(name) for name in expected}
+            if actual!=expected:
+                raise RuntimeError('SINGLE_EKF_BOOTSTRAP_READBACK_FAILED:'+str(actual))
+            rospy.loginfo('[%s] Single-EKF startup parameters read back and verified',self.uav_id)
         rospy.loginfo('[%s] FCU autonomous-flight parameters read back and verified', self.uav_id)
 
     def _arm_and_offboard(self):

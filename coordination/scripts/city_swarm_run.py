@@ -68,6 +68,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         ALT_BASE='3.5',ALT_NLAYER='1',ALT_TARGET_CAP='3.5',
         ALT_HARD_CEIL='4.1',ALT_PANIC='4.3',ALT_EMERG_CEIL='4.5',
         SWARM_ROUTE_CLEARANCE_M='2.5',SWARM_FLEET_SEPARATION_M='2.5',
+        PR_PERSON_VERIFY_WEIGHTS=str(repo/'weights/yolo11n_person.pt'),
+        PR_PERSON_VERIFY_CONF='.1',PR_PERSON_VERIFY_IOU='.25',
         SAFE_3D='2.8',DANGER_3D='2.0',SLOWDOWN_DIST='4.0',
         PYTHONDONTWRITEBYTECODE='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1')
     flight_env.pop('SWARM_CALIB',None)
@@ -80,6 +82,9 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         target_motion_revision='v1.5',flee_chase_speed_mps=2.6,
         route_continuity_revision='v1.7',route_corner_guidance_revision='v1.8',
         visual_rendezvous_revision='v1.9',official_short_coast_revision='v1.10',
+        green_person_verification_revision='v1.11',
+        estimator_configuration_revision='v1.12',
+        person_verifier_weights_sha256=hashlib.sha256((repo/'weights/yolo11n_person.pt').read_bytes()).hexdigest(),
         red_matching_revision='organizer_clarification_20261003_v1',
         red_report_topic='/actor_red_info',red_coordination_identity='geometric_track_slot_not_actor_id',
         altitude_configuration_revision='v1.6',altitude_reference='MAVROS_LOCAL',

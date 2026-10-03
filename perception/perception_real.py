@@ -1024,6 +1024,9 @@ def main():
           % ("ON" if GATE_DYN else "off", GATE, GATE_MIN, GATE_MULT), flush=True)
 
     rate = rospy.Rate(PUB_HZ)
+    from person_verifier import PersonVerifier
+    person_verifier=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),infer_device,
+        os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'))
     n_loop = 0
     _t_live = 0.0            # 心跳上次打印墙钟（5s 一次，证明主线程活着）
     _coord_t = 0.0            # 上次发协同上报的墙钟（COORD_HZ 节流用）
@@ -1109,9 +1112,11 @@ def main():
                     # 推理后端二选一：共享服务（省CUDA context）或本进程。
                     # 共享失败必须回退，不能让 15s 判据因服务故障断流。
                     _shared_meta = None
+                    _local_inference = _shared is None
                     if _shared is not None:
                         _boxes, _shared_meta = _shared.infer(img, uav=UAV)
                         if _boxes is None:
+                            _local_inference = True
                             # 首次回退时才懒加载本进程模型，之后继续用本地。
                             _shared.note_fallback(_shared.last_error or 'no_reply')
                             if _model is None:
@@ -1128,6 +1133,9 @@ def main():
                     else:
                         res = _model(img, conf=CONF, verbose=False, device=infer_device,
                                      **({'half': True} if PR_FP16 else {}))[0]
+                        inference_s = time.time() - _infer_t0
+                    if _local_inference:
+                        res = _BoxesShim(person_verifier.filter_boxes(img,res.boxes))
                         inference_s = time.time() - _infer_t0
                     if not device_reported:
                         print('[pr] inference_device=%s first_inference_s=%.4f' %

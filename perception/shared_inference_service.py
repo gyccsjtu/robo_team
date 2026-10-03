@@ -64,6 +64,7 @@ WEIGHTS_DEFAULT = "/mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt"
 # Serialization guard: one CUDA context, one lock. Requests queue behind it.
 _GPU_LOCK = threading.Lock()
 _MODEL = None
+_PERSON_VERIFIER = None
 _PREDICTOR_READY = False
 
 
@@ -74,13 +75,19 @@ def _log(msg):
 
 def _load(device, conf):
     """Load weights once. Kept out of the request path."""
-    global _MODEL, _PREDICTOR_READY
+    global _MODEL, _PREDICTOR_READY, _PERSON_VERIFIER
     from ultralytics import YOLO
     weights = os.environ.get("PR_WEIGHTS", WEIGHTS_DEFAULT)
     _MODEL = YOLO(weights)
+    from person_verifier import PersonVerifier
+    _PERSON_VERIFIER=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),device,
+        os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'))
     # Touch the predictor so the first real request does not pay model setup.
     import numpy as np
     probe = np.zeros((360, 640, 3), dtype=np.uint8)
+    if _PERSON_VERIFIER.weights:
+        _PERSON_VERIFIER.load()(probe,classes=[0],conf=_PERSON_VERIFIER.confidence,device=device,verbose=False)
+        _log('same-frame green person verifier ready weights=%s' % _PERSON_VERIFIER.weights)
     _infer(probe, conf, device)
     _PREDICTOR_READY = True
     _log("model ready weights=%s device=%s conf=%.2f" % (weights, device, conf))
@@ -97,7 +104,8 @@ def _infer(img, conf, device):
     if device not in ("cpu", ""):
         torch.cuda.synchronize()
     out = []
-    for b in res.boxes:
+    boxes=_PERSON_VERIFIER.filter_boxes(img,res.boxes) if _PERSON_VERIFIER is not None else res.boxes
+    for b in boxes:
         out.append(dict(
             cls=int(b.cls),
             conf=round(float(b.conf), 4),

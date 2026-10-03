@@ -39,6 +39,7 @@ PY = os.environ.get("PR_TEST_PYTHON", "/root/robo_team_build/vision_cuda_2026100
 SERVICE = os.path.join(PERCEPTION, "shared_inference_service.py")
 WEIGHTS = os.environ.get("PR_WEIGHTS", "/mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt")
 FRAME = os.environ.get("PR_TEST_FRAME", "")
+NEGATIVE_FRAME = os.environ.get('PR_TEST_NEGATIVE_FRAME','')
 PORT = int(os.environ.get("PR_TEST_PORT", "19781"))
 
 
@@ -148,7 +149,11 @@ class TestServiceContract(unittest.TestCase):
             ok = 0
             try:
                 for k in range(4):
-                    img = (np.random.rand(360, 640, 3) * 255).astype(np.uint8)
+                    if FRAME:
+                        import cv2
+                        img=cv2.imread(FRAME,cv2.IMREAD_COLOR)
+                    else:
+                        img = (np.random.rand(360, 640, 3) * 255).astype(np.uint8)
                     boxes, _ = c.infer(img, uav="uav_%d" % (i + 1))
                     if boxes is not None:
                         ok += 1
@@ -187,12 +192,24 @@ class TestServiceContract(unittest.TestCase):
                            [round(float(v), 2) for v in b.xyxy[0]]) for b in boxes)
 
         m = YOLO(WEIGHTS)
-        local = norm(m(img, conf=0.25, verbose=False, device="0")[0].boxes)
+        from person_verifier import PersonVerifier
+        verifier=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),'0')
+        local = norm(verifier.filter_boxes(img,m(img, conf=0.25, verbose=False, device="0")[0].boxes))
         boxes, _ = self.client.infer(img, uav="uav_parity")
         shared = norm(boxes or [])
         self.assertEqual(local, shared,
                          "shared/local numerics diverged; the 15 s criterion would be "
                          "computed from different geometry")
+
+    def test_green_verifier_rejects_real_garbage_bin_frame(self):
+        if not os.environ.get('PR_PERSON_VERIFY_WEIGHTS') or not NEGATIVE_FRAME:
+            self.skipTest('Person verifier and real negative frame required')
+        import cv2
+        image=cv2.imread(NEGATIVE_FRAME,cv2.IMREAD_COLOR)
+        self.assertIsNotNone(image)
+        boxes,meta=self.client.infer(image,uav='real_negative_replay')
+        self.assertIsNotNone(boxes,str(meta))
+        self.assertFalse(any(int(box.cls)==1 for box in boxes))
 
     def test_cpu_device_refused(self):
         """Serving on CPU would add a hop without saving anything."""

@@ -244,6 +244,18 @@ def main():
         launch_path.write_text(launch.tostring(root, encoding='unicode'))
         flight_etc = out / 'px4_etc'
         shutil.copytree(build / 'etc', flight_etc)
+        if city:
+            from estimator_bootstrap import single_estimator,SETTINGS
+            startup=flight_etc/'init.d-posix/rcS'
+            original_startup=startup.read_text()
+            startup.write_text(single_estimator(original_startup))
+            env['SWARM_EXPECT_SINGLE_EKF']='1'
+            (out/'px4_estimator_config.json').write_text(json.dumps(dict(
+                revision='v1.12',scope='isolated city SITL startup before EKF initialization',
+                source_sha256=hashlib.sha256(original_startup.encode()).hexdigest(),
+                adapted_sha256=hashlib.sha256(startup.read_bytes()).hexdigest(),
+                parameters={name:value[1] for name,value in SETTINGS.items()},
+                reason='Observed Multi-EKF filter switching, invalid setpoints and large local-coordinate excursions'),indent=2))
         post = flight_etc / 'init.d-posix/airframes/6011_typhoon_h480.post'
         post_text = post.read_text()
         if '-u 14558 ' not in post_text or '-o 14530 ' not in post_text:
