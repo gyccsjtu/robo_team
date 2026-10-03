@@ -29,20 +29,26 @@
 雷达 frame_id = laser_2d，但 TF 树里没有这个 frame（GT 里只到 base_link_frd）。
 本节点不依赖 TF，直接用 SDF 里已知的安装位姿 + 机头朝向 yaw 做刚性变换：
     p_body = R_z(yaw) · p_laser + t_mount
-安装偏移 t_mount 来自 SDF（默认 (0, 0, 0.080)，见 MOUNT_DEFAULT），可用 --mount 覆盖。
+安装偏移 t_mount 来自 SDF（默认 (0, 0, 0.080)，机顶贴装），可用 --mount 覆盖。
 
 用法
 ----
   # 只观察，不发指令（先验证坐标系对不对）
   python3 radar_avoid.py --uav typhoon_h480_0 --dry-run
 
-  # 实飞：给定起点终点，自己走 A* 航点 + 雷达实时修正
+  # ★ 比赛模式：在线建图 + 边飞边重规划（机上**零文件依赖**）
+  #   只给起点与目标点，地图靠机载雷达自己边飞边建。
   python3 radar_avoid.py --uav typhoon_h480_0 \
-      --world ~/XTDrone/robocup/base.world \
-      --start -6 4 --goal 30 -20 --alt 6.0
+      --start -6 4 --goal 30 -20 --online-map --alt 2.8
 
-  # 接入已有航点文件
-  python3 radar_avoid.py --uav typhoon_h480_0 --wp wp_uav0.txt --alt 6.0
+  # 接入**我们自己的**航点文件（协同层规划好的格子序列）
+  python3 radar_avoid.py --uav typhoon_h480_0 --wp wp_uav0.txt --alt 2.8
+
+机上不读任何官方生成的地图文件
+------------------------------
+本程序**没有**任何读取 `black_box.txt` / `obstacle.txt` / `*.world` 的代码路径
+（2026-10-01 裁定后整体移除）。比赛时地图每次尝试前随机生成、算法机对它一无所
+知 ⇒ 唯一合法的地图来源是机载传感器在线建图。
 
 自研说明（用于技术报告 / 查重说明）
 ----------------------------------
@@ -62,9 +68,13 @@ import time
 import rospy
 from geometry_msgs.msg import Point, PoseStamped
 from sensor_msgs.msg import LaserScan
-from mavros_msgs.msg import ParamValue, State
+from mavros_msgs.msg import EstimatorStatus, ParamValue, State
 from mavros_msgs.srv import CommandBool, ParamSet, SetMode
 from std_msgs.msg import Bool, Float32MultiArray
+try:
+    from nav_msgs.msg import OccupancyGrid
+except Exception:        # 极少数环境缺 nav_msgs：只影响在线图对外发布
+    OccupancyGrid = None
 
 # 🔴🔴 14 次修正：Gazebo 真值位姿（`/gazebo/model_states`）。
 # 只在 VM/ROS 环境存在，本机（Windows 离线测试）没有 ⇒ 必须可选导入，
@@ -80,6 +90,11 @@ FOV_MIN = -math.pi
 FOV_MAX = math.pi
 RANGE_MIN = 0.5
 RANGE_MAX = 20.0
+# EstimatorStatus 里用于"EKF 健康"判据的 flag 字段（本版 MAVROS 只暴露
+# 布尔标志位，没有创新比率）。起飞前做一次 hasattr 探测：字段缺失时整段
+# 判据降级为"仅 |local_z|"，避免 AttributeError 把整条起飞链路打崩。
+EST_FLAG_FIELDS = ('attitude_status_flag', 'velocity_horiz_status_flag',
+                   'pos_horiz_abs_status_flag', 'pos_vert_abs_status_flag')
 BEAM_COUNT = 512
 
 # 机体尺度
@@ -170,17 +185,6 @@ GAP_MAX_LOOKAHEAD = 3.0     # 沿通道外推子目标的最大距离 m
                             #       均无退化，故取 3.0。
                             # 🔴 09-27 修"绕不开宽墙"的关键：子目标必须落在墙外侧
                             # 足够远的地方，飞机才能一步建立横向速度。定死 3m 不够。
-                            # ⚠ 2026-10-01 状态登记（防将来误踩）：
-                            # GAP_LOOKAHEAD 与 GAP_MAX_LOOKAHEAD 目前**同为 3.0**
-                            # ⇒ subgoal_from_scan 里的 look 被 [3.0, 3.0] 钉死恒
-                            # 等于 3.0，即：①"前推距离 = 通道可通深度"的深度
-                            # 前推机制处于**关闭**状态（设计保留、未启用）；
-                            # ② 侧向守门的 _dilute 稀释补偿恒为 1.0（同因）。
-                            # 这是有实测背书的刻意调参（见上方对照表），**不要**
-                            # 单独把 GAP_MAX_LOOKAHEAD 调大来"恢复机制"——那会
-                            # 直接推翻七次修正（擦角回归）。若确要恢复深度前推，
-                            # 必须连同 _dilute 一起验证，并重跑压力测试 B 与
-                            # test_two_layer 4 场景做对照。
 # 🔴 通道搜索视场（09-27 第四次关键修正）
 # ------------------------------------
 # 不限制视场时，宽墙只挡 ±30°，剩下 300° 全空 ⇒ 得到一个 300° 的巨型
@@ -426,6 +430,129 @@ def scan_to_obstacles(msg, yaw, pos_enu, mount, max_range=None, stride=1,
             out.append((ex, ey, r))
         ang = ang  # 角度由 i 索引推出，此处保持可读性
     return out
+
+
+def lateral_mins_fullres(msg, yaw, pos_enu, mount, ufx, ufy,
+                         max_range=None):
+    """全分辨率（stride=1）统计行进方向左右两侧最近障碍的横向距离。
+
+    🔴🔴 2026-10-03 十三次修正：侧向守门输入升级为全分辨率束
+    ---------------------------------------------------------
+    此前侧向守门的 left/right_min 只从抽稀障碍列表（GAP_STRIDE 抽稀）
+    统计。"长墙掠射漏检"场景（subgoal_from_scan 内"实测②"注释）下：
+    飞机平行贴墙飞 ⇒ 激光束与墙面夹角极小（掠射，几乎无回波）⇒
+    命中束本就只剩 2~4 条，经抽稀后可能**一束不剩** ⇒
+    left/right_min = None ⇒ 守门整段不动作 ⇒ 以 0.5m 级余量贴墙飞，
+    一次微漂就蹭上（真实地图 随机4 实测净空 0.466m）。
+
+    修法（代码注释指定的正解"侧向守门加强"）：守门的横向净空改由
+    **全分辨率束**独立统计。本函数投影链与 scan_to_obstacles 逐行一致
+    （雷达极坐标 -> 雷达直角系 -> +mount 平移 -> 绕 yaw 转 ENU），
+    只是不抽稀；过滤语义与守门原循环完全一致（qd>INFLUENCE 丢弃、
+    |lat|<1e-6 视为正前、fwd<=-|lat| 视为纯后方），因此结果是抽稀
+    统计的**超集**——只可能让 left/right_min 更小（更保守），
+    不可能漏掉原本可见的障碍。
+
+    CPU 代价：每周期多走一遍原始束（O(n)，n≈512），与抽稀列表的
+    repulse 循环同量级，可忽略。
+
+    参数 ufx/ufy：行进单位方向；ufx 为 None（无有效行进方向）时
+    直接返回 (None, None)。
+    返回 (left_min, right_min)：无障碍的一侧为 None。
+    """
+    if ufx is None:
+        return None, None
+    limit = RANGE_MAX if max_range is None else max_range
+    cy, sy = math.cos(yaw), math.sin(yaw)
+    mx, my = mount[0], mount[1]
+    ux, uy = pos_enu[0], pos_enu[1]
+    lat_x, lat_y = -ufy, ufx
+    left_min = None
+    right_min = None
+    ang = msg.angle_min
+    inc = msg.angle_increment
+    n = len(msg.ranges)
+    for i in range(n):
+        r = msg.ranges[i]
+        if r != r or r == float('inf') or r == float('-inf'):
+            continue
+        if not (RANGE_MIN < r < limit):
+            continue
+        a = ang + i * inc
+        # 雷达系直角坐标 -> +mount 平移 -> 绕 yaw 转 ENU（同 scan_to_obstacles）
+        bx = r * math.cos(a) + mx
+        by = r * math.sin(a) + my
+        qx = bx * cy - by * sy
+        qy = bx * sy + by * cy
+        qd = math.hypot(qx, qy)
+        if qd > INFLUENCE or qd < 1e-6:
+            continue
+        lat = qx * lat_x + qy * lat_y     # 横向（正 = 左）
+        if abs(lat) < 1e-6:
+            continue                      # 正前方（纵向对齐）
+        fwd = qx * ufx + qy * ufy         # 纵向投影
+        if fwd <= -abs(lat):
+            continue                      # 纯后方障碍不参与（同守门原循环）
+        if lat > 0.0:
+            if left_min is None or lat < left_min:
+                left_min = lat
+        else:
+            if right_min is None or -lat < right_min:
+                right_min = -lat
+    return left_min, right_min
+
+
+def lateral_guard_shift(sub_x, sub_y, lat_x, lat_y,
+                        left_min, right_min, dilute, amt_cap):
+    """侧向守门动作（2026-10-03 从 subgoal_from_scan 内联逻辑抽出）。
+
+    纯函数：输入当前子目标与两侧横向净空，返回修正后的 (sub_x, sub_y)。
+    语义与原内联实现逐行一致：
+      · 两侧都有障碍 ⇒ 通道居中；通道太窄退到"安全底线"；
+      · 只有单侧 ⇒ 推开到 want_lat（上限 INFLUENCE）；
+      · 两侧皆无 ⇒ 原样返回。
+    dilute = 前瞻稀释补偿系数；amt_cap = 单周期修正幅度上限。
+    """
+    want_lat = CLEARANCE + SAFE_GAP          # 理想：两侧各留这么多
+    if left_min is not None and right_min is not None:
+        # 通道净宽 = 左右间隙之和。理想余量装不下则退到净宽一半、居中。
+        total = left_min + right_min
+        if total < 2.0 * want_lat:
+            want_lat = max(0.0, total * 0.5)
+        off = (left_min - right_min) * 0.5   # 当前相对中心的偏移（正=偏左）
+        narrow_side = min(left_min, right_min)
+        if narrow_side < want_lat:
+            deficit = want_lat - narrow_side
+            amt2 = min(amt_cap, deficit * dilute)
+            if left_min < right_min:         # 左侧更窄 ⇒ 往右挪
+                sub_x -= lat_x * amt2
+                sub_y -= lat_y * amt2
+            else:                            # 右侧更窄 ⇒ 往左挪
+                sub_x += lat_x * amt2
+                sub_y += lat_y * amt2
+        elif abs(off) > 1e-9:
+            # 两侧余量都够，但没居中 ⇒ 往中心挪（带死区防抖）
+            if abs(off) > SAFE_GAP * 0.5:
+                amt2 = min(amt_cap, abs(off) * dilute)
+                if off > 0.0:                # 偏左 ⇒ 往右挪
+                    sub_x -= lat_x * amt2
+                    sub_y -= lat_y * amt2
+                else:                        # 偏右 ⇒ 往左挪
+                    sub_x += lat_x * amt2
+                    sub_y += lat_y * amt2
+    elif left_min is not None:
+        deficit = min(want_lat, INFLUENCE) - left_min
+        if deficit > 0.0:
+            amt2 = min(amt_cap, deficit * dilute)
+            sub_x -= lat_x * amt2
+            sub_y -= lat_y * amt2
+    elif right_min is not None:
+        deficit = min(want_lat, INFLUENCE) - right_min
+        if deficit > 0.0:
+            amt2 = min(amt_cap, deficit * dilute)
+            sub_x += lat_x * amt2
+            sub_y += lat_y * amt2
+    return sub_x, sub_y
 
 
 def repulse_vector(obstacles, pos_enu, heading, influence=INFLUENCE,
@@ -1288,6 +1415,9 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
         #     稳定性的支柱，任何放宽都会让飞机抛弃航点。
         #   该擦过的正解应走"侧向守门加强"（见下方 ② 侧向守门），
         #   已作为已知限界登记在 README，不影响其余 19/20 条航线。
+        #   ✅ 2026-10-03 十三次修正：已按此正解实施——侧向守门改用
+        #      全分辨率束算横向净空（lateral_mins_fullres），该擦过
+        #      场景已修复；README §11 已同步登记。
         #   `_ray_range` 保留（语义已修正为返回有限值），供后续诊断复用。
 
         a_world = yaw + gap_ang
@@ -1329,10 +1459,13 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
             #   2~4 束命中，`stride` 抽稀后可能一束不剩 ⇒
             #   left/right_min = None ⇒ 侧向守门整段不动作。
             #   ⇒ 单纯放大 _dilute 对这条无效（无输入可放大）。
+            #   ✅ 2026-10-03 十三次修正：守门输入升级为全分辨率束
+            #      （lateral_mins_fullres）+ obs 为空时守门仍运行，
+            #      此限界已修复（回归全绿见 CHANGES_20261003.md）。
             #   已登记为"长墙掠射漏检"独立已知限界（→ README）。
             _dilute = 1.0
             if look > GAP_LOOKAHEAD:
-                _dilute = look / GAP_LOOKAHEAD
+                _dilute = GAP_LOOKAHEAD / look
             _amt_cap = SAFE_GAP * 2.0
             fx = sub_x - cur[0]
             fy = sub_y - cur[1]
@@ -1414,54 +1547,38 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
                     else:
                         if right_min is None or -lat < right_min:
                             right_min = -lat
+                # 🔴🔴 2026-10-03 十三次修正：合并全分辨率统计（修掠射漏检）
+                # 上方 obs 循环保留原语义，再并入 lateral_mins_fullres 的
+                # 全分辨率结果（取更小者）——合并结果必为原统计的超集，
+                # 掠射墙时不再出现 left/right_min 双 None。
+                fl_, fr_ = lateral_mins_fullres(
+                    msg, yaw, cur, mount, ufx, ufy, max_range=max_range)
+                if fl_ is not None and (left_min is None or fl_ < left_min):
+                    left_min = fl_
+                if fr_ is not None and (right_min is None or fr_ < right_min):
+                    right_min = fr_
                 # 目标侧向余量：能居中就居中；通道太窄时退到"安全底线"
-                want_lat = CLEARANCE + SAFE_GAP      # 理想：两侧各留这么多
-                if left_min is not None and right_min is not None:
-                    # 通道净宽 = 左右间隙之和。若理想余量装不下
-                    # （2*want_lat > 净宽），则只能退到 BODY_RADIUS 之上
-                    # 的一半净宽，并把目标点放在中心。
-                    total = left_min + right_min
-                    if total < 2.0 * want_lat:
-                        want_lat = max(0.0, total * 0.5)
-                    # 当前相对中心的偏移（正 = 偏左）
-                    off = (left_min - right_min) * 0.5
-                    # 目标偏移 = 0（居中）；但若偏得让窄侧余量 < want_lat，
-                    # 则至少把窄侧补到 want_lat
-                    narrow_side = min(left_min, right_min)
-                    if narrow_side < want_lat:
-                        # 需要朝"窄侧的反方向"挪 want_lat - narrow_side
-                        deficit = want_lat - narrow_side
-                        # 前瞻稀释补偿：远通道要按比例放大横向修正量
-                        amt2 = min(_amt_cap, deficit * _dilute)
-                        if left_min < right_min:     # 左侧更窄 ⇒ 往右挪
-                            sub_x -= lat_x * amt2
-                            sub_y -= lat_y * amt2
-                        else:                        # 右侧更窄 ⇒ 往左挪
-                            sub_x += lat_x * amt2
-                            sub_y += lat_y * amt2
-                    elif abs(off) > 1e-9:
-                        # 两侧余量都够，但没居中 ⇒ 往中心挪（带死区防抖）
-                        if abs(off) > SAFE_GAP * 0.5:
-                            amt2 = min(_amt_cap, abs(off) * _dilute)
-                            if off > 0.0:            # 偏左 ⇒ 往右挪
-                                sub_x -= lat_x * amt2
-                                sub_y -= lat_y * amt2
-                            else:                    # 偏右 ⇒ 往左挪
-                                sub_x += lat_x * amt2
-                                sub_y += lat_y * amt2
-                elif left_min is not None:
-                    # 只有左侧有障碍 ⇒ 往右挪到留足 want_lat（或挪出影响圈）
-                    deficit = min(want_lat, INFLUENCE) - left_min
-                    if deficit > 0.0:
-                        amt2 = min(_amt_cap, deficit * _dilute)
-                        sub_x -= lat_x * amt2
-                        sub_y -= lat_y * amt2
-                elif right_min is not None:
-                    deficit = min(want_lat, INFLUENCE) - right_min
-                    if deficit > 0.0:
-                        amt2 = min(_amt_cap, deficit * _dilute)
-                        sub_x += lat_x * amt2
-                        sub_y += lat_y * amt2
+                sub_x, sub_y = lateral_guard_shift(
+                    sub_x, sub_y, lat_x, lat_y,
+                    left_min, right_min, _dilute, _amt_cap)
+        else:
+            # 🔴🔴 2026-10-03 十三次修正（掠射长墙守门）：obs 为空 ≠ 安全
+            # --------------------------------------------------------
+            # 掠射长墙时抽稀障碍列表可能整帧 0 点（见 lateral_mins_fullres
+            # 文档与本函数上方"实测②"注释）—— 恰恰是最需要侧向守门的
+            # 时刻，旧代码却在这里整段跳过 ⇒ 贴墙 0.466m 巡航。
+            # ⇒ obs 为空时改用全分辨率束独立驱动守门。
+            if ufx is not None:
+                lat_x, lat_y = -ufy, ufx
+                l_min, r_min = lateral_mins_fullres(
+                    msg, yaw, cur, mount, ufx, ufy, max_range=max_range)
+                if l_min is not None or r_min is not None:
+                    _dilute = (GAP_LOOKAHEAD / look
+                               if look > GAP_LOOKAHEAD else 1.0)
+                    amt_cap = SAFE_GAP * 2.0   # 同 if obs 分支的 _amt_cap
+                    sub_x, sub_y = lateral_guard_shift(
+                        sub_x, sub_y, lat_x, lat_y,
+                        l_min, r_min, _dilute, amt_cap)
 
         shift = (sub_x - cur[0]) * ax + (sub_y - cur[1]) * ay
 
@@ -1515,7 +1632,7 @@ class RadarPilot(object):
     """
 
     def __init__(self, uav, dry_run=False, ns=None, scan_topic=None,
-                 pose_source='gazebo'):
+                 pose_source='gazebo', nav_hold=30.0):
         """uav: 机型/模型名（用于推导默认话题）。
 
         🔴🔴 13 次修正（VM 实机联调抓出）：mavros 命名空间与雷达话题
@@ -1540,7 +1657,7 @@ class RadarPilot(object):
         实机联调抓出的**混合坐标系**问题：
           · 雷达点：`frame_id=laser_2d`，**随机体、随航向转**（TF 里没有该
             frame ⇒ 无法转到任何别的坐标系）
-          · A* 航点：**Gazebo 世界系**（astar_plan 读 base.world）
+          · A* 航点：**Gazebo 世界系**（在线重规划产出，只由机载雷达喂入）
           · 位姿：`mavros local_position`（EKF ENU 系）
         三者不一致。更要命的是实测 `mavros local` 的**原点会漂**：
         两次测同一静止状态，origin 差 1.1m（-6.340,3.494 → -5.278,4.619），
@@ -1558,6 +1675,9 @@ class RadarPilot(object):
         self.uav = uav
         self.dry = dry_run
         self.pose_source = pose_source
+        # 起飞到巡航高度后的原地悬停秒数（熬过 PX4 起飞后 30s 的 nav_test
+        # 危险窗口，见 takeoff ③）。0 = 不悬停（旧行为）。
+        self.nav_hold = max(0.0, float(nav_hold))
         # 🔴🔴 15 次修正：`--ns` 的语义曾极易踩错。
         #   雷达话题由 Gazebo **模型名**决定（/typhoon_h480_0/scan），
         #   而 mavros 话题由 ROS **launch 的 <group ns>** 决定
@@ -1574,12 +1694,17 @@ class RadarPilot(object):
         self.scan_topic = scan_topic or ("/%s/scan" % uav)
         self.state = None
         self.local = None
+        # 🔴🔴 10-04 根因修复②：EKF 估计器状态（创新比率）。
+        #   只等 |local_z| 达标就起飞是不够的 —— 起飞后 PX4 的 nav_test
+        #   在 30s 危险窗口内会因创新比率 ≥1 直接判 Navigation failure
+        #   并 failsafe 降落（本轮 VM 实测摔机就是这个）。
+        self.est = None
         self.yaw = 0.0
         self.world = None           # Gazebo 真值位置（世界系）
         self.yaw_world = None       # Gazebo 真值朝向
         self.origin = None          # 实时 O = world - local（含 z）
         self.scan = None
-        self.sp = None
+        self._scan_stamp = None     # 最近一帧雷达到达时刻（get_time 钟衡）
         self._att = (0.0, 0.0)      # local 系姿态（旋转矩阵第三行 R20,R21）
         self._att_world = (0.0, 0.0)  # 世界系（Gazebo 真值）姿态
         self.lock = threading.Lock()
@@ -1598,6 +1723,9 @@ class RadarPilot(object):
         rospy.Subscriber(self.ns + "/state", State, self._on_state, queue_size=1)
         rospy.Subscriber(self.ns + "/local_position/pose", PoseStamped,
                          self._on_local, queue_size=1)
+        # EKF 健康度（创新比率）：起飞前预检用，见 takeoff 的 ① 段。
+        rospy.Subscriber(self.ns + "/estimator_status", EstimatorStatus,
+                         self._on_est, queue_size=1)
         # 保留句柄：就绪失败时用它查 get_num_connections()，
         # 以区分"话题存在但没数据"与"话题名根本不存在"。
         self.sub_scan = rospy.Subscriber(self.scan_topic, LaserScan,
@@ -1623,10 +1751,23 @@ class RadarPilot(object):
         self.pub_blocked = rospy.Publisher("/%s/radar_avoid/blocked" % uav,
                                            Bool, queue_size=1)
 
+        # 🔴🔴 10-04 根因修复：`sp` 必须**在启动心跳线程之前**先存在。
+        #   此前 `self.sp` 只在 `set_sp()` 里首次赋值，而心跳线程在
+        #   `__init__` 就 start ⇒ 线程第一轮 `p = self.sp` 抛
+        #   AttributeError 当场死亡 ⇒ `setpoint_position/local` 从此
+        #   **再无任何发布者**（全脚本唯一 publish 点就在 _sp_loop）
+        #   ⇒ MAVROS 永不发 OFFBOARD_CONTROL_MODE ⇒ PX4
+        #   `offboard_control_signal_lost = True` ⇒
+        #   `main_state_transition(OFFBOARD)` 返回 DENIED ⇒
+        #   `CMD: Unexpected command 176, result 1`。
+        #   表象是"解锁成功、发量正常，却永远切不进 OFFBOARD"。
+        self.sp = None
+        self._sp_sent = 0
         self._alive = True
-        self._th = threading.Thread(target=self._sp_loop)
+        self._th = threading.Thread(target=self._sp_loop, name="sp_heartbeat")
         self._th.daemon = True
         self._th.start()
+        rospy.loginfo("[radar] 设定点心跳线程已启动（%.0f Hz）", CTRL_HZ)
 
     # ---------- 回调 ----------
     @staticmethod
@@ -1650,6 +1791,9 @@ class RadarPilot(object):
 
     def _on_state(self, m):
         self.state = m
+
+    def _on_est(self, m):
+        self.est = m
 
     def _on_local(self, m):
         p = m.pose.position
@@ -1736,21 +1880,67 @@ class RadarPilot(object):
 
     def _on_scan(self, m):
         self.scan = m
+        try:
+            self._scan_stamp = rospy.get_time()
+        except Exception:
+            self._scan_stamp = time.time()
+
+    def scan_age(self):
+        """最近一帧雷达的年龄（秒，与 _scan_stamp 同钟）；从未收到过=inf。
+
+        审计 #5（10-03）：ready() 起飞前查一次 scan 非 None 就再不看，
+        雷达中途卡死会用 frozen 世界继续飞——与"零障碍起飞"同级的
+        静默故障模式。主循环每帧查本函数，>2s 悬停告警。
+        """
+        if self._scan_stamp is None:
+            return float('inf')
+        try:
+            t = rospy.get_time()
+        except Exception:
+            t = time.time()
+        return max(0.0, t - self._scan_stamp)
 
     # ---------- setpoint 心跳 ----------
     def _sp_loop(self):
+        """20Hz 位置设定点心跳 —— **全脚本唯一**的设定点发布点。
+
+        🔴🔴 10-04 根因修复（VM 单机切不进 OFFBOARD 的真因）：
+        本线程此前是"裸循环"，第一轮 `p = self.sp` 就抛 AttributeError
+        （`sp` 当时还没在 __init__ 里定义）⇒ 线程**当场死亡且无人知晓**
+        ⇒ 之后 MAVROS 再也收不到 `setpoint_position/local` ⇒ 不发
+        OFFBOARD_CONTROL_MODE ⇒ PX4 认为 offboard 信号丢失，拒绝切
+        OFFBOARD（日志里只有 `Unexpected command 176, result 1`）。
+        现象描述得再清楚不过：**解锁成功、service 返回 True、模式却纹丝不动**。
+
+        现在两条护栏：
+        ① `sp` 在 __init__ 里先置 None（已修）；
+        ② 循环体整体兜异常 —— 心跳绝不允许因为任何单帧异常而退出，
+           否则整条起飞链路会以"完全没有设定点流"的方式静默失效。
+        """
         rate = rospy.Rate(CTRL_HZ)
         while self._alive and not rospy.is_shutdown():
-            with self.lock:
-                p = self.sp
-            if p is not None and not self.dry:
-                p.header.stamp = rospy.Time.now()
-                p.header.frame_id = "map"
-                self.sp_pub.publish(p)
+            try:
+                with self.lock:
+                    p = self.sp
+                if p is not None and not self.dry:
+                    p.header.stamp = rospy.Time.now()
+                    p.header.frame_id = "map"
+                    self.sp_pub.publish(p)
+                    self._sp_sent += 1
+                    if self._sp_sent == 1:
+                        rospy.loginfo("[radar] 设定点心跳已上线："
+                                      "首个 setpoint 已发布到 %s/setpoint_position/local",
+                                      self.ns)
+            except Exception as e:          # noqa: BLE001 - 心跳必须活下来
+                rospy.logerr_throttle(5.0, "[radar] 设定点心跳异常（已忽略，"
+                                           "线程继续）: %s", e)
             try:
                 rate.sleep()
             except rospy.ROSInterruptException:
                 break
+        rospy.logwarn("[radar] 设定点心跳线程退出（_alive=%s shutdown=%s "
+                      "已发 %d 帧）", self._alive, rospy.is_shutdown(),
+                      self._sp_sent)
 
     def set_sp(self, x, y, z, yaw):
         """x, y, z 为 **世界坐标**；内部换算成 mavros local 再发布。
@@ -1876,17 +2066,76 @@ class RadarPilot(object):
         return False
 
     def set_failsafe_params(self):
-        """无头 SITL 必须关掉遥控/数传失效保护，否则 OFFBOARD 会被拒。"""
-        for pid in ("NAV_RCL_ACT", "NAV_DLL_ACT"):
-            try:
-                r = self.srv_param(param_id=pid,
-                                   value=ParamValue(integer=0, real=0.0))
-                rospy.loginfo("[radar] %s=0 -> %s", pid, r.success)
-            except Exception as e:
-                rospy.logwarn("[radar] set %s failed: %s", pid, e)
+        """无头 SITL 必须关掉遥控/数传失效保护，否则 OFFBOARD 会被拒。
+
+        🔴 10-04 改（对齐队友 codex 分支已验证的 fcu_configuration）：
+        原实现只 `param/set`、**完全不看返回值也不读回** —— MAVROS 参数表
+        尚未就绪时 `param/set` 会被**静默拒绝**，脚本照样往下走 arm /
+        切 OFFBOARD，最后在 failsafe 上被拦下，表象是"切不进 OFFBOARD"，
+        根因却在几百行之前的参数设置处。
+
+        PX4 v1.13.2 默认 `NAV_RCL_ACT=2`（Return）、`COM_RCL_EXCEPT=0`：
+        机型没有遥控器 ⇒ `rc_signal_lost` 恒真 ⇒ 一旦进 OFFBOARD，commander
+        立刻按 RC 失联 failsafe 处理并把飞机踢出 OFFBOARD。故必须：
+          NAV_RCL_ACT    = 0  （RC 失联动作 Disabled）
+          COM_RCL_EXCEPT = 4  （RCL_EXCEPT_OFFBOARD：OFFBOARD 下豁免 RC 失联）
+          NAV_DLL_ACT    = 0  （数传失联 Disabled，SITL 无地面站）
+
+        流程改为 pull → set → **get 读回验证**，三轮仍不一致就返回 False
+        拒绝起飞（宁可起不来，也不带着未生效的参数上天）。
+        """
+        from mavros_msgs.srv import ParamPull, ParamGet
+        want = [("NAV_RCL_ACT", 0), ("COM_RCL_EXCEPT", 4), ("NAV_DLL_ACT", 0)]
+        pull_ns = self.ns + "/param/pull"
+        get_ns = self.ns + "/param/get"
+        try:
+            rospy.wait_for_service(pull_ns, timeout=30.0)
+        except rospy.ROSException as e:
+            rospy.logerr("[radar] 参数 pull 服务不可用（%s）：%s", pull_ns, e)
+            return False
+        pull_srv = rospy.ServiceProxy(pull_ns, ParamPull)
+        get_srv = rospy.ServiceProxy(get_ns, ParamGet)
+        try:
+            r = pull_srv(True)
+            rospy.loginfo("[radar] 飞控参数已拉取 success=%s 收到 %d 个",
+                          r.success, r.param_received)
+        except Exception as e:
+            rospy.logwarn("[radar] param pull 异常（继续）: %s", e)
+
+        for attempt in range(1, 4):
+            for pid, val in want:
+                try:
+                    self.srv_param(param_id=pid,
+                                   value=ParamValue(integer=val, real=0.0))
+                except Exception as e:
+                    rospy.logwarn("[radar] set %s 异常: %s", pid, e)
+            rospy.sleep(0.4)
+            bad = []
+            for pid, val in want:
+                try:
+                    got = get_srv(pid)
+                    cur = got.value.integer if got.success else None
+                except Exception:
+                    cur = None
+                if cur != val:
+                    bad.append("%s=%s(期望%d)" % (pid, cur, val))
+            if not bad:
+                rospy.loginfo("[radar] 飞控参数读回验证通过：%s -> 全部生效",
+                              ", ".join("%s=%d" % kv for kv in want))
+                return True
+            rospy.logwarn("[radar] 参数读回不一致（第 %d/3 轮）：%s",
+                          attempt, ", ".join(bad))
+            rospy.sleep(1.0)
+        rospy.logerr("[radar] 飞控参数 3 轮仍未生效 ⇒ 拒绝起飞（否则必在 "
+                     "OFFBOARD 上被 failsafe 拦下）")
+        return False
 
     def takeoff(self, alt):
-        """arm -> 先发当前位置 setpoint -> OFFBOARD -> 爬升。
+        """起飞：钉设定点 -> 等 EKF -> 切 OFFBOARD -> 解锁 -> 爬升。
+
+        🔴 10-04 定序（对齐队友已验证配方）：**先 OFFBOARD、后 arm**。
+        旧序（先 arm 后 OFFBOARD）会先启动 PX4 地面自动上锁计时，OFFBOARD
+        重试超 10s 就被 `Disarmed by auto preflight disarming` 踢掉。
 
         🔴 14 次修正：`alt` 与所有坐标一律按**世界系**理解（`set_sp` 负责
         换算成 local）。之前这里读 `self.local` 却又假设是世界系，在
@@ -1895,48 +2144,197 @@ class RadarPilot(object):
         p0 = self.pose
         h0 = self.heading
         self._yaw_cmd = h0
+        # 先把设定点钉在当前位置（心跳线程立刻接管 20Hz 重发）
         self.set_sp(p0[0], p0[1], p0[2], h0)
-        rospy.sleep(2.0)
 
-        for _ in range(20):
-            if self.armed():
+        # ★ 10-04：顺序改为「先 OFFBOARD、后 arm」，与队友已验证的配方一致。
+        #   反过来（先 arm 再 OFFBOARD）会先启动 PX4 的地面自动上锁计时
+        #   （COM_DISARM_PRFLT 默认 10s）：OFFBOARD 一旦重试超过 10s，日志
+        #   里就出现 `Disarmed by auto preflight disarming`，然后飞机在地面
+        #   反复"解锁→被踢"，永远进不去 OFFBOARD。
+
+        # ---- ① 等 EKF 收敛：连续 need 次采样 |local z| 合理 ----
+        # 单次采样不够：EKF 位置先收敛、速度/姿态后稳，瞬时达标就切
+        # OFFBOARD 会被 PX4 拒。阈值 1.5m 是地面噪声容差，真正是否就绪
+        # 交给 PX4 preflight 判定，靠 ② 的持续重试兜底。
+        stable = 0
+        nav_ok = 0
+        need = 40                     # 40 @ 20Hz = 2s
+        t_ekf = time.time()
+        warned_no_est = False
+        while not rospy.is_shutdown():
+            lz = self.local[2] if self.local is not None else None
+            if lz is not None and abs(lz) < 1.5:
+                stable += 1
+            else:
+                stable = 0
+            # 🔴🔴 10-04 根因修复②：EKF **创新比率**必须健康。
+            # ---------------------------------------------------------
+            # 实测事故：只等 |local_z|<1.5 就起飞，结果起飞约 8s 后 PX4 打印
+            #   ERROR [commander] Navigation failure! Land and recalibrate
+            #   WARN  [commander] Failsafe enabled: no RC and no offboard
+            # 并沿对角线下降到地面（真值 5.50m → 0.22m），飞机还朝反方向
+            # 飞出 33m。依据 PX4 源码 Commander.cpp:4146 的 nav_test：
+            #   innovation_fail = vel_test_ratio>=1 && pos_test_ratio>=1
+            # 且 nav_test 要"通过"必须满足 takeoff 后 >30s 或速度>5m/s
+            # ⇒ **起飞后 30s 是危险窗口**，此间的兜底见 takeoff ③ 的悬停。
+            #
+            # ⚠️ 本版 MAVROS 的 mavros_msgs/EstimatorStatus **只暴露布尔标志**
+            #    （attitude / velocity_horiz / pos_horiz_abs / ... 就是
+            #    MAVLink ESTIMATOR_STATUS 的 flag 位），**没有
+            #    vel_test_ratio / pos_test_ratio 字段** —— 早前一版误用
+            #    `e.vel_ratio` 直接 AttributeError 把整个进程打崩。所以这里
+            #    用可得的健康标志位做预检：全绿才允许起飞。
+            e = self.est
+            if e is not None:
+                if not all(hasattr(e, f) for f in EST_FLAG_FIELDS):
+                    # 字段缺失（MAVROS 版本差异）⇒ 不硬判，降级并 warn 一次。
+                    if not warned_no_est:
+                        warned_no_est = True
+                        rospy.logwarn("[radar] EstimatorStatus 缺预期字段（有 %s）"
+                                      "⇒ 降级为仅 |local_z| 判据",
+                                      [f for f in EST_FLAG_FIELDS
+                                       if hasattr(e, f)])
+                    nav_ok = need
+                else:
+                    flags_ok = all(getattr(e, f) for f in EST_FLAG_FIELDS)
+                    if flags_ok:
+                        nav_ok += 1
+                    else:
+                        nav_ok = 0
+                        rospy.logwarn_throttle(
+                            3.0, "[radar] EKF 健康标志未全绿（%s）⇒ 等待收敛，"
+                                 "暂不起飞",
+                            {f: getattr(e, f) for f in EST_FLAG_FIELDS})
+            elif time.time() - t_ekf > 20.0:
+                # 话题不存在时的降级路径：只 warn 一次，退回旧判据。
+                if not warned_no_est:
+                    warned_no_est = True
+                    rospy.logwarn("[radar] 20s 未收到 estimator_status ⇒ 降级为"
+                                  "仅 |local_z| 判据（无法预检 EKF 健康标志）")
+                nav_ok = need
+            if stable >= need and nav_ok >= need:
                 break
+            if time.time() - t_ekf > 90.0:
+                rospy.logerr("[radar] 等 EKF 收敛超时 90s（local=%s est=%s）"
+                             "⇒ 拒绝起飞，避免起飞后判 Navigation failure 摔机",
+                             self.local,
+                             'None' if self.est is None else 'OK')
+                return False
+            rospy.sleep(1.0 / CTRL_HZ)
+        # 心跳是 OFFBOARD 的前置条件：它死了，后面 100% 切不进 OFFBOARD。
+        # 与其等 PX4 给出 `Unexpected command 176` 再猜，不如在这里点名。
+        if self._sp_sent <= 0:
+            rospy.logerr("[radar] 设定点心跳一帧未发（_sp_sent=0）⇒ MAVROS 不"
+                         "会发 OFFBOARD_CONTROL_MODE，OFFBOARD 必被拒 ⇒ 拒绝起飞")
+            return False
+        rospy.loginfo("[radar] EKF 已稳定（local_z=%.2f，连续 %d 次达标；健康"
+                      "标志全绿 %d 次；心跳已发 %d 帧）",
+                      self.local[2], stable, nav_ok, self._sp_sent)
+
+        # ---- ② 切 OFFBOARD：持续重试，绝不因固定次数用完而放弃 ----
+        # 🔴 `mode_sent=True` 只代表 MAVROS 把消息发出去，**不代表 PX4 接受**。
+        #   唯一可信判据是回读 `state.mode`。重试期间心跳持续送 20Hz 设定点，
+        #   EKF 一稳 PX4 自然放行。
+        attempt, ok = 0, False
+        t_off = time.time()
+        while not rospy.is_shutdown():
+            attempt += 1
+            try:
+                if not self.srv_mode(custom_mode="OFFBOARD").mode_sent:
+                    rospy.logwarn_throttle(5.0, "[radar] MAVROS 未受理 OFFBOARD "
+                                                "请求（第 %d 次）", attempt)
+            except Exception as e:
+                rospy.logwarn_throttle(5.0, "[radar] OFFBOARD 调用异常（第 %d 次）"
+                                            ": %s", attempt, e)
+            if self.state is not None and self.state.mode == 'OFFBOARD':
+                ok = True
+                break
+            if time.time() - t_off > 90.0:
+                break
+            rospy.sleep(0.5)
+        if not ok:
+            rospy.logerr("[radar] OFFBOARD 失败（90s 内重试 %d 次；当前 mode=%s，"
+                         "心跳已发 %d 帧）",
+                         attempt, self.state.mode if self.state else 'None',
+                         self._sp_sent)
+            return False
+        rospy.loginfo("[radar] 已进入 OFFBOARD（重试 %d 次）", attempt)
+
+        # ---- ③ 解锁：同样持续重试（PX4 preflight 会因 EKF 速度/姿态未稳拒解锁）----
+        attempt = 0
+        t_arm = time.time()
+        while not rospy.is_shutdown() and not self.armed():
+            attempt += 1
             try:
                 self.srv_arm(value=True)
             except Exception:
                 pass
+            if time.time() - t_arm > 30.0:
+                break
             rospy.sleep(0.5)
         if not self.armed():
-            rospy.logerr("[radar] arm 失败")
+            rospy.logerr("[radar] arm 失败（30s 内重试 %d 次；mode=%s）", attempt,
+                         self.state.mode if self.state else 'None')
             return False
-
-        ok = False
-        for _ in range(30):
-            try:
-                r = self.srv_mode(custom_mode="OFFBOARD")
-                if r.mode_sent:
-                    ok = True
-                    break
-            except Exception:
-                pass
-            rospy.sleep(0.5)
-        if not ok:
-            rospy.logerr("[radar] OFFBOARD 失败")
-            return False
+        rospy.loginfo("[radar] 已解锁（重试 %d 次）⇒ 立即爬升（10s 内脱离地面）",
+                      attempt)
 
         # 竖直升到目标高度（世界系）
+        # 🔴 10-03 修正（WSL 实测）：旧写法 40s 超时后**无条件 return True**
+        #   ⇒ OFFBOARD 被拒、飞机在地面时也报"到达高度 5.50（当前 0.22）"
+        #   假成功，带着一架空飞机飞航线。现在必须真爬上去。
         t0 = time.time()
+        reached = False
         while not rospy.is_shutdown() and time.time() - t0 < 40.0:
             c = self.pose
             if c is None:
                 rospy.sleep(0.1)
                 continue
             if c[2] >= alt - 0.3:
+                reached = True
                 break
+            if not self.armed():
+                rospy.logerr("[radar] 爬升中途上锁（armed=False）⇒ 起飞失败")
+                return False
             self.set_sp(c[0], c[1], alt, self.heading)
             rospy.sleep(0.1)
-        rospy.loginfo("[radar] 到达高度 %.2f m（世界系；当前 %.2f）",
-                      alt, (self.pose or (0, 0, float('nan')))[2])
+        c = self.pose
+        if not reached or c is None or c[2] < alt - 1.0:
+            rospy.logerr("[radar] 起飞失败：目标 %.2f m 实际 %.2f m"
+                         "（mode=%s armed=%s）⇒ 拒绝进入航线",
+                         alt, (c or (0, 0, float('nan')))[2],
+                         (self.state.mode if self.state else '?'),
+                         self.armed())
+            return False
+        rospy.loginfo("[radar] 到达高度 %.2f m（世界系）", alt)
+
+        # ---- ④ 原地悬停熬过 PX4 的 nav_test 危险窗口（关键修复）----
+        # 🔴🔴 10-04 根因修复③：PX4 Commander.cpp:4140-4172 的 nav_test
+        #   只在 `!_nav_test_passed` 时检查创新比率，而"通过"的条件是：
+        #       innovation_pass 且 距上次 fail >10s 且
+        #       （takeoff 后 >30s 或 速度 >5m/s）
+        #   ⇒ **起飞后 30s 是危险窗口**：此间创新比率一旦连续 fail 2s，
+        #     立刻 Navigation failure + failsafe 降落。本轮 VM 实测：
+        #     爬升到 5.5m 后约 8s 就开始 1m/s 匀速下降落地，飞机还朝
+        #     反方向飞了 33m。而一旦熬过 30s，nav_test 永久 passed ⇒
+        #     之后无论创新比率怎样都不会再触发 Navigation failure。
+        #   ⇒ 最省事的解法：起飞后先稳住不动，把危险窗口熬过去。
+        if self.nav_hold > 0.0:
+            rospy.loginfo("[radar] 到达高度后原地悬停 %.0fs —— 熬过 PX4 起飞后"
+                          " 30s 的危险窗口（nav_test 未通过前创新比率 fail 即判"
+                          " Navigation failure 降落）", self.nav_hold)
+            t_hold = time.time()
+            while not rospy.is_shutdown() and time.time() - t_hold < self.nav_hold:
+                if not self.armed():
+                    rospy.logerr("[radar] 悬停期内上锁（armed=False）⇒ 起飞失败")
+                    return False
+                c = self.pose
+                if c is not None:
+                    self.set_sp(c[0], c[1], alt, self._yaw_cmd)
+                rospy.sleep(0.2)
+            rospy.loginfo("[radar] 悬停 %.0fs 结束，进入航线", self.nav_hold)
+
         self._dbg_n = 0
         self._dbg_t0 = time.time()
         return True
@@ -2050,6 +2448,114 @@ class RadarPilot(object):
 
     def stop(self):
         self._alive = False
+
+
+# ============================ 动态目标跟随 ============================
+TF_ST_SEARCH = 'SEARCH'
+TF_ST_APPROACH = 'APPROACH'
+TF_ST_TRACK = 'TRACK'
+TF_ST_LOST = 'LOST'
+
+
+class TargetFollower(object):
+    """动态目标跟随状态机（2026-10-03，--target-topic 开启时由主循环驱动）。
+
+    与感知侧的接口约定
+    --------------------
+    目标流 = 世界系 PoseStamped（--target-topic 不给则本功能整体关闭，
+    行为与旧版完全一致）。ROS 消息回调在 main() 里转成 on_target()；
+    若对面发的是自定义消息类型，只需改 main() 那个回调，状态机本身不碰 ROS。
+
+    状态
+    ----
+      SEARCH   无目标流 ⇒ 完全不干预航线（update 返回 None）
+      APPROACH 收到目标流 ⇒ 追（主循环把当前航点改写为目标位置）
+      TRACK    距目标 ≤ enter ⇒ 跟踪（裁判 <10 m 连续 20 s 自动 +80；
+               默认 12 m 进圈，留 2 m 判决余量）
+      LOST     目标流中断 ⇒ 原地守最后已知点 ≤ resume 秒，
+               超时自动恢复搜索航线
+
+    与避障/重规划共存
+    ------------------
+    只改写航点、不接管控制：逐帧执行仍是雷达反应层（subgoal_from_scan）
+    ⇒ 追目标途中照样避障；跟随期间主循环暂停在线重规划（占据图仍累积），
+    恢复后从保存点继续。目标移动 > move_eps 才重写注入航点，避免每帧
+    打断避让滞环（SideCommit）。
+
+    丢失不悬空
+    ----------
+    接管时主循环把剩余航线（含当前航点）存入 saved_tail；丢失超时后
+    update 返回 ('restore', tail, goal) 原样恢复（saved_tail 为空——
+    接管点在航线末尾——则回任务目标点 goal）。
+    """
+
+    def __init__(self, enter=12.0, resume=10.0, move_eps=1.0, fresh=2.0,
+                 goal=None):
+        self.enter = float(enter)
+        self.resume = float(resume)
+        self.move_eps = float(move_eps)
+        self.fresh = float(fresh)
+        self.goal = tuple(goal) if goal else None
+        self.state = TF_ST_SEARCH
+        self.target = None          # (x, y, t_seen) 最近一次目标（世界系）
+        self.saved_tail = None      # 接管时剩余航线（主循环写入）
+
+    def on_target(self, x, y, now):
+        """目标流回调。返回 True = 距上次上报移动 > move_eps（主循环据此
+        决定要不要重写注入航点）；首次上报恒为 True。"""
+        moved = True
+        if self.target is not None:
+            moved = (math.hypot(float(x) - self.target[0],
+                                float(y) - self.target[1]) > self.move_eps)
+        self.target = (float(x), float(y), float(now))
+        return moved
+
+    def dist(self, pos):
+        """当前位置到目标的距离（无目标返回 None）。"""
+        if self.target is None:
+            return None
+        return math.hypot(self.target[0] - pos[0], self.target[1] - pos[1])
+
+    def update(self, pos, now):
+        """状态推进（每帧调用）。返回：
+
+          None                    ⇒ SEARCH，不干预航线
+          ('follow', x, y)        ⇒ 本帧航点改为目标 (x, y)
+          ('restore', tail, goal) ⇒ LOST 超时，恢复 saved_tail（空则回 goal）
+        """
+        if self.target is None:
+            return None
+        age = now - self.target[2]
+
+        if age <= self.fresh:
+            # --- 目标流新鲜：追 ---
+            d = self.dist(pos)
+            if self.state in (TF_ST_SEARCH, TF_ST_LOST):
+                # 接管（LOST 中恢复 = 继续追，saved_tail 不清）
+                self.state = (TF_ST_TRACK if d <= self.enter
+                              else TF_ST_APPROACH)
+            elif self.state == TF_ST_APPROACH and d <= self.enter:
+                self.state = TF_ST_TRACK
+            elif self.state == TF_ST_TRACK and d > self.enter:
+                # 目标走远（actor 在动）⇒ 退回逼近
+                self.state = TF_ST_APPROACH
+            return ('follow', self.target[0], self.target[1])
+
+        # --- 目标流中断 ---
+        if self.state in (TF_ST_APPROACH, TF_ST_TRACK):
+            self.state = TF_ST_LOST
+        if self.state == TF_ST_LOST:
+            if age <= self.resume:
+                # 原地等：守最后已知目标点（通常已在旁边 ⇒ 近似悬停）
+                return ('follow', self.target[0], self.target[1])
+            # 超时 ⇒ 恢复搜索航线
+            tail = list(self.saved_tail) if self.saved_tail else (
+                [self.goal] if self.goal else [])
+            self.state = TF_ST_SEARCH
+            self.target = None
+            self.saved_tail = None
+            return ('restore', tail, self.goal)
+        return None
 
 
 # ============================ 主流程 ============================
@@ -2169,7 +2675,7 @@ def find_astar_dir():
 
     🔴 13 次修正：原来写死 `os.path.dirname(__file__)`（= `_radar_test/`），
     但 `astar_plan.py` 实际在 `_demo2026/`（本机）或
-    `~/robocup_real/_demo2026/`（VM）⇒ VM 上 `--world` 直接
+    `~/robocup_real/_demo2026/`（VM）⇒ VM 上直接
     `ModuleNotFoundError: No module named 'astar_plan'`。
     与 test_two_layer.py / test_realworld.py 用同一套候选路径，
     并支持 `RADAR_DEMO_DIR` 环境变量覆盖。
@@ -2189,6 +2695,39 @@ def find_astar_dir():
     return None
 
 
+def _publish_occ(pub, occ, frame_id='world'):
+    """把在线占据图发成 nav_msgs/OccupancyGrid —— 给**同一套无人机**上的
+    协同层订阅（队友的 GridMap 把"解 RLE 文件"换成订阅本话题即可）。
+
+    编码约定（与模块设计一致）：
+        100 = 有回波（已探明障碍）
+         -1 = 未知（**绝不发 0/FREE**）
+    「扫过没回波」不能证明"空"（细杆远距离会漏），一旦发 FREE 就等于对外
+    断言"这里可飞"，会把整条链路推向直穿 —— 那是唯一会变冒险的写法。
+    所以本话题只提供"障碍 + 未知"，是否可飞由订阅方自己保守决定。
+    """
+    if OccupancyGrid is None or pub is None:
+        return
+    m = OccupancyGrid()
+    m.header.stamp = rospy.Time.now()
+    m.header.frame_id = frame_id
+    m.info.resolution = occ.cell
+    m.info.width = occ.nx
+    m.info.height = occ.ny
+    m.info.origin.position.x = occ.x0
+    m.info.origin.position.y = occ.y0
+    m.info.origin.position.z = 0.0
+    m.info.origin.orientation.w = 1.0
+    n = occ.nx * occ.ny
+    hits = occ.hits
+    data = [-1] * n
+    for k in range(n):
+        if hits[k]:
+            data[k] = 100
+    m.data = data
+    return pub.publish(m)
+
+
 def main():
     ap = argparse.ArgumentParser(description="雷达避障（自研）")
     ap.add_argument('--uav', default='typhoon_h480_0',
@@ -2204,12 +2743,11 @@ def main():
     ap.add_argument('--wp', help='航点文件（每行 x y）')
     ap.add_argument('--start', nargs=2, type=float, metavar=('X', 'Y'))
     ap.add_argument('--goal', nargs=2, type=float, metavar=('X', 'Y'))
-    ap.add_argument('--world', help='base.world / robocup.world（A* 兜底障碍源）')
-    ap.add_argument('--black-box', default=None, dest='black_box',
-                    help='官方 black_box.txt（**首选**障碍源：47 个轴对齐矩形'
-                         '真值，不依赖 mesh/key/yaw/双份 pose）')
-    ap.add_argument('--obstacle-txt', default=None, dest='obstacle_txt',
-                    help='官方 obstacle.txt（点阵；次选，含围墙/rover）')
+    # ⛔ 2026-10-01 裁定：机上**不得存在**任何读官方地图真值的路径。
+    #   原 `--world` / `--black-box` / `--obstacle-txt` 三个障碍源已**整体移除**，
+    #   连带删掉对应的 A* 预规划分支。理由：比赛时地图每次尝试前随机生成、
+    #   算法机对它一无所知，读官方落盘文件既非合法来源，也不该成为依赖。
+    #   ⇒ 机上唯一合法地图来源 = 机载雷达在线建图（见 --online-map）。
     ap.add_argument('--origin', nargs=2, type=float, metavar=('OX', 'OY'),
                     default=None,
                     help='【已废弃，仅诊断】mavros local(0,0) 对应的世界坐标。'
@@ -2221,7 +2759,15 @@ def main():
                          '的真值位姿做规划与避障（无 EKF 漂移，推荐）；'
                          'mavros = 用 local_position（贴近真机，只有 EKF，'
                          '实测原点会漂 ~1.1m）')
-    ap.add_argument('--alt', type=float, default=5.5)
+    ap.add_argument('--alt', type=float, default=2.8,
+                    help='巡航高度 m（世界系）。比赛实测 2.5~3m，默认取中值 '
+                         '2.8；规则红线是高度 >6m 记 0 分')
+    ap.add_argument('--takeoff-hold', type=float, default=30.0,
+                    dest='takeoff_hold',
+                    help='到达巡航高度后原地悬停秒数（默认 30）。用于熬过 PX4 '
+                         '起飞后 30s 的 nav_test 危险窗口——未通过前创新比率'
+                         '连续 fail 2s 就会判 Navigation failure 并 failsafe '
+                         '降落（VM 实测摔机）。0 = 关闭（旧行为）')
     ap.add_argument('--speed', type=float, default=1.5, help='前进速度 m/s')
     ap.add_argument('--stride', type=int, default=4,
                     help='雷达抽稀步长（默认 4，与仿真/实测取值一致）')
@@ -2235,13 +2781,51 @@ def main():
                     help='每 40 帧打印一行推进诊断（位置/频率/障碍数/'
                          '子目标偏角/偏航命令），用于排查"走得慢"')
     ap.add_argument('--hold', type=float, default=600.0, help='结束驻留时长（仿真秒）')
+    # ---- ★ 在线建图 + 边飞边重规划（09-30 新增）----------------------------
+    # 比赛实况：算法机对地图**一无所知**（语雀原文：正式比赛随机地图由技术
+    # 委员会在仿真机上生成，开源那份只为调试），且不能靠话题订阅拿真值。
+    # ⇒ 唯一合法的地图来源 = 机载传感器在线建图。本组参数就是那条路径。
+    ap.add_argument('--online-map', action='store_true', dest='online_map',
+                    help='在线建图 + 边飞边重规划（**机上零文件依赖**）：只用'
+                         '机载雷达累积占据栅格，每 --replan-period 秒用 A* 在'
+                         '**已探明**障碍上重算剩余航点。任何失败（无解/异常/'
+                         '路径病态）都保持原航点 ⇒ 行为退化为"直飞+雷达反应"，'
+                         '与不开本选项时一致。（机上无任何地图文件读取路径）')
+    ap.add_argument('--replan-period', type=float, default=5.0,
+                    dest='replan_period', help='在线重规划最短间隔（秒）')
+    ap.add_argument('--replan-margin', type=float, default=2.0,
+                    dest='replan_margin', help='在线重规划的 A* 膨胀半径（m）')
+    ap.add_argument('--replan-clear', type=float, default=2.5,
+                    dest='replan_clear', help='在线重规划的起点净空半径（m），'
+                                              '避免 A* 把起点吸附到远处')
+    # ---- ★ 动态目标跟随（10-03 新增）--------------------------------------
+    # 感知侧把目标（actor）世界坐标发成 PoseStamped；本节点只改写航点、
+    # 不接管控制 ⇒ 跟随途中逐帧仍是雷达反应层，照样避障。不给
+    # --target-topic（默认 None）⇒ 本功能整体关闭，行为与旧版完全一致。
+    ap.add_argument('--target-topic', default=None, dest='target_topic',
+                    help='目标流话题（geometry_msgs/PoseStamped，世界系）。'
+                         '不给 = 关闭跟随，行为与旧版一致')
+    ap.add_argument('--target-enter', type=float, default=12.0,
+                    dest='target_enter',
+                    help='进入 TRACK 的距离（m）。默认 12：12 m 外先逼近，'
+                         '进 10 m 圈后由裁判自动记跟踪分（<10 m 连续 20 s '
+                         '+80）；想更保守可改 8.0，代价是更早脱离搜索航线')
+    ap.add_argument('--target-resume', type=float, default=10.0,
+                    dest='target_resume',
+                    help='LOST 状态等待目标流恢复的最长秒数，超时恢复搜索航线')
+    ap.add_argument('--peers', default='',
+                    help='[六机互联] 队友机名逗号分隔，如 '
+                         'typhoon_h480_1,typhoon_h480_2 —— 订阅其 '
+                         'online_map/grid 并把对方障碍并入本机图'
+                         '（-1 永不覆盖，只增不减）。默认空=不互联。')
     args = ap.parse_args()
 
     rospy.init_node('radar_avoid', anonymous=True)
 
     pilot = RadarPilot(args.uav, dry_run=args.dry_run,
                        ns=args.ns, scan_topic=args.scan_topic,
-                       pose_source=args.pose_source)
+                       pose_source=args.pose_source,
+                       nav_hold=args.takeoff_hold)
     pilot.mount = (args.mount[0], args.mount[1], MOUNT_DEFAULT[2])
     pilot.stride = max(1, args.stride)
     pilot.verbose = args.verbose
@@ -2276,75 +2860,62 @@ def main():
 
     # 航点来源：一律按 **世界坐标** 给，内部不再转 local
     wps = []
-    if args.wp:
-        wps = load_waypoints(os.path.expanduser(args.wp))
-        rospy.loginfo('[radar] 航点文件 %s（世界坐标）', args.wp)
-    elif args.start and args.goal and (args.black_box or args.obstacle_txt
-                                       or args.world):
+    occ = None          # 在线占据图（仅 --online-map）
+    replanner = None    # 在线重规划器（仅 --online-map）
+    pub_occ = None      # 在线图话题发布（仅 --online-map，供协同层订阅）
+    swarm_merger = None  # 六机图互联（仅 --online-map --peers ...）
+    if args.online_map:
+        # ★ 机上零文件依赖分支。
+        #   这里 import 的是**代码模块**（astar_plan / occupancy_online），
+        #   不是地图数据；运行期不 open() 任何文件、不订阅任何真值话题。
+        if args.wp:
+            rospy.logwarn('[radar] --online-map：忽略 --wp（本模式靠自建图重规划）')
+        if not (args.start and args.goal):
+            rospy.logerr('[radar] --online-map 需要 --start 与 --goal')
+            return 1
         _ad = find_astar_dir()
         if _ad is None:
-            rospy.logerr('[radar] 找不到 astar_plan.py。'
-                         '请设 RADAR_DEMO_DIR 指向 _demo2026 目录，'
-                         '或用 --wp 直接给航点。')
+            rospy.logerr('[radar] 找不到 astar_plan.py（设 RADAR_DEMO_DIR 指向'
+                         '雷达目录）')
             return 1
         sys.path.insert(0, _ad)
-        import astar_plan as A
-        rospy.loginfo('[radar] astar_plan 来自 %s', _ad)
-        # 🔴🔴 13 次修正：这里的两个 bug 之前从未暴露（`--world` 分支
-        #   一直没被真正跑过，测试都走 test_two_layer 自己的代码路径）：
-        #   ① `buildings_from_world()` 返回的是**单个建筑列表**，
-        #      不是 (buildings, poles) 二元组。旧写法
-        #      `bld, poles = A.buildings_from_world(...)` 会把 13 栋建筑
-        #      解包进 2 个变量 ⇒ ValueError: too many values to unpack。
-        #   ② `A.plan()` 返回的是 **(Grid, raw_path, smooth_path) 三元组**，
-        #      不是路径本身。旧写法 `wps = list(path)` 会得到
-        #      [Grid 对象, raw, sp] 当航点 ⇒ 必崩。
-        #   正确用法（照 test_two_layer.py:163）：`g, raw, path = A.plan(...)`
-        #
-        # 🔴🔴 20 次修正（09-29，随机地图上线）：障碍源改为
-        #   **black_box.txt 优先 > obstacle.txt > world 解析**。
-        #   官方 map_generator.py 每次生成 world 时同时产出前两个文件，
-        #   它们是官方自己认定的障碍（官方 ObstacleAvoid.py 读 obstacle.txt），
-        #   而 world 解析要踩四个坑（mesh 与官方 size_box 互有大小、
-        #   map_generator 把 model 块 pose 全写成同一点、yaw 非 0、
-        #   细杆白名单不全），能不用就不用。
-        bld, _poles, _pts = [], [], None
-        if args.black_box:
-            bld = A.boxes_from_black_box(os.path.expanduser(args.black_box))
-            rospy.loginfo('[radar] 障碍源 = 官方 black_box.txt -> %d 个矩形',
-                          len(bld))
-        if not bld and args.obstacle_txt:
-            _pts = A.load_official_obstacle_txt(
-                os.path.expanduser(args.obstacle_txt))
-            rospy.loginfo('[radar] 障碍源 = 官方 obstacle.txt -> %d 个点阵',
-                          len(_pts))
-        if not bld and not _pts:
-            if not args.world:
-                rospy.logerr('[radar] 三个障碍源都不可用（--black-box / '
-                             '--obstacle-txt / --world），或用 --wp 直接给航点')
-                return 1
-            bld = A.buildings_from_world(os.path.expanduser(args.world))
-            # 随机地图：细杆（灯杆/牌/栓）也从当次 world 现解析，
-            # 不能复用从 base.world 导出的旧 obstacles_*.txt（模板不同会错位）。
+        import astar_plan as _A
+        from occupancy_online import OnlineOccupancy
+        from online_planner import OnlineReplanner
+        # seen 只用于覆盖率统计（合规证据），抽稀以省 CPU：
+        # 512 束 / stride 8 = 64 束，沿射线每 2 m 标一格
+        occ = OnlineOccupancy(seen_stride=8, seen_step=2.0)
+        replanner = OnlineReplanner(occ, _A, tuple(args.goal),
+                                    period=args.replan_period,
+                                    margin=args.replan_margin,
+                                    clear_r=args.replan_clear)
+        wps = [tuple(args.goal)]
+        if OccupancyGrid is not None:
+            pub_occ = rospy.Publisher("/%s/online_map/grid" % args.uav,
+                                      OccupancyGrid, queue_size=1, latch=True)
+            rospy.loginfo('[radar] 在线占据图发布: /%s/online_map/grid '
+                          '(OccupancyGrid；100=障碍 -1=未知，**不发 FREE**)',
+                          args.uav)
+        # 六机图互联（方案 B）：订阅队友的 online_map/grid，只并入 100 格。
+        # 不给 --peers 时零行为变化（单机回归不受影响）。
+        _peers = [p.strip() for p in (args.peers or '').split(',') if p.strip()]
+        if _peers and OccupancyGrid is not None:
             try:
-                _poles = A.poles_from_world(os.path.expanduser(args.world))
-            except AttributeError:
-                _poles = []   # 旧版 astar_plan 无此函数时退化为无细杆
-            rospy.loginfo('[radar] 障碍源 = world 解析 -> %d 栋建筑 / %d 细杆',
-                          len(bld), len(_poles))
-        try:
-            _g, _raw, path = A.plan(bld, _poles, tuple(args.start),
-                                    tuple(args.goal), points=_pts)
-        except TypeError:
-            # 旧版 astar_plan 无 points 形参
-            _g, _raw, path = A.plan(bld, _poles, tuple(args.start),
-                                    tuple(args.goal))
-        wps = [tuple(p) for p in path]
-        rospy.loginfo('[radar] A* 规划：障碍 %s，世界 (%.1f,%.1f)->(%.1f,%.1f)，'
-                      '航点 %d 个',
-                      ('%d 矩形' % len(bld)) if bld else ('%d 点阵' % len(_pts)),
-                      args.start[0], args.start[1],
-                      args.goal[0], args.goal[1], len(wps))
+                from swarm_map import SwarmMapMerge
+                swarm_merger = SwarmMapMerge(occ, args.uav, _peers)
+            except Exception as e:
+                swarm_merger = None
+                rospy.logwarn('[radar] --peers 启动失败（继续单机模式）: %s', e)
+        elif _peers:
+            rospy.logwarn('[radar] --peers 需要 nav_msgs/OccupancyGrid，'
+                          '当前环境没有 ⇒ 忽略（继续单机模式）')
+        rospy.loginfo('[radar] ★ 在线建图模式：初始航点 = 目标点(%.1f,%.1f)'
+                      '（无任何先验），重规划周期 %.1fs  margin %.1f  clear_r %.1f',
+                      args.goal[0], args.goal[1], args.replan_period,
+                      args.replan_margin, args.replan_clear)
+    elif args.wp:
+        wps = load_waypoints(os.path.expanduser(args.wp))
+        rospy.loginfo('[radar] 航点文件 %s（世界坐标）', args.wp)
     elif args.start and args.goal:
         wps = [tuple(args.goal)]
     else:
@@ -2381,7 +2952,12 @@ def main():
         return 0
 
     # 实飞
-    pilot.set_failsafe_params()
+    # 🔴 10-04：参数没真生效就必须拦下来 —— 否则后面在 OFFBOARD 上被
+    #   failsafe 拦下，表象变成"切不进 OFFBOARD"，排查方向全错。
+    if not pilot.set_failsafe_params():
+        rospy.logerr("[radar] 飞控 failsafe 参数未生效 ⇒ 拒绝起飞")
+        pilot.stop()
+        return 1
     # 🔴 14 次修正：起飞前必须确认飞机静止（上次事故 = 在上一次任务的
     # AUTO.LAND 下降途中启动，位姿源在变 ⇒ 一切判据失效）。
     if not pilot.wait_stable():
@@ -2393,28 +2969,210 @@ def main():
 
     # 前视点距离（m）= 期望速度 / 位置环 P 增益
     lookahead = args.speed * LOOKAHEAD_SEC
-    for i, wp in enumerate(wps):
+    # ★ 09-30：`for ... in enumerate(wps)` 改为可**中途替换剩余航点**的 while。
+    #   非 online 模式（occ is None）下 replanner 恒为 None、wps 不被改写
+    #   ⇒ 本段与原来的 for 循环**逐帧语义等价**，不影响既有实飞结论。
+    i = 0
+    _last_scan_id = None      # 同一帧去重（主循环 20Hz 可能快过雷达帧）
+    _t_report = time.time()
+    _t_occ = time.time()
+    # ★ 10-01：本航点的时间预算，**只在 i 前进时重置**。
+    #   旧写法把 `t_start = time.time()` 写在 while 顶部：重规划打断后会
+    #   `continue` 回外层 ⇒ t_start 每 5s 被重置一次 ⇒ 超时保护永不触发。
+    def _now():
+        """时钟：优先**仿真时间**。
+
+        🔴 VM 实测（10-01）：RTF 只有 ~0.15，用墙上时钟算超时预算会把
+        120s 压成 ~18 仿真秒 ⇒ 明明在正常前进的航点被判"超时跳过"
+        （实测 try1：航点 3 被误判超时）。而比赛计分、飞机动力学都按
+        仿真时间走 ⇒ 预算必须用仿真钟。
+        """
+        try:
+            t = rospy.Time.now().to_sec()
+            return t if t > 1000.0 else time.time()
+        except Exception:
+            return time.time()
+
+    _t_wp = _now()
+    _limit = 120.0
+
+    # ---- 动态目标跟随（--target-topic；不给则整体关闭，行为与旧版一致）----
+    follower = None
+    if args.target_topic:
+        _goal = (tuple(args.goal) if args.goal
+                 else (tuple(wps[-1]) if wps else None))
+        follower = TargetFollower(enter=args.target_enter,
+                                  resume=args.target_resume, goal=_goal)
+
+        def _on_target(msg, _f=follower):
+            try:
+                _f.on_target(msg.pose.position.x, msg.pose.position.y,
+                             _now())
+            except Exception:
+                pass
+
+        rospy.Subscriber(args.target_topic, PoseStamped, _on_target,
+                         queue_size=1)
+        rospy.loginfo('[radar] ★ 目标跟随：话题=%s  enter=%.1fm  '
+                      'resume=%.1fs  goal=%s',
+                      args.target_topic, args.target_enter,
+                      args.target_resume, _goal)
+
+    _following = False      # 当前航点是否已被跟随改写
+    _follow_saved = False   # 本轮接管是否已存剩余航线
+    _t_scan_warn = 0.0      # 雷达陈旧告警节流（墙钟）
+    while i < len(wps) and not rospy.is_shutdown():
+        wp = wps[i]
         rospy.loginfo("[radar] 前往航点 %d/%d (%.1f, %.1f)", i + 1, len(wps),
                       wp[0], wp[1])
-        t_start = time.time()
+        _replanned = False
+        _restored = False
         while not rospy.is_shutdown():
+            # 审计 #5（10-03）：雷达帧新鲜度——扫描年龄 >2s 视为雷达卡死，
+            # 原地悬停告警，不用 frozen 世界继续飞（防静默撞机）。
+            if pilot.scan_age() > 2.0:
+                if time.time() - _t_scan_warn > 5.0:
+                    _t_scan_warn = time.time()
+                    rospy.logwarn("[radar] ⚠ 雷达数据陈旧 %.1f s（>2s）"
+                                  "⇒ 原地悬停等待恢复", pilot.scan_age())
+                _p = pilot.pose
+                if _p is not None:
+                    pilot.set_sp(_p[0], _p[1], args.alt, pilot.heading)
+                rospy.sleep(1.0 / CTRL_HZ)
+                continue
             cx, cy, sh, nr = pilot.step_toward(wp[0], wp[1], args.alt, lookahead)
-            if math.hypot(wp[0] - cx, wp[1] - cy) < ARRIVE_R:
+
+            # ---- 动态目标跟随：只改写航点、不接管控制（逐帧仍走雷达反应层）
+            if follower is not None:
+                _act = follower.update((cx, cy), _now())
+                if _act is None:
+                    _following = False
+                elif _act[0] == 'follow':
+                    if not _following and not _follow_saved:
+                        # 接管：存剩余航线（含当前航点），丢失后原样恢复
+                        follower.saved_tail = list(wps[i:])
+                        _follow_saved = True
+                        rospy.loginfo('[radar] ◎ 目标接管 state=%s 距离=%.1fm'
+                                      '  剩余航线 %d 点已存',
+                                      follower.state,
+                                      math.hypot(_act[1] - cx, _act[2] - cy),
+                                      len(follower.saved_tail))
+                    _following = True
+                    # 目标移动 >1 m 才重写注入航点（不每帧打断避让滞环）
+                    if math.hypot(_act[1] - wp[0], _act[2] - wp[1]) > 1.0:
+                        wp = (_act[1], _act[2])
+                else:  # 'restore'：目标丢失超时，恢复搜索航线
+                    _following = False
+                    _follow_saved = False
+                    _restored = True
+                    wps = list(_act[1])
+                    i = 0
+                    rospy.loginfo('[radar] ↩ 目标丢失超时，恢复搜索航线'
+                                  '（%d 点）', len(wps))
+                    if wps:
+                        _t_wp = _now()
+                        _limit = max(120.0, 3.0 * math.hypot(
+                            wps[0][0] - cx, wps[0][1] - cy)
+                            / max(args.speed, 0.2))
+                    break          # 重入外层，飞恢复航线首点
+
+            # 10-03 修正（审计 #1）：跟随期间建图①/心跳②/发布②b 必须
+            #   继续——跟踪 <10m 待 20s + 逼近可能 60s+，整块跳过会让地图
+            #   冻结、恢复后 A* 拿过期地图规划。只暂停重规划③。
+            if occ is not None:
+                # ① 摄入本帧雷达（与避障层同源抽稀，保证 A 与 B 看到同一份射线）
+                _sc = pilot.scan
+                if (_sc is not None and id(_sc) != _last_scan_id
+                        and pilot.pose is not None):
+                    occ.feed(_sc, pilot.heading, pilot.pose, pilot.mount,
+                             attitude=pilot.attitude, stride=pilot.stride)
+                    _last_scan_id = id(_sc)
+                # ② 每 10 s 打一次在线图状态（机上判活 + 赛前体检用）
+                if time.time() - _t_report > 10.0:
+                    _t_report = time.time()
+                    occ.report()
+                    rospy.loginfo("[radar] %s", replanner.stats())
+                    if swarm_merger is not None:
+                        rospy.loginfo("[swarm] %s", swarm_merger.summary())
+                # ②b 每 2 s 把在线图发出去（协同层订阅；100=障碍 -1=未知）
+                if pub_occ is not None and time.time() - _t_occ > 2.0:
+                    _t_occ = time.time()
+                    _publish_occ(pub_occ, occ)
+                # ③ 重规划：仅非跟随态执行（跟随航点由 TargetFollower 管）
+                if not _following:
+                    _rest = replanner.maybe_replan((cx, cy), time.time(),
+                                                   heading=pilot.heading)
+                    if _rest:
+                        _old = len(wps) - i
+                        wps = wps[:i] + list(_rest)
+                        rospy.loginfo(
+                            "[radar] ⟳ 在线重规划：剩余航点 %d → %d（%s）",
+                            _old, len(_rest), replanner.last_reason)
+                        _replanned = True
+                        break      # 跳出内层 ⇒ wps[i] 已是新路径首点
+
+            if not _following and \
+                    math.hypot(wp[0] - cx, wp[1] - cy) < ARRIVE_R:
                 break
-            if time.time() - t_start > 120:
-                rospy.logwarn("[radar] 航点 %d 超时，跳下一个", i + 1)
+            if not _following and _now() - _t_wp > _limit:
+                rospy.logwarn("[radar] 航点 %d 超时（%.0f 仿真秒预算），跳下一个",
+                              i + 1, _limit)
                 break
             rospy.sleep(1.0 / CTRL_HZ)
+        # ★★ 10-01 修正（VM 实测抓到的真 bug，09-30 引入）：
+        #   重规划打断**不等于到达**。旧写法无条件 `i += 1`，于是"起飞第一帧
+        #   就重规划一次"会把唯一的航点直接判成"完成" ⇒ 实飞秒退、全程
+        #   0 个位置样本（实测日志：ONLINE_FLIGHT_DONE 时只飞了 0.0 s）。
+        #   现在重规划后**原地重入**外层，改飞新路径首点，不推进 i。
+        if _replanned:
+            continue
+        # 跟随丢失恢复：重入外层飞恢复航线首点（不算航点完成、不推进 i）
+        if _restored:
+            continue
         rospy.loginfo("[radar] 航点 %d 完成", i + 1)
+        i += 1
+        # 新航点的时间预算：随剩余距离自适应（116m@1.2m/s ≈ 97s，
+        # 固定 120s 余量太薄；取 3 倍标称时间，下限 120s）
+        if i < len(wps) and pilot.pose is not None:
+            _t_wp = _now()
+            _limit = max(120.0, 3.0 * math.hypot(wps[i][0] - pilot.pose[0],
+                                                 wps[i][1] - pilot.pose[1])
+                         / max(args.speed, 0.2))
 
     rospy.loginfo("[radar] 全部到达，驻留 %.0f 仿真秒", args.hold)
     c = pilot.pose
-    pilot.set_sp(c[0], c[1], args.alt, pilot.heading)
-    t_end = time.time() + args.hold
-    while not rospy.is_shutdown() and time.time() < t_end:
+    if c is not None:
+        pilot.set_sp(c[0], c[1], args.alt, pilot.heading)
+    else:
+        rospy.logwarn("[radar] 收尾位姿丢失，跳过最终设定点（直接进降落流程）")
+    # 10-03 修正（审计 #4）：驻留计时改仿真钟 _now()，与全栈超时政策一致
+    t_end = _now() + args.hold
+    while not rospy.is_shutdown() and _now() < t_end:
         rospy.sleep(1.0)
+    # 10-03 修正（审计 #3）：任务收尾自动降落——切 AUTO.LAND 并等落地上锁。
+    #   旧版只 pilot.stop() 停流，PX4 掉 OFFBOARD 转 LOITER 永不落地，
+    #   过不了六机验收「all landed disarmed」。
+    _landed = False
+    if pilot.pose is not None and (pilot.armed() or pilot.pose[2] > 0.5):
+        rospy.loginfo("[radar] 任务完成，AUTO.LAND 收尾")
+        r = pilot.srv_mode(custom_mode="AUTO.LAND")
+        if not r.mode_sent:
+            rospy.logerr("[radar] AUTO.LAND 请求失败（mode_sent=False）")
+        _dl = _now() + 180.0
+        while not rospy.is_shutdown() and _now() < _dl:
+            _c = pilot.pose
+            if _c is not None and _c[2] < 0.35 and not pilot.armed():
+                _landed = True
+                break
+            rospy.sleep(1.0)
+        if _landed:
+            rospy.loginfo("[radar] ✅ 已落地并上锁")
+        else:
+            rospy.logerr("[radar] 降落等待超时（z=%.2f armed=%s）——请人工接管",
+                         (pilot.pose or (0, 0, float('nan')))[2],
+                         pilot.armed())
     pilot.stop()
-    return 0
+    return 0 if _landed else 4
 
 
 if __name__ == '__main__':
