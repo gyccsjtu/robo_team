@@ -62,6 +62,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         SWARM_UAV_IDS=','.join(r['uav_id'] for r in wiring['uavs']),
         ONLINE_RADAR_PLANNING='1',RADAR_START_CLEARANCE_FILE=str(clearance),
         SEED_TRUTH='0',VIS_ENABLE='0',RADAR_GUARD='1',SWARM_MAX_SPEED='3.0',PR_RECENT_MOTION_WINDOW='4.0',FLEE_CHASE_SPEED='2.6',
+        PR_COORD_HZ='10',
         # The last real flight reached world z=6.019 while MAVROS reported
         # z=4.747. Reserve height for that observed estimator discrepancy;
         # world truth remains an independent audit input, not a controller input.
@@ -84,7 +85,9 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         clearance_configuration_revision='v1.2',route_clearance_m=2.5,fleet_separation_m=2.5,
         observed_grid_revision='v1.14',observed_grid_resolution_m=.25,
         observed_body_proof_revision='v1.16_scan_carry',
-        maximum_speed_mps=3.,visual_fusion_revision='v2.7',tracker_selection_revision='v1.3',
+        maximum_speed_mps=3.,visual_fusion_revision='v2.8',tracker_selection_revision='v1.20_camera_takeover',
+        visual_report_throttle_hz=10.,original_image_report_deduplication=True,
+        observer_dispatch_range_m=20.,camera_takeover_debounce_original_s=.75,
         white_track_activation_confidence=.4,other_track_activation_confidence=.7,
         tracking_guidance_revision='v1.18',tracking_guidance_coast_s=1.5,
         visual_evidence_incoming_max_age_s=1.,

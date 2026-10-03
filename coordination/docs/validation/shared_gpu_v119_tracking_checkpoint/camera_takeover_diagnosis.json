@@ -1,0 +1,129 @@
+{
+  "control_input": false,
+  "source_run_id": "ba886289-8883-40da-9c6b-a6c3630dc3af",
+  "owner_dispatch_sample_s": 1978.104,
+  "actual_owner": "uav_3",
+  "cases": [
+    {
+      "arrival_s": 1993.952,
+      "observer": "uav_2",
+      "original_s": 1993.296,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 8.395999999999958,
+      "xy": [
+        12.09,
+        1.55
+      ]
+    },
+    {
+      "arrival_s": 1994.436,
+      "observer": "uav_2",
+      "original_s": 1993.752,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 8.879999999999882,
+      "xy": [
+        12.61,
+        1.62
+      ]
+    },
+    {
+      "arrival_s": 1994.948,
+      "observer": "uav_2",
+      "original_s": 1994.24,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 9.392000000000053,
+      "xy": [
+        13.07,
+        1.56
+      ]
+    },
+    {
+      "arrival_s": 1995.436,
+      "observer": "uav_2",
+      "original_s": 1994.736,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 9.879999999999882,
+      "xy": [
+        13.59,
+        1.54
+      ]
+    },
+    {
+      "arrival_s": 1995.956,
+      "observer": "uav_2",
+      "original_s": 1995.228,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 10.399999999999864,
+      "xy": [
+        14.24,
+        1.66
+      ]
+    },
+    {
+      "arrival_s": 1996.436,
+      "observer": "uav_2",
+      "original_s": 1995.736,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 10.879999999999882,
+      "xy": [
+        14.86,
+        1.69
+      ]
+    },
+    {
+      "arrival_s": 1997.356,
+      "observer": "uav_2",
+      "original_s": 1996.76,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 11.799999999999955,
+      "xy": [
+        16.15,
+        1.84
+      ]
+    },
+    {
+      "arrival_s": 1998.352,
+      "observer": "uav_2",
+      "original_s": 1997.78,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 12.79600000000005,
+      "xy": [
+        17.23,
+        1.87
+      ]
+    },
+    {
+      "arrival_s": 1998.952,
+      "observer": "uav_2",
+      "original_s": 1998.284,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 13.395999999999958,
+      "xy": [
+        17.49,
+        1.74
+      ]
+    },
+    {
+      "arrival_s": 1999.436,
+      "observer": "uav_2",
+      "original_s": 1998.788,
+      "old_owner": "uav_3",
+      "old_owner_last_original_s": 1985.556,
+      "old_owner_image_age_s": 13.879999999999882,
+      "xy": [
+        17.99,
+        1.7
+      ]
+    }
+  ],
+  "physical_fix_in_this_snapshot": false
+}

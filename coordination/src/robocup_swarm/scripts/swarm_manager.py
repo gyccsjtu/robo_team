@@ -30,7 +30,7 @@ from allocation_geometry import screen_leg
 from search_completion import completion_state, parse_actor_list
 from visual_observation import VisualEvidence, TAG_TO_TID
 from red_observations import actor_slot_remaining
-from tracker_selection import tracker_rank
+from tracker_selection import tracker_rank, takeover_candidate
 from search_occupancy import apply_authority_release
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
@@ -446,7 +446,40 @@ class SwarmManager(object):
         observations = [(owner, stamp) for (owner, tag), stamp in
                         tuple(self._visual_evidence.stamps.items()) if TAG_TO_TID[tag] == tid]
         return tracker_rank(uid, distance, observations, rospy.Time.now().to_sec(),
-                            DETECT_RADIUS - DISPATCH_MARGIN)
+                            DETECT_RADIUS)
+
+    def _consider_camera_takeover(self, tid, now):
+        owner = self._tracking.get(tid)
+        if owner is None:
+            return
+        tx, ty = self._truth_cache[tid][:2]  # accepted camera coordinate in production
+        busy = set(self._tracking.values()) | set(self._backup.values())
+        candidates = [(uid, math.hypot(st.x-tx, st.y-ty))
+                      for uid, st in self.status.items()
+                      if uid in self.uav_ids and st.connected and uid not in busy]
+        observations = [(uid, stamp) for (uid, tag), stamp in
+                        tuple(self._visual_evidence.stamps.items()) if TAG_TO_TID[tag] == tid]
+        candidate = takeover_candidate(owner, candidates, observations, now,
+                                       DETECT_RADIUS)
+        watch = self.__dict__.setdefault('_camera_takeover_watch', {})
+        if candidate is None:
+            watch.pop(tid, None)
+            return
+        stamp = max(t for uid, t in observations if uid == candidate)
+        previous = watch.get(tid)
+        if previous is None or previous[0] != candidate or stamp-previous[2] > 1.:
+            watch[tid] = (candidate, stamp, stamp)
+            return
+        watch[tid] = (candidate, previous[1], stamp)
+        if stamp-previous[1] < .75:
+            return
+        with self._authority_lock:
+            self._emit_authority(self._authority.withdraw(owner, now))
+        self._tracking.pop(tid, None)
+        self._backup.pop(tid, None)
+        watch.pop(tid, None)
+        rospy.loginfo('[manager] CAMERA_TAKEOVER_PENDING %s %s -> %s; awaiting stop/exit',
+                      tid, owner, candidate)
 
     def _authority_ack_cb(self, msg):
         try:
@@ -814,6 +847,8 @@ class SwarmManager(object):
         self.tracker.report(msg.uav_id, tid, sample_s, msg.x, msg.y, truth=truth)
         self._cur_targets[tid] = (msg.x, msg.y, msg.uav_id)
 
+        self._consider_camera_takeover(tid, now)
+
         # 已在追踪？更新盘旋位置
         if tid in self._tracking:
             self._update_tracker_position(tid, msg.x, msg.y)
@@ -835,59 +870,30 @@ class SwarmManager(object):
                                    target_id)
             return
 
-        idle = self._idle_uavs()
-
-        # 优先用空闲机
-        best_uav = None
-        best_dist = float('inf')
-        for uid in idle:
-            if uid not in self.status:
+        idle = set(self._idle_uavs())
+        busy = set(self._tracking.values()) | set(self._backup.values())
+        candidates = []
+        for uid in self.uav_ids:
+            state = self.status.get(uid)
+            if state is None or not state.connected or uid in busy:
                 continue
-            ux, uy = self.status[uid].x, self.status[uid].y
-            dist = math.hypot(tx - ux, ty - uy)
-            if best_uav is None or self._tracker_rank(target_id, uid, dist) < self._tracker_rank(target_id, best_uav, best_dist):
-                best_dist = dist
-                best_uav = uid
-
-        # 没有空闲机？中断正在搜索的飞机
-        if best_uav is None:
-            rospy.loginfo("[manager] 无空闲机，尝试中断搜索机去追踪 %s", target_id)
-            # 找正在执行搜索任务的飞机，优先选预计到达时间 ≤ 15s 的
-            candidate_uavs = []
-            for uid in self.uav_ids:
-                if uid not in self.status or not self.status[uid].connected:
-                    continue
-                # 跳过已在追踪的
-                if uid in self._tracking.values():
-                    continue
-                # 找有搜索任务的
-                has_search_task = False
-                for c in self.grid.cells.values():
-                    if c.state == STATE_ASSIGNED and c.owner == uid:
-                        has_search_task = True
-                        break
-                if not has_search_task:
-                    continue
-                # 计算预计到达时间
-                ux, uy = self.status[uid].x, self.status[uid].y
-                dist = math.hypot(tx - ux, ty - uy)
-                flight_time = dist / CRUISE_SPEED  # 用 CRUISE_SPEED 估算
-                candidate_uavs.append((uid, dist, flight_time))
-
-            if candidate_uavs:
-                # 按飞行时间排序，选最快的（15s 内能到的优先）
-                candidate_uavs.sort(key=lambda x: self._tracker_rank(target_id, x[0], x[1]))
-                best_uav, best_dist, flight_time = candidate_uavs[0]
-                rospy.loginfo("[manager] 中断 %s 的搜索任务去追踪 %s（预计 %.1fs）",
-                              best_uav, target_id, flight_time)
-                # Keep the search cell occupied through STOP and verified exit.
-                # TASK_RELEASED later reconciles auction occupancy.
-            else:
-                rospy.loginfo("[manager] 无可中断的搜索机，无法派遣追踪 %s", target_id)
-                return
-
-        if best_uav is None:
+            searching = any(c.state == STATE_ASSIGNED and c.owner == uid
+                            for c in self.grid.cells.values())
+            if uid not in idle and not searching:
+                continue
+            distance = math.hypot(tx-state.x, ty-state.y)
+            rank = self._tracker_rank(target_id, uid, distance)
+            # A real observer in the search pool outranks a blind idle aircraft.
+            # Without an observer, retain idle-before-search preference.
+            key = (rank[0], 0 if uid in idle else 1, *rank[1:])
+            candidates.append((key, uid, distance))
+        if not candidates:
+            rospy.loginfo('[manager] No eligible tracker for %s', target_id)
             return
+        _, best_uav, best_dist = min(candidates)
+        if best_uav not in idle:
+            rospy.loginfo('[manager] Camera/search tracker %s selected for %s', best_uav, target_id)
+        # Its prior task/route occupancy remains until normal STOP and exit ACK.
 
         # Detection range describes observation, not permitted approach travel.
         # This caller already accepted current confirmed camera evidence. Route

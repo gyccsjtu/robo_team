@@ -65,6 +65,21 @@ class TaskAuthority:
         self._event('STOP_REQUESTED', uid, now, generation=active['generation'], reason='ROUTE_REFRESH')
         return [self._message(uid, active, 'STOP', now)]
 
+    def withdraw(self, uid, now):
+        """Cancel intent and request stop; never infer physical exit."""
+        self._time(now)
+        if uid not in self.fleet:
+            raise ValueError('UAV_ID')
+        self.pending.pop(uid, None)
+        active = self.active.get(uid)
+        if active is None:
+            return []
+        if not active['stopping']:
+            self._event('STOP_REQUESTED', uid, now,
+                        generation=active['generation'], reason='TASK_WITHDRAWN')
+        active['stopping'] = True
+        return [self._message(uid, active, 'STOP', now)]
+
     def _time(self, now):
         if not finite(now) or now < self.last_s:
             raise ValueError('TIME_ROLLBACK')

@@ -1030,6 +1030,7 @@ def main():
     n_loop = 0
     _t_live = 0.0            # 心跳上次打印墙钟（5s 一次，证明主线程活着）
     _coord_t = 0.0            # 上次发协同上报的墙钟（COORD_HZ 节流用）
+    _published_visual_samples = {}  # tag -> last actual image time, not publish time
     _obs_seq = 0              # observation_id 单调序号（契约要求非空且不复用）
     annot_img = None          # 最近一次参与检测的图像，供标注帧使用
     annot_z = 0.0             # 该帧对应的相机高度
@@ -1554,7 +1555,8 @@ def main():
                         "observation_id": "obs-%s-%d" % (_tag, _obs_seq)})))
                 # Only an actual match in this camera frame creates new evidence.
                 # Track prediction/coast may support UI, but cannot extend confirmation.
-                if _tk.miss == 0 and 0 < _tk.observed_s <= now <= _tk.observed_s+1.:
+                if (_tk.miss == 0 and 0 < _tk.observed_s <= now <= _tk.observed_s+1.
+                        and _tk.observed_s > _published_visual_samples.get(_tag, 0.)):
                     _logical_uid = os.environ.get('PR_LOGICAL_UAV_ID', UAV)
                     _visual_run = os.environ.get('ROBOCUP_RUN_ID', '')
                     visual_coord.publish(String(data=json.dumps(dict(schema_version=2,
@@ -1562,6 +1564,7 @@ def main():
                         target_id=_tag, frame_id='world_enu', xyz=[round(_tk.x, 2), round(_tk.y, 2), TARGET_Z],
                         confidence=float(_tk.conf), observation_id='%s:%s:%d' % (_visual_run, _logical_uid, _obs_seq)),
                         allow_nan=False)))
+                    _published_visual_samples[_tag] = _tk.observed_s
                 # === 仿真环境日志：YOLO 检测输出 + ROS 时间戳 ===
                 # 排查感知延迟/位置滞后：同时打检测框(uv)、世界坐标(xyz)、置信度、时间戳
                 _uv = getattr(_tk, 'uv', (None, None))

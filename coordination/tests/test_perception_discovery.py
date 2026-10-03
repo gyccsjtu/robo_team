@@ -18,6 +18,7 @@ class PerceptionDiscoveryTests(unittest.TestCase):
         tk = SimpleNamespace(miss=miss, observed_s=observed_s, x=1., y=2., conf=.87,
                              pub_xy=lambda: (99., 99.), uv=(30., 40.))
         env = dict(COORD_ON=True, COORD_HZ=2., now=10., _coord_t=0., _obs_seq=0,
+            _published_visual_samples={},
             pub_list=[], visual_pub_list=[('green', 0, tk)], pubs={'green': [None]},
             coord=SimpleNamespace(publish=legacy.append),
             visual_coord=SimpleNamespace(publish=visual.append),

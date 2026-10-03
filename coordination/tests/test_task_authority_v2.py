@@ -37,6 +37,37 @@ class AuthorityTests(unittest.TestCase):
         self.assertEqual(self.core.offer('uav_2', task(), .1), [])
         self.assertEqual(self.core.locks[('target', 't0')]['owner'], 'uav_1')
 
+    def test_withdraw_does_not_retry_or_release_until_measured_stop_and_exit(self):
+        self.core.offer('uav_1', task(), 0.)
+        stop = self.core.withdraw('uav_1', .1)[0]
+        self.assertEqual(stop['action'], 'STOP')
+        self.assertEqual(self.core.offer('uav_2', task(), .2), [])
+        self.assertEqual(self.stop_for(1.4), [])
+        self.assertTrue(self.core.locks[('target', 't0')]['retired'])
+        self.assertEqual(self.core.pending, {})
+        self.assertEqual(self.core.tick(1.5), [])
+        self.assertEqual(self.core.offer('uav_2', task(), 1.6), [])
+        self.ack(1.7, xyz=(5., 0., 4.), status='STATE')
+        grant = self.core.offer('uav_2', task(), 1.8)[0]
+        self.assertEqual(grant['uav_id'], 'uav_2')
+
+    def test_withdraw_cancels_pending_target_but_keeps_original_search_occupancy(self):
+        self.core.offer('uav_1', task(typ=0, cell=1), 0.)
+        self.core.offer('uav_1', task(), .1)
+        self.core.withdraw('uav_1', .2)
+        self.assertIsNone(self.core.intended_owner(('target', 't0')))
+        self.assertIn(('search', 1, 0), self.core.locks)
+        self.assertTrue(self.core.active['uav_1']['stopping'])
+        self.assertNotIn('uav_1', self.core.pending)
+
+    def test_withdraw_without_stop_ack_never_releases_occupancy_on_timeout(self):
+        self.core.offer('uav_1', task(), 0.)
+        self.core.withdraw('uav_1', .1)
+        self.assertEqual(self.core.offer('uav_2', task(), 100.), [])
+        self.assertEqual(self.core.tick(101.)[0]['action'], 'STOP')
+        self.assertIn(('target', 't0'), self.core.locks)
+        self.assertEqual(self.core.pending, {})
+
     def test_pending_target_handoff_cannot_interrupt_second_searcher(self):
         self.core.offer('uav_1', task(typ=0, cell=1), 0.)
         self.core.offer('uav_2', task(typ=0, cell=2), .1)
