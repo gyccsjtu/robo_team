@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "source_sha256": "8155aebfcc1f811d7112814ceb57aea42bf6ac3c245db5720ef77b3e8b641d56",
+  "generated_sha256": {
+    "typhoon_h480_0.sdf": "3f2521c11fb9a52d1907cc55c4737441952dbfbc5a017bff52136f8c6c140e16",
+    "typhoon_h480_1.sdf": "473879093d82192004609230d5d1d9cf306192296f0c6c8172517c63cd2efc47",
+    "typhoon_h480_2.sdf": "9742e8935d7d0ee0abc496c8730c9f54465a12d954dc1fd065db4858eab66c98",
+    "typhoon_h480_3.sdf": "357885edfe21965bce9e99f130f2098ae44515ff5986e700bb07b0d804a2ff35",
+    "typhoon_h480_4.sdf": "597f18e0a0ac722a82caa2c90f50def5f526c37441e9c34eecf7732dc4bcc34f",
+    "typhoon_h480_5.sdf": "592e16ddc7576895f69c5bcffe496d31236909ecc95f034add5b22ab84ea5fea"
+  },
+  "sensor_parameters_preserved": true,
+  "gui_ray_visualizations_disabled": true,
+  "competition_equivalence_verified": false
+}

@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/root/robocup_runs/codex_city_teammate_v121_20261004/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py", line 2567, in <module>
+    rospy.init_node(node_name, anonymous=False)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/client.py", line 309, in init_node
+    rospy.core.configure_logging(resolved_node_name)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/core.py", line 432, in configure_logging
+    _log_filename = rosgraph.roslogging.configure_logging('rospy', level, filename=filename)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rosgraph/roslogging.py", line 169, in configure_logging
+    rospkg.RosPack().get_path('rosgraph'), 'conf'))
+  File "/usr/lib/python3/dist-packages/rospkg/rospack.py", line 205, in get_path
+    self._update_location_cache()
+  File "/usr/lib/python3/dist-packages/rospkg/rospack.py", line 188, in _update_location_cache
+    list_by_path(self._manifest_name, path, cache)
+  File "/usr/lib/python3/dist-packages/rospkg/rospack.py", line 71, in list_by_path
+    root = ElementTree(None, os.path.join(d, PACKAGE_FILE))
+  File "/usr/lib/python3.8/xml/etree/ElementTree.py", line 555, in __init__
+    self.parse(file)
+  File "/usr/lib/python3.8/xml/etree/ElementTree.py", line 595, in parse
+    self._root = parser._parse_whole(source)
+OSError: [Errno 12] Cannot allocate memory

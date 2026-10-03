@@ -1,0 +1,124 @@
+{
+  "status": "CITY_MOTION_BLOCKED",
+  "formal_competition_pass": false,
+  "fixture_only": false,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        0.004456293303519487,
+        0.0034138751216232777,
+        -0.05719008669257164
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 1927.836,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        0.0011326123494654894,
+        0.00206626090221107,
+        -0.03224342316389084
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 1927.836,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        -0.0008157114498317242,
+        0.0011121438583359122,
+        -0.028467396274209023
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 1927.836,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        -0.002481684321537614,
+        0.0013124176766723394,
+        -0.031514979898929596
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 1927.836,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        -4.185914440313354e-05,
+        -0.0024095007684081793,
+        -0.03044041432440281
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 1927.84,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        0.006742687430232763,
+        -0.0008124259766191244,
+        -0.017937924712896347
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 1927.84,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  },
+  "connectivity_armed": false,
+  "six_aircraft_motion_observed": false,
+  "official_targets_eliminated": null,
+  "all_targets_eliminated": false,
+  "maximum_altitudes_m": {
+    "uav_1": 0.1944704272004274,
+    "uav_2": 0.1944099741497273,
+    "uav_3": 0.1943336961690722,
+    "uav_4": 0.19430555054424564,
+    "uav_5": 0.19427396517618276,
+    "uav_6": 0.1942196352455271
+  },
+  "maximum_displacements_m": {
+    "uav_1": 0.002731548148294142,
+    "uav_2": 0.002688572516544918,
+    "uav_3": 0.002692332959475378,
+    "uav_4": 0.003005608924274569,
+    "uav_5": 0.0032120460301314833,
+    "uav_6": 0.0030958492258128835
+  },
+  "simulated_seconds": 0.07999999999992724,
+  "minimum_sampled_separation_m": 2.994205587753239,
+  "component_error": "CITY_COMPONENT_EXIT:[{'pid': 130661, 'returncode': 1, 'command': ['python3', '-u', '/root/robocup_runs/codex_city_teammate_v121_20261004/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py', '__name:=swarm_agent_uav_3', '_uav_id:=uav_3', '_model_name:=typhoon_h480_2', '_mavros_namespace:=/uav_3/mavros', '_scan_topic:=/uav_3/scan', '_world_offset_x:=0.0', '_world_offset_y:=0.0']}]",
+  "evidence_streams_verified": true,
+  "armed_during_run_uavs": [],
+  "left_actors": null,
+  "score": null,
+  "visual_count": 0,
+  "target_grants": 0
+}

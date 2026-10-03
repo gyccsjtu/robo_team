@@ -18,3 +18,5 @@ gimbal_udp_port。覆盖库只改变连线和接收解析隔离，不改变传�
 独立构建入口build_namespaced_gimbal_overlay.py，依赖完整runtime内的compile_commands/Ninja
 及已核准官方源；只写全新输出目录，记录原源/覆盖源/库SHA与编译链接命令。
 原官方文件保持只读。正式环境等价性与完整六目标仍未完成，不宣称官方发布新插件。
+
+首次v1.21起栈在解锁前ROS初始化报ENOMEM并自动收尾；没有六机运动验收。后续客户端另限制OPENBLAS_NUM_THREADS/NUMEXPR_NUM_THREADS为1，既有OMP/MKL=1保持。WSL内存不变，线程限制的实际收益待测，不能将ENOMEM直接说成已确证内核OOM。402项核心测试通过。

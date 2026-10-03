@@ -17,6 +17,10 @@ SOURCE = '''<sdf version="1.6"><model name="typhoon_h480"><link name="base_link"
 
 
 class ModelTests(unittest.TestCase):
+    def test_gimbal_overlay_refuses_a_model_without_the_controller(self):
+        with self.assertRaises(ValueError):
+            models.adapt(SOURCE,dict(model_name='uav_1'),'/runtime/gps',gimbal_overlay='/runtime/gimbal')
+
     def test_gimbal_identity_and_endpoints_are_per_aircraft_with_sensors_unchanged(self):
         source=SOURCE.replace('</model>','<plugin name="gimbal_controller" filename="libgazebo_gimbal_controller_plugin.so"/></model>')
         for i in range(1,7):

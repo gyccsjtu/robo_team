@@ -1,0 +1,232 @@
+[pr] 官方话题仲裁开启：仅被指派追踪且目标<=45m 时直发 /actor_*_info
+[pr] 空间身份闸门开启：发布坐标须与融合估计一致(<=2.5m, 新鲜<=3s)
+[pr] 加载权重 /mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt
+[pr] v4.0 双目左目适配 | 相机 typhoon_h480_5::cgo3_camera_link <- /uav_6/cgo3_camera/image_raw | 内参 fx=376.0 cx=376.0 cy=240.0 图 752x480
+[pr] 类别顺序 ['red', 'green', 'blue', 'white', 'brown']
+[pr] shared_inference port=19731 ready=True (0=将回退进程内推理)
+[pr] v4.0(双目) 几何+运动+人判决+red双流 | conf=0.40  detect=5Hz  pub=10Hz
+[pr] 人判决: 标注ON 发布ON | H∈[1.30,2.40] 净速度≥0.15m/s 打分≥0.20 画框要求coast≤2
+[pr] 严格档(新建) H∈[1.15,2.10] AR∈[0.55,3.80] | 宽松档(hits>=5) H∈[0.80,3.20] AR∈[0.40,4.50]
+[pr] H_ref=1.75±0.70 H_gate=1.50 | 跟踪 alpha=0.50 beta=0.15 gate=3.0m min_hits=2 timeout=3.0s
+[pr] 帧间跳变门限(已确认 track) ON: gate=min(3.0, 1.5 + 3.0·dt)
+[pr] 心跳 loop=2 img_ts=0.000 img_age=-1.00s n_det=0 z=0.00m pub=0 coord=ON cam=(0.0,0.0,0.0)
+[pr] 取相机位姿失败: cannot unpack non-iterable NoneType object
+[pr] inference_device=shared first_inference_s=0.0870
+[pr] 心跳 loop=53 img_ts=1935.848 img_age=0.53s n_det=0 z=0.03m pub=0 coord=ON cam=(3.0,3.0,0.0)
+[pr] 心跳 loop=103 img_ts=1940.704 img_age=0.67s n_det=0 z=0.05m pub=0 coord=ON cam=(3.0,3.0,0.0)
+[pr] 心跳 loop=153 img_ts=1945.792 img_age=0.58s n_det=0 z=1.48m pub=0 coord=ON cam=(3.0,3.0,1.8)
+[pr] 心跳 loop=203 img_ts=1950.476 img_age=0.90s n_det=1 z=2.43m pub=0 coord=ON cam=(4.2,3.0,2.4)
+[pr] 心跳 loop=253 img_ts=1955.380 img_age=1.00s n_det=1 z=2.37m pub=0 coord=ON cam=(6.3,3.6,2.4)
+[pr] 心跳 loop=303 img_ts=1960.564 img_age=0.81s n_det=1 z=2.54m pub=0 coord=ON cam=(7.6,6.0,2.6)
+[pr] 心跳 loop=353 img_ts=1965.488 img_age=0.89s n_det=1 z=2.76m pub=0 coord=ON cam=(8.1,7.3,2.8)
+[pr] 心跳 loop=403 img_ts=1970.668 img_age=0.71s n_det=1 z=2.86m pub=0 coord=ON cam=(8.5,8.0,2.8)
+[pr] 心跳 loop=453 img_ts=1975.480 img_age=0.90s n_det=1 z=2.65m pub=0 coord=ON cam=(8.9,8.7,2.7)
+[pr] 心跳 loop=503 img_ts=1980.732 img_age=0.64s n_det=1 z=2.49m pub=0 coord=ON cam=(8.1,8.5,2.5)
+[pr] 心跳 loop=553 img_ts=1985.452 img_age=0.92s n_det=1 z=2.40m pub=0 coord=ON cam=(9.4,8.6,2.4)
+[pr] 心跳 loop=603 img_ts=1990.668 img_age=0.71s n_det=1 z=2.31m pub=0 coord=ON cam=(9.2,8.8,2.3)
+[pr] 心跳 loop=653 img_ts=1995.812 img_age=0.56s n_det=1 z=2.25m pub=0 coord=ON cam=(9.3,8.8,2.3)
+[pr] 心跳 loop=703 img_ts=2000.824 img_age=0.55s n_det=1 z=2.30m pub=0 coord=ON cam=(16.9,8.6,2.3)
+[pr] 心跳 loop=753 img_ts=2005.356 img_age=1.02s n_det=2 z=2.40m pub=0 coord=ON cam=(19.8,8.5,2.4)
+[pr] 心跳 loop=803 img_ts=2010.576 img_age=0.80s n_det=2 z=2.49m pub=0 coord=ON cam=(21.7,8.4,2.5)
+[pr] 心跳 loop=853 img_ts=2015.652 img_age=0.72s n_det=2 z=2.53m pub=0 coord=ON cam=(23.1,8.4,2.6)
+[pr] 心跳 loop=903 img_ts=2020.664 img_age=0.71s n_det=2 z=2.51m pub=0 coord=ON cam=(24.3,8.6,2.5)
+[pr] 心跳 loop=953 img_ts=2025.652 img_age=0.72s n_det=7 z=2.42m pub=0 coord=ON cam=(26.0,9.0,2.4)
+[pr] 心跳 loop=1003 img_ts=2030.620 img_age=0.76s n_det=13 z=2.29m pub=0 coord=ON cam=(27.2,9.2,2.3)
+[pr] 心跳 loop=1053 img_ts=2035.888 img_age=0.49s n_det=14 z=2.42m pub=0 coord=ON cam=(32.0,9.3,2.4)
+[pr] 心跳 loop=1103 img_ts=2040.932 img_age=0.44s n_det=14 z=2.45m pub=0 coord=ON cam=(36.3,9.3,2.4)
+[pr] 心跳 loop=1153 img_ts=2045.824 img_age=0.55s n_det=14 z=2.38m pub=0 coord=ON cam=(38.0,10.5,2.4)
+[pr] 心跳 loop=1203 img_ts=2050.896 img_age=0.48s n_det=15 z=2.34m pub=0 coord=ON cam=(37.9,12.2,2.4)
+[pr] 心跳 loop=1253 img_ts=2055.672 img_age=0.70s n_det=15 z=2.28m pub=0 coord=ON cam=(38.5,14.5,2.3)
+[pr] 心跳 loop=1303 img_ts=2060.748 img_age=0.63s n_det=15 z=2.39m pub=0 coord=ON cam=(38.9,19.9,2.4)
+[pr] 心跳 loop=1353 img_ts=2065.788 img_age=0.59s n_det=15 z=2.51m pub=0 coord=ON cam=(38.9,20.1,2.5)
+[pr] 心跳 loop=1403 img_ts=2070.632 img_age=0.74s n_det=15 z=2.35m pub=0 coord=ON cam=(39.1,22.8,2.3)
+[pr] 心跳 loop=1453 img_ts=2075.636 img_age=0.74s n_det=15 z=2.32m pub=0 coord=ON cam=(39.9,24.3,2.3)
+[pr] 心跳 loop=1503 img_ts=2080.900 img_age=0.48s n_det=15 z=2.31m pub=0 coord=ON cam=(40.5,27.8,2.3)
+[pr] 心跳 loop=1553 img_ts=2085.856 img_age=0.52s n_det=17 z=2.15m pub=0 coord=ON cam=(40.7,30.4,2.1)
+[INFO] [1791063352.621478, 2089.284000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(123,226) world_xyz=(53.55,43.41,1.2) conf=0.618 | img_ts=2088.788 | obs_id=obs-white-1
+[INFO] [1791063356.311905, 2089.876000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(119,201) world_xyz=(52.67,42.85,1.2) conf=0.826 | img_ts=2089.192 | obs_id=obs-white-5
+[pr] white  c=0.89 H=1.76m 世界=(  52.36,  42.74) D=16.74m v=1.37m/s tid=8 hits=7 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=25 噪声拦下=0 关联成功=17 新建=8 新建被几何拒=0 帧间跳变拒=0 外观特征=17
+[INFO] [1791063360.688619, 2090.576000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(87,218) world_xyz=(51.92,42.80,1.2) conf=0.902 | img_ts=2090.048 | obs_id=obs-white-9
+[pr] white  c=0.85 H=1.83m 世界=(  52.02,  43.19) D=17.18m v=1.15m/s tid=8 hits=9 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=27 噪声拦下=0 关联成功=19 新建=8 新建被几何拒=0 帧间跳变拒=0 外观特征=19
+[INFO] [1791063365.109156, 2091.280000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(95,224) world_xyz=(51.79,43.18,1.2) conf=0.825 | img_ts=2090.860 | obs_id=obs-white-13
+[pr] 心跳 loop=1603 img_ts=2090.860 img_age=0.52s n_det=28 z=2.11m pub=1 coord=ON cam=(41.1,31.5,2.1)
+[INFO] [1791063368.814356, 2091.876000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(87,225) world_xyz=(51.39,43.17,1.2) conf=0.876 | img_ts=2091.240 | obs_id=obs-white-17
+[pr] white  c=0.81 H=1.83m 世界=(  51.31,  43.21) D=16.01m v=1.10m/s tid=8 hits=12 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=30 噪声拦下=0 关联成功=22 新建=8 新建被几何拒=0 帧间跳变拒=0 外观特征=22
+[INFO] [1791063373.192536, 2092.576000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(76,228) world_xyz=(50.95,43.21,1.2) conf=0.849 | img_ts=2092.000 | obs_id=obs-white-21
+[pr] white  c=0.81 H=1.82m 世界=(  50.58,  43.17) D=15.32m v=1.04m/s tid=8 hits=14 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=32 噪声拦下=0 关联成功=24 新建=8 新建被几何拒=0 帧间跳变拒=0 外观特征=24
+[INFO] [1791063377.606594, 2093.280000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(67,232) world_xyz=(50.17,42.96,1.2) conf=0.852 | img_ts=2092.788 | obs_id=obs-white-25
+[INFO] [1791063381.315090, 2093.876000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(69,232) world_xyz=(49.68,42.78,1.2) conf=0.850 | img_ts=2093.176 | obs_id=obs-white-29
+[pr] white  c=0.87 H=1.79m 世界=(  49.51,  42.81) D=14.54m v=1.06m/s tid=8 hits=17 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=35 噪声拦下=0 关联成功=27 新建=8 新建被几何拒=0 帧间跳变拒=0 外观特征=27
+[INFO] [1791063385.692450, 2094.576000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(38,236) world_xyz=(49.15,42.94,1.2) conf=0.889 | img_ts=2093.960 | obs_id=obs-white-33
+[pr] white  c=0.88 H=1.77m 世界=(  48.76,  42.86) D=14.00m v=1.01m/s tid=8 hits=19 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=37 噪声拦下=0 关联成功=29 新建=8 新建被几何拒=0 帧间跳变拒=0 外观特征=29
+[INFO] [1791063390.109146, 2095.280000]: [PERC] yolo uav=typhoon_h480_5 target=white uv=(14,243) world_xyz=(48.44,42.72,1.2) conf=0.873 | img_ts=2094.768 | obs_id=obs-white-37
+[pr] 心跳 loop=1653 img_ts=2095.560 img_age=0.82s n_det=39 z=2.19m pub=0 coord=ON cam=(41.1,31.4,2.2)
+[pr] 心跳 loop=1703 img_ts=2100.952 img_age=0.42s n_det=39 z=2.38m pub=0 coord=ON cam=(41.0,31.4,2.4)
+[pr] 心跳 loop=1753 img_ts=2105.832 img_age=0.54s n_det=39 z=2.40m pub=0 coord=ON cam=(41.1,31.4,2.4)
+[pr] 心跳 loop=1803 img_ts=2110.800 img_age=0.58s n_det=41 z=2.32m pub=0 coord=ON cam=(41.1,31.4,2.3)
+[pr] 心跳 loop=1853 img_ts=2115.736 img_age=0.64s n_det=47 z=2.37m pub=0 coord=ON cam=(41.4,31.7,2.4)
+[INFO] [1791063523.880827, 2116.680000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(219,222) world_xyz=(53.68,37.62,1.2) conf=0.822 | img_ts=2116.148 | obs_id=obs-brown-40
+[pr] brown  c=0.82 H=2.01m 世界=(  53.49,  37.59) D=13.76m v=0.87m/s tid=11 hits=6 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=49 噪声拦下=1 关联成功=35 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=35
+[INFO] [1791063527.611801, 2117.276000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(206,220) world_xyz=(53.30,37.56,1.2) conf=0.824 | img_ts=2116.544 | obs_id=obs-brown-43
+[INFO] [1791063531.413288, 2117.884000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(210,227) world_xyz=(52.30,37.32,1.2) conf=0.751 | img_ts=2117.396 | obs_id=obs-brown-47
+[pr] brown  c=0.75 H=1.77m 世界=(  52.19,  37.29) D=12.24m v=0.94m/s tid=11 hits=8 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=51 噪声拦下=1 关联成功=37 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=37
+[INFO] [1791063535.717841, 2118.576000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(210,230) world_xyz=(51.63,37.13,1.2) conf=0.806 | img_ts=2117.812 | obs_id=obs-brown-51
+[pr] brown  c=0.86 H=1.76m 世界=(  51.08,  37.04) D=11.11m v=1.03m/s tid=11 hits=11 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=54 噪声拦下=1 关联成功=40 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=40
+[INFO] [1791063538.877076, 2119.080000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(205,233) world_xyz=(50.96,37.01,1.2) conf=0.856 | img_ts=2118.592 | obs_id=obs-brown-54
+[INFO] [1791063543.215878, 2119.776000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(214,233) world_xyz=(50.56,36.95,1.2) conf=0.872 | img_ts=2118.992 | obs_id=obs-brown-58
+[pr] brown  c=0.88 H=1.76m 世界=(  50.36,  36.96) D=10.89m v=0.94m/s tid=11 hits=13 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=56 噪声拦下=1 关联成功=42 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=42
+[INFO] [1791063546.382745, 2120.280000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(203,239) world_xyz=(49.93,36.83,1.2) conf=0.898 | img_ts=2119.768 | obs_id=obs-brown-61
+[INFO] [1791063550.092292, 2120.876000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(197,241) world_xyz=(49.43,36.73,1.2) conf=0.893 | img_ts=2120.168 | obs_id=obs-brown-65
+[pr] brown  c=0.86 H=1.75m 世界=(  49.31,  36.74) D= 9.87m v=0.98m/s tid=11 hits=16 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=59 噪声拦下=1 关联成功=45 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=45
+[pr] 心跳 loop=1903 img_ts=2120.560 img_age=0.82s n_det=59 z=2.29m pub=1 coord=ON cam=(41.5,31.7,2.3)
+[INFO] [1791063554.466754, 2121.576000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(188,246) world_xyz=(48.81,36.64,1.2) conf=0.823 | img_ts=2120.992 | obs_id=obs-brown-69
+[pr] brown  c=0.89 H=1.78m 世界=(  48.34,  36.54) D= 8.85m v=0.96m/s tid=11 hits=18 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=61 噪声拦下=1 关联成功=47 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=47
+[INFO] [1791063558.884045, 2122.280000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(175,254) world_xyz=(47.99,36.46,1.2) conf=0.914 | img_ts=2121.784 | obs_id=obs-brown-73
+[INFO] [1791063562.592570, 2122.876000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(171,257) world_xyz=(47.54,36.36,1.2) conf=0.886 | img_ts=2122.180 | obs_id=obs-brown-77
+[pr] brown  c=0.90 H=1.76m 世界=(  47.29,  36.28) D= 7.69m v=1.00m/s tid=11 hits=21 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=64 噪声拦下=1 关联成功=50 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=50
+[INFO] [1791063566.973511, 2123.576000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(153,269) world_xyz=(46.67,36.14,1.2) conf=0.881 | img_ts=2122.996 | obs_id=obs-brown-81
+[pr] brown  c=0.89 H=1.77m 世界=(  46.26,  36.06) D= 7.09m v=0.98m/s tid=11 hits=23 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=66 噪声拦下=1 关联成功=52 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=52
+[INFO] [1791063571.386864, 2124.280000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(135,282) world_xyz=(45.93,35.97,1.2) conf=0.920 | img_ts=2123.820 | obs_id=obs-brown-85
+[INFO] [1791063575.095289, 2124.876000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(117,296) world_xyz=(45.36,35.84,1.2) conf=0.915 | img_ts=2124.228 | obs_id=obs-brown-89
+[pr] brown  c=0.92 H=1.74m 世界=(  45.14,  35.88) D= 6.20m v=1.01m/s tid=11 hits=26 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=69 噪声拦下=1 关联成功=55 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=55
+[INFO] [1791063579.475171, 2125.576000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(66,313) world_xyz=(44.66,36.05,1.2) conf=0.875 | img_ts=2125.060 | obs_id=obs-brown-93
+[pr] brown  c=0.92 H=1.73m 世界=(  44.26,  36.11) D= 5.80m v=0.98m/s tid=11 hits=28 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=71 噪声拦下=1 关联成功=57 新建=11 新建被几何拒=2 帧间跳变拒=0 外观特征=57
+[INFO] [1791063583.854135, 2126.276000]: [PERC] yolo uav=typhoon_h480_5 target=brown uv=(32,334) world_xyz=(44.24,36.11,1.2) conf=0.916 | img_ts=2125.452 | obs_id=obs-brown-97
+[pr] 心跳 loop=1953 img_ts=2125.864 img_age=0.51s n_det=71 z=2.26m pub=1 coord=ON cam=(41.5,31.7,2.3)
+[pr] 心跳 loop=2003 img_ts=2130.704 img_age=0.67s n_det=72 z=2.34m pub=0 coord=ON cam=(41.5,31.7,2.4)
+[pr] 心跳 loop=2053 img_ts=2135.844 img_age=0.53s n_det=72 z=2.41m pub=0 coord=ON cam=(41.5,31.7,2.4)
+[pr] red 复流 slot=0 新tid=12 静默时长=0.00s 位置=(47.3,38.7)
+[INFO] [1791063677.657369, 2141.280000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(87,263) world_xyz=(47.51,38.63,1.2) conf=0.750 | img_ts=2140.728 | obs_id=obs-red1-101
+[pr] 心跳 loop=2103 img_ts=2140.728 img_age=0.65s n_det=77 z=2.41m pub=1 coord=ON cam=(41.4,31.7,2.4)
+[INFO] [1791063681.402012, 2141.880000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(114,258) world_xyz=(48.14,38.38,1.2) conf=0.868 | img_ts=2141.432 | obs_id=obs-red1-105
+[pr] red1   c=0.87 H=1.76m 世界=(  48.22,  38.35) D= 9.79m v=0.61m/s tid=12 hits=7 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=79 噪声拦下=1 关联成功=64 新建=12 新建被几何拒=2 帧间跳变拒=7 外观特征=64
+[INFO] [1791063685.737205, 2142.576000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(128,254) world_xyz=(48.63,38.17,1.2) conf=0.856 | img_ts=2141.792 | obs_id=obs-red1-109
+[pr] red1   c=0.84 H=1.81m 世界=(  49.42,  38.06) D=10.43m v=0.75m/s tid=12 hits=10 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=82 噪声拦下=1 关联成功=67 新建=12 新建被几何拒=2 帧间跳变拒=10 外观特征=67
+[INFO] [1791063690.177283, 2143.284000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(158,245) world_xyz=(49.73,38.01,1.2) conf=0.826 | img_ts=2142.852 | obs_id=obs-red1-113
+[INFO] [1791063693.861995, 2143.876000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(154,246) world_xyz=(50.08,37.84,1.2) conf=0.890 | img_ts=2143.200 | obs_id=obs-red1-117
+[pr] red1   c=0.80 H=1.78m 世界=(  50.29,  37.81) D=11.05m v=0.82m/s tid=12 hits=13 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=85 噪声拦下=1 关联成功=70 新建=12 新建被几何拒=2 帧间跳变拒=13 外观特征=70
+[INFO] [1791063698.245211, 2144.576000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(168,240) world_xyz=(50.80,37.74,1.2) conf=0.869 | img_ts=2143.944 | obs_id=obs-red1-121
+[pr] red1   c=0.84 H=1.76m 世界=(  51.50,  37.68) D=11.99m v=0.89m/s tid=12 hits=16 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=88 噪声拦下=1 关联成功=73 新建=12 新建被几何拒=2 帧间跳变拒=16 外观特征=73
+[INFO] [1791063701.409054, 2145.080000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(191,233) world_xyz=(51.63,37.68,1.2) conf=0.841 | img_ts=2144.680 | obs_id=obs-red1-124
+[INFO] [1791063705.742074, 2145.776000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(198,232) world_xyz=(52.09,37.61,1.2) conf=0.834 | img_ts=2145.040 | obs_id=obs-red1-128
+[pr] red1   c=0.84 H=1.82m 世界=(  52.38,  37.47) D=12.30m v=0.86m/s tid=12 hits=18 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=90 噪声拦下=1 关联成功=75 新建=12 新建被几何拒=2 帧间跳变拒=18 外观特征=75
+[INFO] [1791063708.906477, 2146.280000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(210,229) world_xyz=(52.66,37.41,1.2) conf=0.790 | img_ts=2145.792 | obs_id=obs-red1-131
+[pr] 心跳 loop=2153 img_ts=2145.792 img_age=0.58s n_det=91 z=2.42m pub=1 coord=ON cam=(41.4,31.7,2.4)
+[INFO] [1791063712.615346, 2146.876000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(215,227) world_xyz=(53.13,37.34,1.2) conf=0.811 | img_ts=2146.148 | obs_id=obs-red1-135
+[pr] red1   c=0.81 H=1.75m 世界=(  53.32,  37.28) D=13.23m v=0.89m/s tid=12 hits=21 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=93 噪声拦下=1 关联成功=78 新建=12 新建被几何拒=2 帧间跳变拒=21 外观特征=78
+[INFO] [1791063717.002900, 2147.576000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(224,224) world_xyz=(53.83,37.19,1.2) conf=0.794 | img_ts=2146.924 | obs_id=obs-red1-139
+[pr] red1   c=0.80 H=1.83m 世界=(  54.26,  37.13) D=13.95m v=0.88m/s tid=12 hits=23 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=95 噪声拦下=1 关联成功=80 新建=12 新建被几何拒=2 帧间跳变拒=23 外观特征=80
+[INFO] [1791063721.412830, 2148.280000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(229,223) world_xyz=(54.33,37.06,1.2) conf=0.810 | img_ts=2147.696 | obs_id=obs-red1-143
+[INFO] [1791063725.122917, 2148.876000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(229,223) world_xyz=(54.29,37.01,1.2) conf=0.802 | img_ts=2148.080 | obs_id=obs-red1-147
+[pr] red1   c=0.81 H=1.87m 世界=(  54.23,  37.01) D=13.71m v=0.80m/s tid=12 hits=26 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=98 噪声拦下=1 关联成功=83 新建=12 新建被几何拒=2 帧间跳变拒=26 外观特征=83
+[INFO] [1791063729.499198, 2149.576000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(230,222) world_xyz=(54.09,37.01,1.2) conf=0.791 | img_ts=2148.876 | obs_id=obs-red1-151
+[pr] red1   c=0.79 H=1.82m 世界=(  54.05,  37.07) D=13.84m v=0.72m/s tid=12 hits=28 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=100 噪声拦下=1 关联成功=85 新建=12 新建被几何拒=2 帧间跳变拒=28 外观特征=85
+[pr] red 断流 slot=0 掉tid=12 最后位置=(54.0,37.1) | 原因=-（无可用候选：被遮挡 / 超量程 / 跟丢 / 人判决拦下）
+[pr] 心跳 loop=2203 img_ts=2150.968 img_age=0.41s n_det=103 z=2.29m pub=0 coord=ON cam=(41.5,31.8,2.3)
+[pr] red 复流 slot=0 新tid=12 静默时长=1.20s 位置=(54.2,36.7)
+[INFO] [1791063741.426461, 2151.484000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(244,220) world_xyz=(54.20,36.75,1.2) conf=0.815 | img_ts=2150.968 | obs_id=obs-red1-155
+[pr] red1   c=0.86 H=1.81m 世界=(  54.64,  36.16) D=13.94m v=0.68m/s tid=12 hits=34 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=106 噪声拦下=1 关联成功=91 新建=12 新建被几何拒=2 帧间跳变拒=34 外观特征=91
+[INFO] [1791063745.205296, 2152.084000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(257,219) world_xyz=(54.69,36.03,1.2) conf=0.858 | img_ts=2151.708 | obs_id=obs-red1-158
+[INFO] [1791063749.495412, 2152.776000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(262,218) world_xyz=(55.05,35.55,1.2) conf=0.846 | img_ts=2152.056 | obs_id=obs-red1-162
+[pr] red1   c=0.84 H=1.79m 世界=(  55.30,  35.22) D=14.34m v=0.68m/s tid=12 hits=36 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=108 噪声拦下=1 关联成功=93 新建=12 新建被几何拒=2 帧间跳变拒=36 外观特征=93
+[INFO] [1791063752.667998, 2153.280000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(271,217) world_xyz=(55.35,34.84,1.2) conf=0.849 | img_ts=2152.828 | obs_id=obs-red1-165
+[INFO] [1791063756.374281, 2153.876000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(276,216) world_xyz=(55.66,34.38,1.2) conf=0.802 | img_ts=2153.200 | obs_id=obs-red1-169
+[pr] red1   c=0.84 H=1.77m 世界=(  55.77,  34.22) D=14.61m v=0.70m/s tid=12 hits=39 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=111 噪声拦下=1 关联成功=96 新建=12 新建被几何拒=2 帧间跳变拒=39 外观特征=96
+[INFO] [1791063760.754657, 2154.576000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(288,217) world_xyz=(56.11,33.75,1.2) conf=0.881 | img_ts=2153.924 | obs_id=obs-red1-173
+[pr] red1   c=0.87 H=1.75m 世界=(  56.31,  33.23) D=14.44m v=0.72m/s tid=12 hits=42 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=114 噪声拦下=1 关联成功=99 新建=12 新建被几何拒=2 帧间跳变拒=42 外观特征=99
+[INFO] [1791063763.919750, 2155.080000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(298,215) world_xyz=(56.35,33.15,1.2) conf=0.867 | img_ts=2154.648 | obs_id=obs-red1-176
+[INFO] [1791063768.247525, 2155.776000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(303,214) world_xyz=(56.61,32.72,1.2) conf=0.843 | img_ts=2155.028 | obs_id=obs-red1-180
+[pr] red1   c=0.85 H=1.82m 世界=(  56.72,  32.48) D=14.85m v=0.71m/s tid=12 hits=44 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=116 噪声拦下=1 关联成功=101 新建=12 新建被几何拒=2 帧间跳变拒=44 外观特征=101
+[INFO] [1791063771.414768, 2156.280000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(312,218) world_xyz=(56.85,32.23,1.2) conf=0.872 | img_ts=2155.768 | obs_id=obs-red1-183
+[pr] 心跳 loop=2253 img_ts=2155.768 img_age=0.61s n_det=117 z=2.23m pub=1 coord=ON cam=(42.3,32.0,2.2)
+[INFO] [1791063775.163909, 2156.880000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(322,212) world_xyz=(57.02,31.55,1.2) conf=0.870 | img_ts=2156.476 | obs_id=obs-red1-187
+[pr] red1   c=0.87 H=1.82m 世界=(  57.09,  31.49) D=15.06m v=0.72m/s tid=12 hits=47 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=119 噪声拦下=1 关联成功=104 新建=12 新建被几何拒=2 帧间跳变拒=47 外观特征=104
+[INFO] [1791063779.501423, 2157.576000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(326,214) world_xyz=(57.20,31.18,1.2) conf=0.832 | img_ts=2156.836 | obs_id=obs-red1-191
+[pr] red1   c=0.86 H=1.81m 世界=(  57.70,  30.69) D=15.85m v=0.74m/s tid=12 hits=50 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=122 噪声拦下=1 关联成功=107 新建=12 新建被几何拒=2 帧间跳变拒=50 外观特征=107
+[INFO] [1791063782.663319, 2158.080000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(334,209) world_xyz=(57.79,30.61,1.2) conf=0.865 | img_ts=2157.564 | obs_id=obs-red1-194
+[INFO] [1791063787.004187, 2158.776000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(343,214) world_xyz=(58.43,29.91,1.2) conf=0.824 | img_ts=2158.276 | obs_id=obs-red1-198
+[pr] red1   c=0.69 H=1.73m 世界=(  58.54,  29.77) D=15.96m v=0.76m/s tid=12 hits=53 coast=0 CNF
+[pr] red 槽位=[12, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=125 噪声拦下=1 关联成功=110 新建=12 新建被几何拒=2 帧间跳变拒=53 外观特征=109
+[INFO] [1791063790.759080, 2159.376000]: [PERC] yolo uav=typhoon_h480_5 target=red1 uv=(345,212) world_xyz=(58.62,29.67,1.2) conf=0.689 | img_ts=2158.648 | obs_id=obs-red1-202
+[pr] red 断流 slot=0 掉tid=12 最后位置=(58.7,29.6) | 原因=-（无可用候选：被遮挡 / 超量程 / 跟丢 / 人判决拦下）
+[pr] 心跳 loop=2303 img_ts=2160.828 img_age=0.55s n_det=125 z=2.16m pub=0 coord=ON cam=(42.9,32.1,2.1)
+[pr] 心跳 loop=2353 img_ts=2165.912 img_age=0.46s n_det=125 z=2.17m pub=0 coord=ON cam=(42.8,32.0,2.2)
+[pr] 心跳 loop=2403 img_ts=2170.860 img_age=0.52s n_det=126 z=2.26m pub=0 coord=ON cam=(43.2,32.3,2.2)
+[pr] 心跳 loop=2453 img_ts=2175.668 img_age=0.71s n_det=128 z=2.35m pub=0 coord=ON cam=(44.3,35.4,2.4)
+[pr] 心跳 loop=2503 img_ts=2180.984 img_age=0.39s n_det=128 z=2.31m pub=0 coord=ON cam=(44.4,37.9,2.3)
+[pr] 心跳 loop=2553 img_ts=2185.980 img_age=0.40s n_det=128 z=2.18m pub=0 coord=ON cam=(44.4,39.8,2.2)
+[pr] 心跳 loop=2603 img_ts=2190.744 img_age=0.63s n_det=128 z=2.17m pub=0 coord=ON cam=(44.5,42.5,2.2)
+[pr] 心跳 loop=2653 img_ts=2195.852 img_age=0.52s n_det=128 z=2.21m pub=0 coord=ON cam=(44.4,45.3,2.2)
+[pr] 心跳 loop=2703 img_ts=2200.884 img_age=0.49s n_det=128 z=2.16m pub=0 coord=ON cam=(44.4,48.4,2.2)
+[pr] 心跳 loop=2753 img_ts=2205.960 img_age=0.42s n_det=128 z=2.15m pub=0 coord=ON cam=(44.5,51.6,2.2)
+[pr] 心跳 loop=2803 img_ts=2210.784 img_age=0.59s n_det=128 z=2.26m pub=0 coord=ON cam=(44.4,55.9,2.3)
+[pr] 心跳 loop=2853 img_ts=2215.984 img_age=0.39s n_det=128 z=2.38m pub=0 coord=ON cam=(44.1,56.0,2.4)
+[pr] 心跳 loop=2903 img_ts=2220.904 img_age=0.47s n_det=128 z=2.31m pub=0 coord=ON cam=(39.6,56.5,2.3)
+[pr] 心跳 loop=2953 img_ts=2225.760 img_age=0.62s n_det=128 z=2.31m pub=0 coord=ON cam=(35.7,56.4,2.3)
+[pr] 心跳 loop=3003 img_ts=2230.880 img_age=0.50s n_det=134 z=2.36m pub=0 coord=ON cam=(27.9,56.3,2.4)
+[pr] 心跳 loop=3053 img_ts=2235.832 img_age=0.54s n_det=137 z=2.44m pub=0 coord=ON cam=(20.6,56.4,2.5)

@@ -1,0 +1,17 @@
+{
+  "reason": "GIMBAL_FIXED_WORLD_HEADING_AND_SHARED_MAVLINK_ENDPOINTS_CONFIRMED",
+  "intentional_development_stop": true,
+  "actual_last_sample_s": 2239.064,
+  "elapsed_from_judge_ready_s": 307.9319999999998,
+  "remaining_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "completed_600_seconds": false,
+  "formal_competition_pass": false,
+  "stopped_own_launcher_pid": 575
+}

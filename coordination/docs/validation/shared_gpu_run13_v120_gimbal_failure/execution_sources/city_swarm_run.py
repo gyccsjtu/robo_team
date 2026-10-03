@@ -77,8 +77,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         PR_PERSON_VERIFY_WEIGHTS=str(repo/'weights/yolo11n_person.pt'),
         PR_PERSON_VERIFY_CONF='.1',PR_PERSON_VERIFY_IOU='.25',
         SAFE_3D='2.8',DANGER_3D='2.0',SLOWDOWN_DIST='4.0',
-        PYTHONDONTWRITEBYTECODE='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',
-        OPENBLAS_NUM_THREADS='1',NUMEXPR_NUM_THREADS='1')
+        PYTHONDONTWRITEBYTECODE='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1')
     flight_env.pop('SWARM_CALIB',None)
     flight_env['PYTHONPATH']=str(snapshot/'coordination/src/robocup_navigation/src')+':'+env.get('PYTHONPATH','')
     (out/'city_control_config.json').write_text(json.dumps(dict(run_id=run_id,
@@ -87,7 +86,6 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         observed_grid_revision='v1.14',observed_grid_resolution_m=.25,
         observed_body_proof_revision='v1.16_scan_carry',
         maximum_speed_mps=3.,visual_fusion_revision='v2.8',tracker_selection_revision='v1.20_camera_takeover',
-        gimbal_wiring_revision='v1.21_per_aircraft_follow_body',fleet_wiring_schema_version=2,
         visual_report_throttle_hz=10.,original_image_report_deduplication=True,
         observer_dispatch_range_m=20.,camera_takeover_debounce_original_s=.75,
         white_track_activation_confidence=.4,other_track_activation_confidence=.7,

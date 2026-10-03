@@ -1,0 +1,21 @@
+{
+  "intentional_development_stop": true,
+  "completed_600_seconds": false,
+  "remaining_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "targets_eliminated": 0,
+  "elapsed_from_judge_ready_s": 307.9319999999998,
+  "non_ground_body_contact_log_rows": 0,
+  "maximum_sampled_altitude_m": 3.3502480201645577,
+  "camera_takeover_requests": 0,
+  "source_gimbal_revision": "legacy_fixed_sysid1_destination13030",
+  "next_v121_not_executed_in_this_run": true,
+  "all_targets_eliminated": false,
+  "formal_competition_pass": false
+}
