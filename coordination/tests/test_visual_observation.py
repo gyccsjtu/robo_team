@@ -104,7 +104,7 @@ class VisualTests(unittest.TestCase):
         bridge._emit(event)
         self.assertEqual(states[-1].header.stamp, 10.)
         self.assertEqual(official[-1].cls, 'red')
-        bridge._now = lambda: 11.1
+        bridge._now = lambda: 11.6
         bridge._emit(event)
         self.assertEqual(len(official), 1)
         self.assertEqual(states[-1].header.stamp, 10.)

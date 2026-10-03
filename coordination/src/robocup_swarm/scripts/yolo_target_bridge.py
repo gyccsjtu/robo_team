@@ -430,7 +430,7 @@ class YoloTargetBridge(object):
         tag = TID_TO_TAG.get(ev["tid"])
         if (tag is not None and tag in self._actor_pubs
                 and not ev["eliminated"]
-                and ev.get("state", 0) != 3 and 0 <= self._now()-track.t_obs <= 1.):
+                and ev.get("state", 0) != 3 and 0 <= self._now()-track.t_obs <= COAST_TIME):
             am = self._ActorInfo()
             am.cls = 'red' if tag in ('red1', 'red2') else tag
             am.x = round(ev["x"], 3)

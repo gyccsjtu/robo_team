@@ -79,7 +79,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         person_motion_revision='v1.4',recent_motion_window_s=4.,
         target_motion_revision='v1.5',flee_chase_speed_mps=2.6,
         route_continuity_revision='v1.7',route_corner_guidance_revision='v1.8',
-        visual_rendezvous_revision='v1.9',
+        visual_rendezvous_revision='v1.9',official_short_coast_revision='v1.10',
         red_matching_revision='organizer_clarification_20261003_v1',
         red_report_topic='/actor_red_info',red_coordination_identity='geometric_track_slot_not_actor_id',
         altitude_configuration_revision='v1.6',altitude_reference='MAVROS_LOCAL',
