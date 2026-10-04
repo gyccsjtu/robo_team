@@ -1,0 +1,19 @@
+{
+  "source_commit": "5d2d117",
+  "intentional_stop": true,
+  "reason": "New camera iteration used older time than grant callback; read-only TaskGate could latch STOP",
+  "sampled_time_bounds": [
+    1931.028,
+    1961.9
+  ],
+  "last_remaining": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "formal_competition_pass": false,
+  "next_code_test_count": 414
+}

@@ -1363,7 +1363,7 @@ def main():
         best_of = {}
         red_cands = []
         with arb_lock:
-            _cur_tid_for_verdict = camera_task.target(now) if camera_task is not None else arb["tid"]
+            _cur_tid_for_verdict = camera_task.target(rospy.Time.now().to_sec()) if camera_task is not None else arb["tid"]
         for tk in tracks:
             if tk.hits < MIN_HITS:
                 continue
@@ -1449,7 +1449,7 @@ def main():
         # ---- 官方话题闸门：指派仲裁 + 近距离 + 空间身份一致 ----
         # 未过闸不发布 ActorInfo（在进入内部调试快照链路前剔除）。
         with arb_lock:
-            cur_tid = camera_task.target(now) if camera_task is not None else arb["tid"]
+            cur_tid = camera_task.target(rospy.Time.now().to_sec()) if camera_task is not None else arb["tid"]
         now_secs = rospy.Time.now().to_sec()
         gated_list = []
         for cls, si, tk in pub_list:

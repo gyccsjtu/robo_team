@@ -1,0 +1,8 @@
+{"schema_version": 2, "run_id": "1ed7dd2b-5001-4378-92fc-2bbc6393f1e7", "sim_s": 1941.928, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 1, "key": ["search", 2, 4]}}
+{"schema_version": 2, "run_id": "1ed7dd2b-5001-4378-92fc-2bbc6393f1e7", "sim_s": 1941.928, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 1, "key": ["search", 4, 2]}}
+{"schema_version": 2, "run_id": "1ed7dd2b-5001-4378-92fc-2bbc6393f1e7", "sim_s": 1941.932, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 1, "key": ["search", 0, 4]}}
+{"schema_version": 2, "run_id": "1ed7dd2b-5001-4378-92fc-2bbc6393f1e7", "sim_s": 1941.932, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 1, "key": ["search", 15, 12]}}
+{"schema_version": 2, "run_id": "1ed7dd2b-5001-4378-92fc-2bbc6393f1e7", "sim_s": 1941.932, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 1, "key": ["search", 0, 14]}}
+{"schema_version": 2, "run_id": "1ed7dd2b-5001-4378-92fc-2bbc6393f1e7", "sim_s": 1941.932, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 1, "key": ["search", 13, 14]}}
+{"schema_version": 2, "run_id": "1ed7dd2b-5001-4378-92fc-2bbc6393f1e7", "sim_s": 1956.48, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "1ed7dd2b-5001-4378-92fc-2bbc6393f1e7", "sim_s": 1959.468, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}

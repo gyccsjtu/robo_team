@@ -1,0 +1,6 @@
+{
+  "reason": "Fix newly introduced read-only camera grant callback clock race",
+  "formal_competition_pass": false,
+  "stop_scope": "exact owned launcher PID",
+  "pid": 585
+}

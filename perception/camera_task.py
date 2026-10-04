@@ -15,6 +15,10 @@ class CameraTask:
             return False
 
     def target(self, now):
+        # A camera iteration can begin before a later grant callback. Such an
+        # old read is not an executor clock rollback and must not latch STOP.
+        if now < self.gate.last_s:
+            return None
         if (not self.gate.can_move(now) or self.gate.task is None
                 or self.gate.task['task_type'] != 1):
             return None

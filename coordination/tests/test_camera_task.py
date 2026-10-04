@@ -38,6 +38,12 @@ class CameraTaskTests(unittest.TestCase):
         self.assertFalse(camera.receive(self.message,10.4))
         self.assertIsNone(camera.target(10.4))
 
+    def test_camera_iteration_older_than_concurrent_grant_does_not_latch_stop(self):
+        camera=CameraTask('current','uav_4');camera.receive(self.message,10.1)
+        self.assertIsNone(camera.target(10.05))
+        self.assertFalse(camera.gate.stopping)
+        self.assertEqual(camera.target(10.2),'t0')
+
     def test_actual_filter_skips_attachment_for_tracking_at_eighteen_meters(self):
         source=Path(__file__).parents[2]/'perception/perception_real.py'
         tree=ast.parse(source.read_text(encoding='utf-8'))

@@ -1,0 +1,1 @@
+wall_time,ros_time,event,target_id,class_name,confidence,bbox_u,bbox_v,bbox_w,bbox_h,target_x,target_y,target_z,range_m,height_m,strict,track_id,hits,image_stamp,image_age_s,inference_s,source

@@ -1,0 +1,19 @@
+[pr] 相机视差判决使用本运行逐机授权；旧assignment只供诊断
+[pr] 空间身份闸门开启：发布坐标须与融合估计一致(<=2.5m, 新鲜<=3s)
+[pr] 加载权重 /mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt
+[pr] v4.0 双目左目适配 | 相机 typhoon_h480_0::cgo3_camera_link <- /uav_1/cgo3_camera/image_raw | 内参 fx=376.0 cx=376.0 cy=240.0 图 752x480
+[pr] 类别顺序 ['red', 'green', 'blue', 'white', 'brown']
+[pr] shared_inference port=19731 ready=True (0=将回退进程内推理)
+[pr] v4.0(双目) 几何+运动+人判决+red双流 | conf=0.40  detect=5Hz  pub=10Hz
+[pr] 人判决: 标注ON 发布ON | H∈[1.30,2.40] 净速度≥0.15m/s 打分≥0.20 画框要求coast≤2
+[pr] 严格档(新建) H∈[1.15,2.10] AR∈[0.55,3.80] | 宽松档(hits>=5) H∈[0.80,3.20] AR∈[0.40,4.50]
+[pr] H_ref=1.75±0.70 H_gate=1.50 | 跟踪 alpha=0.50 beta=0.15 gate=3.0m min_hits=2 timeout=3.0s
+[pr] 帧间跳变门限(已确认 track) ON: gate=min(3.0, 1.5 + 3.0·dt)
+[pr] 心跳 loop=2 img_ts=0.000 img_age=-1.00s n_det=0 z=0.00m pub=0 coord=ON cam=(0.0,0.0,0.0)
+[pr] inference_device=shared first_inference_s=0.0826
+[pr] 心跳 loop=53 img_ts=1935.868 img_age=0.46s n_det=0 z=0.03m pub=0 coord=ON cam=(0.0,-3.0,0.0)
+[pr] 心跳 loop=103 img_ts=1940.836 img_age=0.50s n_det=0 z=0.05m pub=0 coord=ON cam=(-0.0,-3.0,0.0)
+[pr] 心跳 loop=153 img_ts=1945.864 img_age=0.47s n_det=0 z=1.52m pub=0 coord=ON cam=(-0.0,-3.0,2.0)
+[pr] 心跳 loop=203 img_ts=1950.796 img_age=0.54s n_det=0 z=2.38m pub=0 coord=ON cam=(-1.0,-4.0,2.4)
+[pr] 心跳 loop=253 img_ts=1955.672 img_age=0.66s n_det=3 z=2.43m pub=0 coord=ON cam=(-1.0,-3.8,2.4)
+[pr] 心跳 loop=303 img_ts=1960.896 img_age=0.44s n_det=3 z=2.47m pub=0 coord=ON cam=(-0.9,-3.8,2.5)
