@@ -1,0 +1,22 @@
+{
+  ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+  "core_tests_423.log": "446101493950593d7bb13de5a4d3abf72ebca2b0d7ee58ec7b59b955d4a8683d",
+  "extra_static_person.xml": "2073ed8bc5767876d43d714c7b00e305294e5b65b14c146a107122048cc035b4",
+  "motion_replay_checkpoint.json": "cd25aaddf6543dff637cc515caf558c9ca7bdbbc8b62664d121bc75ed6baacbc",
+  "motion_replay_checkpoint_verified.json": "cd25aaddf6543dff637cc515caf558c9ca7bdbbc8b62664d121bc75ed6baacbc",
+  "motion_replay_v115.json": "e4438cbe67154fd0ab44561a036586acb60e308e45854d0e55615b6659fdb8c5",
+  "uav_5.json": "554d6393a7c2fa3d369426c6f0f3e4ce2574291feaf8097d4661916b8950e3d3",
+  "uav_5.png": "f3876afb498327c5148692d155ca93f5190f1ff74c16b5a78538d6e26807add4",
+  "algorithm_checkpoint/perception_typhoon_h480_0.csv": "32ad60893545c8d71d90744e73d795d0df0d20014c5d522f42995a1f5cba411b",
+  "algorithm_checkpoint/perception_typhoon_h480_1.csv": "14b05b5e042c35a86832b16219bca93dd620b5b9b16ffa3fa3f85788b0081000",
+  "algorithm_checkpoint/perception_typhoon_h480_2.csv": "f76ef913eff29ba71db9c1199ea1af223d2f4aca6adb9be06af82ae3b6c44423",
+  "algorithm_checkpoint/perception_typhoon_h480_3.csv": "0513ba8db4f8a547769144f7458b4d4255af3924313518ca44cf05e4cbb7712a",
+  "algorithm_checkpoint/perception_typhoon_h480_4.csv": "9643449bad88a581e253a9be6b943a4c6145b298d277c5fa716bfeac1a988b18",
+  "algorithm_checkpoint/perception_typhoon_h480_5.csv": "454451cb2d3ee27a854183365933a597a268f82a40c2a84430c51d4c658ba06d",
+  "algorithm_v115_checkpoint/perception_typhoon_h480_0.csv": "b144f875110ee1c64633383c889aec6a6ded647992dd3d0819344cca2e553f21",
+  "algorithm_v115_checkpoint/perception_typhoon_h480_1.csv": "6d1d47a44a531b9476374085d6a79e99518e8c4a42c4c7e525107aa27499c4e3",
+  "algorithm_v115_checkpoint/perception_typhoon_h480_2.csv": "cf9aa078e848d6634a7680e6bf5d1bccb168875d7227b698e750c187a5462dc3",
+  "algorithm_v115_checkpoint/perception_typhoon_h480_3.csv": "caac6fcbea6210c039fdb4bf7fc1312d0fe7a9838fbdabb79f5a58192214eab3",
+  "algorithm_v115_checkpoint/perception_typhoon_h480_4.csv": "72a6e68dc0f2c282b9aff02ae9a9ed7f403b8f25d7033e45468cbaffb31dd985",
+  "algorithm_v115_checkpoint/perception_typhoon_h480_5.csv": "2ee623f095909d2a3d99bdfd9e008c86c4e37bea3cd963e237af95c083465edf"
+}

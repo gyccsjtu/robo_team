@@ -27,6 +27,9 @@ class PersonVerifier:
         self.color_check=bool(color_check)
         self.model=None
 
+    def green_proof_enabled(self):
+        return bool(self.weights) and 1 in self.classes and self.color_check
+
     def load(self):
         if self.model is None:
             from pathlib import Path

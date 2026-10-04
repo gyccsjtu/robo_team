@@ -165,7 +165,10 @@ class Handler(socketserver.StreamRequestHandler):
                     infer_s = time.time() - t_lock
                 self.server.record(self.client_address[1], infer_s, t_queue)
                 self._reply(dict(ok=True, dets=dets, infer_s=round(infer_s, 4),
-                                 queue_s=round(t_lock - t_queue, 4)))
+                                 queue_s=round(t_lock - t_queue, 4),
+                                 verification_version=1,
+                                 verified_green_person=bool(_PERSON_VERIFIER is not None
+                                     and _PERSON_VERIFIER.green_proof_enabled())))
             except Exception as error:
                 self._reply(dict(ok=False, error="INFER:%s" % error,
                                  infer_s=round(time.time() - t_queue, 4)

@@ -64,6 +64,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         SEED_TRUTH='0',VIS_ENABLE='0',RADAR_GUARD='1',SWARM_MAX_SPEED='3.0',PR_RECENT_MOTION_WINDOW='4.0',FLEE_CHASE_SPEED='2.6',
         PR_COORD_HZ='10',
         PR_COLOR_VERIFY='1',
+        PR_BLUE_MOTION_WINDOW='10',PR_BLUE_MOTION_MIN_SPAN='3',
         # The last real flight reached world z=6.019 while MAVROS reported
         # z=4.747. Reserve height for that observed estimator discrepancy;
         # world truth remains an independent audit input, not a controller input.
@@ -87,7 +88,9 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         clearance_configuration_revision='v1.2',route_clearance_m=2.5,fleet_separation_m=2.5,
         observed_grid_revision='v1.14',observed_grid_resolution_m=.25,
         observed_body_proof_revision='v1.16_scan_carry',
-        maximum_speed_mps=3.,visual_fusion_revision='v2.9',tracker_selection_revision='v1.20_camera_takeover',
+        maximum_speed_mps=3.,visual_fusion_revision='v2.11',tracker_selection_revision='v1.20_camera_takeover',
+        stationary_green_revision='v1.23_fresh_verified_authorized',
+        blue_motion_window_s=10.,blue_motion_minimum_span_s=3.,
         shirt_color_veto_revision='v1.22_same_image_green_white',
         gimbal_wiring_revision='v1.21_per_aircraft_follow_body',fleet_wiring_schema_version=2,
         visual_report_throttle_hz=10.,original_image_report_deduplication=True,

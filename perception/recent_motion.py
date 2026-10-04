@@ -4,10 +4,13 @@ import math
 
 
 class RecentMotion:
-    def __init__(self, window_s=4.):
-        if not math.isfinite(window_s) or window_s < 1.:
+    def __init__(self, window_s=4., minimum_span_s=1.):
+        if (not math.isfinite(window_s) or window_s < 1.
+                or not math.isfinite(minimum_span_s)
+                or not 1. <= minimum_span_s <= window_s):
             raise ValueError('MOTION_WINDOW')
         self.window_s = window_s
+        self.minimum_span_s = minimum_span_s
         self.samples = deque()
 
     def observe(self, stamp, x, y):
@@ -22,7 +25,8 @@ class RecentMotion:
 
     def speed(self, now):
         samples = [p for p in self.samples if 0 <= now-p[0] <= self.window_s]
-        if len(samples) < 2 or now-samples[-1][0] > 1. or samples[-1][0]-samples[0][0] < 1.:
+        if (len(samples) < 2 or now-samples[-1][0] > 1.
+                or samples[-1][0]-samples[0][0] < self.minimum_span_s):
             return 0.
         origin = samples[0][0]
         times = [p[0]-origin for p in samples]

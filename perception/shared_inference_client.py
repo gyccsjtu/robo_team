@@ -132,7 +132,9 @@ class SharedInferenceClient:
         self.ok_calls += 1
         boxes = [Box(d["cls"], d["conf"], d["xyxy"]) for d in reply.get("dets", [])]
         return boxes, dict(shared=True, infer_s=reply.get("infer_s"),
-                           queue_s=reply.get("queue_s"))
+                           queue_s=reply.get("queue_s"),
+                           verified_green_person=(reply.get('verification_version') == 1
+                               and reply.get('verified_green_person') is True))
 
     def note_fallback(self, reason):
         self.fallbacks += 1

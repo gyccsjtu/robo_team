@@ -1,0 +1,47 @@
+{
+  "control_input": false,
+  "formal_competition_pass": false,
+  "diagnostic_annotation_xy": [
+    -26.902,
+    13.6572
+  ],
+  "summary": {
+    "annotation_neighborhood": {
+      "samples": 101,
+      "old_motion_pass": 27,
+      "new_motion_pass": 14
+    },
+    "other_unlabelled": {
+      "samples": 78,
+      "old_motion_pass": 63,
+      "new_motion_pass": 56
+    }
+  },
+  "input_files": {
+    "perception_typhoon_h480_0.csv": {
+      "sha256": "b144f875110ee1c64633383c889aec6a6ded647992dd3d0819344cca2e553f21",
+      "bytes": 466583
+    },
+    "perception_typhoon_h480_1.csv": {
+      "sha256": "6d1d47a44a531b9476374085d6a79e99518e8c4a42c4c7e525107aa27499c4e3",
+      "bytes": 241626
+    },
+    "perception_typhoon_h480_2.csv": {
+      "sha256": "cf9aa078e848d6634a7680e6bf5d1bccb168875d7227b698e750c187a5462dc3",
+      "bytes": 385568
+    },
+    "perception_typhoon_h480_3.csv": {
+      "sha256": "caac6fcbea6210c039fdb4bf7fc1312d0fe7a9838fbdabb79f5a58192214eab3",
+      "bytes": 102772
+    },
+    "perception_typhoon_h480_4.csv": {
+      "sha256": "72a6e68dc0f2c282b9aff02ae9a9ed7f403b8f25d7033e45468cbaffb31dd985",
+      "bytes": 166181
+    },
+    "perception_typhoon_h480_5.csv": {
+      "sha256": "2ee623f095909d2a3d99bdfd9e008c86c4e37bea3cd963e237af95c083465edf",
+      "bytes": 398139
+    }
+  },
+  "limitations": "Raw-to-track nearest association within 3m; not a full detector or judge replay. Other samples have no truth label. Coasting and duplicate image stamps excluded."
+}

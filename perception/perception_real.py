@@ -66,6 +66,7 @@ from gazebo_msgs.srv import GetLinkState
 from sensor_msgs.msg import Image, CameraInfo
 from camera_geometry import calibration, aligned_translation, vertical_extent
 from recent_motion import RecentMotion
+from stationary_person import allowed as stationary_person_allowed
 from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
 from std_msgs.msg import String
 # 集中指派消息 + 目标融合状态（coordination 工作区）。导入失败时退化为仅距离闸门。
@@ -368,6 +369,8 @@ VERDICT_SP = float(os.environ.get("PR_VERDICT_SP", "0.15"))     # 净位移速�
 # 静止误检的最大位移只有框抖动带来的 ~0.3~0.5 m，2.5 m 足够区分。
 VERDICT_DISP = float(os.environ.get("PR_VERDICT_DISP", "2.5"))  # 生命期最大位移 (m)
 RECENT_MOTION_WINDOW = float(os.environ.get('PR_RECENT_MOTION_WINDOW', '0'))
+BLUE_MOTION_WINDOW = float(os.environ.get('PR_BLUE_MOTION_WINDOW', str(RECENT_MOTION_WINDOW)))
+BLUE_MOTION_MIN_SPAN = float(os.environ.get('PR_BLUE_MOTION_MIN_SPAN', '1'))
 # --- 视差判据（v3.5b 新增，专治"机身跟着观测机转向而漏网"）---
 # 踩到的漏网实例：观测机盯人时会不停转向，机身的"假世界坐标"就在以 13 m 为半径
 # 绕圈 -> 净速度 0.74 m/s，运动判据不但拦不住，反而把它判成"在动"。
@@ -611,7 +614,10 @@ class Track(object):
         self.vx, self.vy = 0.0, 0.0
         self.t = t
         self.observed_s = t
-        self.recent_motion = RecentMotion(RECENT_MOTION_WINDOW) if RECENT_MOTION_WINDOW > 0 else None
+        self.green_frame_proof = False
+        motion_window = BLUE_MOTION_WINDOW if cls == 'blue' else RECENT_MOTION_WINDOW
+        motion_span = BLUE_MOTION_MIN_SPAN if cls == 'blue' else 1.
+        self.recent_motion = RecentMotion(motion_window, motion_span) if motion_window > 0 else None
         if self.recent_motion is not None:
             self.recent_motion.observe(t,x,y)
         self.hits = 1
@@ -743,7 +749,7 @@ class Track(object):
         self.sp = sp
         return MOTION_FLOOR + (1.0 - MOTION_FLOOR) * min(sp / MOTION_REF, 1.0)
 
-    def verdict(self, now=None, max_coast=None, attach_check=True):
+    def verdict(self, now=None, max_coast=None, attach_check=True, stationary_person=False):
         """「是不是人」判决 —— 只用于「要不要画这个框 / 要不要发这个坐标」。
 
         attach_check=False：跳过「长在机身上」视差判据。盘旋确认时必须关闭 —
@@ -776,7 +782,7 @@ class Track(object):
         self.motion_factor(now)                 # 刷新 self.sp
         # 当前在动，或者生命期内动过 —— 见 VERDICT_DISP 的注释（治 actor 卡死）
         recent_speed = self.recent_motion.speed(self.observed_s if now is None else now) if self.recent_motion is not None else None
-        if (recent_speed is not None and recent_speed < VERDICT_SP) or (recent_speed is None and self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP):
+        if not stationary_person and ((recent_speed is not None and recent_speed < VERDICT_SP) or (recent_speed is None and self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP)):
             return False, "static"
         if self.score_ema < VERDICT_SCORE:
             return False, "score"
@@ -1155,6 +1161,8 @@ def main():
                     if _local_inference:
                         res = _BoxesShim(person_verifier.filter_boxes(img,res.boxes))
                         inference_s = time.time() - _infer_t0
+                    _green_frame_verified = (person_verifier.green_proof_enabled() if _local_inference
+                        else bool(_shared_meta and _shared_meta.get('verified_green_person') is True))
                     if not device_reported:
                         print('[pr] inference_device=%s first_inference_s=%.4f' %
                               ((res.device if hasattr(res, 'device') else
@@ -1257,7 +1265,11 @@ def main():
                         # v4 新增：提取外观特征（HSV颜色直方图）用于多层次关联
                         img_crop = img[int(y1):int(y2), int(x1):int(x2)] if x2 > x1 and y2 > y1 else None
                         appearance_feat = extract_appearance_feat(img_crop) if img_crop is not None else None
+                        from jersey_color import torso_fractions, supported
+                        _shirt = torso_fractions(img,[x1,y1,x2,y2]) if cid == 1 and _green_frame_verified else None
+                        _green_proof = bool(_shirt is not None and supported('green',_shirt))
                         dets.append({"cls": CLASSES[cid] if cid < len(CLASSES) else "?",
+                                     "green_frame_proof": _green_proof,
                                      "conf": round(conf, 3),
                                      "uv": [round(u, 1), round(v, 1)],
                                      "wh": [round(w_px, 1), round(h_px, 1)],
@@ -1329,6 +1341,7 @@ def main():
                 tk.update(d["xyz"][0], d["xyz"][1], dt, d["conf"],
                           d["uv"], d["wh"], d["range"], d["h"], frame_stamp, uav,
                           appearance_feat=appear_feat)
+                tk.green_frame_proof = d.get('green_frame_proof',False)
             else:
                 tk.coast(dt)
 
@@ -1343,6 +1356,7 @@ def main():
                 tracks.append(Track(d["cls"], d["xyz"][0], d["xyz"][1], d["conf"],
                                     d["uv"], d["wh"], d["range"], d["h"], frame_stamp, uav,
                                     appearance_feat=d.get("appearance")))
+                tracks[-1].green_frame_proof = d.get('green_frame_proof',False)
 
         # ---------- 3) 清理 ----------
         # 原判据 math.hypot(tk.x, tk.y) 是"距世界原点"的距离，与飞机在哪无关：
@@ -1382,7 +1396,10 @@ def main():
                      (tk.cls == 'red' and _cur_tid_for_verdict in ('t4','t5'))))
                 _person_ok, _reject_reason = tk.verdict(
                     now, max_coast=MAX_COAST_PUB,
-                    attach_check=not _skip_attach)
+                    attach_check=not _skip_attach,
+                    stationary_person=stationary_person_allowed(
+                        _cur_tid_for_verdict,tk.cls,tk.green_frame_proof,
+                        tk.miss,tk.observed_s,now))
                 if not _person_ok:
                     _CSV.write(
                         ros_time=rospy.Time.now().to_sec(), event="track_reject",
