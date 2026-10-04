@@ -162,3 +162,16 @@ sysid2..7、端口13031..13036不符。此前追踪偏航并不能带动画面�
 冻结启动连线schema2及迁移见[云台连线v2](radar_gimbal_wiring_v2.md)，任务/视觉schema保持。
 401项核心测试通过，构建及现场证据见[云台检查点](validation/shared_gpu_v120_gimbal_checkpoint/README.md)。
 需要下一次载入仿真验证实际相机跟随，不能以构建或机体yaw变化冒充相机已经修好。
+
+## v1.21b完整轮与v1.22修正
+
+v1.21b在600.088秒自然结束，两个红色消除、四个目标剩余；逐机云台已实测跟随，
+486组角差中位0.540度、最大4.154度。建筑接触0条，仍有一次actor_2与机体接触（2条）。
+完整执行源与原图见[run15](validation/shared_gpu_run15_v121b_gimbal_full/README.md)。
+
+下一版v1.22加入绿/白同帧衣服颜色核验（蓝衣报白、棕/白衣报绿都有真实帧证据）；
+修复感知模型名与逻辑机号错配，改用当前运行的版本化授权标记本机追踪目标，
+取消追踪视差豁免的错误12米条件。413项核心测试通过，视觉schema2/v2.9见
+[语义迁移](visual_color_v2_9.md)。这些修改可交给WorkBuddy接入核查：同步perception整目录、
+city_swarm_run.py和既有task_authority.py，保持同run_id、逻辑机号和一个setpoint发布者。
+完整六目标、持续定位和接触问题仍未完成。离线改变融合窗/速度EMA没有15秒收益，未采用。

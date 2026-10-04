@@ -18,12 +18,13 @@ def overlap(first, second):
 
 
 class PersonVerifier:
-    def __init__(self, weights='', device='cpu', confidence=.1, minimum_overlap=.25, classes=(1,)):
+    def __init__(self, weights='', device='cpu', confidence=.1, minimum_overlap=.25, classes=(1,), color_check=False):
         self.weights=weights
         self.device=device
         self.confidence=float(confidence)
         self.minimum_overlap=float(minimum_overlap)
         self.classes=set(classes)
+        self.color_check=bool(color_check)
         self.model=None
 
     def load(self):
@@ -37,6 +38,9 @@ class PersonVerifier:
 
     def filter_boxes(self, image, boxes):
         boxes=list(boxes)
+        if self.color_check:
+            from jersey_color import filter_boxes
+            boxes=filter_boxes(image,boxes)
         if not self.weights or not any(int(b.cls) in self.classes for b in boxes):return boxes
         self.load()
         result=self.model(image,classes=[0],conf=self.confidence,device=self.device,verbose=False)[0]

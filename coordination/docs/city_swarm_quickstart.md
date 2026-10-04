@@ -2,7 +2,7 @@
 
 显示性能：城市生成模型关闭ray传感器的visualize调试线束；这是GUI显示开关，扫描频率、范围、分辨率、光束数和相机参数保持原值，模型清单单列gui_ray_visualizations_disabled。默认小场景保留原显示开关。共享GPU已实际起栈：六个客户端使用vision_env，单个推理服务使用vision_cuda_20261003；没有改变WSL内存配置。Gazebo仍为软件渲染，不能将GPU推理称为GPU渲染。
 
-当前配置语义v1.2：manager与agent共享3m/s最大水平速度，雷达/机间约束可继续减速；视觉融合时序为v2.8，白色新轨阈值0.4、其他颜色0.7，各自连续三帧；追踪引导缓冲1.5秒但原图证据接收仍1秒。上报节流10Hz但每张原图只发一次；持有者丢自身画面后只请求停控，停稳和退出证据满足才接替。启动器等待城市世界时钟实际推进才插入飞机。已验证城市六机运动和真实视觉派遣，完整六目标连续15秒消除仍待实飞结果，不能用“六机接通”判比赛完成。
+当前配置语义v1.2：manager与agent共享3m/s最大水平速度，雷达/机间约束可继续减速；视觉语义为v2.9（绿/白同帧衣服核验与同机授权视差修复），白色新轨阈值0.4、其他颜色0.7，各自连续三帧；追踪引导缓冲1.5秒但原图证据接收仍1秒。上报节流10Hz但每张原图只发一次；持有者丢自身画面后只请求停控，停稳和退出证据满足才接替。启动器等待城市世界时钟实际推进才插入飞机。已验证城市六机运动和真实视觉派遣，完整六目标连续15秒消除仍待实飞结果，不能用“六机接通”判比赛完成。
 
 代码来自本仓库当前工作分支，复用 WSL Ubuntu-20.04、既有 runtime、独立 catkin 构建及 vision_env。控制在线接收雷达，六机物理模型为 typhoon_h480_0..5，ROS/逻辑编号为 uav_1..6。没有启用独立 radar_avoid 控制发布者。
 
@@ -12,15 +12,26 @@ PowerShell 启动完整 600 秒任务：
 wsl -d Ubuntu-20.04 -- bash -lc 'bash /mnt/d/a/.robocup/robo_team/run_city_swarm.sh'
 ```
 
+城市启动现在要求逐机云台覆盖库（连线接口schema_version=2）。本机已构建在`/root/robocup_runtime/gimbal_namespaced_20261004`；新机器需先复用完整runtime，在WSL内构建到一个尚不存在的目录：
+
+```bash
+source /root/robo_team_build/codex_authority_v2/devel/setup.bash
+python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/build_namespaced_gimbal_overlay.py \
+  --runtime /root/robocup_runtime/stereo_20261002T140417Z \
+  --output /root/robocup_runtime/gimbal_namespaced_20261004
+```
+
+不要对已有输出目录重复构建。若使用其他新目录，启动时将`ROBOCUP_GIMBAL_RUNTIME`指向该目录。构建需要完整runtime保存的编译命令、Ninja及原官方插件源；不会修改原源。旧库固定系统ID1和UDP13030，六机实际为系统ID2..7、PX4云台UDP13031..13036，不能沿用。接口与迁移细节见[云台连线v2](radar_gimbal_wiring_v2.md)。
+
 当前机器推荐的共享GPU启动命令（独立输出目录自动生成）：
 
 ```powershell
-wsl -d Ubuntu-20.04 -- bash -lc 'export CITY_PHYSICS_RATE=40 PR_SHARED_INFER=1 VISION_DEVICE=0 PR_CLIENT_DEVICE=cpu PR_SHARED_PORT=19731 VISION_PYTHON=/root/robo_team_build/vision_env/bin/python SHARED_VISION_PYTHON=/root/robo_team_build/vision_cuda_20261003/bin/python; bash /mnt/d/a/.robocup/robo_team/run_city_swarm.sh'
+wsl -d Ubuntu-20.04 -- bash -lc 'export CITY_PHYSICS_RATE=40 PR_SHARED_INFER=1 VISION_DEVICE=0 PR_CLIENT_DEVICE=cpu PR_SHARED_PORT=19731 VISION_PYTHON=/root/robo_team_build/vision_env/bin/python SHARED_VISION_PYTHON=/root/robo_team_build/vision_cuda_20261003/bin/python ROBOCUP_GIMBAL_RUNTIME=/root/robocup_runtime/gimbal_namespaced_20261004; bash /mnt/d/a/.robocup/robo_team/run_city_swarm.sh'
 ```
 
 依赖这台机器已经构建的两个Python环境、`/root/robo_team_build/codex_authority_v2/devel/setup.bash`、`/root/robocup_runtime/stereo_20261002T140417Z`以及官方平台资源；本命令不会安装依赖。六机共享同一个新run_id，端口冲突时拒绝另起一套。
 
-当前城市试验配置：局部巡航2.2m（v1.17，目标是接近真实2.5–3m）、水平起飞门局部2.0m、在线栅格0.25m（v1.14）、逐帧脚下净空保留（v1.16）、单EKF启动读回（v1.12）、绿色同帧人体核验（v1.11）。v1.15增加定位突跳隔离与数据失效停控，队友雷达修复及接入取舍见[整合记录](teammate_radar_integration_20261004.md)。实飞过程中追加的修正需下一次启动才能进入执行快照；397项核心测试通过不代表六目标消除。对外红色统一`red`与坐标，由隔离开发裁判依据用户转述赛事组口径匹配任一红色真值，原官方裁判源码不改。
+当前城市试验配置：局部巡航2.2m（v1.17，目标是接近真实2.5–3m）、水平起飞门局部2.0m、在线栅格0.25m（v1.14）、逐帧脚下净空保留（v1.16）、单EKF启动读回（v1.12）、绿色同帧人体核验（v1.11）。v1.15增加定位突跳隔离与数据失效停控，队友雷达修复及接入取舍见[整合记录](teammate_radar_integration_20261004.md)。实飞过程中追加的修正需下一次启动才能进入执行快照；413项核心测试通过不代表六目标消除。视觉客户端限制OMP/MKL/OpenBLAS/NumExpr线程池，WSL内存配置保持。对外红色统一`red`与坐标，由隔离开发裁判依据用户转述赛事组口径匹配任一红色真值，原官方裁判源码不改。
 
 针对具体运动问题调试 90 秒：
 

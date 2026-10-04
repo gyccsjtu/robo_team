@@ -868,12 +868,17 @@ def main():
     # 收到搜索任务/其他指派 -> 立即撤销（与 agent 状态机一致）。
     arb = {"tid": None}
     arb_lock = threading.Lock()
+    camera_task = None
+    if os.environ.get('ROBOCUP_RUN_ID'):
+        from camera_task import CameraTask
+        camera_task = CameraTask(os.environ['ROBOCUP_RUN_ID'],
+            os.environ.get('PR_LOGICAL_UAV_ID',UAV))
     # 目标融合状态缓存：tid -> (x, y, stamp_secs)
     tstates = {}
     tstate_lock = threading.Lock()
 
     def _arb_cb(msg):
-        if str(msg.uav_id) != str(UAV):
+        if str(msg.uav_id) != os.environ.get('PR_LOGICAL_UAV_ID',str(UAV)):
             return
         with arb_lock:
             if msg.task_type in (1, 2) and msg.target_id:
@@ -886,7 +891,18 @@ def main():
             tstates[str(msg.target_id)] = (
                 float(msg.x), float(msg.y), msg.header.stamp.to_sec())
 
-    if SearchAssignment is not None:
+    def _authorized_camera_cb(msg):
+        try:
+            value = json.loads(msg.data)
+            with arb_lock:
+                camera_task.receive(value,rospy.Time.now().to_sec())
+        except (ValueError,TypeError):
+            return
+
+    if camera_task is not None:
+        rospy.Subscriber('/swarm/authorized_assignment',String,_authorized_camera_cb)
+        print('[pr] 相机视差判决使用本运行逐机授权；旧assignment只供诊断',flush=True)
+    elif SearchAssignment is not None:
         rospy.Subscriber("/swarm/assignment", SearchAssignment, _arb_cb)
         print("[pr] 官方话题仲裁开启：仅被指派追踪且目标<=%.0fm 时直发 /actor_*_info"
               % ACTOR_PUB_RANGE, flush=True)
@@ -1026,7 +1042,8 @@ def main():
     rate = rospy.Rate(PUB_HZ)
     from person_verifier import PersonVerifier
     person_verifier=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),infer_device,
-        os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'))
+        os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'),
+        color_check=os.environ.get('PR_COLOR_VERIFY','0')=='1')
     n_loop = 0
     _t_live = 0.0            # 心跳上次打印墙钟（5s 一次，证明主线程活着）
     _coord_t = 0.0            # 上次发协同上报的墙钟（COORD_HZ 节流用）
@@ -1346,7 +1363,7 @@ def main():
         best_of = {}
         red_cands = []
         with arb_lock:
-            _cur_tid_for_verdict = arb["tid"]
+            _cur_tid_for_verdict = camera_task.target(now) if camera_task is not None else arb["tid"]
         for tk in tracks:
             if tk.hits < MIN_HITS:
                 continue
@@ -1356,10 +1373,13 @@ def main():
             # 真机若确实允许静止目标，可显式设置 PR_PUB_VERDICT=0 做对照实验；
             # 关闭后会放大假目标占机风险。
             if PUB_VERDICT:
-                # 盘旋确认段跳过 attach 判据（见 verdict/ATTACH_SKIP_RANGE 注释）。
+                # A following camera keeps its assigned person centered at any
+                # valid detection range. Only a live per-aircraft task skips
+                # attachment; STOP/expiry and unrelated people keep this gate.
                 _need_tid = TID_OF_COLOR.get(tk.cls)
-                _skip_attach = (_cur_tid_for_verdict == _need_tid
-                                and tk.rng <= ATTACH_SKIP_RANGE)
+                _skip_attach = (_cur_tid_for_verdict is not None and
+                    (_cur_tid_for_verdict == _need_tid or
+                     (tk.cls == 'red' and _cur_tid_for_verdict in ('t4','t5'))))
                 _person_ok, _reject_reason = tk.verdict(
                     now, max_coast=MAX_COAST_PUB,
                     attach_check=not _skip_attach)
@@ -1429,7 +1449,7 @@ def main():
         # ---- 官方话题闸门：指派仲裁 + 近距离 + 空间身份一致 ----
         # 未过闸不发布 ActorInfo（在进入内部调试快照链路前剔除）。
         with arb_lock:
-            cur_tid = arb["tid"]
+            cur_tid = camera_task.target(now) if camera_task is not None else arb["tid"]
         now_secs = rospy.Time.now().to_sec()
         gated_list = []
         for cls, si, tk in pub_list:

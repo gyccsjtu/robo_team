@@ -81,7 +81,8 @@ def _load(device, conf):
     _MODEL = YOLO(weights)
     from person_verifier import PersonVerifier
     _PERSON_VERIFIER=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),device,
-        os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'))
+        os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'),
+        color_check=os.environ.get('PR_COLOR_VERIFY','0')=='1')
     # Touch the predictor so the first real request does not pay model setup.
     import numpy as np
     probe = np.zeros((360, 640, 3), dtype=np.uint8)

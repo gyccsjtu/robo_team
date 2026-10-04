@@ -57,6 +57,7 @@ def main():
         rospy.Subscriber('/actor_'+('red' if red else args.tag)+'_info', ActorInfo, official_cb, queue_size=100)]
     service = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
     deadline = time.monotonic()+args.wall_seconds
+    service_failures = 0
     try:
         last_sample = -1.
         while time.monotonic() < deadline and not (run/'result.json').exists():
@@ -64,7 +65,16 @@ def main():
             if before-last_sample >= .05:
                 for actor_id in actor_ids:
                     before = rospy.Time.now().to_sec()
-                    response = service('actor_'+str(actor_id),'world')
+                    try:
+                        response = service('actor_'+str(actor_id),'world')
+                    except rospy.ServiceException as error:
+                        after = rospy.Time.now().to_sec()
+                        service_failures += 1
+                        with lock:
+                            record.write(json.dumps(dict(kind='truth_service_failure',
+                                sample_s=after,actor_id=actor_id,error=str(error)))+'\n')
+                        rospy.logwarn_throttle(5,'Independent truth sample unavailable; retrying')
+                        continue
                     after = rospy.Time.now().to_sec()
                     if response.success and 0 <= after-before <= .05:
                         position = response.pose.position
@@ -94,6 +104,9 @@ def main():
             actor=['actor_'+str(i) for i in actor_ids],tag=args.tag,
             matching_rule='either remaining red truth' if red else 'single color truth',
             actor_truth_samples=sum(len(track) for track in truth.values()),
+            truth_service_failures=service_failures,
+            truth_time_bounds={str(i):[track[0][0],track[-1][0]] if track else None
+                               for i,track in truth.items()},
             original_image_coordinates=metrics(image_errors),official_report_coordinates=metrics(report_errors),
             control_input=False,official_judge_executed=False,formal_competition_pass=False),indent=2))
 
