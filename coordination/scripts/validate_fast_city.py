@@ -1,4 +1,4 @@
-"""Fixed three-attempt physical budget; reuse the existing six-aircraft launcher."""
+"""Fixed budget or one explicitly requested extra map; reuse the city launcher."""
 import argparse
 import hashlib
 import json
@@ -22,11 +22,18 @@ def write(path,value):
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--root',required=True);ap.add_argument('--round',type=int,choices=ROUNDS,required=True)
+    ap=argparse.ArgumentParser();ap.add_argument('--root',required=True)
+    selection=ap.add_mutually_exclusive_group(required=True)
+    selection.add_argument('--round',type=int,choices=ROUNDS)
+    selection.add_argument('--single-seed',type=int,help='One separately authorized 600-second map, in a new budget')
     args=ap.parse_args();root=Path(args.root);root.mkdir(parents=True,exist_ok=True)
-    repo=Path(__file__).resolve().parents[2];index=args.round;seed,seconds=ROUNDS[index]
-    budget=root/'budget.json';state=read(budget) or dict(schema_version=1,maximum_attempts=3,attempts=[])
-    if len(state['attempts']) >= 3 or any(a['index']==index for a in state['attempts']):
+    single=args.single_seed is not None;maximum=1 if single else 3
+    repo=Path(__file__).resolve().parents[2];index=1 if single else args.round
+    seed,seconds=(args.single_seed,600) if single else ROUNDS[index]
+    if seed < 0:ap.error('seed must be nonnegative')
+    budget=root/'budget.json';state=read(budget) or dict(schema_version=1,maximum_attempts=maximum,attempts=[])
+    if state['maximum_attempts'] != maximum:raise RuntimeError('BUDGET_MODE_MISMATCH')
+    if len(state['attempts']) >= maximum or any(a['index']==index for a in state['attempts']):
         raise RuntimeError('PHYSICAL_ATTEMPT_ALREADY_USED')
     if index != len(state['attempts'])+1 or any(a['status']=='RUNNING' for a in state['attempts']):
         raise RuntimeError('ATTEMPTS_MUST_BE_SEQUENTIAL')
@@ -40,6 +47,7 @@ def main():
         for p in (repo/parent).rglob('*.py') if '__pycache__' not in p.parts}
     write(out/'source_manifest.json',source_sha)
     record=dict(index=index,seed=seed,sim_limit_s=seconds,output=str(out),status='RUNNING',started_utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()))
+    if single:record['authorization']='user_requested_one_additional_random_map'
     state['attempts'].append(record);write(budget,state)
     env=dict(os.environ,CITY_SEED=str(seed),CITY_SECONDS=str(seconds),CITY_RUN_ROOT=str(out),
         CITY_PHYSICS_RATE='40',CITY_EXPERIMENTAL_V123='0',PR_SHARED_INFER='1',VISION_DEVICE='0',PR_CLIENT_DEVICE='cpu',

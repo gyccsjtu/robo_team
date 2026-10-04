@@ -10,7 +10,7 @@ def supported(color, fractions):
     if fractions is None:
         return True
     expected = fractions[color]
-    minimum = .12 if color == 'green' else .08
+    minimum = .08 if color == 'white' else .12
     other = max(value for name, value in fractions.items() if name != color)
     return expected >= minimum and not (other >= .20 and other >= 1.5*expected)
 

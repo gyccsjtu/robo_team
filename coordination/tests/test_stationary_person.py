@@ -34,7 +34,7 @@ class StationaryPersonTests(unittest.TestCase):
             imencode=lambda *a:(True,SimpleNamespace(tobytes=lambda:b'raw')))
         with patch.dict(sys.modules,cv2=fake_cv):
             for extra,expected in [({},False),
-                    ({'verification_version':2,'verified_green_person':True},False),
+                    ({'verification_version':3,'verified_green_person':True},False),
                     ({'verification_version':1,'verified_green_person':1},False),
                     ({'verification_version':1,'verified_green_person':True},True)]:
                 client._rpc=lambda payload,extra=extra:dict(ok=True,dets=[],**extra)
@@ -56,6 +56,17 @@ class StationaryPersonTests(unittest.TestCase):
             attached_to_cam=lambda:False,recent_motion=SimpleNamespace(speed=lambda now:0.))
         values.update(changes)
         return env['verdict'](SimpleNamespace(**values),now=10.5,stationary_person=proof,verified_person=verified)
+
+    def test_new_client_accepts_red_proof_only_from_version_two(self):
+        client=SharedInferenceClient()
+        fake_cv=SimpleNamespace(imencode=lambda *a:(True,SimpleNamespace(tobytes=lambda:b'raw')),
+            IMREAD_COLOR=1,IMREAD_UNCHANGED=-1)
+        with patch.dict(sys.modules,cv2=fake_cv):
+            for version,colors in ((1,['green','white']),(2,['green','white','red']),(3,[])):
+                client._rpc=lambda payload,version=version:dict(ok=True,dets=[],verification_version=version,
+                    verified_person_colors=['green','white','red','unknown'])
+                _,meta=client.infer(object())
+                self.assertEqual(meta['verified_person_colors'],colors)
 
     def test_verified_person_avoids_static_attachment_veto_but_keeps_geometry(self):
         self.assertEqual(self.verdict(False,verified=True,hits=3,attached_to_cam=lambda:True),(True,''))

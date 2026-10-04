@@ -1,0 +1,58 @@
+[
+  {
+    "case": "red",
+    "image": "coordination/docs/validation/shared_gpu_six_complete_20261004/visual_frames/uav_4_red1_005.png",
+    "expected": true,
+    "actual": true,
+    "retained_classes": [
+      0
+    ],
+    "verified_boxes": [
+      {
+        "cls": 0,
+        "xyxy": [
+          404.53,
+          197.51,
+          421.04,
+          236.34
+        ]
+      }
+    ]
+  },
+  {
+    "case": "white",
+    "image": "coordination/docs/validation/shared_gpu_v118_white_checkpoint/uav_5_white_001.png",
+    "expected": true,
+    "actual": true,
+    "retained_classes": [
+      3
+    ],
+    "verified_boxes": [
+      {
+        "cls": 3,
+        "xyxy": [
+          420.92,
+          169.26,
+          437.43,
+          206.97
+        ]
+      }
+    ]
+  },
+  {
+    "case": "blue_as_white",
+    "image": "coordination/docs/validation/shared_gpu_v121b_visual_checkpoint/uav_5_white_014.png",
+    "expected": false,
+    "actual": false,
+    "retained_classes": [],
+    "verified_boxes": []
+  },
+  {
+    "case": "brown_as_green",
+    "image": "coordination/docs/validation/shared_gpu_v121b_visual_checkpoint/uav_6_green_017.png",
+    "expected": false,
+    "actual": false,
+    "retained_classes": [],
+    "verified_boxes": []
+  }
+]

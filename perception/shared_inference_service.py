@@ -82,7 +82,8 @@ def _load(device, conf):
     from person_verifier import PersonVerifier
     _PERSON_VERIFIER=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),device,
         os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'),
-        classes=(1,),proof_classes=(1,3) if os.environ.get('PR_FAST_GREEN_WHITE','0') == '1' else (1,),
+        classes=(1,),proof_classes=(1,)+((3,) if os.environ.get('PR_FAST_GREEN_WHITE','0') == '1' else ())
+            +((0,) if os.environ.get('PR_FAST_RED_PERSON','0') == '1' else ()),
         color_check=os.environ.get('PR_COLOR_VERIFY','0')=='1')
     # Touch the predictor so the first real request does not pay model setup.
     import numpy as np
@@ -170,7 +171,7 @@ class Handler(socketserver.StreamRequestHandler):
                 self.server.record(self.client_address[1], infer_s, t_queue)
                 self._reply(dict(ok=True, dets=dets, infer_s=round(infer_s, 4),
                                  queue_s=round(t_lock - t_queue, 4),
-                                 verification_version=1,
+                                 verification_version=2,
                                  verified_person_boxes=proof_boxes,
                                  verified_green_person=bool(_PERSON_VERIFIER is not None
                                      and _PERSON_VERIFIER.green_proof_enabled()),

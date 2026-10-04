@@ -59,6 +59,17 @@ class FastFixTests(unittest.TestCase):
         proof.observe(10.6,False)
         self.assertFalse(proof.allowed('white',0,10.6))
 
+    def test_red_support_requires_opt_in_three_fresh_originals_and_current_hit(self):
+        proof=FreshPerson()
+        for stamp in (10.,10.2,10.4):proof.observe(stamp,True)
+        self.assertFalse(proof.allowed('red',0,10.5))
+        self.assertTrue(proof.allowed('red',0,10.5,allow_red=True))
+        self.assertFalse(proof.allowed('red',1,10.5,allow_red=True))
+        self.assertFalse(proof.allowed('red',0,11.41,allow_red=True))
+        self.assertFalse(proof.allowed('blue',0,10.5,allow_red=True))
+        proof.observe(10.6,False)
+        self.assertFalse(proof.allowed('red',0,10.6,allow_red=True))
+
     def test_navigation_feedback_cannot_skip_freshness_generation_or_measured_stop(self):
         msg=dict(schema_version=1,run_id='run',uav_id='uav_1',generation=2,seq=1,
             sample_s=10.,blocked_since_s=4.,reason='START_CLEARANCE_UNKNOWN',position_xy=[0.,0.])

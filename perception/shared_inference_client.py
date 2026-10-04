@@ -131,15 +131,18 @@ class SharedInferenceClient:
             return None, dict(shared=False, error=self.last_error or "no_reply")
         self.ok_calls += 1
         boxes = [Box(d["cls"], d["conf"], d["xyxy"]) for d in reply.get("dets", [])]
+        version=reply.get('verification_version')
+        proof_supported=type(version) is int and version in (1,2)
+        colors=('green','white','red') if version == 2 else ('green','white')
         return boxes, dict(shared=True, infer_s=reply.get("infer_s"),
                            queue_s=reply.get("queue_s"),
                            verified_person_boxes=reply.get('verified_person_boxes',[])
-                               if reply.get('verification_version') == 1
+                               if proof_supported
                                and isinstance(reply.get('verified_person_boxes'),list) else [],
                            verified_person_colors=[c for c in reply.get('verified_person_colors',[])
-                               if c in ('green','white')] if reply.get('verification_version') == 1
+                               if c in colors] if proof_supported
                                and isinstance(reply.get('verified_person_colors'),list) else [],
-                           verified_green_person=(reply.get('verification_version') == 1
+                           verified_green_person=(proof_supported
                                and reply.get('verified_green_person') is True))
 
     def note_fallback(self, reason):

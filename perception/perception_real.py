@@ -374,6 +374,7 @@ BLUE_MOTION_WINDOW = float(os.environ.get('PR_BLUE_MOTION_WINDOW', str(RECENT_MO
 BLUE_MOTION_MIN_SPAN = float(os.environ.get('PR_BLUE_MOTION_MIN_SPAN', '1'))
 STATIONARY_GREEN_ON = os.environ.get('PR_STATIONARY_GREEN','0') == '1'
 FAST_GREEN_WHITE = os.environ.get('PR_FAST_GREEN_WHITE','0') == '1'
+FAST_RED_PERSON = os.environ.get('PR_FAST_RED_PERSON','0') == '1'
 # --- 视差判据（v3.5b 新增，专治"机身跟着观测机转向而漏网"）---
 # 踩到的漏网实例：观测机盯人时会不停转向，机身的"假世界坐标"就在以 13 m 为半径
 # 绕圈 -> 净速度 0.74 m/s，运动判据不但拦不住，反而把它判成"在动"。
@@ -447,7 +448,8 @@ _CSV = logger("perception_%s" % UAV, [
     "ros_time", "event", "target_id", "class_name", "confidence",
     "bbox_u", "bbox_v", "bbox_w", "bbox_h", "target_x", "target_y",
     "target_z", "range_m", "height_m", "strict", "track_id", "hits",
-    "image_stamp", "image_age_s", "inference_s", "source"])
+    "image_stamp", "image_age_s", "inference_s", "source",
+    "person_frame_verified", "person_hits", "track_miss", "fresh_person_allowed"])
 # 调试快照**另开一条话题**：它原来和契约挤在同一条 topic 上，形状完全不同。
 # 调试通道与契约通道必须分开，否则要么队友解析不了、要么我自己的复盘脚本全废。
 DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
@@ -1053,7 +1055,8 @@ def main():
     from person_verifier import PersonVerifier, frame_verified
     person_verifier=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),infer_device,
         os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'),
-        classes=(1,),proof_classes=(1,3) if FAST_GREEN_WHITE else (1,),
+        classes=(1,),proof_classes=(1,)+((3,) if FAST_GREEN_WHITE else ())
+            +((0,) if FAST_RED_PERSON else ()),
         color_check=os.environ.get('PR_COLOR_VERIFY','0')=='1')
     n_loop = 0
     _t_live = 0.0            # 心跳上次打印墙钟（5s 一次，证明主线程活着）
@@ -1301,7 +1304,7 @@ def main():
                             target_z=TARGET_Z, range_m=rng, height_m=impl_h,
                             strict=strict, image_stamp=frame_stamp,
                             image_age_s=frame_age, inference_s=inference_s,
-                            source="yolo_raw")
+                            source="yolo_raw",person_frame_verified=_person_proof)
 
         # ---------- 2) 关联（位置 + 身高 + 外观；v4新增多层次匹配）----------
         # 原理：先用位置粗关联，再用身高和外观精细筛选，解决密集目标串扰问题
@@ -1403,6 +1406,8 @@ def main():
             # v3.5：发布侧的人判决默认开启：静止建筑/招牌误检不能占用追踪机。
             # 真机若确实允许静止目标，可显式设置 PR_PUB_VERDICT=0 做对照实验；
             # 关闭后会放大假目标占机风险。
+            _fresh_person=(FAST_RED_PERSON if tk.cls == 'red' else FAST_GREEN_WHITE) and tk.person_support.allowed(
+                tk.cls,tk.miss,now,allow_red=FAST_RED_PERSON)
             if PUB_VERDICT:
                 # A following camera keeps its assigned person centered at any
                 # valid detection range. Only a live per-aircraft task skips
@@ -1414,7 +1419,7 @@ def main():
                 _person_ok, _reject_reason = tk.verdict(
                     now, max_coast=MAX_COAST_PUB,
                     attach_check=not _skip_attach,
-                    verified_person=FAST_GREEN_WHITE and tk.person_support.allowed(tk.cls,tk.miss,now),
+                    verified_person=_fresh_person,
                     stationary_person=stationary_person_allowed(
                         _cur_tid_for_verdict,tk.cls,tk.green_frame_proof and STATIONARY_GREEN_ON,
                         tk.miss,tk.observed_s,now))
@@ -1428,7 +1433,8 @@ def main():
                         target_z=TARGET_Z, range_m=tk.rng, height_m=tk.h,
                         strict=True, track_id=tk.id, hits=tk.hits,
                         image_stamp=frame_stamp, image_age_s=frame_age,
-                        inference_s=inference_s, source="verdict_%s" % _reject_reason)
+                        inference_s=inference_s, source="verdict_%s" % _reject_reason,
+                        person_hits=tk.person_support.hits,track_miss=tk.miss,fresh_person_allowed=_fresh_person)
                     continue
             # 运动性是随时间累积的，coast 期间净位移也在涨，这里按当前时刻重算
             tk.score = tk.conf * person_likelihood(tk.h) * tk.motion_factor(now)
@@ -1532,7 +1538,9 @@ def main():
                 height_m=tk.h, strict=True, track_id=tk.id, hits=tk.hits,
                 image_stamp=frame_stamp, image_age_s=frame_age,
                 inference_s=inference_s,
-                source="perception_track")
+                source="perception_track",person_hits=tk.person_support.hits,
+                track_miss=tk.miss,fresh_person_allowed=(FAST_RED_PERSON if cls == 'red' else FAST_GREEN_WHITE)
+                    and tk.person_support.allowed(cls,tk.miss,now,allow_red=FAST_RED_PERSON))
 
         # YOLO 实时视角：即使本帧没有有效目标也持续发布原图，避免 rqt
         # 画面在目标暂时丢失时冻结。检测框只作为当前帧的叠加层。

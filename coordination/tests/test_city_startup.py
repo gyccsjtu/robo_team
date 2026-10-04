@@ -8,7 +8,7 @@ import unittest
 SCRIPTS=Path(__file__).resolve().parents[1]/'scripts'
 CORE=Path(__file__).resolve().parents[1]/'src/robocup_swarm/scripts'
 sys.path[:0]=[str(SCRIPTS),str(CORE)]
-from prepare_competition_scene import startup_distances, SPAWNS
+from prepare_competition_scene import startup_distances, SPAWNS, adapt_map_fallback
 from online_radar_planner import fixture_seed, OnlinePlanner
 from allocation_geometry import screen_leg
 from swarm_task import CoverageGrid
@@ -16,6 +16,30 @@ from radar_observed_map import ObservedMap
 
 
 class CityStartupTests(unittest.TestCase):
+    def test_exhausted_layout_cannot_publish_empty_base_world(self):
+        from io import StringIO
+        source = """if True:
+    if count_loop>=10:
+        lines = content.readlines()
+        f.writelines(lines)
+        print(map_num)
+        print('Base world is used!')
+    else:
+        f.writelines(lines)
+"""
+        for count in (9,10):
+            output=StringIO()
+            scope=dict(count_loop=count,content=StringIO(''),f=output,lines=['valid world'],map_num=2)
+            if count==10:
+                with self.assertRaisesRegex(RuntimeError,'CITY_PLACEMENT_EXHAUSTED'):
+                    exec(adapt_map_fallback(source),scope)
+                self.assertEqual(output.getvalue(),'')
+            else:
+                exec(adapt_map_fallback(source),scope)
+                self.assertEqual(output.getvalue(),'valid world')
+        with self.assertRaisesRegex(ValueError,'MAP_FALLBACK_SOURCE_CHANGED'):
+            adapt_map_fallback('different platform source')
+
     def test_partial_edge_cells_stay_inside_city(self):
         grid=CoverageGrid(-50,130,-60,60,7,6)
         self.assertTrue(all(-50<c.cx<130 and -60<c.cy<60 for c in grid.cells.values()))

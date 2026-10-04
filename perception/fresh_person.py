@@ -16,6 +16,6 @@ class FreshPerson:
         self.hits = self.hits+1 if self.stamp is not None and 0 < stamp-self.stamp <= 1. else 1
         self.stamp = stamp
 
-    def allowed(self, color, miss, now):
-        return (color in ('green','white') and miss == 0 and self.hits >= 3
+    def allowed(self, color, miss, now, allow_red=False):
+        return ((color in ('green','white') or color == 'red' and allow_red) and miss == 0 and self.hits >= 3
                 and self.stamp is not None and math.isfinite(now) and 0 <= now-self.stamp <= 1.)

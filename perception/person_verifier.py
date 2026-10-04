@@ -51,7 +51,7 @@ class PersonVerifier:
     def verified_colors(self):
         if not self.weights or not self.color_check:
             return []
-        return [color for cid,color in ((1,'green'),(3,'white')) if cid in self.proof_classes]
+        return [color for cid,color in ((1,'green'),(3,'white'),(0,'red')) if cid in self.proof_classes]
 
     def load(self):
         if self.model is None:
@@ -78,7 +78,12 @@ class PersonVerifier:
             matched=any(overlap(box.xyxy[0],person)>=self.minimum_overlap for person in people)
             if cid not in self.classes or matched:
                 retained.append(box)
-            if self.color_check and matched and cid in self.proof_classes:
+            shirt_verified=True
+            if self.color_check and cid == 0 and cid in self.proof_classes:
+                from jersey_color import torso_fractions,supported
+                fractions=torso_fractions(image,box.xyxy[0])
+                shirt_verified=fractions is not None and supported('red',fractions)
+            if self.color_check and matched and cid in self.proof_classes and shirt_verified:
                 key=detection_key(cid,box.xyxy[0])
                 if key is not None:self.verified_boxes.append(dict(cls=key[0],xyxy=list(key[1])))
         return retained

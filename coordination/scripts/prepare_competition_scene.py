@@ -15,6 +15,18 @@ from red_judge_compat import adapt_red_judge
 SPAWNS = [(0., -3.), (3., -3.), (0., 0.), (3., 0.), (0., 3.), (3., 3.)]
 
 
+def adapt_map_fallback(text):
+    """Reject exhausted placement instead of using empty/mismatched base data."""
+    original = ('    if count_loop>=10:\n'
+                '        lines = content.readlines()\n'
+                '        f.writelines(lines)\n'
+                '        print(map_num)\n'
+                "        print('Base world is used!')")
+    if text.count(original) != 1:
+        raise ValueError('MAP_FALLBACK_SOURCE_CHANGED')
+    return text.replace(original,"    if count_loop>=10:\n        raise RuntimeError('CITY_PLACEMENT_EXHAUSTED')",1)
+
+
 def adapt_actor_wait(control):
     """Keep the original teleport deadline without spinning or log flooding."""
     original = ('while not responce.success:\n'
@@ -45,7 +57,7 @@ def prepare(source, output, seed=17):
         shutil.copy2(source/name, output/name)
     original = (output/'map_generator.py').read_text()
     # Only redirect outputs and fix deterministic initialization in our own copy.
-    text = re.sub(r'^output_path\s*=.*$', 'output_path = '+repr(str(output)+'/'), original, flags=re.M)
+    text = adapt_map_fallback(re.sub(r'^output_path\s*=.*$', 'output_path = '+repr(str(output)+'/'), original, flags=re.M))
     generated = output/'generate_isolated.py'
     attempts = []
     for attempt in range(12):
@@ -55,6 +67,9 @@ def prepare(source, output, seed=17):
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=45)
         (output/'generator.log').write_text(result.stdout)
         if result.returncode:
+            if 'CITY_PLACEMENT_EXHAUSTED' in result.stdout:
+                attempts.append(dict(seed=selected,reason='CITY_PLACEMENT_EXHAUSTED'))
+                continue
             raise RuntimeError('CITY_GENERATION_FAILED: '+result.stdout[-1200:])
         boxes = ast.literal_eval((output/'black_box.txt').read_text())
         distances = startup_distances(boxes)
@@ -63,7 +78,7 @@ def prepare(source, output, seed=17):
             break
     else:
         (output/'startup_failures.json').write_text(json.dumps(attempts, indent=2))
-        raise RuntimeError('MAP_STARTUP_OVERLAP: all generated cities intersect platform spawn clearance')
+        raise RuntimeError('MAP_STARTUP_UNUSABLE: exhausted placement or insufficient spawn clearance')
     root = ET.parse(output/'robocup.world')
     world = root.getroot().find('world')
     physics = world.find('physics')
@@ -106,7 +121,9 @@ def prepare(source, output, seed=17):
         adapted_judge_sha256=hashlib.sha256(judge.read_bytes()).hexdigest(),
         source_sha256={p.name:hashlib.sha256((source/p.name).read_bytes()).hexdigest()
                        for p in output.iterdir() if (source/p.name).is_file()},
-        adaptations=['isolated output paths', 'seeded map randomness', '250Hz PX4-compatible physics',
+        adaptations=['isolated output paths', 'seeded map randomness',
+                     'reject exhausted random placement; original fallback produced empty world and mismatched obstacle data',
+                     '250Hz PX4-compatible physics',
                      'Python3 actor range', '30s teleport per rule; platform copy used 25s',
                      'actor transient service retry without Python2 print crash or fictitious pose',
                      'actor teleport wait yields for 20ms simulated time; original deadline unchanged',

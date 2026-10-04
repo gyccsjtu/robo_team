@@ -64,3 +64,19 @@ class PersonVerifierTests(unittest.TestCase):
             self.assertFalse(frame_verified(verifier.verified_boxes,1,verified.xyxy[0]))
             verifier.filter_boxes(object(),[unrelated])
             self.assertEqual(verifier.verified_boxes,[])
+
+    def test_red_proof_requires_same_frame_person_and_red_shirt(self):
+        red=box(0,[10.,20.,30.,60.]);verifier=self.verifier([[11.,21.,29.,59.]])
+        verifier.color_check=True;verifier.proof_classes={1,3,0}
+        fractions=dict(red=.7,green=0.,blue=0.,white=0.,brown=.1)
+        with patch('jersey_color.torso_fractions',return_value=fractions):
+            self.assertEqual(verifier.filter_boxes(object(),[red]),[red])
+            self.assertTrue(frame_verified(verifier.verified_boxes,0,red.xyxy[0]))
+        for invalid in (None,dict(fractions,red=.02,blue=.6)):
+            with patch('jersey_color.torso_fractions',return_value=invalid):
+                self.assertEqual(verifier.filter_boxes(object(),[red]),[red])
+                self.assertFalse(frame_verified(verifier.verified_boxes,0,red.xyxy[0]))
+        verifier.model=lambda *a,**k:[SimpleNamespace(boxes=[])]
+        with patch('jersey_color.torso_fractions',return_value=fractions):
+            self.assertEqual(verifier.filter_boxes(object(),[red]),[red])
+            self.assertEqual(verifier.verified_boxes,[])
