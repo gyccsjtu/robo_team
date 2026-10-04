@@ -1923,8 +1923,8 @@ class SwarmAgent(object):
                 self._orbit_center = (tx, ty)
                 # 存真实 target_id
                 target_id = getattr(self.assignment, 'target_id', None)
-                if target_id in ('t0','t3') and self._orbit_target != target_id:
-                    # Green/white retries get a new confirmation attempt;
+                if target_id in ('t0','t1','t2','t3','t4','t5') and self._orbit_target != target_id:
+                    # Each target retry gets a new confirmation attempt;
                     # historical resets must not end a new task after 1 frame.
                     self._reset_n[int(target_id[1:])] = 0
                 self._orbit_target = target_id if target_id else "tracking"

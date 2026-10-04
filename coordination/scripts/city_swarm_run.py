@@ -99,6 +99,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         position_brake_revision='v2_xyz_after_takeoff',navigation_feedback_revision='v1',
         navigation_retry_revision='v1.24b_fresh_progress_before_same_task',
         green_white_confirm_revision='v1.24b_per_tracking_attempt',
+        confirmation_attempt_revision='v1.25b_all_targets_per_attempt',
         tracking_refresh_maximum_deferral_s=20.,
         maximum_speed_mps=3.,visual_fusion_revision='v2.13_red_fresh_person',tracker_selection_revision='v1.20_camera_takeover',
         perception_csv_revision='v1.25_person_evidence',red_person_proof_revision='v1.25_three_original_frames',

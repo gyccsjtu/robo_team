@@ -124,7 +124,7 @@ class FastFixTests(unittest.TestCase):
         self.assertTrue(scope['candidate_filter']('uav_6',(2,10),{}))
         self.assertTrue(scope['candidate_filter']('uav_5',(3,10),{}))
 
-    def test_green_white_retry_counts_only_resets_in_current_attempt(self):
+    def test_all_target_retries_count_only_resets_in_current_attempt(self):
         import ast
         from types import SimpleNamespace
         from unittest.mock import Mock
@@ -133,7 +133,7 @@ class FastFixTests(unittest.TestCase):
         cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='SwarmAgent')
         callback=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='_find_cb')
         control=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='_control')
-        condition=ast.dump(ast.parse("target_id in ('t0','t3') and self._orbit_target != target_id",mode='eval').body)
+        condition=ast.dump(ast.parse("target_id in ('t0','t1','t2','t3','t4','t5') and self._orbit_target != target_id",mode='eval').body)
         entry=next(n for n in ast.walk(control) if isinstance(n,ast.If)
                    and ast.dump(n.test)==condition)
         clock=SimpleNamespace(Time=SimpleNamespace(now=lambda:SimpleNamespace(to_sec=lambda:20.)),logwarn=Mock())
@@ -143,9 +143,7 @@ class FastFixTests(unittest.TestCase):
             scope=dict(self=agent,target_id='t%d'%idx,rospy=clock,
                 BACKOFF_ENABLE=True,CONFIRM_RESET_MAX=3,BACKOFF_COOLDOWN=60.)
             exec(compile(ast.Module(body=[entry,callback],type_ignores=[]),str(path),'exec'),scope)
-            if idx not in (0,3):
-                self.assertEqual(agent._reset_n[idx],7)
-                continue
+            self.assertEqual(agent._reset_n[idx],0)
             agent._orbit_target='t%d'%idx
             for timestamp in (11.,12.):
                 scope['_find_cb'](agent,SimpleNamespace(data=timestamp),idx)
