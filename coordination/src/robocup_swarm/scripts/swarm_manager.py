@@ -32,7 +32,7 @@ from visual_observation import VisualEvidence, TAG_TO_TID
 from red_observations import actor_slot_remaining
 from tracker_selection import tracker_rank, takeover_candidate
 from search_occupancy import apply_authority_release
-from navigation_feedback import accept as accept_navigation_feedback, refresh_due
+from navigation_feedback import accept as accept_navigation_feedback, refresh_due, RejectedTasks, task_key
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from std_msgs.msg import String, Float32
@@ -426,6 +426,8 @@ class SwarmManager(object):
                         self._authority.active,self._route_motion.samples,now,self._navigation_seq):
                     return
                 uid = message['uav_id']
+                rejections = self.__dict__.setdefault('_navigation_rejections',RejectedTasks())
+                rejections.reject(uid,task_key(self._authority.active[uid]['task']),message['position_xy'])
                 self._navigation_blocked_until[uid] = now+15.
                 self._emit_authority(self._authority.withdraw(uid,now))
                 for tid,owner in list(self._tracking.items()):
@@ -438,6 +440,11 @@ class SwarmManager(object):
 
     def _navigation_eligible(self, uid):
         return rospy.Time.now().to_sec() >= getattr(self,'_navigation_blocked_until',{}).get(uid,0.)
+
+    def _navigation_task_allowed(self, uid, key):
+        rejections = getattr(self,'_navigation_rejections',None)
+        return (rejections is None or rejections.allowed(uid,key,self._route_motion.samples,
+                                                        rospy.Time.now().to_sec()))
 
     def _emit_authority(self, outputs):
         for message in outputs:
@@ -483,7 +490,8 @@ class SwarmManager(object):
         candidates = [(uid, math.hypot(st.x-tx, st.y-ty))
                       for uid, st in self.status.items()
                       if uid in self.uav_ids and st.connected and uid not in busy
-                      and self._navigation_eligible(uid)]
+                      and self._navigation_eligible(uid)
+                      and self._navigation_task_allowed(uid,('target',tid))]
         observations = [(uid, stamp) for (uid, tag), stamp in
                         tuple(self._visual_evidence.stamps.items()) if TAG_TO_TID[tag] == tid]
         candidate = takeover_candidate(owner, candidates, observations, now,
@@ -904,6 +912,8 @@ class SwarmManager(object):
             state = self.status.get(uid)
             if state is None or not state.connected or uid in busy or not self._navigation_eligible(uid):
                 continue
+            if not self._navigation_task_allowed(uid,('target',target_id)):
+                continue
             searching = any(c.state == STATE_ASSIGNED and c.owner == uid
                             for c in self.grid.cells.values())
             if uid not in idle and not searching:
@@ -1035,6 +1045,8 @@ class SwarmManager(object):
             best, best_d = None, None
             for uid, st in self.status.items():
                 if not getattr(st, "connected", False) or uid in busy:
+                    continue
+                if not self._navigation_eligible(uid) or not self._navigation_task_allowed(uid,('target',tid)):
                     continue
                 d = math.hypot(st.x - tx, st.y - ty)
                 if best_d is None or d < best_d:
@@ -1243,6 +1255,8 @@ class SwarmManager(object):
             cell = self.grid.cell(key)
             return (cell.cx, cell.cy)
         def candidate_filter(uid, key, already_assigned):
+            if not self._navigation_task_allowed(uid,('search',*key)):
+                return False
             peer_goals = dict(executing)
             peer_goals.update({owner: cell_key for owner, cell_key in already_assigned.items() if cell_key is not None})
             legs = [(positions[owner], waypoint(cell_key)) for owner, cell_key in peer_goals.items()

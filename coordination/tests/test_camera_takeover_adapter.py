@@ -39,6 +39,7 @@ class CameraTakeoverAdapterTests(unittest.TestCase):
                                  x_min=-50., x_max=130., y_min=-60., y_max=60.),
             _tracking={}, _backup={}, _idle_uavs=lambda: ['blind'],
             _navigation_eligible=lambda uid:True,
+            _navigation_task_allowed=lambda uid,key:True,
             _target_authority_held=lambda tid: False, _authorized_publish=Mock(),
             _authority=authority, _authority_lock=threading.RLock(), _emit_authority=Mock(),
             _visual_evidence=evidence, _truth_cache={'t0': (0., 0., 9.9)})

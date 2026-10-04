@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "executed_revision": "c77063e / visual v2.12.1",
+  "remaining_actor_ids": [
+    3,
+    4
+  ],
+  "csv_counts_are_loop_rows_not_unique_images": true,
+  "per_camera": {
+    "perception_typhoon_h480_0.csv": {
+      "white": {
+        "publish_loop_rows": 258,
+        "distinct_original_images": 84,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 52,
+          "verdict_range": 152,
+          "verdict_static": 488
+        },
+        "latest_gaps_over_one_second": [
+          2.748,
+          4.284,
+          1.048,
+          2.072,
+          1.668,
+          2.656,
+          1.876,
+          3.924,
+          2.708,
+          134.284
+        ]
+      },
+      "red": {
+        "publish_loop_rows": 36,
+        "distinct_original_images": 12,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 146,
+          "verdict_height": 164,
+          "verdict_self": 68,
+          "verdict_static": 122
+        },
+        "latest_gaps_over_one_second": [
+          8.984,
+          8.432
+        ]
+      }
+    },
+    "perception_typhoon_h480_1.csv": {
+      "white": {
+        "publish_loop_rows": 0,
+        "distinct_original_images": 0,
+        "reject_loop_rows_by_reason": {},
+        "latest_gaps_over_one_second": []
+      },
+      "red": {
+        "publish_loop_rows": 0,
+        "distinct_original_images": 0,
+        "reject_loop_rows_by_reason": {},
+        "latest_gaps_over_one_second": []
+      }
+    },
+    "perception_typhoon_h480_2.csv": {
+      "white": {
+        "publish_loop_rows": 73,
+        "distinct_original_images": 17,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 14,
+          "verdict_static": 89
+        },
+        "latest_gaps_over_one_second": [
+          4.312
+        ]
+      },
+      "red": {
+        "publish_loop_rows": 196,
+        "distinct_original_images": 61,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 94,
+          "verdict_static": 124
+        },
+        "latest_gaps_over_one_second": [
+          1.116,
+          10.3,
+          1.556
+        ]
+      }
+    },
+    "perception_typhoon_h480_3.csv": {
+      "white": {
+        "publish_loop_rows": 0,
+        "distinct_original_images": 0,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 24
+        },
+        "latest_gaps_over_one_second": []
+      },
+      "red": {
+        "publish_loop_rows": 180,
+        "distinct_original_images": 62,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 168,
+          "verdict_static": 124,
+          "verdict_height": 42,
+          "verdict_self": 46
+        },
+        "latest_gaps_over_one_second": [
+          2.452,
+          1.352,
+          124.892,
+          19.568
+        ]
+      }
+    },
+    "perception_typhoon_h480_4.csv": {
+      "white": {
+        "publish_loop_rows": 40,
+        "distinct_original_images": 11,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 46,
+          "verdict_static": 52
+        },
+        "latest_gaps_over_one_second": []
+      },
+      "red": {
+        "publish_loop_rows": 23,
+        "distinct_original_images": 8,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 38,
+          "verdict_height": 156,
+          "verdict_range": 14,
+          "verdict_static": 25
+        },
+        "latest_gaps_over_one_second": []
+      }
+    },
+    "perception_typhoon_h480_5.csv": {
+      "white": {
+        "publish_loop_rows": 68,
+        "distinct_original_images": 22,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 98,
+          "verdict_static": 48
+        },
+        "latest_gaps_over_one_second": [
+          1.28,
+          1.388
+        ]
+      },
+      "red": {
+        "publish_loop_rows": 247,
+        "distinct_original_images": 87,
+        "reject_loop_rows_by_reason": {
+          "verdict_hits": 322,
+          "verdict_static": 131
+        },
+        "latest_gaps_over_one_second": [
+          2.612,
+          5.732,
+          444.044
+        ]
+      }
+    }
+  },
+  "confirmed_control_findings": [
+    {
+      "file": "flight/agent_uav_1.log",
+      "task_received_s": 2104.924,
+      "white_backoff_s": 2107.028,
+      "elapsed_s": 2.104,
+      "reason": "historical confirmation reset count inherited by new tracking attempt",
+      "candidate_fixed": true,
+      "physical_candidate_verified": false
+    },
+    {
+      "file": "flight/swarm_manager.log",
+      "reason": "uav_4 and uav_5 repeatedly received blocked tasks without fresh physical progress",
+      "candidate_fixed": true,
+      "physical_candidate_verified": false
+    }
+  ],
+  "unresolved": [
+    "White reporting still has static/hits/range rejection and intermittent camera loss; fresh three-frame person proof does not cover all sightings.",
+    "Remaining red reporting still has static/hits/height/self rejection; red strategy deliberately preserved.",
+    "Unknown start clearance still occurs; task filtering does not prove clearance has recovered."
+  ]
+}

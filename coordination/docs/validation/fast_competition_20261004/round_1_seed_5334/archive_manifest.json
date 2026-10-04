@@ -1,0 +1,960 @@
+{
+  "source_manifest.json": {
+    "sha256": "3aa9f8bd1c46a6fc5a71dc7c723f207d5d3b191ae88a2ddc4cf8aca3ea589e02",
+    "bytes": 23109
+  },
+  "validation_audit.json": {
+    "sha256": "b6fe0f405439b5da895cde20920e13b9bbd505f53f2359b4fb719514c345134e",
+    "bytes": 12571
+  },
+  "xyz_hold_readonly_sample.json": {
+    "sha256": "76f73fe37536934e68834286f7dd022855742b2ae232f4b862e65b5bdf99486b",
+    "bytes": 9394
+  },
+  "launcher.log": {
+    "sha256": "11b3d8f49c5b7c0c8222e0c6ca6141946cd9a68e68ac7b786e57e71a37123fef",
+    "bytes": 7597
+  },
+  "flight/perception_uav_6.log": {
+    "sha256": "72cfa477e2283c2a96d040a5bd697d0bb184700d297c511e783b98cfe97d8cb9",
+    "bytes": 23206
+  },
+  "flight/world_ready.json": {
+    "sha256": "ea6a8611482a3f73a627ff5f3fa061fb2182be05cabdfab0c7d7e772447fb488",
+    "bytes": 58
+  },
+  "flight/agent_uav_5.log": {
+    "sha256": "3338a16a8646b39330e4aa886baa69d74c3f902747828f1d81d342ebc6f67da2",
+    "bytes": 15710
+  },
+  "flight/execution_sources.json": {
+    "sha256": "e9008c5c17b6e535df3ed527c5b602ecaab936021ecbd9a434085e4ff12c56b7",
+    "bytes": 1142
+  },
+  "flight/judge.log": {
+    "sha256": "f033f7ae68b51fbb1541b2c9fea2765809db00145db3acbecac2087d475bfdba",
+    "bytes": 1689
+  },
+  "flight/swarm_source_manifest.json": {
+    "sha256": "1ea76c27e5a02204db2d06a98cb77b84f92180ffbf3bce837473f9f5bbc5b9ff",
+    "bytes": 15963
+  },
+  "flight/connectivity.world": {
+    "sha256": "83879ec8b05824237849b19aaebfd06f70b67ab7bc5b69ef2006c69d1916837f",
+    "bytes": 2648236
+  },
+  "flight/actor_2.log": {
+    "sha256": "8cd7cdb9eb18213cd7c4631ee3ed05e289652128a347ba37c6296d833fefa5a5",
+    "bytes": 550
+  },
+  "flight/yolo_target_bridge.log": {
+    "sha256": "f9b73bb1f9ac5a01fe09dab2260d9850654eabd099bdca345de7eb7362e037ad",
+    "bytes": 142
+  },
+  "flight/actor_4.log": {
+    "sha256": "fc8df099dd153e2ab706ac8085b91d2e4c3aee8669648e2095eeeac0a68fc74e",
+    "bytes": 406
+  },
+  "flight/city_bounds.json": {
+    "sha256": "463e2f6de13c1688a3022d2bde0890823fb2da609a3e216971436c077a7c4da4",
+    "bytes": 477
+  },
+  "flight/city_contacts.log": {
+    "sha256": "958fad7f47ad32558d651514f52ee0accb6802cf35b841401de1fe5ac5ec08e6",
+    "bytes": 173178
+  },
+  "flight/contact_sonar_whitelist_models.txt": {
+    "sha256": "4be32d1ffbc3df4bb306baec5779ee4941dfe6ccb9f7c47b2648461450d0baa1",
+    "bytes": 534
+  },
+  "flight/mavros.log": {
+    "sha256": "992d806c50b9b954eda19c761ae9eef26b15b7740a0d134711aeea4d98982a29",
+    "bytes": 261314
+  },
+  "flight/actor_5.log": {
+    "sha256": "33a5ef60a728f32d09964c849e22c441711d7f794811ce3eda89201de1b0ea02",
+    "bytes": 894
+  },
+  "flight/px4_uav_2.log": {
+    "sha256": "12f62dfd763019a12b34b5919d494f881523fb8c4e8ed48cc2677eaf6a51c417",
+    "bytes": 2836
+  },
+  "flight/roscore.log": {
+    "sha256": "2f5e45ae2b258c153086d92892c743d60ec7496170b55bf408cdf7cf668d8e37",
+    "bytes": 884
+  },
+  "flight/px4_uav_5.log": {
+    "sha256": "d7b1987f9d32f4604443844004b086846725ae155991a5ddbb138c2a159280d6",
+    "bytes": 2836
+  },
+  "flight/city_trajectory.jsonl": {
+    "sha256": "1e764bf3545a079bac206cf2b4bba5c1db5997944063d5df89b0055c0e2f6844",
+    "bytes": 207033
+  },
+  "flight/result.json": {
+    "sha256": "ebd1bab35dd8d56b662b59130b3983676482b0598744fc2a3edb774d8fd24ca4",
+    "bytes": 3249
+  },
+  "flight/shared_inference.json": {
+    "sha256": "f0293326d65d490a2a484e09fc74461683af60309ece310d49aeecac6b997dc1",
+    "bytes": 192
+  },
+  "flight/perception_uav_3.log": {
+    "sha256": "039a985790deef20533cae9c7e21d5593444a4aa0c16e55215aa328d5c770cec",
+    "bytes": 6071
+  },
+  "flight/px4_uav_1.log": {
+    "sha256": "2808684f2a7a618975ea0afbe6107072592bd8785deadfe2d7bcf6d885b25bbc",
+    "bytes": 3096
+  },
+  "flight/city_commands.jsonl": {
+    "sha256": "273844b5c42987d03d99b527579a43f52f00d0eeb955584bf4c78d1bd7cdbee2",
+    "bytes": 1877843
+  },
+  "flight/agent_uav_4.log": {
+    "sha256": "7c826584f63b6d474de3df522cbff79c030010ea0eb8877967c492d072b92dde",
+    "bytes": 12701
+  },
+  "flight/agent_uav_3.log": {
+    "sha256": "d377f6839b0dfab008ebf2b461a287874ea8a005e90cff29cc709c33e8f230b7",
+    "bytes": 16141
+  },
+  "flight/gimbal_runtime_manifest.json": {
+    "sha256": "f6ed8800d8013afc69c67e9a8db3d78148837a284036c9335e657417a0ce53e5",
+    "bytes": 13421
+  },
+  "flight/perception_uav_2.log": {
+    "sha256": "21539aa793fafa3abba6e9e447b11bbf636eb1cf098e52ac8fae049fd800eff8",
+    "bytes": 6492
+  },
+  "flight/agent_uav_1.log": {
+    "sha256": "1727ed1a693f8172070df2c51d43ab54ed3612615229a8bb08fdabffb06a1204",
+    "bytes": 11376
+  },
+  "flight/perception_uav_4.log": {
+    "sha256": "184f8906f1f4b84661df54eec74d04be03ca5515c2c7398d24c98d8521a2bc0f",
+    "bytes": 17837
+  },
+  "flight/startup_clearance.json": {
+    "sha256": "d58d78d10eab1e0e339bf2fd303f6edc5fcf1bdaf48ef730442d1f30d7a016b5",
+    "bytes": 879
+  },
+  "flight/city_events.jsonl": {
+    "sha256": "2830600a955129bac2727c4e2273f881c1f8a50945d07fed4fc4c3de4bf0642f",
+    "bytes": 136278
+  },
+  "flight/px4_uav_3.log": {
+    "sha256": "d74fa593892efa04380e894b23ea307f26b431574b9c4121f7e273a58f9c1c46",
+    "bytes": 2837
+  },
+  "flight/actor_0.log": {
+    "sha256": "695985fd71d815849cd044033ada4ff5e9f43d0a3bfeda7a06858a3e3f77c074",
+    "bytes": 1163
+  },
+  "flight/city_control_config.json": {
+    "sha256": "fa4cc0007d090e26e47460da3e09861986cf3ccd5de9c9bc0577a24a70836396",
+    "bytes": 2697
+  },
+  "flight/agent_uav_2.log": {
+    "sha256": "17eb3b5db34c6bab7cc3ac03393c02a4da0e83698de1313e039a40316c02b85e",
+    "bytes": 15186
+  },
+  "flight/px4_estimator_config.json": {
+    "sha256": "6ac5ed739185104e6d5043b8144adb236c75f6a0b242d2bb78b3c2666feaf239",
+    "bytes": 495
+  },
+  "flight/wiring.json": {
+    "sha256": "609defbdf58fe62e241da254c30768e22b7dd312ae1163436cbf3ccde130c0c2",
+    "bytes": 3833
+  },
+  "flight/perception_uav_1.log": {
+    "sha256": "8b2519f1630bbcebc65e19b9c1051b8296abe080a7d9c23897100e621813d7e9",
+    "bytes": 6381
+  },
+  "flight/shared_inference.log": {
+    "sha256": "b64f9a0e2f8ed53501541bb5d0a1c8b97ad2b8045ae0c92998098db8103a2505",
+    "bytes": 301
+  },
+  "flight/gzserver.log": {
+    "sha256": "551dd0661a35e4ba77a6c0fbd01c248a5edda7011e0a6f64cc0dcb5f315bd856",
+    "bytes": 108401638,
+    "full_file_wsl": "/root/robocup_runs/fast_competition_v124_20261004/round_1_seed_5334/flight/gzserver.log",
+    "archive": "tail only"
+  },
+  "flight/px4_uav_4.log": {
+    "sha256": "5aa9977e6268fea78f8412db4e0d519f874eebf4e54f4cfdf40e2b2498f47fad",
+    "bytes": 2837
+  },
+  "flight/contact_observer_manifest.json": {
+    "sha256": "f4c74746b7ef1801cdebf47a229bdd2df790ff8846e6b9e50b49acc088334119",
+    "bytes": 450
+  },
+  "flight/agent_uav_6.log": {
+    "sha256": "8341b2a8bfa27eafc46741e70a6be7c390cc55b1d8f67bfbf980ae2fa2c48922",
+    "bytes": 9748
+  },
+  "flight/swarm_manager.log": {
+    "sha256": "8e68f011a87a7fa05900586761ae23cb3821c6f7078e65b2012aec5d5f2ff891",
+    "bytes": 7304
+  },
+  "flight/px4_uav_6.log": {
+    "sha256": "bdbc58e87edf6579cdb1d120b73037c98caf09c25638223f5d559eed187d0c62",
+    "bytes": 2836
+  },
+  "flight/actor_1.log": {
+    "sha256": "89358ef5b0f1177b25563b45d1e4c2659f1bf491fbfc6ca3c269c0847fdd35bb",
+    "bytes": 550
+  },
+  "flight/development_physics.json": {
+    "sha256": "85b9a1943ec79fc1e277526531cc4a34c1f3568c865a7f5c038b588eea5b77f4",
+    "bytes": 150
+  },
+  "flight/perception_uav_5.log": {
+    "sha256": "4209af0eaf8b0e3369dec7bb8d9399f0b66f0f4d37237c488f4d1d0bedf9bddd",
+    "bytes": 4649
+  },
+  "flight/actor_3.log": {
+    "sha256": "ecd8f0c51abc7956c6e591909303b7244e26c2ca115f6f6b12ae6b208007dff4",
+    "bytes": 550
+  },
+  "flight/algorithm/perception_typhoon_h480_4.csv": {
+    "sha256": "aa6a3947f53166354c0b94d6c7538fb950cbd63ca9f7d0b66fedcf7950a9ea14",
+    "bytes": 19838
+  },
+  "flight/algorithm/algorithm.csv": {
+    "sha256": "f15a71a9f3e54979b88c16600e369eb5c72d079e35ecc748729c8115107378b3",
+    "bytes": 25425
+  },
+  "flight/algorithm/navigation_uav_5.jsonl": {
+    "sha256": "025dd6966c7e7fe41540aa86268dc5ba956f54e0340ce705c64fed76352966ff",
+    "bytes": 3165548
+  },
+  "flight/algorithm/control_uav_1.csv": {
+    "sha256": "e579ab97ed95a1f8106af2b033b246c4499e2d1c7da1170ddc6af053950c2302",
+    "bytes": 89368
+  },
+  "flight/algorithm/perception_typhoon_h480_2.csv": {
+    "sha256": "7b1cea0c41c1ec3bb509806370c2b2233997e5c4c880d995393a43a9d0665daa",
+    "bytes": 74722
+  },
+  "flight/algorithm/navigation_uav_6.jsonl": {
+    "sha256": "3cc4615e94278022cc22139f219e355343c957205d4e159e46fe9ab0add43232",
+    "bytes": 831000
+  },
+  "flight/algorithm/perception_typhoon_h480_3.csv": {
+    "sha256": "40c2c3ccddbbbfa33b466f637605943107eb43e45a86f551768bb368aa623d6c",
+    "bytes": 126345
+  },
+  "flight/algorithm/perception_typhoon_h480_5.csv": {
+    "sha256": "1ea8cdde40c25e47fb15db1f11e53efb8f0e5e8ca83dccf48baf1522d968d02b",
+    "bytes": 162504
+  },
+  "flight/algorithm/control_uav_5.csv": {
+    "sha256": "7212164c5865ef45b752119dc5b2b6f40f57d6aa6dda0bca8803bb6ba706b843",
+    "bytes": 92484
+  },
+  "flight/algorithm/navigation_uav_3.jsonl": {
+    "sha256": "c273c5737e75bd952e9bc2bf3e04e0e4a9fbd21cf981a9ad49e5e0fd712ff490",
+    "bytes": 2531674
+  },
+  "flight/algorithm/control_uav_3.csv": {
+    "sha256": "cae41923d96f4f40d87b5bc0e49f16b3d6666644991c2b41498d3f9e1ec5b849",
+    "bytes": 96661
+  },
+  "flight/algorithm/navigation_uav_4.jsonl": {
+    "sha256": "f77cda88a497f643ff80ec114df02439aa53dfd2778ac614c70615915104f1f8",
+    "bytes": 1961360
+  },
+  "flight/algorithm/perception_typhoon_h480_0.csv": {
+    "sha256": "213aff840489efd53282ac603984810cc617a3c49706c3cb13ddd5ba301717e9",
+    "bytes": 75296
+  },
+  "flight/algorithm/perception_typhoon_h480_1.csv": {
+    "sha256": "2978d5c01b9b6901c0f88c48ff0abb4411a6530a3fd23e063d241d5559ab5417",
+    "bytes": 70067
+  },
+  "flight/algorithm/control_uav_2.csv": {
+    "sha256": "b676f2ca30e325ff5efc87862cf4f96cb4819d5a907dafbee2840c339b485298",
+    "bytes": 96006
+  },
+  "flight/algorithm/route_events.jsonl": {
+    "sha256": "834744eb6ef4da5fe2a89d59ed5c666895c82798f8f85a8886ece73b4d856229",
+    "bytes": 60222
+  },
+  "flight/algorithm/authority_events.jsonl": {
+    "sha256": "5241a35d79579d1ab84c49b6fa3cb32d93c72ef716aae78433d58e892e7dc067",
+    "bytes": 14298
+  },
+  "flight/algorithm/control_uav_6.csv": {
+    "sha256": "327284b6cab1ae7b2510698a4c2f39799c0d1a7dd7f9666acd18c4b726eaa3b1",
+    "bytes": 90905
+  },
+  "flight/algorithm/navigation_uav_2.jsonl": {
+    "sha256": "4d51ff87785b2672fcdc47eb7eefe9e0b472f4b62763e16e8ab3b83454d04461",
+    "bytes": 3929477
+  },
+  "flight/algorithm/control_uav_4.csv": {
+    "sha256": "34d66f764ab82a31ba2850e10e7038a78a84673badc2d7e7acdde9e28fa91ccb",
+    "bytes": 90185
+  },
+  "flight/algorithm/navigation_uav_1.jsonl": {
+    "sha256": "9ba8006975652c0d8ac91a072621d8defe083443f6560a1d11981b9dd965d05f",
+    "bytes": 1984794
+  },
+  "flight/execution_sources/prepare_radar_fleet.py": {
+    "sha256": "4b2a4a0cf6c079da0bc1b027076e670e53aa02a0da8e11347293dc968a20bd81",
+    "bytes": 3673
+  },
+  "flight/execution_sources/city_swarm_run.py": {
+    "sha256": "c9b66f491c0662df519780df454138e366fbad3e56f1f925d8166d899ce03ff0",
+    "bytes": 21046
+  },
+  "flight/execution_sources/judge_terminal.py": {
+    "sha256": "672d08de637ff7e02cb486a093e47441f940918d16e750aeeb74e1b1a21acbe0",
+    "bytes": 1346
+  },
+  "flight/execution_sources/radar_fleet_models.py": {
+    "sha256": "3129b013345a6e953223b45c1200c3a703e35df7a27484602a52634ccc8bd5a2",
+    "bytes": 6570
+  },
+  "flight/execution_sources/fixture_contacts.py": {
+    "sha256": "184bff8709d1fbe08c828233f4aba36f55ee1dca3ae6a28f4486883e45ec3557",
+    "bytes": 1300
+  },
+  "flight/execution_sources/six_radar_connectivity.py": {
+    "sha256": "06f8057314cfe63644e70be455e4e157e49326de655f0db311f124c9f65e26aa",
+    "bytes": 23061
+  },
+  "flight/execution_sources/start_city_judge.py": {
+    "sha256": "6a43b2ee5e71c07530433f9f541f2cd0581b82d4ac0b61bf9a4c4892a9855507",
+    "bytes": 1250
+  },
+  "flight/execution_sources/camera_actor_probe.py": {
+    "sha256": "67c3d756cef3d0f3bdb25092669fef9df2624c4464e485933f8df713c41d7239",
+    "bytes": 9958
+  },
+  "flight/execution_sources/six_swarm_probe.py": {
+    "sha256": "8f1023ad5987685450e2d1440ed0f653a18241cf0c4a8ba744b97ad649db2581",
+    "bytes": 14699
+  },
+  "flight/execution_sources/build_namespaced_gimbal_overlay.py": {
+    "sha256": "d6a3c3fb520a610d51891df0231619d90edb58fc71b192af3277788b204fa7ad",
+    "bytes": 5930
+  },
+  "flight/execution_sources/flight_actor_probe.py": {
+    "sha256": "f126d0b6c4d46113e62400f18046b04482dbceba5bde07d3ab28489bfb6512ed",
+    "bytes": 8595
+  },
+  "flight/execution_sources/evidence_writer.py": {
+    "sha256": "ac844fb0c1cf930d11a8c81eab7fc6b3980b38988c698da0afb21ba180b3101e",
+    "bytes": 1445
+  },
+  "flight/models/typhoon_h480_0.sdf": {
+    "sha256": "6a8a2bc1bef362230a1c131fef5a460ae3ec3e26cb5b4bdb59cb97e62aba3a90",
+    "bytes": 44042
+  },
+  "flight/models/typhoon_h480_3.sdf": {
+    "sha256": "567fb5ce15e10acb346974499ef9eb7f93d8f4fb542c1ba3ba929d57315c37e1",
+    "bytes": 44042
+  },
+  "flight/models/typhoon_h480_1.sdf": {
+    "sha256": "15e3da6b232f83002f9970b2d026a8fefa9c66e046bdc0fe045ae7efb8d4ff90",
+    "bytes": 44042
+  },
+  "flight/models/typhoon_h480_5.sdf": {
+    "sha256": "538078fa88cc0980d4192e0b9700ec3f3897a672bb8ef8e279f384064a4e9c50",
+    "bytes": 44042
+  },
+  "flight/models/typhoon_h480_4.sdf": {
+    "sha256": "1dca296beb04bb640fbcd93e8dc74fe1931051cce4e1be8a77c3fac0e5f43365",
+    "bytes": 44042
+  },
+  "flight/models/typhoon_h480_2.sdf": {
+    "sha256": "c648cfb4fc22731c67297e889ddae5149f26bfc4f38a69446ee75ff2764aacbd",
+    "bytes": 44042
+  },
+  "flight/models/model_manifest.json": {
+    "sha256": "813b5493bb3ac3b9b6040f5ad3745b8d118d67c2e10094ae65b391a6a3eee2cc",
+    "bytes": 868
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/grid_downsampler.py": {
+    "sha256": "9ca3a1eca32238b1ce0f3db8333ec5cb81450d89aac36695d159db3de643a07f",
+    "bytes": 8146
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/astar.py": {
+    "sha256": "9842a72009eb94be3b85c5f6d9d604176629eb821dc5f0627b154055cbe4ae10",
+    "bytes": 11575
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/team_grid_subscriber.py": {
+    "sha256": "ea3f3e11a9ed8dee2de069e2e25a56b9acdee665bd0ba316030921a5ecc4d4fc",
+    "bytes": 6700
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/__init__.py": {
+    "sha256": "7aa650fcf99394734f9e7edd522567fcd5a3a8289398c944380c44bc57236dff",
+    "bytes": 67
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_safety.py": {
+    "sha256": "8c76fe7c8b5b6ee1f04baa07902e5c6172353ceded742090e8de0ed38d8437ef",
+    "bytes": 29924
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/local_grid.py": {
+    "sha256": "6539b8c2d2ea9018e534e76b719aa53458176a31d340e6081597dc071bd20b2f",
+    "bytes": 18456
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_runtime.py": {
+    "sha256": "cc1ca2192c48b974fb0f956a2592da10aa5ff0bb3f2a18913cf9c91380d06711",
+    "bytes": 51990
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/monitor.py": {
+    "sha256": "4ea55454fd0cef7fec71eab7a4df67f4692b1a96aa05d2244d1268f40cb8220a",
+    "bytes": 4343
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/waiting_points.py": {
+    "sha256": "e90791e5f315f3732bfd97c0da642255c1669ffc7d1b073cf861054e4752c1e9",
+    "bytes": 5444
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/map_revision.py": {
+    "sha256": "9fa6bf4432f7bf3fa220ce4f122dc82ddfb9f40accab107529ea1c3880ff1f59",
+    "bytes": 4463
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/__init__.py": {
+    "sha256": "30b535b31dbbee8dda9c0475995bca095a9bcf5b40027c892b87925f4f1b1288",
+    "bytes": 1371
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/stop_check.py": {
+    "sha256": "cdac03435454dd8ec834db9fd82b19b09751706d78a8d5370c4bc66c92d269ee",
+    "bytes": 3282
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/bus.py": {
+    "sha256": "fee0770f1b56a0b9b004ea5e5c61b6fe39b82413864ea359282920e996310815",
+    "bytes": 4957
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/position_cache.py": {
+    "sha256": "7ae1823e48b65d184d71c7ea9b8bcca128e4e5ae631f64165754a97cc8b6052a",
+    "bytes": 1494
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/core.py": {
+    "sha256": "2114c840c9e90100b1d9c5f8015d56aea17debd246e6080999c05605c0e508d7",
+    "bytes": 37553
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/verdict.py": {
+    "sha256": "b082548b2b00cf0763c39618bd3d1cdc5bee10586c18e36e1078c04f18ac122f",
+    "bytes": 9586
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/geometry.py": {
+    "sha256": "6d89077b1ee28e068a8e0f66cecaa6caa22a401be5c246bccbaefda03ec33426",
+    "bytes": 4349
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/protocol.py": {
+    "sha256": "3140a010c964059f33fb45722bbaf7ff11d754242a35d3c4b66b06c269d2a9f4",
+    "bytes": 4328
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/executor.py": {
+    "sha256": "ed75a06cd4ffcd009bf00f1ced400613dcc3a8c639935f99769c82875946639d",
+    "bytes": 8111
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/__init__.py": {
+    "sha256": "54999699151f3d515968c3c097b0acb642a0e3a09d4a183e5535d6756d4fbb56",
+    "bytes": 191
+  },
+  "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/route_planner.py": {
+    "sha256": "269fd79c5a55ceb05e626f5af3f779f3734cf7c449012643b0049ea7870529af",
+    "bytes": 8683
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/allocation_geometry.py": {
+    "sha256": "7c2ba66fb781759762a14c6fb75477f499cea21425315cd71e46127287219e4e",
+    "bytes": 1557
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_completion.py": {
+    "sha256": "49a6b4d32b4a5174cbd6d1cb5cf98f733761dc62205de99820f2e998acf909a2",
+    "bytes": 885
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/red_observations.py": {
+    "sha256": "a4473505dce68b8702ea0befe44f21f50fb94564ed4917e3c9b265486479c121",
+    "bytes": 1043
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/visual_observation.py": {
+    "sha256": "4ed2e25d78b4d1e91aa369af0dc2b68890d3138df17e8727a87e4cef99a15bc7",
+    "bytes": 1857
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/single_uav_avoidance.py": {
+    "sha256": "2dfaf2a4f63cab65f5100d9cda0f1805f80881984730ddf067feecefc6ebf79e",
+    "bytes": 11736
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/mission_time.py": {
+    "sha256": "9f6a4c8763c0161629957df54eafc121d7b6b96a3d00b4c4e048b4d0d208a68b",
+    "bytes": 53564
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/fcu_configuration.py": {
+    "sha256": "3229c340f6490a0455c80f28f67ad2b06c13810ce303e986b5a780a9516492b7",
+    "bytes": 533
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_task.py": {
+    "sha256": "161dc058c37babc28adafafb14e6d2a4842351defde1344f73661da1674ad7aa",
+    "bytes": 44739
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/team_bench.py": {
+    "sha256": "9b65399dcc0712fbf3117e025e5b2b54467d5d0a5c6e79365e321903e44011f1",
+    "bytes": 38664
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py": {
+    "sha256": "20b68d7210abce6dbbab1288f2bdcdd46a23c9f49b761053ac673818dc128fee",
+    "bytes": 3663
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actor.py": {
+    "sha256": "a500f6f68430c9d9bb77bc571b837eebc623dfd337bf46e2e8448ae87db05eae",
+    "bytes": 25620
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_sim_node.py": {
+    "sha256": "75369af7e9aa3e8c029395d488d8339e484dc5e1845267c59abf6c7a5a63cdc4",
+    "bytes": 14095
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_official.py": {
+    "sha256": "90dba8bb70d4cdf81cc56bb1382acb7e3119fd8da6349ac8523fd2b4a1d40000",
+    "bytes": 20779
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_actor.py": {
+    "sha256": "75506452543fc9f49d7150b262d7d8d8d537c0650b9b6b2b6e2766634202e429",
+    "bytes": 2549
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/position_brake.py": {
+    "sha256": "74327b686e050051a2da33d45b10f1028edd58f0add43ccffc08c20b3295f4e1",
+    "bytes": 1810
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_endpoint.py": {
+    "sha256": "73c88d990c0e7dd152a3fdaf7321cb0725bbeb00bb83fdc6e0c65a1c7f61748f",
+    "bytes": 734
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/cooperative_tracker.py": {
+    "sha256": "cdec1352660d77a6be18a5ab0f47ebc51e507aadde0f38f874b69d1dd8315ae4",
+    "bytes": 29358
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_viz.py": {
+    "sha256": "ffbda5a5aa4495098d61c8245fb8189f455f6c143dbcd7a31792084bfbdb9d9f",
+    "bytes": 21664
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py": {
+    "sha256": "4f04bf353c540d0dda5fbbf2837b17a8db4050ddc4692efb90e7dbc5711934c0",
+    "bytes": 25675
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_offboard_server.py": {
+    "sha256": "fd37c26fc435fd3cffbbc0a11604825b0403c784161dd91199deb0d35ff07759",
+    "bytes": 10397
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_authority.py": {
+    "sha256": "a5577ca714eb7e7d4b1ad47293cf6812d8cf93e1abef63ffa4fde77c3384d749",
+    "bytes": 12880
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_ablation.py": {
+    "sha256": "68c720f7b0705e4d8b909627f7b301e3e25ab5be1c3ad684ac5bd419ffec1995",
+    "bytes": 13941
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/navigation_feedback.py": {
+    "sha256": "693f747680ed70449d917dcbc204aec486a670e7ff73b2a2d8601c9c9292c2e2",
+    "bytes": 1698
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/publisher_authority.py": {
+    "sha256": "1d5c56513e82b03a30a9c457b79ada9dfd198d4fafb98e8c05411565a120787f",
+    "bytes": 756
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/judge_system.py": {
+    "sha256": "e5f0e154ce29181a223325259d707cbd91ea79831930012ae6d0412e789f177a",
+    "bytes": 22625
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/strategy_compare.py": {
+    "sha256": "6a4287b93b0a187c90bda0255785b2e03c8ac8f44eb6f75dde079a40d7c96ad0",
+    "bytes": 38316
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/verify_swarm_avoidance.py": {
+    "sha256": "96188e8b54d6f339033e434ff12f69b3e43c9a07c8dee59532d8a3b53c65f301",
+    "bytes": 8661
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_test.sh": {
+    "sha256": "ca0a50764bba62e01a948f043738d9277e1d9259a6787a7a3f9fe3b6c5970b0d",
+    "bytes": 299
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_occupancy.py": {
+    "sha256": "c3de3deca3196873123fb270e82dc70cd699c7adbdc097ca14533af0808be2f4",
+    "bytes": 1078
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_allocator.py": {
+    "sha256": "f64cbeeda5c5dbb0a8be3ff64de69d232b537e46f4f0cb9ee6ad5eff066f343d",
+    "bytes": 60580
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_planner.py": {
+    "sha256": "d234ec7b6e52b6749c63adbba6036b813366bde028f5fa1fe5b17e4acc2ead99",
+    "bytes": 9472
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/fleet_motion_guard.py": {
+    "sha256": "0fba3af4e76635162e67c6190958f76b74491c0e9289849a9ae3cdca61c8e507",
+    "bytes": 3171
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/persistent_los.py": {
+    "sha256": "ae53bd7f0319744247cc103957696bd575682e5ca85f10f7be3ce1521aefecd0",
+    "bytes": 7250
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_reservation.py": {
+    "sha256": "7ac79a9ca02c7f51c95e6fca53bdf32fe26782dcde22cbc8b30a7f39b9bb3863",
+    "bytes": 9741
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_manager.py": {
+    "sha256": "903b3831d31fd8eca0aa3638c171357b2fb58db91a8025fafe5b9fb1cc00c727",
+    "bytes": 77328
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_quality.py": {
+    "sha256": "4d1b32dc78095298a03505fe7cd53b580de5f2436e350a50379221cfeb2c1df2",
+    "bytes": 2115
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/csv_logger.py": {
+    "sha256": "0598fcda689c7c0560b238abc18d7e99c69ca2aad33b5444d00df8e6e2bbced0",
+    "bytes": 1932
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracker_selection.py": {
+    "sha256": "badd269067a7a4b68bbb60c6c463ecbb450a4bd256c1865c7aa236438286662e",
+    "bytes": 1119
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/local_esdf.py": {
+    "sha256": "2aa85a3126de91946fa680cb7a68334919aeca373204008a09422753f0fc274a",
+    "bytes": 10157
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/track_bench.py": {
+    "sha256": "971b401ce669cce3644a3a8b4947150e746948f53a60e94a2ad2835b205180ed",
+    "bytes": 16310
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_multi_uav_3.sh": {
+    "sha256": "3224d64cb25167785d487767e13eba780dcd05f875b265eb949b573d184962f1",
+    "bytes": 4831
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actors.sh": {
+    "sha256": "928d2c4dc2f971ca6a45f91874e5631fd77cd06a700d3ffb6866002e1ab52272",
+    "bytes": 187
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py": {
+    "sha256": "128b165c6e775f64cf155366dd090de03b5bd8f841625f172837e7d3c7d10599",
+    "bytes": 142067
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/online_radar_planner.py": {
+    "sha256": "23573d60429fc427862d69f9979b77eefbbdd64cd56fea151747073b0978db5e",
+    "bytes": 15766
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_observed_map.py": {
+    "sha256": "30222c259959ffce36aecbe9428854177e69326bfa31fc4d2518eb9d07937bb2",
+    "bytes": 2913
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/stop_control_actors.sh": {
+    "sha256": "75c3bf536da6773f34614b813f810c38b9c5192a1144e9718541f17ed523399d",
+    "bytes": 87
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_motion.py": {
+    "sha256": "7e87b3e6ba3c6cf6e87f700db5f3953648c14bec4414a5ab2e9ff77181d37b5d",
+    "bytes": 1384
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_controller.py": {
+    "sha256": "edec754447850c043b9cbd266c2d524cd01a2e30324f8ea1a48d94b35c468f18",
+    "bytes": 2210
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/dwa_avoidance.py": {
+    "sha256": "4d2345cd99366eaee22170aed7e4ce4000440ee4bafe1189e9335ca63bd2bb9a",
+    "bytes": 95377
+  },
+  "flight/swarm_sources/coordination/src/robocup_swarm/scripts/score_cal.py": {
+    "sha256": "3f593606c2ce536d462c76b24a02834bf8be33683caf68f77d2715363d923ebb",
+    "bytes": 12990
+  },
+  "flight/swarm_sources/perception/.gitignore": {
+    "sha256": "d51d54c5b8a9a6516c76cae2b6baca13315a53cb6325649e1b792ecb3b5df6b8",
+    "bytes": 262
+  },
+  "flight/swarm_sources/perception/shared_inference_client.py": {
+    "sha256": "ee3bbd4327620c96f920e1db1e0fe776ee26c90df3ca7d815d0e30b5ab4e19ef",
+    "bytes": 5719
+  },
+  "flight/swarm_sources/perception/perception_real.py": {
+    "sha256": "62c301c5e113e6e2cbd896df0bef3cc4f3a36b48670e89ac070bf0c743bb7bd1",
+    "bytes": 98983
+  },
+  "flight/swarm_sources/perception/recent_motion.py": {
+    "sha256": "cf6375665ef04e877e6439f4681fdc049fd2bcc9e7bb72c9298cc74a38e3efe5",
+    "bytes": 1500
+  },
+  "flight/swarm_sources/perception/jersey_color.py": {
+    "sha256": "3da8400c129d79cbde38408a148fc5ff5bbcd3b2d74494b90b75da24e4d3fe9b",
+    "bytes": 1779
+  },
+  "flight/swarm_sources/perception/requirements.txt": {
+    "sha256": "0c62c612281122d827f665c8d6f664278e1d9fd95dce297deff8c664bf0a3c2b",
+    "bytes": 244
+  },
+  "flight/swarm_sources/perception/stationary_person.py": {
+    "sha256": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330",
+    "bytes": 368
+  },
+  "flight/swarm_sources/perception/shared_inference_service.py": {
+    "sha256": "25ea9aab4b605453a08dd9c605abde650464645c3033db893fc3a70be1e77cfa",
+    "bytes": 10220
+  },
+  "flight/swarm_sources/perception/.gitattributes": {
+    "sha256": "e2430fe425e0b805a832523c07dada8b6edcbed939e5b4492a52c524535d6b9a",
+    "bytes": 94
+  },
+  "flight/swarm_sources/perception/camera_task.py": {
+    "sha256": "4a263742da1778115d98dec2dd64dcf1277e8f1a0e895859e1cca6745eef7efc",
+    "bytes": 896
+  },
+  "flight/swarm_sources/perception/camera_geometry.py": {
+    "sha256": "319e32aa93e4bd40aef258775d03c2cd58e3812dd32a6078f23f138530f8e0cc",
+    "bytes": 2310
+  },
+  "flight/swarm_sources/perception/person_verifier.py": {
+    "sha256": "a686004776baa9ff020816848ce347e9cc7566ca013ea5bd5da131b67de3cac8",
+    "bytes": 2478
+  },
+  "flight/swarm_sources/perception/README.md": {
+    "sha256": "f32265146e1a0d5f90124e965669ec0c4b9d4b4b8ce947168d3528a4938ae89b",
+    "bytes": 33519
+  },
+  "flight/swarm_sources/perception/enhanced_tracker.py": {
+    "sha256": "d4eb217325c6496145b575ead792668f427dea4ea3e93a583a09cda0e3bbb6a6",
+    "bytes": 17504
+  },
+  "flight/swarm_sources/perception/fresh_person.py": {
+    "sha256": "5b839c0120d7ae36acaea9fda91a6280b3dddf56fada69d0f84a53cd78dffffd",
+    "bytes": 763
+  },
+  "flight/swarm_sources/perception/patch/add_stereo_camera.py": {
+    "sha256": "a163d25497e25d389ad824dda212689886c54240f166d58a50e878624110cd07",
+    "bytes": 10556
+  },
+  "flight/swarm_sources/perception/patch/README.md": {
+    "sha256": "18121435003938deabf6fb9d94278a90ac98a9fc1a912a72407ceef786a33c04",
+    "bytes": 3935
+  },
+  "flight/swarm_sources/perception/scripts/proc_util.sh": {
+    "sha256": "986e42f61e018005e53060472c0fcd88236c5876a64b08ac1f7b786983cdde8a",
+    "bytes": 2245
+  },
+  "flight/swarm_sources/perception/scripts/check_target_report_schema.py": {
+    "sha256": "836f948b5d617a8a44ebaba7e96bcea17260a78edc86ec6e826bc920b2f4bf19",
+    "bytes": 7646
+  },
+  "flight/swarm_sources/perception/scripts/snapshot_cam.py": {
+    "sha256": "4d36648c90b46a6c0818f3c0220c1b0f6ac30186509882e968da5a5c98bbd4e4",
+    "bytes": 1099
+  },
+  "flight/swarm_sources/perception/scripts/guide_patrol.py": {
+    "sha256": "d0cc20d63fb2d86740f0baf5ec08ad8a5639773ccd32888912a4894112dc63b4",
+    "bytes": 2831
+  },
+  "flight/swarm_sources/perception/scripts/run_actors.sh": {
+    "sha256": "4c20fd83e9598de64f850ae7cc17f544096d7561c759326539793c289b534fbc",
+    "bytes": 1775
+  },
+  "flight/swarm_sources/perception/scripts/analyze_snap.py": {
+    "sha256": "5ae315e7d0ac7066cb63513295c737413db1be76113b80ea7bcc7d1866da8059",
+    "bytes": 7829
+  },
+  "flight/swarm_sources/perception/scripts/guide_actor.py": {
+    "sha256": "bb7cf785585688448cfd705220574c97d59716de1a5a845b84f63b6e3d266ff5",
+    "bytes": 2153
+  },
+  "flight/swarm_sources/perception/scripts/rec_snap.py": {
+    "sha256": "1f3dad3ebc0fcd0f17f35ee1383fc26716b232f63287994121dcbdadb6c69ab9",
+    "bytes": 3737
+  },
+  "flight/swarm_sources/perception/scripts/verify_official_assets.py": {
+    "sha256": "dff32f08a47d6ad7b82459fe6965701055c501fd4be81bd488e923c981ccff09",
+    "bytes": 14935
+  },
+  "flight/swarm_sources/perception/scripts/control_actor_m2.py": {
+    "sha256": "921e7180f2195893405159a896db982ca8a2da722d3a18125a74566594172b48",
+    "bytes": 22062
+  },
+  "flight/swarm_sources/perception/scripts/replay_target_report.py": {
+    "sha256": "7212d60dd8140b4eab12867447769b9d155fa9619e0f702bfd209976111092e9",
+    "bytes": 6127
+  },
+  "flight/swarm_sources/perception/scripts/ground_truth_bridge.py": {
+    "sha256": "9f7c8c613434f6050584758d72670854b2c21434b023cee0b6eeaeb41b28c863",
+    "bytes": 4962
+  },
+  "flight/swarm_sources/perception/scripts/probe_actor_speed.py": {
+    "sha256": "78b5e9cfd33eaf32937b9ae64ff9ba5e1dbbcd516f6e81526547caddc79948bb",
+    "bytes": 2160
+  },
+  "flight/swarm_sources/perception/scripts/fly_takeoff.py": {
+    "sha256": "6ca28d5972b438291be772da20c384df51888f1fee9eaad15f3b3bb097b6ea18",
+    "bytes": 7755
+  },
+  "flight/swarm_sources/perception/scripts/env_robocup.sh": {
+    "sha256": "431fba1742dbfb20ee5fdfd5e023fecc49fa093bbf0e9846f854acf442f902cd",
+    "bytes": 3407
+  },
+  "flight/swarm_sources/perception/scripts/judge_official_15s.py": {
+    "sha256": "9b874e149aa16ec72e9b62c7d2dc1f93b3e49921f2d09aceb88f6c4134ed3bba",
+    "bytes": 8882
+  },
+  "flight/swarm_sources/perception/scripts/restart_stack_fly.sh": {
+    "sha256": "2349ff9c696b77b526f3cca56d9309adad808200fe66d0d18d9af295bc129aec",
+    "bytes": 6848
+  },
+  "flight/swarm_sources/perception/launch/uav_only.launch": {
+    "sha256": "5ac9f1150130dfa617a70bd1932b8c548840b1f839462b0504b61281ed4848c4",
+    "bytes": 1449
+  },
+  "flight/swarm_sources/perception/launch/world_only.launch": {
+    "sha256": "d537d6a544fee994011d33c1f199c720a2569f620e630e7a35bcf27660bfef1b",
+    "bytes": 773
+  },
+  "flight/swarm_sources/perception/launch/world_min.launch": {
+    "sha256": "ab34d77b59c036a24f01a70226be745f55d61096238bd820fa4e7baed0daa9e3",
+    "bytes": 1728
+  },
+  "flight/swarm_sources/perception/launch/robocup_1uav.launch": {
+    "sha256": "e0fa180dc286484a6f00a370ad748620bf7e5f585b9759f498e89d3d39134482",
+    "bytes": 2313
+  },
+  "flight/swarm_sources/perception/worlds/actor_min.world": {
+    "sha256": "dae08641ca9c733b7ff1383400cb4fc7aee512a6cb9aba963cd96ab0c0fa5938",
+    "bytes": 16567
+  },
+  "flight/swarm_sources/perception/tests/test_shared_inference.py": {
+    "sha256": "22dd1a03337d87d305707f918329691e011c85681df0e597db2729ded6028e48",
+    "bytes": 9144
+  },
+  "flight/swarm_sources/perception/tools/calib_selfmask.py": {
+    "sha256": "a7bd303b90c81b51681a75720dc39f9d6d59dd0657cb923be7dc64c9f1b99f94",
+    "bytes": 12839
+  },
+  "flight/swarm_sources/perception/tools/snap_frame.py": {
+    "sha256": "b9b50e22a4a912e32d84587184032a7c23d4d9f847b96df136473a047093dfbf",
+    "bytes": 1328
+  },
+  "flight/swarm_sources/perception/tools/test_red_slots.py": {
+    "sha256": "8add31f797eb4ea97f405e7ad28133d72eee4918ef9ca54134d286b4229f76ab",
+    "bytes": 6576
+  },
+  "flight/swarm_sources/perception/tools/diag_geom.py": {
+    "sha256": "6594f8f239901c17b37ccab000beaecbc6cde55fd36c5f0b500c20e31c801208",
+    "bytes": 3670
+  },
+  "flight/swarm_sources/perception/tools/m3_verify.py": {
+    "sha256": "4d94301178fcc3acbdfd0fa149dbe617d87d86eb742dfae163a9a0edb58cf2b6",
+    "bytes": 14391
+  },
+  "flight/swarm_sources/perception/tools/probe_target_report.py": {
+    "sha256": "ce32ff969b253ae9b59bbd8ab6d9a80e9005e79e7c769cf836f1f7c5303e83ac",
+    "bytes": 6868
+  },
+  "flight/swarm_sources/perception/tools/hover_teleport.py": {
+    "sha256": "fb571799cba9cf4c1ef23ff6fae9d6058f643df099a32c74b3fc3b26c28f2ea4",
+    "bytes": 17749
+  },
+  "flight/swarm_sources/perception/tools/val_cm.py": {
+    "sha256": "a2bbc4d041e6e2d251ecaef19da649f6ad7e371a8abefc7fc998259955f91421",
+    "bytes": 1957
+  },
+  "flight/swarm_sources/perception/tools/test_assoc_gate.py": {
+    "sha256": "a421a99984c26a87c6e9a9cfd9d34f76bc856f3fe3f416774a42b53d246bddc4",
+    "bytes": 3481
+  },
+  "flight/swarm_sources/perception/tools/m5_dump_analyze.py": {
+    "sha256": "259bb36f55be570b2f096e6c5b800792461413ad42dbf9a3e20e09a46e9f6c1f",
+    "bytes": 4468
+  },
+  "flight/swarm_sources/perception/tools/fly_to_actor.py": {
+    "sha256": "9eb0bfe0d9b61ff856c8ba3210d2ae7019c3a7451eb95db16b466b02004b248b",
+    "bytes": 19745
+  },
+  "flight/swarm_sources/perception/tools/audit_brown_red.py": {
+    "sha256": "f67000198311d17c52e490ed8b2f578052944ee720c2a6d680a6dfff91a5e54d",
+    "bytes": 3977
+  },
+  "flight/swarm_sources/perception/tools/README.md": {
+    "sha256": "b04ce21893ed2931064322535799500bf026cdaa93097ec36c94d0d6cfcbf914",
+    "bytes": 2242
+  },
+  "flight/swarm_sources/perception/tools/diag_identity.py": {
+    "sha256": "02c394e5d15421e8ec3b0e9b2823637914823361e8b863d11d3596ad20b4eeee",
+    "bytes": 3158
+  },
+  "flight/swarm_sources/perception/tools/ht_watch.py": {
+    "sha256": "c179e3b3a82b6b992dcf6bb3f48417a01a5122efd106d20b0bff6f0a26d05413",
+    "bytes": 3900
+  },
+  "flight/swarm_sources/perception/tools/dual_check.py": {
+    "sha256": "531fe13d72939f1f50d75b7b632041ec1953a6d4631481a85998140e4eed7513",
+    "bytes": 12433
+  },
+  "flight/swarm_sources/perception/docs/\u90e8\u7f72\u68c0\u67e5\u6e05\u5355.md": {
+    "sha256": "b2cdb2872204137be2f38b0b60cd6591a85a2b976520755ed83842afca7fd221",
+    "bytes": 10924
+  },
+  "scene/house.world": {
+    "sha256": "be835674a6292d5e3d71356f8b975cf4c0ea6ebfd61db87f0ba9d49f45717294",
+    "bytes": 930728
+  },
+  "scene/base1.world": {
+    "sha256": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c",
+    "bytes": 620482
+  },
+  "scene/generator.log": {
+    "sha256": "4eb17c488390f39a97ae2eb3bd69d52c78cd7b5440023563e12d2154a7ed5399",
+    "bytes": 396
+  },
+  "scene/scene_manifest.json": {
+    "sha256": "8b820f5014ec783fb6d6122edef0c4f8b3ff791eccb6e25764ba5583762c0c43",
+    "bytes": 3239
+  },
+  "scene/control_actor.py": {
+    "sha256": "379e3bd7c87e1bbc4781deed4d032fb6a55127ec3457b81d2ed2154595c32b90",
+    "bytes": 31909
+  },
+  "scene/rover_static.world": {
+    "sha256": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81",
+    "bytes": 85801
+  },
+  "scene/generate_isolated.py": {
+    "sha256": "e5aea4d5789ca406f6162b3c9b7a8881396843495c996755b04e83f2ef5350e9",
+    "bytes": 18711
+  },
+  "scene/base3.world": {
+    "sha256": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f",
+    "bytes": 931223
+  },
+  "scene/ObstacleAvoid.py": {
+    "sha256": "ddd45cda69ddbe3b7f90eae978752c60b9846967a17af3bc8a17d18076555e01",
+    "bytes": 8052
+  },
+  "scene/robocup.world": {
+    "sha256": "83879ec8b05824237849b19aaebfd06f70b67ab7bc5b69ef2006c69d1916837f",
+    "bytes": 2648236
+  },
+  "scene/obstacle.txt": {
+    "sha256": "b7942495ae187a88bc291470cdde6255b38ab593be62835b19eceab7c0831da9",
+    "bytes": 42423
+  },
+  "scene/black_box.txt": {
+    "sha256": "9e4aa14165d117a12c3181a15593ff591a49b9b8bd0f8f9c6c812bb0fa678caf",
+    "bytes": 1500
+  },
+  "scene/map_generator.py": {
+    "sha256": "6cc5338f6e37dd6e5dabde2f0cb31424266f8cc650d3c13336268db72036f27b",
+    "bytes": 19083
+  },
+  "scene/white_background.png": {
+    "sha256": "f2b15c6f0e6464a95b93743a1f998e67cd877baa63d0e445ee8e8e78f6853819",
+    "bytes": 507
+  },
+  "scene/rover.world": {
+    "sha256": "471db98d3e37145d7e0fb1b20c1ce8030216b4e23ff8c0ad7f88dabf9d45651c",
+    "bytes": 1715705
+  },
+  "scene/base2.world": {
+    "sha256": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948",
+    "bytes": 931166
+  },
+  "scene/score_cal.py": {
+    "sha256": "255d3895ea47cc337ab03b0e965e71213791244257044a4c32b04759fbc1d0e1",
+    "bytes": 13388
+  }
+}

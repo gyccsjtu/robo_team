@@ -96,6 +96,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         observed_body_proof_revision='v1.16_scan_carry',
         local_execution_clearance_revision='v1.24_current_scan_corridor',
         position_brake_revision='v2_xyz_after_takeoff',navigation_feedback_revision='v1',
+        navigation_retry_revision='v1.24b_fresh_progress_before_same_task',
+        green_white_confirm_revision='v1.24b_per_tracking_attempt',
         tracking_refresh_maximum_deferral_s=20.,
         maximum_speed_mps=3.,visual_fusion_revision='v2.12.1',tracker_selection_revision='v1.20_camera_takeover',
         experimental_v123_enabled=experimental,

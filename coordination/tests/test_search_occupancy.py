@@ -57,6 +57,7 @@ class SearchOccupancyTests(unittest.TestCase):
         offers=[]
         manager=SimpleNamespace(_tracking={},_backup={},_target_authority_held=lambda tid:False,_idle_uavs=lambda:[],
             _navigation_eligible=lambda uid:True,
+            _navigation_task_allowed=lambda uid,key:True,
             _tracker_rank=lambda tid,uid,d:tracker_rank(uid,d,[],0.,18.),
             _authorized_publish=offers.append,
             uav_ids=['uav_1'],status={'uav_1':SimpleNamespace(x=0.,y=0.,connected=True)},grid=grid)

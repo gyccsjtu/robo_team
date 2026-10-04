@@ -2,6 +2,32 @@
 import math
 
 
+def task_key(task):
+    return (('search',task['cell_ix'],task['cell_iy']) if task['task_type'] == 0
+            else ('target',task['target_id']))
+
+
+class RejectedTasks:
+    """Do not return a failed task to the same stationary aircraft."""
+    def __init__(self):
+        self.positions = {}
+
+    def reject(self, uid, key, position):
+        self.positions[uid,tuple(key)] = tuple(position)
+
+    def allowed(self, uid, key, samples, now):
+        identity = uid,tuple(key)
+        if identity not in self.positions:
+            return True
+        sample = samples.get(uid)
+        # Time alone does not prove recovery; actual fresh motion does.
+        if (sample and 0 <= now-sample['sample_s'] <= .5
+                and math.dist(sample['position_xy'],self.positions[identity]) > .5):
+            del self.positions[identity]
+            return True
+        return False
+
+
 def accept(message, run_id, fleet, active, motion, now, previous_seq):
     try:
         uid = message['uav_id']

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "formal_competition_pass": false,
+  "raw_result_unchanged": true,
+  "observed_sim_s": 299.9359999999997,
+  "trajectory_start_s": 2438.78,
+  "trajectory_end_s": 2738.716,
+  "actual_judge_deleted_actor_ids": [
+    0,
+    4,
+    5
+  ],
+  "judge_deleted_count": 3,
+  "last_left_actors": [
+    1,
+    2,
+    3
+  ],
+  "last_judge_time_usage_s": 250.34400000000005,
+  "terminal": null,
+  "raw_status": "CITY_SIX_AIRCRAFT_MOVING",
+  "raw_error": null,
+  "non_ground_contact_rows": 0,
+  "static_contact_rows": 0,
+  "actor_contact_rows": 0,
+  "fleet_contact_rows": 0,
+  "first_static_contact": null,
+  "contact_observer_last": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 75321,
+    "first_sample_s": 2437.576,
+    "last_sample_s": 2738.856,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 221862,
+    "body_pairs": 48983
+  },
+  "contact_observer_covers_trajectory": true,
+  "maximum_actual_height_m": {
+    "uav_1": 2.691151926253439,
+    "uav_2": 2.951926521409077,
+    "uav_3": 2.9267941569952702,
+    "uav_4": 3.5396279390436876,
+    "uav_5": 3.1054713343573774,
+    "uav_6": 2.7363322058185373
+  },
+  "sampled_minimum_3d_separation_m": 2.977172972996065,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 38.05269553903729,
+    "uav_2": 96.04818401795383,
+    "uav_3": 65.40124166110002,
+    "uav_4": 89.26693489427255,
+    "uav_5": 70.98218880889488,
+    "uav_6": 46.07100346219556
+  },
+  "command_mask_counts": {
+    "1500": 1793,
+    "1528": 9927,
+    "1479": 24153
+  },
+  "xyz_hold_z_recorded": {
+    "uav_3": 1450,
+    "uav_4": 1714,
+    "uav_5": 1905,
+    "uav_6": 1538,
+    "uav_1": 1809,
+    "uav_2": 1511
+  },
+  "green_white_events": {
+    "green": {
+      "yolo_detection": 206,
+      "track_reject": 1207,
+      "track_publish": 413
+    }
+  },
+  "green_white_reject_reasons": {
+    "green": {
+      "verdict_hits": 552,
+      "verdict_range": 270,
+      "verdict_self": 74,
+      "verdict_static": 285,
+      "verdict_height": 26
+    }
+  },
+  "executed_source_count": 128,
+  "executed_source_sha_mismatches": [],
+  "first_round_z_evidence": null,
+  "competition_goal_met": false
+}

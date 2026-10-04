@@ -1,0 +1,58 @@
+CITY_JUDGE_CLOCK_READY 1931.084000
+
+(Multi-UAV search simulation competition judgment system:2810): dbind-WARNING **: 18:06:47.358: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+find actor_0
+find actor_5
+actor_0 is OK
+Time usage: 40.33999999999992
+score: 194.9
+find actor_5
+find actor_3
+find actor_5
+actor_5 is OK
+Time usage: 69.23199999999997
+score: 344.9
+find actor_1
+actor_1 is OK
+Time usage: 137.4319999999998
+score: 494.9
+find actor_4
+find actor_3
+find actor_3
+find actor_3
+find actor_3
+find actor_3
+actor_3 tracking success
+find actor_4
+actor_4 tracking success
+find actor_2
+find actor_2
+actor_2 is OK
+Time usage: 329.93600000000015
+score: 854.9
+find actor_3
+find actor_3
+find actor_3
+find actor_3
+find actor_4
+find actor_4
+find actor_4
+find actor_4
+Traceback (most recent call last):
+  File "/root/robocup_runs/fast_competition_v124_20261004/round_3_seed_8159/flight/execution_sources/start_city_judge.py", line 39, in <module>
+    main()
+  File "/root/robocup_runs/fast_competition_v124_20261004/round_3_seed_8159/flight/execution_sources/start_city_judge.py", line 30, in main
+    state=runpy.run_path(str(script),run_name='__main__')
+  File "/usr/lib/python3.8/runpy.py", line 265, in run_path
+    return _run_module_code(code, init_globals, run_name,
+  File "/usr/lib/python3.8/runpy.py", line 97, in _run_module_code
+    _run_code(code, mod_globals, init_globals,
+  File "/usr/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/root/robocup_runs/fast_competition_v124_20261004/round_3_seed_8159/scene/score_cal.py", line 391, in <module>
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request

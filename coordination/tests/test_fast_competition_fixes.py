@@ -6,7 +6,7 @@ sys.path.insert(0,str(Path(__file__).parents[1]/'src/robocup_navigation/src'))
 sys.path.insert(0,str(Path(__file__).parents[2]/'perception'))
 from online_radar_planner import OnlinePlanner
 from radar_observed_map import ObservedMap
-from navigation_feedback import accept,refresh_due
+from navigation_feedback import accept,refresh_due,RejectedTasks
 from fresh_person import FreshPerson
 
 
@@ -78,3 +78,69 @@ class FastFixTests(unittest.TestCase):
         self.assertTrue(refresh_due(active,40.))
         self.assertFalse(refresh_due(active,59.99,True))
         self.assertTrue(refresh_due(active,60.,True))
+
+    def test_failed_task_goes_to_other_aircraft_until_fresh_progress(self):
+        rejected=RejectedTasks(); key=('search',2,10)
+        rejected.reject('uav_5',key,(-44.,13.))
+        samples={'uav_5':dict(sample_s=10.,position_xy=[-44.,13.])}
+        self.assertFalse(rejected.allowed('uav_5',key,samples,10.))
+        self.assertFalse(rejected.allowed('uav_5',key,samples,40.))
+        self.assertTrue(rejected.allowed('uav_6',key,samples,10.))
+        self.assertTrue(rejected.allowed('uav_5',('search',3,10),samples,10.))
+        samples['uav_5']=dict(sample_s=10.,position_xy=[-43.,13.])
+        self.assertFalse(rejected.allowed('uav_5',key,samples,11.))
+        self.assertTrue(rejected.allowed('uav_5',key,samples,10.1))
+
+    def test_actual_auction_filter_rejects_failed_aircraft_for_same_cell(self):
+        import ast
+        from types import SimpleNamespace
+        path=Path(__file__).parents[1]/'src/robocup_swarm/scripts/swarm_manager.py'
+        tree=ast.parse(path.read_text())
+        cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='SwarmManager')
+        allowed=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='_navigation_task_allowed')
+        allocate=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='_allocate')
+        candidate=next(n for n in ast.walk(allocate) if isinstance(n,ast.FunctionDef) and n.name=='candidate_filter')
+        rejected=RejectedTasks();rejected.reject('uav_5',('search',2,10),(-44.,13.))
+        manager=SimpleNamespace(_navigation_rejections=rejected,
+            _route_motion=SimpleNamespace(samples={'uav_5':dict(sample_s=10.,position_xy=[-44.,13.])}))
+        scope=dict(self=manager,executing={},positions={'uav_5':(-44.,13.),'uav_6':(-30.,13.)},
+            waypoint=lambda key:(-32.,13.),screen_leg=lambda *a,**k:True,
+            rospy=SimpleNamespace(Time=SimpleNamespace(now=lambda:SimpleNamespace(to_sec=lambda:10.))),
+            os=__import__('os'))
+        exec(compile(ast.Module(body=[allowed,candidate],type_ignores=[]),str(path),'exec'),scope)
+        manager._navigation_task_allowed=lambda uid,key:scope['_navigation_task_allowed'](manager,uid,key)
+        self.assertFalse(scope['candidate_filter']('uav_5',(2,10),{}))
+        self.assertTrue(scope['candidate_filter']('uav_6',(2,10),{}))
+        self.assertTrue(scope['candidate_filter']('uav_5',(3,10),{}))
+
+    def test_green_white_retry_counts_only_resets_in_current_attempt(self):
+        import ast
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        path=Path(__file__).parents[1]/'src/robocup_swarm/scripts/swarm_agent.py'
+        tree=ast.parse(path.read_text())
+        cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='SwarmAgent')
+        callback=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='_find_cb')
+        control=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='_control')
+        condition=ast.dump(ast.parse("target_id in ('t0','t3') and self._orbit_target != target_id",mode='eval').body)
+        entry=next(n for n in ast.walk(control) if isinstance(n,ast.If)
+                   and ast.dump(n.test)==condition)
+        clock=SimpleNamespace(Time=SimpleNamespace(now=lambda:SimpleNamespace(to_sec=lambda:20.)),logwarn=Mock())
+        for idx in range(6):
+            agent=SimpleNamespace(_reset_n={idx:7},_find_t={idx:10.},_reset_t={},
+                _orbit_target=None,uav_id='uav_1',_giveup_until={},_abort_orbit=Mock())
+            scope=dict(self=agent,target_id='t%d'%idx,rospy=clock,
+                BACKOFF_ENABLE=True,CONFIRM_RESET_MAX=3,BACKOFF_COOLDOWN=60.)
+            exec(compile(ast.Module(body=[entry,callback],type_ignores=[]),str(path),'exec'),scope)
+            if idx not in (0,3):
+                self.assertEqual(agent._reset_n[idx],7)
+                continue
+            agent._orbit_target='t%d'%idx
+            for timestamp in (11.,12.):
+                scope['_find_cb'](agent,SimpleNamespace(data=timestamp),idx)
+                # Subsequent control ticks must retain this attempt's failures.
+                exec(compile(ast.Module(body=[entry],type_ignores=[]),str(path),'exec'),scope)
+                agent._abort_orbit.assert_not_called()
+            scope['_find_cb'](agent,SimpleNamespace(data=13.),idx)
+            agent._abort_orbit.assert_called_once()
+            self.assertEqual(agent._giveup_until['t%d'%idx],80.)
