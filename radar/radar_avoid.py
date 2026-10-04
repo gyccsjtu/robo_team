@@ -103,6 +103,33 @@ SAFE_GAP = 0.35             # 附加安全间隙（控制超调 + 定位误差�
 # 有效净空：中心到障碍表面必须大于此值
 CLEARANCE = BODY_RADIUS + SAFE_GAP
 
+# ---- 扫描面高度 → 附加余量（2026-10-04 十五次修正：低空保守化）----
+# 🔴🔴 背景：队友 10-04 在 2.45m 巡航撞房屋一次。2D 单平面雷达的"可见
+# 层" = 机体高度 + mount_z（2.45m ⇒ 扫描面 ≈2.53m），而机体（含起落架）
+# 实占约 2.10–2.65m ⇒ 房屋附属结构（院墙/台阶/门廊/雨棚/檐口下沿）在
+# 2.10–2.53m 高度带对雷达**完全隐形**，却仍在机体包络内。此前 CLEARANCE
+# 是常数、代码对高度零感知，且全部历史验证都在扫描面 5.58m 层做。
+# ⇒ 低空时"看不见的东西"变多，只能让水平余量随扫描面降低而加大，
+#    把航迹推得离房屋更远。
+# 兼容性（必须遵守）：clearance_bonus(None) == 0，且 scan_z >= SCAN_Z_REF
+# 时恒为 0 ⇒ 不传 scan_z / 在历史高度层调用，行为与历史版本逐字节一致。
+SCAN_Z_REF = 4.0            # 扫描面 ≥ 此高度：历史验证层，补偿恒为 0
+SCAN_Z_FLOOR = 2.0          # 扫描面 ≤ 此高度：补偿取满
+ALT_BONUS_MAX = 0.4         # 低空最大附加水平余量 m（总余量 0.8→1.2）
+
+def clearance_bonus(scan_z):
+    """扫描面高度（世界系 m）→ 附加水平安全余量（纯函数）。
+
+    scan_z >= SCAN_Z_REF → 0.0（零回归保证）；
+    SCAN_Z_FLOOR ~ SCAN_Z_REF 之间线性插值；
+    scan_z <= SCAN_Z_FLOOR → ALT_BONUS_MAX。
+    """
+    if scan_z is None or scan_z >= SCAN_Z_REF:
+        return 0.0
+    if scan_z <= SCAN_Z_FLOOR:
+        return ALT_BONUS_MAX
+    return ALT_BONUS_MAX * (SCAN_Z_REF - scan_z) / (SCAN_Z_REF - SCAN_Z_FLOOR)
+
 # 势场
 INFLUENCE = 9.0             # 排斥作用距离 m。取 9m 的依据：飞行 3m/s 时，
                             # 从 9m 外开始减速有 ~3s 余量；且 9m < 雷达量程 20m，
@@ -503,7 +530,8 @@ def lateral_mins_fullres(msg, yaw, pos_enu, mount, ufx, ufy,
 
 
 def lateral_guard_shift(sub_x, sub_y, lat_x, lat_y,
-                        left_min, right_min, dilute, amt_cap):
+                        left_min, right_min, dilute, amt_cap,
+                        clearance=None):
     """侧向守门动作（2026-10-03 从 subgoal_from_scan 内联逻辑抽出）。
 
     纯函数：输入当前子目标与两侧横向净空，返回修正后的 (sub_x, sub_y)。
@@ -512,8 +540,12 @@ def lateral_guard_shift(sub_x, sub_y, lat_x, lat_y,
       · 只有单侧 ⇒ 推开到 want_lat（上限 INFLUENCE）；
       · 两侧皆无 ⇒ 原样返回。
     dilute = 前瞻稀释补偿系数；amt_cap = 单周期修正幅度上限。
+    clearance: 可选的有效净空覆盖（默认 CLEARANCE）。2026-10-04 新增：
+      低空保守化时由调用方传入 CLEARANCE+clearance_bonus(scan_z)；
+      None ⇒ 与历史行为逐字节一致。
     """
-    want_lat = CLEARANCE + SAFE_GAP          # 理想：两侧各留这么多
+    base_clr = CLEARANCE if clearance is None else clearance
+    want_lat = base_clr + SAFE_GAP      # 理想：两侧各留这么多
     if left_min is not None and right_min is not None:
         # 通道净宽 = 左右间隙之和。理想余量装不下则退到净宽一半、居中。
         total = left_min + right_min
@@ -1192,7 +1224,8 @@ def clamp_shift(shift, cap=MAX_SHIFT):
 
 
 def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
-                      stride=1, max_range=None, commit=None, attitude=None):
+                      stride=1, max_range=None, commit=None, attitude=None,
+                      scan_z=None):
     """从一帧雷达 + 当前位姿，算出"下一小段该飞向的点"。
 
     🔴 本函数是避障的**唯一真相来源**：实飞（RadarPilot.step_toward）与
@@ -1202,6 +1235,12 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
     给了就在入口处过滤一次，整帧（障碍点 / 前方预警 / 通道搜索）统一用
     过滤后的数据 —— 否则地面假回波会把下坡半圈判"堵"、通道中心被系统性
     推偏，正是"绕大圈"的机制之一。None（仿真默认）不启用，行为不变。
+
+    🔴🔴 2026-10-04 新增 scan_z 参数（扫描面世界高度，低空保守化）：
+    传入了就在 CLEARANCE 上叠加 clearance_bonus(scan_z)，
+    影响 need_swerve 判据 / look 前推 / 势场权重分母 / find_free_gap 的
+    空/堵阈值 / 侧向守门的 want_lat。None（离线仿真与历史调用方默认）
+    ⇒ bonus=0 ⇒ 与历史版本逐字节一致，全部回归零影响。
 
     决策（09-27 定稿，经四轮闭环仿真迭代）
     -------------------------------------
@@ -1237,6 +1276,10 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
         fr, _ = filter_ground_beams(msg, attitude[0], attitude[1],
                                     attitude[2])
         msg = _ScanView(msg, fr)
+
+    # ---- 低空保守化（2026-10-04）：扫描面越低，附加水平余量越大 ----
+    # scan_z=None（历史调用方/离线仿真默认）⇒ clr == CLEARANCE，逐字节不变。
+    clr = CLEARANCE + clearance_bonus(scan_z)
 
     cur = pos_enu
     dx = goal_enu[0] - cur[0]
@@ -1301,7 +1344,7 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
     # 指向墙 ⇒ 飞机撞墙（两级集成场景 4 实测净空 -7.2m）。
     # 判据：只有"朝目标方向的窄带里，障碍近到必须避让"时才偏。
     need_swerve = (front_hit is not None and
-                   front_hit < BLOCK_GAP + CLEARANCE)
+                   front_hit < BLOCK_GAP + clr)
 
     # 🔴🔴 绕行侧状态机只在"真需要绕"时更新（09-27 四次修正）
     # --------------------------------------------------------
@@ -1367,7 +1410,8 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
             math.cos(rel_goal + side * GAP_WANT_BIAS))
 
     gap_ang, gap_r, gap_w = find_free_gap(msg, yaw, side=side, want_ang=want,
-                                          stride=GAP_STRIDE, heading=heading)
+                                          stride=GAP_STRIDE, heading=heading,
+                                          clearance=clr + SAFE_GAP)
     if gap_ang is not None:
         # 🔴 偏角上限：不允许雷达把航向甩得离"朝目标"太远
         # （见 GAP_DEV_MAX 的说明：全局 A* 已给安全航点，雷达只做微调）
@@ -1422,7 +1466,7 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
 
         a_world = yaw + gap_ang
         # 🔴 关键：前推距离 = 该通道的可通深度（不是固定 3m）
-        look = gap_r - CLEARANCE
+        look = gap_r - clr
         if look > GAP_MAX_LOOKAHEAD:
             look = GAP_MAX_LOOKAHEAD
         if look < GAP_LOOKAHEAD:
@@ -1487,7 +1531,7 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
                     #    qd < CLEARANCE 时 >1，被下面的 amt 上限兜住，
                     #    不会炸。
                     wgt = (INFLUENCE - qd) / max(
-                        1e-6, INFLUENCE - CLEARANCE)
+                        1e-6, INFLUENCE - clr)
                     if wgt > 1.0:
                         wgt = 1.0
                     push_x += -qx / qd * wgt          # ① 前向：从障碍指向飞机
@@ -1560,7 +1604,8 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
                 # 目标侧向余量：能居中就居中；通道太窄时退到"安全底线"
                 sub_x, sub_y = lateral_guard_shift(
                     sub_x, sub_y, lat_x, lat_y,
-                    left_min, right_min, _dilute, _amt_cap)
+                    left_min, right_min, _dilute, _amt_cap,
+                    clearance=clr)
         else:
             # 🔴🔴 2026-10-03 十三次修正（掠射长墙守门）：obs 为空 ≠ 安全
             # --------------------------------------------------------
@@ -1568,6 +1613,16 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
             # 文档与本函数上方"实测②"注释）—— 恰恰是最需要侧向守门的
             # 时刻，旧代码却在这里整段跳过 ⇒ 贴墙 0.466m 巡航。
             # ⇒ obs 为空时改用全分辨率束独立驱动守门。
+            # 🔴🔴 2026-10-04 崩溃修复（VM 实飞实测 UnboundLocalError）
+            #   ufx/ufy 只在上面 `if obs:` 分支内赋值；本 else 分支却引用它，
+            #   一旦 obs 为空就抛 UnboundLocalError，把整机飞控脚本直接打死。
+            #   原意是「obs 为空时仍用全分辨率束驱动守门」，这里按同一语义
+            #   就地算行进单位方向；子目标与当前点重合(fn<=1e-6)则置 None，
+            #   等价于跳过守门（此时无行进方向，横向无定义）。
+            _fx = sub_x - cur[0]
+            _fy = sub_y - cur[1]
+            _fn = math.hypot(_fx, _fy)
+            ufx, ufy = ((_fx / _fn, _fy / _fn) if _fn > 1e-6 else (None, None))
             if ufx is not None:
                 lat_x, lat_y = -ufy, ufx
                 l_min, r_min = lateral_mins_fullres(
@@ -1578,7 +1633,8 @@ def subgoal_from_scan(msg, yaw, pos_enu, goal_enu, mount,
                     amt_cap = SAFE_GAP * 2.0   # 同 if obs 分支的 _amt_cap
                     sub_x, sub_y = lateral_guard_shift(
                         sub_x, sub_y, lat_x, lat_y,
-                        l_min, r_min, _dilute, amt_cap)
+                        l_min, r_min, _dilute, amt_cap,
+                        clearance=clr)
 
         shift = (sub_x - cur[0]) * ax + (sub_y - cur[1]) * ay
 
@@ -1632,7 +1688,8 @@ class RadarPilot(object):
     """
 
     def __init__(self, uav, dry_run=False, ns=None, scan_topic=None,
-                 pose_source='gazebo', nav_hold=30.0):
+                 pose_source='gazebo', nav_hold=30.0, alt_tol=0.15,
+                 alt_watch_frames=15):
         """uav: 机型/模型名（用于推导默认话题）。
 
         🔴🔴 13 次修正（VM 实机联调抓出）：mavros 命名空间与雷达话题
@@ -1675,8 +1732,17 @@ class RadarPilot(object):
         self.uav = uav
         self.dry = dry_run
         self.pose_source = pose_source
-        # 起飞到巡航高度后的原地悬停秒数（熬过 PX4 起飞后 30s 的 nav_test
-        # 危险窗口，见 takeoff ③）。0 = 不悬停（旧行为）。
+        # 高度看门狗（2026-10-04 十五次修正）：|实测z − 期望alt| 超 tol
+        # 连续 alt_watch_frames 帧 ⇒ 暂停水平推进先纠高度。tol<=0 关闭。
+        self.alt_tol = float(alt_tol)
+        self.alt_watch_frames = int(alt_watch_frames)
+        self._alt_dev_frames = 0
+        self._hb_last = (0.0, -1)      # 心跳活性检测：(时间, _sp_sent)
+        # 起飞悬停预算：**自离地起累计**的真实秒数（熬过 PX4 起飞后 30s 的
+        # nav_test 危险窗口，见 takeoff ④）。爬升段已消耗的真实时间会被自动
+        # 扣除，故 RTF≪1 的仿真机不会白等一倍。0 = 不悬停（旧行为）。
+        # ⚠ 2026-10-04（十六次修正）改了语义：旧版是"到达巡航高度后再等"，
+        #   新版是"自离地起累计"，32s 对应旧的"到达高度后 30s"（爬升≈2s）。
         self.nav_hold = max(0.0, float(nav_hold))
         # 🔴🔴 15 次修正：`--ns` 的语义曾极易踩错。
         #   雷达话题由 Gazebo **模型名**决定（/typhoon_h480_0/scan），
@@ -1764,6 +1830,7 @@ class RadarPilot(object):
         self.sp = None
         self._sp_sent = 0
         self._alive = True
+        self._stopped = False          # stop() 后拒绝重启心跳（2026-10-04）
         self._th = threading.Thread(target=self._sp_loop, name="sp_heartbeat")
         self._th.daemon = True
         self._th.start()
@@ -1942,6 +2009,38 @@ class RadarPilot(object):
                       "已发 %d 帧）", self._alive, rospy.is_shutdown(),
                       self._sp_sent)
 
+    def restart_heartbeat(self):
+        """**自助恢复**心跳线程（2026-10-04 比赛取向）。
+
+        心跳是全脚本**唯一**的 setpoint 发布点：它死了，MAVROS 就再也发不出
+        OFFBOARD_CONTROL_MODE，PX4 必拒 OFFBOARD。比赛现场无人干预 ⇒ 与
+        "拦启动/放弃"相反，这里**必须能自己爬起来**：检测到停滞就重建线程。
+
+        幂等：先置 `_alive=False` 让旧线程退出并 join，再重建。已 stop() 或
+        进程关闭时拒绝重启（避免任务收尾后又把设定点流拉起来）。
+        """
+        if getattr(self, '_stopped', False) or rospy.is_shutdown():
+            return
+        # 最小重启间隔 3s：避免"重启→仍 0 帧→再重启"的空转（新线程首帧要
+        # 等一个 20Hz 周期才会 publish）。
+        if time.time() - getattr(self, '_hb_restart_t', 0.0) < 3.0:
+            return
+        self._hb_restart_t = time.time()
+        old = getattr(self, '_th', None)
+        self._alive = False
+        if old is not None and old.is_alive():
+            try:
+                old.join(timeout=0.5)
+            except Exception:
+                pass
+        self._alive = True
+        self._sp_sent = 0
+        self._hb_last = (time.time(), -1)
+        self._th = threading.Thread(target=self._sp_loop, name="sp_heartbeat")
+        self._th.daemon = True
+        self._th.start()
+        rospy.logwarn("[radar] 设定点心跳线程已重启（自助恢复）")
+
     def set_sp(self, x, y, z, yaw):
         """x, y, z 为 **世界坐标**；内部换算成 mavros local 再发布。
 
@@ -1995,56 +2094,99 @@ class RadarPilot(object):
             return self.world is not None and self.origin is not None
         return True
 
+    def ready_missing(self):
+        """列出当前**未就绪**的项（无限等待/告警共用，不再只用于超时日志）。"""
+        missing = []
+        if self.local is None:
+            missing.append('%s/local_position/pose' % self.ns)
+        if self.state is None:
+            missing.append('%s/state' % self.ns)
+        if self.scan is None:
+            missing.append(self.scan_topic)
+        if self.pose_source == 'gazebo':
+            if self.world is None:
+                missing.append('/gazebo/model_states 里没有模型 %r' % self.uav)
+            elif self.origin is None:
+                missing.append('实时 origin（world/local 尚未配对）')
+        if self.scan is None:
+            try:
+                n = self.sub_scan.get_num_connections()
+            except Exception:
+                n = -1
+            missing.append('%s 连接数=%s（0 = 该话题根本不存在/名字写错）'
+                           % (self.scan_topic, n))
+        return missing
+
     def wait_ready(self, timeout=60.0):
-        """等到 ready()，并把"缺哪一样"讲清楚（不是笼统超时）。"""
+        """等到 ready()（保留供诊断；主流程改用**无限等待**，见 main）。
+
+        🔴 2026-10-04（比赛取向）：主流程已不再使用本函数的"超时退出"语义。
+        比赛一旦开始无法重开，MAVROS / EKF / 雷达晚到绝不该变成弃赛理由。
+        """
         t0 = time.time()
         while not rospy.is_shutdown():
             if self.ready():
                 return True
             if time.time() - t0 > timeout:
-                missing = []
-                if self.local is None:
-                    missing.append('%s/local_position/pose' % self.ns)
-                if self.state is None:
-                    missing.append('%s/state' % self.ns)
-                if self.scan is None:
-                    missing.append(self.scan_topic)
-                if self.pose_source == 'gazebo':
-                    if self.world is None:
-                        missing.append('/gazebo/model_states 里没有模型 %r'
-                                       % self.uav)
-                    elif self.origin is None:
-                        missing.append('实时 origin（world/local 尚未配对）')
                 rospy.logerr('[radar] 等待 %.0fs 仍未就绪，缺：%s',
-                             timeout, ' | '.join(missing))
-                # 雷达收不到时额外提示"是否订阅都没建起来"
-                if self.scan is None:
-                    try:
-                        n = self.sub_scan.get_num_connections()
-                    except Exception:
-                        n = -1
-                    rospy.logerr('[radar] %s 的连接数=%s '
-                                 '（0 = 该话题根本不存在/名字写错）',
-                                 self.scan_topic, n)
+                             timeout, ' | '.join(self.ready_missing()))
                 return False
-            rospy.sleep(0.3)
+            self._wall_sleep(0.3)
         return False
 
     def armed(self):
         return bool(self.state and self.state.armed)
 
-    def wait_stable(self, tol=0.15, window=6, timeout=30.0):
+    def _wall_sleep(self, sec):
+        """**墙钟**睡眠（不受 `/use_sim_time` 影响）。2026-10-04 新增。
+
+        🔴 为什么必须区分两种钟（起飞链路实测抓出）
+        ------------------------------------------
+        Gazebo 会把 `/use_sim_time` 置 true（gazebo_ros_api_plugin.cpp），
+        于是 `rospy.sleep()` / `rospy.Rate()` 走**仿真钟**：RTF=0.15 时
+        `rospy.sleep(0.5)` 实际睡 3.3 秒。而 PX4 侧的判据——模式切换生效、
+        参数写回生效、`COM_OF_LOSS_T` 的 OFFBOARD 失联判定、nav_test 的
+        30s 窗口——**全部走硬件 hrt 真实时间**，与仿真钟无关。
+
+        所以"重试间隔 / 参数沉降"这类**与飞控真实时序对齐**的等待必须用
+        墙钟；否则 RTF≪1 时重试间隔被凭空放大 6 倍以上（0.5s→3.3s）。
+
+        另一个副作用（同样重要）：`rospy.sleep` 在 `/clock` 停发（Gazebo
+        暂停）时**永久阻塞**，连外层"墙钟预算"都再也检查不到 ⇒ 整个脚本
+        静默挂死。本函数每 50ms 检查一次 `is_shutdown()` 与截止时间。
+
+        ⚠ 不适用于"等物理过程"的场合：EKF 收敛、真值采样窗口的物理时长
+          以**仿真时间**计（PX4 SITL 按仿真时间积分传感器），那些循环必须
+          继续用 `rospy.sleep(1/CTRL_HZ)`。见 takeoff ① 与 wait_stable。
+        """
+        t_end = time.time() + max(0.0, float(sec))
+        while True:
+            left = t_end - time.time()
+            if left <= 0.0 or rospy.is_shutdown():
+                return
+            time.sleep(min(0.05, left))
+
+    def wait_stable(self, tol=0.15, window=6, timeout=30.0, tol_max=1.0):
         """等飞机**静止**（真值三轴峰峰 < tol）再允许起飞。
 
         🔴🔴 14 次修正：这是上次实飞事故的直接护栏。
         事故经过：上一次任务的飞控停在 `AUTO.LAND`（正在下降），我却直接
         启动了下一次任务 ⇒ 位姿源持续变化 ⇒ ① 原点探测采到 y 离散 8.279
         的垃圾样本并被采用；② A* 按错误起点规划；③ 一切"到位判据"失效。
-        现在起飞前强制确认飞机真的停住了，停不住就拒绝起飞。
+        现在起飞前强制确认飞机真的停住了。
+
+        🔴 2026-10-04（比赛取向）：**不再"超时就拒绝起飞"**，改为分级放宽：
+          ① 先用 tol 等到 timeout；
+          ② 未达 ⇒ 放宽容差到 tol_max 继续等；
+          ③ 再等 2×timeout 仍未达 ⇒ 告警**放行**。
+        理由：比赛一旦开始无法重开，"静止判据"是为提高质量，不该成为弃赛
+        理由；放行风险由 pose_source=真值 + 实时 origin 换算吸收。只有进程
+        被关闭才返回 False。
         """
         t0 = time.time()
         hist = []
         span = float('nan')
+        relaxed = False
         while not rospy.is_shutdown():
             p = self.pose
             if p is not None:
@@ -2054,18 +2196,26 @@ class RadarPilot(object):
                 if len(hist) == window:
                     span = max(max(v[i] for v in hist) - min(v[i] for v in hist)
                                for i in range(3))
-                    if span < tol:
+                    if span < (tol_max if relaxed else tol):
                         rospy.loginfo('[radar] 飞机已静止（%d 帧三轴峰峰 '
-                                      '%.3f m）', window, span)
+                                      '%.3f m%s）', window, span,
+                                      ' 放宽容差' if relaxed else '')
                         return True
-            if time.time() - t0 > timeout:
-                rospy.logerr('[radar] 等静止超时 %.0fs（最后峰峰 %.3f m）'
-                             '⇒ 飞机仍在移动，**拒绝起飞**', timeout, span)
-                return False
+            el = time.time() - t0
+            if el > timeout and not relaxed:
+                relaxed = True
+                rospy.logwarn('[radar] 等静止 %.0fs 未达 %.2fm（峰峰 %.3f）'
+                              '⇒ 放宽容差到 %.2fm 继续等', timeout, tol, span,
+                              tol_max)
+            if el > 3.0 * timeout:
+                rospy.logwarn('[radar] 等静止超预算（3×%.0fs，最后峰峰 %.3f）'
+                              '⇒ 告警放行（比赛不可重开；由真值位姿吸收风险）',
+                              timeout, span)
+                return True
             rospy.sleep(0.25)
         return False
 
-    def set_failsafe_params(self):
+    def set_failsafe_params(self, budget=90.0):
         """无头 SITL 必须关掉遥控/数传失效保护，否则 OFFBOARD 会被拒。
 
         🔴 10-04 改（对齐队友 codex 分支已验证的 fcu_configuration）：
@@ -2081,17 +2231,29 @@ class RadarPilot(object):
           COM_RCL_EXCEPT = 4  （RCL_EXCEPT_OFFBOARD：OFFBOARD 下豁免 RC 失联）
           NAV_DLL_ACT    = 0  （数传失联 Disabled，SITL 无地面站）
 
-        流程改为 pull → set → **get 读回验证**，三轮仍不一致就返回 False
-        拒绝起飞（宁可起不来，也不带着未生效的参数上天）。
+        流程改为 pull → set → **get 读回验证**。
+
+        🔴 2026-10-04（比赛取向）：**改为在 `budget` 秒预算内持续重试** ——
+        原来是"3 轮不一致就 return False 拒绝起飞"。正式比赛一旦开始就无法
+        重开，参数服务晚到 / 参数表尚未就绪都不能成为弃赛理由。takeoff 的
+        OFFBOARD 重试循环里还会**周期性补设**（双保险）。返回 False 只代表
+        "预算内未确认生效"，由调用方决定是否继续（main 现在是告警后继续）。
         """
         from mavros_msgs.srv import ParamPull, ParamGet
         want = [("NAV_RCL_ACT", 0), ("COM_RCL_EXCEPT", 4), ("NAV_DLL_ACT", 0)]
         pull_ns = self.ns + "/param/pull"
         get_ns = self.ns + "/param/get"
-        try:
-            rospy.wait_for_service(pull_ns, timeout=30.0)
-        except rospy.ROSException as e:
-            rospy.logerr("[radar] 参数 pull 服务不可用（%s）：%s", pull_ns, e)
+        t0 = time.time()
+        # 等参数服务出现（不设"固定 30s 就放弃"）
+        while not rospy.is_shutdown() and time.time() - t0 < budget:
+            try:
+                rospy.wait_for_service(pull_ns, timeout=2.0)
+                break
+            except rospy.ROSException:
+                rospy.logwarn_throttle(5.0, "[radar] 等待参数服务 %s ...", pull_ns)
+        else:
+            rospy.logerr("[radar] 参数 pull 服务在 %.0fs 内未出现：%s",
+                         budget, pull_ns)
             return False
         pull_srv = rospy.ServiceProxy(pull_ns, ParamPull)
         get_srv = rospy.ServiceProxy(get_ns, ParamGet)
@@ -2102,14 +2264,16 @@ class RadarPilot(object):
         except Exception as e:
             rospy.logwarn("[radar] param pull 异常（继续）: %s", e)
 
-        for attempt in range(1, 4):
+        attempt = 0
+        while not rospy.is_shutdown() and time.time() - t0 < budget:
+            attempt += 1
             for pid, val in want:
                 try:
                     self.srv_param(param_id=pid,
                                    value=ParamValue(integer=val, real=0.0))
                 except Exception as e:
                     rospy.logwarn("[radar] set %s 异常: %s", pid, e)
-            rospy.sleep(0.4)
+            self._wall_sleep(0.4)      # 墙钟：等 FCU 真正写入参数（与仿真钟无关）
             bad = []
             for pid, val in want:
                 try:
@@ -2120,14 +2284,15 @@ class RadarPilot(object):
                 if cur != val:
                     bad.append("%s=%s(期望%d)" % (pid, cur, val))
             if not bad:
-                rospy.loginfo("[radar] 飞控参数读回验证通过：%s -> 全部生效",
+                rospy.loginfo("[radar] 飞控参数读回验证通过（第 %d 轮）：%s -> "
+                              "全部生效", attempt,
                               ", ".join("%s=%d" % kv for kv in want))
                 return True
-            rospy.logwarn("[radar] 参数读回不一致（第 %d/3 轮）：%s",
-                          attempt, ", ".join(bad))
-            rospy.sleep(1.0)
-        rospy.logerr("[radar] 飞控参数 3 轮仍未生效 ⇒ 拒绝起飞（否则必在 "
-                     "OFFBOARD 上被 failsafe 拦下）")
+            rospy.logwarn_throttle(3.0, "[radar] 参数读回不一致（第 %d 轮）：%s",
+                                   attempt, ", ".join(bad))
+            self._wall_sleep(1.0)
+        rospy.logerr("[radar] 飞控参数 %.0fs 内未确认生效（尝试 %d 轮）",
+                     budget, attempt)
         return False
 
     def takeoff(self, alt):
@@ -2216,18 +2381,31 @@ class RadarPilot(object):
             if stable >= need and nav_ok >= need:
                 break
             if time.time() - t_ekf > 90.0:
-                rospy.logerr("[radar] 等 EKF 收敛超时 90s（local=%s est=%s）"
-                             "⇒ 拒绝起飞，避免起飞后判 Navigation failure 摔机",
+                # 🔴 2026-10-04（比赛取向）：不再"超时就拒绝起飞"。90s（原值）
+                #   仍不收敛基本都是环境问题，继续干等没用，而弃赛＝直接输。
+                #   改为告警**放行**：风险由起飞后 nav_hold 悬停熬 nav_test
+                #   危险窗口兜底，且后面 OFFBOARD 失败仍会持续重试。
+                rospy.logerr("[radar] 等 EKF 收敛超 90s（local=%s est=%s）"
+                             "⇒ 告警放行（比赛不可重开；靠 nav_hold 熬 "
+                             "nav_test 窗口兜底）",
                              self.local,
                              'None' if self.est is None else 'OK')
-                return False
+                break
             rospy.sleep(1.0 / CTRL_HZ)
         # 心跳是 OFFBOARD 的前置条件：它死了，后面 100% 切不进 OFFBOARD。
-        # 与其等 PX4 给出 `Unexpected command 176` 再猜，不如在这里点名。
+        # 🔴 2026-10-04（比赛取向）：不再"一帧未发就拒绝起飞"——改为**自助恢复**：
+        #   先重启心跳线程，再给 5s 观察窗；仍为 0 则告警继续（下面的 OFFBOARD
+        #   重试循环每 10s 还会再查心跳并再次重启）。
         if self._sp_sent <= 0:
-            rospy.logerr("[radar] 设定点心跳一帧未发（_sp_sent=0）⇒ MAVROS 不"
-                         "会发 OFFBOARD_CONTROL_MODE，OFFBOARD 必被拒 ⇒ 拒绝起飞")
-            return False
+            rospy.logwarn("[radar] 设定点心跳一帧未发 ⇒ 重启心跳线程")
+            self.restart_heartbeat()
+            t_hb = time.time()
+            while (self._sp_sent <= 0 and not rospy.is_shutdown()
+                   and time.time() - t_hb < 5.0):
+                self._wall_sleep(0.2)
+        if self._sp_sent <= 0:
+            rospy.logerr("[radar] 心跳重启后仍 0 帧 ⇒ 告警继续（OFFBOARD 可能"
+                         "被拒，重试循环内会持续重试/再重启）")
         rospy.loginfo("[radar] EKF 已稳定（local_z=%.2f，连续 %d 次达标；健康"
                       "标志全绿 %d 次；心跳已发 %d 帧）",
                       self.local[2], stable, nav_ok, self._sp_sent)
@@ -2238,6 +2416,7 @@ class RadarPilot(object):
         #   EKF 一稳 PX4 自然放行。
         attempt, ok = 0, False
         t_off = time.time()
+        _t_reassert = 0.0
         while not rospy.is_shutdown():
             attempt += 1
             try:
@@ -2250,11 +2429,23 @@ class RadarPilot(object):
             if self.state is not None and self.state.mode == 'OFFBOARD':
                 ok = True
                 break
-            if time.time() - t_off > 90.0:
+            # 🔴 2026-10-04 自愈：每 10s 补设一次 failsafe 参数 + 复查/重启心跳。
+            #   "参数没生效"与"心跳死掉"是切不进 OFFBOARD 的两大真因，与其干等，
+            #   不如边等边修 —— 这正是比赛现场该有的行为。
+            if time.time() - _t_reassert > 10.0:
+                _t_reassert = time.time()
+                try:
+                    self.set_failsafe_params(budget=5.0)
+                except Exception:
+                    pass
+                if self._sp_sent <= 0:
+                    rospy.logwarn("[radar] 心跳仍 0 帧 ⇒ 再次重启")
+                    self.restart_heartbeat()
+            if time.time() - t_off > 150.0:
                 break
-            rospy.sleep(0.5)
+            self._wall_sleep(0.5)      # 墙钟：PX4 的模式切换按 hrt 真实时间生效
         if not ok:
-            rospy.logerr("[radar] OFFBOARD 失败（90s 内重试 %d 次；当前 mode=%s，"
+            rospy.logerr("[radar] OFFBOARD 失败（150s 内重试 %d 次；当前 mode=%s，"
                          "心跳已发 %d 帧）",
                          attempt, self.state.mode if self.state else 'None',
                          self._sp_sent)
@@ -2270,11 +2461,11 @@ class RadarPilot(object):
                 self.srv_arm(value=True)
             except Exception:
                 pass
-            if time.time() - t_arm > 30.0:
+            if time.time() - t_arm > 90.0:
                 break
-            rospy.sleep(0.5)
+            self._wall_sleep(0.5)      # 墙钟：PX4 preflight 判定按 hrt 真实时间
         if not self.armed():
-            rospy.logerr("[radar] arm 失败（30s 内重试 %d 次；mode=%s）", attempt,
+            rospy.logerr("[radar] arm 失败（90s 内重试 %d 次；mode=%s）", attempt,
                          self.state.mode if self.state else 'None')
             return False
         rospy.loginfo("[radar] 已解锁（重试 %d 次）⇒ 立即爬升（10s 内脱离地面）",
@@ -2286,19 +2477,46 @@ class RadarPilot(object):
         #   假成功，带着一架空飞机飞航线。现在必须真爬上去。
         t0 = time.time()
         reached = False
-        while not rospy.is_shutdown() and time.time() - t0 < 40.0:
+        _t_rearm = 0.0
+        # 🔴🔴 2026-10-04（十六次修正）：记录**离地时刻**（墙钟）。
+        #   PX4 的 nav_test 窗口是"自 `takeoff_time` 起 30 真实秒"，而
+        #   `takeoff_time` 由 LandDetector 在"检测到离地"那一刻打点
+        #   （LandDetector.cpp:163）—— 此处用真值 z 相对地面上升 0.3 m
+        #   做等价代理。它比"到达巡航高度"早一整个爬升段（RTF=0.15 的
+        #   仿真机上可达十余墙钟秒），下面 ④ 的悬停据此扣除，避免白等。
+        LIFTOFF_DZ = 0.3
+        z_ground = p0[2] if p0 is not None else None
+        t_lift = None
+        while not rospy.is_shutdown() and time.time() - t0 < 90.0:
             c = self.pose
             if c is None:
-                rospy.sleep(0.1)
+                self._wall_sleep(0.1)
                 continue
+            if (t_lift is None and z_ground is not None
+                    and (c[2] - z_ground) > LIFTOFF_DZ):
+                t_lift = time.time()
+                rospy.loginfo("[radar] 已离地（真值 z=%.2f，地面 z=%.2f）"
+                              "—— nav_test 的 30s 窗口自此起算", c[2], z_ground)
             if c[2] >= alt - 0.3:
                 reached = True
                 break
             if not self.armed():
-                rospy.logerr("[radar] 爬升中途上锁（armed=False）⇒ 起飞失败")
-                return False
+                # 🔴 2026-10-04（比赛取向）：爬升中途掉锁不再"直接起飞失败"，
+                #   改为**自助重解锁**（每 10s 尝试一次），全程靠 120s 预算兜底。
+                if time.time() - _t_rearm > 10.0:
+                    _t_rearm = time.time()
+                    rospy.logwarn("[radar] 爬升中途掉锁 ⇒ 尝试重新 "
+                                  "OFFBOARD+解锁")
+                    try:
+                        self.srv_mode(custom_mode="OFFBOARD")
+                        self.srv_arm(value=True)
+                    except Exception:
+                        pass
+                self.set_sp(c[0], c[1], alt, self.heading)
+                self._wall_sleep(0.1)
+                continue
             self.set_sp(c[0], c[1], alt, self.heading)
-            rospy.sleep(0.1)
+            self._wall_sleep(0.1)
         c = self.pose
         if not reached or c is None or c[2] < alt - 1.0:
             rospy.logerr("[radar] 起飞失败：目标 %.2f m 实际 %.2f m"
@@ -2321,19 +2539,39 @@ class RadarPilot(object):
         #     之后无论创新比率怎样都不会再触发 Navigation failure。
         #   ⇒ 最省事的解法：起飞后先稳住不动，把危险窗口熬过去。
         if self.nav_hold > 0.0:
-            rospy.loginfo("[radar] 到达高度后原地悬停 %.0fs —— 熬过 PX4 起飞后"
-                          " 30s 的危险窗口（nav_test 未通过前创新比率 fail 即判"
-                          " Navigation failure 降落）", self.nav_hold)
             t_hold = time.time()
-            while not rospy.is_shutdown() and time.time() - t_hold < self.nav_hold:
+            # 🔴🔴 2026-10-04（十六次修正）：悬停的目标是"**自离地起**累计
+            #   满 nav_hold 真实秒"，不是"到达高度后再数满 nav_hold 秒"。
+            #   爬升段已消耗一段真实时间（RTF=0.15 时可达十余秒），必须从
+            #   总账里扣掉，否则等于把 nav_test 的 30s 窗口等了两遍。
+            #   t_lift 取不到时（异常路径）退回旧语义：自到达高度起算。
+            _ref = t_lift if t_lift is not None else t_hold
+            _passed = t_hold - _ref
+            rospy.loginfo("[radar] 原地悬停：nav_test 窗口须自离地累计 %.0fs"
+                          "（已过 %.0fs）⇒ 再等 %.0fs。熬过前创新比率 fail 即"
+                          "判 Navigation failure 降落",
+                          self.nav_hold, _passed,
+                          max(0.0, self.nav_hold - _passed))
+            _t_rearm = 0.0
+            while (not rospy.is_shutdown()
+                   and time.time() - _ref < self.nav_hold):
                 if not self.armed():
-                    rospy.logerr("[radar] 悬停期内上锁（armed=False）⇒ 起飞失败")
-                    return False
+                    # 🔴 2026-10-04：悬停期内掉锁不再直接判失败，改为自助重解锁。
+                    if time.time() - _t_rearm > 10.0:
+                        _t_rearm = time.time()
+                        rospy.logwarn("[radar] 悬停期内掉锁 ⇒ 尝试重新 "
+                                      "OFFBOARD+解锁")
+                        try:
+                            self.srv_mode(custom_mode="OFFBOARD")
+                            self.srv_arm(value=True)
+                        except Exception:
+                            pass
                 c = self.pose
                 if c is not None:
                     self.set_sp(c[0], c[1], alt, self._yaw_cmd)
-                rospy.sleep(0.2)
-            rospy.loginfo("[radar] 悬停 %.0fs 结束，进入航线", self.nav_hold)
+                self._wall_sleep(0.2)
+            rospy.loginfo("[radar] 悬停结束（自离地累计 %.1f 真实秒），进入航线",
+                          time.time() - _ref)
 
         self._dbg_n = 0
         self._dbg_t0 = time.time()
@@ -2355,14 +2593,60 @@ class RadarPilot(object):
         hd = self.heading
         if cur is None:
             return 0.0, 0.0, 0.0, None
+
+        # ---- 高度看门狗（2026-10-04 十五次修正）----
+        # 🔴🔴 背景：队友 2.45m 撞房屋。此前 alt 是**只发不读**的常量，
+        # 全脚本没有任何 |实测z − 期望z| 的比较 ⇒ 掉高 0.35m 无人知晓，
+        # 而避障对高度零感知（2D 投影），继续按"我在巡航高度"做水平决策
+        # ⇒ 机体钻进 2.10–2.53m 的低空盲带（院墙/台阶/雨棚/檐口不可见）。
+        # 做法：偏差超 tol 连续 alt_watch_frames 帧 ⇒ 暂停水平推进，
+        # 只发 (cur.x, cur.y, alt) 原地纠高度，并告警。偏差恢复后清零。
+        # alt_tol<=0 ⇒ 关闭（兼容旧行为）。
+        if self.alt_tol > 0.0 and len(cur) >= 3:
+            if abs(cur[2] - alt) > self.alt_tol:
+                self._alt_dev_frames += 1
+                if self._alt_dev_frames >= self.alt_watch_frames:
+                    rospy.logerr_throttle(
+                        2.0, "[radar] 高度看门狗：实测 %.2f 期望 %.2f（偏差 %.2f > tol %.2f，"
+                             "连续 %d 帧）⇒ 暂停水平推进，先纠高度",
+                        cur[2], alt, cur[2] - alt, self.alt_tol,
+                        self._alt_dev_frames)
+                    self.set_sp(cur[0], cur[1], alt, hd)
+                    return cur[0], cur[1], 0.0, None
+            else:
+                self._alt_dev_frames = 0
+
+        # ---- 心跳活性检测 + **自助重启**（2026-10-04 比赛取向）----
+        # _sp_loop 已兜异常（10-04 十四次修正），但"线程活着却发不出去"
+        # （如 publish 永久阻塞）仍无检测。每步查一次 _sp_sent 是否增长：
+        #   · 停滞超 1s ⇒ **不再只告警，直接重启心跳线程**。
+        #     ① 心跳是全脚本唯一发布点，它死了必然掉 OFFBOARD；比赛现场无人
+        #        干预 ⇒ 必须能自愈，不能"死着等人工"。
+        #     ② 重启安全：_sp_loop 只在锁内**取引用**、锁外 publish，不存在
+        #        持锁阻塞 ⇒ 用 _alive=False + join(0.5) 让旧线程退出再重建。
+        _now = time.time()
+        _cnt = self._sp_sent
+        if _cnt == self._hb_last[1]:
+            if _now - self._hb_last[0] > 1.0:
+                rospy.logerr_throttle(
+                    5.0, "[radar] 设定点心跳停滞 %.1fs（_sp_sent=%d）⇒ 自助重启",
+                    _now - self._hb_last[0], _cnt)
+                self.restart_heartbeat()
+        else:
+            self._hb_last = (_now, _cnt)
+
         dist = math.hypot(tx - cur[0], ty - cur[1])
         if dist < 1e-6:
             self.set_sp(cur[0], cur[1], alt, hd)
             return cur[0], cur[1], 0.0, None
 
+        # 扫描面世界高度 = 位姿 z + 雷达安装高度 mount[2]（缺省 0.08）。
+        # 传给 subgoal_from_scan 做低空余量补偿；位姿无 z（不该发生）时
+        # 传 None ⇒ 补偿为 0，行为与历史一致。
+        _scan_z = cur[2] + self.mount[2] if len(cur) >= 3 else None
         sub_x, sub_y, shift, nearest, blocked = subgoal_from_scan(
             self.scan, hd, cur, (tx, ty), self.mount, stride=self.stride,
-            commit=self.commit, attitude=self.attitude)
+            commit=self.commit, attitude=self.attitude, scan_z=_scan_z)
 
         # 出诊断
         try:
@@ -2447,6 +2731,7 @@ class RadarPilot(object):
         return cur[0], cur[1], shift, nearest
 
     def stop(self):
+        self._stopped = True          # 阻止 restart_heartbeat 在收尾后又拉起流
         self._alive = False
 
 
@@ -2761,13 +3046,28 @@ def main():
                          '实测原点会漂 ~1.1m）')
     ap.add_argument('--alt', type=float, default=2.8,
                     help='巡航高度 m（世界系）。比赛实测 2.5~3m，默认取中值 '
-                         '2.8；规则红线是高度 >6m 记 0 分')
-    ap.add_argument('--takeoff-hold', type=float, default=30.0,
+                         '2.8；规则红线是高度 >6m 记 0 分。高度越低，"雷达'
+                         '看不见却在机体包络内"的盲带越宽 —— 本脚本不拦截'
+                         '任何启动参数（比赛不可重开）；低空后果由运行期'
+                         '承接：clearance_bonus 按 scan_z 自动加大净空 + '
+                         '高度看门狗守住实际高度。建议 ≥2.8m')
+    ap.add_argument('--alt-tol', type=float, default=0.15, dest='alt_tol',
+                    help='高度看门狗容差 m（默认 0.15）：|实测z − 巡航alt| 超此值'
+                         '连续 --alt-watch-frames 帧 ⇒ 暂停水平推进先纠高度。'
+                         '<=0 关闭（旧行为）')
+    ap.add_argument('--alt-watch-frames', type=int, default=15,
+                    dest='alt_watch_frames',
+                    help='高度看门狗连续超差帧数（默认 15，主循环 20Hz ⇒ 0.75s）')
+    ap.add_argument('--takeoff-hold', type=float, default=32.0,
                     dest='takeoff_hold',
-                    help='到达巡航高度后原地悬停秒数（默认 30）。用于熬过 PX4 '
-                         '起飞后 30s 的 nav_test 危险窗口——未通过前创新比率'
-                         '连续 fail 2s 就会判 Navigation failure 并 failsafe '
-                         '降落（VM 实测摔机）。0 = 关闭（旧行为）')
+                    help='起飞悬停预算：**自离地起累计的真实秒数**（默认 32）。'
+                         '用途是熬过 PX4 起飞后 30s 的 nav_test 危险窗口——'
+                         '未通过前创新比率连续 fail 2s 就会判 Navigation '
+                         'failure 并 failsafe 降落（VM 实测摔机）。窗口按硬件'
+                         '真实时间计，故本值也是**墙钟秒**；爬升段已消耗的真实'
+                         '时间会被自动扣除（RTF≪1 的仿真机上爬升可占十余秒）。'
+                         '32 = 旧版"到达高度后 30s"的等效值（爬升≈2s，保零回归）。'
+                         '0 = 不悬停（旧行为）')
     ap.add_argument('--speed', type=float, default=1.5, help='前进速度 m/s')
     ap.add_argument('--stride', type=int, default=4,
                     help='雷达抽稀步长（默认 4，与仿真/实测取值一致）')
@@ -2820,12 +3120,20 @@ def main():
                          '（-1 永不覆盖，只增不减）。默认空=不互联。')
     args = ap.parse_args()
 
+    # ---- 2026-10-04：启动期高度守卫已移除（比赛不可重开 ⇒ 拦截无意义）----
+    # 原设计：--alt < 2.4 拒绝启动、2.4~2.6 告警。实为无效代码 —— 正式比赛
+    # 一旦起飞就无法重开，参数在起飞前由人设定，运行期不会再变；拦在启动
+    # 既拦不住既成事实，又可能在"必须起飞"的窗口里把飞机废掉。低空的后果
+    # 一律改由**运行时**承接：①高度看门狗（step_toward）②clearance_bonus
+    # 按 scan_z 自动加大净空。二者都不依赖任何启动参数。
     rospy.init_node('radar_avoid', anonymous=True)
 
     pilot = RadarPilot(args.uav, dry_run=args.dry_run,
                        ns=args.ns, scan_topic=args.scan_topic,
                        pose_source=args.pose_source,
-                       nav_hold=args.takeoff_hold)
+                       nav_hold=args.takeoff_hold,
+                       alt_tol=args.alt_tol,
+                       alt_watch_frames=args.alt_watch_frames)
     pilot.mount = (args.mount[0], args.mount[1], MOUNT_DEFAULT[2])
     pilot.stride = max(1, args.stride)
     pilot.verbose = args.verbose
@@ -2835,7 +3143,12 @@ def main():
                   args.uav, pilot.ns, pilot.scan_topic, args.pose_source)
 
     rospy.loginfo("[radar] 等待 MAVROS local / state / 雷达 / 位姿源 ...")
-    if not pilot.wait_ready(60.0):
+    # 🔴 2026-10-04：比赛**限时** ⇒ 就绪等待必须**有界**（绝不能用无限等待把
+    #   比赛时间耗光）。预算 90s，超时报出缺哪一项后退出。
+    #   注意这与"启动期参数拦截"性质不同：位姿/状态/雷达任一缺失时，
+    #   后面 step_toward / takeoff 没有任何可用输入（会直接抛异常），根本
+    #   飞不了 —— 早退反而给人工留下干预时间，不是"无用的防守"。
+    if not pilot.wait_ready(90.0):
         return 1
     _p = pilot.pose
     rospy.loginfo("[radar] 就绪  决策位姿(%s)=(%.2f, %.2f, %.2f) heading=%.1f° "
@@ -2954,16 +3267,37 @@ def main():
     # 实飞
     # 🔴 10-04：参数没真生效就必须拦下来 —— 否则后面在 OFFBOARD 上被
     #   failsafe 拦下，表象变成"切不进 OFFBOARD"，排查方向全错。
+    # 🔴 2026-10-04（比赛取向）：**不再"未生效就拒绝起飞"**。比赛一旦开始
+    #   无法重开，参数服务晚到 / 参数表未就绪都不该把整场比赛让掉。改为
+    #   告警后继续；takeoff 的 OFFBOARD 重试循环每 10s 会**补设一次**（自愈），
+    #   这才是"运行时替代"而非"启动期拦截"。
     if not pilot.set_failsafe_params():
-        rospy.logerr("[radar] 飞控 failsafe 参数未生效 ⇒ 拒绝起飞")
-        pilot.stop()
-        return 1
+        rospy.logerr("[radar] ⚠ 飞控 failsafe 参数未确认生效 ⇒ 告警继续"
+                     "（比赛中途 OFFBOARD 重试循环会反复补设；若始终失败，"
+                     "风险是 RC 失联时被 PX4 按 NAV_RCL_ACT 踢出 OFFBOARD）")
     # 🔴 14 次修正：起飞前必须确认飞机静止（上次事故 = 在上一次任务的
     # AUTO.LAND 下降途中启动，位姿源在变 ⇒ 一切判据失效）。
     if not pilot.wait_stable():
         pilot.stop()
         return 1
-    if not pilot.takeoff(args.alt):
+    # 🔴 10-04：起飞重试（VM 带 YOLO 负载时 EKF 偶发 accel fault →
+    # Navigation failure → failsafe 降落）。EKF 实例切换稳定后重试通常即过。
+    # 🔴 2026-10-04（比赛取向）：把"3 次就放弃"改为**有界预算内持续重试** ——
+    #   比赛一旦开始无法重开，早早弃赛＝直接输；但比赛**限时**，也不能无限试。
+    TAKEOFF_BUDGET = 300.0
+    t_tk = time.time()
+    ok = False
+    attempt = 0
+    while (not rospy.is_shutdown()
+           and time.time() - t_tk < TAKEOFF_BUDGET):
+        attempt += 1
+        if pilot.takeoff(args.alt):
+            ok = True
+            break
+        rospy.logerr("[radar] 起飞第 %d 次失败（预算剩 %.0fs）—— 8s 后重试",
+                     attempt, TAKEOFF_BUDGET - (time.time() - t_tk))
+        rospy.sleep(8.0)
+    if not ok:
         pilot.stop()
         return 1
 
