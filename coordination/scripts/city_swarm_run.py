@@ -66,6 +66,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         ONLINE_RADAR_PLANNING='1',RADAR_START_CLEARANCE_FILE=str(clearance),
         SEED_TRUTH='0',VIS_ENABLE='0',RADAR_GUARD='1',SWARM_MAX_SPEED='3.0',PR_RECENT_MOTION_WINDOW='4.0',FLEE_CHASE_SPEED='2.6',
         PR_COORD_HZ='10',
+        PR_FAST_GREEN_WHITE='1',
         PR_COLOR_VERIFY='1',
         PR_BLUE_MOTION_WINDOW='10' if experimental else '4',
         PR_BLUE_MOTION_MIN_SPAN='3' if experimental else '1',
@@ -93,9 +94,13 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         clearance_configuration_revision='v1.2',route_clearance_m=2.5,fleet_separation_m=2.5,
         observed_grid_revision='v1.14',observed_grid_resolution_m=.25,
         observed_body_proof_revision='v1.16_scan_carry',
-        maximum_speed_mps=3.,visual_fusion_revision='v2.11' if experimental else 'v2.9',tracker_selection_revision='v1.20_camera_takeover',
+        local_execution_clearance_revision='v1.24_current_scan_corridor',
+        position_brake_revision='v2_xyz_after_takeoff',navigation_feedback_revision='v1',
+        tracking_refresh_maximum_deferral_s=20.,
+        maximum_speed_mps=3.,visual_fusion_revision='v2.12.1',tracker_selection_revision='v1.20_camera_takeover',
         experimental_v123_enabled=experimental,
-        stationary_green_revision='v1.23_fresh_verified_authorized' if experimental else 'disabled',
+        stationary_green_revision='v1.24_three_original_person_frames',
+        fresh_green_white_person_enabled=True,
         blue_motion_window_s=10. if experimental else 4.,blue_motion_minimum_span_s=3. if experimental else 1.,
         shirt_color_veto_revision='v1.22_same_image_green_white',
         gimbal_wiring_revision='v1.21_per_aircraft_follow_body',fleet_wiring_schema_version=2,
@@ -257,7 +262,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
     def command(message,uid):
         commands.write(dict(sample_s=message.header.stamp.to_sec(),uav_id=uid,
             mask=message.type_mask,velocity=[message.velocity.x,message.velocity.y,message.velocity.z],
-            position=[message.position.x,message.position.y],yaw_rate=message.yaw_rate))
+            position=[message.position.x,message.position.y],position_z=message.position.z,
+            yaw_rate=message.yaw_rate))
     def arm(message,uid):
         if message.armed:
             armed.add(uid)

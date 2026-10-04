@@ -133,6 +133,12 @@ class SharedInferenceClient:
         boxes = [Box(d["cls"], d["conf"], d["xyxy"]) for d in reply.get("dets", [])]
         return boxes, dict(shared=True, infer_s=reply.get("infer_s"),
                            queue_s=reply.get("queue_s"),
+                           verified_person_boxes=reply.get('verified_person_boxes',[])
+                               if reply.get('verification_version') == 1
+                               and isinstance(reply.get('verified_person_boxes'),list) else [],
+                           verified_person_colors=[c for c in reply.get('verified_person_colors',[])
+                               if c in ('green','white')] if reply.get('verification_version') == 1
+                               and isinstance(reply.get('verified_person_colors'),list) else [],
                            verified_green_person=(reply.get('verification_version') == 1
                                and reply.get('verified_green_person') is True))
 

@@ -32,6 +32,7 @@ from visual_observation import VisualEvidence, TAG_TO_TID
 from red_observations import actor_slot_remaining
 from tracker_selection import tracker_rank, takeover_candidate
 from search_occupancy import apply_authority_release
+from navigation_feedback import accept as accept_navigation_feedback, refresh_due
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from std_msgs.msg import String, Float32
@@ -231,6 +232,8 @@ class SwarmManager(object):
         # 每机最近一次上报时间（用于租约续租判定）
         self.last_report = {}     # uav_id -> rospy.Time
         self._active_leases = {}  # uav_id -> cell key currently leased to that UAV
+        self._navigation_seq = {}
+        self._navigation_blocked_until = {}
 
         # ---- 纯逻辑模块 ----
         _bx0, _bx1, _by0, _by1 = _search_bounds()
@@ -308,6 +311,7 @@ class SwarmManager(object):
         rospy.Subscriber('/swarm/route_offer', String, self._route_offer_cb, queue_size=100)
         rospy.Subscriber('/swarm/motion_state', String, self._route_motion_cb, queue_size=100)
         rospy.Subscriber('/swarm/authority_ack', String, self._authority_ack_cb, queue_size=100)
+        rospy.Subscriber('/swarm/navigation_feedback', String, self._navigation_feedback_cb, queue_size=20)
         # 消除指令发给 target_sim_node（"eliminate:<target_id>"）
         self.cmd_pub = rospy.Publisher("/swarm/target_command", String, queue_size=10)
         # 任务完成广播
@@ -413,6 +417,28 @@ class SwarmManager(object):
         return blocked
 
     # ---------------- 回调 ----------------
+    def _navigation_feedback_cb(self, msg):
+        try:
+            message = json.loads(msg.data)
+            now = rospy.Time.now().to_sec()
+            with self._authority_lock:
+                if not accept_navigation_feedback(message,self._authority.run_id,self.uav_ids,
+                        self._authority.active,self._route_motion.samples,now,self._navigation_seq):
+                    return
+                uid = message['uav_id']
+                self._navigation_blocked_until[uid] = now+15.
+                self._emit_authority(self._authority.withdraw(uid,now))
+                for tid,owner in list(self._tracking.items()):
+                    if owner == uid:
+                        self._tracking.pop(tid,None)
+                        self._backup.pop(tid,None)
+                rospy.logwarn('[manager] NAVIGATION_BLOCKED %s %s; STOP/occupancy held',uid,message['reason'])
+        except (ValueError,TypeError,KeyError):
+            return
+
+    def _navigation_eligible(self, uid):
+        return rospy.Time.now().to_sec() >= getattr(self,'_navigation_blocked_until',{}).get(uid,0.)
+
     def _emit_authority(self, outputs):
         for message in outputs:
             self._authority_pub.publish(String(data=json.dumps(message, allow_nan=False)))
@@ -456,7 +482,8 @@ class SwarmManager(object):
         busy = set(self._tracking.values()) | set(self._backup.values())
         candidates = [(uid, math.hypot(st.x-tx, st.y-ty))
                       for uid, st in self.status.items()
-                      if uid in self.uav_ids and st.connected and uid not in busy]
+                      if uid in self.uav_ids and st.connected and uid not in busy
+                      and self._navigation_eligible(uid)]
         observations = [(uid, stamp) for (uid, tag), stamp in
                         tuple(self._visual_evidence.stamps.items()) if TAG_TO_TID[tag] == tid]
         candidate = takeover_candidate(owner, candidates, observations, now,
@@ -875,7 +902,7 @@ class SwarmManager(object):
         candidates = []
         for uid in self.uav_ids:
             state = self.status.get(uid)
-            if state is None or not state.connected or uid in busy:
+            if state is None or not state.connected or uid in busy or not self._navigation_eligible(uid):
                 continue
             searching = any(c.state == STATE_ASSIGNED and c.owner == uid
                             for c in self.grid.cells.values())
@@ -1149,6 +1176,8 @@ class SwarmManager(object):
         """
         idle = []
         for uid in self.uav_ids:
+            if not self._navigation_eligible(uid):
+                continue
             if uid not in self.status or not self.status[uid].connected:
                 continue
             # 如果正在追踪目标，视为不空闲
@@ -1414,7 +1443,11 @@ class SwarmManager(object):
                 with self._authority_lock:
                     if not any(a['stopping'] for a in self._authority.active.values()):
                         for uid, active in self._authority.active.items():
-                            if uid in self._routes.current and now.to_sec()-active['started_s'] >= 30.:
+                            tid = active['task'].get('target_id') if active['task'].get('task_type') == 1 else None
+                            fresh_tracking = tid is not None and any(owner == uid and TAG_TO_TID.get(tag) == tid
+                                and 0 <= now.to_sec()-stamp <= 1.
+                                for (owner,tag),stamp in tuple(self._visual_evidence.stamps.items()))
+                            if uid in self._routes.current and refresh_due(active,now.to_sec(),fresh_tracking):
                                 self._emit_authority(self._authority.refresh(uid, rospy.Time.now().to_sec()))
                                 break
                     self._emit_authority(self._authority.tick(rospy.Time.now().to_sec()))

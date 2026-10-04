@@ -8,6 +8,20 @@ from position_brake import PositionBrake
 
 
 class PositionBrakeTests(unittest.TestCase):
+    def test_xyz_stop_latches_altitude_and_explicit_descent_keeps_velocity_mode(self):
+        gate = PositionBrake()
+        first = gate.encode((0.,0.,0.),0.,(2.,3.),'frame',hold_altitude=2.3)
+        drift = gate.encode((0.,0.,0.),0.,(2.1,3.1),'frame',hold_altitude=2.4)
+        self.assertEqual(first['type_mask'],1528)
+        self.assertEqual(drift['position_z'],2.3)
+        self.assertEqual(drift['position_xy'],(2.,3.))
+        self.assertEqual(drift['velocity_xyz'],(0.,0.,0.))
+        descent = gate.encode((0.,0.,-1.),0.,(2.,3.),'frame',hold_altitude=2.4)
+        self.assertEqual(descent['type_mask'],1500)
+        self.assertEqual(descent['velocity_xyz'][2],-1.)
+        gate.encode((1.,0.,0.),0.,(2.,3.),'frame')
+        self.assertEqual(gate.encode((0.,0.,0.),0.,(4.,3.),'frame',hold_altitude=2.6)['position_z'],2.6)
+
     def test_zero_velocity_locks_position_instead_of_following_drift(self):
         gate = PositionBrake()
         first = gate.encode((0.,0.,.2), 0., (10.,5.), 'epoch')
@@ -48,3 +62,12 @@ class PositionBrakeTests(unittest.TestCase):
         self.assertEqual((output[0].position.x,output[0].position.y),(2.,3.))
         self.assertEqual(output[0].velocity.z,.4)
         self.assertEqual(output[0].yaw_rate,.2)
+        agent._xyz_stop_requested,agent.local_z = True,2.3
+        cmd.twist.linear.z = 0.
+        scope['_publish_command'](agent,cmd)
+        self.assertEqual(output[-1].type_mask,1528)
+        # A late emergency recovery overrides the earlier horizontal-stop flag.
+        cmd.twist.linear.z = .8
+        scope['_publish_command'](agent,cmd)
+        self.assertEqual(output[-1].type_mask,1500)
+        self.assertEqual(output[-1].velocity.z,.8)

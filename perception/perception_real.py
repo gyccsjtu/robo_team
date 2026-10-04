@@ -67,6 +67,7 @@ from sensor_msgs.msg import Image, CameraInfo
 from camera_geometry import calibration, aligned_translation, vertical_extent
 from recent_motion import RecentMotion
 from stationary_person import allowed as stationary_person_allowed
+from fresh_person import FreshPerson
 from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
 from std_msgs.msg import String
 # 集中指派消息 + 目标融合状态（coordination 工作区）。导入失败时退化为仅距离闸门。
@@ -372,6 +373,7 @@ RECENT_MOTION_WINDOW = float(os.environ.get('PR_RECENT_MOTION_WINDOW', '0'))
 BLUE_MOTION_WINDOW = float(os.environ.get('PR_BLUE_MOTION_WINDOW', str(RECENT_MOTION_WINDOW)))
 BLUE_MOTION_MIN_SPAN = float(os.environ.get('PR_BLUE_MOTION_MIN_SPAN', '1'))
 STATIONARY_GREEN_ON = os.environ.get('PR_STATIONARY_GREEN','0') == '1'
+FAST_GREEN_WHITE = os.environ.get('PR_FAST_GREEN_WHITE','0') == '1'
 # --- 视差判据（v3.5b 新增，专治"机身跟着观测机转向而漏网"）---
 # 踩到的漏网实例：观测机盯人时会不停转向，机身的"假世界坐标"就在以 13 m 为半径
 # 绕圈 -> 净速度 0.74 m/s，运动判据不但拦不住，反而把它判成"在动"。
@@ -616,6 +618,7 @@ class Track(object):
         self.t = t
         self.observed_s = t
         self.green_frame_proof = False
+        self.person_support = FreshPerson()
         motion_window = BLUE_MOTION_WINDOW if cls == 'blue' else RECENT_MOTION_WINDOW
         motion_span = BLUE_MOTION_MIN_SPAN if cls == 'blue' else 1.
         self.recent_motion = RecentMotion(motion_window, motion_span) if motion_window > 0 else None
@@ -750,7 +753,7 @@ class Track(object):
         self.sp = sp
         return MOTION_FLOOR + (1.0 - MOTION_FLOOR) * min(sp / MOTION_REF, 1.0)
 
-    def verdict(self, now=None, max_coast=None, attach_check=True, stationary_person=False):
+    def verdict(self, now=None, max_coast=None, attach_check=True, stationary_person=False, verified_person=False):
         """「是不是人」判决 —— 只用于「要不要画这个框 / 要不要发这个坐标」。
 
         attach_check=False：跳过「长在机身上」视差判据。盘旋确认时必须关闭 —
@@ -768,13 +771,13 @@ class Track(object):
         """
         if max_coast is None:
             max_coast = MAX_COAST_PUB
-        if self.hits < CONFIRM_HITS:
+        if self.hits < (min(3,CONFIRM_HITS) if verified_person else CONFIRM_HITS):
             return False, "hits"
         if self.miss > max_coast:
             return False, "coast"
         # 视差判据放在几何判据之前：它是"这东西长在机身上"的铁证，
         # 而机身的归一化身高恰好会落在人头区间（实测 1.63~2.32 m），几何拦不住。
-        if attach_check and VERDICT_ATTACH_ON and self.attached_to_cam():
+        if attach_check and not verified_person and VERDICT_ATTACH_ON and self.attached_to_cam():
             return False, "self"
         if not (VERDICT_H_MIN <= self.h <= VERDICT_H_MAX):
             return False, "height"
@@ -783,7 +786,7 @@ class Track(object):
         self.motion_factor(now)                 # 刷新 self.sp
         # 当前在动，或者生命期内动过 —— 见 VERDICT_DISP 的注释（治 actor 卡死）
         recent_speed = self.recent_motion.speed(self.observed_s if now is None else now) if self.recent_motion is not None else None
-        if not stationary_person and ((recent_speed is not None and recent_speed < VERDICT_SP) or (recent_speed is None and self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP)):
+        if not stationary_person and not verified_person and ((recent_speed is not None and recent_speed < VERDICT_SP) or (recent_speed is None and self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP)):
             return False, "static"
         if self.score_ema < VERDICT_SCORE:
             return False, "score"
@@ -1047,9 +1050,10 @@ def main():
           % ("ON" if GATE_DYN else "off", GATE, GATE_MIN, GATE_MULT), flush=True)
 
     rate = rospy.Rate(PUB_HZ)
-    from person_verifier import PersonVerifier
+    from person_verifier import PersonVerifier, frame_verified
     person_verifier=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),infer_device,
         os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'),
+        classes=(1,),proof_classes=(1,3) if FAST_GREEN_WHITE else (1,),
         color_check=os.environ.get('PR_COLOR_VERIFY','0')=='1')
     n_loop = 0
     _t_live = 0.0            # 心跳上次打印墙钟（5s 一次，证明主线程活着）
@@ -1164,6 +1168,10 @@ def main():
                         inference_s = time.time() - _infer_t0
                     _green_frame_verified = (person_verifier.green_proof_enabled() if _local_inference
                         else bool(_shared_meta and _shared_meta.get('verified_green_person') is True))
+                    _person_colors = (person_verifier.verified_colors() if _local_inference
+                        else (_shared_meta or {}).get('verified_person_colors',[]))
+                    _person_boxes = (person_verifier.verified_boxes if _local_inference
+                        else (_shared_meta or {}).get('verified_person_boxes',[]))
                     if not device_reported:
                         print('[pr] inference_device=%s first_inference_s=%.4f' %
                               ((res.device if hasattr(res, 'device') else
@@ -1269,8 +1277,13 @@ def main():
                         from jersey_color import torso_fractions, supported
                         _shirt = torso_fractions(img,[x1,y1,x2,y2]) if cid == 1 and _green_frame_verified else None
                         _green_proof = bool(_shirt is not None and supported('green',_shirt))
+                        _color = CLASSES[cid] if cid < len(CLASSES) else '?'
+                        _person_shirt = torso_fractions(img,[x1,y1,x2,y2]) if _color in _person_colors else None
+                        _person_proof = bool(_person_shirt is not None and supported(_color,_person_shirt)
+                            and frame_verified(_person_boxes,cid,[x1,y1,x2,y2]))
                         dets.append({"cls": CLASSES[cid] if cid < len(CLASSES) else "?",
                                      "green_frame_proof": _green_proof,
+                                     "person_frame_proof": _person_proof,
                                      "conf": round(conf, 3),
                                      "uv": [round(u, 1), round(v, 1)],
                                      "wh": [round(w_px, 1), round(h_px, 1)],
@@ -1343,8 +1356,10 @@ def main():
                           d["uv"], d["wh"], d["range"], d["h"], frame_stamp, uav,
                           appearance_feat=appear_feat)
                 tk.green_frame_proof = d.get('green_frame_proof',False)
+                tk.person_support.observe(frame_stamp,d.get('person_frame_proof',False))
             else:
                 tk.coast(dt)
+                tk.person_support.observe(frame_stamp,False)
 
         # ---------- 2b) 新建（只认严格档，误检建不了轨）----------
         for j, d in enumerate(dets):
@@ -1358,6 +1373,7 @@ def main():
                                     d["uv"], d["wh"], d["range"], d["h"], frame_stamp, uav,
                                     appearance_feat=d.get("appearance")))
                 tracks[-1].green_frame_proof = d.get('green_frame_proof',False)
+                tracks[-1].person_support.observe(frame_stamp,d.get('person_frame_proof',False))
 
         # ---------- 3) 清理 ----------
         # 原判据 math.hypot(tk.x, tk.y) 是"距世界原点"的距离，与飞机在哪无关：
@@ -1398,6 +1414,7 @@ def main():
                 _person_ok, _reject_reason = tk.verdict(
                     now, max_coast=MAX_COAST_PUB,
                     attach_check=not _skip_attach,
+                    verified_person=FAST_GREEN_WHITE and tk.person_support.allowed(tk.cls,tk.miss,now),
                     stationary_person=stationary_person_allowed(
                         _cur_tid_for_verdict,tk.cls,tk.green_frame_proof and STATIONARY_GREEN_ON,
                         tk.miss,tk.observed_s,now))

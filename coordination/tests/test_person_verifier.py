@@ -2,8 +2,9 @@ from pathlib import Path
 import sys
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).parents[2]/'perception'))
-from person_verifier import PersonVerifier,overlap
+from person_verifier import PersonVerifier,overlap,frame_verified
 
 
 def box(cls,xyxy):
@@ -48,3 +49,18 @@ class PersonVerifierTests(unittest.TestCase):
         for rectangle in ([0,0,0,10],[10,10,0,0],[float('nan'),0,10,10]):
             self.assertEqual(overlap(rectangle,[0,0,10,10]),0.)
         self.assertEqual(overlap([0,0,10,10],[0,0,10,10]),1.)
+
+    def test_white_proof_is_per_box_and_does_not_remove_legacy_white_detections(self):
+        verifier=self.verifier([[11.,21.,29.,59.]])
+        verifier.color_check=True
+        verifier.proof_classes={1,3}
+        verified=box(3,[10.,20.,30.,60.])
+        unrelated=box(3,[40.,20.,60.,60.])
+        jersey=SimpleNamespace(filter_boxes=lambda image,boxes:boxes)
+        with patch.dict(sys.modules,jersey_color=jersey):
+            self.assertEqual(verifier.filter_boxes(object(),[verified,unrelated]),[verified,unrelated])
+            self.assertTrue(frame_verified(verifier.verified_boxes,3,verified.xyxy[0]))
+            self.assertFalse(frame_verified(verifier.verified_boxes,3,unrelated.xyxy[0]))
+            self.assertFalse(frame_verified(verifier.verified_boxes,1,verified.xyxy[0]))
+            verifier.filter_boxes(object(),[unrelated])
+            self.assertEqual(verifier.verified_boxes,[])

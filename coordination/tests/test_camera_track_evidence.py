@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 sys.path.insert(0,str(Path(__file__).parents[2]/'perception'))
 from recent_motion import RecentMotion
+from fresh_person import FreshPerson
 
 
 class CameraTrackEvidenceTests(unittest.TestCase):
@@ -17,7 +18,8 @@ class CameraTrackEvidenceTests(unittest.TestCase):
         scope = dict(math=math, np=np, cam_rel=lambda ux,uy,yaw,x,y:(x-ux,y-uy),
                      person_likelihood=lambda h:1., MOTION_FLOOR=.2, ALPHA=.5,
                      BETA=.15, V_MAX=2., MOTION_REF=1., LAG_COMP=0., PUB_EMA=0.,
-                     wrap_pi=lambda angle:angle,RECENT_MOTION_WINDOW=4.,RecentMotion=RecentMotion)
+                     wrap_pi=lambda angle:angle,RECENT_MOTION_WINDOW=4.,RecentMotion=RecentMotion,
+                     FreshPerson=FreshPerson)
         exec(compile(ast.Module(body=[node], type_ignores=[]), str(source), 'exec'), scope)
         return scope['Track']('green',0.,0.,.9,[10,20],[20,50],6.,1.7,10.)
 

@@ -42,7 +42,7 @@ class StationaryPersonTests(unittest.TestCase):
                 self.assertEqual(boxes,[])
                 self.assertEqual(meta['verified_green_person'],expected)
 
-    def verdict(self, proof, **changes):
+    def verdict(self, proof, verified=False, **changes):
         source=Path(__file__).parents[2]/'perception/perception_real.py'
         track=next(n for n in ast.parse(source.read_text()).body
                    if isinstance(n,ast.ClassDef) and n.name=='Track')
@@ -55,7 +55,13 @@ class StationaryPersonTests(unittest.TestCase):
             sp=0.,max_disp=0.,score_ema=.8,motion_factor=lambda now:None,
             attached_to_cam=lambda:False,recent_motion=SimpleNamespace(speed=lambda now:0.))
         values.update(changes)
-        return env['verdict'](SimpleNamespace(**values),now=10.5,stationary_person=proof)
+        return env['verdict'](SimpleNamespace(**values),now=10.5,stationary_person=proof,verified_person=verified)
+
+    def test_verified_person_avoids_static_attachment_veto_but_keeps_geometry(self):
+        self.assertEqual(self.verdict(False,verified=True,hits=3,attached_to_cam=lambda:True),(True,''))
+        self.assertEqual(self.verdict(False,verified=True,h=.5),(False,'height'))
+        self.assertEqual(self.verdict(False,verified=True,rng=30.),(False,'range'))
+        self.assertEqual(self.verdict(False,verified=True,miss=3),(False,'coast'))
 
     def test_actual_verdict_preserves_stationary_person_and_rejects_unverified_static(self):
         self.assertEqual(self.verdict(True),(True,''))

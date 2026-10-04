@@ -70,6 +70,58 @@ class OnlinePlanner:
         self.epoch = None
         self._body_lock = threading.RLock()
         self._body_sample_s = None
+        self._local_key = None
+        self._local_free = {}
+        self._frontier_visits = {}
+
+    def local_command_clear(self, observed, position, velocity, now, epoch,
+                            latency=.5, brake=.5):
+        """Current observed stopping corridor, independent of A* completion.
+
+        Cache only footprint queries within one scan version. Unknown cells
+        need existing body proof; new hits always win. Caller locks the map.
+        """
+        if (observed.last_scan_s is None or not 0 <= now-observed.last_scan_s <= .5
+                or not all(math.isfinite(v) for v in (*position,*velocity,now))):
+            return False
+        proof = self._retain_body(observed,
+            {i: observed.cells[i] if observed.observed_s[i] is not None
+                and 0 <= now-observed.observed_s[i] <= 3. else -1
+             for i in self._body_cells(observed,position)},
+            position,epoch,observed.last_scan_s)
+        key = (epoch,observed.version,frozenset(proof))
+        if key != self._local_key:
+            self._local_key, self._local_free = key, {}
+        res = observed.resolution
+        radius_cells = math.ceil(self.radius/res)
+        offsets = [(dx,dy) for dx in range(-radius_cells,radius_cells+1)
+                   for dy in range(-radius_cells,radius_cells+1)
+                   if math.hypot(dx,dy)*res <= self.radius+res/2]
+        speed = math.hypot(*velocity)
+        distance = speed*latency+speed*speed/(2*brake)
+        steps = max(1,math.ceil(distance/(res/3)))
+        for k in range(steps+1):
+            x = position[0]+velocity[0]/max(speed,1e-9)*distance*k/steps
+            y = position[1]+velocity[1]/max(speed,1e-9)*distance*k/steps
+            cell = (math.floor((x-observed.origin[0])/res),math.floor((y-observed.origin[1])/res))
+            if cell not in self._local_free or now > self._local_free[cell][1]:
+                free = True
+                valid_until = float('inf')
+                for dx,dy in offsets:
+                    ix,iy = cell[0]+dx,cell[1]+dy
+                    if not (0 <= ix < observed.width and 0 <= iy < observed.height):
+                        free = False; break
+                    i = iy*observed.width+ix
+                    stamp = observed.observed_s[i]
+                    value = observed.cells[i] if stamp is not None and 0 <= now-stamp <= 3. else -1
+                    if value == 0:
+                        valid_until = min(valid_until,stamp+3.)
+                    if value != 0 and not (value == -1 and i in proof):
+                        free = False; break
+                self._local_free[cell] = (free,valid_until)
+            if not self._local_free[cell][0]:
+                return False
+        return True
 
     def _body_cells(self, observed, position):
         resolution = observed.resolution
@@ -97,6 +149,7 @@ class OnlinePlanner:
                 return self.body_proof & body_cells if epoch == self.epoch else set()
             if epoch != self.epoch:
                 self.body_proof.clear()
+                self._frontier_visits.clear()
                 self.epoch = epoch
                 for i in body_cells:
                     x, y = i % observed.width, i // observed.width
@@ -147,11 +200,12 @@ class OnlinePlanner:
                     safe[index] = 1
         return GridMap(base.width, base.height, base.resolution, base.origin, bytes(safe), 'map')
 
-    def route(self, grid, start, goal):
+    def route(self, grid, start, goal, observed=None, now=None):
         initial = grid.world_to_cell(start)
         if initial is None or not grid.is_free(initial):
             return dict(ok=False, reason='START_CLEARANCE_UNKNOWN', points=())
         seen = {initial}
+        hops = {initial: 0}
         queue = deque([initial])
         while queue:
             cell = queue.popleft()
@@ -159,13 +213,34 @@ class OnlinePlanner:
                 other = cell[0]+dx, cell[1]+dy
                 if other not in seen and grid.is_free(other):
                     seen.add(other)
+                    hops[other] = hops[cell]+1
                     queue.append(other)
         target = grid.world_to_cell(goal)
         complete = target in seen
         if not complete:
             target = min(seen, key=lambda cell: (math.dist(grid.cell_to_world(cell), goal), cell))
             if math.dist(grid.cell_to_world(target), goal) >= math.dist(start, goal)-.5:
-                return dict(ok=False, reason='NO_REACHABLE_PROGRESS', points=())
+                if observed is None or now is None:
+                    return dict(ok=False, reason='NO_REACHABLE_PROGRESS', points=())
+                values = observed.snapshot(now)
+                self._frontier_visits = {p:s for p,s in self._frontier_visits.items() if 0 <= now-s < 30.}
+                extent = math.ceil((self.radius+2*grid.resolution)/grid.resolution)
+                ring = [(dx,dy) for dx in range(-extent,extent+1) for dy in range(-extent,extent+1)
+                        if self.radius < math.hypot(dx,dy)*grid.resolution <= self.radius+2*grid.resolution]
+                candidates = []
+                for cell in seen:
+                    point = grid.cell_to_world(cell)
+                    if math.dist(point,start) < .5 or any(math.dist(point,p) < 1. for p in self._frontier_visits):
+                        continue
+                    unknown = sum(1 for dx,dy in ring
+                        if 0 <= cell[0]+dx < grid.width and 0 <= cell[1]+dy < grid.height
+                        and values[(cell[1]+dy)*grid.width+cell[0]+dx] == -1)
+                    if unknown:
+                        candidates.append((-unknown,hops[cell],math.dist(point,goal),cell))
+                if not candidates:
+                    return dict(ok=False, reason='NO_REACHABLE_PROGRESS', points=())
+                target = min(candidates)[-1]
+                self._frontier_visits[grid.cell_to_world(target)] = now
         endpoint = goal if complete else grid.cell_to_world(target)
         result = plan(grid, start, endpoint, connectivity=4)
         if not result.success:

@@ -82,6 +82,7 @@ def _load(device, conf):
     from person_verifier import PersonVerifier
     _PERSON_VERIFIER=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),device,
         os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'),
+        classes=(1,),proof_classes=(1,3) if os.environ.get('PR_FAST_GREEN_WHITE','0') == '1' else (1,),
         color_check=os.environ.get('PR_COLOR_VERIFY','0')=='1')
     # Touch the predictor so the first real request does not pay model setup.
     import numpy as np
@@ -162,13 +163,19 @@ class Handler(socketserver.StreamRequestHandler):
                 with _GPU_LOCK:
                     t_lock = time.time()
                     dets = _infer(img, conf, device)
+                    # Proof belongs to this image, copied before another client
+                    # can replace the verifier's per-frame state.
+                    proof_boxes=list(_PERSON_VERIFIER.verified_boxes) if _PERSON_VERIFIER is not None else []
                     infer_s = time.time() - t_lock
                 self.server.record(self.client_address[1], infer_s, t_queue)
                 self._reply(dict(ok=True, dets=dets, infer_s=round(infer_s, 4),
                                  queue_s=round(t_lock - t_queue, 4),
                                  verification_version=1,
+                                 verified_person_boxes=proof_boxes,
                                  verified_green_person=bool(_PERSON_VERIFIER is not None
-                                     and _PERSON_VERIFIER.green_proof_enabled())))
+                                     and _PERSON_VERIFIER.green_proof_enabled()),
+                                 verified_person_colors=_PERSON_VERIFIER.verified_colors()
+                                     if _PERSON_VERIFIER is not None else []))
             except Exception as error:
                 self._reply(dict(ok=False, error="INFER:%s" % error,
                                  infer_s=round(time.time() - t_queue, 4)

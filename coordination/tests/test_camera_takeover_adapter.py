@@ -38,6 +38,7 @@ class CameraTakeoverAdapterTests(unittest.TestCase):
             grid=SimpleNamespace(cells={0: SimpleNamespace(state=1, owner='live')},
                                  x_min=-50., x_max=130., y_min=-60., y_max=60.),
             _tracking={}, _backup={}, _idle_uavs=lambda: ['blind'],
+            _navigation_eligible=lambda uid:True,
             _target_authority_held=lambda tid: False, _authorized_publish=Mock(),
             _authority=authority, _authority_lock=threading.RLock(), _emit_authority=Mock(),
             _visual_evidence=evidence, _truth_cache={'t0': (0., 0., 9.9)})
@@ -83,6 +84,17 @@ class CameraTakeoverAdapterTests(unittest.TestCase):
         m._tracking['t1'] = 'live'
         scope['_consider_camera_takeover'](m, 't0', 10.)
         m._authority.withdraw.assert_not_called()
+
+    def test_blocked_camera_candidate_does_not_replace_current_tracker(self):
+        m = self.manager()
+        m._tracking['t0'] = 'owner'
+        m._visual_evidence.stamps[('owner', 'green')] = 8.
+        m._navigation_eligible = lambda uid: uid != 'live'
+        for stamp in (9.9, 10.3, 10.7):
+            m._visual_evidence.stamps[('live', 'green')] = stamp
+            scope['_consider_camera_takeover'](m, 't0', stamp+.1)
+        m._authority.withdraw.assert_not_called()
+        self.assertEqual(m._tracking['t0'], 'owner')
 
     def test_takeover_debounce_remains_possible_after_observer_crosses_old_fifteen_meter_margin(self):
         m = self.manager()
