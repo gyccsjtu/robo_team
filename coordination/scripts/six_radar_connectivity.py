@@ -74,7 +74,7 @@ def main():
     snapshot.mkdir()
     source_names = ('six_radar_connectivity.py', 'prepare_radar_fleet.py', 'radar_fleet_models.py',
                     'six_swarm_probe.py', 'fixture_contacts.py', 'camera_actor_probe.py',
-                    'flight_actor_probe.py', 'evidence_writer.py', 'city_swarm_run.py', 'start_city_judge.py',
+                    'flight_actor_probe.py', 'evidence_writer.py', 'city_swarm_run.py', 'start_city_judge.py', 'judge_terminal.py',
                     'build_namespaced_gimbal_overlay.py')
     for name in source_names:
         shutil.copyfile(script_directory / name, snapshot / name)

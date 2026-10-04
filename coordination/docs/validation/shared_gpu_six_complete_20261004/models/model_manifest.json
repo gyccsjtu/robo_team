@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "source_sha256": "8155aebfcc1f811d7112814ceb57aea42bf6ac3c245db5720ef77b3e8b641d56",
+  "generated_sha256": {
+    "typhoon_h480_0.sdf": "6a8a2bc1bef362230a1c131fef5a460ae3ec3e26cb5b4bdb59cb97e62aba3a90",
+    "typhoon_h480_1.sdf": "15e3da6b232f83002f9970b2d026a8fefa9c66e046bdc0fe045ae7efb8d4ff90",
+    "typhoon_h480_2.sdf": "c648cfb4fc22731c67297e889ddae5149f26bfc4f38a69446ee75ff2764aacbd",
+    "typhoon_h480_3.sdf": "567fb5ce15e10acb346974499ef9eb7f93d8f4fb542c1ba3ba929d57315c37e1",
+    "typhoon_h480_4.sdf": "1dca296beb04bb640fbcd93e8dc74fe1931051cce4e1be8a77c3fac0e5f43365",
+    "typhoon_h480_5.sdf": "538078fa88cc0980d4192e0b9700ec3f3897a672bb8ef8e279f384064a4e9c50"
+  },
+  "sensor_parameters_preserved": true,
+  "gui_ray_visualizations_disabled": true,
+  "gimbal_wiring_revision": "v1.21",
+  "competition_equivalence_verified": false
+}

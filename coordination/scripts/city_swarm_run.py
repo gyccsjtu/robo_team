@@ -27,6 +27,7 @@ def bounded_query(function, timeout=5.):
         raise value
     return value
 from evidence_writer import JsonlEvidence, audit_jsonl
+from judge_terminal import completed as judge_completed
 
 
 def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
@@ -43,6 +44,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         hashlib.sha256(p.read_bytes()).hexdigest() for p in snapshot.rglob('*') if p.is_file()},indent=2))
     scene=json.loads((city/'scene_manifest.json').read_text())
     run_id=str(uuid.uuid4())
+    experimental=env.get('CITY_EXPERIMENTAL_V123','0')=='1'
     metadata=out/'city_bounds.json'
     width,height=720,480
     metadata.write_text(json.dumps(dict(schema='robocup_training_worlds/metadata/v1',
@@ -58,13 +60,16 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         run_id=run_id,world_path=str(world),world_sha256=hashlib.sha256(world.read_bytes()).hexdigest(),
         positions=scene['positions'],startup_checks=scene['startup_checks'])))
     flight_env=dict(env,ROBOCUP_RUN_ID=run_id,ROBOCUP_LOG_DIR=str(out/'algorithm'),
+        ROBOCUP_JUDGE_TERMINAL=str(out/'judge_terminal.json'),
         ROBOCUP_METADATA=str(metadata),ROBOCUP_WS=str(snapshot/'coordination'),
         SWARM_UAV_IDS=','.join(r['uav_id'] for r in wiring['uavs']),
         ONLINE_RADAR_PLANNING='1',RADAR_START_CLEARANCE_FILE=str(clearance),
         SEED_TRUTH='0',VIS_ENABLE='0',RADAR_GUARD='1',SWARM_MAX_SPEED='3.0',PR_RECENT_MOTION_WINDOW='4.0',FLEE_CHASE_SPEED='2.6',
         PR_COORD_HZ='10',
         PR_COLOR_VERIFY='1',
-        PR_BLUE_MOTION_WINDOW='10',PR_BLUE_MOTION_MIN_SPAN='3',
+        PR_BLUE_MOTION_WINDOW='10' if experimental else '4',
+        PR_BLUE_MOTION_MIN_SPAN='3' if experimental else '1',
+        PR_STATIONARY_GREEN='1' if experimental else '0',
         # The last real flight reached world z=6.019 while MAVROS reported
         # z=4.747. Reserve height for that observed estimator discrepancy;
         # world truth remains an independent audit input, not a controller input.
@@ -88,9 +93,10 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         clearance_configuration_revision='v1.2',route_clearance_m=2.5,fleet_separation_m=2.5,
         observed_grid_revision='v1.14',observed_grid_resolution_m=.25,
         observed_body_proof_revision='v1.16_scan_carry',
-        maximum_speed_mps=3.,visual_fusion_revision='v2.11',tracker_selection_revision='v1.20_camera_takeover',
-        stationary_green_revision='v1.23_fresh_verified_authorized',
-        blue_motion_window_s=10.,blue_motion_minimum_span_s=3.,
+        maximum_speed_mps=3.,visual_fusion_revision='v2.11' if experimental else 'v2.9',tracker_selection_revision='v1.20_camera_takeover',
+        experimental_v123_enabled=experimental,
+        stationary_green_revision='v1.23_fresh_verified_authorized' if experimental else 'disabled',
+        blue_motion_window_s=10. if experimental else 4.,blue_motion_minimum_span_s=3. if experimental else 1.,
         shirt_color_veto_revision='v1.22_same_image_green_white',
         gimbal_wiring_revision='v1.21_per_aircraft_follow_body',fleet_wiring_schema_version=2,
         visual_report_throttle_hz=10.,original_image_report_deduplication=True,
@@ -223,8 +229,10 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
     for index in range(6):
         processes.append(spawn(['bash','-c','cd "$1" && exec python3 -u control_actor.py "$2"',
             'city-actor',str(city),str(index)],'actor_'+str(index),flight_env))
-    processes.append(spawn(['bash','-c','cd "$1" && exec python3 -u "$2" "$1/score_cal.py" typhoon_h480',
-        'city-judge',str(city),str(out/'execution_sources/start_city_judge.py')],'judge',flight_env))
+    judge_process=spawn(['bash','-c','cd "$1" && exec python3 -u "$2" "$1/score_cal.py" typhoon_h480',
+        'city-judge',str(city),str(out/'execution_sources/start_city_judge.py')],'judge',flight_env)
+    processes.append(judge_process)
+    judge_sha=hashlib.sha256((city/'score_cal.py').read_bytes()).hexdigest()
     records=JsonlEvidence(out/'city_events.jsonl')
     trajectory=JsonlEvidence(out/'city_trajectory.jsonl')
     commands=JsonlEvidence(out/'city_commands.jsonl')
@@ -263,6 +271,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
     start=rospy.Time.now().to_sec()
     deadline=time.monotonic()+seconds*250/update_rate*1.5+90
     error=None
+    terminal=None
+    topic_last=None
     last_sample=-1.
     try:
         while rospy.Time.now().to_sec()-start < seconds:
@@ -270,6 +280,12 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
                 owned_health_check()
             if time.monotonic()>deadline:
                 error='CITY_SIM_TIME_TIMEOUT'; break
+            terminal=judge_completed(out/'judge_terminal.json',run_id,judge_sha,judge_process.poll())
+            if terminal is not None:
+                topic_last=latest['left_actors']
+                latest['left_actors']=[]
+                records.write(dict(kind='judge_terminal',sample_s=rospy.Time.now().to_sec(),value=terminal))
+                break
             def expected_actor_exit(process):
                 return (process.returncode == 0 and 'city-actor' in process.args
                     and latest['left_actors'] is not None
@@ -322,4 +338,5 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         minimum_sampled_separation_m=min((math.dist(s['positions'][a['uav_id']],s['positions'][b['uav_id']])
             for s in samples for i,a in enumerate(wiring['uavs']) for b in wiring['uavs'][i+1:]),default=None),
         component_error=error,evidence_streams_verified=audit['valid'],fixture_only=False,
+        judge_terminal_evidence=terminal,left_actors_topic_last=topic_last,
         formal_competition_pass=False,armed_during_run_uavs=sorted(armed),**latest)

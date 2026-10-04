@@ -1,0 +1,6 @@
+{
+  "path": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight/gzserver.log",
+  "bytes": 296729465,
+  "sha256": "3667a2a4d17d0c3200c67cd0d200c58df7d7d034abb5208c22f1c6cdbeae650f",
+  "reason": "283MiB repeated actor service diagnostics; original retained in WSL, not Git"
+}

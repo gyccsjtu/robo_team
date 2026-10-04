@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Start the isolated platform judge copy after its own ROS clock is ready."""
 import runpy
+import os
+import hashlib
 import sys
 import time
 from pathlib import Path
@@ -25,7 +27,12 @@ def main():
     rospy.init_node('score_cal')
     stamp = wait_for_sim_clock(rospy.get_time,rospy.is_shutdown)
     print('CITY_JUDGE_CLOCK_READY %.6f' % stamp, flush=True)
-    runpy.run_path(str(script),run_name='__main__')
+    state=runpy.run_path(str(script),run_name='__main__')
+    terminal=os.environ.get('ROBOCUP_JUDGE_TERMINAL')
+    if terminal:
+        from judge_terminal import write_terminal
+        write_terminal(terminal,os.environ['ROBOCUP_RUN_ID'],
+                       hashlib.sha256(script.read_bytes()).hexdigest(),state)
 
 
 if __name__ == '__main__':

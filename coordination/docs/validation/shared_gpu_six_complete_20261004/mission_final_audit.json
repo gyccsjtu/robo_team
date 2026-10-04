@@ -1,0 +1,51 @@
+{
+  "run_id": "fd36c87a-0e37-4a02-bbf0-549cf9df9cda",
+  "execution_commit": "1004277e1d3c20ba4bbdd8d3f892005f2444cc0b",
+  "official_targets_eliminated": 6,
+  "all_targets_eliminated": true,
+  "judge_time_usage_s": 405.45600000000013,
+  "judge_final_score": 2169.4320000000002,
+  "deleted_actor_ids": [
+    3,
+    5,
+    4,
+    0,
+    2,
+    1
+  ],
+  "remaining_actor_ids": [],
+  "corrected_result_reason": "Judge successfully deleted actor_1 then shut down before left_actors=[] was broadcast; original harness misclassified normal judge exit.",
+  "original_result_status": "CITY_MOTION_BLOCKED",
+  "original_result_preserved": true,
+  "judge_sha256": "255d3895ea47cc337ab03b0e965e71213791244257044a4c32b04759fbc1d0e1",
+  "judge_log_sha256": "0671bf596b62bb9b168e36b1ddff3403c638afd1d54b33b45091dc4e28d1e1ac",
+  "six_aircraft_armed_and_moved": true,
+  "maximum_altitudes_m": {
+    "uav_1": 2.9127111079586556,
+    "uav_2": 2.9752764638527833,
+    "uav_3": 2.84492636343294,
+    "uav_4": 3.568032939792349,
+    "uav_5": 2.6225327545767296,
+    "uav_6": 3.1892906964937895
+  },
+  "minimum_sampled_separation_m": 2.96213629789472,
+  "non_ground_body_contact_rows": 0,
+  "ground_body_contact_rows": 406,
+  "native_contact_observer": {
+    "kind": "CONTACT_OBSERVER_STOPPED",
+    "frames": 101808,
+    "first_sample_s": 1929.584,
+    "last_sample_s": 2336.812,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 218003,
+    "body_pairs": 49354
+  },
+  "raw_trajectory_samples": 1989,
+  "formal_competition_pass": false,
+  "limitations": [
+    "single development city, no physical hardware or other random maps acceptance",
+    "own camera pose uses Gazebo development link pose; formal permission not confirmed",
+    "v1.23 candidate optimizations not in this successful execution snapshot; disabled by default"
+  ],
+  "judgment_source": "Isolated rule-based judge source SHA, all six unique successful delete branches, Mission finished and native physics/trajectory evidence, not waypoint completion logs"
+}

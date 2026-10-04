@@ -371,6 +371,7 @@ VERDICT_DISP = float(os.environ.get("PR_VERDICT_DISP", "2.5"))  # 生命期最�
 RECENT_MOTION_WINDOW = float(os.environ.get('PR_RECENT_MOTION_WINDOW', '0'))
 BLUE_MOTION_WINDOW = float(os.environ.get('PR_BLUE_MOTION_WINDOW', str(RECENT_MOTION_WINDOW)))
 BLUE_MOTION_MIN_SPAN = float(os.environ.get('PR_BLUE_MOTION_MIN_SPAN', '1'))
+STATIONARY_GREEN_ON = os.environ.get('PR_STATIONARY_GREEN','0') == '1'
 # --- 视差判据（v3.5b 新增，专治"机身跟着观测机转向而漏网"）---
 # 踩到的漏网实例：观测机盯人时会不停转向，机身的"假世界坐标"就在以 13 m 为半径
 # 绕圈 -> 净速度 0.74 m/s，运动判据不但拦不住，反而把它判成"在动"。
@@ -1398,7 +1399,7 @@ def main():
                     now, max_coast=MAX_COAST_PUB,
                     attach_check=not _skip_attach,
                     stationary_person=stationary_person_allowed(
-                        _cur_tid_for_verdict,tk.cls,tk.green_frame_proof,
+                        _cur_tid_for_verdict,tk.cls,tk.green_frame_proof and STATIONARY_GREEN_ON,
                         tk.miss,tk.observed_s,now))
                 if not _person_ok:
                     _CSV.write(

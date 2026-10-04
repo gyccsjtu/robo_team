@@ -1,0 +1,6 @@
+typhoon_h480_0::sonar::link::default::typhoon_h480_0::sonar::link::sonarsensor_collision
+typhoon_h480_1::sonar::link::default::typhoon_h480_1::sonar::link::sonarsensor_collision
+typhoon_h480_2::sonar::link::default::typhoon_h480_2::sonar::link::sonarsensor_collision
+typhoon_h480_3::sonar::link::default::typhoon_h480_3::sonar::link::sonarsensor_collision
+typhoon_h480_4::sonar::link::default::typhoon_h480_4::sonar::link::sonarsensor_collision
+typhoon_h480_5::sonar::link::default::typhoon_h480_5::sonar::link::sonarsensor_collision

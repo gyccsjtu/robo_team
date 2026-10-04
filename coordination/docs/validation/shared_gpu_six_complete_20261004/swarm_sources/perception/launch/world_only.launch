@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+  阶段一：只起 roscore + gzserver(官方 base.world)
+  不含无人机 —— 官方世界太大，必须先等它彻底加载完，
+  否则 spawn 请求会排在队列里、在 sim 时间上超时（已实测踩过）。
+-->
+<launch>
+    <arg name="world" default="$(env HOME)/XTDrone/robocup/base.world"/>
+    <arg name="gui"   default="false"/>
+    <arg name="verbose" default="false"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui"        value="$(arg gui)"/>
+        <arg name="world_name" value="$(arg world)"/>
+        <arg name="verbose"    value="$(arg verbose)"/>
+        <arg name="paused"     value="false"/>
+        <arg name="use_sim_time" value="true"/>
+    </include>
+</launch>

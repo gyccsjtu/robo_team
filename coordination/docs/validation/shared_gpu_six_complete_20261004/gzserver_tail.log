@@ -1,0 +1,80 @@
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LeftHandIndex1?p=pose3d/world_pose[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LeftHandIndex1?p=vector3d/world_linear_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LeftHandIndex1?p=vector3d/world_angular_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LeftHandIndex1?p=vector3d/world_linear_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LeftHandIndex1?p=vector3d/world_angular_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LThumb?p=pose3d/world_pose[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LThumb?p=vector3d/world_linear_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LThumb?p=vector3d/world_angular_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LThumb?p=vector3d/world_linear_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/LThumb?p=vector3d/world_angular_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightShoulder?p=pose3d/world_pose[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightShoulder?p=vector3d/world_linear_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightShoulder?p=vector3d/world_angular_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightShoulder?p=vector3d/world_linear_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightShoulder?p=vector3d/world_angular_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightArm?p=pose3d/world_pose[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightArm?p=vector3d/world_linear_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightArm?p=vector3d/world_angular_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightArm?p=vector3d/world_linear_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightArm?p=vector3d/world_angular_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightForeArm?p=pose3d/world_pose[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightForeArm?p=vector3d/world_linear_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightForeArm?p=vector3d/world_angular_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightForeArm?p=vector3d/world_linear_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightForeArm?p=vector3d/world_angular_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHand?p=pose3d/world_pose[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHand?p=vector3d/world_linear_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHand?p=vector3d/world_angular_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHand?p=vector3d/world_linear_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHand?p=vector3d/world_angular_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightFingerBase?p=pose3d/world_pose[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightFingerBase?p=vector3d/world_linear_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightFingerBase?p=vector3d/world_angular_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightFingerBase?p=vector3d/world_linear_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightFingerBase?p=vector3d/world_angular_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHandIndex1?p=pose3d/world_pose[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHandIndex1?p=vector3d/world_linear_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHandIndex1?p=vector3d/world_angular_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHandIndex1?p=vector3d/world_linear_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RightHandIndex1?p=vector3d/world_angular_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RThumb?p=pose3d/world_pose[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RThumb?p=vector3d/world_linear_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RThumb?p=vector3d/world_angular_velocity[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RThumb?p=vector3d/world_linear_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[1;33m[Wrn] [IntrospectionManager.cc:129] [0m[1;33mItem [[0m[1;33mdata://world/default/model/actor_1/link/RThumb?p=vector3d/world_angular_acceleration[0m[1;33m] is not registered[0m[1;33m
+[0m[1;33m[0m[31m[ERROR] [1791088911.250217164, 2336.536000000]: GetModelState: model [actor_0] does not exist[0m
+[31m[ERROR] [1791088911.251263119, 2336.536000000]: GetModelState: model [actor_1] does not exist[0m
+[31m[ERROR] [1791088911.255154051, 2336.536000000]: GetModelState: model [actor_1] does not exist[0m
+[31m[ERROR] [1791088911.255881420, 2336.536000000]: GetModelState: model [actor_3] does not exist[0m
+[31m[ERROR] [1791088911.256440561, 2336.536000000]: GetModelState: model [actor_2] does not exist[0m
+[31m[ERROR] [1791088911.257171068, 2336.536000000]: GetModelState: model [actor_4] does not exist[0m
+[31m[ERROR] [1791088911.272651765, 2336.540000000]: GetModelState: model [actor_5] does not exist[0m
+[31m[ERROR] [1791088911.593550811, 2336.592000000]: GetModelState: model [actor_0] does not exist[0m
+[31m[ERROR] [1791088911.632298322, 2336.596000000]: GetModelState: model [actor_1] does not exist[0m
+[31m[ERROR] [1791088911.643802955, 2336.600000000]: GetModelState: model [actor_3] does not exist[0m
+[31m[ERROR] [1791088911.644796815, 2336.600000000]: GetModelState: model [actor_2] does not exist[0m
+[31m[ERROR] [1791088911.645406115, 2336.600000000]: GetModelState: model [actor_1] does not exist[0m
+[31m[ERROR] [1791088911.646297448, 2336.600000000]: GetModelState: model [actor_4] does not exist[0m
+[31m[ERROR] [1791088911.652635346, 2336.600000000]: GetModelState: model [actor_5] does not exist[0m
+[31m[ERROR] [1791088911.932824614, 2336.644000000]: GetModelState: model [actor_0] does not exist[0m
+[31m[ERROR] [1791088911.945978626, 2336.648000000]: GetModelState: model [actor_1] does not exist[0m
+[31m[ERROR] [1791088912.016289484, 2336.660000000]: GetModelState: model [actor_3] does not exist[0m
+[31m[ERROR] [1791088912.027111561, 2336.660000000]: GetModelState: model [actor_2] does not exist[0m
+[31m[ERROR] [1791088912.028160753, 2336.660000000]: GetModelState: model [actor_4] does not exist[0m
+[31m[ERROR] [1791088912.068567130, 2336.668000000]: GetModelState: model [actor_5] does not exist[0m
+[31m[ERROR] [1791088912.250909895, 2336.696000000]: GetModelState: model [actor_1] does not exist[0m
+[31m[ERROR] [1791088912.251882860, 2336.696000000]: GetModelState: model [actor_0] does not exist[0m
+[31m[ERROR] [1791088912.288863290, 2336.704000000]: GetModelState: model [actor_1] does not exist[0m
+[31m[ERROR] [1791088912.343339495, 2336.712000000]: GetModelState: model [actor_3] does not exist[0m
+[31m[ERROR] [1791088912.369614696, 2336.716000000]: GetModelState: model [actor_2] does not exist[0m
+[31m[ERROR] [1791088912.417530847, 2336.724000000]: GetModelState: model [actor_4] does not exist[0m
+[31m[ERROR] [1791088912.424754349, 2336.724000000]: GetModelState: model [actor_5] does not exist[0m
+[31m[ERROR] [1791088912.599644172, 2336.752000000]: GetModelState: model [actor_0] does not exist[0m
+[31m[ERROR] [1791088912.638940973, 2336.760000000]: GetModelState: model [actor_1] does not exist[0m
+[31m[ERROR] [1791088912.682004896, 2336.764000000]: GetModelState: model [actor_3] does not exist[0m
+[31m[ERROR] [1791088912.710512563, 2336.772000000]: GetModelState: model [actor_2] does not exist[0m
+[31m[ERROR] [1791088912.763952354, 2336.780000000]: GetModelState: model [actor_4] does not exist[0m
+[31m[ERROR] [1791088912.775795467, 2336.780000000]: GetModelState: model [actor_5] does not exist[0m
+[31m[ERROR] [1791088912.865841118, 2336.796000000]: GetModelState: model [actor_1] does not exist[0m
+[31m[ERROR] [1791088912.960399284, 2336.812000000]: GetModelState: model [actor_0] does not exist[0m
