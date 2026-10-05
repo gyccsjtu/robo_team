@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "control_input": false,
+  "partial_run": true,
+  "truth_bounds": [
+    0.0,
+    2318.16
+  ],
+  "aligned_samples": 4176,
+  "minimum_horizontal_distance_m": 16.232138450789858,
+  "fraction_any_drone_within_20m": 0.14319923371647508,
+  "fraction_any_drone_within_15m": 0.0,
+  "nearest_drone_samples_within_20m": {
+    "uav_2": 308,
+    "uav_6": 59,
+    "uav_3": 231
+  },
+  "limitation": "Distance only, not camera field of view or unobstructed line of sight; retrospective read-only truth analysis"
+}

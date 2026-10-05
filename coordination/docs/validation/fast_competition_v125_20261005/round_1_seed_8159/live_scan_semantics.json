@@ -1,0 +1,18 @@
+{
+  "1": {
+    "stamp": 2005.24,
+    "count": 512,
+    "nan": 0,
+    "positive_inf": 443,
+    "negative_inf": 0,
+    "finite": 69
+  },
+  "5": {
+    "stamp": 2005.244,
+    "count": 512,
+    "nan": 0,
+    "positive_inf": 343,
+    "negative_inf": 0,
+    "finite": 169
+  }
+}

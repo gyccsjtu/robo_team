@@ -1,0 +1,13 @@
+{
+  "revision": "v1.12",
+  "scope": "isolated city SITL startup before EKF initialization",
+  "source_sha256": "2f6ab039693b60d95cb275fe90e2bbaec279f6ddf6d221330f8a6a62920a191d",
+  "adapted_sha256": "abbffa8a9510b98b27a020d994b7710e989fc53c7b33d181110041f7e0415e9a",
+  "parameters": {
+    "EKF2_MULTI_IMU": 0,
+    "SENS_IMU_MODE": 1,
+    "EKF2_MULTI_MAG": 0,
+    "SENS_MAG_MODE": 1
+  },
+  "reason": "Observed Multi-EKF filter switching, invalid setpoints and large local-coordinate excursions"
+}

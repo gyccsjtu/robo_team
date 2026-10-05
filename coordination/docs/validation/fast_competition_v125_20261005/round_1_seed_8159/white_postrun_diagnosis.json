@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "control_input": false,
+  "executed_commit": "5a03aa3",
+  "late_window_ros_s": [
+    2365,
+    2373.5
+  ],
+  "late_white_yolo_rows": 19,
+  "late_white_unique_originals": 19,
+  "late_white_verified_yolo_rows": 19,
+  "late_white_track_ids": [
+    "31"
+  ],
+  "late_white_max_person_hits": 5,
+  "late_white_reject_reasons": {
+    "verdict_hits": 12,
+    "verdict_static": 2
+  },
+  "late_white_miss_values": {
+    "0": 58,
+    "1": 14,
+    "2": 2,
+    "3": 1
+  },
+  "interpretation": "This window has verified detections and stable track 31; intermittent misses reset proof. It does not establish a continuous 15s report or prove body IoU is the failure cause.",
+  "next_repair_gate": "Preserve three actual original frames and age <=1s; do not relax person proof or remove coordinate filtering solely on 17 paired frames."
+}

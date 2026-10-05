@@ -16,6 +16,25 @@ from radar_observed_map import ObservedMap
 
 
 class CityStartupTests(unittest.TestCase):
+    def test_owned_exit_evidence_preserves_signal_and_running_states(self):
+        from types import SimpleNamespace
+        from six_radar_connectivity import owned_process_snapshot
+        class Child:
+            def __init__(self, pid, code):
+                self.pid, self.code, self.args = pid, code, ['component', str(pid)]
+                self.polls = 0
+            def poll(self):
+                self.polls += 1
+                return self.code
+        children = [Child(i, code) for i, code in enumerate((None, 0, -9, -11))]
+        evidence = owned_process_snapshot([(p, SimpleNamespace(name=str(p.pid)+'.log'))
+                                           for p in children])
+        self.assertEqual([r['returncode'] for r in evidence], [None, 0, -9, -11])
+        self.assertEqual([p.polls for p in children], [1, 1, 1, 1])
+        self.assertEqual(evidence[-1]['command'], ['component', '3'])
+        self.assertEqual(evidence[-1]['log_file'], '3.log')
+        self.assertEqual(owned_process_snapshot([]), [])
+
     def test_exhausted_layout_cannot_publish_empty_base_world(self):
         from io import StringIO
         source = """if True:

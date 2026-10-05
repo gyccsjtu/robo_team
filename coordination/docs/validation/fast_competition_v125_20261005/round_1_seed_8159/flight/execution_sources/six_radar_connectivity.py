@@ -18,13 +18,6 @@ from prepare_radar_fleet import derive
 from radar_fleet_models import generate
 
 
-def owned_process_snapshot(children):
-    """Poll only owned children before shutdown changes their exit evidence."""
-    return [dict(pid=process.pid, command=process.args,
-                 log_file=str(log.name), returncode=process.poll())
-            for process, log in children]
-
-
 def check_endpoints(tcp_ports, udp_ports):
     for kind, ports in ((socket.SOCK_STREAM, tcp_ports), (socket.SOCK_DGRAM, udp_ports)):
         for port in sorted(ports):
@@ -363,11 +356,6 @@ def main():
         return 1
     finally:
         watchdog.cancel()
-        # A service can disappear between the health check and the RPC. Keep
-        # pre-cleanup codes: later SIGTERM/SIGKILL codes do not explain failure.
-        report['owned_children_before_cleanup'] = dict(
-            schema_version=1, wall_time_s=time.time(),
-            processes=owned_process_snapshot(children))
         if 'rospy' in locals():
             rospy.signal_shutdown('Owned fixture completed')
         for process, log in reversed(children):

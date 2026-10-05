@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "control_input": false,
+  "partial_run": true,
+  "unique_same_frame_pairs": 17,
+  "ambiguous_frames": 0,
+  "missing_frames": 0,
+  "raw_mean_error_m": 0.6766745529810578,
+  "filtered_mean_error_m": 0.7153553997979252,
+  "raw_fraction_below_1m": 0.7647058823529411,
+  "filtered_fraction_below_1m": 0.6470588235294118,
+  "samples": [
+    {
+      "sample_s": 2288.948,
+      "raw_error_m": 0.5452083080215865,
+      "filtered_error_m": 1.1184595490427744
+    },
+    {
+      "sample_s": 2366.008,
+      "raw_error_m": 0.20205494932832715,
+      "filtered_error_m": 0.2731116483201068
+    },
+    {
+      "sample_s": 2366.904,
+      "raw_error_m": 0.0613644484421041,
+      "filtered_error_m": 0.13671176141307215
+    },
+    {
+      "sample_s": 2367.256,
+      "raw_error_m": 0.07061796033393483,
+      "filtered_error_m": 0.05200450912651371
+    },
+    {
+      "sample_s": 2367.88,
+      "raw_error_m": 0.07682739107379308,
+      "filtered_error_m": 0.008755866820649154
+    },
+    {
+      "sample_s": 2368.208,
+      "raw_error_m": 0.5099293010404181,
+      "filtered_error_m": 0.25228653688398506
+    },
+    {
+      "sample_s": 2368.488,
+      "raw_error_m": 0.700963457544235,
+      "filtered_error_m": 0.5169618320462052
+    },
+    {
+      "sample_s": 2369.088,
+      "raw_error_m": 0.9736149305083104,
+      "filtered_error_m": 0.880151189035079
+    },
+    {
+      "sample_s": 2369.376,
+      "raw_error_m": 1.1135372584960217,
+      "filtered_error_m": 1.0761176361611484
+    },
+    {
+      "sample_s": 2369.672,
+      "raw_error_m": 1.3011393391032788,
+      "filtered_error_m": 1.2728329515078376
+    },
+    {
+      "sample_s": 2369.96,
+      "raw_error_m": 1.283679991569091,
+      "filtered_error_m": 1.368684786597155
+    },
+    {
+      "sample_s": 2370.268,
+      "raw_error_m": 0.6133684966412283,
+      "filtered_error_m": 1.0765186998347263
+    },
+    {
+      "sample_s": 2370.924,
+      "raw_error_m": 0.9086782097740616,
+      "filtered_error_m": 1.0182127890314006
+    },
+    {
+      "sample_s": 2371.216,
+      "raw_error_m": 0.7585698119429188,
+      "filtered_error_m": 0.8863910717420317
+    },
+    {
+      "sample_s": 2371.484,
+      "raw_error_m": 0.6599001087773483,
+      "filtered_error_m": 0.7488732656960319
+    },
+    {
+      "sample_s": 2371.768,
+      "raw_error_m": 0.6584751001387975,
+      "filtered_error_m": 0.6747079463955539
+    },
+    {
+      "sample_s": 2372.324,
+      "raw_error_m": 1.0655383379425283,
+      "filtered_error_m": 0.8002597569104565
+    }
+  ]
+}

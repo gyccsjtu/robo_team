@@ -1,0 +1,3 @@
+[shared_infer] same-frame green person verifier ready weights=/mnt/d/a/.robocup/robo_team/weights/yolo11n_person.pt
+[shared_infer] model ready weights=/mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt device=0 conf=0.40
+[shared_infer] listening on 127.0.0.1:19731 device=0 conf=0.40 fmt=png

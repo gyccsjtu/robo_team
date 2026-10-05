@@ -1,0 +1,137 @@
+{
+  "status": "CITY_MOTION_BLOCKED",
+  "formal_competition_pass": false,
+  "fixture_only": false,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        0.007977405562996864,
+        -0.007191303186118603,
+        -0.049345649778842926
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 1927.896,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        3.7742662243545055e-05,
+        0.0024719154462218285,
+        -0.032243531197309494
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 1927.896,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        0.000862748536746949,
+        -0.012219592928886414,
+        -0.035769738256931305
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 1927.896,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        -0.004222324583679438,
+        -0.001679790555499494,
+        -0.029761914163827896
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 1927.888,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        0.00825711339712143,
+        0.0011969499755650759,
+        -0.02188078686594963
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 1927.892,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        0.007322253659367561,
+        0.0007516441983170807,
+        -0.018669987097382545
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 1927.892,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  },
+  "connectivity_armed": false,
+  "six_aircraft_motion_observed": false,
+  "official_targets_eliminated": 3,
+  "all_targets_eliminated": false,
+  "maximum_altitudes_m": {
+    "uav_1": 2.8889199466641466,
+    "uav_2": 4.069253656144411,
+    "uav_3": 3.109117664875309,
+    "uav_4": 3.426339468691762,
+    "uav_5": 2.9311710099293204,
+    "uav_6": 2.92354244099642
+  },
+  "maximum_displacements_m": {
+    "uav_1": 134.6416603305734,
+    "uav_2": 127.17108587809646,
+    "uav_3": 114.38921978401466,
+    "uav_4": 133.2470654035796,
+    "uav_5": 120.62937165685366,
+    "uav_6": 64.35716475901481
+  },
+  "simulated_seconds": 499.96799999999985,
+  "minimum_sampled_separation_m": 2.617995263999228,
+  "component_error": "CITY_MODEL_STATE_FAILURE:unable to connect to service: [Errno 104] Connection reset by peer",
+  "evidence_streams_verified": true,
+  "judge_terminal_evidence": null,
+  "left_actors_topic_last": null,
+  "armed_during_run_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "left_actors": [
+    2,
+    3,
+    5
+  ],
+  "score": 755,
+  "visual_count": 516,
+  "target_grants": 2695
+}

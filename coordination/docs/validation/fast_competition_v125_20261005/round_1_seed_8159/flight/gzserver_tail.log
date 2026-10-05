@@ -1,0 +1,92 @@
+38.9425[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m77[0m[1;36m [0m[1;36m24[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m94.7472[0m[1;36m, y:[0m[1;36m-11.8833[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m14.8965[0m[1;36m,[0m[1;36m16.4548[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m11.3332[0m[1;36m, y:[0m[1;36m-45.8865[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m37.5886[0m[1;36m,[0m[1;36m-25.7263[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m70[0m[1;36m [0m[1;36m-4[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m-45.1377[0m[1;36m, y:[0m[1;36m44.3725[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m77.0235[0m[1;36m,[0m[1;36m38.9427[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m77[0m[1;36m [0m[1;36m24[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m94.7472[0m[1;36m, y:[0m[1;36m-11.8833[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m14.9002[0m[1;36m,[0m[1;36m16.4534[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m11.3332[0m[1;36m, y:[0m[1;36m-45.8865[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m37.5855[0m[1;36m,[0m[1;36m-25.7287[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m70[0m[1;36m [0m[1;36m-4[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m-45.1377[0m[1;36m, y:[0m[1;36m44.3725[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m77.0195[0m[1;36m,[0m[1;36m38.9429[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m77[0m[1;36m [0m[1;36m24[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m94.7472[0m[1;36m, y:[0m[1;36m-11.8833[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m14.904[0m[1;36m,[0m[1;36m16.4521[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m11.3332[0m[1;36m, y:[0m[1;36m-45.8865[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m37.5823[0m[1;36m,[0m[1;36m-25.7311[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m70[0m[1;36m [0m[1;36m-4[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m-45.1377[0m[1;36m, y:[0m[1;36m44.3725[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m77.0156[0m[1;36m,[0m[1;36m38.9431[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m77[0m[1;36m [0m[1;36m24[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m94.7472[0m[1;36m, y:[0m[1;36m-11.8833[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m14.9078[0m[1;36m,[0m[1;36m16.4508[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m11.3332[0m[1;36m, y:[0m[1;36m-45.8865[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m37.5791[0m[1;36m,[0m[1;36m-25.7336[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m70[0m[1;36m [0m[1;36m-4[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m-45.1377[0m[1;36m, y:[0m[1;36m44.3725[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m77.0116[0m[1;36m,[0m[1;36m38.9432[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m77[0m[1;36m [0m[1;36m24[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m94.7472[0m[1;36m, y:[0m[1;36m-11.8833[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m14.9115[0m[1;36m,[0m[1;36m16.4494[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m11.3332[0m[1;36m, y:[0m[1;36m-45.8865[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m37.576[0m[1;36m,[0m[1;36m-25.736[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m70[0m[1;36m [0m[1;36m-4[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m-45.1377[0m[1;36m, y:[0m[1;36m44.3725[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m77.0076[0m[1;36m,[0m[1;36m38.9434[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m77[0m[1;36m [0m[1;36m24[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m94.7472[0m[1;36m, y:[0m[1;36m-11.8833[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m14.9153[0m[1;36m,[0m[1;36m16.4481[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m11.3332[0m[1;36m, y:[0m[1;36m-45.8865[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m37.5728[0m[1;36m,[0m[1;36m-25.7384[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m70[0m[1;36m [0m[1;36m-4[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m-45.1377[0m[1;36m, y:[0m[1;36m44.3725[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m77.0036[0m[1;36m,[0m[1;36m38.9436[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m77[0m[1;36m [0m[1;36m24[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m94.7472[0m[1;36m, y:[0m[1;36m-11.8833[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m14.9191[0m[1;36m,[0m[1;36m16.4467[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m11.3332[0m[1;36m, y:[0m[1;36m-45.8865[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m37.5696[0m[1;36m,[0m[1;36m-25.7409[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m70[0m[1;36m [0m[1;36m-4[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m-45.1377[0m[1;36m, y:[0m[1;36m44.3725[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m76.9996[0m[1;36m,[0m[1;36m38.9438[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m77[0m[1;36m [0m[1;36m24[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m94.7472[0m[1;36m, y:[0m[1;36m-11.8833[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m14.9229[0m[1;36m,[0m[1;36m16.4454[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;3
