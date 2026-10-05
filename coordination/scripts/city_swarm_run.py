@@ -116,6 +116,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         confirmation_attempt_revision='v1.25b_all_targets_per_attempt',
         tracking_retry_revision='v1.27_new_grant_fresh_camera',
         backoff_observation_revision='v1.27_xyz_hold_fresh_yaw',
+        pending_camera_reacquisition_revision='v1.28_new_grant_yaw_only_last_image_5s',
+        stop_command_revision='v1.28_zero_request_bypasses_slew',
         tracking_refresh_maximum_deferral_s=20.,
         maximum_speed_mps=3.,visual_fusion_revision='v2.14_white_recovery',tracker_selection_revision='v1.20_camera_takeover',
         perception_csv_revision='v1.26_established_current_person',red_person_proof_revision='v1.25_three_original_frames',

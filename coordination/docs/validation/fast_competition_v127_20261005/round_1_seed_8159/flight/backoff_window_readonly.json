@@ -1,0 +1,124 @@
+{
+  "run_id": "67195354-b845-49df-abf8-a6ad82d020d6",
+  "executed_commit": "715d9ae",
+  "uav_id": "uav_2",
+  "target": "white",
+  "generation": 20,
+  "abort_s": 2421.572,
+  "manager_stop_s": 2431.672,
+  "window_command_count": 202,
+  "nonzero_velocity_rows": [
+    {
+      "sample_s": 2421.588,
+      "uav_id": "uav_2",
+      "mask": 1479,
+      "velocity": [
+        -0.18699255570955114,
+        -0.685347492801287,
+        -0.017543363571166815
+      ],
+      "position": [
+        0.0,
+        0.0
+      ],
+      "position_z": 0.0,
+      "yaw_rate": 0.3172467350959778
+    },
+    {
+      "sample_s": 2421.64,
+      "uav_id": "uav_2",
+      "mask": 1479,
+      "velocity": [
+        -0.15408984312161317,
+        -0.5647555714120184,
+        -0.017352867126464666
+      ],
+      "position": [
+        0.0,
+        0.0
+      ],
+      "position_z": 0.0,
+      "yaw_rate": 0.3033521771430969
+    },
+    {
+      "sample_s": 2421.688,
+      "uav_id": "uav_2",
+      "mask": 1479,
+      "velocity": [
+        -0.1211871305336752,
+        -0.4441636500227497,
+        -0.01723723411560041
+      ],
+      "position": [
+        0.0,
+        0.0
+      ],
+      "position_z": 0.0,
+      "yaw_rate": 0.28758278489112854
+    },
+    {
+      "sample_s": 2421.74,
+      "uav_id": "uav_2",
+      "mask": 1479,
+      "velocity": [
+        -0.08828441794573724,
+        -0.32357172863348105,
+        -0.01674180030822736
+      ],
+      "position": [
+        0.0,
+        0.0
+      ],
+      "position_z": 0.0,
+      "yaw_rate": 0.2666608691215515
+    },
+    {
+      "sample_s": 2421.788,
+      "uav_id": "uav_2",
+      "mask": 1479,
+      "velocity": [
+        -0.05538170535779928,
+        -0.2029798072442124,
+        -0.016490983963012518
+      ],
+      "position": [
+        0.0,
+        0.0
+      ],
+      "position_z": 0.0,
+      "yaw_rate": 0.24910926818847656
+    },
+    {
+      "sample_s": 2421.84,
+      "uav_id": "uav_2",
+      "mask": 1479,
+      "velocity": [
+        -0.022478992769861317,
+        -0.08238788585494378,
+        -0.01541261672973615
+      ],
+      "position": [
+        0.0,
+        0.0
+      ],
+      "position_z": 0.0,
+      "yaw_rate": 0.22861306369304657
+    }
+  ],
+  "xyz_hold_count": 196,
+  "unique_xyz_hold_anchors": [
+    [
+      15.322884559631348,
+      29.849605560302734,
+      2.2145700454711914
+    ]
+  ],
+  "nonzero_yaw_xyz_hold_count": 34,
+  "first_xyz_hold_s": 2421.888,
+  "control_input": false,
+  "competition_goal_met": false,
+  "limitations": [
+    "This verifies a single backoff window, not a subsequent new grant clearing old cooldown.",
+    "Six commands after white backoff at2421.572 remain nonzero through2421.840; the first XYZ hold is2421.888. Their horizontal decay matches the ordinary slew limiter. No later white regrant follows that backoff before run end."
+  ]
+}

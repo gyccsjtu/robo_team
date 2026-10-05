@@ -69,12 +69,45 @@ class TrackingBackoffTests(unittest.TestCase):
         self.assertEqual(a._giveup_until['t3'], 80.)
         self.assertEqual(a._tracking_retry_pending, ('t3',2))
         a._control(); a._send_vel.assert_called_once_with(0.,0.)
-        self.assertIsNone(a._look_at)
+        self.assertEqual(a._look_at, (12.,6.))  # Pending new grant may only reacquire by yaw.
         a._t_seen['t3'] = 19.95
         self.assertTrue(a._resume_tracking_attempt())
         self.assertNotIn('t3', a._giveup_until)
         self.assertFalse(a._resume_tracking_attempt())
         self.assertIsNone(a._route_pending)  # No fabricated route grant.
+
+    def test_pending_new_attempt_can_aim_but_not_resume_from_old_actual_frame(self):
+        self.agent._t_seen['t3'] = 16.428  # Actual white regrant window was 3.572s old.
+        self.grant()
+        a = self.agent
+        a._control()
+        a._send_vel.assert_called_once_with(0.,0.)
+        self.assertEqual(a._look_at, (12.,6.))
+        self.assertEqual(a._tracking_retry_pending, ('t3',1))
+        self.assertEqual(a._giveup_until['t3'],60.)
+        self.assertEqual(a._reset_n[3],7)
+        self.assertEqual(a._t_seen['t3'],16.428)
+        a._pick_local_goal.assert_not_called()
+        self.assertIsNone(a._route_pending)
+
+    def test_old_frame_cannot_aim_after_retry_marker_consumed_or_generation_changes(self):
+        self.grant(); a = self.agent
+        a._giveup_until['t3']=80.; a._t_seen['t3']=17.
+        a._control(); self.assertIsNone(a._look_at)
+        a._send_vel.assert_called_once_with(0.,0.)
+        a._tracking_retry_pending=('t3',a._gate.generation+1)
+        a._control(); self.assertIsNone(a._look_at)
+
+    def test_pending_reacquisition_age_and_coordinate_bounds(self):
+        for stamp,xy in [(14.999,(12.,6.)),(20.001,(12.,6.)),
+                         (float('nan'),(12.,6.)),(None,(12.,6.)),
+                         (17.,(float('inf'),6.))]:
+            with self.subTest(stamp=stamp,xy=xy):
+                self.setUp(); self.agent._t_seen['t3']=stamp
+                self.agent.targets['t3']=xy; self.grant();self.agent._control()
+                self.assertIsNone(self.agent._look_at)
+                self.agent._send_vel.assert_called_once_with(0.,0.)
+                self.assertEqual(self.agent._giveup_until['t3'],60.)
 
     def test_missing_orbit_point_stays_in_target_task_and_observes_fresh_person(self):
         self.grant(); a = self.agent

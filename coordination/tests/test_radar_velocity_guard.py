@@ -213,6 +213,50 @@ class AdapterTests(unittest.TestCase):
         finally:
             self.methods.update(original)
 
+    def stopped_adapter(self, grid_stop=False):
+        published = []
+        obj = types.SimpleNamespace(
+            _bounds_recovery_velocity=lambda: None, world_xy=(0., 0.),
+            _grid_guard_velocity=lambda x,y: (0.,0.) if grid_stop else (x,y),
+            _map_guard_velocity=lambda x,y:(x,y),
+            _last_cmd_v=(-.22,-.806), local_z=2.2145700454711914, altitude_layer=3.,
+            _compute_desired_altitude=lambda:0., _last_csv_t=10.1, _look_at=None,
+            _gate=types.SimpleNamespace(can_move=lambda now:True),
+            _radar_guard_velocity=lambda x,y:(x,y),
+            _friend_guard_velocity=lambda x,y:(x,y),
+            _takeoff_done=True, _landing=False, _publish_command=published.append)
+        return obj, published
+
+    def test_requested_stop_after_motion_is_xyz_on_first_tick(self):
+        obj, published = self.stopped_adapter()
+        self.methods['_send_vel'](obj,0.,0.)
+        cmd=published[-1].twist.linear
+        self.assertEqual((cmd.x,cmd.y,cmd.z),(0.,0.,0.))
+        self.assertTrue(obj._xyz_stop_requested)
+        self.assertEqual(obj._last_cmd_v,(0.,0.))
+        self.assertEqual(obj._last_flight_v,(0.,0.))
+        self.methods['_send_vel'](obj,0.,0.)
+        self.assertTrue(obj._xyz_stop_requested)
+
+    def test_grid_stop_cannot_be_undone_by_previous_motion(self):
+        obj, published = self.stopped_adapter(grid_stop=True)
+        self.methods['_send_vel'](obj,2.,0.)
+        cmd=published[-1].twist.linear
+        self.assertEqual((cmd.x,cmd.y,cmd.z),(0.,0.,0.))
+        self.assertTrue(obj._xyz_stop_requested)
+
+    def test_moving_command_still_slews_and_explicit_climb_keeps_priority(self):
+        obj, published = self.stopped_adapter()
+        previous=obj._last_cmd_v
+        self.methods['_send_vel'](obj,2.,1.)
+        cmd=published[-1].twist.linear
+        self.assertAlmostEqual(math.hypot(cmd.x-previous[0],cmd.y-previous[1]),.125)
+        self.assertFalse(obj._xyz_stop_requested)
+        self.methods['_send_vel'](obj,0.,0.,vz=1.)
+        cmd=published[-1].twist.linear
+        self.assertEqual((cmd.x,cmd.y,cmd.z),(0.,0.,1.))
+        self.assertFalse(obj._xyz_stop_requested)
+
 
 if __name__ == '__main__':
     unittest.main()

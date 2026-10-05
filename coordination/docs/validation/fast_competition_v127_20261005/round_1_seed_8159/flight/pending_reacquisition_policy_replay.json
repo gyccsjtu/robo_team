@@ -1,0 +1,188 @@
+{
+  "candidate": "v1.28",
+  "candidate_agent_sha256": "73a18bca114d73d2ab12de889091b7eb3a04fb0055ee2b30a91340e1d10d7f86",
+  "executed_physical_commit": "715d9ae",
+  "control_input": false,
+  "physical_replay": false,
+  "route_replay": false,
+  "assumptions": [
+    "Last raw visual arrival approximates what was available for confirmation; this is not a full confirmed callback replay.",
+    "Actual control methods and real TaskGate use a synthetic prior generation1 grant and STOP before delivery at actual new-generation/time; full prior grant history is not replayed.",
+    "An existing finite cooldown is constructed to exercise the stopped branch; these windows do not prove a physical backoff occurred.",
+    "Re-executed against final candidate source after the separate stop-slew fix; _send_vel remains mocked in this reacquisition replay."
+  ],
+  "windows": [
+    {
+      "uav_id": "uav_6",
+      "generation": 2,
+      "target": "green",
+      "grant_s": 1971.18,
+      "last_raw_visual_receipt_s": 1963.296,
+      "last_raw_original_s": 1962.892,
+      "age_s": 8.288000000000011,
+      "aim_xy": null,
+      "translation_request": [
+        0.0,
+        0.0
+      ],
+      "retry_pending": [
+        "t0",
+        2
+      ],
+      "old_cooldown_preserved": true,
+      "original_stamp_preserved": true,
+      "counter_preserved": true,
+      "route_grant_created": false
+    },
+    {
+      "uav_id": "uav_6",
+      "generation": 15,
+      "target": "white",
+      "grant_s": 2163.432,
+      "last_raw_visual_receipt_s": 2160.512,
+      "last_raw_original_s": 2160.196,
+      "age_s": 3.2359999999998763,
+      "aim_xy": [
+        32.91,
+        -3.54
+      ],
+      "translation_request": [
+        0.0,
+        0.0
+      ],
+      "retry_pending": [
+        "t3",
+        15
+      ],
+      "old_cooldown_preserved": true,
+      "original_stamp_preserved": true,
+      "counter_preserved": true,
+      "route_grant_created": false
+    },
+    {
+      "uav_id": "uav_1",
+      "generation": 9,
+      "target": "green",
+      "grant_s": 2179.772,
+      "last_raw_visual_receipt_s": 2178.92,
+      "last_raw_original_s": 2178.52,
+      "age_s": 1.2519999999999527,
+      "aim_xy": [
+        36.31,
+        21.5
+      ],
+      "translation_request": [
+        0.0,
+        0.0
+      ],
+      "retry_pending": [
+        "t0",
+        9
+      ],
+      "old_cooldown_preserved": true,
+      "original_stamp_preserved": true,
+      "counter_preserved": true,
+      "route_grant_created": false
+    },
+    {
+      "uav_id": "uav_5",
+      "generation": 10,
+      "target": "green",
+      "grant_s": 2207.968,
+      "last_raw_visual_receipt_s": 2207.124,
+      "last_raw_original_s": 2206.712,
+      "age_s": 1.2559999999998581,
+      "aim_xy": [
+        39.63,
+        41.56
+      ],
+      "translation_request": [
+        0.0,
+        0.0
+      ],
+      "retry_pending": [
+        "t0",
+        10
+      ],
+      "old_cooldown_preserved": true,
+      "original_stamp_preserved": true,
+      "counter_preserved": true,
+      "route_grant_created": false
+    },
+    {
+      "uav_id": "uav_6",
+      "generation": 20,
+      "target": "green",
+      "grant_s": 2251.332,
+      "last_raw_visual_receipt_s": 2249.908,
+      "last_raw_original_s": 2249.332,
+      "age_s": 2.0,
+      "aim_xy": [
+        50.68,
+        -6.87
+      ],
+      "translation_request": [
+        0.0,
+        0.0
+      ],
+      "retry_pending": [
+        "t0",
+        20
+      ],
+      "old_cooldown_preserved": true,
+      "original_stamp_preserved": true,
+      "counter_preserved": true,
+      "route_grant_created": false
+    },
+    {
+      "uav_id": "uav_1",
+      "generation": 14,
+      "target": "white",
+      "grant_s": 2275.424,
+      "last_raw_visual_receipt_s": 2272.324,
+      "last_raw_original_s": 2271.852,
+      "age_s": 3.5720000000001164,
+      "aim_xy": [
+        41.47,
+        16.13
+      ],
+      "translation_request": [
+        0.0,
+        0.0
+      ],
+      "retry_pending": [
+        "t3",
+        14
+      ],
+      "old_cooldown_preserved": true,
+      "original_stamp_preserved": true,
+      "counter_preserved": true,
+      "route_grant_created": false
+    },
+    {
+      "uav_id": "uav_1",
+      "generation": 20,
+      "target": "white",
+      "grant_s": 2405.524,
+      "last_raw_visual_receipt_s": 2404.912,
+      "last_raw_original_s": 2404.396,
+      "age_s": 1.1279999999997017,
+      "aim_xy": [
+        31.49,
+        12.66
+      ],
+      "translation_request": [
+        0.0,
+        0.0
+      ],
+      "retry_pending": [
+        "t3",
+        20
+      ],
+      "old_cooldown_preserved": true,
+      "original_stamp_preserved": true,
+      "counter_preserved": true,
+      "route_grant_created": false
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "candidate": "v1.28",
+  "candidate_agent_sha256": "73a18bca114d73d2ab12de889091b7eb3a04fb0055ee2b30a91340e1d10d7f86",
+  "executed_commit": "715d9ae",
+  "physical_replay": false,
+  "route_replay": false,
+  "control_input": false,
+  "source_prior_command": {
+    "sample_s": 2421.54,
+    "uav_id": "uav_2",
+    "mask": 1479,
+    "velocity": [
+      -0.21989526829748912,
+      -0.8059394141905557,
+      -0.017442274093627752
+    ],
+    "position": [
+      0.0,
+      0.0
+    ],
+    "position_z": 0.0,
+    "yaw_rate": 0.32800522446632385
+  },
+  "rows": [
+    {
+      "sample_s": 2421.588,
+      "recorded_velocity": [
+        -0.18699255570955114,
+        -0.685347492801287,
+        -0.017543363571166815
+      ],
+      "old_replayed_horizontal": [
+        -0.18699255570955114,
+        -0.685347492801287
+      ],
+      "old_xy_error": 0.0,
+      "candidate_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "candidate_xyz_hold_requested": true
+    },
+    {
+      "sample_s": 2421.64,
+      "recorded_velocity": [
+        -0.15408984312161317,
+        -0.5647555714120184,
+        -0.017352867126464666
+      ],
+      "old_replayed_horizontal": [
+        -0.15408984312161317,
+        -0.5647555714120184
+      ],
+      "old_xy_error": 0.0,
+      "candidate_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "candidate_xyz_hold_requested": true
+    },
+    {
+      "sample_s": 2421.688,
+      "recorded_velocity": [
+        -0.1211871305336752,
+        -0.4441636500227497,
+        -0.01723723411560041
+      ],
+      "old_replayed_horizontal": [
+        -0.1211871305336752,
+        -0.4441636500227497
+      ],
+      "old_xy_error": 0.0,
+      "candidate_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "candidate_xyz_hold_requested": true
+    },
+    {
+      "sample_s": 2421.74,
+      "recorded_velocity": [
+        -0.08828441794573724,
+        -0.32357172863348105,
+        -0.01674180030822736
+      ],
+      "old_replayed_horizontal": [
+        -0.08828441794573724,
+        -0.32357172863348105
+      ],
+      "old_xy_error": 0.0,
+      "candidate_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "candidate_xyz_hold_requested": true
+    },
+    {
+      "sample_s": 2421.788,
+      "recorded_velocity": [
+        -0.05538170535779928,
+        -0.2029798072442124,
+        -0.016490983963012518
+      ],
+      "old_replayed_horizontal": [
+        -0.05538170535779928,
+        -0.2029798072442124
+      ],
+      "old_xy_error": 0.0,
+      "candidate_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "candidate_xyz_hold_requested": true
+    },
+    {
+      "sample_s": 2421.84,
+      "recorded_velocity": [
+        -0.022478992769861317,
+        -0.08238788585494378,
+        -0.01541261672973615
+      ],
+      "old_replayed_horizontal": [
+        -0.022478992769861317,
+        -0.08238788585494378
+      ],
+      "old_xy_error": 0.0,
+      "candidate_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "candidate_xyz_hold_requested": true
+    },
+    {
+      "sample_s": 2421.888,
+      "recorded_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "old_replayed_horizontal": [
+        0.0,
+        0.0
+      ],
+      "old_xy_error": 0.0,
+      "candidate_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "candidate_xyz_hold_requested": true
+    }
+  ],
+  "first_candidate_stop_s": 2421.588,
+  "first_recorded_xyz_hold_s": 2421.888,
+  "command_latency_removed_s": 0.29999999999972715,
+  "limitations": [
+    "Only _send_vel is replayed with recorded previous horizontal command and requested zero; this is not dynamics or full callback ordering replay.",
+    "Measured scan/map/authority are clear mock guards to isolate the ordinary slew limiter.",
+    "Altitude is a fixed sample from the recorded later XYZ anchor; original altitude P output is not reconstructed.",
+    "Exact old horizontal command agreement does not prove this change avoids the separate uav_5 contact."
+  ]
+}

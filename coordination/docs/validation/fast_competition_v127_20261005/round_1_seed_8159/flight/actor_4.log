@@ -1,0 +1,246 @@
+actor_4: communication initialized
+4 general change position
+current_position:   4       x: 16.0
+y: 33.0
+z: 1.0191
+middd_pos:     4       [x: 56.96481766466667
+y: 43.7525860660472
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 56.95659448869068
+y: 43.75042807927055
+z: 1.0191
+middd_pos:     4       [x: 11.983628076188275
+y: -5.696121506741477
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 12.026747991753904
+y: -5.688267306393464
+z: 1.0191
+middd_pos:     4       [x: 37.05945688129998
+y: 22.34675968853081
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: 104
+      y: -18
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: 24
+      y: 10
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+4 general change position
+current_position:   4       x: 37.053661194185544
+y: 22.341281352736193
+z: 1.0191
+middd_pos:     4       [x: 39.72206661278415
+y: -2.3758351403550364
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: -14
+      y: -12
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: 102
+      y: -27
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+4 general change position
+current_position:   4       x: 39.712032238012384
+y: -2.436330145328392
+z: 1.0191
+middd_pos:     4       [x: 13.937409982922986
+y: 42.61902490669989
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: -7
+      y: 32
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: 24
+      y: 23
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+4 general change position
+current_position:   4       x: 13.941553904223825
+y: 42.61094750740436
+z: 1.0191
+middd_pos:     4       [x: 22.731083688043398
+y: 27.840547795133958
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 22.72709315684763
+y: 27.847252169153357
+z: 1.0191
+middd_pos:     4       [x: 47.940526953983934
+y: 29.806589715390558
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 47.89262938732076
+y: 29.842347367423812
+z: 1.0191
+middd_pos:     4       [x: -8.586909190919393
+y: 28.23992401611838
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: -38
+      y: 37
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+4 general change position
+current_position:   4       x: -8.596379991917965
+y: 28.24274412727694
+z: 1.0191
+middd_pos:     4       [x: 108.09159408205528
+y: 41.2688979376272
+z: 0.0]
+
+
+Traceback (most recent call last):
+  File "control_actor.py", line 662, in <module>
+    controlactors.loop()
+  File "control_actor.py", line 605, in loop
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request

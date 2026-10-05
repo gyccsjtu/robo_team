@@ -1,0 +1,35 @@
+{
+  "candidate": "v1.28",
+  "physical_run_executed_commit": "715d9ae",
+  "candidate_physically_executed": false,
+  "competition_goal_met": false,
+  "tests": {
+    "command": "python3 -m unittest discover -s coordination/tests -q",
+    "count": 470,
+    "seconds": 8.646,
+    "exit_code": 0,
+    "skipped": 0
+  },
+  "working_tree_source_sha256": {
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "73a18bca114d73d2ab12de889091b7eb3a04fb0055ee2b30a91340e1d10d7f86",
+    "coordination/scripts/city_swarm_run.py": "2cdfd80ad9c99a4e1c65b7bf2f017eefe455b439ec348b472a02c3978dbc0482",
+    "coordination/tests/test_radar_velocity_guard.py": "f295f1fddf07a23e4b188b9e041460b6ba3e7892be42c8a109e004c2efef6dd7",
+    "coordination/tests/test_tracking_backoff.py": "b6430ebbc50ddfd192e83c9adad8df37537833f5b9d99aa9a1a9059edf3df182"
+  },
+  "archive_integrity": {
+    "verified_manifest_archive_files": 652,
+    "lossless_gzip_files": 20,
+    "png_frames": 398,
+    "git_index_sha_verified_files": 652
+  },
+  "limitations": [
+    "Source digests describe the tested working-tree bytes; Git normalizes ordinary text separately.",
+    "Policy replays do not establish physical braking or judge6/6."
+  ],
+  "git_index_source_sha256": {
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "62eaee8acdf19782c2027d4b74cf50a6846ecb54d7ffa01e023b34cf2f67bbd2",
+    "coordination/scripts/city_swarm_run.py": "2cdfd80ad9c99a4e1c65b7bf2f017eefe455b439ec348b472a02c3978dbc0482",
+    "coordination/tests/test_radar_velocity_guard.py": "f295f1fddf07a23e4b188b9e041460b6ba3e7892be42c8a109e004c2efef6dd7",
+    "coordination/tests/test_tracking_backoff.py": "b6430ebbc50ddfd192e83c9adad8df37537833f5b9d99aa9a1a9059edf3df182"
+  }
+}

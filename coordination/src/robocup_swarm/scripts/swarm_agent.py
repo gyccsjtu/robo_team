@@ -1415,7 +1415,13 @@ class SwarmAgent(object):
         # 这里把「指令加速度」钉死，PX4 位置环才有能力跟踪，机身不再大幅倾斜。
         if not hasattr(self, "_last_cmd_v"):
             self._last_cmd_v = None
-        if self._last_cmd_v is not None:
+        # A requested/guarded stop must reach the position brake this tick.
+        # Slewing zero from the previous velocity delayed XYZ hold by 0.316s
+        # in the actual white backoff window and kept altitude control active.
+        # Nonzero motion still uses the existing acceleration limit.
+        if abs(vx)+abs(vy) < 1e-9:
+            vx, vy = 0., 0.
+        elif self._last_cmd_v is not None:
             _lvx, _lvy = self._last_cmd_v
             _maxdv = MAX_ACC / CTRL_RATE
             _dvx, _dvy = vx - _lvx, vy - _lvy
@@ -1946,6 +1952,16 @@ class SwarmAgent(object):
                 self._look_at = (current_target_point(self.targets, self._t_seen,
                     _track_id, rospy.Time.now().to_sec())
                     if math.isfinite(self._giveup_until.get(_track_id, 0.)) else None)
+                # A stopped handoff can outlast the 1s image gate. A new,
+                # still-pending attempt may aim at its last actual camera point
+                # for up to 5s to reacquire; this cannot clear cooldown, move,
+                # publish an observation or refresh its acquisition timestamp.
+                if (self._look_at is None and
+                        getattr(self, '_tracking_retry_pending', None) ==
+                        (_track_id, self._gate.generation) and
+                        math.isfinite(self._giveup_until.get(_track_id, 0.))):
+                    self._look_at = current_target_point(self.targets, self._t_seen,
+                        _track_id, rospy.Time.now().to_sec(), maximum_age=5.)
                 self._send_vel(0.0, 0.0)
                 return
             tx, ty = self._target_to_orbit
