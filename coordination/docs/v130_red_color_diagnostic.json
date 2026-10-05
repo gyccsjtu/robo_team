@@ -1,0 +1,664 @@
+{
+  "control_input": false,
+  "physical_test": false,
+  "filter_change_implemented": false,
+  "method": "Exact original PNG and same-stamp recorded YOLO bbox; read-only truth interpolation, not controller input",
+  "frames": [
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_001.png",
+      "image_sample_s": 2029.744,
+      "published_xy": [
+        73.21,
+        1.7
+      ],
+      "error_m": 0.10127979840450085,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        402.0799999999999,
+        186.52,
+        412.28,
+        208.57
+      ],
+      "torso_fractions": {
+        "red": 0.8888888888888888,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.044444444444444446
+      },
+      "existing_supported_red": true,
+      "image_sha256": "eda4f0d96cf4ca64c1f23589bc53209e3071cd0dc3435a8f3dbba48ce0bc183e"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_002.png",
+      "image_sample_s": 2031.844,
+      "published_xy": [
+        71.07,
+        1.72
+      ],
+      "error_m": 0.15046533607470608,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        409.9100000000001,
+        188.95,
+        422.0,
+        213.68
+      ],
+      "torso_fractions": {
+        "red": 0.7666666666666667,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.06666666666666667
+      },
+      "existing_supported_red": true,
+      "image_sha256": "c9e87bf3d3512b9e126632854ff560c5f1cb21edaf967c96ad113931f74d66d4"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_003.png",
+      "image_sample_s": 2033.9,
+      "published_xy": [
+        69.46,
+        1.74
+      ],
+      "error_m": 0.3329783943976769,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        412.9,
+        191.6,
+        425.73,
+        219.2
+      ],
+      "torso_fractions": {
+        "red": 0.9545454545454546,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.030303030303030304
+      },
+      "existing_supported_red": true,
+      "image_sha256": "bbbcba4cf76127acecc6970ef712b3e49b788347ece851cfdf659306368962c6"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_004.png",
+      "image_sample_s": 2036.256,
+      "published_xy": [
+        66.55,
+        1.66
+      ],
+      "error_m": 0.24234755517745402,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        410.02,
+        194.68,
+        423.99,
+        228.88
+      ],
+      "torso_fractions": {
+        "red": 0.9285714285714286,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.05102040816326531
+      },
+      "existing_supported_red": true,
+      "image_sha256": "8490a105aff85403b7044067ce5bea1ba3726882f4173b8e6d5494ccf81637b4"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_005.png",
+      "image_sample_s": 2038.372,
+      "published_xy": [
+        64.65,
+        1.66
+      ],
+      "error_m": 0.06250093137793745,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        404.53,
+        197.51,
+        421.03999999999996,
+        236.34
+      ],
+      "torso_fractions": {
+        "red": 0.9083333333333333,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.025
+      },
+      "existing_supported_red": true,
+      "image_sha256": "715cc54ca2915217cb7e51a84b5a043c9c84198e859de89bfec30a0f2a76c5f5"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_006.png",
+      "image_sample_s": 2040.504,
+      "published_xy": [
+        62.45,
+        1.62
+      ],
+      "error_m": 0.09598642604875172,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        304.01,
+        199.58,
+        321.68000000000006,
+        243.05
+      ],
+      "torso_fractions": {
+        "red": 0.9934640522875817,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.006535947712418301
+      },
+      "existing_supported_red": true,
+      "image_sha256": "e1b66f7b1b6dfa452dc67146b109357b2c81d6b00cd04c44e3df310bf6b27783"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_007.png",
+      "image_sample_s": 2042.612,
+      "published_xy": [
+        60.18,
+        1.59
+      ],
+      "error_m": 0.25759788811418105,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        298.8,
+        204.65,
+        319.83,
+        265.19
+      ],
+      "torso_fractions": {
+        "red": 0.9958333333333333,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.004166666666666667
+      },
+      "existing_supported_red": true,
+      "image_sha256": "64dc8e2c7040d19a70fc005d27fff96ffc85dad500a057a59531ac7d94111d7d"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_008.png",
+      "image_sample_s": 2044.692,
+      "published_xy": [
+        58.45,
+        2.49
+      ],
+      "error_m": 0.19038800919931967,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        262.54,
+        209.71,
+        299.43,
+        285.34
+      ],
+      "torso_fractions": {
+        "red": 0.6587436332767402,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.0899830220713073
+      },
+      "existing_supported_red": true,
+      "image_sha256": "f9cd51fb4c4d5daebb3f7b51644f5b629757f5eb5c657da09b0ffe1cda403a32"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_009.png",
+      "image_sample_s": 2046.744,
+      "published_xy": [
+        56.93,
+        3.86
+      ],
+      "error_m": 0.09573618417769963,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        282.85,
+        211.31,
+        306.93999999999994,
+        278.37
+      ],
+      "torso_fractions": {
+        "red": 0.7098765432098766,
+        "green": 0.012345679012345678,
+        "blue": 0.0,
+        "white": 0.009259259259259259,
+        "brown": 0.16358024691358025
+      },
+      "existing_supported_red": true,
+      "image_sha256": "fbd1db52f026eaacda2f2f902bb2cf62358dc45a8942eafddd8b7ea69debe1f7"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_4_red1_010.png",
+      "image_sample_s": 2048.824,
+      "published_xy": [
+        55.06,
+        4.68
+      ],
+      "error_m": 0.3657209861740533,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        296.44000000000005,
+        206.57,
+        321.76,
+        262.38
+      ],
+      "torso_fractions": {
+        "red": 0.5852842809364549,
+        "green": 0.020066889632107024,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.3879598662207358
+      },
+      "existing_supported_red": true,
+      "image_sha256": "f9013f3cc7665ffccc15e1d6a97092196c2e8535fdeda7ae83482d60a1132a06"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_5_red1_011.png",
+      "image_sample_s": 2116.924,
+      "published_xy": [
+        -26.25,
+        42.6
+      ],
+      "error_m": 0.15776412682837132,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        228.4,
+        188.87,
+        241.96,
+        213.68
+      ],
+      "torso_fractions": {
+        "red": 0.6428571428571429,
+        "green": 0.014285714285714285,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.32857142857142857
+      },
+      "existing_supported_red": true,
+      "image_sha256": "8c889e7ca1372c0347d99c88ea22726f5bd816d350eb876bbac084014dae176a"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_5_red1_012.png",
+      "image_sample_s": 2119.056,
+      "published_xy": [
+        -24.17,
+        43.03
+      ],
+      "error_m": 0.44882061985014765,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        185.6,
+        188.59,
+        199.04,
+        216.94
+      ],
+      "torso_fractions": {
+        "red": 0.7792207792207793,
+        "green": 0.012987012987012988,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.2597402597402597
+      },
+      "existing_supported_red": true,
+      "image_sha256": "89390dca93fcc1f826dbc412abfb4659020dc0ad5b3bc770b773bff4bfa635fd"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_5_red1_013.png",
+      "image_sample_s": 2121.08,
+      "published_xy": [
+        -22.09,
+        42.92
+      ],
+      "error_m": 0.4105965998564231,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        209.16999999999996,
+        189.4,
+        223.13,
+        218.01
+      ],
+      "torso_fractions": {
+        "red": 0.7012987012987013,
+        "green": 0.025974025974025976,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.2727272727272727
+      },
+      "existing_supported_red": true,
+      "image_sha256": "c383e5770b6a45432e60ca126dd7573c77ba22e8528af4e615c650c9fb9bb962"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_5_red1_014.png",
+      "image_sample_s": 2123.392,
+      "published_xy": [
+        -19.73,
+        42.6
+      ],
+      "error_m": 0.18699966526790776,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        331.30000000000007,
+        188.69,
+        343.89,
+        216.05
+      ],
+      "torso_fractions": {
+        "red": 0.6212121212121212,
+        "green": 0.015151515151515152,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.3181818181818182
+      },
+      "existing_supported_red": true,
+      "image_sha256": "306aa78519b32f015ec1368860cccd685c1d05912f78ad4c904b36b5b3a0f80a"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_5_red1_015.png",
+      "image_sample_s": 2125.544,
+      "published_xy": [
+        -17.5,
+        42.6
+      ],
+      "error_m": 0.27510949899058035,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        330.15,
+        189.38,
+        346.32000000000005,
+        217.13
+      ],
+      "torso_fractions": {
+        "red": 0.5104166666666666,
+        "green": 0.010416666666666666,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.4479166666666667
+      },
+      "existing_supported_red": true,
+      "image_sha256": "80a0820799f3cec44cf13a4a48536cd355e13a2f052908d097c1cb4a6e3d9374"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_5_red1_016.png",
+      "image_sample_s": 2127.776,
+      "published_xy": [
+        -15.25,
+        42.31
+      ],
+      "error_m": 0.09361565211477546,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        329.68,
+        189.57,
+        346.17,
+        216.88
+      ],
+      "torso_fractions": {
+        "red": 0.4444444444444444,
+        "green": 0.011111111111111112,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.4
+      },
+      "existing_supported_red": true,
+      "image_sha256": "9d41c7d58b96bed14b85ec27ec5a1cf4ccb44ba007d214a569e4795ab9346143"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_5_red1_017.png",
+      "image_sample_s": 2129.816,
+      "published_xy": [
+        -13.2,
+        42.32
+      ],
+      "error_m": 0.1915743362719155,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        327.26,
+        190.26,
+        338.89,
+        216.41
+      ],
+      "torso_fractions": {
+        "red": 0.78,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.22
+      },
+      "existing_supported_red": true,
+      "image_sha256": "e81e26d7b180da712ebcfcf853a4c2502bf77b4edd73d06879094ba3cf35cd18"
+    },
+    {
+      "run_root": "/root/robocup_runs/codex_city_teammate_v122b_20261004/flight",
+      "image": "uav_5_red1_018.png",
+      "image_sample_s": 2131.864,
+      "published_xy": [
+        -11.11,
+        42.23
+      ],
+      "error_m": 0.20925970502365626,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        324.0,
+        189.54,
+        337.24,
+        215.12
+      ],
+      "torso_fractions": {
+        "red": 0.7333333333333333,
+        "green": 0.03333333333333333,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.31666666666666665
+      },
+      "existing_supported_red": true,
+      "image_sha256": "4ecbbeaf4508bb2e87d3468a8f5a94d6a444dff98ac0c998631cd6813c28f5b5"
+    },
+    {
+      "run_root": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight",
+      "image": "uav_6_red1_001.png",
+      "image_sample_s": 2050.288,
+      "published_xy": [
+        27.37,
+        0.69
+      ],
+      "error_m": 15.23967921201756,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        353.97,
+        191.37,
+        369.52,
+        219.83
+      ],
+      "torso_fractions": {
+        "red": 0.29545454545454547,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.42045454545454547
+      },
+      "existing_supported_red": true,
+      "image_sha256": "bd81e511bfe8bf9f3540511106681564b7f9975d9ec2903528f921c50495ecbf"
+    },
+    {
+      "run_root": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight",
+      "image": "uav_6_red1_002.png",
+      "image_sample_s": 2050.936,
+      "published_xy": [
+        27.38,
+        0.02
+      ],
+      "error_m": 14.107634918528886,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        375.69,
+        191.03,
+        390.96,
+        219.93
+      ],
+      "torso_fractions": {
+        "red": 0.2604166666666667,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.3958333333333333
+      },
+      "existing_supported_red": false,
+      "image_sha256": "b1d4313e8c7688ec5da35e1ffb54a0c64592f91e5070775cd6ed9a4e92087fdc"
+    },
+    {
+      "run_root": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight",
+      "image": "uav_6_red1_003.png",
+      "image_sample_s": 2051.856,
+      "published_xy": [
+        27.62,
+        -0.94
+      ],
+      "error_m": 12.419174998234809,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        398.62,
+        192.11,
+        415.05000000000007,
+        219.88
+      ],
+      "torso_fractions": {
+        "red": 0.2840909090909091,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.4772727272727273
+      },
+      "existing_supported_red": false,
+      "image_sha256": "2107839dccad15d521f8e520d5b005209cad2406291ac33a799cac8299e2a736"
+    },
+    {
+      "run_root": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight",
+      "image": "uav_6_red1_004.png",
+      "image_sample_s": 2052.5,
+      "published_xy": [
+        27.82,
+        -1.56
+      ],
+      "error_m": 11.29470489659979,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        408.6,
+        191.52,
+        423.65,
+        219.32
+      ],
+      "torso_fractions": {
+        "red": 0.4155844155844156,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.6493506493506493
+      },
+      "existing_supported_red": false,
+      "image_sha256": "1c443a4202c23d2315712ea0e9f3e63b0d8120dac516e71c80c709b40fffa6c3"
+    },
+    {
+      "run_root": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight",
+      "image": "uav_6_red1_005.png",
+      "image_sample_s": 2053.1,
+      "published_xy": [
+        27.92,
+        -2.11
+      ],
+      "error_m": 10.360119120638664,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        418.97,
+        192.17,
+        435.5799999999999,
+        219.66
+      ],
+      "torso_fractions": {
+        "red": 0.3181818181818182,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.5454545454545454
+      },
+      "existing_supported_red": false,
+      "image_sha256": "6a20a4dab849d5fd1a6c0eff839691cc83e339b0fdf9bbd7356423a66513d071"
+    },
+    {
+      "run_root": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight",
+      "image": "uav_6_red1_006.png",
+      "image_sample_s": 2054.092,
+      "published_xy": [
+        28.1,
+        -3.08
+      ],
+      "error_m": 8.882426410788232,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        436.26,
+        191.51,
+        452.22,
+        219.61
+      ],
+      "torso_fractions": {
+        "red": 0.3522727272727273,
+        "green": 0.022727272727272728,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.5795454545454546
+      },
+      "existing_supported_red": false,
+      "image_sha256": "0dd203f9b4f4b8d8a2f0f6e96b25791630519c6cad32e6c78ee54ae15e0eb54f"
+    },
+    {
+      "run_root": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight",
+      "image": "uav_6_red1_007.png",
+      "image_sample_s": 2054.764,
+      "published_xy": [
+        28.27,
+        -3.72
+      ],
+      "error_m": 7.972293481598752,
+      "nearest_truth_scope": "both available red truths (read-only)",
+      "bbox": [
+        444.26,
+        189.96,
+        459.98,
+        218.92
+      ],
+      "torso_fractions": {
+        "red": 0.5625,
+        "green": 0.0,
+        "blue": 0.0,
+        "white": 0.0,
+        "brown": 0.59375
+      },
+      "existing_supported_red": true,
+      "image_sha256": "698624bd06d74c9e896d61bd10135ccb12ca90c6271289ed7bbeab3aa0e35ba0"
+    }
+  ],
+  "limitations": [
+    "Red truth matching uses both available actors for offline classification, not a remaining-actor competition success claim.",
+    "Sample selection contains18 previously accurate red observations and7 inaccurate observations from the current round; no population-wide accuracy or15second continuity is inferred.",
+    "Current color filter only applies CLASS_COLOR to green/white; supported(red) is evaluated as a diagnostic, not an enabled controller change.",
+    "The existing red predicate would retain2/7 false examples, so simply enabling it would not fully solve false red tracks."
+  ]
+}

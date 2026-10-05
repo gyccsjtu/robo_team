@@ -1,0 +1,283 @@
+{
+  "offline_inference_only": true,
+  "control_input": false,
+  "geometry_change_implemented": false,
+  "person_weights": "/mnt/d/a/.robocup/robo_team/weights/yolo11n_person.pt",
+  "person_weights_scope": "same configured model, original PNGs, conf.1/device0; no raw camera pose recorded for exact reprojection",
+  "frames": [
+    {
+      "image": "uav_4_white_012.png",
+      "image_sample_s": 1974.532,
+      "original_color_bbox": [
+        91.06,
+        203.16,
+        112.17000000000002,
+        243.53
+      ],
+      "raw_xy": [
+        37.269592565877176,
+        1.3489291850536418
+      ],
+      "filtered_observation": {
+        "schema_version": 2,
+        "run_id": "29494783-75df-4543-b7ed-ca7b2f61f90a",
+        "uav_id": "uav_4",
+        "seq": 161,
+        "sample_s": 1974.532,
+        "target_id": "white",
+        "frame_id": "world_enu",
+        "xyz": [
+          37.28,
+          1.43,
+          1.25
+        ],
+        "confidence": 0.84,
+        "observation_id": "29494783-75df-4543-b7ed-ca7b2f61f90a:uav_4:161"
+      },
+      "person_boxes": [
+        {
+          "xyxy": [
+            91.07439422607422,
+            204.25244140625,
+            112.39269256591797,
+            245.00643920898438
+          ],
+          "confidence": 0.5698496103286743,
+          "IoU": 0.9284553327421734
+        },
+        {
+          "xyxy": [
+            64.8528060913086,
+            201.4810791015625,
+            79.31885528564453,
+            238.38897705078125
+          ],
+          "confidence": 0.5604972243309021,
+          "IoU": 0.0
+        },
+        {
+          "xyxy": [
+            412.3998718261719,
+            198.71356201171875,
+            428.1313781738281,
+            230.05490112304688
+          ],
+          "confidence": 0.2706334888935089,
+          "IoU": 0.0
+        },
+        {
+          "xyxy": [
+            227.23171997070312,
+            204.92747497558594,
+            234.69692993164062,
+            220.7595672607422
+          ],
+          "confidence": 0.14867088198661804,
+          "IoU": 0.0
+        },
+        {
+          "xyxy": [
+            203.45144653320312,
+            191.64183044433594,
+            213.80047607421875,
+            202.23207092285156
+          ],
+          "confidence": 0.11532792448997498,
+          "IoU": 0.0
+        }
+      ],
+      "image_sha256": "b5bed59eed3544ea161792208f176dfba61ca4ffb85c34cd51911e9072e7bb32"
+    },
+    {
+      "image": "uav_4_white_013.png",
+      "image_sample_s": 1975.212,
+      "original_color_bbox": [
+        69.37,
+        205.52,
+        86.38,
+        238.14
+      ],
+      "raw_xy": [
+        39.155063020884796,
+        2.2911161180594593
+      ],
+      "filtered_observation": {
+        "schema_version": 2,
+        "run_id": "29494783-75df-4543-b7ed-ca7b2f61f90a",
+        "uav_id": "uav_4",
+        "seq": 170,
+        "sample_s": 1975.212,
+        "target_id": "white",
+        "frame_id": "world_enu",
+        "xyz": [
+          38.21,
+          2.22,
+          1.25
+        ],
+        "confidence": 0.742,
+        "observation_id": "29494783-75df-4543-b7ed-ca7b2f61f90a:uav_4:170"
+      },
+      "person_boxes": [
+        {
+          "xyxy": [
+            65.66542053222656,
+            205.08944702148438,
+            87.90602111816406,
+            241.19869995117188
+          ],
+          "confidence": 0.5566937923431396,
+          "IoU": 0.6909128280380223
+        },
+        {
+          "xyxy": [
+            66.42962646484375,
+            199.47364807128906,
+            99.3828125,
+            240.1862335205078
+          ],
+          "confidence": 0.14077425003051758,
+          "IoU": 0.41358252190011985
+        },
+        {
+          "xyxy": [
+            84.78688049316406,
+            198.9127197265625,
+            98.88673400878906,
+            234.79656982421875
+          ],
+          "confidence": 0.6584617495536804,
+          "IoU": 0.04598885341108807
+        },
+        {
+          "xyxy": [
+            401.12725830078125,
+            198.73382568359375,
+            412.32275390625,
+            228.93695068359375
+          ],
+          "confidence": 0.6717084646224976,
+          "IoU": 0.0
+        },
+        {
+          "xyxy": [
+            226.85610961914062,
+            204.11001586914062,
+            234.32290649414062,
+            220.57647705078125
+          ],
+          "confidence": 0.32747557759284973,
+          "IoU": 0.0
+        },
+        {
+          "xyxy": [
+            224.5665740966797,
+            200.04708862304688,
+            234.18553161621094,
+            221.66555786132812
+          ],
+          "confidence": 0.16118526458740234,
+          "IoU": 0.0
+        },
+        {
+          "xyxy": [
+            420.95489501953125,
+            186.79547119140625,
+            426.13128662109375,
+            193.29754638671875
+          ],
+          "confidence": 0.11465863138437271,
+          "IoU": 0.0
+        }
+      ],
+      "image_sha256": "59aa133189fddd544e1c519537f38c126a9206cbf954ded224a37560ac87168c"
+    },
+    {
+      "image": "uav_4_white_014.png",
+      "image_sample_s": 1975.824,
+      "original_color_bbox": [
+        179.32,
+        200.61,
+        200.99,
+        238.46
+      ],
+      "raw_xy": [
+        35.742034975512055,
+        2.371317493052485
+      ],
+      "filtered_observation": {
+        "schema_version": 2,
+        "run_id": "29494783-75df-4543-b7ed-ca7b2f61f90a",
+        "uav_id": "uav_4",
+        "seq": 182,
+        "sample_s": 1975.824,
+        "target_id": "white",
+        "frame_id": "world_enu",
+        "xyz": [
+          36.54,
+          2.51,
+          1.25
+        ],
+        "confidence": 0.846,
+        "observation_id": "29494783-75df-4543-b7ed-ca7b2f61f90a:uav_4:182"
+      },
+      "person_boxes": [
+        {
+          "xyxy": [
+            181.41525268554688,
+            194.94090270996094,
+            202.41055297851562,
+            237.5692901611328
+          ],
+          "confidence": 0.5954460501670837,
+          "IoU": 0.7294969421288072
+        },
+        {
+          "xyxy": [
+            218.5799560546875,
+            190.4228515625,
+            227.09869384765625,
+            221.78546142578125
+          ],
+          "confidence": 0.4833020567893982,
+          "IoU": 0.0
+        },
+        {
+          "xyxy": [
+            490.5297546386719,
+            203.06106567382812,
+            501.4524841308594,
+            236.62881469726562
+          ],
+          "confidence": 0.44354626536369324,
+          "IoU": 0.0
+        },
+        {
+          "xyxy": [
+            535.2142333984375,
+            187.07400512695312,
+            541.8243408203125,
+            195.25051879882812
+          ],
+          "confidence": 0.32735323905944824,
+          "IoU": 0.0
+        },
+        {
+          "xyxy": [
+            305.3349609375,
+            202.88406372070312,
+            311.5040283203125,
+            218.75527954101562
+          ],
+          "confidence": 0.14564506709575653,
+          "IoU": 0.0
+        }
+      ],
+      "image_sha256": "296abbc81edc287ee5c284d0dada904d5b3616fa20de483000111d9cd0afd3a4"
+    }
+  ],
+  "limitations": [
+    "Person evidence validates a matching person box, not the geometric ground contact point.",
+    "At1975.212 the color bottom238.14 and matched person bottom241.199 differ3.059pixels; no exact new world coordinate is computed without original camera pose.",
+    "Cannot conclude that using the person box fixes depth, especially for occluded feet; no geometry code changed."
+  ]
+}

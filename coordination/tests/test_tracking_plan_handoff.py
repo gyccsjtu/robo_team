@@ -1,6 +1,7 @@
 """Exercise the actual asynchronous methods with camera updates during computation."""
 import ast
 import json
+import math
 from pathlib import Path
 import threading
 import traceback
@@ -13,7 +14,7 @@ SOURCE = Path(__file__).parents[1] / 'src/robocup_swarm/scripts/swarm_agent.py'
 TREE = ast.parse(SOURCE.read_text(encoding='utf-8'))
 METHODS = [n for cls in TREE.body if isinstance(cls, ast.ClassDef)
            for n in cls.body if isinstance(n, ast.FunctionDef)
-           and n.name in ('_request_plan', '_planner_loop', '_route_grant_cb')]
+           and n.name in ('_request_plan', '_planner_loop', '_route_grant_cb', '_need_replan_track')]
 
 
 class TrackingPlanHandoffTests(unittest.TestCase):
@@ -21,7 +22,8 @@ class TrackingPlanHandoffTests(unittest.TestCase):
         self.now = 1963.336
         self.rospy = SimpleNamespace(Time=SimpleNamespace(now=lambda: SimpleNamespace(
             to_sec=lambda: self.now)), is_shutdown=Mock(side_effect=[False, True]), logerr=Mock(), loginfo=Mock())
-        self.scope = dict(rospy=self.rospy, json=json, traceback=traceback,
+        self.scope = dict(rospy=self.rospy, json=json, traceback=traceback, math=math,
+                          TRACK_REPLAN_MOVE=3., TRACK_REPLAN_SEC=2.,
                           String=lambda **kw: SimpleNamespace(**kw))
         exec(compile(ast.fix_missing_locations(ast.Module(body=METHODS, type_ignores=[])),
                      str(SOURCE), 'exec'), self.scope)
@@ -63,6 +65,21 @@ class TrackingPlanHandoffTests(unittest.TestCase):
         self.a._request_plan((2., 2.))
         self.assertEqual(self.a._plan_pending, ((1., 1.), 2, 8))
 
+    def test_coalesced_updates_do_not_hide_old_route_from_replan_throttle(self):
+        a = self.a
+        a._request_plan((1., 1.))
+        accepted_s = self.now
+        self.now += .5
+        self.run_worker(lambda: a._request_plan((5., 1.)))
+        self.assertEqual(a._last_track_goal, (1., 1.))
+        self.assertEqual(a._last_track_plan_t, accepted_s)
+        offer = json.loads(a._route_offer_pub.publish.call_args.args[0].data)
+        self.scope['_route_grant_cb'](a, SimpleNamespace(data=json.dumps(offer)))
+        self.assertTrue(self.scope['_need_replan_track'](a, (5., 1.)))
+        self.assertFalse(self.scope['_need_replan_track'](a, (1., 1.)))
+        self.now = accepted_s + 2.
+        self.assertTrue(self.scope['_need_replan_track'](a, (1., 1.)))
+
     def test_search_still_supersedes_different_goal(self):
         a = self.a
         a._gate.task = {'task_type': 0}
@@ -102,6 +119,16 @@ class TrackingPlanHandoffTests(unittest.TestCase):
         self.now += 1.
         a._request_plan((2., 2.))
         self.assertIsNotNone(a._plan_pending)
+
+    def test_frontier_endpoint_different_from_requested_actor_does_not_cancel_offer(self):
+        a = self.a
+        a._request_plan((35.95, -6.61))
+        a._compute_plan = lambda goal: ([(20., 3.)], (20., 3.), True)
+        self.scope['_planner_loop'](a)
+        self.assertEqual(a._route_pending[2], (20., 3.))
+        a._request_plan((35.95, -6.61))
+        self.assertEqual(a._plan_ticket, 8)
+        self.assertIsNone(a._plan_pending)
 
     def test_failed_computation_releases_inflight_and_latest_point_can_retry(self):
         a = self.a

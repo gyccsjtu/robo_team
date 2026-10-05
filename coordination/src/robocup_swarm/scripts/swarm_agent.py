@@ -1779,6 +1779,11 @@ class SwarmAgent(object):
                 return
             self._plan_ticket += 1
             self._plan_pending = (candidate, generation, self._plan_ticket)
+            if tracking:
+                # Coalesced camera updates did not start a new calculation;
+                # only an enqueued goal may advance the replan throttle.
+                self._last_track_goal = candidate
+                self._last_track_plan_t = rospy.Time.now().to_sec()
         self._plan_event.set()
 
     def _planner_loop(self):
@@ -2006,8 +2011,6 @@ class SwarmAgent(object):
                 if self._need_replan_track((tx, ty)):
                     if rospy.Time.now().to_sec() - self._plan_fail_t >= 2.0:
                         self._request_plan((tx, ty))
-                        self._last_track_goal = (tx, ty)
-                        self._last_track_plan_t = rospy.Time.now().to_sec()
                 local_goal = self._pick_local_goal()
                 if local_goal is None:
                     # 路径尚未提交：续发上一次速度，等规划线程把路径发下来

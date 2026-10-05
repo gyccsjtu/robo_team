@@ -52,6 +52,7 @@
       "source_text_sha256": "36d9a5fbd9d9d69ad1f2275527afde6f2d91dbd576c039c99cd89381f195e265"
     },
     "candidate_v130": {
+      "source_text_sha256": "ebbb42b104da8236763baf092535c9b08b7507350aa1c13826cb88170cdacab3",
       "ticket": 8,
       "first_result_route_offers": 1,
       "next_pending": null,
@@ -73,7 +74,11 @@
         ],
         2
       ],
-      "source_text_sha256": "988a15be58dbccd77a067f304b5234e1fe6ac181d26d2ae63e386df1aebdea5d"
+      "last_actual_requested_goal": [
+        35.95,
+        -6.61
+      ],
+      "last_actual_request_s": 1963.336
     }
   },
   "limitations": [
