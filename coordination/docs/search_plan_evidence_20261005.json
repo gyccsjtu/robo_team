@@ -1,0 +1,45 @@
+{
+  "executed_commit": "a3deb4f",
+  "run_id": "4beb0d98-2a79-4b96-ad22-fff01ae3a050",
+  "trajectory_s": 309.324,
+  "judge_deleted": 3,
+  "source": "selected original manager log; business arrivals/assignments are not execution grants or camera observations",
+  "manager_arrival_records": 24,
+  "manager_assignment_records": 44,
+  "per_aircraft": {
+    "uav_1": {
+      "arrivals": 6,
+      "assignments": 7
+    },
+    "uav_2": {
+      "arrivals": 0,
+      "assignments": 4
+    },
+    "uav_3": {
+      "arrivals": 4,
+      "assignments": 6
+    },
+    "uav_4": {
+      "arrivals": 5,
+      "assignments": 12
+    },
+    "uav_5": {
+      "arrivals": 5,
+      "assignments": 7
+    },
+    "uav_6": {
+      "arrivals": 4,
+      "assignments": 8
+    }
+  },
+  "covered_from_arrival_examples": [
+    "[INFO] [1791200914.099023, 2184.740000]: [manager] uav_1 抵达格 (0,6)，覆盖 4 格，释放租约",
+    "[INFO] [1791200957.936109, 2191.740000]: [manager] uav_6 抵达格 (13,17)，覆盖 6 格，释放租约",
+    "[INFO] [1791201021.701673, 2201.940000]: [manager] uav_4 抵达格 (13,1)，覆盖 12 格，释放租约",
+    "[INFO] [1791201127.979407, 2218.940000]: [manager] uav_5 抵达格 (20,16)，覆盖 23 格，释放租约",
+    "[INFO] [1791201203.607006, 2231.040000]: [manager] uav_4 抵达格 (17,2)，覆盖 19 格，释放租约"
+  ],
+  "rules_local_archive_sha256": "622bb59b4aea12870be38f9f86d56ef742c210d001ff2264fa509f4fbc86dd41",
+  "current_city_VIS_ENABLE": "0",
+  "camera_evidence_checked_in_arrival_coverage": false
+}
