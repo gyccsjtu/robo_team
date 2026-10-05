@@ -10,6 +10,7 @@ class ObservedMap:
         self.cells = [-1]*(width*height)
         self.observed_s = [None]*(width*height)
         self.last_scan_s = None
+        self.range_min = None  # Actual sensor blind range; never invent a free disk.
         self.version = 0
 
     def index(self, x, y):
@@ -48,6 +49,7 @@ class ObservedMap:
             self.cells[index], self.observed_s[index] = 0, scan_s
         for index in occupied:
             self.cells[index], self.observed_s[index] = 100, scan_s
+        self.range_min = range_min
         self.last_scan_s, self.version = scan_s, self.version+1
         return True
 

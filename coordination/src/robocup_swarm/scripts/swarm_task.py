@@ -243,6 +243,9 @@ class TaskAllocator(object):
         self.vis_gain_sat = max(1.0, VIS_GAIN_SAT)
         self.visible_set = {}   # cell_key -> [从该视点可见的 cell_key]
         self.last_seen = {}     # cell_key -> 上次被真正看见（有 LOS）的 wall time
+        self.planned_seen = {}  # Assignment promises never become camera observations.
+        self.observation_ledger = None
+        self.observation_s = None
         self._los = None        # LineOfSight 实例，由 manager 注入
         self.last_allocation = []  # 本轮最终分配诊断，供 manager 落盘
 
@@ -272,7 +275,7 @@ class TaskAllocator(object):
         return n
 
     def commit_visible(self, cell_key, now=None):
-        """派单即承诺：把该视点可见集的 last_seen 刷成 now。
+        """派单即承诺：记录计划可见集，不能刷新实际 last_seen。
 
         次模贪心的关键一步 —— 别的机再看同一片区域增益≈0，队形自动散开，
         不会像 W_EDGE 那样把 6 架吸到同一批格子上。
@@ -285,7 +288,7 @@ class TaskAllocator(object):
         if not keys:
             return 0
         for k in keys:
-            self.last_seen[k] = now
+            self.planned_seen[k] = now
         return len(keys)
 
     def vis_gain(self, cell_key, now=None):
@@ -420,6 +423,10 @@ class TaskAllocator(object):
                 novelty = 1.0
             elif novelty < 0.0:
                 novelty = 0.0
+        if self.observation_ledger is not None and self.observation_s is not None:
+            stamp = self.observation_ledger.latest(cell_key)
+            novelty = (1.0 if stamp < 0 else
+                       max(0., min(1., (self.observation_s-stamp)/30.)))
 
         # 临楼偏置：贴着建筑的格子更容易藏着 actor，同等条件下优先扫
         edge_bonus = self.w_edge * float(self.cell_edge.get(cell_key, 0.0))

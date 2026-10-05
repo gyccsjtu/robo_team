@@ -1,0 +1,526 @@
+{
+  "kind": "actual_method_policy_replay_from_historical_positions",
+  "physical_effect_proven": false,
+  "new_camera_flow_proven": false,
+  "source_round": "/root/robocup_runs/manual_v132_20261005T112121Z/round_1_seed_8159",
+  "fresh_grid_per_sample": true,
+  "arrival_rows": 24,
+  "new_unproven_arrival_coverage": 0,
+  "new_lease_held_rows": 24,
+  "manager_raw_sha256": "97120cc5fbbd0fce333ba6114b3f422546925c72dbcecc2632eb7de8ba4aadc2",
+  "candidate_manager_sha256": "9e48d7d333c60b93ff1c1c84fb5ca71bbc9541a3382c4999ff5595ac6ac034d9",
+  "controls_sha256": {
+    "uav_1": "b023f4154a45bc52217854393b6947c2aa0c46bb59243d8f9746b816f0a22282",
+    "uav_2": "529f34b1003b6c7f56e3c5ec7c4808e6db4f6d516407fb76b899def508431d1c",
+    "uav_3": "ebf25e7e637deac9735a36e673ca1a3beaf56fc0a48cc1e49a25f35f29072f6a",
+    "uav_4": "e8caae2e02613867d2231290650c41b4d4a5e344bd3139ed1eed3e875cabc23f",
+    "uav_5": "d1feb793221fed3dba52abb616c2fb1411a100626f756789d03017dba74b36fd",
+    "uav_6": "ca014d9e23f2ab122656a6a9348875594bccaf57a8d66785815416dc404cf6fe"
+  },
+  "rows": [
+    {
+      "sim_s": 2007.74,
+      "uav_id": "uav_1",
+      "cell": [
+        2,
+        4
+      ],
+      "sample_s": 2007.796,
+      "position_xy": [
+        -29.286915372125804,
+        -28.842952019535005
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2009.74,
+      "uav_id": "uav_5",
+      "cell": [
+        3,
+        7
+      ],
+      "sample_s": 2009.764,
+      "position_xy": [
+        -25.48116040881723,
+        -4.365741474321112
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2040.04,
+      "uav_id": "uav_4",
+      "cell": [
+        9,
+        6
+      ],
+      "sample_s": 2040.112,
+      "position_xy": [
+        16.758743179030716,
+        -17.214339373167604
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2061.54,
+      "uav_id": "uav_1",
+      "cell": [
+        0,
+        0
+      ],
+      "sample_s": 2061.592,
+      "position_xy": [
+        -46.718990872614086,
+        -52.77276349719614
+      ],
+      "old": {
+        "covered": 11,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2063.54,
+      "uav_id": "uav_5",
+      "cell": [
+        6,
+        11
+      ],
+      "sample_s": 2063.516,
+      "position_xy": [
+        -4.8176467483863235,
+        17.32627178938128
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2082.14,
+      "uav_id": "uav_1",
+      "cell": [
+        4,
+        1
+      ],
+      "sample_s": 2082.144,
+      "position_xy": [
+        -20.88596589397639,
+        -52.66903806384653
+      ],
+      "old": {
+        "covered": 20,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2084.16,
+      "uav_id": "uav_3",
+      "cell": [
+        0,
+        13
+      ],
+      "sample_s": 2084.168,
+      "position_xy": [
+        -46.53883703844622,
+        31.077409269288182
+      ],
+      "old": {
+        "covered": 16,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2110.64,
+      "uav_id": "uav_3",
+      "cell": [
+        2,
+        15
+      ],
+      "sample_s": 2110.716,
+      "position_xy": [
+        -32.45132025377825,
+        45.0915007609874
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2115.64,
+      "uav_id": "uav_1",
+      "cell": [
+        6,
+        3
+      ],
+      "sample_s": 2115.592,
+      "position_xy": [
+        -4.54929072689265,
+        -39.3807995384559
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2117.74,
+      "uav_id": "uav_4",
+      "cell": [
+        11,
+        8
+      ],
+      "sample_s": 2117.76,
+      "position_xy": [
+        30.461385619826615,
+        -3.4023042893968523
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2124.74,
+      "uav_id": "uav_5",
+      "cell": [
+        10,
+        12
+      ],
+      "sample_s": 2124.768,
+      "position_xy": [
+        22.99977754894644,
+        24.36620976240374
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2132.84,
+      "uav_id": "uav_6",
+      "cell": [
+        7,
+        14
+      ],
+      "sample_s": 2132.812,
+      "position_xy": [
+        -0.6369937369599938,
+        39.66480905236676
+      ],
+      "old": {
+        "covered": 28,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2137.84,
+      "uav_id": "uav_3",
+      "cell": [
+        4,
+        17
+      ],
+      "sample_s": 2137.812,
+      "position_xy": [
+        -18.41912039415911,
+        56.05809545703232
+      ],
+      "old": {
+        "covered": 18,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2138.84,
+      "uav_id": "uav_1",
+      "cell": [
+        6,
+        6
+      ],
+      "sample_s": 2138.844,
+      "position_xy": [
+        -4.454448292963207,
+        -17.74734807666391
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2150.14,
+      "uav_id": "uav_5",
+      "cell": [
+        12,
+        14
+      ],
+      "sample_s": 2150.064,
+      "position_xy": [
+        37.58874391857535,
+        38.39526249677874
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2155.148,
+      "uav_id": "uav_6",
+      "cell": [
+        7,
+        17
+      ],
+      "sample_s": 2155.108,
+      "position_xy": [
+        2.478298216126859,
+        56.21657067956403
+      ],
+      "old": {
+        "covered": 18,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2161.444,
+      "uav_id": "uav_3",
+      "cell": [
+        0,
+        17
+      ],
+      "sample_s": 2161.46,
+      "position_xy": [
+        -44.853118502069265,
+        56.381692411378026
+      ],
+      "old": {
+        "covered": 14,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2161.444,
+      "uav_id": "uav_4",
+      "cell": [
+        13,
+        4
+      ],
+      "sample_s": 2161.468,
+      "position_xy": [
+        44.547315490432084,
+        -25.04195892577991
+      ],
+      "old": {
+        "covered": 26,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2170.556,
+      "uav_id": "uav_6",
+      "cell": [
+        10,
+        16
+      ],
+      "sample_s": 2170.556,
+      "position_xy": [
+        19.711864381097257,
+        56.22991830529645
+      ],
+      "old": {
+        "covered": 22,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2184.74,
+      "uav_id": "uav_1",
+      "cell": [
+        0,
+        6
+      ],
+      "sample_s": 2184.748,
+      "position_xy": [
+        -43.61385781597346,
+        -12.019451386295259
+      ],
+      "old": {
+        "covered": 19,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2191.74,
+      "uav_id": "uav_6",
+      "cell": [
+        13,
+        17
+      ],
+      "sample_s": 2191.708,
+      "position_xy": [
+        42.35061827208847,
+        56.31388742150739
+      ],
+      "old": {
+        "covered": 21,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2201.94,
+      "uav_id": "uav_4",
+      "cell": [
+        13,
+        1
+      ],
+      "sample_s": 2201.968,
+      "position_xy": [
+        44.4926813961938,
+        -45.6558905816637
+      ],
+      "old": {
+        "covered": 23,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2218.94,
+      "uav_id": "uav_5",
+      "cell": [
+        20,
+        16
+      ],
+      "sample_s": 2218.968,
+      "position_xy": [
+        93.52500414196402,
+        52.421705978224054
+      ],
+      "old": {
+        "covered": 23,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    },
+    {
+      "sim_s": 2231.04,
+      "uav_id": "uav_4",
+      "cell": [
+        17,
+        2
+      ],
+      "sample_s": 2231.012,
+      "position_xy": [
+        71.00953091401607,
+        -45.95946037536487
+      ],
+      "old": {
+        "covered": 25,
+        "lease_held": false
+      },
+      "new": {
+        "covered": 0,
+        "lease_held": true
+      }
+    }
+  ]
+}

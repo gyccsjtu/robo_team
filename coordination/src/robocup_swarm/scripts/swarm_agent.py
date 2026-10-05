@@ -53,6 +53,7 @@ from nav_msgs.msg import OccupancyGrid
 from online_radar_planner import OnlinePlanner, fixture_seed
 from search_completion import parse_actor_list
 from red_observations import actor_slot_remaining
+from search_observation import FrameCache, ObservationLedger, SearchSweep, visible_samples, proven_points, MIN_FRAMES
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -363,6 +364,14 @@ class SwarmAgent(object):
         self._v124_behavior = os.environ.get('SWARM_BEHAVIOR_BASELINE','') == 'c77063e'
         self._handoff_yaw_reacquire = os.environ.get('SWARM_HANDOFF_REACQUIRE','0') == '1'
         self._handoff_reacquire_window = None
+        self._search_enabled = os.environ.get('SWARM_SEARCH_OBSERVATION', '0') == '1'
+        self._search_frames = FrameCache(self._gate.run_id, [uav_id])
+        self._search_ledger = ObservationLedger()
+        self._search_sweep = None
+        self._search_remaining = {}
+        self._search_granted_s = 0.
+        self._search_feedback_seq = 0
+        self._search_feedback_s = -1.
 
         # ---- A* 避障 ----
         self.md, _ = load_metadata(METADATA_PATH)
@@ -410,6 +419,9 @@ class SwarmAgent(object):
 
         # ---- 覆盖栅格（与 manager 一致，10m 格）----
         self.cov_grid = CoverageGrid(MAP_X_MIN, MAP_X_MAX, MAP_Y_MIN, MAP_Y_MAX, GRID_SIZE_M)
+        if self._search_enabled:
+            b = self.md['bounds']
+            self.cov_grid = CoverageGrid(b['x_min'], b['x_max'], b['y_min'], b['y_max'], GRID_SIZE_M)
 
         # ---- 目标检测（规则3 几何判定：距离 + 视线遮挡）----
         # 用**未膨胀**的原始栅格做 LOS 判定（膨胀是给飞行留裕度的，
@@ -507,6 +519,10 @@ class SwarmAgent(object):
         self._blocked_plan = None
         self._blocked_feedback_seq = 0
         self._navigation_pub = rospy.Publisher('/swarm/navigation_feedback', String, queue_size=5)
+        self._search_feedback_pub = rospy.Publisher('/swarm/search_feedback', String, queue_size=20)
+        if self._search_enabled:
+            rospy.Subscriber('/swarm/processed_camera_frame', String, self._search_frame_cb, queue_size=100)
+            rospy.Subscriber('/swarm/search_feedback_ack', String, self._search_feedback_ack_cb, queue_size=100)
 
         self.ctrl_rate = rospy.Rate(CTRL_RATE)
         self.pub_rate = rospy.Rate(PUB_RATE)
@@ -717,6 +733,8 @@ class SwarmAgent(object):
                 if not self._gate.receive(message, rospy.Time.now().to_sec()):
                     return
                 if self._gate.stopping:
+                    if getattr(self, '_search_enabled', False):
+                        self._pause_search(rospy.Time.now().to_sec())
                     self._tracking_retry_pending = None
                     self._handoff_reacquire_window = None
                     self._route_gate.clear()
@@ -725,6 +743,8 @@ class SwarmAgent(object):
                     self.path, self.path_target = [], None
                     return
                 if previous_generation != self._gate.generation:
+                    if getattr(self, '_search_enabled', False):
+                        self._pause_search(rospy.Time.now().to_sec())
                     self._route_gate.clear()
                     self._route_pending = None
                     self._stopped_since = None
@@ -746,9 +766,213 @@ class SwarmAgent(object):
                 for name, value in self._gate.task.items():
                     setattr(assignment, name, value)
                 self._assign_cb(assignment)
+                if (getattr(self, '_search_enabled', False) and previous_generation != self._gate.generation
+                        and self._gate.task['task_type'] == 0):
+                    self._search_granted_s = granted_s
+                    key = (assignment.cell_ix, assignment.cell_iy)
+                    checkpoint = self._search_remaining.pop(key, None)
+                    remaining = checkpoint[1] if checkpoint and 0 <= granted_s-checkpoint[0] < 30. else ()
+                    if remaining and (self._online_safe_grid is None or self._online_safe_s is None
+                            or not 0 <= granted_s-self._online_safe_s <= 1.5
+                            or self.world_xy is None or not self._online_planner.connector_clear(
+                                self._online_safe_grid, self.world_xy, remaining[0])):
+                        remaining = ((assignment.target_x, assignment.target_y),)+tuple(
+                            p for p in remaining if p != (assignment.target_x, assignment.target_y))
+                    self._search_sweep = SearchSweep(self._gate.generation, key,
+                        (assignment.target_x, assignment.target_y), granted_s, remaining)
                 self._resume_tracking_attempt()
         except (ValueError, TypeError, KeyError) as exc:
             rospy.logwarn_throttle(2., '[%s] AUTHORITY_MESSAGE_REJECTED %s', self.uav_id, exc)
+
+    def _pause_search(self, now):
+        sweep = getattr(self, '_search_sweep', None)
+        if sweep is not None and not sweep.finished:
+            self._search_remaining[sweep.key] = (now, sweep.remaining())
+        self._search_sweep = None
+
+    def _search_frame_cb(self, msg):
+        try:
+            frame = json.loads(msg.data)
+            with self._authority_lock:
+                now = rospy.Time.now().to_sec()
+                active = dict(task=self._gate.task, generation=self._gate.generation,
+                    started_s=self._search_granted_s, stopping=self._gate.stopping,
+                    expires_s=self._gate.expires_s) if self._gate.task is not None else None
+                if not self._search_frames.receive(frame, active, now):
+                    return
+                sweep = self._search_sweep
+                xy = self.world_xy
+                if (sweep is None or sweep.phase != 'OBSERVE' or xy is None
+                        or not 0 <= now-self._pose_sample_s <= .5
+                        or math.dist(xy, frame['camera_xyz'][:2]) > 1.5):
+                    return
+                with self._online_map_lock:
+                    visible = visible_samples(frame, self.cov_grid, self._online_map, now)
+                sweep.add_frame(frame, visible, now)
+        except (ValueError, TypeError, KeyError):
+            return
+
+    def _choose_search_view(self, sweep, now):
+        grid = self._online_safe_grid
+        if (grid is None or self._online_safe_s is None or not 0 <= now-self._online_safe_s <= 1.5
+                or self._online_safe_epoch != self._online_map_epoch_s):
+            return None
+        cx, cy = sweep.origin
+        candidates = [(cx+dx, cy+dy) for dx, dy in
+                      ((-5., 0.), (5., 0.), (0., -5.), (0., 5.), (-4., -4.), (-4., 4.), (4., -4.), (4., 4.))]
+        if len(sweep.views) > sweep.view_idx+1:
+            candidates.insert(0, sweep.views[sweep.view_idx+1])
+        usable = []
+        with self._online_map_lock:
+            for p in candidates:
+                if (self.cov_grid.world_to_cell(*p) is None or math.dist(p, sweep.origin) > 8.
+                        or any(math.dist(p, used) < 2. for used in sweep.views[:sweep.view_idx+1])
+                        or not self._online_planner.connector_clear(grid, self.world_xy, p)):
+                    continue
+                distance = math.dist(p, self.world_xy)
+                # Query the existing current-scan footprint checker over the
+                # entire candidate connector. This velocity is never published.
+                speed = (-RADAR_BRAKE_MPS2*RADAR_LATENCY_S+math.sqrt(
+                    (RADAR_BRAKE_MPS2*RADAR_LATENCY_S)**2+2*RADAR_BRAKE_MPS2*distance))
+                query = tuple((p[i]-self.world_xy[i])*speed/max(distance, 1e-9) for i in range(2))
+                if self._online_planner.local_command_clear(self._online_map, self.world_xy, query, now,
+                        self._online_map_epoch_s, latency=RADAR_LATENCY_S, brake=RADAR_BRAKE_MPS2):
+                    usable.append(p)
+        return min(usable, key=lambda p: (math.dist(p, self.world_xy), p)) if usable else None
+
+    def _publish_search_result(self, now):
+        sweep = self._search_sweep
+        if sweep.report is None or sweep.report_ack or now-self._search_feedback_s < .5:
+            return
+        self._search_feedback_seq += 1
+        message = dict(sweep.report, seq=self._search_feedback_seq, sample_s=now,
+                       position_xy=list(self.world_xy))
+        sweep.sent_sequences.add(self._search_feedback_seq)
+        self._search_feedback_pub.publish(String(data=json.dumps(message, allow_nan=False)))
+        self._search_feedback_s = now
+
+    def _search_feedback_ack_cb(self, msg):
+        try:
+            message = json.loads(msg.data)
+            with self._authority_lock:
+                sweep = self._search_sweep
+                now = rospy.Time.now().to_sec()
+                if (sweep is None or set(message) != {'schema_version', 'run_id', 'uav_id', 'generation', 'seq', 'view_idx', 'accepted'}
+                        or type(message['schema_version']) is not int or message['schema_version'] != 1
+                        or message['run_id'] != self._gate.run_id or message['uav_id'] != self.uav_id
+                        or message['accepted'] is not True or type(message['seq']) is not int
+                        or message['seq'] not in sweep.sent_sequences
+                        or type(message['generation']) is not int or message['generation'] != sweep.generation
+                        or type(message['view_idx']) is not int or message['view_idx'] != sweep.view_idx
+                        or not self._gate.can_move(now)):
+                    return
+                sweep.report_ack = True
+                if not sweep.finished and sweep.pending_view is not None:
+                    sweep.next_view(sweep.pending_view, now)
+                    self.path, self.path_target = [], None
+                    self._route_pending = None
+                    self._route_gate.clear()
+                    self._last_flight_v = (0., 0.)
+                    with self._plan_lock:
+                        self._plan_ticket += 1
+                        self._plan_pending = None
+        except (ValueError, TypeError, KeyError):
+            return
+
+    def _finish_search_view(self, sweep, now, reason=None):
+        frames = sweep.frames if sweep.phase == 'OBSERVE' else []
+        fresh = frames and 0 <= now-frames[-1]['image_s'] <= 1.
+        if reason is None:
+            reason = ('NO_FRESH_FRAMES' if len(frames) < MIN_FRAMES or not fresh else
+                      'OBSERVED' if any(p['visible'] for p in frames) else 'VIEW_OCCLUDED')
+        if reason == 'NO_FRESH_FRAMES':
+            frames = []  # Old image timestamps never regain freshness by retransmission.
+        new_probes = sum(1 for identity in proven_points(frames)
+                         if identity not in self._search_ledger.points
+                         or now-self._search_ledger.points[identity] >= 30.)
+        useful = new_probes >= 5  # One cell's worth of new sampled view, including neighbours.
+        self._search_ledger.record(frames)
+        complete = self._search_ledger.complete(sweep.key, now)
+        next_view = (self._choose_search_view(sweep, now)
+                     if reason != 'NO_FRESH_FRAMES' and reason not in
+                     ('NO_ROUTE_COMMIT', 'NO_ACTUAL_PROGRESS', 'EXECUTION_GATE_BLOCKED')
+                     and not (complete or useful) and sweep.view_idx < 2 else None)
+        finished = next_view is None
+        if (finished and not (complete or useful) and sweep.view_idx < 2 and reason in ('OBSERVED', 'VIEW_OCCLUDED')):
+            reason = 'NO_CONNECTED_VIEW'
+        sweep.report = dict(schema_version=1, run_id=self._gate.run_id, uav_id=self.uav_id,
+            generation=sweep.generation, cell=list(sweep.key), view_idx=sweep.view_idx,
+            view_xy=list(sweep.goal), phase='NEXT_VIEW' if complete or useful or next_view is not None else 'REVIEW_PENDING',
+            outcome=reason, finished=finished, window_start_s=sweep.window_s if sweep.window_s is not None else now,
+            blocked_since_s=sweep.progress_s if sweep.progress_s is not None else now, frames=frames)
+        self._search_feedback_s = -1.
+        sweep.report_started_s = now
+        self._publish_search_result(now)
+        rospy.loginfo('[%s] SEARCH_VIEW_RESULT gen=%s view=%s outcome=%s frames=%s complete=%s new_probes=%s finished=%s',
+                      self.uav_id, sweep.generation, sweep.view_idx, reason, len(frames), complete, new_probes, finished)
+        if finished:
+            sweep.finished = True
+            sweep.phase = sweep.report['phase']
+        else:
+            sweep.pending_view, sweep.phase = next_view, 'NEXT_VIEW'
+
+    def _control_search_view(self, now):
+        sweep = self._search_sweep
+        if sweep is None:
+            self._look_at = None
+            self._send_vel(0., 0.)
+            return True
+        velocity = self._velocity_sample
+        fresh = (velocity is not None and 0 <= now-velocity[2] <= .5
+                 and 0 <= now-self._pose_sample_s <= .5)
+        speed = math.hypot(*velocity[:2]) if fresh else float('inf')
+        if sweep.finished or sweep.phase == 'NEXT_VIEW':
+            self._look_at = None
+            self._send_vel(0., 0.)
+            if fresh and speed <= .15:
+                self._publish_search_result(now)
+                # Lost feedback/receipt must not become a new infinite hover.
+                # This existing advisory channel requests STOP, never releases a lock.
+                if not sweep.report_ack and sweep.report_started_s is not None and now-sweep.report_started_s >= 6.:
+                    self._blocked_feedback_seq += 1
+                    self._navigation_pub.publish(String(data=json.dumps(dict(schema_version=1,
+                        run_id=self._gate.run_id, uav_id=self.uav_id, generation=sweep.generation,
+                        seq=self._blocked_feedback_seq, sample_s=now, blocked_since_s=sweep.report_started_s,
+                        position_xy=list(self.world_xy), reason='NO_REACHABLE_PROGRESS'), allow_nan=False)))
+                    rospy.logwarn_throttle(5., '[%s] SEARCH_FEEDBACK_TIMEOUT -> advisory STOP', self.uav_id)
+            return True
+        if sweep.phase == 'OBSERVE':
+            if math.dist(self.world_xy, sweep.goal) > 1.:
+                sweep.phase, sweep.window_s, sweep.frames = 'GO_TO_VIEW', None, []
+                sweep.progress_s, sweep.progress_xy = now, self.world_xy
+                return False
+            # Refresh the existing planning snapshot for conditional next views.
+            if self._online_planner is not None and now-self._last_online_request_s >= 1.:
+                self._request_plan(sweep.goal)
+                self._last_online_request_s = now
+            yaw = sweep.yaw(now)
+            self._look_at = (self.world_xy[0]+10.*math.cos(yaw), self.world_xy[1]+10.*math.sin(yaw))
+            self._send_vel(0., 0.)  # Existing XYZ position hold, including altitude.
+            if fresh and speed <= .25 and sweep.view_ready(now):
+                self._finish_search_view(sweep, now)
+            return True
+        if math.dist(self.world_xy, sweep.goal) < ARRIVE_TOL:
+            yaw = (math.atan2(sweep.origin[1]-self.world_xy[1], sweep.origin[0]-self.world_xy[0])
+                   if sweep.view_idx else self.yaw)
+            sweep.start_observing(now, self.world_xy, speed, yaw)
+            self._look_at = None
+            self._send_vel(0., 0.)
+            return True
+        record = self._route_gate.record
+        has_route = record is not None and record['generation'] == sweep.generation and now < record['expires_s']
+        reason = (sweep.blocked_reason(now, self.world_xy, speed, has_route, self._final_stop_reason)
+                  if fresh else None)
+        if reason:
+            self._look_at = None
+            self._send_vel(0., 0.)
+            self._finish_search_view(sweep, now, reason)
+            return True
+        return False
 
     def _publish_authority_state(self):
         now = rospy.Time.now().to_sec()
@@ -2050,7 +2274,12 @@ class SwarmAgent(object):
             return
         self._look_at = None   # 未在盘旋/追踪，交回 PX4 自管偏航
 
-        goal = (self.assignment.target_x, self.assignment.target_y)
+        if getattr(self, '_search_enabled', False):
+            if self._control_search_view(rospy.Time.now().to_sec()):
+                return
+            goal = self._search_sweep.goal
+        else:
+            goal = (self.assignment.target_x, self.assignment.target_y)
         if self._online_planner is not None and rospy.Time.now().to_sec()-self._last_online_request_s >= 1.:
             self._request_plan(goal)
             self._last_online_request_s = rospy.Time.now().to_sec()

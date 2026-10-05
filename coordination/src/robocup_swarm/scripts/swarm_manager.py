@@ -33,6 +33,7 @@ from red_observations import actor_slot_remaining
 from tracker_selection import tracker_rank, takeover_candidate
 from search_occupancy import apply_authority_release, apply_intent_cancellation
 from navigation_feedback import accept as accept_navigation_feedback, refresh_due, RejectedTasks, task_key
+from search_observation import FrameCache, ObservationLedger
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from std_msgs.msg import String, Float32
@@ -235,6 +236,11 @@ class SwarmManager(object):
         self._navigation_seq = {}
         self._navigation_blocked_until = {}
         self._v124_behavior = os.environ.get('SWARM_BEHAVIOR_BASELINE','') == 'c77063e'
+        self._search_enabled = os.environ.get('SWARM_SEARCH_OBSERVATION', '0') == '1'
+        self._search_frames = FrameCache(self._authority.run_id, uav_ids)
+        self._search_ledger = ObservationLedger()
+        self._search_rejections = RejectedTasks()
+        self._search_frame_log = None
 
         # ---- 纯逻辑模块 ----
         _bx0, _bx1, _by0, _by1 = _search_bounds()
@@ -313,6 +319,10 @@ class SwarmManager(object):
         rospy.Subscriber('/swarm/motion_state', String, self._route_motion_cb, queue_size=100)
         rospy.Subscriber('/swarm/authority_ack', String, self._authority_ack_cb, queue_size=100)
         rospy.Subscriber('/swarm/navigation_feedback', String, self._navigation_feedback_cb, queue_size=20)
+        if self._search_enabled:
+            self._search_ack_pub = rospy.Publisher('/swarm/search_feedback_ack', String, queue_size=100)
+            rospy.Subscriber('/swarm/processed_camera_frame', String, self._search_frame_cb, queue_size=100)
+            rospy.Subscriber('/swarm/search_feedback', String, self._search_feedback_cb, queue_size=100)
         # 消除指令发给 target_sim_node（"eliminate:<target_id>"）
         self.cmd_pub = rospy.Publisher("/swarm/target_command", String, queue_size=10)
         # 任务完成广播
@@ -443,11 +453,72 @@ class SwarmManager(object):
         return rospy.Time.now().to_sec() >= getattr(self,'_navigation_blocked_until',{}).get(uid,0.)
 
     def _navigation_task_allowed(self, uid, key):
-        if getattr(self,'_v124_behavior',False):
+        search = getattr(self, '_search_enabled', False) and key[0] == 'search'
+        if search and not self._search_rejections.allowed(uid, key, self._route_motion.samples,
+                                                         rospy.Time.now().to_sec()):
+            return False
+        if getattr(self,'_v124_behavior',False) and not search:
             return True
         rejections = getattr(self,'_navigation_rejections',None)
         return (rejections is None or rejections.allowed(uid,key,self._route_motion.samples,
                                                         rospy.Time.now().to_sec()))
+
+    def _search_frame_cb(self, msg):
+        try:
+            frame = json.loads(msg.data)
+            if not isinstance(frame, dict):
+                return
+            with self._authority_lock:
+                now = rospy.Time.now().to_sec()
+                if not self._search_frames.receive(frame, self._authority.active.get(frame.get('uav_id')), now):
+                    return
+                if self._search_frame_log is None:
+                    directory = os.path.expanduser(os.environ.get('ROBOCUP_LOG_DIR', '~/robocup_logs'))
+                    os.makedirs(directory, exist_ok=True)
+                    self._search_frame_log = open(os.path.join(directory, 'search_camera_frames.jsonl'), 'a', encoding='utf-8')
+                self._search_frame_log.write(json.dumps(dict(frame, received_s=now), allow_nan=False)+'\n')
+                self._search_frame_log.flush()
+        except (ValueError, TypeError, KeyError):
+            return
+
+    def _search_feedback_cb(self, msg):
+        try:
+            message = json.loads(msg.data)
+            if not isinstance(message, dict):
+                return
+            with self._authority_lock:
+                now = rospy.Time.now().to_sec()
+                window = (message.get('uav_id'), message.get('generation'), message.get('view_idx'))
+                if window in self._search_ledger.windows and message.get('run_id') == self._authority.run_id:
+                    self._ack_search_feedback(message)
+                    return
+                if not self._search_ledger.accept(message, self._authority.run_id, self.uav_ids,
+                        self._authority.active, self._route_motion.samples, self._search_frames, self.grid, now):
+                    rospy.logwarn_throttle(5., '[manager] SEARCH_FEEDBACK_REJECTED')
+                    return
+                uid, key = message['uav_id'], tuple(message['cell'])
+                self._authority._event('SEARCH_VIEW_RESULT', uid, now, feedback=message,
+                    observed_mask=self._search_ledger.mask(key, now))
+                if message['finished']:
+                    self._search_rejections.reject(uid, ('search', *key), message['position_xy'])
+                    if self._active_leases.get(uid) == key:
+                        self._active_leases.pop(uid)
+                    # STOP first; no observation result is a physical release.
+                    self._emit_authority(self._authority.withdraw(uid, now))
+                else:
+                    self._emit_authority([])
+                self._search_ledger.sync_grid(self.grid, self._authority.locks, self._authority.pending, now)
+                self._ack_search_feedback(message)
+                rospy.loginfo('[manager] SEARCH_VIEW_RESULT %s gen=%s view=%s outcome=%s finished=%s mask=%s',
+                    uid, message['generation'], message['view_idx'], message['outcome'], message['finished'],
+                    self._search_ledger.mask(key, now))
+        except (ValueError, TypeError, KeyError):
+            return
+
+    def _ack_search_feedback(self, message):
+        self._search_ack_pub.publish(String(data=json.dumps(dict(schema_version=1,
+            run_id=self._authority.run_id, uav_id=message['uav_id'], generation=message['generation'],
+            seq=message['seq'], view_idx=message['view_idx'], accepted=True), allow_nan=False)))
 
     def _emit_authority(self, outputs):
         for message in outputs:
@@ -467,6 +538,9 @@ class SwarmManager(object):
             self._authority_log.write(json.dumps(event, allow_nan=False) + '\n')
         self._authority_log.flush()
         self._authority_event_cursor = len(self._authority.events)
+        if getattr(self, '_search_enabled', False):
+            self._search_ledger.sync_grid(self.grid, self._authority.locks, self._authority.pending,
+                                          rospy.Time.now().to_sec())
 
     def _authorized_publish(self, msg):
         task = {name: getattr(msg, name) for name in
@@ -679,6 +753,10 @@ class SwarmManager(object):
         不加这一步的话：日志会说"继续搜索"，但没有未覆盖格可分配，
         飞机实际上拿不到新任务，只能原地待命到超时 —— 等于还是收工。
         """
+        if getattr(self, '_search_enabled', False):
+            self._search_ledger.sync_grid(self.grid, self._authority.locks, self._authority.pending,
+                                          rospy.Time.now().to_sec())
+            return 0  # Actual image age, not an all-covered reset, drives revisits.
         # 跳过就在飞机脚下的格：否则拍卖的 W_FLIGHT(距离) 又会把飞机派回原地，
         # 变成"重开=原地打转"（第二轮实测 136 次派位全是同一批格子）。
         near = set()
@@ -1264,6 +1342,9 @@ class SwarmManager(object):
             return screen_leg(positions[uid], waypoint(key),
                               [position for owner, position in positions.items() if owner != uid], legs,
                               separation=float(os.environ.get('SWARM_FLEET_SEPARATION_M', '4.5')))
+        if getattr(self, '_search_enabled', False):
+            self.allocator.observation_ledger = self._search_ledger
+            self.allocator.observation_s = now.to_sec()
         assign = self.allocator.allocate(uavs, candidate_filter=candidate_filter)
         self._auction_cycle += 1
         for _d in self.allocator.last_allocation:
@@ -1375,7 +1456,7 @@ class SwarmManager(object):
                 _c = self.grid.cell(key)
                 _wp = (_c.cx, _c.cy) if _c is not None else None
             st = self.status.get(uid)
-            if _wp is not None and st is not None:
+            if not getattr(self, '_search_enabled', False) and _wp is not None and st is not None:
                 _d = math.hypot(st.x - _wp[0], st.y - _wp[1])
                 if _d < COVER_ARRIVE_M:
                     # 标记可视域已覆盖（与 mark_seen 同半径）。
@@ -1477,7 +1558,8 @@ class SwarmManager(object):
 
                 # 定期续租
                 if (now - self._last_lease_t).to_sec() >= LEASE_CHECK_PERIOD:
-                    self._renew_leases()
+                    with self._authority_lock:
+                        self._renew_leases()
 
                 # 目标确认计时（规则4/5）
                 if (now - self._last_target_t).to_sec() >= TARGET_CHECK_PERIOD:
@@ -1485,7 +1567,8 @@ class SwarmManager(object):
 
                 # 定期拍卖（有未覆盖格且距上次分配超周期）
                 if (now - self._last_alloc_t).to_sec() >= ALLOC_PERIOD:
-                    self._allocate()
+                    with self._authority_lock:
+                        self._allocate()
             except Exception as e:
                 rospy.logerr("[manager] 主循环异常: %s\n%s", e, traceback.format_exc())
 

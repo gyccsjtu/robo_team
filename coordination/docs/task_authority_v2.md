@@ -1,5 +1,7 @@
 # Swarm 任务授权接口 v2（2026-10-03 冻结）
 
+兼容增补v2.4（2026-10-05，v1.34）：manager在有效搜索结果后写schema2事件SEARCH_VIEW_RESULT；details.feedback为冻结search_observation_v1.md中的schema1结果，details.observed_mask为原搜索格当前实际五点观察掩码。该事件不是TASK_RELEASED、不是人物发现/消除。已处理相机帧和搜索结果/回执使用独立schema1话题；任务消息、STOP/停稳退休/实际退出规则保持schema2。旧事件消费者可忽略新诊断事件，升级接入须六机与manager同快照。
+
 兼容增补v2.3（2026-10-05冻结，v1.33候选）：纯核心新增 `eliminate_target(tid,now)`，在同一run中永久封禁官方已消除的目标；取消仅该目标的pending，对该目标活跃代次发STOP（STOP_REQUESTED.reason=TARGET_ELIMINATED），保留其他任务和合法pending搜索。后续offer被TASK_INTENT_BLOCKED拒绝（details.key、reason=TARGET_ELIMINATED），refresh/到期不会重派。两红内部槽只有官方两个红色都不存在时才封禁；不能把一个红色被删除当作内部身份匹配证据。原始任务/路线锁保持停稳退休及实际退出流程。
 
 新增schema2事件 `TASK_INTENT_CANCELLED`，details含key与reason（INTENT_REPLACED/TASK_WITHDRAWN/RUN_CLOSED/TARGET_ELIMINATED）；仅表示pending未执行意向被取消，不表示旧任务占用释放。相同key更新不产生取消事件。manager只对同run、同owner的STATE_ASSIGNED搜索格，且当前无该格活跃/退休锁、无任何飞机pending该格时取消格预留并置FREE，绝不据此置COVERED。已停稳但尚未退出的旧搜索格继续占用，原持有者可接新搜索以退出；原格不会对其他机放行。未知格预留、活跃搜索或pending搜索仍视为忙碌。闭合/撤销也使用此事件收回未执行意向。

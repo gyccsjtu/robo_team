@@ -985,6 +985,12 @@ def main():
     # 契约通道：一条消息 = 一个目标（形状见文件上方"协同上报"段）
     coord = rospy.Publisher("/coordination/target_report", String, queue_size=50)
     visual_coord = rospy.Publisher('/swarm/visual_observation', String, queue_size=50)
+    processed_camera = (rospy.Publisher('/swarm/processed_camera_frame', String, queue_size=30)
+                        if camera_task is not None and os.environ.get('SWARM_SEARCH_OBSERVATION', '0') == '1'
+                        else None)
+    if processed_camera is not None:
+        from search_observation import valid_frame
+    processed_frame_seq = 0
     # 调试通道：一帧一条、含全部 dets 的快照，供 rec_snap.py / analyze_snap.py 离线复盘
     dbg = rospy.Publisher(DEBUG_TOPIC, String, queue_size=5)
     # YOLO 实时视角（带检测框，调试可视化）
@@ -1101,6 +1107,7 @@ def main():
         now = rospy.Time.now().to_sec()
         dets = []
         new_frame = False
+        search_context = None
 
         # ---------- 1) 检测 + 几何过滤 ----------
         if n_loop % DETECT_EVERY == 0:
@@ -1141,6 +1148,9 @@ def main():
                     cam_full = None
 
                 if R is not None:
+                    if processed_camera is not None:
+                        with arb_lock:
+                            search_context = camera_task.search_context(rospy.Time.now().to_sec(), frame_stamp)
                     _processed_image_stamp = frame_stamp
                     new_frame = True
                     _infer_t0 = time.time()
@@ -1308,6 +1318,25 @@ def main():
                             strict=strict, image_stamp=frame_stamp,
                             image_age_s=frame_age, inference_s=inference_s,
                             source="yolo_raw",person_frame_verified=_person_proof)
+
+        # A completed inference with zero boxes is still a real search image.
+        # Never report a received-only, failed, repeated or pre-grant image.
+        if new_frame and processed_camera is not None and search_context is not None:
+            processed_frame_seq += 1
+            processed_s = rospy.Time.now().to_sec()
+            with arb_lock:
+                still_searching = camera_task.search_context(processed_s, frame_stamp)
+            if still_searching == search_context:
+                processed = dict(schema_version=1, run_id=os.environ['ROBOCUP_RUN_ID'],
+                    uav_id=os.environ.get('PR_LOGICAL_UAV_ID', UAV),
+                    generation=search_context['generation'], cell=search_context['cell'],
+                    seq=processed_frame_seq, image_s=frame_stamp, sample_s=processed_s,
+                    inference_complete=True, size=[int(img.shape[1]), int(img.shape[0])],
+                    intrinsics=[float(FX), float(FY), float(CX), float(CY)],
+                    camera_xyz=[float(px), float(py), float(pz)],
+                    camera_rotation=[float(v) for v in R.reshape(-1)])
+                if valid_frame(processed, processed_s):
+                    processed_camera.publish(String(data=json.dumps(processed, allow_nan=False)))
 
         # ---------- 2) 关联（位置 + 身高 + 外观；v4新增多层次匹配）----------
         # 原理：先用位置粗关联，再用身高和外观精细筛选，解决密集目标串扰问题
