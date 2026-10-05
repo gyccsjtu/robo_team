@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "formal_competition_pass": false,
+  "raw_result_unchanged": true,
+  "observed_sim_s": 599.8879999999999,
+  "trajectory_start_s": 1930.904,
+  "trajectory_end_s": 2530.792,
+  "actual_judge_deleted_actor_ids": [
+    1,
+    2,
+    5
+  ],
+  "judge_deleted_count": 3,
+  "last_left_actors": [
+    0,
+    3,
+    4
+  ],
+  "last_judge_time_usage_s": 453.4599999999998,
+  "terminal": null,
+  "raw_status": "CITY_SIX_AIRCRAFT_MOVING",
+  "raw_error": null,
+  "non_ground_contact_rows": 0,
+  "static_contact_rows": 0,
+  "actor_contact_rows": 0,
+  "fleet_contact_rows": 0,
+  "first_static_contact": null,
+  "contact_observer_last": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 150305,
+    "first_sample_s": 1929.796,
+    "last_sample_s": 2531.012,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 404849,
+    "body_pairs": 49388
+  },
+  "contact_observer_covers_trajectory": true,
+  "maximum_actual_height_m": {
+    "uav_1": 2.9892899220936124,
+    "uav_2": 3.4456635667361306,
+    "uav_3": 3.308526620724372,
+    "uav_4": 2.9839247902799815,
+    "uav_5": 3.2610203828064703,
+    "uav_6": 3.0859920467453987
+  },
+  "sampled_minimum_3d_separation_m": 2.960369442646221,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 121.64708604311086,
+    "uav_2": 48.12552575226473,
+    "uav_3": 54.010559095112114,
+    "uav_4": 51.272854656009265,
+    "uav_5": 61.2350737636831,
+    "uav_6": 47.90862974924146
+  },
+  "command_mask_counts": {
+    "1500": 1790,
+    "1479": 43683,
+    "1528": 26411
+  },
+  "xyz_hold_z_recorded": {
+    "uav_3": 4035,
+    "uav_5": 3936,
+    "uav_1": 4444,
+    "uav_2": 3847,
+    "uav_6": 4869,
+    "uav_4": 5280
+  },
+  "green_white_events": {
+    "white": {
+      "yolo_detection": 58,
+      "track_reject": 414,
+      "track_publish": 76
+    },
+    "green": {
+      "yolo_detection": 416,
+      "track_reject": 1516,
+      "track_publish": 876
+    }
+  },
+  "green_white_reject_reasons": {
+    "green": {
+      "verdict_hits": 858,
+      "verdict_static": 397,
+      "verdict_self": 53,
+      "verdict_range": 208
+    },
+    "white": {
+      "verdict_hits": 234,
+      "verdict_static": 180
+    }
+  },
+  "executed_source_count": 130,
+  "executed_source_sha_mismatches": [],
+  "first_round_z_evidence": null,
+  "competition_goal_met": false
+}

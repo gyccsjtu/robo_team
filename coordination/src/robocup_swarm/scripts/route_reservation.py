@@ -161,6 +161,8 @@ class RouteGate:
     def __init__(self, run_id, uid):
         self.run_id, self.uid = run_id, uid
         self.seq, self.record, self.last_s = 0, None, 0.
+        self.last_check = None
+        self._segments = ()
 
     def receive(self, message, now, generation, offer_id):
         if (set(message) != {'schema_version', 'run_id', 'uav_id', 'generation', 'offer_id', 'points', 'seq', 'expires_s'}
@@ -173,29 +175,92 @@ class RouteGate:
                 or type(message['expires_s']) not in (float, int) or not math.isfinite(message['expires_s'])
                 or message['expires_s'] <= now or now < self.last_s):
             return False
+        if self.record is None or message['points'] != self.record['points']:
+            # Exact union only, preserving the current route geometry. Repeated
+            # A* cell vertices need not be revisited for every stopping sample.
+            self._segments = tuple(compact_pairs(segments(message['points'])))
         self.seq, self.record, self.last_s = message['seq'], copy.deepcopy(message), now
         return True
 
     def clear(self):
         self.record = None
+        self._segments = ()
 
     def command_clear(self, position, requested, measured, now, generation):
         if (type(now) not in (int, float) or not math.isfinite(now)
                 or self.record is None or self.record['generation'] != generation or now < self.last_s
                 or now >= self.record['expires_s'] or position is None
                 or not all(math.isfinite(v) for p in (position, requested, measured) for v in p)):
+            reason = ('ROUTE_MISSING' if self.record is None else
+                      'ROUTE_GENERATION_MISMATCH' if self.record['generation'] != generation else
+                      'ROUTE_EXPIRED' if type(now) in (int, float) and now >= self.record['expires_s'] else
+                      'ROUTE_TIME_OR_INPUT_INVALID')
+            self.last_check = dict(ok=False, reason=reason)
             self.clear()
             return False
         self.last_s = now
-        route = segments(self.record['points'])
-        for velocity in (requested, measured):
+        for kind, velocity in (('requested', requested), ('measured', measured)):
             speed = math.hypot(*velocity)
             distance = speed*.5+speed*speed  # latency .5, braking .5 m/s^2
-            steps = max(1, math.ceil(distance/.1))
-            for i in range(steps+1):
-                point = (position[0]+velocity[0]*distance/max(speed, 1e-9)*i/steps,
-                         position[1]+velocity[1]*distance/max(speed, 1e-9)*i/steps)
-                # Distance is 1-Lipschitz: .05m allowance covers between samples.
-                if min(point_segment_distance(point, a, b) for a, b in route) > .70:
-                    return False
+            endpoint = (position[0]+velocity[0]*distance/max(speed, 1e-9),
+                        position[1]+velocity[1]*distance/max(speed, 1e-9))
+            failure = self._line_failure(position, endpoint)
+            if failure is not None:
+                self.last_check = dict(ok=False, reason='ROUTE_'+kind.upper()+'_ENVELOPE',
+                    velocity_xy=list(velocity), stopping_distance_m=distance, **failure)
+                return False
+        self.last_check = dict(ok=True, reason='ROUTE_CLEAR')
         return True
+
+    def _line_failure(self, start, end):
+        route = self._segments
+        steps = max(1, math.ceil(math.dist(start, end)/.1))
+        for i in range(steps+1):
+            point = tuple(start[k]+(end[k]-start[k])*i/steps for k in (0, 1))
+            offset = min(point_segment_distance(point, a, b) for a, b in route)
+            # Distance is 1-Lipschitz: .05m allowance covers between samples.
+            if offset > .70:
+                return dict(first_rejected_xy=list(point), distance_from_route_m=offset)
+        return None
+
+    def connector_clear(self, start, end, now, generation):
+        """A guide shortcut must remain inside the current authorized polyline."""
+        if not self.command_clear(start, (0., 0.), (0., 0.), now, generation):
+            return False
+        if end is None or not all(math.isfinite(v) for v in end):
+            return False
+        return self._line_failure(start, end) is None
+
+    def limited_command(self, position, requested, measured_candidates, now, generation):
+        """Shorten only the requested stop segment; never discount measured drift."""
+        def result(velocity, reason, scale=0.):
+            return dict(velocity_xy=tuple(velocity), reason=reason, scale=scale,
+                        requested_xy=[v if math.isfinite(v) else None for v in requested],
+                        last_check=copy.deepcopy(self.last_check))
+
+        if not measured_candidates:
+            return result((0., 0.), 'ROUTE_MOTION_EVIDENCE_MISSING')
+        for measured in measured_candidates:
+            if not self.command_clear(position, (0., 0.), measured, now, generation):
+                return result((0., 0.), self.last_check['reason'])
+        if self.command_clear(position, requested, (0., 0.), now, generation):
+            return result(requested, 'ROUTE_CLEAR', 1.)
+        if self.record is None:
+            return result((0., 0.), self.last_check['reason'])
+        # Each accepted candidate is checked with the same final envelope test.
+        # Bisection avoids a fixed 1m/s cap and keeps long straight routes fast.
+        lo, hi = 0., 1.
+        for _ in range(10):
+            scale = (lo+hi)/2
+            candidate = tuple(v*scale for v in requested)
+            if self.command_clear(position, candidate, (0., 0.), now, generation):
+                lo = scale
+            else:
+                hi = scale
+        candidate = tuple(v*lo for v in requested)
+        if math.hypot(*candidate) < .05:
+            return result((0., 0.), 'ROUTE_NO_REQUEST_PROGRESS')
+        if not all(self.command_clear(position, candidate, v, now, generation)
+                   for v in measured_candidates):
+            return result((0., 0.), self.last_check['reason'])
+        return result(candidate, 'ROUTE_REQUEST_SCALED', lo)

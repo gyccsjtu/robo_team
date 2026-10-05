@@ -1,0 +1,47 @@
+1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m37.1811[0m[1;36m, y:[0m[1;36m35.6593[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m78.8492[0m[1;36m,[0m[1;36m39.0206[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m49.1202[0m[1;36m, y:[0m[1;36m32.0728[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m46.7015[0m[1;36m,[0m[1;36m39.3464[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m16[0m[1;36m [0m[1;36m33[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m97.7312[0m[1;36m, y:[0m[1;36m-24.5832[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m108.855[0m[1;36m,[0m[1;36m-35.0625[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m53[0m[1;36m [0m[1;36m-3[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m37.1811[0m[1;36m, y:[0m[1;36m35.6593[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m78.8452[0m[1;36m,[0m[1;36m39.0202[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m49.1202[0m[1;36m, y:[0m[1;36m32.0728[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m46.7028[0m[1;36m,[0m[1;36m39.3427[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m16[0m[1;36m [0m[1;36m33[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m97.7312[0m[1;36m, y:[0m[1;36m-24.5832[0[31m[ERROR] [1791222622.123616817, 2531.100000000]: GetModelState: model [actor_1] does not exist[0m
+m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m108.852[0m[1;36m,[0m[1;36m-35.0598[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m53[0m[1;36m [0m[1;36m-3[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m37.1811[0m[1;36m, y:[0m[1;36m35.6593[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m78.8412[0m[1;36m,[0m[1;36m39.0199[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m49.1202[0m[1;36m, y:[0m[1;36m32.0728[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m46.7041[0m[1;36m,[0m[1;36m39.3389[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m16[0m[1;36m [0m[1;36m33[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m97.7312[0m[1;36m, y:[0m[1;36m-24.5832[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m108.849[0m[1;36m,[0m[1;36m-35.057[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m53[0m[1;36m [0m[1;36m-3[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m37.1811[0m[1;36m, y:[0m[1;36m35.6593[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m78.8372[0m[1;36m,[0m[1;36m39.0196[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m36[0m[1;36m [0m[1;36m-38[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:343] [0m[1;36m[XTDrone_Actor_Plugin]: Publish topic actor_pose_pub[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:344] [0m[1;36mTarget:  x:[0m[1;36m49.1202[0m[1;36m, y:[0m[1;36m32.0728[0m[1;36m,vel:[0m[1;36m1[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:345] [0m[1;36mActor_Position:  [0m[1;36m46.7053[0m[1;36m,[0m[1;36m39.3351[0m[1;36m,[0m[1;36m1.0191[0m[1;36m
+[0m[1;36m[0m[1;36m[Dbg] [ActorPluginRos.cpp:346] [0m[1;36minit_pose:  [0m[1;36m16[0m[1;36m [0m[1;36m33[0m[1;36m [0m[1;36m1.0191[0m[1;36m [0m[1;36m1.57[0m[1;36m [0m[1;36m-0[0m[1;36m [0m[1;36m0[0m[1;36mvel: [0m[1;36m1[0m[1;36m
+[0m[1;36m[31m[ERROR] [1791222622.143847430, 2531.104000000]: GetModelState: model [actor_5] does not exist[0m

@@ -1,0 +1,173 @@
+actor_4: communication initialized
+4 general change position
+current_position:   4       x: 16.0
+y: 33.0
+z: 1.0191
+middd_pos:     4       [x: 111.40953988595774
+y: 37.931842496915294
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 111.40063025078624
+y: 37.93138233693539
+z: 1.0191
+middd_pos:     4       [x: 104.38497028456189
+y: -3.2105903779001537
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 104.38629159739574
+y: -3.20284960258998
+z: 1.0191
+middd_pos:     4       [x: 98.39867919991514
+y: -2.2094015088901457
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 98.40801952177078
+y: -2.210950923412338
+z: 1.0191
+middd_pos:     4       [x: 108.86616184783452
+y: 40.73130665628686
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 108.86453403339152
+y: 40.72228118919283
+z: 1.0191
+middd_pos:     4       [x: 107.29264432560348
+y: -12.83480067355206
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 107.29287961951525
+y: -12.826659849853048
+z: 1.0191
+middd_pos:     4       [x: 96.01031510178169
+y: -17.97431976118635
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 96.01886480580688
+y: -17.970418590351734
+z: 1.0191
+middd_pos:     4       [x: 105.45118740515287
+y: -7.150953103465433
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 105.44479393230147
+y: -7.1582866959292
+z: 1.0191
+middd_pos:     4       [x: 104.29417072852405
+y: -34.68959978635252
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 104.29448089293636
+y: -34.682259590688936
+z: 1.0191
+middd_pos:     4       [x: 100.7932184454275
+y: -40.987929178702814
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 100.79735186487383
+y: -40.980489862849765
+z: 1.0191
+middd_pos:     4       [x: 95.71629552151668
+y: -5.675085317742642
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 95.71759768395802
+y: -5.684148728653629
+z: 1.0191
+middd_pos:     4       [x: 112.13118684942492
+y: -48.20619461795439
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 112.12833022284973
+y: -48.19879375289654
+z: 1.0191
+middd_pos:     4       [x: 95.2238126626402
+y: -39.832266704711415
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 95.23028319578252
+y: -39.83361760868825
+z: 1.0191
+middd_pos:     4       [x: 74.89925007825565
+y: -40.621833052808626
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 74.9055519529238
+y: -40.62158962915246
+z: 1.0191
+middd_pos:     4       [x: 70.18947437815994
+y: -45.21953692540849
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 70.1341163526645
+y: -45.19151710472564
+z: 1.0191
+middd_pos:     4       [x: 34.515838459240896
+y: -33.688961319914775
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 34.5239317665132
+y: -33.69169150861051
+z: 1.0191
+middd_pos:     4       [x: 28.730505778582256
+y: -40.946334536974724
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 28.735530335355342
+y: -40.940042001778544
+z: 1.0191
+middd_pos:     4       [x: 46.444098918128574
+y: 40.130538740869284
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 46.4427930525362
+y: 40.124558306029186
+z: 1.0191
+middd_pos:     4       [x: 49.120166641489845
+y: 32.072788819193235
+z: 0.0]
+
+
+Traceback (most recent call last):
+  File "control_actor.py", line 662, in <module>
+    controlactors.loop()
+  File "control_actor.py", line 605, in loop
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request

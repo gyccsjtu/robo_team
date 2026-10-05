@@ -1,0 +1,17 @@
+{
+  "owned_processes_remaining": [],
+  "ports_listening": {
+    "11375": false,
+    "11376": false,
+    "19731": false
+  },
+  "readonly_observer_pids": [
+    9072,
+    9073,
+    9074,
+    9075,
+    66741,
+    66742
+  ],
+  "reason": "round_ended_normal_600_sim_seconds; exact owned observers SIGINT then SIGTERM"
+}

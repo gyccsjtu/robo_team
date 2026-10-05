@@ -1,0 +1,20 @@
+{
+  "kind": "constructed_schedule_using_actual_old_and_new_callback_code",
+  "not_actual_full_ros_replay": true,
+  "executed_version": "f2f7371",
+  "unrecorded_route_geometry": true,
+  "cases": [
+    {
+      "version": "v135_executed",
+      "old_offer_renewal_accepted": false,
+      "expires_s": 1.2,
+      "pending_preserved": true
+    },
+    {
+      "version": "v136_candidate",
+      "old_offer_renewal_accepted": true,
+      "expires_s": 2.3,
+      "pending_preserved": true
+    }
+  ]
+}

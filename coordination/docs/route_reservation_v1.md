@@ -1,5 +1,15 @@
 # 实际水平路线预约 v1（2026-10-03 冻结）
 
+## 2026-10-06兼容修订v1.1：路线内选速与pending续约
+
+线格式仍schema_version=1，offer/grant/reservations字段集合不变。等待同代次新offer时，agent可以续当前已经提交且points完全相同的旧offer；续约不提交pending路径。新offer匹配请求、代次和实际points后原子提交，随后旧offer不能续回。STOP、过期任务、旧代次、旧序号与旧运行继续拒绝。manager与六agent统一快照；旧manager线格式兼容，旧agent缺少此执行修复。
+
+地图允许的引导直线同时必须位于当前已授折线包络内。执行器在加速度限幅前、最终发布前沿请求方向选较低速度，使请求停止段仍位于原0.75米包络（0.1米采样使用0.70米阈值）。不扩大包络、改向或忽略未知/障碍/友机。velocity_local与自身差分两个实测方向分别检查；任何实测停止段越界都停车，不能用缩小请求解释为实测已可刹住。长直线仍可用当前3米/秒搜索配置；没有新增统一1米/秒限速。极小可行速度不足0.05米/秒时保持XYZ停止，避免无效运动脉冲。
+
+内部折线检查缓存只合并共线重叠线段的精确集合，保留原grant.points及全部原预约；不是删掉旧任务占用。导航日志schema1增补requested_xy、route_state（offer/generation/expiry/points）、route_velocity_evidence（限幅前/最终判定）及route_check。这些仅用于取证，不是新增授权字段，线上阻塞反馈schema1保持。
+
+v1.36候选离线565项通过；已执行v1.35的完整600秒为3/6、建筑接触0，不能将候选回调/几何检查当新的实体结果。详见fast_competition_fixes_v136.md。
+
 任务授权 v2 保持兼容。新增 String JSON 话题 `/swarm/route_offer` 和 `/swarm/route_grant`，schema_version=1，使用相同 run_id。offer 含 uav_id、generation、offer_id（逐机规划请求号）、points（实际规划后的世界 ENU XY 折线，包含实测起点）。grant 含上述标识、seq、expires_s、points。实际 agent 仅执行与当前任务代次和本地待提交规划请求一致的 grant；旧运行、旧请求和旧序号不能提交路径。
 
 单写者 manager 串行检查完整机队的新鲜实测运动状态（0.5s），起点距自身实测位置不得超过 0.75m；折线须有限、2..2048点。整条折线与其他飞机的保留折线及当前位置间距必须大于 6m（4.5m保护距离加两机各0.75m跟踪包络）。同一任务代次的重规划原子加入原预约并保留旧折线，不能凭新路径或预计时间删除旧占用；冲突请求拒绝但不撤销已授路线。

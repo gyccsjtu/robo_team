@@ -1,0 +1,224 @@
+actor_5: communication initialized
+5 general change position
+current_position:   5       x: 70.0
+y: -4.0
+z: 1.0191
+middd_pos:     5       [x: 95.86884380570896
+y: -10.216810664741054
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 95.85973139829015
+y: -10.214620503953007
+z: 1.0191
+middd_pos:     5       [x: 44.59337369672737
+y: 1.172683593241608
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 44.60099620782266
+y: 1.1709901811565373
+z: 1.0191
+middd_pos:     5       [x: 33.682162087004244
+y: -2.4841735102826306
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 33.64548016100471
+y: -2.496772883013352
+z: 1.0191
+middd_pos:     5       [x: 42.103523684867554
+y: 3.1387680087851066
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 42.095071119278344
+y: 3.133631613497856
+z: 1.0191
+middd_pos:     5       [x: 14.469816681085774
+y: 48.373859864947505
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 14.473910992550534
+y: 48.367153621567766
+z: 1.0191
+middd_pos:     5       [x: -18.315834051318042
+y: 47.184985557282374
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_5"
+  pose: 
+    position: 
+      x: 109
+      y: 26
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+model_state: 
+  model_name: "actor_5"
+  pose: 
+    position: 
+      x: -11
+      y: 20
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+5 general change position
+current_position:   5       x: -18.333363221711977
+y: 47.253463402431784
+z: 1.0191
+middd_pos:     5       [x: -20.9133858617561
+y: 39.92376461545531
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: -20.911489120126276
+y: 39.93060952587907
+z: 1.0191
+middd_pos:     5       [x: -20.328778783027
+y: 44.185349536693636
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: -20.34722756782016
+y: 44.12515008289489
+z: 1.0191
+middd_pos:     5       [x: 117.90788609631687
+y: 32.49835769613908
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_5"
+  pose: 
+    position: 
+      x: 84
+      y: 9
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+model_state: 
+  model_name: "actor_5"
+  pose: 
+    position: 
+      x: 37
+      y: -32
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+5 general change position
+current_position:   5       x: 117.9027271666258
+y: 32.49335260094111
+z: 1.0191
+middd_pos:     5       [x: -46.20503717803841
+y: 48.15420210430959
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_5"
+  pose: 
+    position: 
+      x: 40
+      y: 26
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+model_state: 
+  model_name: "actor_5"
+  pose: 
+    position: 
+      x: 25
+      y: 17
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+actor_5 has been deleted

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "authorization": "ACTUAL_AUTOMATION_3_HEARTBEAT",
+  "trigger_utc": "2026-10-05T16:44:49.597Z",
+  "candidate_commit": "f2f7371415c31f6bb8807eae62b6ce3fb6dc5723",
+  "maximum_attempts": 1,
+  "seed": 8159,
+  "maximum_sim_s": 600,
+  "preexisting_ports_closed": [
+    11375,
+    11376,
+    19731
+  ],
+  "goal_system_status": "null; ordinary authorized project work",
+  "questions": [
+    "gas-station-contact and short MOVING pulses",
+    "pose-rate and velocity-local direction checks; actual XYZ stop drift",
+    "processed-frame search observation and view/task transitions",
+    "actual judge progress; only 6/6 completes"
+  ],
+  "limits": [
+    "stop on building contact or base service failure",
+    "no unchanged rerun or second attempt in this wake",
+    "shared GPU, WSL memory, sensors/judge and local2.2m unchanged",
+    "actual body/actor truth for independent audit only"
+  ],
+  "source_sha256": {
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "4e9c9b0390f277e1f5877260c1b4039f9c985ff80274de22a3d28f7b64c3c3a1",
+    "coordination/src/robocup_swarm/scripts/pose_rate.py": "8833b70b95650a8049f6e9f97d2f5941f53453201ef55ecbd3724e285d5bf3d4",
+    "coordination/src/robocup_swarm/scripts/radar_observed_map.py": "da7380910024d5825c8e40e1cc533720c06fe8504aa376a7b1dce9eb9770cabe",
+    "coordination/scripts/city_swarm_run.py": "4b7ce55c3ced92a7437ca42093aa43ffa421c253ab3e5b126dcc48809bf90015"
+  }
+}

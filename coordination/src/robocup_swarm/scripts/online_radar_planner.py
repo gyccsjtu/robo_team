@@ -277,11 +277,12 @@ class OnlinePlanner:
         return True
 
     @classmethod
-    def visible_goal(cls, grid, position, prefix):
+    def visible_goal(cls, grid, position, prefix, connector_guard=None):
         # Prefer the farthest original path point whose connecting segment stays
         # inside known free space; no straight shortcut through an inflated corner.
         for point in reversed(prefix):
-            if math.dist(position,point) > .05 and cls.connector_clear(grid,position,point):
+            if (math.dist(position,point) > .05 and cls.connector_clear(grid,position,point)
+                    and (connector_guard is None or connector_guard(position, point))):
                 return tuple(point)
         return None
 

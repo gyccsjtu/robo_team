@@ -1,0 +1,83 @@
+{
+  "executed_commit": "f2f7371415c31f6bb8807eae62b6ce3fb6dc5723",
+  "limits": [
+    "control rows have controller receipt time; not per-UAV Gazebo bracket time",
+    "route polyline was not recorded: route-gate physical cause is not fully replayable"
+  ],
+  "control": {
+    "1": {
+      "rows": 2538,
+      "command_speed_p50_mps": 0.3213115786073999,
+      "command_speed_max_mps": 2.3968058853555836,
+      "moving_at_least_one_mps_rows": 662,
+      "zero_xy_rows": 1030
+    },
+    "2": {
+      "rows": 2527,
+      "command_speed_p50_mps": 0.4750687280267762,
+      "command_speed_max_mps": 2.3934013724092984,
+      "moving_at_least_one_mps_rows": 626,
+      "zero_xy_rows": 890
+    },
+    "3": {
+      "rows": 2521,
+      "command_speed_p50_mps": 0.4085145667473661,
+      "command_speed_max_mps": 2.3286321174191187,
+      "moving_at_least_one_mps_rows": 616,
+      "zero_xy_rows": 917
+    },
+    "4": {
+      "rows": 2559,
+      "command_speed_p50_mps": 0.125,
+      "command_speed_max_mps": 2.3472690248619723,
+      "moving_at_least_one_mps_rows": 610,
+      "zero_xy_rows": 1232
+    },
+    "5": {
+      "rows": 2523,
+      "command_speed_p50_mps": 0.47941789386325456,
+      "command_speed_max_mps": 2.3646626378862825,
+      "moving_at_least_one_mps_rows": 718,
+      "zero_xy_rows": 887
+    },
+    "6": {
+      "rows": 2529,
+      "command_speed_p50_mps": 0.24999998273113766,
+      "command_speed_max_mps": 2.397114892783762,
+      "moving_at_least_one_mps_rows": 646,
+      "zero_xy_rows": 1085
+    }
+  },
+  "route_commit_point_counts": {
+    "1": {
+      "count": 453,
+      "max": 145,
+      "median": 40
+    },
+    "2": {
+      "count": 517,
+      "max": 209,
+      "median": 45
+    },
+    "3": {
+      "count": 519,
+      "max": 240,
+      "median": 42
+    },
+    "4": {
+      "count": 393,
+      "max": 158,
+      "median": 31
+    },
+    "5": {
+      "count": 506,
+      "max": 120,
+      "median": 47.0
+    },
+    "6": {
+      "count": 434,
+      "max": 196,
+      "median": 53.5
+    }
+  }
+}

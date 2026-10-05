@@ -1,0 +1,102 @@
+{
+  "white": {
+    "image": {
+      "total": 2,
+      "aligned": 2,
+      "strictly_below_one_m": 2,
+      "maximum_error_m": 0.27631365086941195
+    },
+    "official": {
+      "total": 0,
+      "aligned": 0,
+      "strictly_below_one_m": 0,
+      "maximum_error_m": null
+    },
+    "last_original_s": 2170.28,
+    "control_input": false
+  },
+  "green": {
+    "image": {
+      "total": 268,
+      "aligned": 267,
+      "strictly_below_one_m": 256,
+      "maximum_error_m": 4.969791309725621
+    },
+    "official": {
+      "total": 699,
+      "aligned": 697,
+      "strictly_below_one_m": 604,
+      "maximum_error_m": 105.4552118903268
+    },
+    "last_original_s": 2177.816,
+    "control_input": false
+  },
+  "red": {
+    "image": {
+      "total": 194,
+      "aligned": 192,
+      "strictly_below_one_m": 171,
+      "maximum_error_m": 139.9194138777971
+    },
+    "official": {
+      "total": 681,
+      "aligned": 680,
+      "strictly_below_one_m": 480,
+      "maximum_error_m": 140.74418740226412
+    },
+    "last_original_s": 2459.68,
+    "control_input": false
+  },
+  "blue": {
+    "image": {
+      "total": 130,
+      "aligned": 130,
+      "strictly_below_one_m": 86,
+      "maximum_error_m": 128.54487418050292
+    },
+    "official": {
+      "total": 265,
+      "aligned": 263,
+      "strictly_below_one_m": 233,
+      "maximum_error_m": 68.01182807594134
+    },
+    "last_original_s": 2384.576,
+    "control_input": false,
+    "fixture_spatial_cluster": {
+      "total": 36,
+      "aligned": 36,
+      "strictly_below_one_m": 0,
+      "maximum_error_m": 128.54487418050292
+    },
+    "other_images": {
+      "total": 94,
+      "aligned": 94,
+      "strictly_below_one_m": 86,
+      "maximum_error_m": 112.91633481079961
+    },
+    "fixture_cluster_not_identity_ground_truth": true
+  },
+  "brown": {
+    "image": {
+      "total": 86,
+      "aligned": 86,
+      "strictly_below_one_m": 86,
+      "maximum_error_m": 0.8783986335652769
+    },
+    "official": {
+      "total": 236,
+      "aligned": 235,
+      "strictly_below_one_m": 224,
+      "maximum_error_m": 1.3566965441061192
+    },
+    "last_original_s": 2084.912,
+    "control_input": false
+  },
+  "limits": [
+    "Derived independent read-only audit, not original helper output or formal judge",
+    "interpolation rejects gaps over .2s and jumps over max(.5m,3m/s*dt); post-teleport coast can still err",
+    "blue fixture membership is proximity to static object, not a model-provided label",
+    "white/red observers started late; images not temporally aligned are not counted as accurate",
+    "official upload time is receipt time, distinct from original image time"
+  ]
+}

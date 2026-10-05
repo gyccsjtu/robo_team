@@ -104,7 +104,7 @@ class AdapterTests(unittest.TestCase):
         # constructing the large map/control node.
         tree = ast.parse((SCRIPTS / 'swarm_agent.py').read_text(encoding='utf-8'))
         agent = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'SwarmAgent')
-        names = {'_radar_guard_velocity', '_grid_guard_velocity', '_online_velocity_clear', '_scan_cb', '_velocity_cb', '_send_vel', '_measured_motion'}
+        names = {'_radar_guard_velocity', '_grid_guard_velocity', '_online_velocity_clear', '_scan_cb', '_velocity_cb', '_send_vel', '_measured_motion', '_route_guard_velocity', '_route_velocity_clear'}
         selected = [n for n in agent.body if isinstance(n, ast.FunctionDef) and n.name in names]
         module = ast.fix_missing_locations(ast.Module(body=selected, type_ignores=[]))
         env = dict(RADAR_GUARD=1, RADAR_FRESH_S=.5, RADAR_STOP_R=1.2,
@@ -182,6 +182,7 @@ class AdapterTests(unittest.TestCase):
         obj._radar_guard_velocity = types.MethodType(self.methods['_radar_guard_velocity'], obj)
         obj._measured_motion=types.MethodType(self.methods['_measured_motion'],obj)
         self.methods['rospy'].logerr_throttle = lambda *a: None
+        obj._route_guard_velocity=types.MethodType(self.methods['_route_guard_velocity'],obj)
         self.methods['_send_vel'](obj, 3., 0.)
         self.assertEqual((published[0].twist.linear.x, published[0].twist.linear.y), (0., 0.))
         self.assertEqual(obj._last_cmd_v, (0., 0.))
@@ -214,6 +215,7 @@ class AdapterTests(unittest.TestCase):
                         _radar_guard_velocity=lambda x, y: (x, y),
                         _friend_guard_velocity=lambda x, y: (x, y),
                         _publish_command=published.append, uav_id='uav_5')
+                    obj._route_guard_velocity=types.MethodType(self.methods['_route_guard_velocity'],obj)
                     self.methods['_send_vel'](obj, 0., 0., vz=1.)
                     self.assertEqual(published[0].twist.linear.z, expected)
         finally:
@@ -231,7 +233,28 @@ class AdapterTests(unittest.TestCase):
             _radar_guard_velocity=lambda x,y:(x,y),
             _friend_guard_velocity=lambda x,y:(x,y),
             _takeoff_done=True, _landing=False, _publish_command=published.append)
+        obj._route_guard_velocity=types.MethodType(self.methods['_route_guard_velocity'],obj)
         return obj, published
+
+    def test_actual_send_limits_route_speed_before_slew_and_preserves_immediate_xyz_stop(self):
+        from route_reservation import RouteGate
+        obj, published = self.stopped_adapter()
+        obj._last_cmd_v=(0.,0.)
+        obj._gate.generation=1
+        obj._route_gate=RouteGate('r','u')
+        obj._route_gate.receive(dict(schema_version=1,run_id='r',uav_id='u',generation=1,
+            offer_id=1,points=[[0.,0.],[2.5,0.]],seq=1,expires_s=12.),10.,1,1)
+        obj._measured_motion=lambda now:dict(velocity_candidates=[(0.,0.),(0.,0.)])
+        obj._route_velocity_clear=types.MethodType(self.methods['_route_velocity_clear'],obj)
+        for _ in range(25):self.methods['_send_vel'](obj,3.,0.)
+        vx=published[-1].twist.linear.x
+        self.assertGreater(vx,1.)
+        self.assertLess(vx,2.)
+        self.assertEqual(obj._route_velocity_evidence['before_acceleration']['reason'],'ROUTE_REQUEST_SCALED')
+        self.assertTrue(obj._route_gate.command_clear((0.,0.),(vx,0.),(0.,0.),10.1,1))
+        self.methods['_send_vel'](obj,0.,0.)
+        self.assertTrue(obj._xyz_stop_requested)
+        self.assertEqual(published[-1].twist.linear.x,0.)
 
     def test_requested_stop_after_motion_is_xyz_on_first_tick(self):
         obj, published = self.stopped_adapter()

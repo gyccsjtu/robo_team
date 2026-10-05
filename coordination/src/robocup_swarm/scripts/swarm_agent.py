@@ -1033,9 +1033,13 @@ class SwarmAgent(object):
                     return
                 pending = self._route_pending
                 expected = pending[0] if pending else self._route_offer_id
+                renewing_current = bool(pending and message.get('offer_id') == self._route_offer_id
+                                        and message.get('points') == self.path)
+                if renewing_current:
+                    expected = self._route_offer_id
                 if not self._route_gate.receive(message, rospy.Time.now().to_sec(), self._gate.generation, expected):
                     return
-                if pending:
+                if pending and not renewing_current:
                     ticket, path, target, generation = pending
                     if ticket != self._plan_ticket or generation != self._gate.generation or message['points'] != path:
                         self._route_gate.clear()
@@ -1492,6 +1496,26 @@ class SwarmAgent(object):
             self.world_xy, (vx, vy), measured, now, self._gate.generation)
             for measured in evidence['velocity_candidates'])
 
+    def _route_guard_velocity(self, vx, vy, now, stage='final'):
+        gate = getattr(self, '_route_gate', None)
+        if gate is None or abs(vx)+abs(vy) < 1e-9:
+            return vx, vy
+        evidence = self._measured_motion(now)
+        if evidence is None:
+            if not isinstance(getattr(self, '_route_velocity_evidence', None), dict):
+                self._route_velocity_evidence = {}
+            self._route_velocity_evidence[stage] = dict(reason='ROUTE_MOTION_EVIDENCE_MISSING')
+            self._final_stop_reason = 'ROUTE_MOTION_EVIDENCE_MISSING'
+            return 0., 0.
+        decision = gate.limited_command(self.world_xy, (vx, vy), evidence['velocity_candidates'],
+                                        now, self._gate.generation)
+        if not isinstance(getattr(self, '_route_velocity_evidence', None), dict):
+            self._route_velocity_evidence = {}
+        self._route_velocity_evidence[stage] = decision
+        if decision['scale'] == 0.:
+            self._final_stop_reason = decision['reason']
+        return decision['velocity_xy']
+
     def _grid_blocked(self, wx, wy):
         """世界点在栅格上是否不可通行（障碍或越界；越界也视为墙，防冲出地图）。"""
         c = self.grid.world_to_cell((wx, wy))
@@ -1648,6 +1672,8 @@ class SwarmAgent(object):
         vz=0.0 发纯零速，避免 EKF 未收敛时带爬升速度导致 OFFBOARD 被拒。
         """
         self._final_stop_reason = 'REQUESTED_STOP'
+        self._route_velocity_evidence = {}
+        requested_xy = (vx, vy)
         quality = getattr(self, '_pose_quality', None)
         if quality is not None and not quality.usable(rospy.Time.now().to_sec()):
             self._last_cmd_v = (0., 0.)
@@ -1666,6 +1692,10 @@ class SwarmAgent(object):
             # 无激光时栅格兜底（雷达在线也再过一道，双保险）
             vx, vy = self._grid_guard_velocity(vx, vy)
             vx, vy = self._map_guard_velocity(vx, vy)
+
+        # Budget speed against the committed route before accelerating into a
+        # corner or endpoint. Final gates below still check the actual command.
+        vx, vy = self._route_guard_velocity(vx, vy, rospy.Time.now().to_sec(),stage='before_acceleration')
 
         # === 2026-09-27：水平加速度限幅 ===
         # 避让增益提高后，ORCA 输出可能在相邻帧跳到近乎反向（22:29 轮事故：
@@ -1756,7 +1786,8 @@ class SwarmAgent(object):
         vx, vy = self._friend_guard_velocity(vx, vy)
         route_gate = getattr(self, '_route_gate', None)
         if route_gate is not None and abs(vx)+abs(vy) > 0:
-            if not self._route_velocity_clear(vx, vy, rospy.Time.now().to_sec()):
+            vx, vy = self._route_guard_velocity(vx, vy, rospy.Time.now().to_sec())
+            if abs(vx)+abs(vy) > 0 and not self._route_velocity_clear(vx, vy, rospy.Time.now().to_sec()):
                 rospy.logwarn_throttle(2, '[%s] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop', self.uav_id)
                 vx, vy = 0., 0.
                 self._final_stop_reason = 'ROUTE_ENVELOPE_OR_GRANT_UNKNOWN'
@@ -1785,6 +1816,11 @@ class SwarmAgent(object):
             snapshot = json.dumps(dict(schema_version=1,run_id=self._gate.run_id,
                 uav_id=self.uav_id,sample_s=rospy.Time.now().to_sec(),generation=self._gate.generation,
                 reason=self._final_stop_reason,command_xyz=[vx,vy,cmd.twist.linear.z],
+                requested_xy=requested_xy,route_velocity_evidence=self._route_velocity_evidence,
+                route_state=(dict(offer_id=route_gate.record['offer_id'],
+                    generation=route_gate.record['generation'],expires_s=route_gate.record['expires_s'],
+                    points=route_gate.record['points']) if route_gate is not None and route_gate.record else None),
+                route_check=(route_gate.last_check if route_gate is not None else None),
                 world_xy=self.world_xy,local_z=self.local_z,
                 measured=[v if math.isfinite(v) else None for v in self._velocity_sample] if self._velocity_sample else None,
                 motion_evidence=self._measured_motion(rospy.Time.now().to_sec()),
@@ -2130,6 +2166,9 @@ class SwarmAgent(object):
         """沿全局路径从最近点往前取 LOOKAHEAD 距离的引导目标。"""
         if not self.path or self.world_xy is None:
             return None
+        route_gate = getattr(self, '_route_gate', None)
+        connector_guard = (lambda start, end: route_gate.connector_clear(start, end,
+            rospy.Time.now().to_sec(), self._gate.generation)) if route_gate is not None else None
         cx, cy = self.world_xy
         best = 0
         best_dist = float("inf")
@@ -2149,12 +2188,12 @@ class SwarmAgent(object):
                 planner = getattr(self, '_online_planner', None)
                 if planner is not None:
                     return planner.visible_goal(self._online_safe_grid,self.world_xy,
-                                                self.path[best:i+1]+[candidate])
+                                                self.path[best:i+1]+[candidate],connector_guard)
                 return candidate
             acc += seg
         planner = getattr(self, '_online_planner', None)
         if planner is not None:
-            return planner.visible_goal(self._online_safe_grid,self.world_xy,self.path[best:])
+            return planner.visible_goal(self._online_safe_grid,self.world_xy,self.path[best:],connector_guard)
         return self.path[-1]
 
     def _control(self):

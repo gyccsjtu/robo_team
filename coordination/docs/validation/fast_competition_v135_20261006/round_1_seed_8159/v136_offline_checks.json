@@ -1,0 +1,18 @@
+{
+  "candidate": "v1.36",
+  "executed_physical_version": "v1.35/f2f7371",
+  "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash && python3 -m unittest discover -s coordination/tests",
+  "test_count": 565,
+  "seconds": 10.978,
+  "result": "OK",
+  "physical_simulation_started_by_tests": false,
+  "initial_unsourced_attempt_error": "test_uav_motion import rospy unavailable; fixed by loading existing ROS environment",
+  "source_sha256": {
+    "coordination/src/robocup_swarm/scripts/route_reservation.py": "14bc37a4ff5fec7bdbd1c3af160c5e6ab51a0cad7460d33b9381adbff6038fb9",
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "ce10928075a55cb7489b3e848edccb4469cf03b93f90632f6a562c9362684124",
+    "coordination/src/robocup_swarm/scripts/online_radar_planner.py": "e195d1622094251d2bea6b359eefd69bb583df903834d83c1a893e6387c29ab2",
+    "coordination/scripts/city_swarm_run.py": "e3c7715641638e19932e0698986e10a02d816a54709726295891347e9de182ef",
+    "coordination/tests/test_route_speed_budget.py": "33b7c2c754879b9f5b6d60910aebb9b51928ba808da4b2df70a337c9eadf6bb5",
+    "coordination/tests/test_radar_velocity_guard.py": "58350b0009ec49a219a8b53ab4465fe100f012d1368d932e009ee45d96461079"
+  }
+}
