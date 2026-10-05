@@ -1,0 +1,103 @@
+{
+  "executed_commit": "715d9ae",
+  "uav_id": "uav_5",
+  "final_stop_sample_s": 2443.068,
+  "final_reason": "RADAR_BRAKING_REQUIRED",
+  "measured_velocity_xy": [
+    -0.4220448136329651,
+    -0.3596993684768677
+  ],
+  "estimated_pose_interval_s": 0.3200000000001637,
+  "pose_difference_velocity_xy": [
+    -1.40848159789967,
+    -0.1283824443816482
+  ],
+  "scan_samples": [
+    {
+      "sample_s": 2440.248,
+      "position_xy": [
+        72.37893899390474,
+        27.851100396364927
+      ],
+      "local_z": 2.2613208293914795,
+      "yaw": -1.8938980505972016,
+      "roll_deg": -12.281014776020868,
+      "pitch_deg": -6.0374035680192035,
+      "min_range": 2.7369744777679443,
+      "min_range_angle": -1.4440313875675201
+    },
+    {
+      "sample_s": 2440.748,
+      "position_xy": [
+        72.76023324439302,
+        27.906926583498716
+      ],
+      "local_z": 2.2457025051116943,
+      "yaw": -1.3557953249287762,
+      "roll_deg": -4.576569629223603,
+      "pitch_deg": 3.035482845931645,
+      "min_range": 2.212634801864624,
+      "min_range_angle": -1.714403212070465
+    },
+    {
+      "sample_s": 2441.248,
+      "position_xy": [
+        73.10737832495943,
+        27.940795373171568
+      ],
+      "local_z": 2.247004270553589,
+      "yaw": -1.7305428477331932,
+      "roll_deg": 8.97194529142262,
+      "pitch_deg": 1.241591422698973,
+      "min_range": 2.674102783203125,
+      "min_range_angle": -1.8004306107759476
+    },
+    {
+      "sample_s": 2441.748,
+      "position_xy": [
+        73.04535134742036,
+        27.928275536745787
+      ],
+      "local_z": 2.1866455078125,
+      "yaw": -2.096443217684333,
+      "roll_deg": 9.578299954902706,
+      "pitch_deg": 8.790740900200461,
+      "min_range": 2.576906204223633,
+      "min_range_angle": -1.4440313875675201
+    },
+    {
+      "sample_s": 2442.248,
+      "position_xy": [
+        72.71908029029146,
+        27.8143324367702
+      ],
+      "local_z": 2.1686341762542725,
+      "yaw": -2.5302740783716398,
+      "roll_deg": 1.8929940861538617,
+      "pitch_deg": 5.549930305203334,
+      "min_range": 2.2775137424468994,
+      "min_range_angle": -1.1367906779050827
+    },
+    {
+      "sample_s": 2442.748,
+      "position_xy": [
+        72.29750283667818,
+        27.707244347780943
+      ],
+      "local_z": 2.144155502319336,
+      "yaw": -2.6848020763950853,
+      "roll_deg": 3.278133253381465,
+      "pitch_deg": 8.245961996660936,
+      "min_range": 1.7454636096954346,
+      "min_range_angle": -1.2473973333835602
+    }
+  ],
+  "control_input": false,
+  "physical_replay": false,
+  "limitations": [
+    "Pose differences and instantaneous MAVROS velocity are not identical estimators or timestamps; this discrepancy does not establish a replacement velocity policy.",
+    "The scan window is sampled at0.5s and may omit the exact newest scan used by the final guard.",
+    "Attitude changes only establish a tilted scan plane, not that the house/person was missed.",
+    "Actor contact precedes house contact; effect on estimator and physical dynamics remains unproven."
+  ]
+}

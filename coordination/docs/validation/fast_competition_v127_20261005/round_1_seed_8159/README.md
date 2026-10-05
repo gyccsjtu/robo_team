@@ -21,7 +21,8 @@
 全文源目录：`/root/robocup_runs/manual_v127_20261005_133000/round_1_seed_8159`；预算在其父目录。`archive_manifest.json`逐文件列出全文WSL路径、字节数、原始SHA、Git归档路径与归档SHA。大CSV/JSONL/普通日志无损gzip；超过5MB的Gazebo/导航日志仅保留16KB尾部，全文仍在WSL且SHA可核查。398张原图为只读诊断材料，人物/障碍真值仅用于审计，没有用于控制。
 
 - `postrun_audit.json`：实际裁判、轨迹、接触覆盖、真实高度及执行SHA。
-- `flight/postrun_problem_windows.json`及`flight/contact_navigation_windows.json`：接触、导航短窗口和授权原图年龄。
+- `flight/postrun_problem_windows.json`及`contact_navigation_windows.json`：接触、导航短窗口和授权原图年龄。
+- `contact_speed_diagnosis.json`：最后0.320秒估计位置差分约1.414m/s、即时MAVROS速度约0.554m/s，扫描姿态滚转/俯仰也在变化。速度来源和采样不同，窗口扫描每0.5秒存一次；不能当作完整雷达回放，尚未证明该用哪一个速度或建筑被漏扫。
 - `flight/backoff_window_readonly.json`：完整实际退避命令统计与6条残留速度。
 - `flight/pending_reacquisition_policy_replay.json`：收尾后v1.28候选，7段时间窗口中6段可仅偏航；TaskGate先前历史及冷却夹具不是完整实际历史。
 - `flight/stop_slew_policy_replay.json`：旧方法7条水平命令精确重现，新方法首帧请求XYZ停止；守卫桩和固定高度用于隔离平滑，未重放实体动力学。

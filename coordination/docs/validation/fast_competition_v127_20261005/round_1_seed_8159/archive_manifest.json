@@ -6525,6 +6525,14 @@
       "archive_path": "flight/stop_slew_policy_replay.json",
       "archive_kind": "full",
       "archive_sha256": "6933b9bd0bdb5781e93992f440c5d770ec71128e9e51a9d5e353d0f4a1d0a5af"
+    },
+    "contact_speed_diagnosis.json": {
+      "sha256": "4bf474b2b3121b416d2084c5e167b75ce4248e9ad1bd2b2c675ad0bf4e82674e",
+      "bytes": 3064,
+      "full_file_wsl": "/root/robocup_runs/manual_v127_20261005_133000/round_1_seed_8159/contact_speed_diagnosis.json",
+      "archive_path": "contact_speed_diagnosis.json",
+      "archive_kind": "full",
+      "archive_sha256": "4bf474b2b3121b416d2084c5e167b75ce4248e9ad1bd2b2c675ad0bf4e82674e"
     }
   },
   "source": "/root/robocup_runs/manual_v127_20261005_133000/round_1_seed_8159",
