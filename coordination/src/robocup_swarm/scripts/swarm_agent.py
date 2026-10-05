@@ -42,7 +42,7 @@ from radar_velocity_guard import guard_velocity
 from collections import deque
 from task_authority import TaskGate
 from visual_observation import VisualEvidence, TAG_TO_TID
-from target_motion import TargetMotion
+from target_motion import TargetMotion, current_target_point
 from route_reservation import RouteGate, exclude_peers, valid_points
 from route_endpoint import connect_exact_goal
 from publisher_authority import PublisherAuthority
@@ -437,6 +437,7 @@ class SwarmAgent(object):
         self._plan_fallback_n = 0  # A* 失败退化直飞的次数
         self._orbit_center = None    # 盘旋中心 (x, y)
         self._confirm_start = 0.0   # 连续确认开始时间
+        self._tracking_retry_pending = None  # One fresh-evidence retry per new target grant.
         self._last_confirm_t = 0.0   # 上次确认时间
         self._target_to_orbit = None  # 待盘旋目标位置 (x, y)
         self._t_seen = {}          # tid -> 最后一次收到位置的时刻（判定目标是否已消失）
@@ -718,6 +719,7 @@ class SwarmAgent(object):
                 if not self._gate.receive(message, rospy.Time.now().to_sec()):
                     return
                 if self._gate.stopping:
+                    self._tracking_retry_pending = None
                     self._route_gate.clear()
                     self._route_pending = None
                     self._last_flight_v = (0., 0.)
@@ -731,6 +733,8 @@ class SwarmAgent(object):
                     self._last_flight_v = (0., 0.)
                     self._orbit_target = self._orbit_center = self._target_to_orbit = None
                     self._look_at = None
+                    self._tracking_retry_pending = ((self._gate.task['target_id'], self._gate.generation)
+                        if self._gate.task['task_type'] == 1 else None)
                     with self._plan_lock:
                         self._plan_ticket += 1
                         self._plan_pending = None
@@ -739,6 +743,7 @@ class SwarmAgent(object):
                 for name, value in self._gate.task.items():
                     setattr(assignment, name, value)
                 self._assign_cb(assignment)
+                self._resume_tracking_attempt()
         except (ValueError, TypeError, KeyError) as exc:
             rospy.logwarn_throttle(2., '[%s] AUTHORITY_MESSAGE_REJECTED %s', self.uav_id, exc)
 
@@ -859,6 +864,29 @@ class SwarmAgent(object):
             # 搜索任务（task_type=0）：此前的追踪指派已结束，清除去重标记，
             # 否则同一目标以后再次派给本机会被误判为重复而忽略。
             self._track_assigned_id = None
+
+    def _resume_tracking_attempt(self):
+        """A new grant may retry once, after fresh accepted camera evidence."""
+        pending = getattr(self, '_tracking_retry_pending', None)
+        if pending is None:
+            return False
+        tid, generation = pending
+        now = rospy.Time.now().to_sec()
+        if (generation != self._gate.generation or not self._gate.can_move(now)
+                or self._gate.task is None or self._gate.task['task_type'] != 1
+                or self._gate.task['target_id'] != tid or tid not in ('t0','t1','t2','t3','t4','t5')
+                or not math.isfinite(self._giveup_until.get(tid, 0.))):
+            return False
+        point = current_target_point(self.targets, self._t_seen, tid, now)
+        if point is None:
+            return False
+        self._tracking_retry_pending = None
+        self._giveup_until.pop(tid, None)
+        self._reset_n[int(tid[1:])] = 0
+        self._target_to_orbit = point
+        rospy.loginfo('[%s] TRACKING_ATTEMPT_READY target=%s generation=%s camera_s=%.3f',
+                      self.uav_id, tid, generation, self._t_seen[tid])
+        return True
 
     def _confirmed_visual_cb(self, msg):
         try:
@@ -1905,14 +1933,19 @@ class SwarmAgent(object):
         task_type = getattr(self.assignment, 'task_type', 0)
 
         # 目标追踪任务（task_type=1）：飞向目标位置
-        if task_type == 1 and self._target_to_orbit is not None:
+        if task_type == 1:
+            self._resume_tracking_attempt()
             # 冷却闸门：目标在 giveup 冷却内，或已 stale（无位置更新），
             # 安全悬停等待 manager 改派，绝不重入盘旋或朝过期点飞。
             _track_id = getattr(self.assignment, 'target_id', None)
             _in_cooldown = (_track_id and
                             rospy.Time.now().to_sec() < self._giveup_until.get(_track_id, 0.0))
-            if _in_cooldown or self._orbit_stale():
-                self._look_at = None
+            if _in_cooldown or self._orbit_stale() or self._target_to_orbit is None:
+                # Backoff stops translation, not observation. Never fall through
+                # to search with a retained orbit route after _abort_orbit.
+                self._look_at = (current_target_point(self.targets, self._t_seen,
+                    _track_id, rospy.Time.now().to_sec())
+                    if math.isfinite(self._giveup_until.get(_track_id, 0.)) else None)
                 self._send_vel(0.0, 0.0)
                 return
             tx, ty = self._target_to_orbit
@@ -2076,11 +2109,10 @@ class SwarmAgent(object):
                     self._abort_orbit('%s 已被官方消除，回归搜索' % tid)
 
     def _abort_orbit(self, reason, clear_path=True):
-        """退出盘旋并回到搜索分支。
+        """退出盘旋；目标授权期间停控，等待新证据或管理器交接。
 
-        关键：必须清空 _target_to_orbit，否则 _control 里
-        `if task_type == 1 and self._target_to_orbit is not None` 仍然成立，
-        飞机又会飞回那个已经不存在的目标点。
+        清空 _target_to_orbit 防止执行旧的追踪点。目标任务仍进入自己的
+        停控处理，不能因为追踪点为空就续发搜索或旧盘旋路线。
 
         clear_path=False（stale/重置退避场景）：保留 self.path，避免
         _need_replan_track 因“空路径”恒为真，在冷却期每帧重跑 A* 形成

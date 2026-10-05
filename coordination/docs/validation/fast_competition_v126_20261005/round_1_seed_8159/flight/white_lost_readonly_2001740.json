@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "readonly": true,
+  "control_truth_input": false,
+  "image": "white_lost_readonly_2001740.png",
+  "image_sample_s": 2001.74,
+  "query_sample_s": 2002.048,
+  "camera_xyz": [
+    9.373795312266138,
+    -0.7394477081269689,
+    2.6001805811498517
+  ],
+  "camera_forward": [
+    -0.9993842995661648,
+    0.01026108700384021,
+    0.03355192802428691
+  ],
+  "camera_yaw_rad": 3.1313256057108187,
+  "camera_pitch_rad": 0.03355822629451844,
+  "actor3_truth_xyz": [
+    -8.208727925882329,
+    -3.308381935832962,
+    1.0191
+  ],
+  "body_xyz": [
+    9.305014299852907,
+    -0.7390547309975335,
+    2.5889617528747406
+  ],
+  "horizontal_bearing_error_rad": 0.15534775420316027
+}

@@ -1,0 +1,190 @@
+{
+  "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+  "execution_commit": "dce0c64",
+  "partial_run": true,
+  "control_input": false,
+  "actor_truth_used": false,
+  "agent_evidence": [
+    "[INFO] [1791159778.919713, 1965.652000]: [uav_4] 收到目标追踪任务 t3 @ (31.7, -7.4)",
+    "[INFO] [1791160058.639271, 2010.400000]: [uav_4] 收到目标追踪任务 t3 @ (-3.4, 3.2)",
+    "[WARN] [1791160131.146837, 2021.996000]: [uav_4] 放弃盘旋 t3：官方已重置 3 次确认，退避 60s 去搜别处",
+    "[INFO] [1791160351.080656, 2057.152000]: [uav_4] 收到目标追踪任务 t3 @ (-1.9, 24.1)"
+  ],
+  "authority_events": [
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2053.8,
+      "event": "STOP_REQUESTED",
+      "uav_id": "uav_4",
+      "details": {
+        "generation": 6
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2057.152,
+      "event": "STOPPED_ACKED",
+      "uav_id": "uav_4",
+      "details": {
+        "generation": 6
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2057.152,
+      "event": "TASK_RETIRED",
+      "uav_id": "uav_4",
+      "details": {
+        "key": [
+          "search",
+          7,
+          13
+        ]
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2057.152,
+      "event": "TASK_GRANTED",
+      "uav_id": "uav_4",
+      "details": {
+        "generation": 7,
+        "key": [
+          "target",
+          "t3"
+        ]
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2057.2,
+      "event": "TASK_RELEASED",
+      "uav_id": "uav_4",
+      "details": {
+        "key": [
+          "search",
+          7,
+          13
+        ]
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2071.02,
+      "event": "STOP_REQUESTED",
+      "uav_id": "uav_4",
+      "details": {
+        "generation": 7
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2072.052,
+      "event": "STOPPED_ACKED",
+      "uav_id": "uav_4",
+      "details": {
+        "generation": 7
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2072.052,
+      "event": "TASK_RETIRED",
+      "uav_id": "uav_4",
+      "details": {
+        "key": [
+          "target",
+          "t3"
+        ]
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2072.052,
+      "event": "TASK_GRANTED",
+      "uav_id": "uav_4",
+      "details": {
+        "generation": 8,
+        "key": [
+          "search",
+          7,
+          13
+        ]
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2072.104,
+      "event": "TASK_RELEASED",
+      "uav_id": "uav_4",
+      "details": {
+        "key": [
+          "target",
+          "t3"
+        ]
+      }
+    }
+  ],
+  "route_events": [
+    {
+      "schema_version": 1,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2053.416,
+      "event": "ROUTE_GRANTED",
+      "uav_id": "uav_4",
+      "generation": 6,
+      "offer_id": 84,
+      "reason": null
+    },
+    {
+      "schema_version": 1,
+      "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+      "sim_s": 2072.344,
+      "event": "ROUTE_GRANTED",
+      "uav_id": "uav_4",
+      "generation": 8,
+      "offer_id": 87,
+      "reason": null
+    }
+  ],
+  "control_summary": {
+    "samples": 55,
+    "nonzero_xy": 0,
+    "first": {
+      "ros_time": 2057.3,
+      "uav_x": -0.5978061929345131,
+      "uav_y": 15.827764423796907,
+      "distance_m": 8.72011813623656,
+      "cmd_vx": 0.0,
+      "cmd_vy": 0.0
+    },
+    "last": {
+      "ros_time": 2070.8,
+      "uav_x": -0.5882174745202065,
+      "uav_y": 15.823632152983919,
+      "distance_m": 12.220067492553834,
+      "cmd_vx": 0.0,
+      "cmd_vy": 0.0
+    }
+  },
+  "inferred_cooldown_until_s": 2081.996,
+  "new_target_generation_granted_s": 2057.152,
+  "explanation": "New authorized target attempt inherits 60s local cooldown from the earlier attempt; zero movement is not caused by the .8m/s cap in this interval.",
+  "candidate": "Respect cooldown within the same authorization attempt; only a new target grant plus fresh camera evidence may begin a new attempt. No automatic release, no old coordinate as new observation.",
+  "implementation_status": "not_changed_current_execution",
+  "fresh_pregrant_own_originals_s": [
+    2056.168,
+    2056.656
+  ],
+  "timing_note": "Two original images both captured and received before grant; two later captured timestamps are not pre-grant received evidence."
+}

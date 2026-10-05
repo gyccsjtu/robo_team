@@ -1,0 +1,34 @@
+{
+  "executed_flight_commit": "dce0c64",
+  "candidate_source_sha256": "96dbcd4ef354fb0354897cc986a170bef3819afec93ad771d51d0497b82e1d6f",
+  "policy_replay_only": true,
+  "actor_truth_used": false,
+  "control_input": false,
+  "actual_movement_not_replayed": true,
+  "assumptions": [
+    "Task remains authorized during the recorded grant-to-stop interval; lease renewal is not replayed.",
+    "Raw accepted visual arrival timestamps approximate confirmed callback input; no route, planner or physical motion is synthesized."
+  ],
+  "results": [
+    {
+      "uid": "uav_3",
+      "tid": "t1",
+      "actual_control_samples": 78,
+      "actual_nonzero_commands": 0,
+      "first_candidate_retry_ready_s": 2062.384,
+      "candidate_remaining_old_cooldown_blocks": 0,
+      "fresh_point_samples": 43,
+      "physical_movement_claim": false
+    },
+    {
+      "uid": "uav_4",
+      "tid": "t3",
+      "actual_control_samples": 55,
+      "actual_nonzero_commands": 0,
+      "first_candidate_retry_ready_s": 2057.3,
+      "candidate_remaining_old_cooldown_blocks": 0,
+      "fresh_point_samples": 25,
+      "physical_movement_claim": false
+    }
+  ]
+}

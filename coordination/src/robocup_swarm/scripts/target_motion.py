@@ -3,6 +3,19 @@ from collections import deque
 import math
 
 
+def current_target_point(targets, stamps, tid, now, maximum_age=1.):
+    """Only accepted, fresh camera coordinates may guide a stopped observer."""
+    try:
+        stamp = stamps[tid]
+        xy = tuple(targets[tid][:2])
+        if (len(xy) != 2 or not all(math.isfinite(v) for v in (*xy, stamp, now))
+                or not 0 <= now-stamp <= maximum_age):
+            return None
+        return xy
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
 class TargetMotion:
     def __init__(self):
         self.history, self.fast_counts = {}, {}

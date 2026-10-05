@@ -1,0 +1,70 @@
+{
+  "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+  "execution_commit": "dce0c64",
+  "partial_run": true,
+  "control_input": false,
+  "official_judge_success": false,
+  "white_window_metrics": [
+    {
+      "ros_interval": [
+        1961,
+        1976
+      ],
+      "metrics": {
+        "original_images": {
+          "aligned": 21,
+          "mean_error_m": 0.16917197025901748,
+          "maximum_error_m": 0.24584126857534214,
+          "strictly_below_1m": 21
+        },
+        "official_reports": {
+          "aligned": 75,
+          "mean_error_m": 0.2817676341271429,
+          "maximum_error_m": 0.7790317366130365,
+          "strictly_below_1m": 75
+        }
+      }
+    },
+    {
+      "ros_interval": [
+        2007,
+        2024
+      ],
+      "metrics": {
+        "original_images": {
+          "aligned": 47,
+          "mean_error_m": 0.5734672326632677,
+          "maximum_error_m": 2.2217364136044098,
+          "strictly_below_1m": 36
+        },
+        "official_reports": {
+          "aligned": 149,
+          "mean_error_m": 0.604630944641908,
+          "maximum_error_m": 2.857896194065971,
+          "strictly_below_1m": 124
+        }
+      }
+    },
+    {
+      "ros_interval": [
+        2053,
+        2069
+      ],
+      "metrics": {
+        "original_images": {
+          "aligned": 30,
+          "mean_error_m": 0.0848151592369755,
+          "maximum_error_m": 0.1817226734967586,
+          "strictly_below_1m": 30
+        },
+        "official_reports": {
+          "aligned": 106,
+          "mean_error_m": 0.10164970784994991,
+          "maximum_error_m": 0.4818332127773576,
+          "strictly_below_1m": 106
+        }
+      }
+    }
+  ],
+  "interpretation": "Two accurate short windows and one error-corrupted window: proof recovery alone does not resolve image loss or localization. Windows are partial and not whole-run success."
+}

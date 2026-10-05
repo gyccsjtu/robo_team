@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "formal_competition_pass": false,
+  "raw_result_unchanged": true,
+  "observed_sim_s": 375.2879999999998,
+  "trajectory_start_s": 1929.796,
+  "trajectory_end_s": 2305.084,
+  "actual_judge_deleted_actor_ids": [
+    0,
+    1,
+    4
+  ],
+  "judge_deleted_count": 3,
+  "last_left_actors": [
+    2,
+    3,
+    5
+  ],
+  "last_judge_time_usage_s": 257.22800000000007,
+  "terminal": null,
+  "raw_status": "SIX_RADAR_CONNECTED",
+  "raw_error": "CHECK_INTERRUPTED_OR_WALL_TIMEOUT",
+  "non_ground_contact_rows": 0,
+  "static_contact_rows": 0,
+  "actor_contact_rows": 0,
+  "fleet_contact_rows": 0,
+  "first_static_contact": null,
+  "contact_observer_last": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 94168,
+    "first_sample_s": 1928.688,
+    "last_sample_s": 2305.356,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 227111,
+    "body_pairs": 52199
+  },
+  "contact_observer_covers_trajectory": true,
+  "maximum_actual_height_m": {
+    "uav_1": 3.2008825824507894,
+    "uav_2": 3.672837517444963,
+    "uav_3": 3.1043402154232025,
+    "uav_4": 3.0501378860233146,
+    "uav_5": 2.861411338662357,
+    "uav_6": 3.3438692295405366
+  },
+  "sampled_minimum_3d_separation_m": 2.9750047834187283,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 68.95615127468318,
+    "uav_2": 55.83135288162634,
+    "uav_3": 65.59311813004449,
+    "uav_4": 133.33876656833954,
+    "uav_5": 71.46175005564908,
+    "uav_6": 96.54090276467316
+  },
+  "command_mask_counts": {
+    "1500": 1824,
+    "1479": 28740,
+    "1528": 14355
+  },
+  "xyz_hold_z_recorded": {
+    "uav_1": 1542,
+    "uav_2": 3946,
+    "uav_3": 2474,
+    "uav_4": 2144,
+    "uav_5": 1744,
+    "uav_6": 2505
+  },
+  "green_white_events": {
+    "white": {
+      "yolo_detection": 140,
+      "track_reject": 352,
+      "track_publish": 332
+    },
+    "green": {
+      "yolo_detection": 113,
+      "track_reject": 354,
+      "track_publish": 234
+    }
+  },
+  "green_white_reject_reasons": {
+    "white": {
+      "verdict_hits": 186,
+      "verdict_static": 118,
+      "verdict_range": 48
+    },
+    "green": {
+      "verdict_hits": 278,
+      "verdict_range": 38,
+      "verdict_static": 38
+    }
+  },
+  "executed_source_count": 128,
+  "executed_source_sha_mismatches": [],
+  "first_round_z_evidence": null,
+  "competition_goal_met": false,
+  "stopping_decision": {
+    "reason": "AGENT_STOP_FOR_PROVEN_AUTHORIZATION_COOLDOWN_BLOCKER",
+    "initiated_by": "Codex",
+    "user_direct_stop_request": false,
+    "authorization": "user_autonomous_project_and_reduce_expensive_simulations",
+    "wall_utc": "2026-10-05T00:58:22Z",
+    "owned_runner_pid": 688,
+    "owned_runner_command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/validate_fast_city.py --root /root/robocup_runs/goal_v126_20261005_082100 --single-seed 8159 ",
+    "last_judge_left_actors": {
+      "kind": "left_actors",
+      "sample_s": 2293.924,
+      "value": [
+        2,
+        3,
+        5
+      ]
+    },
+    "completed_600_seconds": false,
+    "all_targets_eliminated": false,
+    "rerun_authorized_by_this_stop": false,
+    "evidence": [
+      "flight/white_cooldown_conflict_readonly.json",
+      "flight/cooldown_regrant_audit_readonly.json"
+    ],
+    "runner_signal_label_note": "Existing harness names SIGINT termination USER_INTERRUPTED; this decision file gives the actual agent-initiated cause."
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "reason": "AGENT_STOP_FOR_PROVEN_AUTHORIZATION_COOLDOWN_BLOCKER",
+  "initiated_by": "Codex",
+  "user_direct_stop_request": false,
+  "authorization": "user_autonomous_project_and_reduce_expensive_simulations",
+  "wall_utc": "2026-10-05T00:58:22Z",
+  "owned_runner_pid": 688,
+  "owned_runner_command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/validate_fast_city.py --root /root/robocup_runs/goal_v126_20261005_082100 --single-seed 8159 ",
+  "last_judge_left_actors": {
+    "kind": "left_actors",
+    "sample_s": 2293.924,
+    "value": [
+      2,
+      3,
+      5
+    ]
+  },
+  "completed_600_seconds": false,
+  "all_targets_eliminated": false,
+  "rerun_authorized_by_this_stop": false,
+  "evidence": [
+    "flight/white_cooldown_conflict_readonly.json",
+    "flight/cooldown_regrant_audit_readonly.json"
+  ],
+  "runner_signal_label_note": "Existing harness names SIGINT termination USER_INTERRUPTED; this decision file gives the actual agent-initiated cause."
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "control_truth_input": false,
+  "rows": [
+    {
+      "uav_id": "uav_3",
+      "local_sample_s": 2048.943929711,
+      "query_sample_s": 2048.952,
+      "local_yaw": 2.296289019247892,
+      "world_body_yaw": 2.3058020585312273,
+      "camera_yaw": 2.296809896696182,
+      "local_to_world_error": -0.009513039283335356,
+      "camera_to_body_error": -0.008992161835045476
+    },
+    {
+      "uav_id": "uav_4",
+      "local_sample_s": 2048.95570956,
+      "query_sample_s": 2048.964,
+      "local_yaw": 1.5851271276559944,
+      "world_body_yaw": 1.5774065282636913,
+      "camera_yaw": 1.5851381827646254,
+      "local_to_world_error": 0.0077205993923028515,
+      "camera_to_body_error": 0.007731654500934049
+    },
+    {
+      "uav_id": "uav_6",
+      "local_sample_s": 2048.983920256,
+      "query_sample_s": 2048.992,
+      "local_yaw": 2.979005197460038,
+      "world_body_yaw": 2.992947082975049,
+      "camera_yaw": 2.980909143216162,
+      "local_to_world_error": -0.013941885515011077,
+      "camera_to_body_error": -0.012037939758887006
+    }
+  ]
+}

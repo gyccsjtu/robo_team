@@ -1,0 +1,34 @@
+{
+  "partial_run": true,
+  "execution_commit": "dce0c64",
+  "control_input": false,
+  "conflicts": [
+    {
+      "uid": "uav_3",
+      "tid": "t1",
+      "cooldown_started_s": 2057.096,
+      "cooldown_until_s": 2117.096,
+      "new_generation": 7,
+      "granted_s": 2062.184,
+      "evaluated_until_s": 2081.82,
+      "current_originals_at_grant": [],
+      "command_samples": 78,
+      "nonzero_commands": 0
+    },
+    {
+      "uid": "uav_4",
+      "tid": "t3",
+      "cooldown_started_s": 2021.996,
+      "cooldown_until_s": 2081.996,
+      "new_generation": 7,
+      "granted_s": 2057.152,
+      "evaluated_until_s": 2071.02,
+      "current_originals_at_grant": [
+        2056.168,
+        2056.656
+      ],
+      "command_samples": 55,
+      "nonzero_commands": 0
+    }
+  ]
+}
