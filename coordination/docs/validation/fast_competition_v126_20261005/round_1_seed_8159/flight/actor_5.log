@@ -1,0 +1,74 @@
+actor_5: communication initialized
+5 general change position
+current_position:   5       x: 70.0
+y: -4.0
+z: 1.0191
+middd_pos:     5       [x: 108.15930999082124
+y: -11.48648621512951
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 108.15267245545954
+y: -11.485184333292258
+z: 1.0191
+middd_pos:     5       [x: 106.20751447077154
+y: 20.649939737652844
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 106.20811259410274
+y: 20.640016723601487
+z: 1.0191
+middd_pos:     5       [x: 107.51298903576142
+y: -8.200644285894782
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 107.512706580231
+y: -8.194485708925976
+z: 1.0191
+middd_pos:     5       [x: 102.17451145747458
+y: -3.277762183566132
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 102.18145969300274
+y: -3.284158772010794
+z: 1.0191
+middd_pos:     5       [x: 109.4170834546697
+y: 42.31105192592854
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 109.41555411005011
+y: 42.30141146644586
+z: 1.0191
+middd_pos:     5       [x: -42.053815431899125
+y: 35.97904951592274
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: -42.043930727481346
+y: 35.97963352565136
+z: 1.0191
+middd_pos:     5       [x: 90.77881628405129
+y: 38.898805761804255
+z: 0.0]
+
+
+Traceback (most recent call last):
+  File "control_actor.py", line 662, in <module>
+    controlactors.loop()
+  File "control_actor.py", line 605, in loop
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request

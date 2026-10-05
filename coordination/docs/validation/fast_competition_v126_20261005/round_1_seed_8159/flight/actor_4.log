@@ -1,0 +1,104 @@
+actor_4: communication initialized
+4 general change position
+current_position:   4       x: 16.0
+y: 33.0
+z: 1.0191
+middd_pos:     4       [x: 2.297052466877979
+y: 46.85262732884718
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 2.3033964381631056
+y: 46.84621344881324
+z: 1.0191
+middd_pos:     4       [x: -5.544394185893694
+y: 40.915784615976335
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: -5.537568394944652
+y: 40.92094092462365
+z: 1.0191
+middd_pos:     4       [x: 35.50607501495716
+y: 29.57897847543427
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 35.497833467102595
+y: 29.581667947444345
+z: 1.0191
+middd_pos:     4       [x: 28.942111934122977
+y: -35.74997232567468
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: 101
+      y: -1
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: 26
+      y: 13
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: 73
+      y: -6
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+actor_4 has been deleted
