@@ -171,6 +171,10 @@ class FastFixTests(unittest.TestCase):
         self.assertFalse(scope['candidate_filter']('uav_5',(2,10),{}))
         self.assertTrue(scope['candidate_filter']('uav_6',(2,10),{}))
         self.assertTrue(scope['candidate_filter']('uav_5',(3,10),{}))
+        manager._v124_behavior=True
+        self.assertTrue(scope['candidate_filter']('uav_5',(2,10),{}))
+        # Baseline permits reconsideration, not unconditional route/lock release.
+        self.assertIn(('uav_5',('search',2,10)),rejected.positions)
 
     def test_all_target_retries_count_only_resets_in_current_attempt(self):
         import ast

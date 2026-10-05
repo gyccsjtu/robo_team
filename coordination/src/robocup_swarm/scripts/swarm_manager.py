@@ -234,6 +234,7 @@ class SwarmManager(object):
         self._active_leases = {}  # uav_id -> cell key currently leased to that UAV
         self._navigation_seq = {}
         self._navigation_blocked_until = {}
+        self._v124_behavior = os.environ.get('SWARM_BEHAVIOR_BASELINE','') == 'c77063e'
 
         # ---- 纯逻辑模块 ----
         _bx0, _bx1, _by0, _by1 = _search_bounds()
@@ -442,6 +443,8 @@ class SwarmManager(object):
         return rospy.Time.now().to_sec() >= getattr(self,'_navigation_blocked_until',{}).get(uid,0.)
 
     def _navigation_task_allowed(self, uid, key):
+        if getattr(self,'_v124_behavior',False):
+            return True
         rejections = getattr(self,'_navigation_rejections',None)
         return (rejections is None or rejections.allowed(uid,key,self._route_motion.samples,
                                                         rospy.Time.now().to_sec()))

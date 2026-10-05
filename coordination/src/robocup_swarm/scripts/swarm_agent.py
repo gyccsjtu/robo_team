@@ -365,6 +365,7 @@ class SwarmAgent(object):
         self._stopped_since = None
         self.state = State()
         self.assignment = None      # SearchAssignment 当前任务
+        self._v124_behavior = os.environ.get('SWARM_BEHAVIOR_BASELINE','') == 'c77063e'
 
         # ---- A* 避障 ----
         self.md, _ = load_metadata(METADATA_PATH)
@@ -867,6 +868,8 @@ class SwarmAgent(object):
 
     def _resume_tracking_attempt(self):
         """A new grant may retry once, after fresh accepted camera evidence."""
+        if getattr(self,'_v124_behavior',False):
+            return False
         pending = getattr(self, '_tracking_retry_pending', None)
         if pending is None:
             return False
@@ -1962,6 +1965,8 @@ class SwarmAgent(object):
                         math.isfinite(self._giveup_until.get(_track_id, 0.))):
                     self._look_at = current_target_point(self.targets, self._t_seen,
                         _track_id, rospy.Time.now().to_sec(), maximum_age=5.)
+                if getattr(self,'_v124_behavior',False):
+                    self._look_at = None
                 self._send_vel(0.0, 0.0)
                 return
             tx, ty = self._target_to_orbit
@@ -1975,7 +1980,8 @@ class SwarmAgent(object):
                 if target_id in ('t0','t1','t2','t3','t4','t5') and self._orbit_target != target_id:
                     # Each target retry gets a new confirmation attempt;
                     # historical resets must not end a new task after 1 frame.
-                    self._reset_n[int(target_id[1:])] = 0
+                    if not getattr(self,'_v124_behavior',False):
+                        self._reset_n[int(target_id[1:])] = 0
                 self._orbit_target = target_id if target_id else "tracking"
                 self._confirm_start = rospy.Time.now().to_sec()
                 self._last_confirm_t = self._confirm_start

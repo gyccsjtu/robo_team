@@ -375,6 +375,7 @@ BLUE_MOTION_MIN_SPAN = float(os.environ.get('PR_BLUE_MOTION_MIN_SPAN', '1'))
 STATIONARY_GREEN_ON = os.environ.get('PR_STATIONARY_GREEN','0') == '1'
 FAST_GREEN_WHITE = os.environ.get('PR_FAST_GREEN_WHITE','0') == '1'
 FAST_RED_PERSON = os.environ.get('PR_FAST_RED_PERSON','0') == '1'
+WHITE_SHORT_MISS_RECOVERY = os.environ.get('PR_WHITE_SHORT_MISS_RECOVERY','1') == '1'
 # --- 视差判据（v3.5b 新增，专治"机身跟着观测机转向而漏网"）---
 # 踩到的漏网实例：观测机盯人时会不停转向，机身的"假世界坐标"就在以 13 m 为半径
 # 绕圈 -> 净速度 0.74 m/s，运动判据不但拦不住，反而把它判成"在动"。
@@ -621,7 +622,8 @@ class Track(object):
         self.t = t
         self.observed_s = t
         self.green_frame_proof = False
-        self.person_support = FreshPerson(resume_after_miss=cls == 'white' and FAST_GREEN_WHITE)
+        self.person_support = FreshPerson(resume_after_miss=cls == 'white' and FAST_GREEN_WHITE
+                                         and WHITE_SHORT_MISS_RECOVERY)
         motion_window = BLUE_MOTION_WINDOW if cls == 'blue' else RECENT_MOTION_WINDOW
         motion_span = BLUE_MOTION_MIN_SPAN if cls == 'blue' else 1.
         self.recent_motion = RecentMotion(motion_window, motion_span) if motion_window > 0 else None

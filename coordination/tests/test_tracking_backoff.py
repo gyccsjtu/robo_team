@@ -155,3 +155,24 @@ class TrackingBackoffTests(unittest.TestCase):
         self.agent._control()
         self.agent._send_vel.assert_called_once_with(0.,0.)
         self.assertIsNone(self.agent._look_at)
+
+    def test_v124_profile_preserves_cooldown_and_stops_without_search_fallthrough(self):
+        self.agent._v124_behavior=True
+        self.grant();a=self.agent
+        self.assertEqual(a._giveup_until['t3'],60.)
+        self.assertEqual(a._reset_n[3],7)
+        self.assertFalse(a._resume_tracking_attempt())
+        a._target_to_orbit=None;a._control()
+        a._send_vel.assert_called_once_with(0.,0.)
+        self.assertIsNone(a._look_at)
+        a._pick_local_goal.assert_not_called()
+
+    def test_v124_profile_has_no_new_attempt_counter_reset(self):
+        self.agent._v124_behavior=True
+        self.agent._giveup_until.clear();self.grant()
+        a=self.agent
+        self.scope['ORBIT_RADIUS']=3.
+        a.world_xy=(99.,99.)
+        a._fly_orbit=Mock();a._control()
+        self.assertEqual(a._reset_n[3],7)
+        a._fly_orbit.assert_called_once_with()

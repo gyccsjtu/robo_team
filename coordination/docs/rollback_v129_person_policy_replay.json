@@ -1,0 +1,118 @@
+{
+  "baseline": "c77063e",
+  "candidate": "v1.29",
+  "physical_replay": false,
+  "proof_api": 2,
+  "resume_after_miss": false,
+  "matched_decisions": 30,
+  "rows": [
+    {
+      "original_s": 10.0,
+      "verified": true,
+      "old_hits": 1,
+      "candidate_hits": 1,
+      "white_allowed": false
+    },
+    {
+      "original_s": 10.2,
+      "verified": true,
+      "old_hits": 2,
+      "candidate_hits": 2,
+      "white_allowed": false
+    },
+    {
+      "original_s": 10.4,
+      "verified": true,
+      "old_hits": 3,
+      "candidate_hits": 3,
+      "white_allowed": true
+    },
+    {
+      "original_s": 10.6,
+      "verified": null,
+      "old_hits": 0,
+      "candidate_hits": 0,
+      "white_allowed": false
+    },
+    {
+      "original_s": 10.8,
+      "verified": true,
+      "old_hits": 1,
+      "candidate_hits": 1,
+      "white_allowed": false
+    },
+    {
+      "original_s": 11.0,
+      "verified": true,
+      "old_hits": 2,
+      "candidate_hits": 2,
+      "white_allowed": false
+    },
+    {
+      "original_s": 11.2,
+      "verified": true,
+      "old_hits": 3,
+      "candidate_hits": 3,
+      "white_allowed": true
+    },
+    {
+      "original_s": 11.4,
+      "verified": false,
+      "old_hits": 0,
+      "candidate_hits": 0,
+      "white_allowed": false
+    },
+    {
+      "original_s": 11.6,
+      "verified": true,
+      "old_hits": 1,
+      "candidate_hits": 1,
+      "white_allowed": false
+    },
+    {
+      "original_s": 11.8,
+      "verified": true,
+      "old_hits": 2,
+      "candidate_hits": 2,
+      "white_allowed": false
+    },
+    {
+      "original_s": 12.0,
+      "verified": true,
+      "old_hits": 3,
+      "candidate_hits": 3,
+      "white_allowed": true
+    },
+    {
+      "original_s": 13.1,
+      "verified": null,
+      "old_hits": 0,
+      "candidate_hits": 0,
+      "white_allowed": false
+    },
+    {
+      "original_s": 13.2,
+      "verified": true,
+      "old_hits": 1,
+      "candidate_hits": 1,
+      "white_allowed": false
+    },
+    {
+      "original_s": 13.4,
+      "verified": true,
+      "old_hits": 2,
+      "candidate_hits": 2,
+      "white_allowed": false
+    },
+    {
+      "original_s": 13.6,
+      "verified": true,
+      "old_hits": 3,
+      "candidate_hits": 3,
+      "white_allowed": true
+    }
+  ],
+  "limitations": [
+    "A bounded policy sequence, not YOLO/geometry/camera or judge15-second replay."
+  ]
+}
