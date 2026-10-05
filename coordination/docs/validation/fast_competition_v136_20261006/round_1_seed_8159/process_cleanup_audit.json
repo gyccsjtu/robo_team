@@ -1,0 +1,59 @@
+{
+  "utc": "2026-10-05T21:55:56Z",
+  "observers": [
+    {
+      "pid": 8934,
+      "before": "verified_owned",
+      "action": "SIGINT",
+      "fallback": "SIGTERM",
+      "owned_process_still_alive": false,
+      "last_action": "SIGKILL_after_stuck_ROS_shutdown"
+    },
+    {
+      "pid": 8935,
+      "before": "verified_owned",
+      "action": "SIGINT",
+      "fallback": "SIGTERM",
+      "owned_process_still_alive": false,
+      "last_action": "SIGKILL_after_stuck_ROS_shutdown"
+    },
+    {
+      "pid": 8936,
+      "before": "verified_owned",
+      "action": "SIGINT",
+      "fallback": "SIGTERM",
+      "owned_process_still_alive": false,
+      "last_action": "SIGKILL_after_stuck_ROS_shutdown"
+    },
+    {
+      "pid": 8938,
+      "before": "verified_owned",
+      "action": "SIGINT",
+      "fallback": "SIGTERM",
+      "owned_process_still_alive": false,
+      "last_action": "SIGKILL_after_stuck_ROS_shutdown"
+    },
+    {
+      "pid": 8942,
+      "before": "verified_owned",
+      "action": "SIGINT",
+      "fallback": "SIGTERM",
+      "owned_process_still_alive": false,
+      "last_action": "SIGKILL_after_stuck_ROS_shutdown"
+    },
+    {
+      "pid": 8945,
+      "before": "verified_owned",
+      "action": "SIGINT",
+      "owned_process_still_alive": false
+    }
+  ],
+  "launcher_pid637_present": false,
+  "own_ports_listening": {
+    "11375": false,
+    "11376": false,
+    "19731": false
+  },
+  "global_cleanup": false,
+  "final_verification_utc": "2026-10-05T21:56:22Z"
+}

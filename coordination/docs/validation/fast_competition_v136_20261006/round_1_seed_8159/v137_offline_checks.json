@@ -1,0 +1,17 @@
+{
+  "candidate_revision": "v1.37",
+  "physical_execution": false,
+  "tests": 579,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [],
+  "wall_seconds": 19.03139106,
+  "initial_targeted_check": "33 tests: two fixture errors fixed; pre-query-optimization full579 also passed and preserved",
+  "source_sha256": {
+    "coordination/src/robocup_swarm/scripts/route_reservation.py": "86f8dfcfc3b0c92eba8543983b49fdfbd28391e264ac5412399b60c64a72804d",
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "5e6c59bd21f3eab11bbf72061680d35d38c83bb761055647207f6d5878b20dfc",
+    "coordination/scripts/city_swarm_run.py": "d6062243688ee3df7cf0a4e977408b9281f73bfc5a9f6f63964e7ce569124497",
+    "coordination/tests/test_route_speed_budget.py": "70b8afc7eb4b7e43366f480429d4dce7d7d49a7091e94a67c0d873228fb1d5f3",
+    "coordination/tests/test_target_chase_speed.py": "bdc7a5c0500f966aa27eb2be94ddf2ed0a8d53315f9b2e31f4af51186369c0b5"
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "green": {
+    "image": {
+      "total": 162,
+      "aligned": 162,
+      "strictly_below_one_m": 155,
+      "maximum_error_m": 66.57098153755898,
+      "longest_observed_accurate_span_s": 20.884000000000015
+    },
+    "official": {
+      "total": 472,
+      "aligned": 472,
+      "strictly_below_one_m": 445,
+      "maximum_error_m": 1.9654365300134167,
+      "longest_observed_accurate_span_s": 14.900000000000091
+    },
+    "last_original_s": 2354.848,
+    "truth_samples": {
+      "0": 7301
+    },
+    "control_input": false
+  },
+  "blue": {
+    "image": {
+      "total": 343,
+      "aligned": 343,
+      "strictly_below_one_m": 303,
+      "maximum_error_m": 63.21891517072084,
+      "longest_observed_accurate_span_s": 15.423999999999978
+    },
+    "official": {
+      "total": 1017,
+      "aligned": 1015,
+      "strictly_below_one_m": 843,
+      "maximum_error_m": 24.198457650179233,
+      "longest_observed_accurate_span_s": 14.700000000000273
+    },
+    "last_original_s": 2487.732,
+    "truth_samples": {
+      "1": 10415
+    },
+    "control_input": false
+  },
+  "brown": {
+    "image": {
+      "total": 30,
+      "aligned": 30,
+      "strictly_below_one_m": 28,
+      "maximum_error_m": 1.4505671553971573,
+      "longest_observed_accurate_span_s": 9.888000000000375
+    },
+    "official": {
+      "total": 101,
+      "aligned": 101,
+      "strictly_below_one_m": 97,
+      "maximum_error_m": 1.1305817896935693,
+      "longest_observed_accurate_span_s": 7.800000000000182
+    },
+    "last_original_s": 2229.664,
+    "truth_samples": {
+      "2": 10403
+    },
+    "control_input": false
+  },
+  "white": {
+    "image": {
+      "total": 0,
+      "aligned": 0,
+      "strictly_below_one_m": 0,
+      "maximum_error_m": null,
+      "longest_observed_accurate_span_s": 0.0
+    },
+    "official": {
+      "total": 0,
+      "aligned": 0,
+      "strictly_below_one_m": 0,
+      "maximum_error_m": null,
+      "longest_observed_accurate_span_s": 0.0
+    },
+    "last_original_s": null,
+    "truth_samples": {
+      "3": 10393
+    },
+    "control_input": false
+  },
+  "red": {
+    "image": {
+      "total": 102,
+      "aligned": 102,
+      "strictly_below_one_m": 95,
+      "maximum_error_m": 1.3805142761138194,
+      "longest_observed_accurate_span_s": 15.264000000000124
+    },
+    "official": {
+      "total": 297,
+      "aligned": 296,
+      "strictly_below_one_m": 284,
+      "maximum_error_m": 38.02495097691739,
+      "longest_observed_accurate_span_s": 14.900000000000091
+    },
+    "last_original_s": 2375.016,
+    "truth_samples": {
+      "5": 2262,
+      "4": 7182
+    },
+    "control_input": false
+  },
+  "limits": [
+    "Derived read-only audit, not the original helper summary or judge",
+    "interpolation refuses gaps>.2s and jumps>max(.5m,3*dt); target teleports can still invalidate coast",
+    "official sample time is observer receipt; longest accurate span is not judge timer evidence",
+    "five color observers started before first accepted images but after first9.5sim seconds",
+    "white has no accepted observations; CSV detection rows are separate"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "authorization": "ACTUAL_AUTOMATION_3_HEARTBEAT",
+  "trigger_utc": "2026-10-05T20:32:53.382Z",
+  "candidate_commit": "7c2c688ccf67bc9948620ecb51eb46c86d2e2775",
+  "code_commit": "e4da217b0927154281bf72c6c7de3490a040e123",
+  "maximum_attempts": 1,
+  "seed": 8159,
+  "maximum_sim_s": 600,
+  "preexisting_ports_closed": [
+    11375,
+    11376,
+    19731
+  ],
+  "goal_system_status": "null; ordinary authorized work",
+  "questions": [
+    "route-bound request scaling and measured-direction stops; pending current renewal",
+    "actual continuous motion and short camera search observations",
+    "fresh remaining green white and second red original images; actual judge result"
+  ],
+  "limits": [
+    "one new candidate attempt, no unchanged rerun",
+    "600s/6of6/building contact/base service failure stop",
+    "shared GPU, memory, sensors and judge unchanged; local2.2m",
+    "truth observations are independent audit only"
+  ],
+  "source_sha256": {
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "ce10928075a55cb7489b3e848edccb4469cf03b93f90632f6a562c9362684124",
+    "coordination/src/robocup_swarm/scripts/route_reservation.py": "14bc37a4ff5fec7bdbd1c3af160c5e6ab51a0cad7460d33b9381adbff6038fb9",
+    "coordination/src/robocup_swarm/scripts/online_radar_planner.py": "e195d1622094251d2bea6b359eefd69bb583df903834d83c1a893e6387c29ab2",
+    "coordination/src/robocup_swarm/scripts/pose_rate.py": "8833b70b95650a8049f6e9f97d2f5941f53453201ef55ecbd3724e285d5bf3d4",
+    "coordination/src/robocup_swarm/scripts/radar_observed_map.py": "da7380910024d5825c8e40e1cc533720c06fe8504aa376a7b1dce9eb9770cabe",
+    "coordination/scripts/city_swarm_run.py": "e3c7715641638e19932e0698986e10a02d816a54709726295891347e9de182ef"
+  }
+}

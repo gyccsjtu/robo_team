@@ -1,0 +1,17 @@
+{
+  "candidate_revision": "v1.37",
+  "physical_execution": false,
+  "tests": 579,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [],
+  "wall_seconds": 18.417510873000005,
+  "initial_targeted_check": "33 tests: two new fixture errors (valid_points binding and search replan timestamp), fixed before full check",
+  "source_sha256": {
+    "coordination/src/robocup_swarm/scripts/route_reservation.py": "e360d2beab33a3ac53ce358195d39f49d2506aa57de7df39eb2754a65cb6e344",
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "5e6c59bd21f3eab11bbf72061680d35d38c83bb761055647207f6d5878b20dfc",
+    "coordination/scripts/city_swarm_run.py": "d6062243688ee3df7cf0a4e977408b9281f73bfc5a9f6f63964e7ce569124497",
+    "coordination/tests/test_route_speed_budget.py": "70b8afc7eb4b7e43366f480429d4dce7d7d49a7091e94a67c0d873228fb1d5f3",
+    "coordination/tests/test_target_chase_speed.py": "bdc7a5c0500f966aa27eb2be94ddf2ed0a8d53315f9b2e31f4af51186369c0b5"
+  }
+}

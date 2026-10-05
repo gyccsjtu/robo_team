@@ -1,0 +1,38 @@
+actor_5: communication initialized
+5 general change position
+current_position:   5       x: 70.0
+y: -4.0
+z: 1.0191
+middd_pos:     5       [x: 71.8349725050382
+y: -41.45240478829768
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 71.83451965591608
+y: -41.44308589888867
+z: 1.0191
+middd_pos:     5       [x: 35.99527014541124
+y: -41.75339432612819
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 36.00307944664388
+y: -41.753896898604395
+z: 1.0191
+middd_pos:     5       [x: 47.054857379793404
+y: -47.40850352008387
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 47.04919408470796
+y: -47.405605967805215
+z: 1.0191
+middd_pos:     5       [x: 29.548136782752408
+y: 13.334728140182037
+z: 0.0]
+
+
+actor_5 has been deleted

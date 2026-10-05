@@ -1,0 +1,14 @@
+{
+  "fleet_models": [
+    "typhoon_h480_0",
+    "typhoon_h480_1",
+    "typhoon_h480_2",
+    "typhoon_h480_3",
+    "typhoon_h480_4",
+    "typhoon_h480_5"
+  ],
+  "control_input": false,
+  "binary_sha256": "ee736de5172515a29888c273186e33354b83c08a5ed9f0c9decbe78c582d3ddf",
+  "source_sha256": "5d3908f72872c0c01b8deac21395edeb45cb4edc51115f1642c8cec8f3b06bc4",
+  "sonar_model_sha256": "89a3ffd33f484888a8f1b2e5d0adba13a641b3dd7deb74bd77a2c16152c1492e"
+}

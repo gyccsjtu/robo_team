@@ -257,7 +257,9 @@ METADATA_PATH   = os.environ.get(
     "ROBOCUP_METADATA",
     os.path.join(WS_ROOT, "src/robocup_training_worlds/worlds/generated/robocup_base.json"))
 INFLATE_M       = 1.5     # A* 障碍膨胀半径 m（覆盖桨尖0.37 + 建筑偏大0.45 + 切角/超调0.68）
-LOOKAHEAD       = 3.0     # 路径跟踪前瞻距离 m（> 刹停距离 v²/2a=2.25m）
+LOOKAHEAD       = float(os.environ.get('SWARM_LOOKAHEAD_M', '3.0'))
+if not math.isfinite(LOOKAHEAD) or LOOKAHEAD <= 0.:
+    raise ValueError('Invalid path lookahead')
 STABLE_NEEDED   = 40      # EKF 稳定判定：连续多少次 20Hz 采样高度达标（40 = 2s）
 # EKF 局部原点跳变判定阈值 m：单帧 local_xy 位移超过此值（且超过物理速度上限）
 # 判定为 EKF 原点重置而非真实运动，触发 offset 重锚定保持 world_xy 连续。
@@ -1055,7 +1057,8 @@ class SwarmAgent(object):
         try:
             snapshot = json.loads(msg.data)
             if (set(snapshot) != {'schema_version', 'run_id', 'seq', 'reservations'}
-                    or snapshot['schema_version'] != 1 or snapshot['run_id'] != self._gate.run_id
+                    or type(snapshot['schema_version']) is not int or snapshot['schema_version'] != 1
+                    or snapshot['run_id'] != self._gate.run_id
                     or type(snapshot['seq']) is not int or snapshot['seq'] <= self._peer_routes_seq
                     or not isinstance(snapshot['reservations'], dict)):
                 return
@@ -1068,8 +1071,11 @@ class SwarmAgent(object):
             with self._authority_lock:
                 if snapshot['seq'] <= self._peer_routes_seq:
                     return
+                received_s = rospy.Time.now().to_sec()
+                if not self._route_gate.receive_reservations(snapshot, received_s, self._gate.generation):
+                    return
                 self._peer_routes_seq, self._peer_routes = snapshot['seq'], snapshot['reservations']
-                self._peer_routes_s = rospy.Time.now().to_sec()
+                self._peer_routes_s = received_s
         except (ValueError, TypeError, KeyError):
             return
 

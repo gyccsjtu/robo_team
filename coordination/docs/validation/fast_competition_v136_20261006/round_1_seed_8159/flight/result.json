@@ -1,0 +1,570 @@
+{
+  "status": "CITY_SIX_AIRCRAFT_MOVING",
+  "formal_competition_pass": false,
+  "fixture_only": false,
+  "connected_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "scan_beams": {
+    "uav_1": 512,
+    "uav_2": 512,
+    "uav_3": 512,
+    "uav_4": 512,
+    "uav_5": 512,
+    "uav_6": 512
+  },
+  "telemetry": {
+    "uav_1": {
+      "local_pose_frame": "uav_1/map",
+      "local_position": [
+        0.007964196614921093,
+        0.0027718711644411087,
+        -0.08046844601631165
+      ],
+      "scan_frame": "uav_1/laser_2d",
+      "scan_sample_s": 1928.62,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_2": {
+      "local_pose_frame": "uav_2/map",
+      "local_position": [
+        0.008392149582505226,
+        -0.004778717644512653,
+        -0.06630069762468338
+      ],
+      "scan_frame": "uav_2/laser_2d",
+      "scan_sample_s": 1928.62,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_3": {
+      "local_pose_frame": "uav_3/map",
+      "local_position": [
+        0.010933374054729939,
+        -0.001631226041354239,
+        0.03323742002248764
+      ],
+      "scan_frame": "uav_3/laser_2d",
+      "scan_sample_s": 1928.62,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_4": {
+      "local_pose_frame": "uav_4/map",
+      "local_position": [
+        0.004174262285232544,
+        -0.0053933849558234215,
+        -0.05718747526407242
+      ],
+      "scan_frame": "uav_4/laser_2d",
+      "scan_sample_s": 1928.616,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_5": {
+      "local_pose_frame": "uav_5/map",
+      "local_position": [
+        0.0048893410712480545,
+        0.0050397575832903385,
+        -0.07217443734407425
+      ],
+      "scan_frame": "uav_5/laser_2d",
+      "scan_sample_s": 1928.616,
+      "range_min": 0.5,
+      "range_max": 20.0
+    },
+    "uav_6": {
+      "local_pose_frame": "uav_6/map",
+      "local_position": [
+        0.0014394721947610378,
+        0.004693028051406145,
+        -0.0359061174094677
+      ],
+      "scan_frame": "uav_6/laser_2d",
+      "scan_sample_s": 1928.616,
+      "range_min": 0.5,
+      "range_max": 20.0
+    }
+  },
+  "connectivity_armed": false,
+  "six_aircraft_motion_observed": true,
+  "official_targets_eliminated": 3,
+  "all_targets_eliminated": false,
+  "maximum_altitudes_m": {
+    "uav_1": 2.937173603792223,
+    "uav_2": 3.3372708803417406,
+    "uav_3": 3.2511295881179967,
+    "uav_4": 3.0119442995000325,
+    "uav_5": 3.363184535810749,
+    "uav_6": 3.04260071090318
+  },
+  "maximum_displacements_m": {
+    "uav_1": 137.4190986894766,
+    "uav_2": 68.58093509069708,
+    "uav_3": 54.002117159886886,
+    "uav_4": 125.81689068051689,
+    "uav_5": 67.17574291223988,
+    "uav_6": 66.29778322754152
+  },
+  "simulated_seconds": 600.1080000000002,
+  "minimum_sampled_separation_m": 2.8350944710871584,
+  "component_error": null,
+  "model_state_retry_count": 1,
+  "evidence_streams_verified": true,
+  "judge_terminal_evidence": null,
+  "left_actors_topic_last": null,
+  "armed_during_run_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "left_actors": [
+    1,
+    2,
+    3
+  ],
+  "score": 705,
+  "visual_count": 649,
+  "target_grants": 2881,
+  "owned_children_before_cleanup": {
+    "schema_version": 1,
+    "wall_time_s": 1791237289.5964746,
+    "processes": [
+      {
+        "pid": 662,
+        "command": [
+          "roscore",
+          "-p",
+          "11375"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/roscore.log",
+        "returncode": null
+      },
+      {
+        "pid": 698,
+        "command": [
+          "gzserver",
+          "--verbose",
+          "-s",
+          "libgazebo_ros_api_plugin.so",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/connectivity.world"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/gzserver.log",
+        "returncode": null
+      },
+      {
+        "pid": 829,
+        "command": [
+          "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/bin/px4",
+          "-d",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_etc",
+          "-s",
+          "etc/init.d-posix/rcS",
+          "-i",
+          "1",
+          "-w",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_1"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_1.log",
+        "returncode": null
+      },
+      {
+        "pid": 1049,
+        "command": [
+          "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/bin/px4",
+          "-d",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_etc",
+          "-s",
+          "etc/init.d-posix/rcS",
+          "-i",
+          "2",
+          "-w",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_2"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_2.log",
+        "returncode": null
+      },
+      {
+        "pid": 1307,
+        "command": [
+          "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/bin/px4",
+          "-d",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_etc",
+          "-s",
+          "etc/init.d-posix/rcS",
+          "-i",
+          "3",
+          "-w",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_3"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_3.log",
+        "returncode": null
+      },
+      {
+        "pid": 1490,
+        "command": [
+          "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/bin/px4",
+          "-d",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_etc",
+          "-s",
+          "etc/init.d-posix/rcS",
+          "-i",
+          "4",
+          "-w",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_4"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_4.log",
+        "returncode": null
+      },
+      {
+        "pid": 1662,
+        "command": [
+          "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/bin/px4",
+          "-d",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_etc",
+          "-s",
+          "etc/init.d-posix/rcS",
+          "-i",
+          "5",
+          "-w",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_5"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_5.log",
+        "returncode": null
+      },
+      {
+        "pid": 1823,
+        "command": [
+          "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/bin/px4",
+          "-d",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_etc",
+          "-s",
+          "etc/init.d-posix/rcS",
+          "-i",
+          "6",
+          "-w",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_6"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/px4_uav_6.log",
+        "returncode": null
+      },
+      {
+        "pid": 1824,
+        "command": [
+          "roslaunch",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/mavros.launch"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/mavros.log",
+        "returncode": null
+      },
+      {
+        "pid": 2769,
+        "command": [
+          "python3",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/yolo_target_bridge.log",
+        "returncode": null
+      },
+      {
+        "pid": 2770,
+        "command": [
+          "/root/robo_team_build/contact_audit/city_contact_observer",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/contact_sonar_whitelist_models.txt"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/city_contacts.log",
+        "returncode": null
+      },
+      {
+        "pid": 2771,
+        "command": [
+          "/root/robo_team_build/vision_cuda_20261003/bin/python",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py",
+          "--port",
+          "19731",
+          "--device",
+          "0",
+          "--conf",
+          "0.4"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/shared_inference.log",
+        "returncode": null
+      },
+      {
+        "pid": 2820,
+        "command": [
+          "/root/robo_team_build/vision_env/bin/python",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/perception_uav_1.log",
+        "returncode": null
+      },
+      {
+        "pid": 2821,
+        "command": [
+          "/root/robo_team_build/vision_env/bin/python",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/perception_uav_2.log",
+        "returncode": null
+      },
+      {
+        "pid": 2822,
+        "command": [
+          "/root/robo_team_build/vision_env/bin/python",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/perception_uav_3.log",
+        "returncode": null
+      },
+      {
+        "pid": 2823,
+        "command": [
+          "/root/robo_team_build/vision_env/bin/python",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/perception_uav_4.log",
+        "returncode": null
+      },
+      {
+        "pid": 2824,
+        "command": [
+          "/root/robo_team_build/vision_env/bin/python",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/perception_uav_5.log",
+        "returncode": null
+      },
+      {
+        "pid": 2825,
+        "command": [
+          "/root/robo_team_build/vision_env/bin/python",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/perception_uav_6.log",
+        "returncode": null
+      },
+      {
+        "pid": 2826,
+        "command": [
+          "python3",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_manager.py",
+          "_uav_ids:=uav_1,uav_2,uav_3,uav_4,uav_5,uav_6"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_manager.log",
+        "returncode": null
+      },
+      {
+        "pid": 2827,
+        "command": [
+          "python3",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+          "__name:=swarm_agent_uav_1",
+          "_uav_id:=uav_1",
+          "_model_name:=typhoon_h480_0",
+          "_mavros_namespace:=/uav_1/mavros",
+          "_scan_topic:=/uav_1/scan",
+          "_world_offset_x:=0.0",
+          "_world_offset_y:=-3.0"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/agent_uav_1.log",
+        "returncode": null
+      },
+      {
+        "pid": 2828,
+        "command": [
+          "python3",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+          "__name:=swarm_agent_uav_2",
+          "_uav_id:=uav_2",
+          "_model_name:=typhoon_h480_1",
+          "_mavros_namespace:=/uav_2/mavros",
+          "_scan_topic:=/uav_2/scan",
+          "_world_offset_x:=3.0",
+          "_world_offset_y:=-3.0"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/agent_uav_2.log",
+        "returncode": null
+      },
+      {
+        "pid": 2829,
+        "command": [
+          "python3",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+          "__name:=swarm_agent_uav_3",
+          "_uav_id:=uav_3",
+          "_model_name:=typhoon_h480_2",
+          "_mavros_namespace:=/uav_3/mavros",
+          "_scan_topic:=/uav_3/scan",
+          "_world_offset_x:=0.0",
+          "_world_offset_y:=0.0"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/agent_uav_3.log",
+        "returncode": null
+      },
+      {
+        "pid": 2830,
+        "command": [
+          "python3",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+          "__name:=swarm_agent_uav_4",
+          "_uav_id:=uav_4",
+          "_model_name:=typhoon_h480_3",
+          "_mavros_namespace:=/uav_4/mavros",
+          "_scan_topic:=/uav_4/scan",
+          "_world_offset_x:=3.0",
+          "_world_offset_y:=0.0"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/agent_uav_4.log",
+        "returncode": null
+      },
+      {
+        "pid": 2831,
+        "command": [
+          "python3",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+          "__name:=swarm_agent_uav_5",
+          "_uav_id:=uav_5",
+          "_model_name:=typhoon_h480_4",
+          "_mavros_namespace:=/uav_5/mavros",
+          "_scan_topic:=/uav_5/scan",
+          "_world_offset_x:=0.0",
+          "_world_offset_y:=3.0"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/agent_uav_5.log",
+        "returncode": null
+      },
+      {
+        "pid": 2832,
+        "command": [
+          "python3",
+          "-u",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+          "__name:=swarm_agent_uav_6",
+          "_uav_id:=uav_6",
+          "_model_name:=typhoon_h480_5",
+          "_mavros_namespace:=/uav_6/mavros",
+          "_scan_topic:=/uav_6/scan",
+          "_world_offset_x:=3.0",
+          "_world_offset_y:=3.0"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/agent_uav_6.log",
+        "returncode": null
+      },
+      {
+        "pid": 2833,
+        "command": [
+          "bash",
+          "-c",
+          "cd \"$1\" && exec python3 -u control_actor.py \"$2\"",
+          "city-actor",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/scene",
+          "0"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/actor_0.log",
+        "returncode": 0
+      },
+      {
+        "pid": 2834,
+        "command": [
+          "bash",
+          "-c",
+          "cd \"$1\" && exec python3 -u control_actor.py \"$2\"",
+          "city-actor",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/scene",
+          "1"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/actor_1.log",
+        "returncode": null
+      },
+      {
+        "pid": 2835,
+        "command": [
+          "bash",
+          "-c",
+          "cd \"$1\" && exec python3 -u control_actor.py \"$2\"",
+          "city-actor",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/scene",
+          "2"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/actor_2.log",
+        "returncode": null
+      },
+      {
+        "pid": 2836,
+        "command": [
+          "bash",
+          "-c",
+          "cd \"$1\" && exec python3 -u control_actor.py \"$2\"",
+          "city-actor",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/scene",
+          "3"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/actor_3.log",
+        "returncode": null
+      },
+      {
+        "pid": 2837,
+        "command": [
+          "bash",
+          "-c",
+          "cd \"$1\" && exec python3 -u control_actor.py \"$2\"",
+          "city-actor",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/scene",
+          "4"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/actor_4.log",
+        "returncode": 0
+      },
+      {
+        "pid": 2838,
+        "command": [
+          "bash",
+          "-c",
+          "cd \"$1\" && exec python3 -u control_actor.py \"$2\"",
+          "city-actor",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/scene",
+          "5"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/actor_5.log",
+        "returncode": 0
+      },
+      {
+        "pid": 2839,
+        "command": [
+          "bash",
+          "-c",
+          "cd \"$1\" && exec python3 -u \"$2\" \"$1/score_cal.py\" typhoon_h480",
+          "city-judge",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/scene",
+          "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/execution_sources/start_city_judge.py"
+        ],
+        "log_file": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/flight/judge.log",
+        "returncode": null
+      }
+    ]
+  }
+}

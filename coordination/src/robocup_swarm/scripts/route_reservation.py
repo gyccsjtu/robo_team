@@ -7,6 +7,7 @@ from allocation_geometry import point_segment_distance, segment_distance
 ROUTE_CLEARANCE = float(os.environ.get('SWARM_ROUTE_CLEARANCE_M', '6.0'))
 if not math.isfinite(ROUTE_CLEARANCE) or ROUTE_CLEARANCE < 2.5:
     raise ValueError('Invalid shared route clearance')
+RETAINED_SNAPSHOT_FRESH_S = 1.5  # Same receipt-age budget used by the planner.
 
 
 def valid_points(points):
@@ -163,6 +164,36 @@ class RouteGate:
         self.seq, self.record, self.last_s = 0, None, 0.
         self.last_check = None
         self._segments = ()
+        self._retained = None
+        self._retained_seq, self._retained_clock_s = 0, 0.
+
+    def receive_reservations(self, snapshot, now, generation):
+        """Cache only this UAV's actual retained occupancy, never a route grant."""
+        if (not isinstance(snapshot, dict)
+                or set(snapshot) != {'schema_version', 'run_id', 'seq', 'reservations'}
+                or type(snapshot['schema_version']) is not int or snapshot['schema_version'] != 1
+                or snapshot['run_id'] != self.run_id or type(snapshot['seq']) is not int
+                or snapshot['seq'] <= self._retained_seq
+                or type(now) not in (int, float) or not math.isfinite(now)
+                or now < self._retained_clock_s or not isinstance(snapshot['reservations'], dict)):
+            return False
+        for uid, record in snapshot['reservations'].items():
+            if (not isinstance(uid, str) or not uid or not isinstance(record, dict)
+                    or set(record) != {'generation', 'segments'}
+                    or type(record['generation']) is not int or record['generation'] < 1
+                    or not isinstance(record['segments'], list) or len(record['segments']) > 65536
+                    or not all(valid_points(pair) and len(pair) == 2 for pair in record['segments'])):
+                return False
+        own = snapshot['reservations'].get(self.uid)
+        retained = None
+        if own and own['generation'] == generation and own['segments']:
+            retained = dict(generation=generation, seq=snapshot['seq'], receipt_s=now,
+                segments=tuple(compact_pairs(copy.deepcopy(own['segments']))))
+        # A new snapshot explicitly omitting/changing the owner drops this proof.
+        # The authority's retained occupancy and STOP/retirement rules are untouched.
+        self._retained_seq, self._retained_clock_s = snapshot['seq'], now
+        self._retained = retained
+        return True
 
     def receive(self, message, now, generation, offer_id):
         if (set(message) != {'schema_version', 'run_id', 'uav_id', 'generation', 'offer_id', 'points', 'seq', 'expires_s'}
@@ -185,6 +216,7 @@ class RouteGate:
     def clear(self):
         self.record = None
         self._segments = ()
+        self._retained = None
 
     def command_clear(self, position, requested, measured, now, generation):
         if (type(now) not in (int, float) or not math.isfinite(now)
@@ -199,27 +231,43 @@ class RouteGate:
             self.clear()
             return False
         self.last_s = now
+        retained = self._retained
+        retained_fresh = bool(retained and retained['generation'] == generation
+                              and 0 <= now-retained['receipt_s'] <= RETAINED_SNAPSHOT_FRESH_S)
+        braking_route = self._segments+(retained['segments'] if retained_fresh else ())
+        scope = dict(measured_envelope='CURRENT_AND_RETAINED' if retained_fresh else 'CURRENT',
+                     retained_snapshot_seq=retained['seq'] if retained_fresh else None)
         for kind, velocity in (('requested', requested), ('measured', measured)):
             speed = math.hypot(*velocity)
             distance = speed*.5+speed*speed  # latency .5, braking .5 m/s^2
             endpoint = (position[0]+velocity[0]*distance/max(speed, 1e-9),
                         position[1]+velocity[1]*distance/max(speed, 1e-9))
-            failure = self._line_failure(position, endpoint)
+            # Requested motion always remains in the latest committed route.
+            # Actual momentum may also stop inside still-reserved own corridors.
+            failure = self._line_failure(position, endpoint,
+                                         braking_route if kind == 'measured' else self._segments)
             if failure is not None:
                 self.last_check = dict(ok=False, reason='ROUTE_'+kind.upper()+'_ENVELOPE',
-                    velocity_xy=list(velocity), stopping_distance_m=distance, **failure)
+                    velocity_xy=list(velocity), stopping_distance_m=distance, **scope, **failure)
                 return False
-        self.last_check = dict(ok=True, reason='ROUTE_CLEAR')
+        self.last_check = dict(ok=True, reason='ROUTE_CLEAR', **scope)
         return True
 
-    def _line_failure(self, start, end):
-        route = self._segments
+    def _line_failure(self, start, end, route=None):
+        route = self._segments if route is None else route
         steps = max(1, math.ceil(math.dist(start, end)/.1))
         for i in range(steps+1):
             point = tuple(start[k]+(end[k]-start[k])*i/steps for k in (0, 1))
-            offset = min(point_segment_distance(point, a, b) for a, b in route)
             # Distance is 1-Lipschitz: .05m allowance covers between samples.
-            if offset > .70:
+            # One containing segment proves this sample clear. Rejected samples
+            # still visit the full union and retain the exact nearest distance.
+            offset = math.inf
+            for a, b in route:
+                distance = point_segment_distance(point, a, b)
+                if distance <= .70:
+                    break
+                offset = min(offset, distance)
+            else:
                 return dict(first_rejected_xy=list(point), distance_from_route_m=offset)
         return None
 

@@ -1,0 +1,127 @@
+{
+  "executed_commit": "e4da217b0927154281bf72c6c7de3490a040e123",
+  "control": {
+    "1": {
+      "rows": 2530,
+      "command_speed_p50_mps": 0.24999999608682272,
+      "command_speed_max_mps": 2.3307039058013057,
+      "moving_at_least_one_mps_rows": 799,
+      "zero_xy_rows": 1134
+    },
+    "2": {
+      "rows": 2534,
+      "command_speed_p50_mps": 0.499995737238493,
+      "command_speed_max_mps": 2.3767527025751525,
+      "moving_at_least_one_mps_rows": 707,
+      "zero_xy_rows": 870
+    },
+    "3": {
+      "rows": 2527,
+      "command_speed_p50_mps": 0.3749999973905502,
+      "command_speed_max_mps": 2.401134566247565,
+      "moving_at_least_one_mps_rows": 662,
+      "zero_xy_rows": 989
+    },
+    "4": {
+      "rows": 2542,
+      "command_speed_p50_mps": 0.125,
+      "command_speed_max_mps": 2.340634888097271,
+      "moving_at_least_one_mps_rows": 566,
+      "zero_xy_rows": 1239
+    },
+    "5": {
+      "rows": 2547,
+      "command_speed_p50_mps": 0.3749992990664464,
+      "command_speed_max_mps": 2.450376107215958,
+      "moving_at_least_one_mps_rows": 774,
+      "zero_xy_rows": 1102
+    },
+    "6": {
+      "rows": 2537,
+      "command_speed_p50_mps": 0.499999995175493,
+      "command_speed_max_mps": 2.301410111308615,
+      "moving_at_least_one_mps_rows": 852,
+      "zero_xy_rows": 900
+    }
+  },
+  "navigation_reason_counts": {
+    "1": {
+      "AUTHORITY_STOP": 32,
+      "REQUESTED_STOP": 74,
+      "MOVING": 269,
+      "ONLINE_SPACE_UNKNOWN": 62,
+      "FLEET_RELATIVE_BRAKING_REQUIRED": 2,
+      "RADAR_STALE_SCAN": 104,
+      "ROUTE_MEASURED_ENVELOPE": 109,
+      "RADAR_BRAKING_REQUIRED": 1,
+      "FLEET_PREDICTED_APPROACH_STOP": 3,
+      "ROUTE_ENVELOPE_OR_GRANT_UNKNOWN": 2,
+      "RADAR_INPUT_MISSING_OR_STALE": 2
+    },
+    "2": {
+      "AUTHORITY_STOP": 20,
+      "REQUESTED_STOP": 36,
+      "MOVING": 417,
+      "ROUTE_MEASURED_ENVELOPE": 155,
+      "FLEET_PREDICTED_APPROACH_STOP": 4,
+      "FLEET_RELATIVE_BRAKING_REQUIRED": 2,
+      "RADAR_STALE_SCAN": 82,
+      "ONLINE_SPACE_UNKNOWN": 177,
+      "RADAR_INPUT_MISSING_OR_STALE": 8,
+      "ROUTE_ENVELOPE_OR_GRANT_UNKNOWN": 8
+    },
+    "3": {
+      "AUTHORITY_STOP": 21,
+      "REQUESTED_STOP": 43,
+      "MOVING": 348,
+      "ONLINE_SPACE_UNKNOWN": 165,
+      "ROUTE_MEASURED_ENVELOPE": 162,
+      "RADAR_STALE_SCAN": 24,
+      "RADAR_BRAKING_REQUIRED": 12,
+      "FLEET_PREDICTED_APPROACH_STOP": 7,
+      "FLEET_RELATIVE_BRAKING_REQUIRED": 4,
+      "ROUTE_NO_REQUEST_PROGRESS": 1,
+      "ROUTE_ENVELOPE_OR_GRANT_UNKNOWN": 1
+    },
+    "4": {
+      "AUTHORITY_STOP": 29,
+      "REQUESTED_STOP": 60,
+      "MOVING": 262,
+      "ONLINE_SPACE_UNKNOWN": 120,
+      "ROUTE_MEASURED_ENVELOPE": 102,
+      "RADAR_STALE_SCAN": 30,
+      "RADAR_BRAKING_REQUIRED": 3,
+      "RADAR_INPUT_MISSING_OR_STALE": 12,
+      "ROUTE_ENVELOPE_OR_GRANT_UNKNOWN": 5
+    },
+    "5": {
+      "AUTHORITY_STOP": 27,
+      "REQUESTED_STOP": 49,
+      "MOVING": 296,
+      "ONLINE_SPACE_UNKNOWN": 108,
+      "ROUTE_MEASURED_ENVELOPE": 170,
+      "ROUTE_ENVELOPE_OR_GRANT_UNKNOWN": 5,
+      "RADAR_STALE_SCAN": 14,
+      "RADAR_INPUT_MISSING_OR_STALE": 1,
+      "RADAR_BRAKING_REQUIRED": 12
+    },
+    "6": {
+      "AUTHORITY_STOP": 22,
+      "REQUESTED_STOP": 41,
+      "MOVING": 322,
+      "ONLINE_SPACE_UNKNOWN": 114,
+      "ROUTE_MEASURED_ENVELOPE": 172,
+      "RADAR_STALE_SCAN": 24,
+      "RADAR_INPUT_MISSING_OR_STALE": 3,
+      "ROUTE_ENVELOPE_OR_GRANT_UNKNOWN": 5,
+      "FLEET_PREDICTED_APPROACH_STOP": 8,
+      "RADAR_BRAKING_REQUIRED": 2,
+      "FLEET_RELATIVE_BRAKING_REQUIRED": 4
+    }
+  },
+  "limits": [
+    "Commands are not actual body speeds",
+    "Trajectory service calls for six UAVs share an earlier query timestamp; no precise per-UAV braking fit claimed",
+    "No full ROS callback replay; next replay reuses actual recorded geometry and prior broadcast"
+  ]
+}

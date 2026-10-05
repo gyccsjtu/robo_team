@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "control_input": false,
+  "official_judge_executed": false,
+  "source_sha256": {
+    "observe_visual_accuracy.py": "9b53081aafd51a8e39377ead0d670c71b72e2b2025fe4abfb9e12b14ff9457b5",
+    "capture_visual_frames.py": "0a4a5bdc96e6d6bfdff0a100c7be2becef5116ddb6d1a47d0e5202196765bb41"
+  },
+  "observers": [
+    {
+      "tag": "green",
+      "pid": 8934,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers",
+        "--tag",
+        "green",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-05T20:53:25Z"
+    },
+    {
+      "tag": "blue",
+      "pid": 8935,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers",
+        "--tag",
+        "blue",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-05T20:53:25Z"
+    },
+    {
+      "tag": "brown",
+      "pid": 8936,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers",
+        "--tag",
+        "brown",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-05T20:53:25Z"
+    },
+    {
+      "tag": "white",
+      "pid": 8938,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers",
+        "--tag",
+        "white",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-05T20:53:25Z"
+    },
+    {
+      "tag": "red",
+      "pid": 8942,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers",
+        "--tag",
+        "red",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-05T20:53:25Z"
+    },
+    {
+      "tag": "frames",
+      "pid": 8945,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers/execution_sources/capture_visual_frames.py",
+        "--output",
+        "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159/observers/visual_frames",
+        "--wall-seconds",
+        "6000",
+        "--limit-per-tag",
+        "48"
+      ],
+      "started_utc": "2026-10-05T20:53:25Z"
+    }
+  ],
+  "limits": [
+    "effective truth/image time coverage must be audited; no claim of pre-launch samples",
+    "original image capture bounded to48/tag; no frame fabrication",
+    "actor/body truth never used to control"
+  ]
+}

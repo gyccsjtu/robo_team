@@ -1,0 +1,65 @@
+{
+  "control_input": false,
+  "physical_execution": false,
+  "scope": "Recorded route geometry and both velocities with actual causal prior snapshot; reconstructed valid grant.seq=1 is NOT a historical sequence or callback replay",
+  "navigation_s": 1981.192,
+  "prior_snapshot_receipt_s": 1980.988,
+  "prior_snapshot_seq": 101,
+  "prior_snapshot_age_s": 0.2039999999999509,
+  "both_measured_maximum_offset_to_owned_union_m": [
+    0.30656526182758803,
+    0.18704281556410685
+  ],
+  "old_decision": {
+    "velocity_xy": [
+      0.0,
+      0.0
+    ],
+    "reason": "ROUTE_MEASURED_ENVELOPE",
+    "scale": 0.0,
+    "requested_xy": [
+      -1.7225751794874669,
+      0.6083012264221908
+    ],
+    "last_check": {
+      "ok": false,
+      "reason": "ROUTE_MEASURED_ENVELOPE",
+      "velocity_xy": [
+        -1.4595741033554077,
+        0.16101261973381042
+      ],
+      "stopping_distance_m": 2.890495769179877,
+      "first_rejected_xy": [
+        -30.219847974098474,
+        9.306565261827588
+      ],
+      "distance_from_route_m": 0.7198479740984745
+    }
+  },
+  "new_decision": {
+    "velocity_xy": [
+      -1.4197787612181856,
+      0.501373276465165
+    ],
+    "reason": "ROUTE_REQUEST_SCALED",
+    "scale": 0.82421875,
+    "requested_xy": [
+      -1.7225751794874669,
+      0.6083012264221908
+    ],
+    "last_check": {
+      "ok": true,
+      "reason": "ROUTE_CLEAR",
+      "measured_envelope": "CURRENT_AND_RETAINED",
+      "retained_snapshot_seq": 101
+    }
+  },
+  "full_original_request_still_rejected": true,
+  "latest_request_final_and_both_measured_checks_pass": true,
+  "representative_p50_selection_ms": 9.877414500000015,
+  "representative_max_selection_ms": 10.843980999999836,
+  "source_sha256": {
+    "old_execution": "14bc37a4ff5fec7bdbd1c3af160c5e6ab51a0cad7460d33b9381adbff6038fb9",
+    "new_candidate": "e360d2beab33a3ac53ce358195d39f49d2506aa57de7df39eb2754a65cb6e344"
+  }
+}

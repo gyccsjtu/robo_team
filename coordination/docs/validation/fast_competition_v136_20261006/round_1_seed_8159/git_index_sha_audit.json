@@ -1,0 +1,53 @@
+{
+  "utc": "2026-10-05T22:20:21Z",
+  "git_index_verified_files": 526,
+  "git_index_sha_mismatches": [],
+  "files_over_50MiB": [],
+  "raw_source_manifest_preserved": true,
+  "raw_result_budget_unchanged": true,
+  "source_and_derived_names_separate": true,
+  "tested_candidate_source_files_verified": 5,
+  "tested_candidate_source_non_newline_mismatches": [],
+  "candidate_sources": {
+    "coordination/src/robocup_swarm/scripts/route_reservation.py": {
+      "tested_working_sha256": "86f8dfcfc3b0c92eba8543983b49fdfbd28391e264ac5412399b60c64a72804d",
+      "git_index_sha256": "86f8dfcfc3b0c92eba8543983b49fdfbd28391e264ac5412399b60c64a72804d",
+      "raw_bytes_match": true,
+      "normalized_newlines_match": true,
+      "working_crlf_count": 0,
+      "index_crlf_count": 0
+    },
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": {
+      "tested_working_sha256": "5e6c59bd21f3eab11bbf72061680d35d38c83bb761055647207f6d5878b20dfc",
+      "git_index_sha256": "5405c3e167588359d2e0eced0e1bcddd1789a9f444cae10f797abc847adcddab",
+      "raw_bytes_match": false,
+      "normalized_newlines_match": true,
+      "working_crlf_count": 1826,
+      "index_crlf_count": 0
+    },
+    "coordination/scripts/city_swarm_run.py": {
+      "tested_working_sha256": "d6062243688ee3df7cf0a4e977408b9281f73bfc5a9f6f63964e7ce569124497",
+      "git_index_sha256": "d6062243688ee3df7cf0a4e977408b9281f73bfc5a9f6f63964e7ce569124497",
+      "raw_bytes_match": true,
+      "normalized_newlines_match": true,
+      "working_crlf_count": 0,
+      "index_crlf_count": 0
+    },
+    "coordination/tests/test_route_speed_budget.py": {
+      "tested_working_sha256": "70b8afc7eb4b7e43366f480429d4dce7d7d49a7091e94a67c0d873228fb1d5f3",
+      "git_index_sha256": "70b8afc7eb4b7e43366f480429d4dce7d7d49a7091e94a67c0d873228fb1d5f3",
+      "raw_bytes_match": true,
+      "normalized_newlines_match": true,
+      "working_crlf_count": 0,
+      "index_crlf_count": 0
+    },
+    "coordination/tests/test_target_chase_speed.py": {
+      "tested_working_sha256": "bdc7a5c0500f966aa27eb2be94ddf2ed0a8d53315f9b2e31f4af51186369c0b5",
+      "git_index_sha256": "bdc7a5c0500f966aa27eb2be94ddf2ed0a8d53315f9b2e31f4af51186369c0b5",
+      "raw_bytes_match": true,
+      "normalized_newlines_match": true,
+      "working_crlf_count": 0,
+      "index_crlf_count": 0
+    }
+  }
+}

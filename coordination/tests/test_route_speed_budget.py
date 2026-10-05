@@ -12,7 +12,7 @@ ROOT = Path(__file__).parents[1]
 SCRIPTS = ROOT/'src/robocup_swarm/scripts'
 sys.path.insert(0, str(SCRIPTS))
 sys.path.insert(0, str(ROOT/'src/robocup_navigation/src'))
-from route_reservation import RouteGate
+from route_reservation import RouteGate, valid_points
 from online_radar_planner import OnlinePlanner
 from robocup_navigation.astar import GridMap
 
@@ -26,6 +26,99 @@ def gate(points):
     g = RouteGate('r', 'u')
     assert g.receive(grant(points), 1., 1, 1)
     return g
+
+
+def snapshot(segments, seq=1, generation=1, uid='u', run='r'):
+    return dict(schema_version=1, run_id=run, seq=seq,
+                reservations={uid:dict(generation=generation,segments=segments)})
+
+
+class RetainedBrakingTests(unittest.TestCase):
+    def setUp(self):
+        self.g = gate([[0.,0.],[0.,10.]])
+        self.old = [[[0.,0.],[10.,0.]]]
+
+    def receive(self, **changes):
+        return self.g.receive_reservations(snapshot(self.old, **changes), 1.1, 1)
+
+    def test_measured_momentum_can_stop_in_same_generation_retained_occupancy(self):
+        self.assertFalse(self.g.command_clear((0.,0.),(0.,1.),(1.,0.),1.1,1))
+        self.assertTrue(self.receive())
+        result = self.g.limited_command((0.,0.),(0.,1.),[(1.,0.),(.8,0.)],1.2,1)
+        self.assertEqual(result['velocity_xy'],(0.,1.))
+        self.assertEqual(result['last_check']['measured_envelope'],'CURRENT_AND_RETAINED')
+        self.assertEqual(result['last_check']['retained_snapshot_seq'],1)
+
+    def test_requested_motion_and_guide_still_use_only_latest_route(self):
+        self.receive()
+        self.assertFalse(self.g.command_clear((0.,0.),(1.,0.),(0.,0.),1.2,1))
+        self.assertEqual(self.g.last_check['reason'],'ROUTE_REQUESTED_ENVELOPE')
+        self.assertFalse(self.g.connector_clear((0.,0.),(2.,0.),1.2,1))
+        selected=self.g.limited_command((0.,0.),(1.,0.),[(1.,0.)],1.2,1)
+        self.assertLess(selected['velocity_xy'][0],1.)
+        self.assertTrue(self.g.command_clear((0.,0.),selected['velocity_xy'],(1.,0.),1.2,1))
+
+    def test_each_measured_direction_must_be_in_own_union_even_if_peer_covers_it(self):
+        message=snapshot(self.old)
+        message['reservations']['v']=dict(generation=1,segments=[[[-10.,0.],[0.,0.]]])
+        self.g.receive_reservations(message,1.1,1)
+        result=self.g.limited_command((0.,0.),(0.,1.),[(1.,0.),(-1.,0.)],1.2,1)
+        self.assertEqual(result['velocity_xy'],(0.,0.))
+        self.assertEqual(result['last_check']['velocity_xy'],[-1.,0.])
+
+    def test_stale_snapshot_falls_back_without_releasing_or_replacing_current_route(self):
+        self.receive()
+        self.assertTrue(self.g.command_clear((0.,0.),(0.,1.),(1.,0.),2.6,1))
+        self.assertFalse(self.g.receive_reservations(snapshot(self.old),2.7,1))
+        self.assertFalse(self.g.command_clear((0.,0.),(0.,1.),(1.,0.),2.7,1))
+        self.assertEqual(self.g.last_check['measured_envelope'],'CURRENT')
+        self.assertEqual(self.g.record['points'],[[0.,0.],[0.,10.]])
+        self.assertTrue(self.g.receive_reservations(snapshot(self.old,seq=2),2.8,1))
+        self.assertTrue(self.g.command_clear((0.,0.),(0.,1.),(1.,0.),2.8,1))
+
+    def test_foreign_run_generation_or_owner_does_not_supply_extra_braking_route(self):
+        for changes in [dict(run='old'),dict(generation=2),dict(uid='v')]:
+            with self.subTest(changes=changes):
+                self.g=gate([[0.,0.],[0.,10.]])
+                self.receive(**changes)
+                self.assertFalse(self.g.command_clear((0.,0.),(0.,1.),(1.,0.),1.2,1))
+
+    def test_omitted_or_replaced_owner_removes_previous_snapshot_proof(self):
+        for reservations in [{}, {'u':dict(generation=2,segments=self.old)},
+                             {'u':dict(generation=1,segments=[])}]:
+            with self.subTest(reservations=reservations):
+                self.g=gate([[0.,0.],[0.,10.]])
+                self.receive()
+                self.assertTrue(self.g.receive_reservations(dict(schema_version=1,run_id='r',seq=2,
+                    reservations=reservations),1.2,1))
+                self.assertFalse(self.g.command_clear((0.,0.),(0.,1.),(1.,0.),1.2,1))
+
+    def test_snapshot_cannot_replace_expired_missing_or_wrong_generation_grant(self):
+        for now,gen in [(11.,1),(1.2,2)]:
+            self.g=gate([[0.,0.],[0.,10.]])
+            self.g.receive_reservations(snapshot(self.old,generation=gen),now,gen)
+            self.assertFalse(self.g.command_clear((0.,0.),(0.,1.),(1.,0.),now,gen))
+        self.g=RouteGate('r','u')
+        self.receive()
+        self.assertFalse(self.g.command_clear((0.,0.),(0.,1.),(1.,0.),1.2,1))
+        self.assertEqual(self.g.last_check['reason'],'ROUTE_MISSING')
+
+    def test_invalid_replay_or_time_does_not_renew_snapshot_freshness(self):
+        self.receive()
+        for message,now in [(snapshot(self.old,seq=1),2.7),
+                            (dict(snapshot(self.old,seq=2),schema_version=True),2.7),
+                            (snapshot([[[0.,0.],[math.inf,0.]]],seq=2),2.7),
+                            (snapshot(self.old,seq=2),math.nan),
+                            (snapshot(self.old,seq=2),1.)]:
+            self.assertFalse(self.g.receive_reservations(message,now,1))
+        self.assertFalse(self.g.command_clear((0.,0.),(0.,1.),(1.,0.),2.7,1))
+
+    def test_future_receipt_cannot_assist_an_earlier_command_and_input_is_copied(self):
+        message=snapshot([[[0.,0.],[10.,10.]]])
+        self.g.receive_reservations(message,2.,1)
+        self.assertFalse(self.g.command_clear((0.,0.),(0.,1.),(1.,1.),1.2,1))
+        message['reservations']['u']['segments'][0][1][:]=[0.,0.]
+        self.assertTrue(self.g.command_clear((0.,0.),(0.,1.),(1.,1.),2.1,1))
 
 
 class SpeedBudgetTests(unittest.TestCase):
@@ -104,9 +197,9 @@ class ActualCallbackTests(unittest.TestCase):
         self.can_move = True
         ros = SimpleNamespace(Time=SimpleNamespace(now=lambda:SimpleNamespace(to_sec=lambda:self.now)),
                               loginfo=lambda *a:None)
-        scope = dict(math=math, json=json, rospy=ros, LOOKAHEAD=3.)
+        scope = dict(math=math, json=json, rospy=ros, LOOKAHEAD=3., valid_points=valid_points)
         tree = ast.parse((SCRIPTS/'swarm_agent.py').read_text(encoding='utf-8'))
-        names = {'_route_grant_cb', '_pick_local_goal', '_route_guard_velocity'}
+        names = {'_route_grant_cb', '_route_snapshot_cb', '_pick_local_goal', '_route_guard_velocity'}
         methods = [n for c in tree.body if isinstance(c, ast.ClassDef) and c.name=='SwarmAgent'
                    for n in c.body if isinstance(n, ast.FunctionDef) and n.name in names]
         exec(compile(ast.fix_missing_locations(ast.Module(body=methods, type_ignores=[])),str(SCRIPTS/'swarm_agent.py'),'exec'),scope)
@@ -114,9 +207,13 @@ class ActualCallbackTests(unittest.TestCase):
         self.old = [[0., 0.], [10., 0.]]
         self.new = [[0., 0.], [0., 10.]]
         self.a = SimpleNamespace(uav_id='u',_authority_lock=threading.RLock(),
-            _gate=SimpleNamespace(generation=1, can_move=lambda t:self.can_move),
+            _gate=SimpleNamespace(run_id='r',generation=1, can_move=lambda t:self.can_move),
             _route_gate=gate(self.old), _route_offer_id=1, _plan_ticket=2,
             _route_pending=(2,self.new,(0.,10.),1), path=self.old, path_target=(10.,0.))
+        self.a._motion_cache=SimpleNamespace(fleet=('u','v'))
+        self.a._peer_routes_seq=0
+        self.a._peer_routes=None
+        self.a._peer_routes_s=None
 
     def receive(self, message):
         self.scope['_route_grant_cb'](self.a, SimpleNamespace(data=json.dumps(message)))
@@ -160,6 +257,19 @@ class ActualCallbackTests(unittest.TestCase):
         self.assertEqual(result,(0.,0.))
         self.assertEqual(a._final_stop_reason,'ROUTE_MEASURED_ENVELOPE')
         self.assertEqual(a._route_velocity_evidence['before_acceleration']['last_check']['velocity_xy'],[-1.,0.])
+
+    def test_actual_snapshot_callback_caches_only_valid_owned_same_generation_geometry(self):
+        a=self.a
+        message=snapshot([[[0.,0.],[0.,10.]]])
+        self.scope['_route_snapshot_cb'](a,SimpleNamespace(data=json.dumps(message)))
+        self.assertEqual(a._peer_routes_seq,1)
+        self.assertTrue(a._route_gate.command_clear((0.,0.),(1.,0.),(0.,1.),1.2,1))
+        self.scope['_route_snapshot_cb'](a,SimpleNamespace(data=json.dumps(snapshot([self.old],seq=2,uid='outsider'))))
+        self.assertEqual(a._peer_routes_seq,1)
+        self.now=1.3
+        self.scope['_route_snapshot_cb'](a,SimpleNamespace(data=json.dumps(snapshot([],seq=2))))
+        self.assertEqual(a._peer_routes_s,1.3)
+        self.assertFalse(a._route_gate.command_clear((0.,0.),(1.,0.),(0.,1.),1.3,1))
 
 
 if __name__ == '__main__':
