@@ -1,0 +1,365 @@
+diff --git a/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py b/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py
+index 1cdde7e..4fb2f87 100644
+--- a/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py
++++ b/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py
+@@ -76,3 +76,65 @@ def guard_velocity(request, measured, yaw, ranges, angle_min, angle_increment,
+     scale = min(1., limit / speed)
+     return _result((request[0] * scale, request[1] * scale),
+                    'CLEAR' if scale == 1. else 'SLOW' if scale > 0 else 'BLOCKED', clear)
++
++
++# ---------------------------------------------------------------------------
++# 地面回波剔除（机体倾斜时的必要净化）
++#
++# 2D 雷达随机体刚性转动：机体一俯仰/横滚（爬升、制动、ORCA 急转都会有），
++# 扫描面跟着倾斜，就有光束打到地面。这些地面回波若混进 corridor_clearance()，
++# 会被当成"前方有障碍"。
++#   实测（层高 2.8m、俯仰 12°、3.5 m/s、开阔无墙）：过滤前 BRAKING_REQUIRED
++#   （输出 (0,0) 急停），过滤后 CLEAR —— 纯假阳性。
++#
++# 判据纯几何：机体系角度 a 的射线经机体->世界旋转矩阵 R 后，世界系 z 分量
++#     d_z = R20*cos(a) + R21*sin(a)        (R20, R21) = R 的第三行
++# d_z < 0 的束朝下，与地面交点斜距 r_gnd = -z_sensor / d_z；读数落在容差内
++# ⇒ 几何上必然打的是地面 ⇒ 置 inf（语义 = 该方向通，与无回波一致）。
++#
++# 安全性（已由合成扫描 + 契约测试验证）：
++#   * 水平飞行 d_z >= GROUND_MIN_DZ ⇒ 一束都不剔 ⇒ 与既有行为逐位一致；
++#   * 只删"预测地面截距"附近的读数，容差换算成高度窗口仅约 0.3~0.4m
++#     ⇒ 墙/人这类真障碍在更近处即被截住，不受影响；
++#   * z_sensor <= 0.5 或姿态未知（R20=R21=0）时自动完全失效。
++#
++# ⚠️ 残留（非本函数能解决）：强倾斜时正前方光束物理上先触地，
++#    有效前向地平线收缩到 z_sensor/tan(tilt)，更远的地物该姿态下本就打不到。
++#    该盲锥由**既有**的多帧占据图（ObservedMap → _online_safe_grid）补齐：
++#    radar_guard 是瞬时防线，栅格守卫（_grid_guard_velocity /
++#    online_planner.command_clear）持有历史帧证据，二者互补。
++#    B1/B1b 的作用是保证这条链**不被地面回波污染**（瞬时 + 地图喂入两处都过滤）。
++# ---------------------------------------------------------------------------
++MOUNT_Z = 0.080            # 雷达相对机体的安装高度（SDF 雷达 <pose> z）
++GROUND_TOL_ABS = 0.6       # 地面截距判定绝对容差 m
++GROUND_TOL_REL = 0.06      # 相对容差（随截距距离放大，远处放宽）
++GROUND_MIN_DZ = -0.05      # d_z 负过此值才算"朝下方"（约 2.9°）
++
++
++def filter_ground_beams(ranges, angle_min, angle_increment,
++                        r20, r21, z_sensor,
++                        tol_abs=GROUND_TOL_ABS, tol_rel=GROUND_TOL_REL):
++    """剔除几何上必然打到地面的雷达束。返回 (新 ranges 列表, 剔除束数)。
++
++    纯几何、无 ROS 依赖、不修改入参（返回新列表）。
++    水平/上仰束、NaN、inf 一律原样保留（NaN 仍按"堵"语义交给调用方）；
++    z_sensor <= 0.5（起飞前 / 位姿未就绪）时不启用；
++    R20 = R21 = 0（姿态未知）时 dz 恒为 0 ⇒ 同样不动作。
++    """
++    out = list(ranges)
++    n_gnd = 0
++    if z_sensor <= 0.5:
++        return out, 0
++    for i in range(len(out)):
++        r = float(out[i])
++        if not math.isfinite(r):
++            continue
++        a = angle_min + i * angle_increment
++        dz = r20 * math.cos(a) + r21 * math.sin(a)
++        if dz >= GROUND_MIN_DZ:
++            continue
++        r_gnd = -z_sensor / dz
++        if abs(r - r_gnd) <= tol_abs + tol_rel * r_gnd:
++            out[i] = float('inf')
++            n_gnd += 1
++    return out, n_gnd
+diff --git a/coordination/src/robocup_swarm/scripts/swarm_agent.py b/coordination/src/robocup_swarm/scripts/swarm_agent.py
+index db6bef3..0c806ce 100644
+--- a/coordination/src/robocup_swarm/scripts/swarm_agent.py
++++ b/coordination/src/robocup_swarm/scripts/swarm_agent.py
+@@ -38,7 +38,7 @@ from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDe
+ from robocup_navigation.astar import load_metadata, GridMap, plan
+ from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
+ from csv_logger import logger
+-from radar_velocity_guard import guard_velocity
++from radar_velocity_guard import guard_velocity, filter_ground_beams, MOUNT_Z
+ from task_authority import TaskGate
+ from visual_observation import VisualEvidence, TAG_TO_TID
+ from target_motion import TargetMotion
+@@ -341,6 +341,7 @@ class SwarmAgent(object):
+         self._local_prev_t = 0.0    # 上一帧 local_position 的 ROS 时间（跳变检测）
+         self.local_z = None         # 高度（来自 local_position）
+         self.yaw = 0.0              # 机体 yaw（ENU 弧度，供雷达 body->world）
++        self._zrow = (0.0, 0.0)     # 机体->世界旋转矩阵第三行 (R20,R21)，地面回波剔除用
+         self._scan = None            # 最近一帧 2D LaserScan
+         self._scan_t = 0.0           # 最近雷达帧的 ROS 时间
+         self._velocity_sample = None  # (vx, vy, sample_s), ENU measured motion
+@@ -615,6 +616,9 @@ class SwarmAgent(object):
+         q = msg.pose.orientation
+         self.yaw = math.atan2(2.0 * (q.w * q.z + q.x * q.y),
+                               1.0 - 2.0 * (q.y * q.y + q.z * q.z))
++        # 机体->世界旋转矩阵第三行 (R20,R21)：地面回波剔除的唯一姿态输入
++        self._zrow = (2.0 * (q.x * q.z - q.w * q.y),
++                      2.0 * (q.y * q.z + q.w * q.x))
+ 
+     def _scan_cb(self, msg):
+         self._scan = msg
+@@ -637,7 +641,20 @@ class SwarmAgent(object):
+                 observed = self._online_map = ObservedMap(self.grid.width, self.grid.height, self.grid.resolution, self.grid.origin)
+                 self._online_map_offset = self.offset
+                 self._online_map_epoch_s = self._scan_t
+-            if not observed.feed(msg.ranges, position, self.yaw, msg.angle_min, msg.angle_increment,
++            # === B1b (2026-10-04)：地图喂入前同样净化地面回波 ===
++            # 只净化瞬时守卫（_radar_guard_velocity）不够：机体倾斜时打到地面的
++            # 回波经此处会累积进多帧地图，污染 _online_safe_grid，使
++            # _grid_guard_velocity 与 _online_planner.command_clear 这两条**主守卫**
++            # 看到幻影障碍（表现为莫名减速 / ONLINE_SPACE_UNKNOWN 急停）。
++            # 水平飞行时 filter_ground_beams 剔除 0 束 ⇒ 与历史行为逐位一致。
++            map_ranges = msg.ranges
++            _zl = getattr(self, 'local_z', None)
++            _zr = getattr(self, '_zrow', None)
++            if _zl is not None and _zr is not None:
++                map_ranges = filter_ground_beams(
++                    map_ranges, msg.angle_min, msg.angle_increment,
++                    _zr[0], _zr[1], _zl + MOUNT_Z)[0]
++            if not observed.feed(map_ranges, position, self.yaw, msg.angle_min, msg.angle_increment,
+                                  msg.range_min, msg.range_max, self._scan_t, self._local_prev_t, now):
+                 return
+             planner = getattr(self, '_online_planner', None)
+@@ -1166,8 +1183,22 @@ class SwarmAgent(object):
+             rospy.logwarn_throttle(2., '[%s] RADAR_INPUT_MISSING_OR_STALE -> horizontal stop',
+                                    self.uav_id)
+             return 0., 0.
++        # 地面回波净化：机体倾斜时扫描面跟着倾，打到地面的回波会被
++        # corridor_clearance() 当成"前方有障碍"（实测可致假阳性 BRAKING_REQUIRED）。
++        # 水平飞行时 filter_ground_beams 一束都不剔 ⇒ 与历史行为逐位一致。
++        ranges = scan.ranges
++        z_local = getattr(self, 'local_z', None)
++        zrow = getattr(self, '_zrow', None)
++        if z_local is not None and zrow is not None:
++            ranges, n_gnd = filter_ground_beams(
++                ranges, scan.angle_min, scan.angle_increment,
++                zrow[0], zrow[1], z_local + MOUNT_Z)
++            if n_gnd:
++                log = getattr(rospy, 'loginfo_throttle', None)
++                if log is not None:
++                    log(3., '[%s] ground beams filtered=%d', self.uav_id, n_gnd)
+         result = guard_velocity(
+-            (vx, vy), velocity[:2], self.yaw, scan.ranges,
++            (vx, vy), velocity[:2], self.yaw, ranges,
+             scan.angle_min, scan.angle_increment, scan.range_min, scan.range_max,
+             scan.header.stamp.to_sec(), now, max_age=RADAR_FRESH_S,
+             radius=RADAR_STOP_R, latency=RADAR_LATENCY_S, brake_accel=RADAR_BRAKE_MPS2)
+diff --git a/coordination/tests/test_radar_velocity_guard.py b/coordination/tests/test_radar_velocity_guard.py
+index 387b811..5729a28 100644
+--- a/coordination/tests/test_radar_velocity_guard.py
++++ b/coordination/tests/test_radar_velocity_guard.py
+@@ -8,7 +8,7 @@ import unittest
+ 
+ SCRIPTS = Path(__file__).resolve().parents[1] / 'src/robocup_swarm/scripts'
+ sys.path.insert(0, str(SCRIPTS))
+-from radar_velocity_guard import guard_velocity
++from radar_velocity_guard import guard_velocity, filter_ground_beams, MOUNT_Z
+ 
+ 
+ class RadarGuardTests(unittest.TestCase):
+@@ -96,6 +96,98 @@ class RadarGuardTests(unittest.TestCase):
+         self.assertLess(result['velocity_xy'][0], 2.)
+ 
+ 
++class GroundBeamFilterTests(unittest.TestCase):
++    """机体倾斜时的地面回波净化；合成扫描，无 ROS。"""
++
++    N = 512
++    INC = 2 * math.pi / N
++
++    @staticmethod
++    def zrow(pitch_deg):
++        t = math.radians(pitch_deg)
++        return (-math.sin(t), 0.0)          # 纯俯仰：R20=-sin(theta), R21=0
++
++    def synth(self, z_sensor, pitch_deg, wall=None, wall_half_deg=3.):
++        r20, r21 = self.zrow(pitch_deg)
++        rng = []
++        for i in range(self.N):
++            a = -math.pi + i * self.INC
++            dz = r20 * math.cos(a) + r21 * math.sin(a)
++            r = math.inf
++            if dz < 0:
++                rg = -z_sensor / dz
++                if rg <= 20.:
++                    r = rg
++            if wall is not None and abs(a) <= math.radians(wall_half_deg):
++                r = wall
++            rng.append(r)
++        return rng, (r20, r21)
++
++    def call(self, ranges, vx, **changed):
++        kw = dict(request=(vx, 0.), measured=(vx, 0.), yaw=0., ranges=ranges,
++                  angle_min=-math.pi, angle_increment=self.INC,
++                  range_min=.5, range_max=20., scan_s=10., now_s=10.1)
++        kw.update(changed)
++        return guard_velocity(**kw)
++
++    def filt(self, ranges, zrow, z_sensor):
++        return filter_ground_beams(ranges, -math.pi, self.INC,
++                                   zrow[0], zrow[1], z_sensor)
++
++    def test_level_flight_is_untouched(self):
++        z = 2.8 + MOUNT_Z
++        raw, zrow = self.synth(z, 0.)
++        out, n = self.filt(raw, zrow, z)
++        self.assertEqual(n, 0)
++        self.assertEqual(out, raw)
++        self.assertEqual(self.call(raw, 3.5)['velocity_xy'],
++                         self.call(out, 3.5)['velocity_xy'])
++
++    def test_tilted_open_space_stops_false_positive(self):
++        z = 2.8 + MOUNT_Z
++        raw, zrow = self.synth(z, 12.)
++        self.assertTrue(any(math.isfinite(r) for r in raw))
++        self.assertEqual(self.call(raw, 3.5)['reason'], 'BRAKING_REQUIRED')
++        out, n = self.filt(raw, zrow, z)
++        self.assertGreater(n, 0)
++        self.assertEqual(self.call(out, 3.5)['reason'], 'CLEAR')
++
++    def test_real_wall_nearer_than_ground_intercept_is_preserved(self):
++        z = 2.8 + MOUNT_Z
++        raw, zrow = self.synth(z, 12., wall=8.)
++        before = self.call(raw, 3.5)
++        out, _ = self.filt(raw, zrow, z)
++        after = self.call(out, 3.5)
++        self.assertEqual(before['reason'], after['reason'])
++        self.assertEqual(before['velocity_xy'], after['velocity_xy'])
++        self.assertTrue(any(abs(r - 8.) < 1e-9 for r in out))
++
++    def test_removal_shrinks_with_altitude_and_vanishes_on_top_layer(self):
++        counts = []
++        for alt in (2.8, 3.4, 4.0, 4.6):
++            z = alt + MOUNT_Z
++            raw, zrow = self.synth(z, 12.)
++            counts.append(self.filt(raw, zrow, z)[1])
++        self.assertEqual(counts[-1], 0)                     # 4.6m 层：完全不动作
++        self.assertEqual(counts, sorted(counts, reverse=True))   # 越高层剔得越少
++
++    def test_disabled_without_altitude_or_attitude(self):
++        z = 2.8 + MOUNT_Z
++        raw, _ = self.synth(z, 12.)
++        for r20, r21, zs in ((*self.zrow(12.), .4), (0., 0., z)):
++            out, n = filter_ground_beams(raw, -math.pi, self.INC, r20, r21, zs)
++            self.assertEqual(n, 0)
++            self.assertEqual(out, raw)
++
++    def test_ground_band_matches_predicted_horizon(self):
++        z = 2.8 + MOUNT_Z
++        raw, zrow = self.synth(z, 12.)
++        n = self.filt(raw, zrow, z)[1]
++        half = math.degrees(math.acos(z / (20. * math.sin(math.radians(12.)))))
++        expected = 2 * half / math.degrees(self.INC)
++        self.assertAlmostEqual(n, expected, delta=4)
++
++
+ class AdapterTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+@@ -107,7 +199,8 @@ class AdapterTests(unittest.TestCase):
+         selected = [n for n in agent.body if isinstance(n, ast.FunctionDef) and n.name in names]
+         module = ast.fix_missing_locations(ast.Module(body=selected, type_ignores=[]))
+         env = dict(RADAR_GUARD=1, RADAR_FRESH_S=.5, RADAR_STOP_R=1.2,
+-                   RADAR_LATENCY_S=.5, RADAR_BRAKE_MPS2=.5, guard_velocity=guard_velocity)
++                   RADAR_LATENCY_S=.5, RADAR_BRAKE_MPS2=.5, guard_velocity=guard_velocity,
++                   filter_ground_beams=filter_ground_beams, MOUNT_Z=MOUNT_Z)
+         env.update(math=math, MAX_ACC=2.5, CTRL_RATE=20., ALT_PANIC=5.7,
+                    ALT_PANIC_HSCALE=.3, ALT_TARGET_CAP=4.5, ALT_HARD_CEIL=5.5,
+                    ALT_HARD_MARGIN=.1, MIN_CRUISE_ALT=2., ALT_P=1., ALT_VZ_MIN=.2,
+@@ -145,6 +238,95 @@ class AdapterTests(unittest.TestCase):
+                                     _local_prev_t=10., uav_id='uav_1')
+         self.assertEqual(self.methods['_radar_guard_velocity'](obj, 2., 0.), (0., 0.))
+ 
++    def test_tilted_scan_is_ground_filtered_before_guard(self):
++        # 12°/2.8m 的合成扫描：地面回波会被守卫当成障碍 ⇒ 假阳性急停。
++        # 适配器接上净化后，同一帧应按真实净空放行。
++        n = 512
++        inc = 2 * math.pi / n
++        r20, r21 = -math.sin(math.radians(12.)), 0.
++        z = 2.8 + MOUNT_Z
++        rng = []
++        for i in range(n):
++            a = -math.pi + i * inc
++            dz = r20 * math.cos(a) + r21 * math.sin(a)
++            rg = -z / dz if dz < 0 else math.inf
++            rng.append(rg if rg <= 20. else math.inf)
++        self.assertTrue(any(math.isfinite(r) for r in rng))
++        raw = guard_velocity((3.5, 0.), (3.5, 0.), 0., rng, -math.pi, inc,
++                             .5, 20., 10., 10.1, radius=1.2, latency=.5,
++                             brake_accel=.5)
++        self.assertEqual(raw['reason'], 'BRAKING_REQUIRED')
++        stamp = types.SimpleNamespace(to_sec=lambda: 10.)
++        scan = types.SimpleNamespace(header=types.SimpleNamespace(stamp=stamp),
++                                     ranges=rng, angle_min=-math.pi,
++                                     angle_increment=inc, range_min=.5, range_max=20.)
++        obj = types.SimpleNamespace(_scan=scan, _velocity_sample=(3.5, 0., 10.),
++                                    _local_prev_t=10., yaw=0., local_z=2.8,
++                                    _zrow=(r20, r21), uav_id='uav_1')
++        self.assertEqual(self.methods['_radar_guard_velocity'](obj, 3.5, 0.),
++                         (3.5, 0.))
++
++    def test_scan_callback_feeds_ground_filtered_ranges_to_map(self):
++        # B1b：地图喂入路径也必须净化。若只净化瞬时守卫，倾斜产生的地面回波
++        # 会经 _scan_cb -> ObservedMap.feed 累积进多帧地图，污染 _online_safe_grid
++        # （即 _grid_guard_velocity / online_planner.command_clear 两条主守卫）。
++        n, inc = 512, 2 * math.pi / 512
++        z = 2.8 + MOUNT_Z
++
++        def synth(r20, r21):
++            out = []
++            for i in range(n):
++                a = -math.pi + i * inc
++                dz = r20 * math.cos(a) + r21 * math.sin(a)
++                rg = -z / dz if dz < 0 else math.inf
++                out.append(rg if rg <= 20. else math.inf)
++            return out
++
++        class _Lock:
++            def __enter__(self):
++                return self
++
++            def __exit__(self, *exc):
++                return False
++
++        fed = []
++
++        class _FakeMap:
++            width = height = 1
++            resolution, origin = .5, (0., 0.)
++            last_scan_s = None
++            version = 1
++
++            def feed(self, ranges, *a, **k):
++                fed.append(list(ranges))
++                return False     # 立即结束，绕开后续地图发布
++
++        def run(rng, r20, r21):
++            fed.clear()
++            stamp = types.SimpleNamespace(to_sec=lambda: 10.)
++            scan = types.SimpleNamespace(header=types.SimpleNamespace(stamp=stamp),
++                                         ranges=rng, angle_min=-math.pi,
++                                         angle_increment=inc, range_min=.5, range_max=20.)
++            obj = types.SimpleNamespace(_scan=scan, _scan_t=0., _online_map=_FakeMap(),
++                                        _map_pub=object(), offset=(0., 0.),
++                                        _online_map_offset=(0., 0.),
++                                        _online_map_lock=_Lock(), world_xy=(0., 0.),
++                                        _local_prev_t=10., yaw=0., local_z=2.8,
++                                        _zrow=(r20, r21), uav_id='uav_1')
++            self.methods['_scan_cb'](obj, scan)
++            return fed[0]
++
++        r20, r21 = -math.sin(math.radians(12.)), 0.
++        tilted = synth(r20, r21)
++        before = sum(1 for r in tilted if math.isfinite(r))
++        after_ranges = run(tilted, r20, r21)
++        after = sum(1 for r in after_ranges if math.isfinite(r))
++        self.assertGreater(before, 0)
++        self.assertEqual(after, 0)                      # 本例全为地面回波 ⇒ 全剔
++        # 水平飞行（姿态未知 r20=r21=0）⇒ 逐位一致，零回归
++        level = synth(0., 0.)
++        self.assertEqual(run(level, 0., 0.), level)
++
+     def test_delayed_scan_is_not_refreshed_by_arrival(self):
+         stamp = types.SimpleNamespace(to_sec=lambda: 1.)
+         scan = types.SimpleNamespace(header=types.SimpleNamespace(stamp=stamp),

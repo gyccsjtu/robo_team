@@ -23,7 +23,18 @@ clearance 直接取常量，没有真实检查 —— 所以这个问题只在�
 
 import math
 
-from ..astar import GridMap, load_metadata, plan
+# 2026-10-03 修复：原本 `from ..astar import` 是错的相对导入
+# （route_planner.py 在 robocup_swarm/scripts/，astar.py 在
+# robocup_navigation/src/robocup_navigation/，不在同一包树）。
+# 改为绝对导入；run_match.sh 启动前会把 $(robocup_navigation)/src
+# 加到 PYTHONPATH，让 `robocup_navigation.astar` 可被 import。
+import os as _os, sys as _sys
+_nav_src = _os.path.join(_os.environ.get('ROBOCUP_WS',
+                                         '/home/gycc/桌面/RoboCup_Team'),
+                         'coordination/src/robocup_navigation/src')
+if _os.path.isdir(_nav_src) and _nav_src not in _sys.path:
+    _sys.path.insert(0, _nav_src)
+from robocup_navigation.astar import GridMap, load_metadata, plan
 
 # 障碍膨胀半径 m（A* 规划用）。留出旋翼半径 + 裕度，避免贴墙规划。
 DEFAULT_INFLATE_M = 0.5

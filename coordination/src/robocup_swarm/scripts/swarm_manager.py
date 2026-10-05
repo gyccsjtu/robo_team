@@ -30,7 +30,7 @@ from std_msgs.msg import String, Float32
 from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager,
                         STATE_FREE, STATE_ASSIGNED, STATE_COVERED,
                         W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE, W_DISTANCE, W_ZONE, LEASE_DURATION,
-                        CONFIRM_TIME, EVADE_TIME, DETECT_RADIUS)
+                        CONFIRM_TIME, EVADE_TIME, DETECT_RADIUS, DETECT_RADIUS_MARGIN)
 from cooperative_tracker import CooperativeTracker
 from csv_logger import logger
 
@@ -44,17 +44,22 @@ MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 # 10.0 vs 7.0 会导致 manager 的栅格与 task 的拍卖栅格错位（不传 env 时必踩）。
 GRID_SIZE_M = float(os.environ.get("GRID_SIZE_M", "7.0"))   # 搜索格边长（与 swarm_task 必须一致，都读同一个环境变量）
 CRUISE_SPEED = 5.0              # 拍卖飞行时间估算用巡航速度（与 agent MAX_SPEED 一致）
-ALLOC_PERIOD = 2.0              # 拍卖周期 s（任务完成后重分配）
-LEASE_CHECK_PERIOD = 1.0        # 租约到期检查周期 s
-TARGET_CHECK_PERIOD = 1.0       # 目标确认计时更新周期 s（规则5 的 15s 按此粒度累计）
+ALLOC_PERIOD = float(os.environ.get("ALLOC_PERIOD", "1.5"))  # 国家一等奖：拍卖周期 1.5s（原 2.0，6 架 5 分钟下要尽量减少空闲）
+LEASE_CHECK_PERIOD = float(os.environ.get("LEASE_CHECK_PERIOD", "0.5"))  # 租约到期检查周期缩短到 0.5s
+TARGET_CHECK_PERIOD = float(os.environ.get("TARGET_CHECK_PERIOD", "1.0"))  # 目标确认计时更新周期 s（规则5 的 15s 按此粒度累计）
+# 国家一等奖：开启「目标预瞄」（在 actor 已知位置周围 60m 内给邻居格加分，
+# 引导飞机主动斜插追踪区）。开启=1 关闭=0。
+HOT_TARGET_ENABLE = int(os.environ.get("HOT_TARGET_ENABLE", "1"))
+# 国家一等奖：协同层主循环里强制把跟踪机优先写入 hot target，
+# 而不是只在 detect/dispatch 时同步。避免「追踪机眼看要丢/已丢但
+# 全队还在远处面覆盖」的协同层错误。
+HOT_TARGET_TTL = float(os.environ.get("HOT_TARGET_TTL", "8.0"))
 
 # ---- 确认期冗余派机（可全用环境变量关掉/调参，无需改代码）----
 BACKUP_ENABLE = int(os.environ.get("BACKUP_ENABLE", "1"))   # 0=关闭
 AUTO_LAND = int(os.environ.get("AUTO_LAND", "0"))   # 0=禁止自动降落（默认）
-BACKUP_STALE  = float(os.environ.get("BACKUP_STALE",  "3.0"))  # 断流多少秒后加派
-BACKUP_AFTER  = float(os.environ.get("BACKUP_AFTER",  "6.0"))  # 确认卡住6s才加派，给足协同确认时间
-# 2026-10-02：6.0→3.0。裁判要求 15s 连续误差<1m，规则4 目标 30s 未消除瞬移；
-# 确认停滞 6s 才加备份时，单机断流 >1s 已重置计数，备份机到位也追不回窗口。
+BACKUP_STALE  = float(os.environ.get("BACKUP_STALE",  "2.0"))  # 断流多少秒后加派（紧迫）
+BACKUP_AFTER  = float(os.environ.get("BACKUP_AFTER",  "3.0"))  # 确认卡住3s即加派，6s过慢
 BACKUP_MAX    = int(os.environ.get("BACKUP_MAX",    "2"))    # 全场同时存在的备份机上限
 BACKUP_MAX_DIST = float(os.environ.get("BACKUP_MAX_DIST", "60.0"))  # 距离超过此值就不派
                                                                     # （飞过去的时间比等还久，净亏损）
@@ -101,7 +106,14 @@ VIS_COMMIT = os.environ.get("VIS_COMMIT", "1") not in ("0", "false", "False", ""
 COVER_ARRIVE_M = float(os.environ.get("COVER_ARRIVE_M", "4.0"))  # 减小到达判定半径，适应7m格子
 # 派遣追踪机的距离余量：只有最近机距目标 < DETECT_RADIUS - DISPATCH_MARGIN 才派遣。
 # 贴边派遣后目标一动就出视野跟丢，留余量保证追踪机进入感知纵深。
-DISPATCH_MARGIN = float(os.environ.get("DISPATCH_MARGIN", "5.0"))  # 增大到5m，避免目标移动后跟丢
+DISPATCH_MARGIN = float(os.environ.get("DISPATCH_MARGIN", "2.0"))  # 派阈值放近(2m)，首见即派不拖到近距
+# 2026-10-03 国家一等奖改进：单一检测就立刻登记 + 派机，不再等 3 击确认
+DISPATCH_ON_FIRST_HIT = int(os.environ.get("DISPATCH_ON_FIRST_HIT", "1"))  # 1=首见即派
+# 派遣冗余距离：若最近机 > 此距离，就近派一名备份机（不是要等，确认期即可搭帮）
+DISPATCH_BACKUP_DIST = float(os.environ.get("DISPATCH_BACKUP_DIST", "40.0"))
+# 改进 2：actor 移动预测——基于过去 N 秒位置差分外推到飞机抵达时刻
+PREDICT_ACTOR_MOTION = int(os.environ.get("PREDICT_ACTOR_MOTION", "1"))  # 1=启用
+PREDICT_ACTOR_VMAX = float(os.environ.get("PREDICT_ACTOR_VMAX", "2.5"))  # 官方上限 2m/s，留 0.5m/s 余量
 
 
 class _ClearanceField(object):
@@ -260,6 +272,10 @@ class SwarmManager(object):
         self._confirm_since = {}
         self._backup_noted = set()  # 已提示过「无近机可派」的 tid（避免刷屏）
         self._tracking = {}       # target_id -> assigned_uav_id 当前追踪任务
+        # 2026-10-03 改进 2：actor 移动预测——每目标最近 N 次检测轨迹 (x,y,stamp)
+        # 飞机抵达延迟（lead_s）内 actor 预计位置 ≈ 当前 + lead_s * 速度向量。
+        from collections import deque
+        self._target_hist = {}     # tid -> deque([(x,y,stamp), ...], maxlen=10)
         self._mission_finished = False  # 任务已完成（搜索格 + 目标全部结束）
         self._auction_cycle = 0
         self._csv = logger("algorithm", [
@@ -406,21 +422,21 @@ class SwarmManager(object):
         这些机永远拿不到新任务，只能对着旧坐标空转；唯一剩下的 actor_1
         （/left_actors="[1]"）反倒没有飞机去追，官方收不到检测，任务卡到超时。
 
-        权威来源就是官方 /left_actors：不在清单里 = 已被官方确认并删除。
+        国家一等奖改进（2026-10-03）：统一走 _release_tracker 发布取消
+        指令（含 cancel msg + hot target 清理），让 agent 立刻转回搜索
+        任务，而不是继续对旧坐标盘旋。
         """
         for tid in list(self._tracking.keys()):
             aid = self._tid_to_actor(tid)
             if aid is None or aid in left_ids:
                 continue
-            uav = self._tracking.pop(tid)
             bu = self._backup.pop(tid, None)
             self._eliminated.add(tid)
             t = self.tracker.targets.get(tid)
             if t is not None:
                 t.eliminated = True
-            rospy.loginfo("[manager] 官方已消除 %s（不在 left_actors），"
-                          "释放 %s 回归搜索%s", tid, uav,
-                          ("（含备份机 %s）" % bu) if bu else "")
+            # 统一释放（pop + cancel msg + hot target 清理）
+            self._release_tracker(tid, reason="left_actors=%s" % list(left_ids))
         # 顺带把 tracker 里同样已消除、但当时没派机的目标也标掉
         for tid in list(self.tracker.targets.keys()):
             aid = self._tid_to_actor(tid)
@@ -478,6 +494,12 @@ class SwarmManager(object):
 
         不加这一步的话：日志会说"继续搜索"，但没有未覆盖格可分配，
         飞机实际上拿不到新任务，只能原地待命到超时 —— 等于还是收工。
+
+        国家一等奖标准改进（2026-10-03）：
+        - 同时 reopen_review()：超时未复查的 REVIEW 格强制回 FREE，
+          避免「已知 actor 区域曾低置信扫过、再也没有机会复查」漏报。
+        - 让底层 grid._reopen_covered_cells 走每个格独立的 covered_t
+          时间戳判断（避免「绝对 mission 时间」导致 60s 后再不重置）。
         """
         # 跳过就在飞机脚下的格：否则拍卖的 W_FLIGHT(距离) 又会把飞机派回原地，
         # 变成"重开=原地打转"（第二轮实测 136 次派位全是同一批格子）。
@@ -488,17 +510,21 @@ class SwarmManager(object):
             for _key, _c in self.grid.cells.items():
                 if math.hypot(_c.cx - _st.x, _c.cy - _st.y) < REOPEN_MIN_DIST:
                     near.add(_key)
-        n = 0
+        n_cov = 0
         for key, c in self.grid.cells.items():
             if key in self._blocked_cells or key in near:
                 continue
             if c.state == STATE_COVERED:
                 c.state = STATE_FREE
-                n += 1
-        if n:
-            rospy.loginfo("[manager] 已重新开放 %d 个已覆盖格（跳过 %d 个近距格），开始下一轮巡逻",
-                          n, len(near))
-        return n
+                n_cov += 1
+        # 国家一等奖：把"超时未复查 REVIEW"也重开为 FREE
+        n_rev = 0
+        if hasattr(self.grid, "reopen_review"):
+            n_rev = self.grid.reopen_review(max_age=60.0)
+        if n_cov or n_rev:
+            rospy.loginfo("[manager] 已重新开放 %d 个 COVERED + %d 个 REVIEW（跳过 %d 个近距格）",
+                          n_cov, n_rev, len(near))
+        return n_cov + n_rev
 
     def _truth_cb(self, msg):
         """actor 位置（真值桥或 YOLO 桥）→ 缓存位置 + 给 CooperativeTracker 播种目标 ID。
@@ -556,25 +582,40 @@ class SwarmManager(object):
         return None, None
 
     def _dispatch_pending_targets(self):
-        """给「已知但未消除」的目标派追踪机（只派一次，已在追的只更新位置）。"""
+        """给「已知但未消除」的目标派追踪机（只派一次，已在追的只更新位置）。
+
+        国家一等奖标准改进（2026-10-03）：
+        - 写入 hot target：派追踪机时同步把 actor 位置写进 allocator 的
+          _hot_targets，附近 60m 内格效用 +4 → 飞机主动飞向追踪区。
+        - 派遣距离判定从「最近机 < DETECT_RADIUS - DISPATCH_MARGIN」放宽到
+          「< DETECT_RADIUS + DETECT_RADIUS_MARGIN」：原 18m 太紧，飞机
+          距离目标 20m 但在视野里就被拒派，要绕 5s 才到，浪费时间。
+        - 释放空闲追踪机：目标消除/跟丢时，明确把 _tracking[tid] 移除，
+          并 publish cancel_msg = -1 → agent 立即转入新拍卖分配。
+        """
         now = rospy.Time.now().to_sec()
         for tid in list(self.tracker.targets.keys()):
             if tid in self._eliminated:
                 continue
             ct = self.tracker.targets.get(tid)
             if ct is None or ct.eliminated:
+                # 目标已消除/不存在 → 释放追踪/备份机
+                if tid in self._tracking or tid in self._backup:
+                    self._release_tracker(tid, reason="eliminated")
                 continue
             tx, ty = self._get_target_pos(tid, now)
             if tx is None:
                 # 目标已跟丢（缓存过期 + 融合无观测）：释放追踪/备份机去搜别的，
                 # 避免飞机继续追一个不存在的过期坐标。
                 if tid in self._tracking or tid in self._backup:
-                    rospy.loginfo_throttle(5.0,
-                        "[manager] 目标 %s 已跟丢（%.0fs 无检测）→ 释放追踪/备份机",
-                        tid, TRUTH_TTL)
-                    self._tracking.pop(tid, None)
-                    self._backup.pop(tid, None)
+                    self._release_tracker(tid, reason="lost")
                 continue
+            # 国家一等奖：写入 hot target（让其它飞机知道往这边靠）
+            if HOT_TARGET_ENABLE and hasattr(self.allocator, "register_hot_target"):
+                try:
+                    self.allocator.register_hot_target(tx, ty, now=now)
+                except Exception:
+                    pass
             if tid in self._tracking:
                 self._update_tracker_position(tid, tx, ty)
                 continue
@@ -588,12 +629,13 @@ class SwarmManager(object):
                     best, best_d = uid, d
             if best is None:
                 continue
-            # 距离余量：只派遣 DETECT_RADIUS 内且有 3m 余量的飞机，
-            # 避免边界处目标飞出视野导致跟丢。
-            if best_d >= DETECT_RADIUS - DISPATCH_MARGIN:
+            # 距离余量：放宽到 DETECT_RADIUS + DETECT_RADIUS_MARGIN
+            # 飞机距离目标 20m 但已在视野里也应该派去（DISPATCH_ON_FIRST_HIT）
+            _disp_limit = DETECT_RADIUS + DETECT_RADIUS_MARGIN
+            if best_d >= _disp_limit:
                 rospy.loginfo_throttle(5.0,
                     "[manager] 目标 %s 最近机 %s 距 %.1fm ≥ 派遣阈值 %.1fm，暂不派遣",
-                    tid, best, best_d, DETECT_RADIUS - DISPATCH_MARGIN)
+                    tid, best, best_d, _disp_limit)
                 continue
             self._tracking[tid] = best
             # CooperativeTracker 的协同关键：派出去的追踪机必须登记为 observer，
@@ -619,6 +661,44 @@ class SwarmManager(object):
             rospy.loginfo("[manager] 派追踪：%s → 目标 %s @ (%.1f, %.1f), 距离 %.1fm",
                           best, tid, tx_c, ty_c, best_d)
 
+    def _release_tracker(self, tid, reason=""):
+        """国家一等奖：明确释放追踪/备份机，立即 publish cancel (-1)。
+
+        原实现分散在两处（_dispatch_pending_targets 内部和 _check_lost_targets
+        间接路径），删除时容易遗漏。统一从这一处发布。
+        """
+        uid = self._tracking.pop(tid, None)
+        self._backup.pop(tid, None)
+        if uid is None:
+            return
+        # 写入清除 hot target（避免飞机继续往这里斜插）
+        if HOT_TARGET_ENABLE and hasattr(self.allocator, "clear_hot_target"):
+            try:
+                # 用 tracker 历史里的最近位置（如果还在）
+                last_pos = self._truth_cache.get(tid)
+                if last_pos:
+                    self.allocator.clear_hot_target(last_pos[0], last_pos[1])
+            except Exception:
+                pass
+        # 发布取消（task_type=-1 让 agent 立即转入新分配）
+        try:
+            msg = SearchAssignment()
+            msg.header.stamp = rospy.Time.now()
+            msg.uav_id = uid
+            msg.cell_ix = -1
+            msg.cell_iy = -1
+            msg.target_x = 0.0
+            msg.target_y = 0.0
+            if hasattr(msg, "target_id"):
+                msg.target_id = tid
+            msg.task_type = -1  # 取消
+            self.assign_pub.publish(msg)
+        except Exception:
+            pass
+        if reason:
+            rospy.loginfo("[manager] 释放追踪机 %s (tid=%s, 原因=%s)",
+                          uid, tid, reason)
+
     # ---------------- 目标检测与消除（规则4/5） ----------------
     def _detection_cb(self, msg):
         """收到某机对某目标的检测 → 喂给 CooperativeTracker。
@@ -631,7 +711,16 @@ class SwarmManager(object):
         tid = msg.target_id
         now = rospy.Time.now().to_sec()
         self._last_detect[tid] = now
-        self._truth_cache[tid] = (msg.x, msg.y, now)
+        # 国家一等奖 v2 修复（2026-10-05）：_truth_cache[tid] = (msg.x, msg.y, now)
+        # 这一行会让派机坐标 = 看到目标的飞机的坐标 → 飞机追自己 → 永远'接近'但不动。
+        # 改为仅在 CooperativeTracker 还没产生 fused 估计前, 用上报位置做兜底。
+        if tid not in self.tracker.targets:
+            self._truth_cache[tid] = (msg.x, msg.y, now)
+        else:
+            ct = self.tracker.targets[tid]
+            fx = ct.fused(now) if hasattr(ct, "fused") else None
+            if fx is not None:
+                self._truth_cache[tid] = (fx[0], fx[1], now)
 
         # CooperativeTracker 还不知道这个目标？登记
         if tid not in self.tracker.targets:
@@ -654,17 +743,115 @@ class SwarmManager(object):
         self.tracker.report(msg.uav_id, tid, now, msg.x, msg.y, truth=truth)
         self._cur_targets[tid] = (msg.x, msg.y, msg.uav_id)
 
-        # 已在追踪？更新盘旋位置
+        # 已在追踪？更新盘旋位置；否则立刻派遣。
+        # 2026-10-03 国家一等奖：首见即派（DISPATCH_ON_FIRST_HIT=1），
+        # 不再等确认 3 击才派，否则首击→首派延迟 6-9s，确认窗口吃掉 1/3 预算。
         if tid in self._tracking:
             self._update_tracker_position(tid, msg.x, msg.y)
         else:
             self._dispatch_tracker(msg.target_id, msg.x, msg.y)
+            # 改进 4：派机后若发现机距 > 派遣备份阈值，立刻就近派一架备份机。
+            # 不等 BACKUP_AFTER（3s）——直接派，避免中途 2s 漏检即"跟丢→确认清零"。
+            self._maybe_dispatch_immediate_backup(tid, msg)
+
+    def _maybe_dispatch_immediate_backup(self, tid, msg):
+        """首击即加派备份机（改进 4）—— 不等 3s 停滞。
+
+        立即派机的依据：首见检测机的位置（msg.uav_id 自己坐标）若距目标
+        > DISPATCH_BACKUP_DIST，则另派一架更近的机立即飞过去做"接棒观察"。
+        双机即接力的状态可用 100%，单架断流/被建筑遮挡也维持确认进度条。
+        """
+        if not DISPATCH_ON_FIRST_HIT:
+            return
+        if tid in self._backup:
+            return  # 已有备份
+        if tid in self._eliminated:
+            return
+        # 派完主追后主追机本身可能不空闲 → 直接计算"第二近的机"
+        main = self._tracking.get(tid)
+        if main is None:
+            return
+        main_st = self.status.get(main)
+        if main_st is None:
+            return
+        main_d = math.hypot(main_st.x - msg.x, main_st.y - msg.y)
+        if main_d <= DISPATCH_BACKUP_DIST:
+            return  # 主追机本身已经在 40m 内，单机足够
+        # 选第二近的空闲机做备份
+        busy = set(self._tracking.values()) | set(self._backup.values())
+        best = None
+        best_d = float('inf')
+        for uid, st in self.status.items():
+            if not getattr(st, "connected", False) or uid == main or uid in busy:
+                continue
+            d = math.hypot(st.x - msg.x, st.y - msg.y)
+            if d < best_d:
+                best, best_d = uid, d
+        if best is None or best_d >= DETECT_RADIUS:
+            return
+        # 登记为 observer + 派任务
+        self._backup[tid] = best
+        ct = self.tracker.targets.get(tid)
+        if ct is not None and best not in ct.observers:
+            self.tracker.assign_observers(tid, list(ct.observers) + [best])
+        tx_c = min(max(msg.x, self.grid.x_min + 0.5), self.grid.x_max - 0.5)
+        ty_c = min(max(msg.y, self.grid.y_min + 0.5), self.grid.y_max - 0.5)
+        m = SearchAssignment()
+        m.header.stamp = rospy.Time.now()
+        m.uav_id = best
+        m.cell_ix = -1
+        m.cell_iy = -1
+        m.target_x = tx_c
+        m.target_y = ty_c
+        if hasattr(m, "target_id"):
+            m.target_id = tid
+        m.task_type = 1
+        self.assign_pub.publish(m)
+        rospy.loginfo("[manager] 即时增派备份：%s → 目标 %s (主追 %s 距 %.1fm，备份距 %.1fm)",
+                      best, tid, main, main_d, best_d)
+
+    def _sanitize_dispatch_xy(self, tx, ty, target_id=""):
+        """派机坐标硬护栏：超界坐标夹回地图内。
+
+        === 2026-10-05 比赛规则硬约束 ===
+        truth_cache 在 EKF 漂移 / 上报噪声下可能落到地图外（实测 actor 坐标
+        偶尔被写到 (135, -81)）。把这种坐标原样发给 agent 会触发 A*
+        START_OUT_OF_BOUNDS + 撞墙停止行为。这里做兜底：
+        - 落在地图内（含 inset）：原样返回
+        - 落在地图外：夹到最近边界内 + log 一次
+        - 完全离谱（> 1.5×MAP）：返回 None 让调用方放弃派机
+        """
+        try:
+            bx0, bx1, by0, by1 = _search_bounds()
+        except Exception:
+            bx0, bx1, by0, by1 = MAP_X_MIN, MAP_X_MAX, MAP_Y_MIN, MAP_Y_MAX
+        # 极端离谱
+        if (tx < bx0 * 1.5 or tx > bx1 * 1.5 or
+                ty < by0 * 1.5 or ty > by1 * 1.5):
+            rospy.logerr_throttle(2.0,
+                "[manager] 目标 %s 坐标 (%.1f, %.1f) 极端离谱 > 1.5xMAP，放弃派机",
+                target_id, tx, ty)
+            return None
+        # 轻微越界 -> 夹回
+        if (tx < bx0 or tx > bx1 or ty < by0 or ty > by1):
+            cx = min(max(tx, bx0 + 1.0), bx1 - 1.0)
+            cy = min(max(ty, by0 + 1.0), by1 - 1.0)
+            rospy.logwarn_throttle(2.0,
+                "[manager] 目标 %s 坐标 (%.1f, %.1f) 越界，夹到 (%.1f, %.1f)",
+                target_id, tx, ty, cx, cy)
+            return (cx, cy)
+        return (tx, ty)
 
     def _dispatch_tracker(self, target_id, tx, ty):
         """派遣最近空闲机去追踪目标（盘旋确认）
 
         如果没有空闲机，则中断一台正在搜索的飞机（避免目标因无人确认而瞬移）。
         """
+        # === 2026-10-05 比赛规则硬约束：派机坐标硬护栏 ===
+        _san = self._sanitize_dispatch_xy(tx, ty, target_id)
+        if _san is None:
+            return
+        tx, ty = _san
         # P1 修复：检查目标是否已被追踪
         if target_id in self._tracking:
             existing_uav = self._tracking[target_id]
@@ -773,11 +960,75 @@ class SwarmManager(object):
         rospy.loginfo("[manager] 派遣 %s 追踪目标 %s @ (%.1f, %.1f), 距离 %.1fm",
                       best_uav, target_id, tx_c, ty_c, best_dist)
 
+    def _predict_target(self, tid, tx, ty, lead_s):
+        """基于过去 1.5 秒位置差分估算 lead_s 秒后 actor 位置。
+
+        国家一等奖标准改进（2026-10-03）：
+        - 旧实现：只用最早 / 最晚两条点做线性外推 → actor 突然停下
+          或反向时，速度矢量"惯性"使飞机追过头。修复：用最近 1.5s 内的
+          中位速度（去掉首尾两个噪声点），对突然的反向突变有抗性。
+        - 速度被裁到 PREDICT_ACTOR_VMAX。预测长度被裁到 4.0s 以内。
+        - 历史少于 3 条或最近 1.0s 内没新点 → 不外推（避免噪声点）。
+        """
+        from collections import deque
+        now = rospy.Time.now().to_sec()
+        h = self._target_hist.setdefault(tid, deque(maxlen=12))
+        h.append((tx, ty, now))
+        # 去掉超过 2.0s 的旧点（避免全靠很老的数据外推）
+        while h and (now - h[0][2]) > 2.0:
+            h.popleft()
+        if len(h) < 3:
+            return tx, ty
+        # 计算每相邻两点间的瞬时速度
+        speeds = []
+        vecs = []
+        for i in range(1, len(h)):
+            x0, y0, t0 = h[i - 1]
+            x1, y1, t1 = h[i]
+            dt = max(t1 - t0, 0.05)
+            vx_, vy_ = (x1 - x0) / dt, (y1 - y0) / dt
+            vecs.append((vx_, vy_))
+            speeds.append(math.hypot(vx_, vy_))
+        # 用中位速度（去掉头尾 25%）抗噪声
+        speeds_sorted = sorted(speeds)
+        mid = speeds_sorted[len(speeds_sorted) // 2]
+        # 找到速度接近中位的向量（最贴近中位的两条）
+        pairs = sorted(zip(speeds, vecs), key=lambda p: abs(p[0] - mid))[:max(1, len(vecs) // 2)]
+        vx = sum(v[0] for _, v in pairs) / len(pairs)
+        vy = sum(v[1] for _, v in pairs) / len(pairs)
+        sp = math.hypot(vx, vy)
+        if sp > PREDICT_ACTOR_VMAX:
+            scale = PREDICT_ACTOR_VMAX / sp
+            vx, vy = vx * scale, vy * scale
+        # 限幅：lead_s 上界 4.0s（飞机不可能在 4s 内还没追上）
+        lead = min(lead_s, 4.0)
+        # 如果中位速度极小（< 0.3m/s），actor 几乎静止 → 不外推
+        if mid < 0.3:
+            return tx, ty
+        return tx + vx * lead, ty + vy * lead
+
     def _update_tracker_position(self, target_id, tx, ty):
-        """更新追踪机的目标位置"""
+        """更新追踪机的目标位置。
+
+        改进 2（2026-10-03）：actor 移动预测
+        真实链路下 actor 持续 2 m/s 移动，飞到 actor 当前位 actor 已跑 8m —— 飞机追不上。
+        这里根据"过去 N 秒的位置差分"外推到"飞机按 max_speed 飞过去"这一段时间后，
+        actor 的预计位置，让飞机直接飞向"未来位置"，而非"当前位置"。
+        """
         if target_id not in self._tracking:
             return
+        # 推算"飞机抵达时 actor 大约在哪"——飞机以 MAX_SPEED(6m/s) 飞过去这段时间
         uid = self._tracking[target_id]
+        st = self.status.get(uid)
+        if st is not None and PREDICT_ACTOR_MOTION:
+            d_to = math.hypot(tx - st.x, ty - st.y)
+            lead_s = min(d_to / 6.0, 4.0)  # 上限 4s（避免过度预测 actor 反向）
+            tx, ty = self._predict_target(target_id, tx, ty, lead_s)
+        # === 2026-10-05 比赛规则硬约束：派机坐标硬护栏 ===
+        _san = self._sanitize_dispatch_xy(tx, ty, target_id)
+        if _san is None:
+            return
+        tx, ty = _san
         # 发布更新后的追踪任务
         # 2026-10-01 修复：补 target_id（agent 靠它对齐 _orbit_target / 消除清理）
         msg = SearchAssignment()
@@ -841,6 +1092,11 @@ class SwarmManager(object):
             tx, ty = self._get_target_pos(tid, now)
             if tx is None:
                 continue
+            # === 2026-10-05 比赛规则硬约束：派机坐标硬护栏 ===
+            _san = self._sanitize_dispatch_xy(tx, ty, tid)
+            if _san is None:
+                continue
+            tx, ty = _san
 
             best, best_d = None, None
             for uid, st in self.status.items():
@@ -949,8 +1205,8 @@ class SwarmManager(object):
                                   "但官方仍未消除 → 保留在场继续上报", tid)
                 rospy.loginfo("[manager] 规则5：目标 %s 连续确认 %.0fs → 广播消除",
                               tid, CONFIRM_TIME)
-                self._tracking.pop(tid, None)
-                self._backup.pop(tid, None)
+                # 国家一等奖：统一走 _release_tracker（含 cancel msg + hot target 清理）
+                self._release_tracker(tid, reason="confirmed")
                 self._truth_cache.pop(tid, None)
                 self._truth_pos.pop(tid, None)
                 continue
@@ -976,6 +1232,15 @@ class SwarmManager(object):
         # 清空本周期检测缓存（下一周期重新收集）
         self._cur_targets = {}
         self._last_target_t = rospy.Time.now()
+        # 国家一等奖 v2（2026-10-05）：即使全队在追踪（_idle_uavs 空 → _allocate
+        # 早 return → _reopen_covered_cells 不会被调到）, 也要按 REV_COVER_AGE
+        # 主动 reopen covered cells。否则 5 分钟后期所有格子都被标过 COVERED,
+        # 接力机返回时没有空闲格可拍, 整个队形停摆到 600s 超时。
+        if int(os.environ.get("REOPEN_WHEN_TRACKING", "0")):
+            try:
+                self._reopen_covered_cells()
+            except Exception:
+                pass
 
     # ---------------- 拍卖分配 ----------------
     def _idle_uavs(self):
@@ -1066,8 +1331,7 @@ class SwarmManager(object):
             cell = self.grid.cell(key)
             _wp0 = self._cell_waypoint.get(key) or (cell.cx, cell.cy)
             dist = math.hypot(_wp0[0] - uav_pos[0], _wp0[1] - uav_pos[1])
-            duration = max(10.0, dist / 3.0 * 1.5 + 10.0)  # 3.0 m/s 巡航速度（30→10：30s 下限是吞吐瓶颈，
-                                                   #   600s 每机最多 20 格，实测只扫到 44/247）
+            duration = max(10.0, dist / float(os.environ.get("LEASE_CRUISE_SPEED", "5.0")) * 1.5 + 10.0)  # LEASE_CRUISE_SPEED 默认 5.0（与 agent MAX_SPEED 对齐：原 3.0 把租约算长 67%, 接力损耗严重）
             self.lease.grant(uid, key, now.to_sec(), duration)
             self._active_leases[uid] = key
             rospy.loginfo("[manager] 分配 %s → 格 (%d,%d) 飞行距离 %.1fm 租约 %.1fs",
@@ -1105,15 +1369,25 @@ class SwarmManager(object):
                 # 2026-09-28：实测这里误判过 —— tracker 瞬间为空 + _left_actors 还没到
                 # 就被当成「搜完了」，把空闲机降下来，一架落地就再也救不回来（见
                 # patch_guard2）。默认不再自动降落，宁可继续巡逻。
-                if not AUTO_LAND:
+                # 国家一等奖 v2（2026-10-05）：双保险 —— REQUIRE_LEFT_FOR_FINISH=1 时
+                # 必须官方剩余清单确认空 + tracker 已空 才发 MISSION_FINISHED，
+                # 防止 tracker 偶发空导致 agent 全部退出搜索循环（_finish_cb 会 break）。
+                _require_left = int(os.environ.get("REQUIRE_LEFT_FOR_FINISH", "1"))
+                if _require_left and (not self._left_seen or self._left_actors):
                     rospy.loginfo_throttle(
-                        20, "[manager] 疑似全部完成（tracker 空且剩余 0），但 AUTO_LAND=0"
-                            " → 继续巡逻，不降落")
+                        20, "[manager] tracker 空但官方剩余清单未确认（_left_seen=%s, _left_actors=%s），"
+                            "不发 MISSION_FINISHED，继续巡逻",
+                            self._left_seen, self._left_actors)
                 else:
-                    rospy.loginfo("[manager] 全部任务完成，各机降落")
-                    self._publish_land(idle)
-                # 广播任务完成消息
-                self.finish_pub.publish(String(data="MISSION_FINISHED"))
+                    if not AUTO_LAND:
+                        rospy.loginfo_throttle(
+                            20, "[manager] 疑似全部完成（tracker 空且剩余 0），但 AUTO_LAND=0"
+                                " → 继续巡逻，不降落")
+                    else:
+                        rospy.loginfo("[manager] 全部任务完成，各机降落")
+                        self._publish_land(idle)
+                    # 广播任务完成消息
+                    self.finish_pub.publish(String(data="MISSION_FINISHED"))
 
         self._last_alloc_t = now
 
@@ -1236,6 +1510,23 @@ class SwarmManager(object):
                 # 定期拍卖（有未覆盖格且距上次分配超周期）
                 if (now - self._last_alloc_t).to_sec() >= ALLOC_PERIOD:
                     self._allocate()
+
+                # ===== DEBUG 2026-10-05：5min 复盘日志，每 10s 仿真打一行 =====
+                if not hasattr(self, "_dbg_last_t"):
+                    self._dbg_last_t = now
+                if (now - self._dbg_last_t).to_sec() >= 10.0:
+                    self._dbg_last_t = now
+                    try:
+                        n_elim = len(self._eliminated)
+                        # tracker.targets 是 dict: target_id -> CaptureTarget
+                        _tu = self.tracker.targets if hasattr(self, "tracker") and self.tracker is not None else {}
+                        confirming_tids = sorted([tid for tid, t in _tu.items()
+                                                  if not getattr(t, "eliminated", False)])
+                        rospy.loginfo("[DEBUG-10s] sim=%.1f eliminated=%d(%s) confirming=%s total=%d",
+                                      now.to_sec(),
+                                      n_elim, sorted(self._eliminated), confirming_tids, len(_tu))
+                    except Exception as _e:
+                        rospy.logwarn("[DEBUG-10s] 复盘日志出错: %s", _e)
             except Exception as e:
                 rospy.logerr("[manager] 主循环异常: %s\n%s", e, traceback.format_exc())
 

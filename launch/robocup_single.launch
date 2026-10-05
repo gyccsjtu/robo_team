@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!-- ============================================================================
+  单机全链路验证场景（本机调试用，非比赛配置）
+  world = 官方 robocup.world（含 6 个 actor）。
+
+  spawn 走本仓 launch/single_vehicle_spawn_xtd_delayed.launch（与官方
+  $(find px4)/launch/single_vehicle_spawn_xtd.launch 逐字等价，只把
+  spawn_model 节点延迟 spawn_delay 秒启动）。
+
+  为什么必须延迟（2026-10-03 实测根因）
+  ────────────────────────────────────
+  gazebo_ros_api_plugin.cpp:2744 把 SDF spawn 超时写死 10.0 秒：
+      ros::Duration model_spawn_timeout(10.0);
+  robocup.world（6 actor + 障碍 + 大量 mesh）首次加载要十几秒，此时发起
+  spawn 必然超时 ⇒ "Spawn service failed / timed out" ⇒ PX4 与模型之间
+  **没有建立桥** ⇒ EKF 收不到传感器 ⇒ /mavros/local_position/pose 在 ±150m
+  之间乱跳（实测 idx1~9）⇒ 飞机飞不起来、也控不住（guided:False）。
+  官方原始文件不动。
+============================================================================ -->
+<launch>
+    <arg name="est" default="ekf2"/>
+    <arg name="world" default="$(find mavlink_sitl_gazebo)/worlds/robocup.world"/>
+    <!-- 2026-10-03 15:0x：spawn_delay 20 -> 45。
+         gazebo_ros_api_plugin 的 spawn 超时是按**仿真时间**计的 10s；robocup.world
+         加载期间 gzserver 会以极高倍速推进仿真（实测 sim time 已到 2425），而
+         世界（含 6 个 actor 插件）此时还没装完 ⇒ spawn 排队后 10s 仿真秒内
+         entity 出不来 ⇒ "spawn service timed out"。20s 正好与 gzserver 服务就绪
+         时刻撞车（竞态，偶发成功）；45s 留足世界装完的余量。仅本仓调试文件。 -->
+    <arg name="spawn_delay" default="45"/>
+    <!-- gazebo configs -->
+    <arg name="gui" default="false"/>
+    <arg name="debug" default="false"/>
+    <arg name="verbose" default="false"/>
+    <arg name="paused" default="false"/>
+    <!-- Gazebo sim -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="world_name" value="$(arg world)"/>
+        <arg name="debug" value="$(arg debug)"/>
+        <arg name="verbose" value="$(arg verbose)"/>
+        <arg name="paused" value="$(arg paused)"/>
+    </include>
+    <!-- typhoon_h480_0 -->
+    <group ns="typhoon_h480_0">
+        <arg name="fcu_url" default="udp://:24540@localhost:34580"/>
+        <include file="$(env HOME)/robo_team/launch/single_vehicle_spawn_xtd_delayed.launch">
+            <arg name="x" value="0"/>
+            <arg name="y" value="-3"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <!-- 2026-10-03 15:4x：载入我们自己的**带雷达机型**。
+                 vehicle 保持 typhoon_h480 不动 ⇒ PX4_SIM_MODEL 与 robotNamespace
+                 都用 typhoon_h480 ⇒ 话题仍在 /typhoon_h480_0/ 下，只多 /scan。
+                 sdf 换成 typhoon_h480_lidar（= typhoon_h480 机身 + hokuyo 2D 雷达负载，
+                 与本体 diff 仅 28 行：model://hokuyo_lidar + lidar_joint parent=base_link）。
+                 官方 launch 本身支持 vehicle≠sdf（官方 iris + iris_2d_lidar 同样用法）。 -->
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_lidar"/>
+            <arg name="mavlink_udp_port" value="18570"/>
+            <arg name="mavlink_tcp_port" value="4560"/>
+            <arg name="udp_gimbal_port" value="13030"/>
+            <arg name="ID" value="0"/>
+            <arg name="ID_in_group" value="0"/>
+            <arg name="spawn_delay" value="$(arg spawn_delay)"/>
+        </include>
+        <!-- MAVROS -->
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="1"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+</launch>

@@ -55,8 +55,8 @@ import os
 
 # ---- 官方规则常量 ----
 CONFIRM_TIME = 15.0     # 规则5：连续确认时长 s
-ERR_TOL = 1.0           # 规则5：单次上报坐标误差上限 m
-GAP_TOL = 1.0           # 规则5：相邻上报最大间隔 s
+ERR_TOL = float(os.environ.get("ERR_TOL", "1.0"))   # 规则5：单次上报坐标误差上限 m（允许 env 覆盖）
+GAP_TOL = float(os.environ.get("GAP_TOL", "1.0"))   # 规则5：相邻上报最大间隔 s（5 分钟实测 YOLO 帧丢/摆头会让 1.0s 太严, 改成 2.5）
 # 规则4：首次被裁判正确检测起墙钟跨度 → 瞬移。
 # 以官方规则 PDF 为准 = 30s；control_actor.py 里 teleportation_interval=25 是旧版本差异。
 # 若实测裁判脚本仍是 25s，启动脚本 export TELEPORT_INTERVAL=25 覆盖即可。

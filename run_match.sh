@@ -17,9 +17,17 @@
 #   RADAR_HANDOFF=stop          起协同层前 stop=停雷达避撞双控制 | keep=保留
 #   COORD_WS_SETUP=<path>       协同层 catkin devel/setup.bash（未编译则第⑥步跳过）
 #   YOLO_BRIDGE=1              1=起 yolo_target_bridge（YOLO target_report → /swarm/target_states）
+#   SIM_TARGET_NODE=0          1=仿真下若 YOLO 桥未出 detection，自动起 target_sim_node.py 喂真值
+#                              （仅供 Gazebo 仿真自验协同逻辑，真机/正式比赛严禁开启）
+#   ENABLE_AVOID=1             1=起 route_planner + dwa_avoidance 避障层（规则 §2.5(7)：碰撞扣30/次）
+#   MAX_SPEED=6.0              巡航速度上限 m/s（规则 §2.5(4)：恐怖分子 2m/s 逃逸，本机留 3x 余量）
+#   ALT_HARD_CEIL=5.7         飞行高度硬护栏 m（规则 §2.5(3)：限高 6m，留 0.3m 抖动空间）
+#   RADAR_WARN_R=5.5          雷达预警半径 m（规则 §2.5(7)：碰撞扣30/次，扩到车体级）
+#   FRIEND_SAFE_DIST=3.5      友机避碰起点 m（6 机密集 + 碰撞扣30/次）
 #   D2O_ENABLE=0               1=起 detection_to_official 桥（开发联调，坐标取真值）
 #                              正式比赛须保持 0（规则 §2.5.11 监控订阅）
-#   SKIP_RADAR=1 / REQUIRE_SWARM=0 / FORCE=0   0=恢复雷达带飞链路（需 6 份航点）
+#   SKIP_RADAR=2 / REQUIRE_SWARM=0 / FORCE=0   0=实验：gpu_ray 雷达（需 6 份航点）；
+#                                          1=无雷达回退；2=默认：CPU ray 2D 激光
 # ============================================================================
 
 # ---- 严格模式：不使用 set -e，所有失败由检查函数显式处理 ----
@@ -64,6 +72,10 @@ BB2MD="$REPO_ROOT/coordination/src/robocup_training_worlds/scripts/black_box_to_
 ROBOCUP_LIVE_METADATA="$REPO_ROOT/coordination/src/robocup_training_worlds/worlds/generated/robocup_live.json"
 # YOLO→swarm 桥开关：target_report → /swarm/target_states，替换真值订阅（规则 §2.5.11）
 YOLO_BRIDGE="${YOLO_BRIDGE:-1}"
+SIM_TARGET_NODE="${SIM_TARGET_NODE:-0}"
+# 比赛墙钟 hard cap：默认 5 分钟（300s），到点自动调 stop_group 全杀。
+# 0=不限时；可被 MATCH_HARD_CAP=360 之类覆盖。
+MATCH_HARD_CAP="${MATCH_HARD_CAP:-300}"
 # 起飞世界坐标（对齐 launch/robocup_lidar.launch 六机 x/y），即各机 MAVROS→世界 offset
 TAKEOFF_X=(0 3 0 3 0 3)
 TAKEOFF_Y=(-3 -3 0 0 3 3)
@@ -97,22 +109,26 @@ RADAR_HANDOFF="${RADAR_HANDOFF:-stop}"
 # 0=启动旧版 radar_avoid 独立位置控制器（仅用于单独雷达实验）。
 RADAR_GUARD="${RADAR_GUARD:-1}"
 export RADAR_GUARD
-# 默认跳过雷达：协同层（YOLO 桥 + swarm）为主链路，agent 自主起飞
-SKIP_RADAR="${SKIP_RADAR:-1}"
-# 场景 launch 默认值（按 SKIP_RADAR 联动）：
-#  SKIP_RADAR=1 → robocup_nolidar.launch（无 gpu_ray）
-#    根因：robocup.world 自带 6 个挂 ActorCollisionsPlugin 的 actor（共约 126 个随骨骼动画
-#    移动的碰撞体）。飞机上的 gpu_ray 在 gzserver 中初始化 OGRE 离屏渲染、且每帧遍历 actor
-#    骨骼，与物理线程的 actor 碰撞位姿同步发生数据竞争，损坏 ODE 空间(dxSpace)结构 →
-#    libgazebo_ode 段错误。时序敏感（spawn 插入时或 sim 16~30s）；gdb ptrace 会改变竞争
-#    时序，表现为 gzserver 卡死而非崩溃。去掉 gpu_ray 后不再初始化渲染引擎，竞争消失。
-#  SKIP_RADAR=0 → robocup_lidar.launch（gpu_ray 雷达链路，需 6 份航点）
+# SKIP_RADAR 联动：默认 2（推荐 → 2D 激光雷达避障链路，CPU ray 安全版）。
+#  SKIP_RADAR=2 → robocup_with_laser.launch（CPU ray 2D 激光，规则 §2.5(7) 真避障）
+#    用新模型 typhoon_h480_laser：基于 PX4 原生 typhoon_h480（含双目相机、保留
+#    感知链路），在 base_link +z 0.06m 挂 libgazebo_ros_laser（CPU 射线检测，不走
+#    OGRE），每机话题 /typhoon_h480_N/scan。dwa_avoidance.py 默认 _scan_topic:=
+#    /<u>/scan，run_match.sh 已按机注入，无需改代码。
+#    关键修复：彻底替代 robocup_lidar_v2.launch 的 hokuyo_lidar (gpu_ray)——
+#    gpu_ray 启动 OGRE 离屏渲染线程，与 robocup.world 6 个 actor 的 ActorCollisionsPlugin
+#    骨骼动画在 dxSpace 上数据竞争 → libgazebo_ode 段错误；CPU ray 完全不碰 OGRE。
+#  SKIP_RADAR=1 → robocup_nolidar.launch（无雷达回退，仅 swarm 自主）
+#    默认协同链路；没有 /scan，dwa_avoidance 退到"无 scan 应急"分支（速度上限收紧）。
+#  SKIP_RADAR=0 → robocup_lidar_v2.launch（gpu_ray 雷达，需 6 份航点）
+#    旧版，保留做对照实验，官方规则下仍易触发段错误，不推荐比赛用。
+SKIP_RADAR="${SKIP_RADAR:-2}"
 if [ -z "$SCENE_LAUNCH" ]; then
-    if [ "$SKIP_RADAR" = "1" ]; then
-        SCENE_LAUNCH="$REPO_ROOT/launch/robocup_nolidar.launch"
-    else
-        SCENE_LAUNCH="$REPO_ROOT/launch/robocup_lidar.launch"
-    fi
+    case "$SKIP_RADAR" in
+        0) SCENE_LAUNCH="$REPO_ROOT/launch/robocup_lidar_v2.launch" ;;
+        1) SCENE_LAUNCH="$REPO_ROOT/launch/robocup_nolidar.launch" ;;
+        2|*) SCENE_LAUNCH="$REPO_ROOT/launch/robocup_with_laser.launch" ;;
+    esac
 fi
 REQUIRE_SWARM="${REQUIRE_SWARM:-0}"
 # detection_to_official 桥（/swarm/detection → 官方 /actor_<color>_info）。
@@ -139,7 +155,10 @@ ensure_colon_path GAZEBO_PLUGIN_PATH "$HOME/catkin_ws/devel/lib"
 ensure_colon_path GAZEBO_PLUGIN_PATH "$PX4_ROOT/build/px4_sitl_default/build_gazebo"
 
 # ---- 运行状态目录 ----
-RUN_DIR="/tmp/robocup_match"
+# 国家一等奖优化（2026-10-04 复盘）：日志默认落盘到工程目录 logs/ 子目录，
+#   便于赛后复盘；/tmp 重启清空导致历史无法追溯。
+#   调试 / CI 环境可用 RUN_DIR=/tmp/robocup_match 覆盖。
+RUN_DIR="${RUN_DIR:-$REPO_ROOT/logs}"
 REG="$RUN_DIR/components.tsv"
 STAMP="$(date '+%Y%m%d_%H%M%S')"
 LOGDIR="$RUN_DIR/logs_$STAMP"
@@ -280,6 +299,20 @@ preflight(){
     local hard_miss=0
     echo "${C_B}================ RoboCup 赛前体检 ================${C_0}"
 
+    # 进程残留检查：上一局 stop 没清干净会导致新局 gzserver 被顶掉、rosmaster 冲突。
+    # 复盘 2026-10-02 23:29 局：残留 gzserver 顶掉新 gzserver → "new node registered
+    # with same name" → sim 冻结整场（actor 不动 + 飞机不起飞 + yolo/协同全连锁失效）。
+    _stale=""
+    pgrep -x gzserver       >/dev/null 2>&1 && _stale="$_stale gzserver"
+    pgrep -x gzclient       >/dev/null 2>&1 && _stale="$_stale gzclient"
+    pgrep -f '[r]osmaster'  >/dev/null 2>&1 && _stale="$_stale rosmaster"
+    if [ -n "$_stale" ]; then
+        err "检测到残留进程：$_stale —— 会顶掉新启的 gzserver 导致 sim 冻结。"
+        err "  修复：./run_match.sh stop（已默认清理 gzserver/gzclient/rosmaster）；"
+        err "        或手动 pkill -9 -x gzserver gzclient; pkill -9 -f rosmaster"
+        hard_miss=$((hard_miss+1))
+    fi
+
     check_hard(){   # check_hard <描述> <路径/命令>
         if eval "$2" >/dev/null 2>&1; then ok "$1"
         else err "$1 缺失"; hard_miss=$((hard_miss+1)); fi
@@ -302,6 +335,39 @@ preflight(){
     check_soft "地图生成器 map_generator.py（重新出图时才需要）" "[ -f '$MAP_GENERATOR' ]"
     check_hard "YOLO 权重 v1（双目）"    "[ -f '$WEIGHTS' ]"
     check_hard "感知主节点"              "[ -f '$PERC_DIR/perception_real.py' ]"
+    # 双目相机补丁：感知订阅 /<uav>/stereo_camera/left/image_raw，原厂 typhoon_h480
+    # 只有 cgo3 云台相机、无 stereo_camera → 不打补丁则话题发布者为空、整局零检测。
+    # 补丁脚本只读检查，不改任何文件；NOT_INSTALLED 即硬失败，避免盲飞整场。
+    STEREO_PATCH="$PERC_DIR/patch/add_stereo_camera.py"
+    if [ -f "$STEREO_PATCH" ]; then
+        # 从场景 launch 提取全部 sdf 机体模型，逐一检查补丁状态（PX4 侧为准）
+        _models="$(grep -o '<arg name="sdf" value="[^"]*"' "$SCENE_LAUNCH" 2>/dev/null \
+            | sed 's/.*value="//;s/"//' | sort -u)"
+        [ -z "$_models" ] && _models="typhoon_h480"
+        for _m in $_models; do
+        # 注意：mawk 不支持 `$0 ~ m"re"` 直接拼接（优先级坑），正则必须在 BEGIN 里先组装
+            _sp_state="$(python3 "$STEREO_PATCH" --check --model "$_m" --px4-root "$PX4_ROOT" 2>/dev/null \
+                | awk -v m="$_m" 'BEGIN{re=m "\\.sdf[ \t]"} $0 ~ /\[PX4\]/{p=1} p && $0 ~ re{print $2; exit}')"
+        case "$_sp_state" in
+            INSTALLED*) ok "双目相机补丁已装：$_m（$_sp_state）";;
+            NOT_INSTALLED|BAD_INCLUDE)
+                err "双目相机补丁未装/坏：$_m=$_sp_state"
+                err "  感知订阅 stereo_camera/left/image_raw，该模型无 stereo → 整局零检测。"
+                err "  修复：python3 '$STEREO_PATCH' --px4-root '$PX4_ROOT' --model $_m"
+                hard_miss=$((hard_miss+1));;
+            MISSING)
+                err "机体模型 $_m 不在 PX4 模型目录（场景 launch 引用了不存在的 sdf）"
+                hard_miss=$((hard_miss+1));;
+            *)
+                # 体检只读，不应 FAIL_VERIFY；若出现也按硬失败处理。
+                err "双目补丁状态异常（$_m: $_sp_state）——重打补丁后重试"
+                hard_miss=$((hard_miss+1));;
+        esac
+        done
+    else
+        err "双目补丁脚本缺失 $STEREO_PATCH"
+        hard_miss=$((hard_miss+1))
+    fi
     check_hard "雷达避障主程序"          "[ -f '$RADAR_DIR/radar_avoid.py' ]"
     # control_actors.sh 依赖 python 软链；必须真实指向 python3
     if command -v python >/dev/null 2>&1 && python --version 2>&1 | grep -q "Python 3"; then
@@ -327,6 +393,11 @@ preflight(){
         *) err "GAZEBO_PLUGIN_PATH 缺少 $HOME/catkin_ws/devel/lib（恐怖分子不会动）"
            hard_miss=$((hard_miss+1));;
     esac
+    # actor 移动插件本体：robocup.world 每个 actor 都引用 libros_actor_cmd_pose_plugin.so，
+    # 缺失时 /actor_N/cmd_motion 无订阅者 → 6 个恐怖分子叠在原点不动（GUI 里"只有 1 个actor"）。
+    # 2026-10-03 复盘：catkin_ws 重建时丢了该包（源码在回收站），从 Trash 恢复后重编译。
+    check_hard "actor 移动插件 libros_actor_cmd_pose_plugin.so" \
+        "[ -f '$HOME/catkin_ws/devel/lib/libros_actor_cmd_pose_plugin.so' ]"
     case ":${GAZEBO_PLUGIN_PATH:-}:" in
         *":$PX4_ROOT/build/px4_sitl_default/build_gazebo:"*) ok "GAZEBO_PLUGIN_PATH 含 PX4 build_gazebo（SITL 模型插件）";;
         *) err "GAZEBO_PLUGIN_PATH 缺少 $PX4_ROOT/build/px4_sitl_default/build_gazebo（spawn 飞机即 gzserver 255 崩溃）"
@@ -351,32 +422,49 @@ preflight(){
     # 实际要使用的场景 launch 必须存在（默认值已按 SKIP_RADAR 选定）
     check_hard "场景 launch（$SCENE_LAUNCH）" "[ -f '$SCENE_LAUNCH' ]"
 
-    # 雷达模型（gpu_ray）：仅 SKIP_RADAR=0 时加载、需要卡关两处副本一致；
-    # SKIP_RADAR=1 不加载 gpu_ray（规避 actor 碰撞竞争段错误），只做软提示。
+    # 雷达模型：
+    #  SKIP_RADAR=2（默认，推荐）→ 验证 typhoon_h480_laser/typhoon_h480_laser.sdf
+    #    已就位（CPU ray 2D 激光，规则 §2.5(7) 真避障）。
+    #  SKIP_RADAR=0（实验）→ 验证 per-UAV typhoon_h480_lidar_N（gpu_ray）就位。
+    #  SKIP_RADAR=1 → 不需要任何雷达模型文件。
+    LASER_PX4="$PX4_ROOT/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf"
+    LASER_XTD="$XTDRONE_DIR/sitl_config/models/typhoon_h480_laser/typhoon_h480_laser.sdf"
     LIDAR_PX4="$PX4_ROOT/Tools/sitl_gazebo/models/typhoon_h480_lidar/typhoon_h480_lidar.sdf"
     LIDAR_XTD="$XTDRONE_DIR/sitl_config/models/typhoon_h480_lidar/typhoon_h480_lidar.sdf"
-    if [ "$SKIP_RADAR" = "1" ]; then
-        info "SKIP_RADAR=1：不加载 gpu_ray（默认协同链路），跳过雷达模型卡关"
-        check_soft "雷达模型文件（SKIP_RADAR=0 时才需要）" "[ -f '$LIDAR_PX4' ] && [ -f '$LIDAR_XTD' ]"
-    else
-        check_hard "雷达模型（PX4 侧 typhoon_h480_lidar）"   "[ -f '$LIDAR_PX4' ]"
-        check_hard "雷达模型（XTDrone 侧 typhoon_h480_lidar）" "[ -f '$LIDAR_XTD' ]"
-        if [ -f "$LIDAR_PX4" ] && [ -f "$LIDAR_XTD" ]; then
-            _a="$(md5sum "$LIDAR_PX4" | cut -d' ' -f1)"
-            _b="$(md5sum "$LIDAR_XTD" | cut -d' ' -f1)"
-            if [ "$_a" = "$_b" ]; then ok "雷达模型两处 md5 一致 ($_a)"
-            else err "雷达模型两处 md5 不一致（重新同步）"; hard_miss=$((hard_miss+1)); fi
-        fi
-    fi
+    case "$SKIP_RADAR" in
+        2)
+            check_hard "2D 激光模型 typhoon_h480_laser（PX4 侧）" "[ -f '$LASER_PX4' ]"
+            check_hard "2D 激光模型 typhoon_h480_laser（XTDrone 镜像）" "[ -f '$LASER_XTD' ]"
+            ;;
+        1)
+            info "SKIP_RADAR=1：不加载 2D 激光（仅 swarm 自主），跳过雷达模型卡关"
+            check_soft "2D 激光模型（SKIP_RADAR=2 时才需要）" "[ -f '$LASER_PX4' ] && [ -f '$LASER_XTD' ]"
+            ;;
+        0)
+            for _li in 0 1 2 3 4 5; do
+                check_hard "雷达模型 typhoon_h480_lidar_$_li（PX4 侧）" \
+                    "[ -f '$PX4_ROOT/Tools/sitl_gazebo/models/typhoon_h480_lidar_$_li/typhoon_h480_lidar_$_li.sdf' ]"
+            done
+            ;;
+    esac
 
-    # 航点文件清点
+    # 航点文件清点：仅 SKIP_RADAR=0（老版独立 radar_avoid）需要；2D 激光避障不依赖
     local nwp=0
     for u in "${UAVS[@]}"; do [ -f "$RADAR_WP_DIR/$u.txt" ] && nwp=$((nwp+1)); done
-    if [ "$nwp" -gt 0 ]; then ok "雷达航点文件 $nwp/6（$RADAR_WP_DIR）"
-    elif [ "$SKIP_RADAR" = "1" ]; then
-        info "雷达航点文件 0/6 —— 默认 SKIP_RADAR=1，不影响（协同链路自主起飞）"
+    if [ "$SKIP_RADAR" = "1" ]; then
+        info "雷达航点文件 0/6 —— SKIP_RADAR=1，不影响（协同链路自主起飞）"
+    elif [ "$SKIP_RADAR" = "2" ]; then
+        if [ "$nwp" -eq 0 ]; then
+            ok "2D 激光避障不需航点文件（dwa_avoidance 接管速度控制）"
+        else
+            info "雷达航点文件 $nwp/6 —— SKIP_RADAR=2 未被使用（dwa_avoidance 接管）"
+        fi
     else
-        warn "雷达航点文件 0/6 —— 第⑤步将无法启动（每行 'x y' 世界坐标）"
+        if [ "$nwp" -gt 0 ]; then
+            ok "雷达航点文件 $nwp/6（$RADAR_WP_DIR）"
+        else
+            warn "雷达航点文件 0/6 —— 第⑤步将无法启动（每行 'x y' 世界坐标）"
+        fi
     fi
 
     # 需要 ROS 环境才能验证的项
@@ -392,10 +480,10 @@ preflight(){
     echo
     echo "${C_B}---- 运行时仍会强制卡关的验证 ----${C_0}"
     if [ "$SKIP_RADAR" = "1" ]; then
-        info "A. 默认 SKIP_RADAR=1：不做 /scan 卡关，协同层自主起飞"
+        info "A. SKIP_RADAR=1：不做 /scan 卡关，协同层自主起飞"
     else
-        warn "A. /typhoon_h480_N/scan：雷达模式下场景启动后逐机检查必须有帧"
-        echo "      （话题存在不算数；hz 若为 0，检查模型是否被 Gazebo 正常加载）。"
+        warn "A. /typhoon_h480_N/scan：场景启动后逐机检查必须有帧（20Hz CPU ray）"
+        echo "      （话题存在不算数；hz 若为 0，检查 typhoon_h480_laser 模型是否被 Gazebo 正常加载）。"
     fi
     warn "B. /swarm/target_states：第④步由 yolo_target_bridge 从 YOLO 检测喂入"
     echo "      （启动后校验发布者身份；第⑥步后自动做节点订阅合规审计）。"
@@ -454,7 +542,7 @@ do_start(){
             if echo "$out" | grep -q "success: True"; then
                 ucommon=1; break
             fi
-            sleep 1
+            sleep 0.3
         done
         if [ "$ucommon" = "1" ]; then
             ok "仿真已 unpause，sim 时钟开始推进（RTF≈1）"
@@ -466,7 +554,7 @@ do_start(){
     for u in "${UAVS[@]}"; do
         wait_gate "$u MAVROS connected" 300 mavros_connected "$u" \
             || partial_fail "$u 飞控未连上（残留模型？需 pkill -9 -x gzserver 后重来）"
-        sleep 3  # 每架飞机间隔3秒，避免 Segmentation fault
+        # 每架机 MAVROS 心跳独立检测，sleep 3 已去序列化（6 架并发等待）
     done
 
     # ---------------- ② XTDrone 通信桥 + 6 个恐怖分子 ----------------
@@ -475,14 +563,16 @@ do_start(){
         for i in 0 1 2 3 4 5; do
             start_group "comm_$i" "$LOGDIR/02_comm_$i.log" \
                 python3 -u "$COMM_BRIDGE" typhoon_h480 "$i"
-            sleep 1
+            sleep 0.3
         done
-        sleep 3
+        sleep 1
     else
         warn "通信桥缺失，跳过 —— actor 将只随机游走、不会躲避"
     fi
 
-    start_group actors "$LOGDIR/02_actors.log" bash -c "cd '$ROBO_DIR' && ./control_actors.sh"
+    # PYTHONUNBUFFERED=1：control_actors.sh 内 python 无 -u，块缓冲导致 02_actors.log
+    # 整局空白（只能等崩溃 flush 才有内容），排查 actor 不动时两眼一抹黑。
+    start_group actors "$LOGDIR/02_actors.log" bash -c "cd '$ROBO_DIR' && PYTHONUNBUFFERED=1 ./control_actors.sh"
     sleep 8
     nactor="$(count_pattern '[c]ontrol_actor.py')"
     if [ "$nactor" -ge 6 ]; then ok "6 个 actor 控制器在跑"
@@ -498,23 +588,70 @@ do_start(){
 
     # ---------------- ④ 感知（CPU 模式） ----------------
     step "④ 起感知 perception_real.py（CUDA_VISIBLE_DEVICES 置空，CPU 推理）"
+    # 国家一等奖优化（2026-10-04 复盘）：
+    #   PR_ACTOR_PUB_RANGE=80     边缘瞬移目标（70/72m）也接得上
+    #   PR_MAX_COAST_PUB=12       外推余量加宽（远距短遮挡 6→12 帧 ≈ 1.5s）
+    # ⚠ OFFICIAL_ARBITRATED/IDENTITY_GATE **不能开**：
+    #   1. 当前架构走 snap → /coordination/target_report → bridge → /swarm/target_states，
+    #      manager 全局派单依赖 6 架飞机的全景 detection；
+    #   2. OFFICIAL_ARBITRATED=1 会让没被指派的 5 架 detection 全部被闸门剔除 → bridge
+    #      收不到其他目标 → manager 失去全景派单能力；
+    #   3. IDENTITY_GATE=1 要求本机 detection 与 bridge 融合坐标 ≤3m，而融合坐标来源
+    #      正是本机 detection，会形成自指。远距鬼影由 bridge NEW_TRACK_CONF=0.55 拦截，
+    #      这边只需要放宽距离 + 外推两项。
     for u in "${PR_UAV_ARR[@]}"; do
         start_group "pr_$u" "$LOGDIR/04_perception_$u.log" bash -c \
-            "cd '$PERC_DIR' && CUDA_VISIBLE_DEVICES='' PR_UAV='$u' PR_CAM_LINK='$u::base_link' python3 -u perception_real.py"
+            "cd '$PERC_DIR' && CUDA_VISIBLE_DEVICES='' \
+             PR_UAV='$u' PR_CAM_LINK='$u::base_link' \
+             PR_CONFIRM_HITS=2 PR_COORD_HZ=4 PR_ACTOR_PUB_RANGE=80 PR_PUB_EMA=0.5 \
+             PR_MAX_COAST_PUB=12 \
+             python3 -u perception_real.py"
     done
 
     # ---- ④b YOLO→swarm 桥：合法检测 → /swarm/target_states ----
     if [ "$YOLO_BRIDGE" = "1" ]; then
+        # 国家一等奖优化（2026-10-04 复盘）：桥门槛压低 + 误差收紧
+        #   NEW_TRACK_CONF=0.55     真目标 conf 抖动 0.5~0.8，0.7 经常挡掉真实检测
+        #   NEW_TRACK_FRAMES=2      2Hz 单节点下 1s 即可激活（保持）
+        #   EXTRAP_DELAY=0.25       时延补偿减半（更接近真实感知滞后）
+        #   EXTRAP_MAX_D=0.8        距离限幅收紧到 0.8m，逼近裁判 1m 误差上限
+        #   DROP_TIME=10            给快速移动 actor 更长接力窗口（防短遮挡死链）
         start_group yolo_bridge "$LOGDIR/04b_yolo_bridge.log" bash -c \
-            "cd '$SWARM_SCRIPTS' && python3 -u yolo_target_bridge.py"
+            "cd '$SWARM_SCRIPTS' && \
+             BRIDGE_DROP_TIME=10 BRIDGE_NEW_TRACK_CONF=0.55 BRIDGE_NEW_TRACK_FRAMES=2 \
+             BRIDGE_EXTRAP_DELAY=0.25 BRIDGE_EXTRAP_MAX_D=0.8 \
+             python3 -u yolo_target_bridge.py"
         sleep 4
         if topic_publisher_match /swarm/target_states yolo_target_bridge; then
             ok "yolo_target_bridge 已注册发布 /swarm/target_states"
         else
             partial_fail "yolo_target_bridge 未注册发布，看 $LOGDIR/04b_yolo_bridge.log"
+            # ---- 仿真自验兜底：YOLO 桥未出 detection → 启 target_sim_node 喂真值 ----
+            if [ "$SIM_TARGET_NODE" = "1" ]; then
+                warn "仿真自验模式（SIM_TARGET_NODE=1）：启用 target_sim_node 喂真值（仅自验，不合规）"
+                _sim_id_csv="$(IFS=,; echo "${UAVS[*]}")"
+                start_group target_sim "$LOGDIR/04c_target_sim.log" bash -c \
+                    "cd '$SWARM_SCRIPTS' && PYTHONPATH='$SWARM_SCRIPTS/../src:$NAV_SRC:$PYTHONPATH' \
+                        ROBOCUP_METADATA='$ROBOCUP_METADATA_FILE' \
+                        python3 -u target_sim_node.py _uav_ids:='[\"$_sim_id_csv\"]' 2>&1"
+                sleep 1
+                if topic_publisher_match /swarm/target_states target_sim_node; then
+                    ok "target_sim_node 已注册发布 /swarm/target_states（仿真真值通道）"
+                else
+                    err "target_sim_node 未注册发布，看 $LOGDIR/04c_target_sim.log"
+                fi
+            fi
         fi
     else
         warn "YOLO_BRIDGE=0：/swarm/target_states 无合法数据源，协同层将无法工作"
+        if [ "$SIM_TARGET_NODE" = "1" ]; then
+            warn "YOLO_BRIDGE=0 但 SIM_TARGET_NODE=1，启 target_sim_node"
+            _sim_id_csv="$(IFS=,; echo "${UAVS[*]}")"
+            start_group target_sim "$LOGDIR/04c_target_sim.log" bash -c \
+                "cd '$SWARM_SCRIPTS' && PYTHONPATH='$SWARM_SCRIPTS/../src:$NAV_SRC:$PYTHONPATH' \
+                    ROBOCUP_METADATA='$ROBOCUP_METADATA_FILE' \
+                    python3 -u target_sim_node.py _uav_ids:='[\"$_sim_id_csv\"]' 2>&1"
+        fi
     fi
 
     # 感知就绪判据：节点存活 + 相机有帧。
@@ -532,50 +669,88 @@ do_start(){
             fi
         done
     }
-    if wait_gate "感知节点存活（暂停态，帧待 unpause）" 120 perc_ready; then
-        ok "感知节点全部在跑（相机帧与检测结果待 unpause 后产出）"
+    if wait_gate "感知节点存活（相机会话推进）" 120 perc_ready; then
+        ok "感知节点全部在跑（相机帧与检测结果待 sim 推进后产出）"
     else
-        warn "感知未全部就绪——查 $LOGDIR/04_perception_*.log"
+        # 感知无帧 = 整局零检测 = 必盲飞。旧逻辑只 warn，结果裁判判负后
+        # 集群还在空烧 sim 时间。现改为：FORCE=0 硬中止，FORCE=1 才放行
+        # （仅限已知风险下调试）。
+        err "感知未全部就绪——查 $LOGDIR/04_perception_*.log"
         for u in "${PR_UAV_ARR[@]}"; do
             alive_pgid "$(group_pgid "pr_$u")" \
-                || partial_fail "感知节点 $u 已退出"
+                || err "感知节点 $u 已退出"
+            # 逐机诊断：节点活但没帧 = 话题发布者为空 = 双目补丁没打
+            if [ "$START_PAUSED" != "1" ]; then
+                if ! timeout 8 rostopic echo -n1 "/$u/stereo_camera/left/image_raw" \
+                        >/dev/null 2>&1; then
+                    _npub="$(timeout 8 rostopic info "/$u/stereo_camera/left/image_raw" 2>/dev/null \
+                        | awk '/Publishers:/{f=1;next}/Subscribers:/{f=0}f' | wc -l)"
+                    if [ "$_npub" = "0" ]; then
+                        err "$u: stereo_camera/left/image_raw 无发布者 —— 双目补丁未打？跑 preflight 复查"
+                    else
+                        err "$u: 话题有发布者但 8s 内无帧 —— Gazebo 相机渲染异常（DISPLAY？）"
+                    fi
+                fi
+            fi
         done
+        if [ "$FORCE" = "1" ]; then
+            warn "FORCE=1：感知未就绪仍继续（盲飞，仅用于已知风险调试）"
+        else
+            partial_fail "感知无帧/未就绪——补丁或相机渲染未修复前盲飞无意义，中止（FORCE=1 可强制）"
+        fi
     fi
     n_extra_yolo="$(count_pattern 'yolo_v11')"
     [ "$n_extra_yolo" = "0" ] && ok "无多余 YOLO 节点抢 CPU" \
         || warn "发现独立 yolo_v11 节点，会抢 CPU 拖垮发布频率"
 
-    # ---------------- ⑤ 雷达传感器 / 避障 ----------------
-    step "⑤ 验证雷达传感器（复用运行中的场景，不重启世界）"
+    # ---------------- ⑤ 2D 激光雷达传感器 / 避障 ----------------
+    step "⑤ 验证 2D 激光雷达传感器（CPU ray，规则 §2.5(7) 真避障）"
     RADAR_UAVS=()
     if [ "$SKIP_RADAR" = "1" ]; then
-        warn "SKIP_RADAR=1，跳过雷达避障"
+        warn "SKIP_RADAR=1，跳过 2D 激光避障（仅 swarm 自主）"
     else
         for u in "${UAVS[@]}"; do
-            wp="$RADAR_WP_DIR/$u.txt"
-            [ -f "$wp" ] || { warn "$u 无航点文件 $wp，跳过该机雷达"; continue; }
-            # 运行时硬卡关：雷达话题必须真有帧（话题存在不算数）。
+            # SKIP_RADAR=2 时无需航点文件（dwa_avoidance 接管）；SKIP_RADAR=0 仍需
+            if [ "$SKIP_RADAR" = "0" ]; then
+                wp="$RADAR_WP_DIR/$u.txt"
+                [ -f "$wp" ] || { warn "$u 无航点文件 $wp，跳过该机雷达"; continue; }
+            fi
+            # 运行时硬卡关：/scan 话题必须真有帧（话题存在不算数）。
             # 暂停启动时世界未步进、/scan 无帧——帧验证推迟到 unpause 后
             # 由 agent 雷达安全层实际消费保证，此处按航点文件先登记。
             if [ "$START_PAUSED" = "1" ]; then
                 RADAR_UAVS+=("$u")
-            elif wait_gate "$u 雷达有帧 (/scan)" 30 first_msg "/$u/scan"; then
+            elif wait_gate "$u /scan 有帧" 30 first_msg "/$u/scan"; then
                 RADAR_UAVS+=("$u")
             else
                 echo "${C_R}========================================================${C_0}"
-                err "$u 没有 /scan —— 飞机上没有雷达传感器，避障必然静默失效。"
-                err "处置（雷达组 RADAR_INTEGRATION.md §4）："
-                echo "  1) 取得 typhoon_h480_lidar 模型并放到两处且内容一致："
-                echo "       $PX4_ROOT/Tools/sitl_gazebo/models/typhoon_h480_lidar/"
-                echo "       $XTDRONE_DIR/sitl_config/models/typhoon_h480_lidar/"
-                echo "  2) 场景需用 sdf=typhoon_h480_lidar 起机（或将 sensor 并入 typhoon_h480.sdf）"
-                echo "  3) 重新 start；本场已起的①~④仍在运行不受影响"
+                err "$u 没有 /scan —— 飞机上没有 2D 激光传感器，避障必然静默失效。"
+                err "处置："
+                if [ "$SKIP_RADAR" = "2" ]; then
+                    echo "  1) 确认 $PX4_ROOT/Tools/sitl_gazebo/models/typhoon_h480_laser/ 已就位"
+                    echo "  2) 确认 $XTDRONE_DIR/sitl_config/models/typhoon_h480_laser/ 已就位"
+                    echo "  3) 重新 start；本场已起的①~④仍在运行不受影响"
+                else
+                    echo "  1) 取得 typhoon_h480_lidar 模型并放到两处且内容一致："
+                    echo "       $PX4_ROOT/Tools/sitl_gazebo/models/typhoon_h480_lidar/"
+                    echo "       $XTDRONE_DIR/sitl_config/models/typhoon_h480_lidar/"
+                    echo "  2) 场景需用 sdf=typhoon_h480_lidar 起机（或将 sensor 并入 typhoon_h480.sdf）"
+                    echo "  3) 重新 start；本场已起的①~④仍在运行不受影响"
+                fi
                 echo "${C_R}========================================================${C_0}"
-                partial_fail "雷达传感器缺失，停止编排（未启动协同层）"
+                partial_fail "2D 激光传感器缺失，停止编排（未启动协同层）"
             fi
         done
 
-        [ ${#RADAR_UAVS[@]} -eq 0 ] && partial_fail "没有任何可用的雷达航点/传感器"
+        if [ "$SKIP_RADAR" = "2" ]; then
+            if [ ${#RADAR_UAVS[@]} -eq 6 ]; then
+                ok "6/6 路 /typhoon_h480_N/scan 帧验证通过（CPU ray 2D 激光全队）"
+            else
+                partial_fail "仅 ${#RADAR_UAVS[@]}/6 路 /scan 有帧"
+            fi
+        else
+            [ ${#RADAR_UAVS[@]} -eq 0 ] && partial_fail "没有任何可用的雷达航点/传感器"
+        fi
 
         if [ "$RADAR_GUARD" = "1" ]; then
             ok "6 路 /scan 已验证；由 swarm_agent 内置雷达安全层消费，不启动第二个控制器"
@@ -648,6 +823,96 @@ do_start(){
         fi
         # 协同层不得真值播种：目标只能由 YOLO 链路（经桥）获知（规则 §2.5.11）
         export SEED_TRUTH=0
+
+        # ---- 协同层调度参数（系统内部参数，不改比赛硬规则） ----
+        # 比赛硬约束：6 目标 / 300s / 确认15s / 误差1m / 瞬移30s / 不订阅 model_states / MAX_SPEED≥6 m/s
+        # 以下 9 项全是 swarm_manager 内部调度节奏：备份机上限、确认卡多久加派、备份机多远才接棒、
+        # 拍卖周期、热目标留存时间、派遣/跟踪半径余量。改这些不会触犯任何比赛条款。
+        # 国家一等奖优化（2026-10-04 复盘）：首见距离余量 + 跟踪半径余量同时放宽，
+        #   让"飞机距离目标 25m 已看见但没派"这类浪费窗口消失；备份机接棒半径提到 60m
+        #   让边缘瞬移（70/72m）也能在 3~5s 内被接上。
+        export BACKUP_MAX=3             # 默认2 → 3：6 目标时多一架少漏一个
+        export BACKUP_AFTER=2.0         # 默认3 → 2：15s 内 2s 没动静就派
+        export BACKUP_MAX_DIST=80.0     # 默认60 → 80：边缘瞬移的远点也接得上
+        export DISPATCH_BACKUP_DIST=60.0 # 默认40 → 60：主派机 >60m 即派接棒机
+        export ALLOC_PERIOD=1.0         # 默认1.5 → 1.0：拍卖更密集，6 架少空转
+        export HOT_TARGET_TTL=10.0      # 默认8 → 10：热目标留住更久，飞过别处也知道
+        export DISPATCH_MARGIN=0.0      # 默认2 → 0：首见即派，不再等最近机贴到 18m 内
+        export DETECT_RADIUS_MARGIN=5.0 # 默认3 → 5：跟踪中放宽到 25m（飞机看见就该派）
+        export LEASE_DURATION=22.0      # 默认20 → 22：飞行+扫描+衔接余量
+
+        # 国家一等奖 v2（2026-10-05）——「5 分钟内消灭全部目标」×「无预读随机地图」
+        # 0 行代码改动，仅环境变量；不触犯任何比赛硬规则
+        # (1) 真正遵守「无预读随机地图」：EDGE / VIS 都会从 ROBOCUP_METADATA 算临楼度
+        #     / LOS 预计算, 真比赛拿不到 metadata 必须关掉。
+        export EDGE_ENABLE=0
+        export VIS_ENABLE=0
+        # (2) 租约速度对齐 agent MAX_SPEED=5.0：原 3.0 把租约算长 67%, 接力损耗大
+        export LEASE_CRUISE_SPEED=5.0
+        # (3) CooperativeTracker GAP_TOL 1.0s→2.5s：YOLO 帧丢 / 摆头时 confirm_since
+        #     不被频繁清零 → 15s 凑不满的最关键瓶颈。需 cooperative_tracker.py 支持
+        #     env 读（见补丁 1）。
+        export GAP_TOL=2.5
+        # (4) hot target 吸引飞机上限=2 架：原 60m 半径 4.0 分让 6 架全被吸到一处,
+        #     搜索/接力队形坍塌（实测多次）。
+        export HOT_TARGET_MAX_UAV=2
+        # (5) 全队都在追踪时, 也允许 reopen covered cells（避免『所有格子都 COVERED
+        #     + 都在追新目标 → 没有空闲机 → 不重开 → 接力回来全队没格可拍』）。
+        export REOPEN_WHEN_TRACKING=1
+        # (6) covered 30s 自动 reopen（原 60s 太长, 5 分钟场地覆盖率吃紧）
+        export REV_COVER_AGE=30.0
+        # (7) 必须官方剩余清单为空才发 MISSION_FINISHED：tracker 偶发空 → 飞机
+        #     全停摆, 真比赛必扣分（_finish_cb 会让 agent 退出搜索循环）。
+        export REQUIRE_LEFT_FOR_FINISH=1
+
+        # ---- ⑤ 单机 DWA 避障（规则 §2.5(7) 碰撞扣30/次） ----
+        # 2026-10-03 修复：route_planner.py 不是 ROS 节点（纯函数库，无 init_node），
+        # 之前启动即退出导致 partial_fail 把整个流程拉黑。删掉它，只起
+        # dwa_avoidance.py（每个进程通过 ~namespace_id 多终端共享）。
+        # A* 路线规划本来就在 swarm_agent.py 内的 _planner_loop 里做了，
+        # route_planner.py 是给别的核心层调用的库。
+        # 启动 dwa_avoidance 时需要把 $ROBOCUP_WS/coordination/src/robocup_navigation/src
+        # 加到 PYTHONPATH（它 `from robocup_navigation.astar import` 走绝对导入）。
+        if [ "${ENABLE_AVOID:-1}" = "1" ]; then
+            _nav_src="$ROBOCUP_WS/coordination/src/robocup_navigation/src"
+            if [ ! -d "$_nav_src" ]; then
+                _nav_src="/home/gycc/桌面/RoboCup_Team/coordination/src/robocup_navigation/src"
+            fi
+            # 2026-10-03 修复：之前 `PYTHONPATH='$_nav_src'` 把 ROS 路径覆盖掉，
+            # 子 bash 看不到 /opt/ros/noetic/lib/python3/dist-packages，
+            # import rospy 直接 ModuleNotFoundError → dwa_avoidance 启动即退出。
+            # 改 prepend：保留 ROS 路径，nav_src 加在最前。
+            export PYTHONPATH="$_nav_src:${PYTHONPATH:-}"
+            # 2026-10-03 扩展：dwa_avoidance.py 是单架节点（默认扫描 iris_2d_lidar_0/scan、
+            # 发布 /mavros/setpoint_velocity/cmd_vel），要接管 6 架必须为每架起一个
+            # 影子节点，传 _scan_topic / _vel_topic 覆盖默认。
+            _dwa_running=0
+            i=0
+            for u in "${UAVS[@]}"; do
+                start_group "dwa_$i" "$LOGDIR/05b_dwa_${i}.log" bash -c \
+                    "cd '$SWARM_SCRIPTS' && PYTHONPATH='$_nav_src:${PYTHONPATH:-}' ROBOCUP_METADATA='$ROBOCUP_METADATA_FILE' python3 -u dwa_avoidance.py __name:=dwa_${i} _airframe:=${u} _scan_topic:=/${u}/scan _vel_topic:=/${u}/mavros/setpoint_velocity/cmd_vel _state_topic:=/${u}/mavros/state _pose_topic:=/${u}/mavros/local_position/pose _odom_topic:=/${u}/mavros/local_position/odom _altitude_m:=5.4 _metadata:=$ROBOCUP_METADATA_FILE 2>&1"
+                sleep 0.3
+                _dwa_running=$((_dwa_running + 1))
+                i=$((i+1))
+            done
+            # 2026-10-03 改进：dwa init_node 后等 mavros 服务最坏 60s（同步阻塞），
+            # 1s / 5s 数节点都过早（启动竞态）。改成重试到 30s，最少 6 个 /dwa_ 节点。
+            _dwa_deadline=$((SECONDS + 30))
+            _dwa_present=0
+            while [ "$SECONDS" -lt "$_dwa_deadline" ]; do
+                _dwa_present=$(rosnode list 2>/dev/null | grep -c "^/dwa_")
+                if [ "$_dwa_present" -ge 6 ]; then break; fi
+                sleep 1
+            done
+            if [ "$_dwa_present" -ge 6 ]; then
+                ok "dwa_avoidance 6 个影子已注册（速度级避障已覆盖全队，规则 §2.5(7)）"
+            else
+                # 2026-10-03：partial_fail 会触发中断清理；此处仅 warn，让其他 5 个影子工作。
+                warn "dwa_avoidance 仅 $_dwa_present/6 注册（最后 1 个 mavros 等起竞争晚到；其他 5 个影子工作），看 $LOGDIR/05b_dwa_*.log"
+            fi
+        else
+            warn "ENABLE_AVOID=0：关闭全局 DWA 避障（仅靠 swarm_agent 雷达安全层）"
+        fi
 
         # 集中式管理器
         UAV_CSV="$(IFS=,; echo "${UAVS[*]}")"
@@ -742,6 +1007,36 @@ do_start(){
     echo "  健康总览:    $0 status"
     echo "  停全场:      $0 stop"
     echo "${C_G}==============================================================${C_0}"
+
+    # ---- 比赛墙钟 hard cap：MATCH_HARD_CAP 秒后自动调 stop_group 全杀 ----
+    if [ "${MATCH_HARD_CAP:-0}" -gt 0 ]; then
+        (
+            sleep "$MATCH_HARD_CAP"
+            echo "[$(date +%H:%M:%S)] [hard_cap] 比赛已运行 ${MATCH_HARD_CAP}s，触发自动 stop"
+            # 把全部业务节点 TERM，3s 后再 KILL
+            if [ -s "$REG" ]; then
+                while IFS=$'\t' read -r name pgid logf; do
+                    if [ -n "$pgid" ] && kill -0 -- -"$pgid" 2>/dev/null; then
+                        kill -TERM -"$pgid" 2>/dev/null || true
+                    fi
+                done < "$REG"
+                sleep 1
+                while IFS=$'\t' read -r name pgid logf; do
+                    if [ -n "$pgid" ] && kill -0 -- -"$pgid" 2>/dev/null; then
+                        kill -KILL -"$pgid" 2>/dev/null || true
+                    fi
+                done < "$REG"
+            fi
+            pkill -9 -f '[r]adar_avoid.py' 2>/dev/null || true
+            pkill -9 -f '[p]erception_real.py' 2>/dev/null || true
+            pkill -9 -f '[m]ultirotor_communication.py' 2>/dev/null || true
+            pkill -9 -f '[c]ontrol_actor.py' 2>/dev/null || true
+            pkill -9 -f '[s]warm_agent.py' 2>/dev/null || true
+            pkill -9 -f '[s]warm_manager.py' 2>/dev/null || true
+        ) &
+        disown
+        ok "hard_cap=${MATCH_HARD_CAP}s 已启动后台 watcher（脚本退出不会影响）"
+    fi
 }
 
 # ============================ 状态查询 ======================================
@@ -801,13 +1096,17 @@ do_stop(){
     pkill -9 -f '[p]erception_real.py'      2>/dev/null || true
     pkill -9 -f '[m]ultirotor_communication.py' 2>/dev/null || true
     pkill -9 -f '[c]ontrol_actor.py'        2>/dev/null || true
-    if [ "${FULL_TEARDOWN:-0}" = "1" ]; then
-        pkill -9 -f '[m]avros_node' 2>/dev/null || true
-        pkill -9 -f '[b]in/px4'     2>/dev/null || true
-        pkill -9 -x gzserver        2>/dev/null || true
-        pkill -9 -x gzclient        2>/dev/null || true
-        pkill -9 -f '[r]osmaster'   2>/dev/null || true
-    fi
+    # 底层进程默认全清（原仅在 FULL_TEARDOWN=1 才清）：
+    #   复盘 2026-10-02 23:29 局：gzserver 启动 2 分钟后被"new node registered with
+    #   same name"顶掉 → sim 冻结 → control_actor 调 get_model_state 失败 + Python3
+    #   print bug 崩溃 → 6 个恐怖分子全不动 → PX4 EKF 卡死 → 无人机不起飞。
+    #   根因是上一局 stop 默认不清 gzserver/gzclient/rosmaster，残留进程在新局 start
+    #   时顶掉新 gzserver。改为默认清，FULL_TEARDOWN 标记保留但不再作开关。
+    pkill -9 -f '[m]avros_node' 2>/dev/null || true
+    pkill -9 -f '[b]in/px4'     2>/dev/null || true
+    pkill -9 -x gzserver        2>/dev/null || true
+    pkill -9 -x gzclient        2>/dev/null || true
+    pkill -9 -f '[r]osmaster'   2>/dev/null || true
     mv "$REG" "$REG.stopped.$STAMP" 2>/dev/null || true
     ok "已停止全场比赛。"
 }

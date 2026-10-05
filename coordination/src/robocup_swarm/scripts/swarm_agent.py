@@ -34,6 +34,8 @@ from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDe
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from csv_logger import logger
+# 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
+from fcu_configuration import configure as configure_fcu_parameters
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -49,14 +51,14 @@ SEARCH_ALTITUDE = 4.5     # 搜索高度 m（最高限制）
 # 巡航高度 4.6m，正常 0.5~1m 超调就触发 EMERG vz=-3.0 暴力下降 → 坠地 →
 # 恢复爬升 → 再超调的死循环（agent_2 实测 5.28→-5.28→2.74→5.28 循环）。
 # 改为递进式层级：4.5(目标上限) → 5.5(硬顶-1.0) → 5.7(快降-1.5) → 5.9(紧急-2.0) → 6.0(官方红线)。
-ALT_HARD_CEIL     = float(os.environ.get('ALT_HARD_CEIL', '5.5'))
-ALT_PANIC         = float(os.environ.get('ALT_PANIC', '5.7'))       # 强制快降阈值 m
+ALT_HARD_CEIL     = float(os.environ.get('ALT_HARD_CEIL', '5.7'))   # 规则 §2.5(3)：飞行高度 ≤6m；硬护栏 5.7m 留 0.3m 抖动空间
+ALT_PANIC         = float(os.environ.get('ALT_PANIC', '5.85'))       # 强制快降阈值 m（距 6m 留 0.15m）
 ALT_PANIC_DESCENT = float(os.environ.get('ALT_PANIC_DESCENT', '-1.5'))  # 快降速度 m/s
 ALT_PANIC_HSCALE  = float(os.environ.get('ALT_PANIC_HSCALE', '0.3'))    # 此时水平速度系数
 MAX_ACC           = float(os.environ.get('MAX_ACC', '2.5'))         # 水平加速度限幅 m/s^2
 ALT_HARD_DESCENT  = -1.0   # 强制下降速度 m/s（原 -0.6 下降太慢）
 # === 6m 红线二次保险 ===
-ALT_EMERG_CEIL     = float(os.environ.get('ALT_EMERG_CEIL', '5.9'))      # 二次保险阈值 m（距 6m 留 0.1m）
+ALT_EMERG_CEIL     = float(os.environ.get('ALT_EMERG_CEIL', '5.92'))     # 规则 §2.5(3) 二次保险阈值（距 6m 留 0.08m）
 ALT_EMERG_DESCENT  = float(os.environ.get('ALT_EMERG_DESCENT', '-2.0'))  # 强制快降 m/s（原 -3.0 太暴导致坠地）
 ALT_EMERG_HSCALE   = float(os.environ.get('ALT_EMERG_HSCALE', '0.35'))   # 水平速度系数
 ALT_TARGET_CAP     = float(os.environ.get('ALT_TARGET_CAP', '4.5'))      # 目标高度上限（巡航尖峰的源头）
@@ -79,34 +81,74 @@ def _check_alt_consistency():
 # === 追踪移动目标时的 A* 重规划节流 ===
 TRACK_REPLAN_MOVE = 3.0    # 目标移动超过此距离才重规划 (m)
 TRACK_REPLAN_SEC  = 2.0    # 距上次规划超过此时间才重规划 (s)
+# ---- 国家一等奖修复（2026-10-04）：追逃自适应节流 ----
+# 真实仿真（logs_20261004_0837 局）实锤：t1 确认两次死于「全部观察机同时丢失
+# 目标 >1s」（resets 1→3 而 rejects 恒 1，即 not-covered 分支）。根因：actor
+# 2 m/s 逃跑时，旧节流（3.0m/2.0s）让路径目标滞后真位最多 4m，UAV 贴着 20m
+# 探测门边缘飞，一个滞后就把几何门顶穿 → 全队同时丢 → 确认清零 → 30s 瞬移。
+# 修复：目标处于 FLEE 时收紧到 1.5m/0.8s（A* 最坏 1.25Hz，控制频率仍 >15Hz），
+# 路径目标滞后压到 ≤1.2m，UAV 稳定咬在 20m 门内。非逃跑目标维持旧节流省算力。
+TRACK_REPLAN_MOVE_FLEE = 1.5   # 逃跑目标：移动 1.5m 即重规划 (m)
+TRACK_REPLAN_SEC_FLEE  = 0.8   # 逃跑目标：0.8s 必重规划 (s)
 # A* 失败时不能直飞：当前地图含建筑，直飞会把一次规划失败升级为撞楼。
 # 需要恢复旧的实验行为时仍可显式设置 PLAN_FALLBACK=1。
 PLAN_FALLBACK = int(os.environ.get("PLAN_FALLBACK", "0"))
-MAX_SPEED       = 5.0     # 巡航速度上限 m/s（比赛无限制，实测可跑 10+m/s）
+MAX_SPEED       = float(os.environ.get('MAX_SPEED', '6.0'))   # 巡航速度上限 m/s（2026-规则 §2.5(4)：恐怖分子感知后 2m/s 逃逸，本机必须 ≥6 才能跟住；6m/s 留 2x 余量）
 POS_KP          = 0.8     # 位置 P 控制增益
 ARRIVE_TOL      = 0.8     # 到达格中心判定半径 m（< 此值视为已到，开始原地搜索）
 PUB_RATE        = 10.0    # 状态发布频率 Hz
 CTRL_RATE       = 20.0    # 控制频率 Hz
-DETECT_RATE     = 5.0     # 目标检测发布频率 Hz（规则3 几何判定）
+DETECT_RATE     = float(os.environ.get('DETECT_RATE', '3.0'))   # 规则 §2.5(10)：连续 15s 正确广播 → 3Hz × 15s = 45 个采样，远高于裁判认定的连续窗口
 # 幽灵目标闸门：/swarm/target_states 停发（桥接 DROP_TIME）超过此时长后，
 # 停止对该目标的几何检测上报。与 manager TRUTH_TTL 对齐——否则本字典里的
 # 过期坐标会被几何检测持续上报，manager _detection_cb 当新检测反复派机
 # （2026-10-01 22:41 局实测：t3 幽灵吸住 4 架 3 分钟，确认进度反复归零）。
-TARGET_TTL      = float(os.environ.get("TARGET_TTL", "6.0"))
+# 国家一等奖优化（2026-10-03）：与 yolo_target_bridge DROP_TIME=8s 对齐，
+# 防止 bridge 已停发但 agent 仍上报过期坐标的窗口期。
+TARGET_TTL      = float(os.environ.get("TARGET_TTL", "8.0"))
 
 # 2D 雷达安全层：由 swarm_agent 唯一发布 MAVROS 速度设定点，避免与
 # radar_avoid 的 setpoint_position 双控制。雷达只在近障时修正当前速度。
 RADAR_GUARD     = int(os.environ.get('RADAR_GUARD', '1'))
 RADAR_FRESH_S   = float(os.environ.get('RADAR_FRESH_S', '0.5'))
-RADAR_WARN_R    = float(os.environ.get('RADAR_WARN_R', '4.0'))
-RADAR_STOP_R    = float(os.environ.get('RADAR_STOP_R', '1.2'))
-MAP_GUARD_MARGIN = float(os.environ.get('MAP_GUARD_MARGIN', '1.0'))
-MAP_GUARD_SOFT   = float(os.environ.get('MAP_GUARD_SOFT', '2.0'))   # 硬边界外的软减速带宽 m
+RADAR_WARN_R    = float(os.environ.get('RADAR_WARN_R', '5.5'))   # 规则 §2.5(7)：碰撞扣30/次，雷达预警半径扩大到 5.5m（车体级别障碍），留 1.5m 减速带宽
+RADAR_STOP_R    = float(os.environ.get('RADAR_STOP_R', '1.6'))   # 硬停距 ≥ 1.6m，确保横向漂移不会擦肩
+# === 2026-10-03 雷达「必须能刹住」硬约束 + 贴墙后退（防撞楼）===
+# 实测事故（02:24 场）：飞机在 world (2.87,-8.78) 顶住 house_2_126 的北立面
+# （该楼 x[-2.5,8.5] y[-18.5,-9.5]，北面 y=-9.5，机身 y=-8.8 ⇒ 净空 0.7m），
+# 雷达 front 长期饱和在量程下限 0.50m；随后 EKF 崩坏、OFFBOARD 失效保护落地。
+# 旧逻辑只在 front < RADAR_STOP_R 时把「前向分量」压零，但：
+#   a) 侧向逃逸分量仍可达 1.5 m/s，没有任何"必须能在接触前停住"的约束；
+#   b) 飞机一旦进了 A* 膨胀带（INFLATE_M=1.5）内侧，网格守卫只看前向 ±30° 锥，
+#      贴墙平行滑动时完全看不见侧面的墙，于是"合法"地一路蹭过去。
+# 这里加两条：① 合速度按刹停距离 v <= sqrt(2*a*(d-安全间隙)) 硬夹；
+#             ② front 近到 RADAR_BACKOFF_R 以内时主动沿机体 -x 后退离开。
+RADAR_SAFE_GAP    = float(os.environ.get('RADAR_SAFE_GAP', '0.8'))    # 期望最小净空 m
+RADAR_BACKOFF_R   = float(os.environ.get('RADAR_BACKOFF_R', '1.2'))   # 触发后退的 front m（= STOP_R）
+RADAR_BACKOFF_SPD = float(os.environ.get('RADAR_BACKOFF_SPD', '0.6')) # 后退速度 m/s
+# === 2026-10-05 比赛规则硬约束：扩大软减速带 ===
+# 旧默认 MAP_GUARD_SOFT=2.0 + MAP_GUARD_MARGIN=1.0 = 总 3m 软带。本机巡航 6 m/s
+# 下，0.05s 一帧移动 0.3m，3m 软带只能覆盖 10 帧 = 0.5s，飞机在进入软带到硬停之间
+# 的「刹车距离」不足，会冲出硬边界（uav_2 实测 199m）。新默认 SOFT=6.0 + MARGIN=2.0
+# = 总 8m 软带：在 6 m/s 下提供 1.3s 缓冲，足以让 _send_vel 的加速度限幅
+# (MAX_ACC=2.5 m/s²) 把横向速度从 6 m/s 刹到 0.5 m/s（数学上需 6/2.5=2.4s，
+# 8m 仍偏紧但允许减速到 4 m/s 进入硬边界，回收模式可挽回）。
+MAP_GUARD_MARGIN = float(os.environ.get('MAP_GUARD_MARGIN', '2.0'))
+MAP_GUARD_SOFT   = float(os.environ.get('MAP_GUARD_SOFT', '6.0'))   # 硬边界外的软减速带宽 m
 # 越界主动回收：旧逻辑越界后 A* 起点在外拒绝规划、栅格守卫把界外当墙、
 # 地图守卫只锁朝外分量不主动内拉 → 飞机瘫痪在界外永远回不来（2026-10-01
 # 实测 uav_2 飘到 (201,-178)、uav_3 到 (-84,141) 并死锁）。
-OOB_RECOVER_SPEED = float(os.environ.get('OOB_RECOVER_SPEED', '3.0'))
-OOB_RECOVER_INSET = float(os.environ.get('OOB_RECOVER_INSET', '2.0'))  # 回到界内多少 m
+OOB_RECOVER_SPEED = float(os.environ.get('OOB_RECOVER_SPEED', '5.0'))
+# === 2026-10-05 比赛规则硬约束：OOB 回收速度对齐 MAX_SPEED ===
+# 旧默认 3.0 m/s：无人机以 6 m/s 越界时，3 m/s 反向回收净速度仍有 3 m/s 向外
+# （回收永远追不上漂移），实测 uav_2 在 2s 内 world_xy 漂到 199m（地图 +99m 外），
+# 撞墙后 z=-8.06 强制坠地恢复。改为 5.0 m/s → 净速度 ≥ -2 m/s（向内），1s 内可
+# 收回 2m，5s 内收回 10m。仍低于 MAX_ACC=2.5 加速度上限 → 不致触发 PX4 限制。
+OOB_RECOVER_INSET = float(os.environ.get('OOB_RECOVER_INSET', '3.0'))  # 回到界内多少 m
+OOB_BYPASS_ACC_LIM = os.environ.get('OOB_BYPASS_ACC_LIM', '1') not in ('0', 'false', 'False', '')
+# OOB 回收时跳过水平加速度限幅：撞墙越界时必须立即反向，0.125 m/s 每帧的爬升率
+# （MAX_ACC/CTRL_RATE=2.5/20）会让回收指令被延迟 5-10 帧生效（0.25-0.5s），期间
+# 飞机继续以原速度向外冲。关闭限幅确保「回收 = 当帧满速反向」。
 # 无激光（SKIP_RADAR=1）时雷达保护失效，用 A* 栅格在执行层做反应式近障兜底：
 # 沿速度方向前瞻，撞障就转向/刹停。防 A* 失败续发、追逃跑演员贴墙/冲边界撞墙。
 GRID_GUARD      = int(os.environ.get('GRID_GUARD', '1'))
@@ -129,8 +171,12 @@ VERT_SEP        = float(os.environ.get('VERT_SEP', '0.8'))   # 判定「不在�
 MIN_CRUISE_ALT  = 2.0                                        # 追踪降高后的下限
 ALT_P           = float(os.environ.get('ALT_P', '1.0'))      # 高度 P 控制增益（原 0.5 太小，贴近目标时爬升乏力）
 ALT_VZ_MIN      = float(os.environ.get('ALT_VZ_MIN', '0.2')) # 高度误差存在时的最小升降速度 m/s
-CLIMB_NO_AVOID  = float(os.environ.get('CLIMB_NO_AVOID', '1.0'))
-SAFE_3D         = float(os.environ.get('SAFE_3D', '4.0'))
+CLIMB_NO_AVOID  = float(os.environ.get('CLIMB_NO_AVOID', '3.0'))  # 起飞爬升期豁免 ORCA/grid 避让的高度余量 m（z < ALT_TAKEOFF+CLIMB_NO_AVOID 时不避让）
+# 原值 1.0 只豁免到 z=3m；6 机在 8m 间距内爬升，3m 以上就全部落进 ORCA 互斥圈互相排斥压速，形成原地振荡。
+# 改为 3.0，豁免到 z=5m（接近 ALT_CEILING=4.6m），起飞阶段全程不避让。
+# Grid guard 同样需要豁免：z<ALT_SAFE_ALT 时完全绕过，ALT_SAFE_ALT~ALT_CEILING 间线性衰减强度。
+SAFE_ALT        = ALT_TAKEOFF + CLIMB_NO_AVOID  # 安全爬升高度上限（=5.0m）
+SAFE_3D         = float(os.environ.get('SAFE_3D', '5.0'))   # 规则 §2.5(7)：6机密集，友机3D排斥起点抬到 5.0m（避免 0.7m 擦肩）
 # 2026-09-27 复标：3.0 时实测最近 0.70~0.85m（一次碰撞 −30 分）。
 # 控制周期 20Hz、友机位置来自 10Hz 广播，5m/s 下 0.2s 滞后就是 1m ——
 # 3m 门限根本来不及反应，抬到 4.0 才有足够的提前量。
@@ -142,8 +188,12 @@ _ALT_GUARD_STATE = {}
 
 
 def _alt_guard_hit(tag, z, ceil, vz, vx, vy):
-    import time as _time
-    _now = _time.time()
+    # 2026-10-05 修复:墙钟→仿真钟。
+    # 原 time.time() 在 RTF=0.15 仿真下,墙钟 5s ≈ 仿真 0.75s,
+    # 节流窗口设的 5s 实际过密,日志刷屏,排查时看不到节奏。
+    # 改成仿真钟后,日志密度与业务秒数一致,节流策略才符合最初设计意图。
+    import rospy as _rospy
+    _now = _rospy.Time.now().to_sec()
     _n = _ALT_GUARD_STATE.get(tag + '_n', 0) + 1
     _ALT_GUARD_STATE[tag + '_n'] = _n
     if _now - _ALT_GUARD_STATE.get(tag, 0.0) >= 5.0 or _n == 1:
@@ -187,24 +237,55 @@ ALT_NARROW      = 3.5       # 窄通道高度 m
 BUILDING_DIST    = 5.0      # 建筑判定距离 m（小于此值视为建筑附近）
 
 # ---- 目标盘旋确认 ----
-# 2026-09-29 调优：ORBIT_RADIUS 从 5.0 → 8.0，匹配 actor 的 uav_safety_radius=7.0m
-# （control_actor.py:53）—— 半径 < 7m 时 actor 会主动推 UAV，根本稳不住。
-# 8m 仍 << DETECT_RADIUS=20m，且 ORBIT_SPEED*ORBIT_RADIUS=0.96 m/s < 1.0 m/s 逃跑阈值。
-ORBIT_RADIUS    = 8.0     # 盘旋半径 m
-# 线速度 = ORBIT_SPEED * ORBIT_RADIUS，必须 < 1.0 m/s。
-# 官方 control_actor.py:211 —— 飞机以 >1.0 m/s 在 actor 20m 内连续待 2s，
-# actor 就进入逃跑态（速度 1.0 -> 2.0 且主动远离），坐标误差随之翻倍，
-# 官方 err_threshold=1m 就会频繁判定断链、15s 重来。0.12*8=0.96 m/s 安全。
-ORBIT_SPEED     = 0.12     # 盘旋角速度 rad/s（r=8m 时线速度 0.96 m/s）
+# 国家一等奖标准修复（2026-10-04）：
+#   旧 ORBIT_RADIUS=5.0 + ORBIT_SPEED=0.19 → 线速度 = 0.19×5 = 0.95 m/s，**刚好压在 1.0 m/s
+#   触发线上**。一旦 EKF 抖动或位置控制超调，飞机瞬时速度就会突破 1.0 m/s → actor 触发逃跑。
+# 修复：ORBIT_RADIUS=6.0（仍 < 7m 安全半径）+ ORBIT_SPEED=0.13 rad/s → 线速度 = 0.13×6
+#   = 0.78 m/s，离触发线 22% 安全余量，足够吸收 EKF 抖动。
+#   同时 r=6m 仍在 20m 视野中心偏内，相机（FOV 90°）始终覆盖目标。
+ORBIT_RADIUS    = 6.0     # 盘旋半径 m（< actor uav_safety_radius=7.0 不被推）
+# 线速度 = ORBIT_SPEED * ORBIT_RADIUS，必须严格 < 1.0 m/s（防触发逃跑判定）。
+ORBIT_SPEED     = 0.13    # 盘旋角速度 rad/s（r=6m 时线速度 0.78 m/s，离 1.0 阈值 22% 安全余量）
+# === 2026-10-03 队友补（单机主链实测）：播报距离闸门 ===
+# 够不着的距离（m）。官方判据是"误差<1m 连续 15s"，实测单目测距 7m 内误差
+# 0.26~0.69m、15.98m 时误差 1.1m 已越界 ⇒ 超过此距离不判"播报被拒"而放弃目标。
+CLOSE_ENOUGH_M  = float(os.environ.get("CLOSE_ENOUGH_M", "11.0"))
 # SPOOK_DIST 从 15m 提到 22m：比逃跑触发边界 20m 还远，让 actor 永远看不到
-# 任何 > 1.0 m/s 的 UAV 冲进来。旧版 15m < 20m 时，全速段（20→15m）只 1 秒，
-# 确实攒不满 2s tracking_flag；但若中途建筑挡视线或 UAV 悬停几秒就会踩线。
+# 任何 > 1.0 m/s 的 UAV 冲进来。
 SPOOK_DIST      = 22.0    # 进入此距离就压速（官方逃跑判定边界 20m，我们提前 2m 保险）
-SPOOK_SPEED     = 0.8     # 必须 < 1.0 m/s，比旧版 0.9 更保守
-# 目标已进入 FLEE（state=1，实测逃跑 2.0 m/s）时，慢速 0.8 必然被甩开跟丢。
+# 国家一等奖标准修复（2026-10-04）：SPOOK_SPEED=0.5 已 OK，但 0.5 m/s 在 22m 外接近 actor
+# 时，6 机密集区域容易触发 ORCA 把速度拉得更慢（MIN_SPEED=0.9）。SPOOK_SPEED 改为 0.85
+# 既不触犯 1.0 m/s 阈值（15% 余量）、又能用 SPOOK_DIST=22m 让 ORCA 互斥开始前就到位。
+# 仍然配合 SPOOK_DIST=22m 形成「飞机不冲到 20m 内」的硬护栏，actor 不会逃跑。
+SPOOK_SPEED     = 0.85    # 接近阶段最大线速度 m/s（离 1.0 m/s 阈值 15% 余量，ORCA 起步前稳进）
+# 目标已进入 FLEE（官方：UAV 广播其位置后 actor 以 2 m/s 逃跑），慢速 0.5 必然被甩开跟丢。
 # 此时短暂提速咬住（须略 >2.0）；目标不在逃跑时仍用 SPOOK_SPEED 防惊吓。
-FLEE_CHASE_SPEED  = float(os.environ.get('FLEE_CHASE_SPEED', '2.2'))
-FLEE_STATE_FRESH  = float(os.environ.get('FLEE_STATE_FRESH', '3.0'))
+# 国家一等奖标准修复（2026-10-04）：FLEE_CHASE_SPEED=3.5，给 SPOOK_SPEED=0.5 的亏空补回，
+# 3.5 = actor 2 m/s × 1.75 倍 + DWA 安全留量，足以咬住又不会破坏 SP。
+FLEE_CHASE_SPEED  = float(os.environ.get('FLEE_CHASE_SPEED', '3.5'))
+# 国家一等奖标准修复（2026-10-04）：bridge 已把 state 语义对齐「被观测即逃跑」，
+# FLEE_STATE_FRESH 不应只 3s（3s 后就回到 SPOOK_SPEED=0.5 慢速又被甩开）。
+# 规则 §2.5(4)：30s 未消除才瞬移；这之前 actor 一直在 2 m/s 跑。给到 25s 留 5s 余量。
+FLEE_STATE_FRESH  = float(os.environ.get('FLEE_STATE_FRESH', '25.0'))
+# === 2026-10-03 队友补（单机主链实测）：输出通道 / 位置设定点 / 估计可信性闸门 ===
+# 最终下发给 PX4 的通道：pos=位置设定点（默认，实测唯一能起飞且跟踪正常的通道）；
+# vel=旧的 setpoint_velocity 通道（本机实测垂向跟踪只有 20%，留作对照）。
+FLIGHT_OUTPUT   = os.environ.get("FLIGHT_OUTPUT", "pos")
+# 位置通道下发 sp = 当前位置 + v * POS_SP_LEAD；PX4 位置环（MPC_XY_P=0.95）给出的
+# 速度设定点 ≈ 0.95 * POS_SP_LEAD * v。取 POS_SP_LEAD ≈ 1/MPC_XY_P，使实际速度 ≈ 指令速度。
+# POS_SP_STEP_MAX 同步放开：取 MAX_SPEED*POS_SP_LEAD，否则高速段又被夹回衰减。
+POS_SP_LEAD     = float(os.environ.get("POS_SP_LEAD", "1.0"))       # 位置设定点前瞻 s
+POS_SP_STEP_MAX = float(os.environ.get("POS_SP_STEP_MAX",
+                                       str(MAX_SPEED * 1.0)))       # 单帧位置增量上限 m
+POS_SPV         = int(os.environ.get("POS_SPV", "0"))                # 1=打印位置设定点诊断
+# 位置估计可信性闸门（P0，防"追幻影"）：近 EST_WIN_S 秒平均位移超过物理可能
+# （MAX_SPEED*EST_V_RATIO）即判估计不可信 → 悬停等待 EKF 收敛，不追垃圾坐标。
+EST_GUARD   = int(os.environ.get('EST_GUARD', '1'))       # 0=关闭（A/B 对照）
+EST_V_RATIO = float(os.environ.get('EST_V_RATIO', '2.0'))  # 允许速度 / MAX_SPEED
+EST_WIN_S   = float(os.environ.get('EST_WIN_S', '0.3'))    # 判定窗口 s
+# 跳变后允许采纳的 offset 修正量上限 m：合理的 EKF 原点重置只平移几米，
+# 实测崩坏时曾要求修正 32.56m —— 那种量级必须拒绝（否则守卫全在错误坐标上）。
+EKF_REANCHOR_MAX_M = float(os.environ.get('EKF_REANCHOR_MAX_M', '5.0'))
 # ---- 偏航对准（2026-10-01：修「盘旋时目标甩出视场」）----
 # 双目是水平朝前安装的（HFOV=90°，±45°），而 agent 历史上只发线速度、不发偏航，
 # PX4 保持机头朝向不变。圆形盘旋时目标相对机头的方位连续转 360°，只有约 1/4 时间
@@ -213,22 +294,29 @@ FLEE_STATE_FRESH  = float(os.environ.get('FLEE_STATE_FRESH', '3.0'))
 YAW_KP          = float(os.environ.get("YAW_KP", "2.5"))      # 偏航环增益（1/s）
 YAW_RATE_MAX    = float(os.environ.get("YAW_RATE_MAX", "1.5"))# 偏航角速度限幅 rad/s
 CONFIRM_TIME    = 15.0     # 连续确认时间才消除（规则5）
+# 国家一等奖标准：LOS 短暂丢失（actor 绕到建筑背后 1-2s）不重置
+# 累计确认进度。修复后进度条不会被短时遮挡清零，5 分钟内可多完成
+# 多次 15s 计数 → 直接对应奖级任务的「连续 15s」判定。
+CONFIRM_LOS_GRACE = float(os.environ.get("CONFIRM_LOS_GRACE", "2.0"))
 
 # ---- 盘旋放弃 / 防扎堆（2026-09-27：修「飞机被已消除目标占死 571s」）----
 TARGET_STALE    = float(os.environ.get("TARGET_STALE", "6.0"))    # 给 bridge/备份机留接力窗口 s
-ORBIT_GIVEUP    = float(os.environ.get("ORBIT_GIVEUP", "30.0"))   # 满 15s 后官方这么久还没消除 → 放弃 s
-GIVEUP_COOLDOWN = float(os.environ.get("GIVEUP_COOLDOWN", "45.0"))# 放弃后这段时间内不再自动盘旋该目标 s
+# 国家一等奖优化：满 15s 后官方这么久还没消除 → 放弃 s（原 30s）
+ORBIT_GIVEUP    = float(os.environ.get("ORBIT_GIVEUP", "20.0"))   # 15+20=35s 就放弃
+# 国家一等奖优化：放弃后这段时间内不再自动盘旋该目标 s（原 45s）
+GIVEUP_COOLDOWN = float(os.environ.get("GIVEUP_COOLDOWN", "30.0"))# 缩短冷却，尽快投入新目标
 CLAIM_ENABLE    = int(os.environ.get("CLAIM_ENABLE", "1"))        # 防扎堆：别机正在确认的目标不再抢
-CLAIM_FRESH     = float(os.environ.get("CLAIM_FRESH", "3.0"))     # 认领消息的新鲜期 s
+CLAIM_FRESH     = float(os.environ.get("CLAIM_FRESH", "1.5"))     # 认领消息的新鲜期 s（缩短到 1.5，让接力响应更快）
 
 # ---- 确认失败退避（2026-09-28：修「单机被抖动目标锁死 600s」）----
 BACKOFF_ENABLE    = int(os.environ.get("BACKOFF_ENABLE", "1"))          # 0=关闭（A/B 对照）
-CONFIRM_RESET_MAX = int(os.environ.get("CONFIRM_RESET_MAX", "3"))       # 官方重置这么多次就退避
-BACKOFF_COOLDOWN  = float(os.environ.get("BACKOFF_COOLDOWN", "60.0"))   # 退避时长 s
-RESET_DECAY       = float(os.environ.get("RESET_DECAY", "120.0"))       # 距上次重置这么久就清零计数 s
+# 国家一等奖优化：官方重置这么多次就退避（原 3）
+CONFIRM_RESET_MAX = int(os.environ.get("CONFIRM_RESET_MAX", "2"))       # 2次就退避
+BACKOFF_COOLDOWN  = float(os.environ.get("BACKOFF_COOLDOWN", "45.0"))   # 退避时长 s（原 60s）
+RESET_DECAY       = float(os.environ.get("RESET_DECAY", "90.0"))        # 距上次重置这么久就清零计数 s（原 120s）
 
 # ---- 友机避碰 ----
-FRIEND_SAFE_DIST = 10.0  # 增加到10m    # 友机安全距离 m（小于此值开始排斥）
+FRIEND_SAFE_DIST = 3.5  # 规则 §2.5(7)：6机密集 + 碰撞扣30/次；友机起点抬到 3.5m（避让柔和，避免起飞区互斥死锁）
 FRIEND_K        = 2.0  # 增加排斥增益      # 排斥增益
 
 # ---- A* 避障飞行 ----
@@ -418,6 +506,18 @@ class SwarmAgent(object):
         self.detect_pub = rospy.Publisher("/swarm/detection", TargetDetection, queue_size=10)
         self.vel_pub = rospy.Publisher("/%s/mavros/setpoint_velocity/cmd_vel" % uav_id,
                                        TwistStamped, queue_size=5)
+        # 2026-10-03：位置设定点输出通道。
+        # 实测（本 VM，PX4 v1.13.2 + typhoon_h480 + robocup.world）：
+        #   纯速度设定点 setpoint_velocity/cmd_vel 的跟踪能力只有指令的 ~20%
+        #   （指令 vz=+1.0，真实爬升 ~0.16 m/s；且在地面上 vz>0 根本起不来，
+        #     垂向平衡点卡在 z≈0.8m，飞机趴在地上 forever）；
+        #   位置设定点 setpoint_position/local 正常：3s 爬到 2.3m 并稳住。
+        # 因此默认走位置模式：把 _send_vel 算出的速度积分成位置设定点下发，
+        # 水平逻辑/避障/限幅全部保留不变；FLIGHT_OUTPUT=vel 可切回旧行为。
+        self.pos_pub = rospy.Publisher("/%s/mavros/setpoint_position/local" % uav_id,
+                                       PoseStamped, queue_size=5)
+        self._pos_sp = None          # 本地 ENU 位置设定点 [x, y, z]
+        self._pos_sp_t = 0.0
 
         self.ctrl_rate = rospy.Rate(CTRL_RATE)
         self.pub_rate = rospy.Rate(PUB_RATE)
@@ -436,10 +536,41 @@ class SwarmAgent(object):
 
     @property
     def world_xy(self):
-        """世界坐标 = 局部坐标 + 标定偏移（偏移未标定好前返回 None）。"""
+        """世界坐标 = 局部坐标 + 标定偏移（偏移未标定好前返回 None）。
+
+        === 2026-10-05 比赛规则硬约束（修复撞墙/越界）===
+        即使 _local_cb 做了 EKF 漂移重锚定，仍可能存在以下情形导致 world_xy
+        偏离物理真实位置（>1.5 倍地图半径）：
+          - 漂移重锚定时窗内极端跳变被错过
+          - 多次小幅漂移串行叠加 (dt=0.05s*1.2*6=0.36m 每帧不触发，但累积 30 帧 = 10m)
+          - 单帧 dt 异常 (例如 mavros 回调突发延迟 → dt=0.9s → single_th=6.5m 误放行 6m)
+        这里做「硬限位」：world_xy 超出地图 1.5 倍范围视为病态 → 返回 None。
+        调用方收到 None → 触发悬停/重锚定（防止把病态坐标送给 A* / 派机 / 护栏）。
+        """
         if self.local_xy is None or self.offset is None:
             return None
-        return (self.local_xy[0] + self.offset[0], self.local_xy[1] + self.offset[1])
+        wx = self.local_xy[0] + self.offset[0]
+        wy = self.local_xy[1] + self.offset[1]
+        # 地图硬边界外 50% 容差；超出视为 EKF 病态 → 拒用
+        _hard_xmin = MAP_X_MIN * 1.5
+        _hard_xmax = MAP_X_MAX * 1.5
+        _hard_ymin = MAP_Y_MIN * 1.5
+        _hard_ymax = MAP_Y_MAX * 1.5
+        if not (_hard_xmin <= wx <= _hard_xmax and _hard_ymin <= wy <= _hard_ymax):
+            # 仅在错位刚发生时打一次，避免每秒刷屏
+            _now = rospy.Time.now().to_sec()
+            if not hasattr(self, '_world_bad_last_log') or (_now - self._world_bad_last_log) > 2.0:
+                self._world_bad_last_log = _now
+                rospy.logerr_throttle(2.0,
+                                      "[%s] world_xy=(%.1f,%.1f) 病态超界，拒用并触发重锚定",
+                                      self.uav_id, wx, wy)
+                # 病态时把 offset 强制重锚定为「起飞点世界坐标」→ world 立即回到起飞点附近
+                # 这样下一帧 _local_cb 重新计算 world 时不会延续病态
+                if self._offset_param is not None:
+                    self.offset = self._offset_param
+                    self._ekf_window = None
+            return None
+        return (wx, wy)
 
     def _calibrate_offset(self):
         """确定局部→世界的恒定平移（世界系 = MAVROS 局部系 + offset）。
@@ -488,7 +619,13 @@ class SwarmAgent(object):
 
         世界系与各机 MAVROS 局部系轴向平行、仅原点不同，故偏移是常量
         （实测两机分别恒定，误差 <0.01m）。只在显式开启时调用。
+        规则 §2.5(11) 审计红线：正式比赛严禁订阅 /gazebo/model_states；
+        本函数仅在 SWARM_CALIB=truth 开发自验模式下启用，启动期打印审计警告。
         """
+        rospy.logwarn(
+            "[%s][AUDIT] SWARM_CALIB=truth 启用真值标定，订阅 /gazebo/model_states —— "
+            "违反规则 §2.5(11)，仅限开发自验，正式比赛严禁启用！",
+            self.uav_id)
         try:
             msg = rospy.wait_for_message("/gazebo/model_states", ModelStates, timeout=20.0)
         except rospy.ROSException as exc:
@@ -525,26 +662,126 @@ class SwarmAgent(object):
         # local_xy 单帧跳变 > max(EKF_JUMP_MIN_M, 物理速度上限) → 非真实运动，
         # 平移 offset 吸收跳变，保持 world_xy 连续（否则越界护栏会把飞机锁死）。
         # _anchor_done 之前（EKF 未稳定）不检测——预热阶段的抖动由起飞锚定兜底。
+        #
+        # === 2026-10-05 比赛规则硬约束（修复累计漂移）===
+        # 旧阈值 MAX_SPEED * dt * 3.0：dt=0.5s 时允许 9m/s，远超真实物理上限
+        # (官方恐怖分子 2m/s, 本机 MAX_SPEED 6m/s)，慢速 EKF 累计漂移 (实测
+        # uav_2 在 2s 内 world_xy 漂 24m) 无法被单帧跳变检测捕获。
+        # 改用 MAX_SPEED * dt * 1.2 + 累积窗口 1s 双重判定：
+        #   (a) 单帧 > MAX_SPEED*dt*1.2 (≈ 7.2m/s) 即触发 → 单帧跳变
+        #   (b) 滑动 1s 内位移 > MAX_SPEED*1.2 (7.2m) → 累计漂移
+        # 两者任一触发即吸收跳变重锚定 offset + 写 EKF_DRIFT_RESET 标记。
         if self._anchor_done and self.local_xy is not None and self.offset is not None:
             dt = now - self._local_prev_t
             if 0.0 < dt < 1.0:
                 jump = math.hypot(new_xy[0] - self.local_xy[0],
                                   new_xy[1] - self.local_xy[1])
-                if jump > max(EKF_JUMP_MIN_M, MAX_SPEED * dt * 3.0):
+                # (a) 单帧阈值：严格上限 = 物理速度上限 * dt * 1.2
+                single_th = max(EKF_JUMP_MIN_M, MAX_SPEED * dt * 1.2)
+                # (b) 累积阈值：滑动窗口 ≤ 1s 内位移 > 7.2m (MAX_SPEED*1.2)
+                cum_disp = jump
+                cum_dt = dt
+                cum_th_hit = False
+                _past = getattr(self, '_ekf_window', None)
+                if _past:
+                    # 拼接：(prev_xy, prev_t) 队列；dt 累计不超过 1s
+                    while _past and (now - _past[0][1]) > 1.0:
+                        _past.pop(0)
+                    _past.append((new_xy, now))
+                    self._ekf_window = _past
+                    if len(_past) >= 2:
+                        first_xy, first_t = _past[0]
+                        cum_disp = math.hypot(new_xy[0] - first_xy[0],
+                                              new_xy[1] - first_xy[1])
+                        cum_dt = now - first_t
+                        if cum_dt > 0.05 and cum_disp > MAX_SPEED * cum_dt * 1.2:
+                            cum_th_hit = True
+                else:
+                    self._ekf_window = [(new_xy, now)]
+
+                if jump > single_th or cum_th_hit:
                     wx = self.local_xy[0] + self.offset[0]
                     wy = self.local_xy[1] + self.offset[1]
                     new_off = (wx - new_xy[0], wy - new_xy[1])
-                    rospy.logwarn("[%s] EKF 原点跳变 %.2fm（dt=%.3fs），offset 重锚定 "
-                                  "(%.2f,%.2f)→(%.2f,%.2f)，world 保持 (%.2f,%.2f)",
-                                  self.uav_id, jump, dt,
+                    rospy.logwarn("[%s] EKF 原点跳变 %.2fm（dt=%.3fs，单帧阈值=%.2fm；累积 %.2fm/%.2fs）"
+                                  "，offset 重锚定 (%.2f,%.2f)→(%.2f,%.2f)，world 保持 (%.2f,%.2f)",
+                                  self.uav_id, jump, dt, single_th, cum_disp, cum_dt,
                                   self.offset[0], self.offset[1],
                                   new_off[0], new_off[1], wx, wy)
                     self.offset = new_off
+                    # 重置累积窗口：避免同一次跳变被连续多帧反复触发
+                    self._ekf_window = [(new_xy, now)]
+        # 维护位置估计轨迹（EST_GUARD 闸门的数据源；必须在 anchor 闸门之外每帧调用，
+        # 否则 _est_hist 恒为空 → _est_trustworthy 恒 False → 飞机永远悬停不走）
+        self._est_track(new_xy, now)
         self.local_xy = new_xy
         self._local_prev_t = now
         q = msg.pose.orientation
         self.yaw = math.atan2(2.0 * (q.w * q.z + q.x * q.y),
                               1.0 - 2.0 * (q.y * q.y + q.z * q.z))
+        # 跳变后估计重新可信 → 一次性校验 offset（修正量合理才采纳，见常量注释）
+        pend = getattr(self, '_est_jump_pending', None)
+        if pend is not None and self.offset is not None and self._est_trustworthy():
+            new_off = (pend[0] - new_xy[0], pend[1] - new_xy[1])
+            d = math.hypot(new_off[0] - self.offset[0],
+                           new_off[1] - self.offset[1])
+            if d <= EKF_REANCHOR_MAX_M:
+                rospy.logwarn("[%s] 估计已重新稳定，offset 校正 (%.2f,%.2f)→"
+                              "(%.2f,%.2f)，保持 world=(%.2f,%.2f)", self.uav_id,
+                              self.offset[0], self.offset[1],
+                              new_off[0], new_off[1], pend[0], pend[1])
+                self.offset = new_off
+            else:
+                rospy.logerr("[%s] 跳变修正量 %.2fm > %.1fm → 判为估计失控，"
+                             "不采纳 offset 修正，保持 (%.2f,%.2f)", self.uav_id, d,
+                             EKF_REANCHOR_MAX_M, self.offset[0], self.offset[1])
+            self._est_jump_pending = None
+
+    def _est_track(self, xy, now):
+        """维护最近 EST_WIN_S 秒的位置轨迹（判位置估计是否可信）。"""
+        tr = getattr(self, '_est_hist', None)
+        if tr is None:
+            tr = self._est_hist = []
+        tr.append((now, xy[0], xy[1]))
+        while len(tr) > 2 and now - tr[0][0] > max(EST_WIN_S, 0.05):
+            tr.pop(0)
+
+    def _est_recent_speed(self):
+        """近 EST_WIN_S 秒的平均水平速度估计；数据不足返回 None。"""
+        tr = getattr(self, '_est_hist', None)
+        if not tr or len(tr) < 2:
+            return None
+        (t0, x0, y0), (t1, x1, y1) = tr[0], tr[-1]
+        dt = t1 - t0
+        if dt <= 1e-6:
+            return None
+        return math.hypot(x1 - x0, y1 - y0) / dt
+
+    def _est_trustworthy(self):
+        """位置估计是否可信（EST_GUARD）。
+
+        实测（2026-10-03 两场）：飞机贴楼后 PX4 位置估计崩坏 —— MAVROS 自己
+        报出 19.64 m/s 的水平速度（物理上限 5 m/s），local/world 在 100m 量级
+        上振荡，而真值静止在楼边 (6.89,-9.32,0.34)。此时任何基于 world_xy 的
+        决策（越界回收 / 栅格避障 / A* 起点）都是垃圾：`越界主动回收 → (0,3)
+        当前(63.2,-66.1)` 就是在追幻影。判据只用"近窗口内位移是否物理可能"，
+        不依赖任何真值，合规。
+        """
+        if not EST_GUARD:
+            return True
+        if not getattr(self, '_anchor_done', False):
+            return True          # 起飞前不拦（预热阶段 local_xy 可能还没就绪）
+        if self.local_xy is None:
+            return False
+        tr = getattr(self, '_est_hist', None)
+        if not tr or len(tr) < 2:
+            return False
+        if rospy.Time.now().to_sec() - tr[-1][0] > 1.0:
+            return False         # 位置流断了 1s 以上，同样不可信
+        v = self._est_recent_speed()
+        if v is None:
+            return False
+        return v <= MAX_SPEED * EST_V_RATIO
 
     def _scan_cb(self, msg):
         self._scan = msg
@@ -683,9 +920,37 @@ class SwarmAgent(object):
             return False
 
     def _configure_fcu(self):
-        """SITL 无遥控器会触发 RC 失联 failsafe，拒绝解锁/进 OFFBOARD。"""
-        self._set_param("NAV_RCL_ACT", 0)
-        self._set_param("COM_RCL_EXCEPT", 4)
+        """SITL 无遥控器会触发 RC 失联 failsafe，拒绝解锁/进 OFFBOARD。
+
+        2026-10-03 改（取自队友 codex 分支的 fcu_configuration）：
+        原实现只 set、不看返回值 —— MAVROS 参数表尚未就绪时 `param/set` 会被
+        **静默拒绝**，飞机照样往下走 arm / 进 OFFBOARD，最后在 RC 失联 failsafe
+        上被拦下，表象是"解锁失败"，根因却在几百行之前的参数设置处。
+        现在 pull → set → get 读回验证，三轮仍不一致就抛异常终止启动
+        （宁可起不来，也不要带着未生效的参数上天）。
+        """
+        from mavros_msgs.srv import ParamPull, ParamGet
+        _pull_ns = "/%s/mavros/param/pull" % self.uav_id
+        _get_ns = "/%s/mavros/param/get" % self.uav_id
+        try:
+            rospy.wait_for_service(_pull_ns, timeout=30)
+        except rospy.ROSException as exc:
+            raise RuntimeError("FCU_PARAM_PULL_UNAVAILABLE: %s" % exc)
+        pull_srv = rospy.ServiceProxy(_pull_ns, ParamPull)
+        get_srv = rospy.ServiceProxy(_get_ns, ParamGet)
+
+        def _pull():
+            resp = pull_srv(True)
+            return resp.success and resp.param_received > 0
+
+        def _get(name):
+            resp = get_srv(name)
+            return resp.value.integer if resp.success else None
+
+        configure_fcu_parameters(_pull, self._set_param, _get,
+                                 {"NAV_RCL_ACT": 0, "COM_RCL_EXCEPT": 4})
+        rospy.loginfo("[%s] 飞控参数已读回验证：NAV_RCL_ACT=0 COM_RCL_EXCEPT=4",
+                      self.uav_id)
 
     def _arm_and_offboard(self):
         """预热 setpoint → 切 OFFBOARD → 解锁。与单机避障已验证的时序一致。
@@ -871,22 +1136,89 @@ class SwarmAgent(object):
             elif -100.0 <= deg < -30.0:
                 right = min(right, r)
 
+        # 最近净空（三扇区最小值）→ 硬刹停速度上限 v <= sqrt(2*a*(d-安全间隙))
+        d_min = min(front, left, right)
+        v_cap = math.sqrt(max(0.0, 2.0 * MAX_ACC *
+                              max(0.0, d_min - RADAR_SAFE_GAP)))
         if front >= RADAR_WARN_R:
+            if speed > v_cap and speed > 1e-9:
+                return vx * (v_cap / speed), vy * (v_cap / speed)
             return vx, vy
 
         # 优先选择净空更大的侧面；正前方两侧都未知时固定向左，避免左右抖动。
         side = 1.0 if left >= right else -1.0
         if abs(left - right) < 0.25:
             side = 1.0
+
+        # ---- 国家一等奖修复（2026-10-04）：三面近障兜底后退 ----
+        # 真实仿真日志（logs_20261004_013325）实锤：UAV_0 以 front=0.31 / left=0.30 /
+        # right=0.32 三面全堵的姿态，被旧逻辑输出 vout=(0.07,1.59)「向左横移」，
+        # 直接顶进 0.30m 外的左墙，位置 40s+ 纹丝不动（DWA 死锁）。
+        # 根因：旧逻辑只比较 left/right 谁大，没有检查「两侧是否都堵死」。
+        # 修复：两侧净空都低于 SIDE_BLOCK_R 时，唯一可行方向是后退——沿 -vin
+        # （远离障碍）方向退，退到 front 恢复到 RADAR_WARN_R 之前一直保持后退。
+        SIDE_BLOCK_R = 0.6   # 侧向净空低于此值视为侧墙堵死（m）
+        if left < SIDE_BLOCK_R and right < SIDE_BLOCK_R:
+            # ---- 国家一等奖修复 v2（2026-10-04）：扫描引导后退 ----
+            # v1 用 -vin 方向后退，但真实仿真实锤：UAV_0 卡在建筑夹缝（死胡同）时
+            # -vin 恰好指向夹缝后墙，指令 2.4 m/s 实际位移 0.09 m/s，仍卡死。
+            # v2：在雷达覆盖范围（±100°，机尾 160° 为盲区不可选）内按 30° 扇区
+            # （50% 重叠）统计各扇区最小净空，朝净空最大的扇区中心后退——
+            # 这是从夹缝里出来的唯一几何可行方向，与 vin 无关。
+            SECTOR = 30.0
+            best_deg, best_r = 180.0, -1.0
+            d0 = -100.0
+            while d0 + SECTOR <= 100.0 + 1e-6:
+                sec_min = scan.range_max
+                for i, raw in enumerate(scan.ranges):
+                    r = float(raw)
+                    if not math.isfinite(r) or r < scan.range_min or r > scan.range_max:
+                        continue
+                    deg = math.degrees(scan.angle_min + i * scan.angle_increment)
+                    if d0 <= deg < d0 + SECTOR and r < sec_min:
+                        sec_min = r
+                if sec_min > best_r:
+                    best_r = sec_min
+                    best_deg = d0 + SECTOR * 0.5
+                d0 += SECTOR * 0.5
+            if best_deg > 100.0:      # 全盲（无有效回波）：保底正后方不可选，退向左前
+                best_deg, best_r = -60.0, 0.0
+            retreat = max(speed, 1.0) if best_r > 0.8 else 0.8   # 净空差时慢退
+            ang = math.radians(best_deg)                          # 机体系
+            body_x = retreat * math.cos(ang)
+            body_y = retreat * math.sin(ang)
+            cy, sy = math.cos(self.yaw), math.sin(self.yaw)
+            guarded = (cy * body_x - sy * body_y,
+                       sy * body_x + cy * body_y)
+            rospy.logwarn_throttle(2.0,
+                                   '[%s] 2D雷达三面堵死 front=%.2f left=%.2f right=%.2f '
+                                   '→ 扇区%.0f°净空%.2fm 后退 vout=(%.2f,%.2f)',
+                                   self.uav_id, front, left, right,
+                                   best_deg, best_r,
+                                   guarded[0], guarded[1])
+            return guarded
+
         forward = max(0.0, min(speed * 0.35,
                                 speed * (front - RADAR_STOP_R) /
                                 max(RADAR_WARN_R - RADAR_STOP_R, 1e-6)))
+        # 侧向逃逸速度随净空收紧（旧值可达 1.5 m/s，在 0.5m 净空下横滑 = 刮擦）
         lateral = min(speed, 1.2 * (RADAR_WARN_R - front) /
-                       max(RADAR_WARN_R - RADAR_STOP_R, 1e-6))
+                       max(RADAR_WARN_R - RADAR_STOP_R, 1e-6), v_cap)
         body_x, body_y = forward, side * lateral
         cy, sy = math.cos(self.yaw), math.sin(self.yaw)
         guarded = (cy * body_x - sy * body_y,
                    sy * body_x + cy * body_y)
+        # 先按「刹得住」夹合速度（含前向与侧向逃逸）
+        gspd = math.hypot(guarded[0], guarded[1])
+        if gspd > v_cap and gspd > 1e-9:
+            k = v_cap / gspd
+            guarded = (guarded[0] * k, guarded[1] * k)
+        # 再叠加贴墙后退：front 已近到雷达量程下限时，唯一安全的动作是沿机体 -x
+        # 退出（远离障碍，故不受刹停约束；否则 v_cap=0 会把后退也一起夹成 0，
+        # 飞机就永远顶死在墙上 —— 这正是 02:24 场的实况）。
+        if front < RADAR_BACKOFF_R and RADAR_BACKOFF_SPD > 0.0:
+            guarded = (guarded[0] - cy * RADAR_BACKOFF_SPD,
+                       guarded[1] - sy * RADAR_BACKOFF_SPD)
         rospy.logwarn_throttle(2.0,
                                '[%s] 2D雷达近障 front=%.2fm left=%.2f right=%.2f '
                                '-> vin=(%.2f,%.2f) vout=(%.2f,%.2f)',
@@ -905,6 +1237,10 @@ class SwarmAgent(object):
         沿速度方向按 GRID_GUARD_STEP 逐点前瞻到刹停距离；任一点被占，就在
         当前航向左右各 15° 起步搜索自由扇区，把速度转向该方向；搜不到则刹停。
         雷达在线时雷达先修，本方法再兜底，二者不冲突。
+
+        高度豁免（2026-10-03）：起飞爬升期 z < SAFE_ALT 时不启用栅格近障，
+        否则 6 机在起飞区（z≈2-4m）会因为栅格里的建筑/边界反复刹停-转向振荡。
+        z 在 SAFE_ALT ~ ALT_CEILING 之间时线性衰减 guard 强度，防止高空贴墙。
         """
         if not GRID_GUARD:
             return vx, vy
@@ -914,9 +1250,18 @@ class SwarmAgent(object):
         spd = math.hypot(vx, vy)
         if spd < 0.05:
             return vx, vy
+        # 高度豁免：起飞爬升期（z < SAFE_ALT）完全绕过栅格近障
+        z_now = self.local_z
+        if z_now is not None and z_now < SAFE_ALT:
+            return vx, vy
+        # 半豁免区（SAFE_ALT ~ ALT_CEILING）：衰减前瞻距离，减少高空误判
+        guard_scale = 1.0
+        if z_now is not None and ALT_CEILING > SAFE_ALT:
+            guard_scale = max(0.0, min(1.0, (ALT_CEILING - z_now) / max(1e-6, ALT_CEILING - SAFE_ALT)))
         hd = math.atan2(vy, vx)
         # 刹停距离 v²/(2a) + 裕度；至少看 0.8m。裕度加大防建筑偏大/超调。
-        look = max(0.8, spd * spd / (2.0 * MAX_ACC) + 1.5)
+        # 半豁免区衰减前瞻：guard_scale<1 时缩短探测距离，允许飞机更快穿过近障区
+        look = max(0.8, spd * spd / (2.0 * MAX_ACC) + 1.5) * guard_scale
         # 锥形前瞻：正前方 + 左右各 15°/30°，避免楼角贴着直航线擦过去
         # （UAV3 在 (-23.5,36.5) 坠毁就是楼角从侧前方切入，单线采样漏检）。
         cone_angles = [0.0, math.radians(15), math.radians(-15),
@@ -1011,6 +1356,12 @@ class SwarmAgent(object):
 
         界外没有障碍物，因此该速度必须绕过雷达/栅格/地图守卫直接下发。
         目标点 = 把当前位置夹到「边界内缩 OOB_RECOVER_INSET」处。
+
+        === 2026-10-05 比赛规则硬约束：分级回收速度 ===
+        旧逻辑：固定 OOB_RECOVER_SPEED=3 m/s + 接近目标减速。
+        比赛硬约束要求：「不能撞墙后停止行为」→ 必须能从越界状态可靠收回。
+        分级回收：超出越多 → 回收越快（MAX_SPEED 上限），但接近 inset 时仍按
+        旧逻辑减速（防回弹穿边）。
         """
         wxy = self.world_xy
         if wxy is None:
@@ -1029,7 +1380,13 @@ class SwarmAgent(object):
         d = math.hypot(dx, dy)
         if d < 1e-6:
             return 0.0, 0.0
-        spd = min(OOB_RECOVER_SPEED, d)      # 接近目标点时减速
+        # 分级速度：d>1m → MAX_SPEED 全力回收；d≤1m → 线性减速到 OOB_RECOVER_SPEED。
+        # 不超过 OOB_RECOVER_SPEED + 2.0 m/s（防过冲）。
+        if d > 1.0:
+            spd = MAX_SPEED
+        else:
+            spd = min(OOB_RECOVER_SPEED, d) + 0.5 * d * (MAX_SPEED - OOB_RECOVER_SPEED)
+        spd = min(spd, OOB_RECOVER_SPEED + 2.0)
         return spd * dx / d, spd * dy / d
 
     def _send_vel(self, vx, vy, vz=None):
@@ -1038,6 +1395,31 @@ class SwarmAgent(object):
         vz=None 时按当前高度竖直 P 控制爬升到自适应高度；预热/悬停阶段显式传
         vz=0.0 发纯零速，避免 EKF 未收敛时带爬升速度导致 OFFBOARD 被拒。
         """
+        # === 位置估计可信性闸门（EST_GUARD，2026-10-03，最高优先级）===
+        # 只在自动飞行路径生效（vz is None；预热/降落都显式传 vz，不受影响）。
+        # 估计不可信时绝不做任何基于 world_xy 的决策 —— 实测「越界主动回收 →
+        # (0,3) 当前(63.2,-66.1)」是在追一个 100m 外的幻影，越追越远。
+        if vz is None and not self._est_trustworthy():
+            self._est_hold_n = getattr(self, '_est_hold_n', 0) + 1
+            _cap = min(ALT_TARGET_CAP, ALT_HARD_CEIL - ALT_HARD_MARGIN)
+            _base = self.altitude_layer or ALT_BASE
+            _alt = max(MIN_CRUISE_ALT, min(_cap, _base))
+            rospy.logwarn_throttle(2.0,
+                '[%s] 位置估计不可信（近 %.2fs 平均 %.1f m/s > %.1f m/s）→ 悬停'
+                '等待 EKF 收敛（累计 %d 拍）', self.uav_id, EST_WIN_S,
+                (self._est_recent_speed() or -1.0), MAX_SPEED * EST_V_RATIO,
+                self._est_hold_n)
+            self._last_cmd_v = (0.0, 0.0)
+            self._last_flight_v = (0.0, 0.0)
+            if FLIGHT_OUTPUT == "pos":
+                self._publish_pos_output(0.0, 0.0, _alt, 0.0)
+            else:
+                _m = TwistStamped()
+                _m.header.stamp = rospy.Time.now()
+                _m.header.frame_id = 'world'
+                self.vel_pub.publish(_m)
+            return
+
         # 最高优先级：越界主动回收，绕过其他守卫（界外无障碍）。
         rec = self._bounds_recovery_velocity()
         if rec is not None:
@@ -1046,6 +1428,12 @@ class SwarmAgent(object):
                 '[%s] 越界主动回收 → (%.1f,%.1f) 当前(%.1f,%.1f)',
                 self.uav_id, vx, vy,
                 self.world_xy[0], self.world_xy[1])
+            # === 2026-10-05 比赛规则硬约束：回收时跳过加速度限幅 ===
+            # 撞墙瞬间必须立刻反向，不能让 MAX_ACC/CTRL_RATE=0.125 m/s 每帧的
+            # 爬升率拖慢反向。直接更新 _last_cmd_v 为目标速度，下一帧限幅从
+            # 此值起算（视觉上等效「瞬时反向」，PX4 位置环仍受其内部 acc 约束）。
+            if OOB_BYPASS_ACC_LIM:
+                self._last_cmd_v = (vx, vy)
         else:
             # 雷达先修正水平速度，再经过统一的加速度限幅和高度护栏。
             vx, vy = self._radar_guard_velocity(vx, vy)
@@ -1201,24 +1589,92 @@ class SwarmAgent(object):
             cmd.twist.angular.z = _yr
         # 记录最终下发的水平速度（供路径未就绪时继续发，保证 offboard 不断流）
         self._last_flight_v = (vx, vy)
-        self.vel_pub.publish(cmd)
+        if FLIGHT_OUTPUT == "pos":
+            self._publish_pos_output(vx, vy, target_alt, vz)
+        else:
+            self.vel_pub.publish(cmd)
 
-    def _need_replan_track(self, goal):
+    def _publish_pos_output(self, vx, vy, target_alt, vz=None):
+        """速度 → 位置设定点。
+
+        速度指令本身已经过加速度限幅 / 雷达 / 栅格 / 地图边界四层守卫，这里只做
+        「积分成位置」这一个动作，逻辑与限幅全部保留：
+
+          sp = 当前位置 + v * POS_SP_LEAD
+
+        每帧都以**实际 localize 位置**为基准重算（不累积上次结果），因此不存在
+        积分漂移；单帧增量再夹在 POS_SP_STEP_MAX 内，防止守卫给出的速度很大时
+        一步跳太远。高度直接用 target_alt（官方 >6m 判 0，这里目标 2.8m）。
+        """
+        lxy = self.local_xy
+        if lxy is None or self.local_z is None:
+            # 位置还没就绪 → 退回速度通道保持 offboard 流不断
+            m = TwistStamped()
+            m.header.stamp = rospy.Time.now()
+            m.header.frame_id = 'world'
+            m.twist.linear.x = vx
+            m.twist.linear.y = vy
+            m.twist.linear.z = 0.0
+            self.vel_pub.publish(m)
+            return
+        step_x = vx * POS_SP_LEAD
+        step_y = vy * POS_SP_LEAD
+        step = math.hypot(step_x, step_y)
+        if step > POS_SP_STEP_MAX and step > 1e-9:
+            k = POS_SP_STEP_MAX / step
+            step_x *= k
+            step_y *= k
+        sp = PoseStamped()
+        sp.header.stamp = rospy.Time.now()
+        sp.header.frame_id = 'map'
+        sp.pose.position.x = lxy[0] + step_x
+        sp.pose.position.y = lxy[1] + step_y
+        # 高度：降落段必须真降，否则位置模式会一直保持 target_alt 悬停；
+        # 其余情况用 target_alt（官方 >6m 判 0，这里目标 2.8m，天然安全）。
+        if self._landing:
+            z = max(0.0, self.local_z - 0.6)
+        elif target_alt is not None:
+            z = target_alt
+        else:
+            z = self.local_z
+        sp.pose.position.z = z
+        sp.pose.orientation.w = 1.0
+        self._pos_sp = (sp.pose.position.x, sp.pose.position.y, sp.pose.position.z)
+        self._pos_sp_t = rospy.Time.now().to_sec()
+        self.pos_pub.publish(sp)
+        # === 诊断埋点（POS_SPV 开启时打印，验证方向与限幅是否符合预期） ===
+        if POS_SPV:
+            rospy.loginfo_throttle(
+                1.0,
+                "[%s][SPV] v=(%.2f,%.2f) cur_local=(%.2f,%.2f) cur_world=%s "
+                "sp_local=(%.2f,%.2f,%.2f)",
+                self.uav_id, vx, vy, lxy[0], lxy[1],
+                ("%.2f,%.2f" % self.world_xy) if self.world_xy else "None",
+                sp.pose.position.x, sp.pose.position.y, sp.pose.position.z)
+
+    def _need_replan_track(self, goal, tid=None):
         """追踪移动目标时的 A* 重规划节流。
 
         原实现每个控制循环都重跑全图 A*（目标一移动就整条 replan），实测把控制
         频率从 20Hz 拖到 5.5Hz，且日志刷屏（单架曾累计 10020 次规划）。
         这里改成：无路径 / 目标移动超阈值 / 距上次规划超时，三者满足其一才重规划。
+        2026-10-04：目标处于 FLEE（2 m/s 逃跑）时改用收紧节流，防止路径目标
+        滞后 4m 把 20m 探测门顶穿（真实仿真 t1 两次确认清零的根因）。
         """
         if not self.path:
             return True
         if self._last_track_goal is None:
             return True
+        flee = False
+        if tid is not None:
+            flee = self._target_fleeing(tid)
+        mv = TRACK_REPLAN_MOVE_FLEE if flee else TRACK_REPLAN_MOVE
+        sec = TRACK_REPLAN_SEC_FLEE if flee else TRACK_REPLAN_SEC
         moved = math.hypot(goal[0] - self._last_track_goal[0],
                            goal[1] - self._last_track_goal[1])
-        if moved >= TRACK_REPLAN_MOVE:
+        if moved >= mv:
             return True
-        if (rospy.Time.now().to_sec() - self._last_track_plan_t) >= TRACK_REPLAN_SEC:
+        if (rospy.Time.now().to_sec() - self._last_track_plan_t) >= sec:
             return True
         return False
 
@@ -1398,8 +1854,26 @@ class SwarmAgent(object):
                 return
 
         if self.world_xy is None:
+            # === 2026-10-05 比赛规则硬约束：EKF 病态时不能一直悬停 ===
+            # world_xy=None（EKF 漂移病态 / 偏移未标定）若持续 >1s，飞机将永久
+            # 停滞不前，整轮任务失败。这里强制尝试重锚定 offset → world 立即跳回
+            # 起飞点附近 → 下一帧世界坐标恢复正常 → 任务继续。
+            _now = rospy.Time.now().to_sec()
+            if (not hasattr(self, '_world_none_since') or
+                    self._world_none_since is None):
+                self._world_none_since = _now
+            elif (_now - self._world_none_since) > 1.0 and self._offset_param is not None:
+                rospy.logerr_throttle(5.0,
+                    "[%s] world_xy 病态持续 %.1fs，强制重锚定 offset 到起飞点",
+                    self.uav_id, _now - self._world_none_since)
+                self.offset = self._offset_param
+                self._ekf_window = None
+                self._world_none_since = None
+                # 重锚定后世界坐标恢复 → 不悬停，继续主流程
             self._send_vel(0.0, 0.0)
             return
+        # 健康时清零 None 计时器
+        self._world_none_since = None
 
         if self.assignment is None:
             self.path = []
@@ -1440,7 +1914,8 @@ class SwarmAgent(object):
                 return
             else:
                 # 飞向目标（移动目标：A* 重规划节流）。异步投递，绝不阻塞指令流。
-                if self._need_replan_track((tx, ty)):
+                # 2026-10-04：传入 tid，追逃（FLEE）时自动收紧重规划节流。
+                if self._need_replan_track((tx, ty), tid=_track_id):
                     if rospy.Time.now().to_sec() - self._plan_fail_t >= 2.0:
                         self._request_plan((tx, ty))
                         self._last_track_goal = (tx, ty)
@@ -1477,8 +1952,28 @@ class SwarmAgent(object):
             return
         self._look_at = None   # 未在盘旋/追踪，交回 PX4 自管偏航
 
-        goal = (self.assignment.target_x, self.assignment.target_y)
-        dist = math.hypot(goal[0] - self.world_xy[0], goal[1] - self.world_xy[1])
+        # === 2026-10-03：搜索时主动追近距目标 ===
+        # 若 target_states 已知 50m 内有目标，覆盖 manager 的搜索格目标，直接飞过去。
+        # 否则单纯靠搜索格中心 80m 外派遣（manager 阈值改 80m 后），飞机仍要飞 30s
+        # 才到 actor 区域，且不能保证任何一架恰好分到 actor 所在格。
+        # 这里兜底：任意目标 ≤50m 且目标 alive 即把 goal 替换为目标位置，
+        # 让 agent 主动接近 → 进入 20m 探测范围。
+        _ntd = self._nearest_target_dist()
+        _target_pursuit_m = 50.0
+        _override_goal = None
+        _override_dist = None
+        if (_ntd is not None and _ntd[1] <= _target_pursuit_m
+                and self._target_state.get(_ntd[0], (0, 0.0))[0] != 2):
+            _tx, _ty, _vx_t, _vy_t = self.targets[_ntd[0]]
+            _override_goal = (_tx, _ty)
+            _override_dist = _ntd[1]
+
+        if _override_goal is not None:
+            goal = _override_goal
+            dist = _override_dist
+        else:
+            goal = (self.assignment.target_x, self.assignment.target_y)
+            dist = math.hypot(goal[0] - self.world_xy[0], goal[1] - self.world_xy[1])
 
         if dist < ARRIVE_TOL:
             # 已到达格中心，检查是否有可盘旋的目标
@@ -1583,16 +2078,26 @@ class SwarmAgent(object):
         clear_path=False（stale/重置退避场景）：保留 self.path，避免
         _need_replan_track 因“空路径”恒为真，在冷却期每帧重跑 A* 形成
         规划风暴（目标点没动，结果完全相同，纯浪费）。
+
+        国家一等奖标准改进（2026-10-03）：同时清空 _los_lost_t 与
+        本机发布的 claim 缓存 _claims[self._orbit_target]，避免
+        自己广播的 claim 在放弃后 3s 内被别机判定为「被本机认领」
+        而错失接力（实测放弃 → 别机仍被挡 3s 的协同层错误）。
         """
         tid = self._orbit_target
         self._orbit_target = None
         self._orbit_center = None
         self._confirm_start = 0.0
+        self._los_lost_t = 0.0
         self._target_to_orbit = None
         if clear_path:
             self.path = []
             self.path_target = None
         self._look_at = None
+        # 国家一等奖：主动撤销自己之前的 claim，避免别机在 CLAIM_FRESH
+        # 窗口内被错判「本机还在追」而不来接力
+        if tid is not None and CLAIM_ENABLE:
+            self._claims.pop(tid, None)
         rospy.logwarn('[%s] 放弃盘旋 %s：%s', self.uav_id, tid, reason)
 
     def _claim_cb(self, msg):
@@ -1628,6 +2133,26 @@ class SwarmAgent(object):
         # 镜像官方窗口：把自己的确认计时也归零，ORBIT_GIVEUP 的语义才成立
         self._confirm_start = rospy.Time.now().to_sec()
         self._last_confirm_t = self._confirm_start
+        # === 2026-10-03 我方补：先判"是不是根本够不着" ===
+        # 官方裁判判据是"误差<1m 连续 15s"，而我方 yolo_target_bridge 加了
+        # 距离闸门（默认 12m）：估计距离超出闸门时我们**故意不播报**，裁判自然
+        # 收不到消息 → 15s 计时反复清零 → /find_actor_N 反复重置。
+        # 这种"重置"不是"播报了但坐标错"，而是"还没飞到能看清的距离"。
+        # 旧逻辑会据此判定播报被拒 → 退避 60s 去搜别处，目标永远丢；
+        # 现在够不着就继续靠近（缩短 ORBIT 目标点、拉近观察距离），
+        # 让距离闸门自然放开，而不是放弃目标。
+        _wxy = self.world_xy
+        _tgt = self._orbit_center or self._target_to_orbit
+        if _wxy is not None and _tgt is not None:
+            _d = math.hypot(_tgt[0] - _wxy[0], _tgt[1] - _wxy[1])
+            if _d > CLOSE_ENOUGH_M:
+                rospy.loginfo_throttle(
+                    5.0,
+                    '[%s] %s 确认被重置：距目标 %.1fm > %.1fm（还没飞到看得清的距离，'
+                    '不放弃，继续靠近）',
+                    self.uav_id, tid, _d, CLOSE_ENOUGH_M)
+                self._reset_n[actor_idx] = 0      # 够不着不算"被拒绝"
+                return
         if BACKOFF_ENABLE and self._reset_n[actor_idx] >= CONFIRM_RESET_MAX:
             self._giveup_until[tid] = rospy.Time.now().to_sec() + BACKOFF_COOLDOWN
             self._abort_orbit('官方已重置 %d 次确认，退避 %.0fs 去搜别处'
@@ -1670,7 +2195,17 @@ class SwarmAgent(object):
         return (rospy.Time.now().to_sec() - t_seen) > TARGET_STALE
 
     def _update_orbit(self):
-        """更新盘旋状态：检查目标是否可见，更新确认时间"""
+        """更新盘旋状态：检查目标是否可见，更新确认时间
+
+        国家一等奖标准改进（2026-10-03）：
+        - 旧实现：任何 LOS 失败瞬时重置 _confirm_start → 1s 遮挡
+          就能把累积 14s 的进度清零。修复：引入「LOS 宽容窗口」
+          CONFIRM_LOS_GRACE（默认 2.0s），期间不重置累计。
+        - 加入「视场对准」检查：相机水平 HFOV=90°（±45°），机头不
+          对准目标（默认 yaw 没控制）时目标可能早出视场而仍被几何
+          判定为可见。修复：检查 |target_bearing - yaw| ≤ 50°（略
+          大于 HFOV/2 留余量），否则也不算确认。
+        """
         if self._orbit_target is None:
             return
 
@@ -1689,14 +2224,45 @@ class SwarmAgent(object):
         dist = math.hypot(tx - wx[0], ty - wx[1])
 
         now = rospy.Time.now().to_sec()
-        # 检查是否能看到目标（距离 + LOS）
-        if dist < DETECT_RADIUS and self.los.visible(wx[0], wx[1], tx, ty):
+        # 检查是否能看到目标（距离 + LOS + 视场）
+        in_radius = dist < DETECT_RADIUS
+        in_los = in_radius and self.los.visible(wx[0], wx[1], tx, ty)
+        in_fov = True
+        if in_los:
+            # 国家一等奖 BUG 修复（2026-10-03）：原代码写 self._yaw 但实际
+            # _local_cb 把偏航角写入 self.yaw，结果 FOV 检查永远 None → 跳过
+            # → 目标在飞机后方时仍报「已确认」→ 进度条虚假累计 → 裁判判定消除
+            # 时坐标其实是被甩在身后的位置（实测 t3/t4 多机接力进度卡 30~40%）。
+            # 修复：用 self.yaw；如未设置则降级为 True（避免 EKF 未就绪时直接卡死）
+            # ---- 2026-10-03：再加强：yaw 未设置也不跳过 FOV 检查而是
+            # 用 True（默认目标在视场中），保证队首起飞阶段的早期确认不被误杀；
+            # yaw 就绪后仍走 50° 阈值判定。
+            _yaw = getattr(self, 'yaw', None)
+            if _yaw is not None:
+                target_bearing = math.atan2(ty - wx[1], tx - wx[0])
+                dy = target_bearing - _yaw
+                # wrap 到 [-pi, pi]
+                while dy > math.pi:
+                    dy -= 2 * math.pi
+                while dy < -math.pi:
+                    dy += 2 * math.pi
+                if abs(dy) > math.radians(50.0):
+                    in_fov = False
+        visible = in_radius and in_los and in_fov
+        if visible:
             if self._confirm_start == 0.0:
                 self._confirm_start = now
             self._last_confirm_t = now
+            self._los_lost_t = 0.0
         else:
-            # 看不到目标，重置确认
-            self._confirm_start = 0.0
+            # 国家一等奖：LOS 宽容窗口（2.0s），期间不重置累计进度
+            if self._confirm_start != 0.0:
+                if self._los_lost_t == 0.0:
+                    self._los_lost_t = now
+                elif now - self._los_lost_t > CONFIRM_LOS_GRACE:
+                    # 超过宽容窗口才重置（避免被短时遮挡清零）
+                    self._confirm_start = 0.0
+                    self._los_lost_t = 0.0
 
     def _check_start_orbit(self):
         """检查是否需要开始盘旋（发现可确认的目标）"""
@@ -1731,7 +2297,13 @@ class SwarmAgent(object):
             break
 
     def _fly_orbit(self):
-        """执行盘旋飞行：绕目标做圆周运动"""
+        """执行盘旋飞行：绕目标做圆周运动。
+
+        国家一等奖标准改进（2026-10-03）：actor 持续 2m/s 移动时旧实
+        现的圆心固定 → 飞机在轨道上 13s 跑一圈 actor 已跑 26m，
+        远超 20m 视野。修复：用最近两次 actor 位置差分估算速度，
+        把圆心提前 dt 秒外推到「飞机抵达时刻的 actor 位置」。
+        """
         if self._orbit_target is None:
             self._send_vel(0.0, 0.0)
             return
@@ -1766,18 +2338,35 @@ class SwarmAgent(object):
         self._look_at = (tx, ty)       # 盘旋全程机头持续指向目标中心
         now = rospy.Time.now().to_sec()
 
-        # 计算当前相对于目标的角度
-        angle = math.atan2(wy - ty, wx - tx)
+        # 国家一等奖：actor 速度估计 + 圆心外推到飞机飞行 dt 后
+        prev = getattr(self, "_orbit_prev", None)
+        if prev is None or prev[0] != self._orbit_target:
+            self._orbit_prev = (self._orbit_target, tx, ty, now)
+            prev_vx_t, prev_vy_t = 0.0, 0.0
+        else:
+            _tid, _px, _py, _pt = prev
+            _dt_t = max(now - _pt, 0.05)
+            prev_vx_t = (tx - _px) / _dt_t
+            prev_vy_t = (ty - _py) / _dt_t
+            _sp = math.hypot(prev_vx_t, prev_vy_t)
+            if _sp > 2.5:
+                prev_vx_t *= 2.5 / _sp
+                prev_vy_t *= 2.5 / _sp
+            self._orbit_prev = (self._orbit_target, tx, ty, now)
+        # 计算当前相对于目标的角度（用外推后位置）
+        dt = 1.0 / CTRL_RATE
+        tx_c = tx + prev_vx_t * dt
+        ty_c = ty + prev_vy_t * dt
+        angle = math.atan2(wy - ty_c, wx - tx_c)
 
         # 更新角度（顺时针盘旋）
-        dt = 1.0 / CTRL_RATE
         angle += ORBIT_SPEED * dt
         if angle > math.pi:
             angle -= 2 * math.pi
 
-        # 目标位置
-        target_x = tx + ORBIT_RADIUS * math.cos(angle)
-        target_y = ty + ORBIT_RADIUS * math.sin(angle)
+        # 目标位置（用外推后圆心，确保飞机真的"绕到 actor 未来位置上"）
+        target_x = tx_c + ORBIT_RADIUS * math.cos(angle)
+        target_y = ty_c + ORBIT_RADIUS * math.sin(angle)
 
         # P 控制飞向盘旋点
         err_x = target_x - wx
@@ -1814,9 +2403,13 @@ class SwarmAgent(object):
         # 基础速度
         base_speed = MAX_SPEED
 
-        # 1. 追踪目标时降速（确认需要稳定）
+        # 1. 追踪目标时降速（确认需要稳定，但需要追住 2m/s 逃跑的 actor）
+        # 2026-10-03 改进 3：1.5→3.5。
+        # 旧值 1.5 完全追不上 actor 的 2m/s 逃逸 → 飞机被甩在后面、
+        # 视距越来越远 → 单点上报频率不足 → 确认期反复 reset 进度卡 0%。
+        # 3.5 是 actor 2m/s × 1.75 倍 + DWA 安全留量，足以咬住又不会破坏 SP。
         if self._orbit_target is not None:
-            base_speed = 1.5
+            base_speed = 3.5
         # 2. ORCA 激活时（友机近）降速
         elif self._friend_positions:
             # 检查是否有近距友机

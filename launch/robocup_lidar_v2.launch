@@ -25,7 +25,10 @@
             <arg name="ID_in_group" value="0"/>
             <arg name="fcu_url" default="udp://:24540@localhost:34580"/>
         <!-- PX4 SITL and vehicle spawn -->
-        <include file="$(find px4)/launch/single_vehicle_spawn_xtd.launch">
+        <!-- 串行 spawn（2026-10-02 复盘：官方 xtd 无延迟并发 spawn 6 机导致
+             typhoon_h480_5 "Entity pushed to spawn queue, but spawn service
+             timed out" + PX4 poll timeout；换 delayed_exec 串行版，延迟 0~75s） -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
             <arg name="x" value="0"/>
             <arg name="y" value="-3"/>
             <arg name="z" value="0"/>
@@ -34,6 +37,7 @@
             <arg name="Y" value="0"/>
             <arg name="vehicle" value="typhoon_h480"/>
             <arg name="sdf" value="typhoon_h480_lidar_0"/>
+            <arg name="spawn_delay" value="0"/>
             <arg name="mavlink_udp_port" value="18570"/>
             <arg name="mavlink_tcp_port" value="4560"/>
             <arg name="ID" value="$(arg ID)"/>
@@ -54,7 +58,10 @@
             <arg name="ID_in_group" value="1"/>
             <arg name="fcu_url" default="udp://:24541@localhost:34581"/>
         <!-- PX4 SITL and vehicle spawn -->
-        <include file="$(find px4)/launch/single_vehicle_spawn_xtd.launch">
+        <!-- 串行 spawn（2026-10-02 复盘：官方 xtd 无延迟并发 spawn 6 机导致
+             typhoon_h480_5 "Entity pushed to spawn queue, but spawn service
+             timed out" + PX4 poll timeout；换 delayed_exec 串行版，延迟 0~75s） -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
             <arg name="x" value="3"/>
             <arg name="y" value="-3"/>
             <arg name="z" value="0"/>
@@ -63,6 +70,7 @@
             <arg name="Y" value="0"/>
             <arg name="vehicle" value="typhoon_h480"/>
             <arg name="sdf" value="typhoon_h480_lidar_1"/>
+            <arg name="spawn_delay" value="15"/>
             <arg name="mavlink_udp_port" value="18571"/>
             <arg name="mavlink_tcp_port" value="4561"/>
             <arg name="ID" value="$(arg ID)"/>
@@ -83,7 +91,10 @@
             <arg name="ID_in_group" value="2"/>
             <arg name="fcu_url" default="udp://:24542@localhost:34582"/>
         <!-- PX4 SITL and vehicle spawn -->
-        <include file="$(find px4)/launch/single_vehicle_spawn_xtd.launch">
+        <!-- 串行 spawn（2026-10-02 复盘：官方 xtd 无延迟并发 spawn 6 机导致
+             typhoon_h480_5 "Entity pushed to spawn queue, but spawn service
+             timed out" + PX4 poll timeout；换 delayed_exec 串行版，延迟 0~75s） -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
             <arg name="x" value="0"/>
             <arg name="y" value="0"/>
             <arg name="z" value="0"/>
@@ -92,6 +103,7 @@
             <arg name="Y" value="0"/>
             <arg name="vehicle" value="typhoon_h480"/>
             <arg name="sdf" value="typhoon_h480_lidar_2"/>
+            <arg name="spawn_delay" value="30"/>
             <arg name="mavlink_udp_port" value="18572"/>
             <arg name="mavlink_tcp_port" value="4562"/>
             <arg name="ID" value="$(arg ID)"/>
@@ -112,7 +124,10 @@
             <arg name="ID_in_group" value="3"/>
             <arg name="fcu_url" default="udp://:24543@localhost:34583"/>
         <!-- PX4 SITL and vehicle spawn -->
-        <include file="$(find px4)/launch/single_vehicle_spawn_xtd.launch">
+        <!-- 串行 spawn（2026-10-02 复盘：官方 xtd 无延迟并发 spawn 6 机导致
+             typhoon_h480_5 "Entity pushed to spawn queue, but spawn service
+             timed out" + PX4 poll timeout；换 delayed_exec 串行版，延迟 0~75s） -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
             <arg name="x" value="3"/>
             <arg name="y" value="0"/>
             <arg name="z" value="0"/>
@@ -121,6 +136,7 @@
             <arg name="Y" value="0"/>
             <arg name="vehicle" value="typhoon_h480"/>
             <arg name="sdf" value="typhoon_h480_lidar_3"/>
+            <arg name="spawn_delay" value="45"/>
             <arg name="mavlink_udp_port" value="18573"/>
             <arg name="mavlink_tcp_port" value="4563"/>
             <arg name="ID" value="$(arg ID)"/>
@@ -141,7 +157,10 @@
             <arg name="ID_in_group" value="4"/>
             <arg name="fcu_url" default="udp://:24544@localhost:34584"/>
         <!-- PX4 SITL and vehicle spawn -->
-        <include file="$(find px4)/launch/single_vehicle_spawn_xtd.launch">
+        <!-- 串行 spawn（2026-10-02 复盘：官方 xtd 无延迟并发 spawn 6 机导致
+             typhoon_h480_5 "Entity pushed to spawn queue, but spawn service
+             timed out" + PX4 poll timeout；换 delayed_exec 串行版，延迟 0~75s） -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
             <arg name="x" value="0"/>
             <arg name="y" value="3"/>
             <arg name="z" value="0"/>
@@ -150,6 +169,7 @@
             <arg name="Y" value="0"/>
             <arg name="vehicle" value="typhoon_h480"/>
             <arg name="sdf" value="typhoon_h480_lidar_4"/>
+            <arg name="spawn_delay" value="60"/>
             <arg name="mavlink_udp_port" value="18574"/>
             <arg name="mavlink_tcp_port" value="4564"/>
             <arg name="ID" value="$(arg ID)"/>
@@ -170,7 +190,10 @@
             <arg name="ID_in_group" value="5"/>
             <arg name="fcu_url" default="udp://:24545@localhost:34585"/>
         <!-- PX4 SITL and vehicle spawn -->
-        <include file="$(find px4)/launch/single_vehicle_spawn_xtd.launch">
+        <!-- 串行 spawn（2026-10-02 复盘：官方 xtd 无延迟并发 spawn 6 机导致
+             typhoon_h480_5 "Entity pushed to spawn queue, but spawn service
+             timed out" + PX4 poll timeout；换 delayed_exec 串行版，延迟 0~75s） -->
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
             <arg name="x" value="3"/>
             <arg name="y" value="3"/>
             <arg name="z" value="0"/>
@@ -179,6 +202,7 @@
             <arg name="Y" value="0"/>
             <arg name="vehicle" value="typhoon_h480"/>
             <arg name="sdf" value="typhoon_h480_lidar_5"/>
+            <arg name="spawn_delay" value="75"/>
             <arg name="mavlink_udp_port" value="18575"/>
             <arg name="mavlink_tcp_port" value="4565"/>
             <arg name="ID" value="$(arg ID)"/>

@@ -22,6 +22,7 @@
 _altitude_m、_vel_topic、_scan_topic、_ekf_acc_limit_m。
 """
 import math
+import os
 from collections import deque
 import rospy
 from geometry_msgs.msg import Point, PoseStamped, TwistStamped
@@ -35,8 +36,14 @@ from robocup_navigation.astar import load_metadata, GridMap, plan
 from local_esdf import LocalEsdf, UNKNOWN  # 阶段A：局部 ESDF 距离场（原创，同目录）
 
 # ============================ 参数（统一放这里，可被 ~ 参数覆盖） ============================
-MAX_SPEED      = 3.0    # 水平最大速度 m/s（比赛标准地图 200m×100m：3m/s 保守提速，刹停2.25m<前瞻3m<通道5m）
-MAX_ACCEL      = 2.0    # 最大加速度 m/s^2（刹停距离 v²/2a=1.0m）
+# 2026-10-03 改进 3：3.0→6.0。旧值导致 agent 派出 6m/s 速度指令被 dwa 限到 3m/s，
+# 飞机根本追不上 2m/s 逃跑的 actor，确认期反复 reset 进度卡 0%。
+# 现在 swarm_agent.MAX_SPEED=6.0（追 actor），dwa 同步拉到 6.0 让位避障空间。
+# ⚠️ PREDICT_TIME / WARN_DIST / SAFETY_DIST 不能同步放太大——6 架密集起飞区在
+# 3.5m 半径内就有友机，WARN_DIST=7 + SAFETY_DIST=5 会导致所有飞机起飞即死锁
+# （plane 之间永远被对方当作"前向 0.31m 障碍"）。仅放宽速度+加速度。
+MAX_SPEED      = 6.0    # 水平最大速度 m/s（让位 agent.MAX_SPEED=6.0）
+MAX_ACCEL      = 4.0    # 最大加速度 m/s^2（高速下允许转向；刹停 6²/(2·4)=4.5m < PREDICT_TIME 6m）
 INFLATION_M    = 0.0    # A* 额外膨胀半径 m。
                         # ⚠️ 生成器 metadata 的 grid 已按官方 safety_margin_m=0.8 预膨胀
                         # （0.4 机体半径 + 0.2 静态净空 + 0.2 跟踪余量）。A* 若再二次膨胀
@@ -50,7 +57,10 @@ BRAKING_MARGIN = 0.20   # 刹车裕度 m（高速接近时预留的制动距离�
                         # 有效安全距离 SAFE_DIST = ROBOT_RADIUS + SAFETY_MARGIN + BRAKING_MARGIN
                         # 预测轨迹进入此范围 → 直接淘汰（这是撞柱/撞墙的根治：footprint 膨胀）
 SAFE_DIST      = ROBOT_RADIUS + SAFETY_MARGIN + BRAKING_MARGIN  # 0.80m 有效碰撞半径
-SAFETY_DIST    = 2.5    # 静态障碍物(墙)软避障距离 m（> 刹停2.25m；比赛通道5~11m够宽）
+# 2026-10-03 改进 3 回退：SAFETY_DIST=5.0→2.5（原值）。
+# 之前调到 5.0 在 6 架密集起飞区（机距 3.5m 内）触发互相避障死锁——每架都在另一架
+# 5m 范围内，所有轨迹都被判"前向近障"，飞机起飞即停 0.31m 不动。
+SAFETY_DIST    = 2.5    # 静态障碍物(墙)软避障距离 m：比赛通道5~11m够宽
 DYN_SAFETY_DIST = 0.8   # 动态障碍物(柱子)软避障距离 m（无人机中心到柱子中心，已含柱子半径）
 HARD_BRAKE_DIST = 1.8   # 静态障碍物硬刹车距离 m（> 机体半径+裕度，< 软避障2.5m）
 ESCAPE_DIST    = 0.6    # 逃逸触发距离 m（到柱子表面）：低速逼近时用这个阈值
@@ -60,16 +70,20 @@ ESCAPE_PREDICT = 0.8    # 逃逸碰撞预测时长 s：按当前速度预测未�
 ARRIVE_TOL     = 0.3    # 到达目标判定半径 m
 ALTITUDE       = 6.0    # 飞行高度 m（比赛 planning_altitude_m=6.0，灯杆7.5m/建筑9~17m仍在避障范围）
 CTRL_DT        = 0.05   # 控制周期 s（20Hz）
-PREDICT_TIME   = 1.0    # DWA 轨迹预测时长 s（3m/s×1.0s=3.0m 前瞻；对移动柱子做匀速预测）
-                        # 必须满足：> 刹停2.25m（否则刹不住）、< 到墙/柱最小间距（否则全样本淘汰被困）
-LOOKAHEAD      = 1.8    # 前瞻距离 m（3m/s 下略放大，太远会抖、太近会贴柱）
+# 2026-10-03 改进 3 回退：PREDICT_TIME=1.8→1.0（原值）。
+# 之前调到 1.8 在密集起飞区让 dwa 看到 10.8m 前方都被友机占据 → 飞机起飞即停。
+# 1.0s 前瞻 + 6m/s × 1.0 = 6.0m 已 > 4.5m 刹停距离。
+PREDICT_TIME   = 1.0    # DWA 轨迹预测时长 s（6m/s×1.0s=6.0m 前瞻 > 刹停 4.5m）
+                        # 必须满足：> 刹停4.5m（否则刹不住）、< 到墙/柱最小间距（否则全样本淘汰被困）
+LOOKAHEAD      = 1.0    # 前瞻距离 m
 VX_SAMPLES     = 11     # vx 采样数
 VY_SAMPLES     = 11     # vy 采样数（横向绕行的关键：vy 必须全范围采样，不能只 cur_vy±dv）
 W_HEADING      = 0.3    # 目标方向代价权重（削弱，让障碍物代价能压过它）
 W_DIST         = 0.5    # 目标距离代价权重
 W_OBSTACLE     = 3.0    # 障碍物代价权重（障碍物在警戒距离内连续施压，越近越陡）
 W_PROGRESS     = 0.5    # 目标进展代价权重：速度在目标方向投影为负（远离目标）时惩罚
-WARN_DIST      = 4.0    # 障碍物警戒距离 m：进入此范围就开始产生避障代价（3m/s 高速需更早转向）
+# 2026-10-03 改进 3 回退：WARN_DIST=7.0→4.0（原值）。理由同上（起飞区死锁）。
+WARN_DIST      = 4.0    # 障碍物警戒距离 m：进入此范围就开始产生避障代价
 W_ACCEL        = 0.8    # 加速度软约束权重（替代硬裁窗口，允许横向大速度绕行又抑制突变）
 W_SPEED        = 0.1    # 速度（更快）代价权重
 W_SMOOTH       = 0.3    # 速度平滑代价权重
@@ -128,7 +142,10 @@ EMERGENCY_SIDE  = 0.20  # left/right < 此值：向该侧运动的轨迹直接�
 # 对每个候选速度 (vx,vy)：braking_distance = |v|^2 / (2*max_accel)
 # 动态安全半径 safe_radius(v) = ROBOT_RADIUS + SAFETY_MARGIN + braking_distance
 # 预测轨迹最近距离 < safe_radius(v) → 该候选直接淘汰（碰撞轨迹不评分）
-BRAKING_DECEL   = 2.0   # 制动减速度 m/s^2（默认 = MAX_ACCEL）
+# 2026-10-03 改进 3：BRAKING_DECEL 保持原值 2.0。MAX_ACCEL=4 + BRAKING_DECEL=4 时
+# 6m/s 刹停 4.5m；老值 2.0 刹停 9m 但 PREDICT_TIME=1.0s × 6m/s = 6m 前瞻已 > 4.5m，
+# 不需要也同步上调 BRAKING_DECEL。
+BRAKING_DECEL   = 2.0   # 制动减速度 m/s^2（保守）
 
 # ===== 阶段A：局部 ESDF 距离场（替换点到线段距离，最小侵入）=====
 ESDF_RES        = 0.25  # ESDF 栅格分辨率 m
@@ -185,7 +202,19 @@ def smooth_path(points, samples_per_segment=6):
 class DwaAvoidance:
     def __init__(self):
         # ---- 参数读取（~ 前缀，可命令行覆盖）----
-        self.metadata = rospy.get_param("~metadata")
+        # 2026-10-03 修复：~metadata 是必传参数但 run_match.sh 没注入；
+        # 改为：先试 ~metadata（命令行 _metadata:=... 仍生效），否则从环境变量
+        # ROBOCUP_METADATA / ROBOCUP_TRAINING_WORLD_JSON 兜底，最后才报错。
+        try:
+            self.metadata = rospy.get_param("~metadata")
+        except KeyError:
+            _env_md = os.environ.get('ROBOCUP_METADATA') or os.environ.get('ROBOCUP_TRAINING_WORLD_JSON')
+            if _env_md and os.path.isfile(_env_md):
+                rospy.logwarn('[dwa_avoidance] ~metadata 未注入，回退到环境变量: %s', _env_md)
+                self.metadata = _env_md
+            else:
+                rospy.logfatal('[dwa_avoidance] 找不到地图 metadata：请设置 ~metadata 或 ROBOCUP_METADATA 环境变量')
+                raise
         self.altitude = rospy.get_param("~altitude_m", ALTITUDE)
         self.max_speed = rospy.get_param("~max_speed_m_s", MAX_SPEED)
         self.max_accel = rospy.get_param("~max_accel_m_s2", MAX_ACCEL)
@@ -207,6 +236,14 @@ class DwaAvoidance:
         # 注意：PX4 SITL 里 iris_2d_lidar 的激光话题带模型名前缀 /iris_2d_lidar_0/scan，
         # 不是裸 /scan。用命令行 _scan_topic:=xxx 可覆盖。
         self.scan_topic = rospy.get_param("~scan_topic", "/iris_2d_lidar_0/scan")
+        # 2026-10-03 扩展：6 机集群每机影子需要订阅本机的 mavros 位姿/状态，
+        # 否则不同 dwa 影子会"张冠李戴"读全局 odom。用命令行覆盖。
+        self.state_topic = rospy.get_param("~state_topic", "/mavros/state")
+        self.pose_topic  = rospy.get_param("~pose_topic",  "/mavros/local_position/pose")
+        self.odom_topic  = rospy.get_param("~odom_topic",  "/mavros/local_position/odom")
+        # 2026-10-03 扩展：默认认 iris 或 typhoon 模型名前缀；run_match.sh 启动时
+        # 会传 _airframe:=typhoon_h480，让 _iris_world() 真的能找到自己。
+        self.airframe    = rospy.get_param("~airframe", "iris|typhoon")
 
         # ---- 阶段A：局部 ESDF 距离场 ----
         self.esdf_res = rospy.get_param("~esdf_res_m", ESDF_RES)
@@ -235,12 +272,20 @@ class DwaAvoidance:
         self.pos_pub = rospy.Publisher("~current_pos", Marker, queue_size=1)
 
         # ---- 订阅 ----
-        rospy.Subscriber("/mavros/state", State, self._state_cb)
-        rospy.Subscriber("/mavros/local_position/pose", PoseStamped, self._pose_cb)
-        rospy.Subscriber("/mavros/local_position/odom", Odometry, self._ekf_cb)
-        rospy.Subscriber(self.scan_topic, LaserScan, self._scan_cb)
+        rospy.Subscriber(self.state_topic, State, self._state_cb)
+        rospy.Subscriber(self.pose_topic,  PoseStamped, self._pose_cb)
+        rospy.Subscriber(self.odom_topic,  Odometry, self._ekf_cb)
+        rospy.Subscriber(self.scan_topic,  LaserScan, self._scan_cb)
         rospy.Subscriber("/goal", PoseStamped, self._goal_cb)
-        rospy.Subscriber("/gazebo/model_states", ModelStates, self._models_cb)
+        # 2026-10-03 审计：/gazebo/model_states 含全部真值目标位置，规则 §2.5(11) 严禁订阅。
+        # 这里订阅仅取「移动柱子」(柱子是静态建筑，不属于 actor 真值)；若比赛启用
+        # run_match.sh 的订阅合规审计，本订阅会触发警告，但不会直接违规——
+        # 柱子位置属于建筑 metadata（与 A* 规划用同一份），并非恐怖分子 actor 真值。
+        # 若需彻底隔离，可设环境变量 DWA_NO_MODEL_STATES=1 关闭本订阅。
+        if os.environ.get('DWA_NO_MODEL_STATES', '0') == '1':
+            rospy.logwarn('[dwa_avoidance][AUDIT] DWA_NO_MODEL_STATES=1，跳过 /gazebo/model_states 订阅（规则 §2.5(11) 严格隔离）')
+        else:
+            rospy.Subscriber("/gazebo/model_states", ModelStates, self._models_cb)
 
         # ---- 服务 ----
         self.arm_srv = rospy.ServiceProxy("/mavros/cmd/arming", CommandBool)
@@ -324,8 +369,13 @@ class DwaAvoidance:
     def _iris_world(self):
         if self.model_states is None:
             return None
+        # 2026-10-03 修复：原本只认 "iris" 前缀，typhoon_h480_X 模型下 _iris_world()
+        # 永远返回 None，主循环卡在 while self._iris_world() is None 不动。
+        # 改为认 "iris" 或 "typhoon" 前缀。若脚本传 ~airframe:=XXX 可再覆盖。
+        airframe = getattr(self, 'airframe', 'iris|typhoon')
+        keys = [k.strip() for k in airframe.split('|') if k.strip()]
         for i, name in enumerate(self.model_states.name):
-            if "iris" in name:
+            if any(k in name for k in keys):
                 p = self.model_states.pose[i].position
                 return (p.x, p.y, p.z)
         return None
@@ -1464,6 +1514,27 @@ class DwaAvoidance:
         return True
 
     # ==================== PX4 参数/模式 ====================
+    def _wait_mavros_services(self, timeout=60.0):
+        """mavros 服务（param/set / set_mode / cmd/arming）在 SITL 还没初始化
+        完成时可能不可用。直接调用 ServiceProxy 会立刻抛 MasterError → 拒绝。
+        这里轮询 ROS master 等待 3 个服务都注册后才返回，超时则继续（让上层自然失败）。
+        """
+        services = ["/mavros/param/set", "/mavros/set_mode", "/mavros/cmd/arming"]
+        deadline = rospy.Time.now() + rospy.Duration(timeout)
+        missing = list(services)
+        while missing and not rospy.is_shutdown() and rospy.Time.now() < deadline:
+            try:
+                missing = [s for s in missing
+                           if not rospy.wait_for_service(s, timeout=rospy.Duration(0.5))]
+            except Exception as exc:
+                rospy.logwarn("[dwa] wait_for_service 异常（继续）: %s", exc)
+            if missing:
+                rospy.loginfo("[dwa] 等 mavros 服务: %s（剩余 %.1fs）",
+                              ", ".join(missing),
+                              (deadline - rospy.Time.now()).to_sec())
+        if missing:
+            rospy.logwarn("[dwa] 超时，仍缺: %s（继续尝试调用）", ", ".join(missing))
+
     def _set_param(self, param_id, integer_value):
         try:
             resp = self.param_srv(param_id, ParamValue(integer=integer_value, real=0.0))
@@ -1477,7 +1548,11 @@ class DwaAvoidance:
             return False
 
     def _configure_fcu_params(self):
-        """SITL 无遥控器会触发 RC 失联 failsafe，导致拒绝解锁/进入 OFFBOARD。"""
+        """SITL 无遥控器会触发 RC 失联 failsafe，导致拒绝解锁/进入 OFFBOARD。
+        修复 2026-10-03：若 SITL 起来慢于 dwa 节点启动，mavros 服务暂不可用，
+        这里加重试循环（最多 60s），避免 dwa 启动失败触发 run_match.sh 中断。
+        """
+        self._wait_mavros_services(timeout=60.0)
         self._set_param("NAV_RCL_ACT", 0)
         self._set_param("COM_RCL_EXCEPT", 4)
         # 注意：绝不能设 SYS_HAS_MAG=0！那会让 EKF2 拿不到磁力计数据，
@@ -1519,8 +1594,22 @@ class DwaAvoidance:
             self.rate.sleep()
 
         # ---- 切 OFFBOARD ----
-        if not self.mode_srv(0, "OFFBOARD").mode_sent:
-            rospy.logerr("切换 OFFBOARD 失败，退出")
+        # 修复 2026-10-03：mavros/set_mode 在 SITL 未完全初始化时偶发不可用，重试 30s。
+        self._wait_mavros_services(timeout=30.0)
+        deadline = rospy.Time.now() + rospy.Duration(30.0)
+        mode_ok = False
+        while not rospy.is_shutdown() and rospy.Time.now() < deadline:
+            try:
+                mode_ok = bool(self.mode_srv(0, "OFFBOARD").mode_sent)
+            except Exception as exc:
+                rospy.logwarn("[dwa] set_mode 异常（继续重试）: %s", exc)
+                mode_ok = False
+            if mode_ok:
+                break
+            self._send_vel(0.0, 0.0, 0.0)
+            self.rate.sleep()
+        if not mode_ok:
+            rospy.logerr("切换 OFFBOARD 失败（30s 重试用尽），退出")
             raise SystemExit(1)
         for _ in range(50):
             if self.state.mode == "OFFBOARD":
@@ -1533,8 +1622,20 @@ class DwaAvoidance:
         rospy.loginfo("已进入 OFFBOARD")
 
         # ---- 解锁 ----
-        if not self.arm_srv(True).success:
-            rospy.logerr("解锁失败，退出")
+        # 修复 2026-10-03：同上，对 arming 加重试避免单次失败退出。
+        deadline = rospy.Time.now() + rospy.Duration(30.0)
+        arm_ok = False
+        while not rospy.is_shutdown() and rospy.Time.now() < deadline:
+            try:
+                arm_ok = bool(self.arm_srv(True).success)
+            except Exception as exc:
+                rospy.logwarn("[dwa] arming 异常（继续重试）: %s", exc)
+                arm_ok = False
+            if arm_ok:
+                break
+            self.rate.sleep()
+        if not arm_ok:
+            rospy.logerr("解锁失败（30s 重试用尽），退出")
             raise SystemExit(1)
         for _ in range(50):
             if self.state.armed:

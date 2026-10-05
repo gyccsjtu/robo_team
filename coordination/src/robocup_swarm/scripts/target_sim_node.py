@@ -35,10 +35,15 @@ from robocup_swarm.msg import TargetState, TargetDetection, UavStatus
 from robocup_navigation.astar import load_metadata, GridMap
 
 # ============================ 参数 ============================
-METADATA_PATH = os.environ.get(
-    "ROBOCUP_METADATA",
-    os.path.join(os.environ.get("ROBOCUP_WS", "/home/ros/team_ws/robocup"),
-                 "src/robocup_training_worlds/worlds/generated/robocup_base.json"))
+# metadata 路径：环境变量 ROBOCUP_METADATA 必须显式给（run_match.sh 会注入），
+# 缺省时按仓库根自动推导，避免旧默认值里的 $REPO_ROOT 字面量陷阱。
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_REPO_ROOT_FALLBACK = os.path.abspath(os.path.join(_HERE, "..", "..", "..", "..", ".."))
+_DEFAULT_MD = os.path.join(
+    _REPO_ROOT_FALLBACK,
+    "coordination/src/robocup_training_worlds/worlds/generated/robocup_base.json",
+)
+METADATA_PATH = os.environ.get("ROBOCUP_METADATA") or _DEFAULT_MD
 NUM_TARGETS       = 6      # 规则：6 名恐怖分子
 WALK_SPEED        = 1.0    # 规则2：未感知无人机时的随机走动速度 m/s
 FLEE_SPEED        = 2.0    # 规则3：感知到无人机后的逃跑速度 m/s
@@ -314,8 +319,15 @@ class TargetSimNode(object):
 
 
 if __name__ == "__main__":
+    import sys as _sys
     rospy.init_node("target_sim_node")
-    ids = rospy.get_param("~uav_ids", "uav_1,uav_2")
-    if isinstance(ids, str):
-        ids = ids.split(",")
+    # 仿真自验：支持环境变量 UAV_IDS="typhoon_h480_0,typhoon_h480_1,..." 覆盖默认
+    # 这样旁路拉起时 swarm_manager 也能从 /swarm/uav_status 拿到正确 uav_id 触发感知半径
+    _env_ids = os.environ.get("UAV_IDS")
+    if _env_ids:
+        ids = _env_ids.split(",")
+    else:
+        ids = rospy.get_param("~uav_ids", "uav_1,uav_2")
+        if isinstance(ids, str):
+            ids = ids.split(",")
     TargetSimNode(ids).run()
