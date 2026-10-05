@@ -1,0 +1,73 @@
+{
+  "executed_commit": "cb33a45",
+  "candidate_agent_sha256": "4473b7d78b15bf2bad3c849434096e2db9b0e2e6515f487fbf95adab9f938c17",
+  "physical_replay": false,
+  "control_input": false,
+  "real_raw_observation_inputs": [
+    {
+      "schema_version": 2,
+      "run_id": "29494783-75df-4543-b7ed-ca7b2f61f90a",
+      "uav_id": "uav_4",
+      "seq": 78,
+      "sample_s": 1963.236,
+      "target_id": "green",
+      "frame_id": "world_enu",
+      "xyz": [
+        35.95,
+        -6.61,
+        1.25
+      ],
+      "confidence": 0.863,
+      "observation_id": "29494783-75df-4543-b7ed-ca7b2f61f90a:uav_4:78"
+    },
+    {
+      "schema_version": 2,
+      "run_id": "29494783-75df-4543-b7ed-ca7b2f61f90a",
+      "uav_id": "uav_4",
+      "seq": 82,
+      "sample_s": 1963.524,
+      "target_id": "green",
+      "frame_id": "world_enu",
+      "xyz": [
+        35.63,
+        -6.67,
+        1.25
+      ],
+      "confidence": 0.864,
+      "observation_id": "29494783-75df-4543-b7ed-ca7b2f61f90a:uav_4:82"
+    }
+  ],
+  "synthetic_scheduler": {
+    "first_request": [
+      [
+        35.95,
+        -6.61
+      ],
+      2,
+      8
+    ],
+    "next_pending": [
+      [
+        35.63,
+        -6.67
+      ],
+      2,
+      9
+    ],
+    "latest_ticket": 9,
+    "completed_first_result_discarded": true
+  },
+  "actual_log_window": {
+    "uav_id": "uav_6",
+    "target": "green",
+    "generation": 2,
+    "grant_s": 1963.336,
+    "first_committed_s": 1972.516,
+    "successful_plan_logs": 14
+  },
+  "limitations": [
+    "The exact scheduler order is constructed; raw observations are not a complete confirmed callback replay.",
+    "Actual logs prove14 successful plans and one late route commit, but do not expose every discard reason.",
+    "This executable counterexample demonstrates the same-generation cancellation defect; it is not a physical retry."
+  ]
+}

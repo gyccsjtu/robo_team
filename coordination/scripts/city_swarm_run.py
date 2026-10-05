@@ -113,6 +113,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         local_execution_clearance_revision='v1.24_current_scan_corridor',
         position_brake_revision='v2_xyz_after_takeoff',navigation_feedback_revision='v1',
         behavior_baseline='c77063e',behavior_rollback_revision='v1.29',
+        tracking_planner_handoff_revision='v1.30_same_generation_finishes_before_camera_replacement',
         navigation_retry_revision='v1.24_no_position_rejection_filter',
         green_white_confirm_revision='v1.24_existing_confirmation_counter',
         confirmation_attempt_revision='v1.24_existing_confirmation_counter',

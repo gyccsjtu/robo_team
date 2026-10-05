@@ -1764,18 +1764,21 @@ class SwarmAgent(object):
 
     # ---------------- 异步规划接口 ----------------
     def _request_plan(self, goal_xy):
-        """投递一个规划请求并立即返回（不阻塞控制循环）。多次请求只保留最新目标。"""
-        with self._plan_lock:
+        """异步投递；追踪同代次先完成在途规划，下一次再取最新相机目标。"""
+        with self._authority_lock, self._plan_lock:
             candidate = (float(goal_xy[0]), float(goal_xy[1]))
+            generation = self._gate.generation
+            tracking = self._gate.task is not None and self._gate.task['task_type'] == 1
             pending = self._route_pending
-            if (pending is not None and pending[2] == candidate and pending[3] == self._gate.generation
+            if (pending is not None and (tracking or pending[2] == candidate) and pending[3] == generation
                     and 0 <= rospy.Time.now().to_sec()-self._route_pending_s < 1.):
                 return
-            if any(request is not None and request[:2] == (candidate, self._gate.generation)
+            if any(request is not None and request[1] == generation
+                   and (tracking or request[0] == candidate)
                    for request in (self._plan_pending, self._plan_inflight)):
                 return
             self._plan_ticket += 1
-            self._plan_pending = (candidate, self._gate.generation, self._plan_ticket)
+            self._plan_pending = (candidate, generation, self._plan_ticket)
         self._plan_event.set()
 
     def _planner_loop(self):
@@ -1791,18 +1794,26 @@ class SwarmAgent(object):
                 self._plan_event.clear()
                 self._plan_inflight = request
             goal, generation, ticket = request
+            started_s = rospy.Time.now().to_sec()
             try:
                 path, target, ok = self._compute_plan(goal)
             except Exception as exc:
                 rospy.logerr("[%s] 规划线程异常: %s\n%s",
                              self.uav_id, exc, traceback.format_exc())
                 ok = False
-            with self._plan_lock:
+            # Preserve the same lock order as authority callbacks/control. There
+            # must be no idle gap between inflight and the route offer: a new
+            # camera point in that gap would cancel the completed computation.
+            with self._authority_lock, self._plan_lock:
                 if self._plan_inflight == request:
                     self._plan_inflight = None
-            with self._authority_lock:
                 if (generation != self._gate.generation or ticket != self._plan_ticket
                         or not self._gate.can_move(rospy.Time.now().to_sec())):
+                    reason = ('GENERATION_CHANGED' if generation != self._gate.generation else
+                              'SUPERSEDED_TICKET' if ticket != self._plan_ticket else
+                              'AUTHORITY_STOPPED_OR_EXPIRED')
+                    rospy.loginfo('[%s] PLAN_RESULT_DISCARDED generation=%s ticket=%s reason=%s',
+                                  self.uav_id, generation, ticket, reason)
                     continue
                 if ok:
                     if self.world_xy is None:
@@ -1810,6 +1821,8 @@ class SwarmAgent(object):
                     path = [list(self.world_xy)] + [list(p) for p in path]
                     self._route_pending = (ticket, path, target, generation)
                     self._route_pending_s = rospy.Time.now().to_sec()
+                    rospy.loginfo('[%s] PLAN_OFFERED generation=%s ticket=%s elapsed_s=%.3f',
+                                  self.uav_id, generation, ticket, self._route_pending_s-started_s)
                     self._route_offer_pub.publish(String(data=json.dumps(dict(schema_version=1,
                         run_id=self._gate.run_id, uav_id=self.uav_id, generation=generation,
                         offer_id=ticket, points=path), allow_nan=False)))

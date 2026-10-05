@@ -1,0 +1,22 @@
+{
+  "reason": "PLANNING_RESULTS_SUPERSEDED_WITHIN_TARGET_GENERATION",
+  "owned_runner_pid": 477,
+  "command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/validate_fast_city.py --root /root/robocup_runs/manual_v129_20261005T083707Z --single-seed 8159 ",
+  "latest_trajectory_sample_s": 2053.168,
+  "last_left_actors": {
+    "kind": "left_actors",
+    "sample_s": 2053.828,
+    "value": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "executed_commit": "cb33a45",
+  "decision": "Codex intentionally ends this physical round after an executable same-generation planning counterexample and14 successful plans without timely route commit; offline repair follows.",
+  "not_full_600_seconds": true,
+  "competition_goal_met": false
+}

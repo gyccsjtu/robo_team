@@ -1,0 +1,3053 @@
+{
+  "raw_root": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159",
+  "raw_files": {
+    "source_manifest.json": {
+      "sha256": "8e2d64557b8932f33c4ccc83499e2696eac6e12496cae28b47177ab2b557944e",
+      "bytes": 23222,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/source_manifest.json",
+      "archive_path": "source_manifest.json",
+      "archive_kind": "full",
+      "archive_sha256": "8e2d64557b8932f33c4ccc83499e2696eac6e12496cae28b47177ab2b557944e"
+    },
+    "agent_early_stop_decision.json": {
+      "sha256": "1d496c04a02ea3a5d2e7f333996e34df4da3ca2cad6f9ea206a4d95ffd6c2a54",
+      "bytes": 761,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/agent_early_stop_decision.json",
+      "archive_path": "agent_early_stop_decision.json",
+      "archive_kind": "full",
+      "archive_sha256": "1d496c04a02ea3a5d2e7f333996e34df4da3ca2cad6f9ea206a4d95ffd6c2a54"
+    },
+    "launcher.log": {
+      "sha256": "ef7b171cf7dc9f301aadb976f963ec8409bba7ceaa6f5b77c2c65401b0663ced",
+      "bytes": 6884,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/launcher.log",
+      "archive_path": "launcher.log",
+      "archive_kind": "full",
+      "archive_sha256": "ef7b171cf7dc9f301aadb976f963ec8409bba7ceaa6f5b77c2c65401b0663ced"
+    },
+    "early_stop.json": {
+      "sha256": "1115ca8d078f1571dc7a6ca99020552440c3bcad943176c4cacd7e735ea338f1",
+      "bytes": 368,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/early_stop.json",
+      "archive_path": "early_stop.json",
+      "archive_kind": "full",
+      "archive_sha256": "1115ca8d078f1571dc7a6ca99020552440c3bcad943176c4cacd7e735ea338f1"
+    },
+    "postrun_audit.json": {
+      "sha256": "af99600ac5a76555b2db4f5d7d139cb4e877c1358d7fc06c78d0bce9111cdf51",
+      "bytes": 1556,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/postrun_audit.json",
+      "archive_path": "postrun_audit.json",
+      "archive_kind": "full",
+      "archive_sha256": "af99600ac5a76555b2db4f5d7d139cb4e877c1358d7fc06c78d0bce9111cdf51"
+    },
+    "flight/perception_uav_6.log": {
+      "sha256": "cf2b1de8fa3cc4cdaf3791d547e70f2bebebe5531784c1fbc2f49892645ba012",
+      "bytes": 15310,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/perception_uav_6.log",
+      "archive_path": "flight/perception_uav_6.log",
+      "archive_kind": "full",
+      "archive_sha256": "cf2b1de8fa3cc4cdaf3791d547e70f2bebebe5531784c1fbc2f49892645ba012"
+    },
+    "flight/independent_visual_accuracy_white.jsonl": {
+      "sha256": "0336bfe772ba1715c09fd82e1aa4069e7463db61a8d9db6a8fcae76362cee95a",
+      "bytes": 202972,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/independent_visual_accuracy_white.jsonl",
+      "archive_path": "flight/independent_visual_accuracy_white.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "3d0cef7a8a8cfdd76f4566f3fb880210b26fa5d90f747e08b06c38a46cfe6e26"
+    },
+    "flight/world_ready.json": {
+      "sha256": "ea6a8611482a3f73a627ff5f3fa061fb2182be05cabdfab0c7d7e772447fb488",
+      "bytes": 58,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/world_ready.json",
+      "archive_path": "flight/world_ready.json",
+      "archive_kind": "full",
+      "archive_sha256": "ea6a8611482a3f73a627ff5f3fa061fb2182be05cabdfab0c7d7e772447fb488"
+    },
+    "flight/independent_visual_accuracy_red.jsonl": {
+      "sha256": "d2ea24715233ee14c14df79da56f13227d459c468be919f432efb8489552b870",
+      "bytes": 354359,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/independent_visual_accuracy_red.jsonl",
+      "archive_path": "flight/independent_visual_accuracy_red.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "832ccb5e6235ad3ec9d825b4800bf828f72f37ef6966d105abce9946f2eeb270"
+    },
+    "flight/agent_uav_5.log": {
+      "sha256": "941211988200b9e03636770db4045b806db04626173ffcbf3d26395aedc1d434",
+      "bytes": 23734,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/agent_uav_5.log",
+      "archive_path": "flight/agent_uav_5.log",
+      "archive_kind": "full",
+      "archive_sha256": "941211988200b9e03636770db4045b806db04626173ffcbf3d26395aedc1d434"
+    },
+    "flight/execution_sources.json": {
+      "sha256": "d3742533098c9d73a1516653276f0c1cb146a77a7eff927ab48b310063fd83c7",
+      "bytes": 1142,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources.json",
+      "archive_path": "flight/execution_sources.json",
+      "archive_kind": "full",
+      "archive_sha256": "d3742533098c9d73a1516653276f0c1cb146a77a7eff927ab48b310063fd83c7"
+    },
+    "flight/judge.log": {
+      "sha256": "0da099daaf7aee0d88b3a5163caaf50ee5968c9d1f4d4cbd33b0abc5931a22ac",
+      "bytes": 1717,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/judge.log",
+      "archive_path": "flight/judge.log",
+      "archive_kind": "full",
+      "archive_sha256": "0da099daaf7aee0d88b3a5163caaf50ee5968c9d1f4d4cbd33b0abc5931a22ac"
+    },
+    "flight/swarm_source_manifest.json": {
+      "sha256": "f15f258b350a782bdedd11e1ff3a22a757580cf07823ffb4f20462449f7a75b1",
+      "bytes": 15963,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_source_manifest.json",
+      "archive_path": "flight/swarm_source_manifest.json",
+      "archive_kind": "full",
+      "archive_sha256": "f15f258b350a782bdedd11e1ff3a22a757580cf07823ffb4f20462449f7a75b1"
+    },
+    "flight/connectivity.world": {
+      "sha256": "7a9dbcff907b0c7ebca1eaf4ea870bc1922d5d53e9a05cc79737dcc1ce0a1c45",
+      "bytes": 2648227,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/connectivity.world",
+      "archive_path": "flight/connectivity.world",
+      "archive_kind": "full",
+      "archive_sha256": "7a9dbcff907b0c7ebca1eaf4ea870bc1922d5d53e9a05cc79737dcc1ce0a1c45"
+    },
+    "flight/actor_2.log": {
+      "sha256": "8cd7cdb9eb18213cd7c4631ee3ed05e289652128a347ba37c6296d833fefa5a5",
+      "bytes": 550,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/actor_2.log",
+      "archive_path": "flight/actor_2.log",
+      "archive_kind": "full",
+      "archive_sha256": "8cd7cdb9eb18213cd7c4631ee3ed05e289652128a347ba37c6296d833fefa5a5"
+    },
+    "flight/yolo_target_bridge.log": {
+      "sha256": "0b79659b661287d126f84ada98a5a9b862b953b3b1d0cec0486ebc20949939b8",
+      "bytes": 139,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/yolo_target_bridge.log",
+      "archive_path": "flight/yolo_target_bridge.log",
+      "archive_kind": "full",
+      "archive_sha256": "0b79659b661287d126f84ada98a5a9b862b953b3b1d0cec0486ebc20949939b8"
+    },
+    "flight/actor_4.log": {
+      "sha256": "c938538e812af7f5850c6e691aa705169e735c8f3c5264c7abb5bd587f4d88a1",
+      "bytes": 1073,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/actor_4.log",
+      "archive_path": "flight/actor_4.log",
+      "archive_kind": "full",
+      "archive_sha256": "c938538e812af7f5850c6e691aa705169e735c8f3c5264c7abb5bd587f4d88a1"
+    },
+    "flight/city_bounds.json": {
+      "sha256": "463e2f6de13c1688a3022d2bde0890823fb2da609a3e216971436c077a7c4da4",
+      "bytes": 477,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/city_bounds.json",
+      "archive_path": "flight/city_bounds.json",
+      "archive_kind": "full",
+      "archive_sha256": "463e2f6de13c1688a3022d2bde0890823fb2da609a3e216971436c077a7c4da4"
+    },
+    "flight/city_contacts.log": {
+      "sha256": "0976001aeb967f0b80ce580a71c41f84136ef42528291d215c4f7cde2147f8c4",
+      "bytes": 214579,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/city_contacts.log",
+      "archive_path": "flight/city_contacts.log.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "03f47ac50e16b0fe9529758e260ce01842194b33ec38c34fc2031040bbee5c82"
+    },
+    "flight/independent_visual_accuracy_white.json": {
+      "sha256": "97a8c29aa79eedff71bdddf6b57be21aeb7320299f36f6a3354fad905b4078ab",
+      "bytes": 790,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/independent_visual_accuracy_white.json",
+      "archive_path": "flight/independent_visual_accuracy_white.json",
+      "archive_kind": "full",
+      "archive_sha256": "97a8c29aa79eedff71bdddf6b57be21aeb7320299f36f6a3354fad905b4078ab"
+    },
+    "flight/mavros.log": {
+      "sha256": "34dbda49f7675d48c393bda4e11387be68bc5f2324e4168297076bb08c0ae37a",
+      "bytes": 261444,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/mavros.log",
+      "archive_path": "flight/mavros.log.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "85f221860f87c9c76c7f06c5c8869204f92d7c032207beccc462c028d5fe36b4"
+    },
+    "flight/actor_5.log": {
+      "sha256": "804167bc4bf6456d20f2f796eaab42f84f7e3f21651d4eab4db00715be486cef",
+      "bytes": 1262,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/actor_5.log",
+      "archive_path": "flight/actor_5.log",
+      "archive_kind": "full",
+      "archive_sha256": "804167bc4bf6456d20f2f796eaab42f84f7e3f21651d4eab4db00715be486cef"
+    },
+    "flight/px4_uav_2.log": {
+      "sha256": "7b3928504d0d1873a27eabce9463866d69125fcfce285c5eed62b86ba807f4b1",
+      "bytes": 2837,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/px4_uav_2.log",
+      "archive_path": "flight/px4_uav_2.log",
+      "archive_kind": "full",
+      "archive_sha256": "7b3928504d0d1873a27eabce9463866d69125fcfce285c5eed62b86ba807f4b1"
+    },
+    "flight/roscore.log": {
+      "sha256": "0126da617f96f3cffc037c760345816ed7c259daf667df1f8c6bd924bda439e3",
+      "bytes": 884,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/roscore.log",
+      "archive_path": "flight/roscore.log",
+      "archive_kind": "full",
+      "archive_sha256": "0126da617f96f3cffc037c760345816ed7c259daf667df1f8c6bd924bda439e3"
+    },
+    "flight/px4_uav_5.log": {
+      "sha256": "4d66511940953db86c23ffce4793507ad882e2559096722b4dcbec8c08d5e61b",
+      "bytes": 2837,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/px4_uav_5.log",
+      "archive_path": "flight/px4_uav_5.log",
+      "archive_kind": "full",
+      "archive_sha256": "4d66511940953db86c23ffce4793507ad882e2559096722b4dcbec8c08d5e61b"
+    },
+    "flight/city_trajectory.jsonl": {
+      "sha256": "94ca8e42c141136d8df8efc59e25d7f127a0cdd9b17dd9706204be254f96016c",
+      "bytes": 288038,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/city_trajectory.jsonl",
+      "archive_path": "flight/city_trajectory.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "d247cf5cc60249109c6f8fb89c195ece2721fff94c311a3528fe0dc3cfd359d7"
+    },
+    "flight/result.json": {
+      "sha256": "e67e283d8b0e11f074de596981700be5383af9210bf2bdf7c8bca7ac7c846c17",
+      "bytes": 18358,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/result.json",
+      "archive_path": "flight/result.json",
+      "archive_kind": "full",
+      "archive_sha256": "e67e283d8b0e11f074de596981700be5383af9210bf2bdf7c8bca7ac7c846c17"
+    },
+    "flight/shared_inference.json": {
+      "sha256": "f0293326d65d490a2a484e09fc74461683af60309ece310d49aeecac6b997dc1",
+      "bytes": 192,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/shared_inference.json",
+      "archive_path": "flight/shared_inference.json",
+      "archive_kind": "full",
+      "archive_sha256": "f0293326d65d490a2a484e09fc74461683af60309ece310d49aeecac6b997dc1"
+    },
+    "flight/perception_uav_3.log": {
+      "sha256": "5b795ebd23fb3735c06f4b45651a279a5052127bc78c4250afef28e29f16ba5a",
+      "bytes": 6356,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/perception_uav_3.log",
+      "archive_path": "flight/perception_uav_3.log",
+      "archive_kind": "full",
+      "archive_sha256": "5b795ebd23fb3735c06f4b45651a279a5052127bc78c4250afef28e29f16ba5a"
+    },
+    "flight/px4_uav_1.log": {
+      "sha256": "ef0f540878b1b3f33c5c8a55a04f44d501990c9323971cf043f409e08249cf94",
+      "bytes": 3022,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/px4_uav_1.log",
+      "archive_path": "flight/px4_uav_1.log",
+      "archive_kind": "full",
+      "archive_sha256": "ef0f540878b1b3f33c5c8a55a04f44d501990c9323971cf043f409e08249cf94"
+    },
+    "flight/city_commands.jsonl": {
+      "sha256": "65c648b49b52df3b4a88d0013b7abd7b45e09ac05f65ddfe1a14a94629123f4a",
+      "bytes": 2946860,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/city_commands.jsonl",
+      "archive_path": "flight/city_commands.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "f47d014e7eceb772ff625dca21c36962ffa5bc9339ca0606c8c948f32bb8d452"
+    },
+    "flight/agent_uav_4.log": {
+      "sha256": "9bcde0c37789288e2c2c80570c5c26b64de46ff73b7934c9aa2e33d07d0d0756",
+      "bytes": 12437,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/agent_uav_4.log",
+      "archive_path": "flight/agent_uav_4.log",
+      "archive_kind": "full",
+      "archive_sha256": "9bcde0c37789288e2c2c80570c5c26b64de46ff73b7934c9aa2e33d07d0d0756"
+    },
+    "flight/city_contact_observer.cc": {
+      "sha256": "5d3908f72872c0c01b8deac21395edeb45cb4edc51115f1642c8cec8f3b06bc4",
+      "bytes": 4370,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/city_contact_observer.cc",
+      "archive_path": "flight/city_contact_observer.cc",
+      "archive_kind": "full",
+      "archive_sha256": "5d3908f72872c0c01b8deac21395edeb45cb4edc51115f1642c8cec8f3b06bc4"
+    },
+    "flight/agent_uav_3.log": {
+      "sha256": "44c85a581614a818a611f56044971642284e0e52f0c3ef49983a39d96a12c299",
+      "bytes": 21258,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/agent_uav_3.log",
+      "archive_path": "flight/agent_uav_3.log",
+      "archive_kind": "full",
+      "archive_sha256": "44c85a581614a818a611f56044971642284e0e52f0c3ef49983a39d96a12c299"
+    },
+    "flight/gimbal_runtime_manifest.json": {
+      "sha256": "f6ed8800d8013afc69c67e9a8db3d78148837a284036c9335e657417a0ce53e5",
+      "bytes": 13421,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/gimbal_runtime_manifest.json",
+      "archive_path": "flight/gimbal_runtime_manifest.json",
+      "archive_kind": "full",
+      "archive_sha256": "f6ed8800d8013afc69c67e9a8db3d78148837a284036c9335e657417a0ce53e5"
+    },
+    "flight/perception_uav_2.log": {
+      "sha256": "e5c01f46df2d43c84ff37501ce2ddf29c1a4d4e98348cd1c3c3252869edba42c",
+      "bytes": 3744,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/perception_uav_2.log",
+      "archive_path": "flight/perception_uav_2.log",
+      "archive_kind": "full",
+      "archive_sha256": "e5c01f46df2d43c84ff37501ce2ddf29c1a4d4e98348cd1c3c3252869edba42c"
+    },
+    "flight/agent_uav_1.log": {
+      "sha256": "ab1834b1f191b34603022916061ce7cb55d5c364f36759dcc78ca3aff9b168e9",
+      "bytes": 23410,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/agent_uav_1.log",
+      "archive_path": "flight/agent_uav_1.log",
+      "archive_kind": "full",
+      "archive_sha256": "ab1834b1f191b34603022916061ce7cb55d5c364f36759dcc78ca3aff9b168e9"
+    },
+    "flight/perception_uav_4.log": {
+      "sha256": "d7568c1583e5da84d56dc3355997b703133e3e5cd32469f29d83ba2a7ddb95fa",
+      "bytes": 29855,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/perception_uav_4.log",
+      "archive_path": "flight/perception_uav_4.log",
+      "archive_kind": "full",
+      "archive_sha256": "d7568c1583e5da84d56dc3355997b703133e3e5cd32469f29d83ba2a7ddb95fa"
+    },
+    "flight/independent_visual_accuracy_red.json": {
+      "sha256": "2701470a41d4302c535f9b06382ff7dacd8c299fac9f6b7e99ebf133d706941d",
+      "bytes": 836,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/independent_visual_accuracy_red.json",
+      "archive_path": "flight/independent_visual_accuracy_red.json",
+      "archive_kind": "full",
+      "archive_sha256": "2701470a41d4302c535f9b06382ff7dacd8c299fac9f6b7e99ebf133d706941d"
+    },
+    "flight/startup_clearance.json": {
+      "sha256": "ee2b2c1ccb7fb90382fee8b96bee6384c5eadd779d22e27a9ad8017551697453",
+      "bytes": 877,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/startup_clearance.json",
+      "archive_path": "flight/startup_clearance.json",
+      "archive_kind": "full",
+      "archive_sha256": "ee2b2c1ccb7fb90382fee8b96bee6384c5eadd779d22e27a9ad8017551697453"
+    },
+    "flight/city_events.jsonl": {
+      "sha256": "2308ede993d1c64cda5ec650a239b9e3c19e4fe17df17f62c46ff662bc270916",
+      "bytes": 191709,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/city_events.jsonl",
+      "archive_path": "flight/city_events.jsonl",
+      "archive_kind": "full",
+      "archive_sha256": "2308ede993d1c64cda5ec650a239b9e3c19e4fe17df17f62c46ff662bc270916"
+    },
+    "flight/px4_uav_3.log": {
+      "sha256": "a82ffb7eda39bd5ecfe629be32436b680fee124bfa702eb15fac496eb8b85f2a",
+      "bytes": 2837,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/px4_uav_3.log",
+      "archive_path": "flight/px4_uav_3.log",
+      "archive_kind": "full",
+      "archive_sha256": "a82ffb7eda39bd5ecfe629be32436b680fee124bfa702eb15fac496eb8b85f2a"
+    },
+    "flight/actor_0.log": {
+      "sha256": "4acfb86ce9aadbe0fcc93863fff945dc51a370a40a7ba5521dc3635dc64b2beb",
+      "bytes": 1164,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/actor_0.log",
+      "archive_path": "flight/actor_0.log",
+      "archive_kind": "full",
+      "archive_sha256": "4acfb86ce9aadbe0fcc93863fff945dc51a370a40a7ba5521dc3635dc64b2beb"
+    },
+    "flight/city_control_config.json": {
+      "sha256": "58a0252bf5f2cbe7307848526863b0724c55c4dbc396971132fbd2c2a43dd2f6",
+      "bytes": 3601,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/city_control_config.json",
+      "archive_path": "flight/city_control_config.json",
+      "archive_kind": "full",
+      "archive_sha256": "58a0252bf5f2cbe7307848526863b0724c55c4dbc396971132fbd2c2a43dd2f6"
+    },
+    "flight/planner_starvation_diagnosis.json": {
+      "sha256": "6ac238927a9c2a77265c61cc79774d972ecc9271663e7caa397e69aa3c550e63",
+      "bytes": 1846,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/planner_starvation_diagnosis.json",
+      "archive_path": "flight/planner_starvation_diagnosis.json",
+      "archive_kind": "full",
+      "archive_sha256": "6ac238927a9c2a77265c61cc79774d972ecc9271663e7caa397e69aa3c550e63"
+    },
+    "flight/agent_uav_2.log": {
+      "sha256": "8046cdf49f9a820e992f0e84eb2588d6a4e8d5bbdba3f916261375257bd78a82",
+      "bytes": 22788,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/agent_uav_2.log",
+      "archive_path": "flight/agent_uav_2.log",
+      "archive_kind": "full",
+      "archive_sha256": "8046cdf49f9a820e992f0e84eb2588d6a4e8d5bbdba3f916261375257bd78a82"
+    },
+    "flight/px4_estimator_config.json": {
+      "sha256": "6ac5ed739185104e6d5043b8144adb236c75f6a0b242d2bb78b3c2666feaf239",
+      "bytes": 495,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/px4_estimator_config.json",
+      "archive_path": "flight/px4_estimator_config.json",
+      "archive_kind": "full",
+      "archive_sha256": "6ac5ed739185104e6d5043b8144adb236c75f6a0b242d2bb78b3c2666feaf239"
+    },
+    "flight/wiring.json": {
+      "sha256": "609defbdf58fe62e241da254c30768e22b7dd312ae1163436cbf3ccde130c0c2",
+      "bytes": 3833,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/wiring.json",
+      "archive_path": "flight/wiring.json",
+      "archive_kind": "full",
+      "archive_sha256": "609defbdf58fe62e241da254c30768e22b7dd312ae1163436cbf3ccde130c0c2"
+    },
+    "flight/perception_uav_1.log": {
+      "sha256": "c8d06e4c02d42a3690c5b0db9a7890e693495a5237e3a711f2bc21d07975302c",
+      "bytes": 3762,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/perception_uav_1.log",
+      "archive_path": "flight/perception_uav_1.log",
+      "archive_kind": "full",
+      "archive_sha256": "c8d06e4c02d42a3690c5b0db9a7890e693495a5237e3a711f2bc21d07975302c"
+    },
+    "flight/shared_inference.log": {
+      "sha256": "b64f9a0e2f8ed53501541bb5d0a1c8b97ad2b8045ae0c92998098db8103a2505",
+      "bytes": 301,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/shared_inference.log",
+      "archive_path": "flight/shared_inference.log",
+      "archive_kind": "full",
+      "archive_sha256": "b64f9a0e2f8ed53501541bb5d0a1c8b97ad2b8045ae0c92998098db8103a2505"
+    },
+    "flight/gzserver.log": {
+      "sha256": "8a9ed44251579acebb19cd49e34743b46ce475e0fd909472115e72c1949fdf3e",
+      "bytes": 153693913,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/gzserver.log",
+      "archive_path": "flight/gzserver.log.tail",
+      "archive_kind": "tail",
+      "archive_sha256": "dfa611411308f6b78248200b08b84264fa621c443064444a7927d93ab9623856"
+    },
+    "flight/px4_uav_4.log": {
+      "sha256": "f20d6d4e79fedfd401bc488b839cd4294bb3c4e9c7580d76dc61115f9a30e4b9",
+      "bytes": 2837,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/px4_uav_4.log",
+      "archive_path": "flight/px4_uav_4.log",
+      "archive_kind": "full",
+      "archive_sha256": "f20d6d4e79fedfd401bc488b839cd4294bb3c4e9c7580d76dc61115f9a30e4b9"
+    },
+    "flight/contact_observer_manifest.json": {
+      "sha256": "f4c74746b7ef1801cdebf47a229bdd2df790ff8846e6b9e50b49acc088334119",
+      "bytes": 450,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/contact_observer_manifest.json",
+      "archive_path": "flight/contact_observer_manifest.json",
+      "archive_kind": "full",
+      "archive_sha256": "f4c74746b7ef1801cdebf47a229bdd2df790ff8846e6b9e50b49acc088334119"
+    },
+    "flight/agent_uav_6.log": {
+      "sha256": "a497be18b76449dc8b2888eb285d386fc4b87635fd35aac6c6f7c59a4de289c9",
+      "bytes": 10968,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/agent_uav_6.log",
+      "archive_path": "flight/agent_uav_6.log",
+      "archive_kind": "full",
+      "archive_sha256": "a497be18b76449dc8b2888eb285d386fc4b87635fd35aac6c6f7c59a4de289c9"
+    },
+    "flight/swarm_manager.log": {
+      "sha256": "5fef854c85fbc3823ccd57667509aeea21236e0ec54a6a5a6e5427ae195717bf",
+      "bytes": 14808,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_manager.log",
+      "archive_path": "flight/swarm_manager.log",
+      "archive_kind": "full",
+      "archive_sha256": "5fef854c85fbc3823ccd57667509aeea21236e0ec54a6a5a6e5427ae195717bf"
+    },
+    "flight/px4_uav_6.log": {
+      "sha256": "57a2e082fdc15ada2fd43cff019c5b1c7e1b553acd5376f1ae2a5c54f5dabf61",
+      "bytes": 2837,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/px4_uav_6.log",
+      "archive_path": "flight/px4_uav_6.log",
+      "archive_kind": "full",
+      "archive_sha256": "57a2e082fdc15ada2fd43cff019c5b1c7e1b553acd5376f1ae2a5c54f5dabf61"
+    },
+    "flight/actor_1.log": {
+      "sha256": "e892bff9bf3215dbb90f6e65feb4519f2d9c33274d56731c887f4a0067a0d0f7",
+      "bytes": 1166,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/actor_1.log",
+      "archive_path": "flight/actor_1.log",
+      "archive_kind": "full",
+      "archive_sha256": "e892bff9bf3215dbb90f6e65feb4519f2d9c33274d56731c887f4a0067a0d0f7"
+    },
+    "flight/development_physics.json": {
+      "sha256": "85b9a1943ec79fc1e277526531cc4a34c1f3568c865a7f5c038b588eea5b77f4",
+      "bytes": 150,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/development_physics.json",
+      "archive_path": "flight/development_physics.json",
+      "archive_kind": "full",
+      "archive_sha256": "85b9a1943ec79fc1e277526531cc4a34c1f3568c865a7f5c038b588eea5b77f4"
+    },
+    "flight/perception_uav_5.log": {
+      "sha256": "801562fd9d62dc18181fb87da56ee58fe81a3eaeb3152d904b2161bc733f080b",
+      "bytes": 4411,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/perception_uav_5.log",
+      "archive_path": "flight/perception_uav_5.log",
+      "archive_kind": "full",
+      "archive_sha256": "801562fd9d62dc18181fb87da56ee58fe81a3eaeb3152d904b2161bc733f080b"
+    },
+    "flight/actor_3.log": {
+      "sha256": "ea7fd38ffae3a71fa48e38cc1c3d171c7758212e6faf4f43e7441b8e6668f544",
+      "bytes": 1163,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/actor_3.log",
+      "archive_path": "flight/actor_3.log",
+      "archive_kind": "full",
+      "archive_sha256": "ea7fd38ffae3a71fa48e38cc1c3d171c7758212e6faf4f43e7441b8e6668f544"
+    },
+    "flight/algorithm/perception_typhoon_h480_4.csv": {
+      "sha256": "22fc17d322ed1b1b41124776bad1b3ad972720d3a969d1dc3b0cc894068d0bab",
+      "bytes": 119606,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_4.csv",
+      "archive_path": "flight/algorithm/perception_typhoon_h480_4.csv",
+      "archive_kind": "full",
+      "archive_sha256": "22fc17d322ed1b1b41124776bad1b3ad972720d3a969d1dc3b0cc894068d0bab"
+    },
+    "flight/algorithm/navigation_uav_4_latest.json": {
+      "sha256": "7a04c7f714e028cea9948a7e3cc6c9933029357553b80903f2dc51068d7b8966",
+      "bytes": 24374,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_4_latest.json",
+      "archive_path": "flight/algorithm/navigation_uav_4_latest.json",
+      "archive_kind": "full",
+      "archive_sha256": "7a04c7f714e028cea9948a7e3cc6c9933029357553b80903f2dc51068d7b8966"
+    },
+    "flight/algorithm/algorithm.csv": {
+      "sha256": "22a406be76762aa4e03e6ea07e1d8cbb5b0a8b0c2f63d6ae9c61a6bb49e55fe0",
+      "bytes": 54011,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/algorithm.csv",
+      "archive_path": "flight/algorithm/algorithm.csv",
+      "archive_kind": "full",
+      "archive_sha256": "22a406be76762aa4e03e6ea07e1d8cbb5b0a8b0c2f63d6ae9c61a6bb49e55fe0"
+    },
+    "flight/algorithm/navigation_uav_5.jsonl": {
+      "sha256": "188bc669ec6f0dbd0f05483123d3528724ece69dd9170d9cfa2c9c78aa12bda6",
+      "bytes": 6124746,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+      "archive_path": "flight/algorithm/navigation_uav_5.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "16570a10ee84c16a23b49ee6e20411440e33cbbad9dcd5e154ed237ee284e73a"
+    },
+    "flight/algorithm/control_uav_1.csv": {
+      "sha256": "f28c3d995ece593db48b0759c40d55d4a1e5880205e017a7f02e5ccbff4f78b6",
+      "bytes": 131128,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/control_uav_1.csv",
+      "archive_path": "flight/algorithm/control_uav_1.csv",
+      "archive_kind": "full",
+      "archive_sha256": "f28c3d995ece593db48b0759c40d55d4a1e5880205e017a7f02e5ccbff4f78b6"
+    },
+    "flight/algorithm/navigation_uav_1_latest.json": {
+      "sha256": "3285813b4b39c5acb2a7c18a7f07162da8635499017adfb8de82553ceabd443d",
+      "bytes": 31887,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_1_latest.json",
+      "archive_path": "flight/algorithm/navigation_uav_1_latest.json",
+      "archive_kind": "full",
+      "archive_sha256": "3285813b4b39c5acb2a7c18a7f07162da8635499017adfb8de82553ceabd443d"
+    },
+    "flight/algorithm/perception_typhoon_h480_2.csv": {
+      "sha256": "67b7a21160960b5f68bfe0ac0baa398d3f72a363ca55c545cb18dcfd7330bd50",
+      "bytes": 91692,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_2.csv",
+      "archive_path": "flight/algorithm/perception_typhoon_h480_2.csv",
+      "archive_kind": "full",
+      "archive_sha256": "67b7a21160960b5f68bfe0ac0baa398d3f72a363ca55c545cb18dcfd7330bd50"
+    },
+    "flight/algorithm/navigation_uav_6.jsonl": {
+      "sha256": "3c8db394737481e087d79ca274e708c173c3528fea6e1ad0bae1748217d2e290",
+      "bytes": 1183831,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_6.jsonl",
+      "archive_path": "flight/algorithm/navigation_uav_6.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "495900aa3b75c97181a39017d6602c421261d365d8f6d69b4a12ad1b444bbbe9"
+    },
+    "flight/algorithm/perception_typhoon_h480_3.csv": {
+      "sha256": "f771eea3ff7398337e6000c35b928f1c2228deb0b9baa8724bac22061f823ee4",
+      "bytes": 356993,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv",
+      "archive_path": "flight/algorithm/perception_typhoon_h480_3.csv.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "4a14b4205483eb3027d971342f97c5c3ed7a1c9b732dfcde3f715f0583ced2f0"
+    },
+    "flight/algorithm/perception_typhoon_h480_5.csv": {
+      "sha256": "809a1e9b3a40ae1e8c7e77c8ad9f38ce1b67a1077872394e84c9d84dbdf110cd",
+      "bytes": 241071,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_5.csv",
+      "archive_path": "flight/algorithm/perception_typhoon_h480_5.csv.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "d3a9dfc526a9502f498a29744951716686d4371e4e7c429317b2af0241ecdc2d"
+    },
+    "flight/algorithm/control_uav_5.csv": {
+      "sha256": "34bd0e5de8bb86022fe0d72e7ab9d1d99dc2ca668fec6272dce275746a4f277d",
+      "bytes": 130915,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/control_uav_5.csv",
+      "archive_path": "flight/algorithm/control_uav_5.csv",
+      "archive_kind": "full",
+      "archive_sha256": "34bd0e5de8bb86022fe0d72e7ab9d1d99dc2ca668fec6272dce275746a4f277d"
+    },
+    "flight/algorithm/navigation_uav_3.jsonl": {
+      "sha256": "f900bddba72402d463cabdd706c519648ee67509acad7753df19d2fd2d3bf326",
+      "bytes": 5872695,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_3.jsonl",
+      "archive_path": "flight/algorithm/navigation_uav_3.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "f676f485c5076ee7ee702664f85a398b16359d01389409058dfa8079df15ea9d"
+    },
+    "flight/algorithm/control_uav_3.csv": {
+      "sha256": "ad71a8e4a71ab1571b2c249465642d7717cef31d40c1fd34d94e4bbacd24fe44",
+      "bytes": 131670,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/control_uav_3.csv",
+      "archive_path": "flight/algorithm/control_uav_3.csv",
+      "archive_kind": "full",
+      "archive_sha256": "ad71a8e4a71ab1571b2c249465642d7717cef31d40c1fd34d94e4bbacd24fe44"
+    },
+    "flight/algorithm/navigation_uav_5_latest.json": {
+      "sha256": "323d3f85c0f523dc41f68c2d30b97017364fc54969d042f9de7841245afbc83d",
+      "bytes": 35072,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_5_latest.json",
+      "archive_path": "flight/algorithm/navigation_uav_5_latest.json",
+      "archive_kind": "full",
+      "archive_sha256": "323d3f85c0f523dc41f68c2d30b97017364fc54969d042f9de7841245afbc83d"
+    },
+    "flight/algorithm/navigation_uav_2_latest.json": {
+      "sha256": "c795f81567cf999e2dc54693297e943dbad4da4aea2fd1f029a7d4898386287e",
+      "bytes": 35766,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_2_latest.json",
+      "archive_path": "flight/algorithm/navigation_uav_2_latest.json",
+      "archive_kind": "full",
+      "archive_sha256": "c795f81567cf999e2dc54693297e943dbad4da4aea2fd1f029a7d4898386287e"
+    },
+    "flight/algorithm/navigation_uav_4.jsonl": {
+      "sha256": "d894f84dfbeb39f967167897e938f293c6dc23b25077102b9d5ddca263795faf",
+      "bytes": 2409541,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_4.jsonl",
+      "archive_path": "flight/algorithm/navigation_uav_4.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "6a0cf3887626cada0ffb3a1a766100c4ccdd326225659b591e3e339348ea603b"
+    },
+    "flight/algorithm/perception_typhoon_h480_0.csv": {
+      "sha256": "5ec8785e178d6d4da8d8b044be924a06daeb299c5a052b9b34deace2180d3510",
+      "bytes": 32302,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_0.csv",
+      "archive_path": "flight/algorithm/perception_typhoon_h480_0.csv",
+      "archive_kind": "full",
+      "archive_sha256": "5ec8785e178d6d4da8d8b044be924a06daeb299c5a052b9b34deace2180d3510"
+    },
+    "flight/algorithm/perception_typhoon_h480_1.csv": {
+      "sha256": "45bd9fef91b2105ddbc879c24ea0b211f9abd1fd86df6d3e2b00b626230a04de",
+      "bytes": 8683,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_1.csv",
+      "archive_path": "flight/algorithm/perception_typhoon_h480_1.csv",
+      "archive_kind": "full",
+      "archive_sha256": "45bd9fef91b2105ddbc879c24ea0b211f9abd1fd86df6d3e2b00b626230a04de"
+    },
+    "flight/algorithm/control_uav_2.csv": {
+      "sha256": "b357929e867ab62cb399c383b3ff3c056ea498061ccc29e455661f12e4a421e1",
+      "bytes": 130884,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/control_uav_2.csv",
+      "archive_path": "flight/algorithm/control_uav_2.csv",
+      "archive_kind": "full",
+      "archive_sha256": "b357929e867ab62cb399c383b3ff3c056ea498061ccc29e455661f12e4a421e1"
+    },
+    "flight/algorithm/route_events.jsonl": {
+      "sha256": "3bc70c16c511edec815c74e177aab93b6cee1e2e789e632d8bdb250c06571245",
+      "bytes": 76934,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/route_events.jsonl",
+      "archive_path": "flight/algorithm/route_events.jsonl",
+      "archive_kind": "full",
+      "archive_sha256": "3bc70c16c511edec815c74e177aab93b6cee1e2e789e632d8bdb250c06571245"
+    },
+    "flight/algorithm/authority_events.jsonl": {
+      "sha256": "b324ee968c9861894b815901568f0fcb70c11f4f5f27ea0e195bf0d9dbe74e4b",
+      "bytes": 27222,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/authority_events.jsonl",
+      "archive_path": "flight/algorithm/authority_events.jsonl",
+      "archive_kind": "full",
+      "archive_sha256": "b324ee968c9861894b815901568f0fcb70c11f4f5f27ea0e195bf0d9dbe74e4b"
+    },
+    "flight/algorithm/control_uav_6.csv": {
+      "sha256": "38c130d6cee1fc0183292dbd9f1836cc26e2405844a8ecc00f28aecc5efaf491",
+      "bytes": 117269,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/control_uav_6.csv",
+      "archive_path": "flight/algorithm/control_uav_6.csv",
+      "archive_kind": "full",
+      "archive_sha256": "38c130d6cee1fc0183292dbd9f1836cc26e2405844a8ecc00f28aecc5efaf491"
+    },
+    "flight/algorithm/navigation_uav_6_latest.json": {
+      "sha256": "2fcac5f5be95faf657754d9ef370b2cdb4bcdb19f4a9a4ecc4dae4e03a5900cd",
+      "bytes": 30995,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_6_latest.json",
+      "archive_path": "flight/algorithm/navigation_uav_6_latest.json",
+      "archive_kind": "full",
+      "archive_sha256": "2fcac5f5be95faf657754d9ef370b2cdb4bcdb19f4a9a4ecc4dae4e03a5900cd"
+    },
+    "flight/algorithm/navigation_uav_2.jsonl": {
+      "sha256": "ae5daf3971a6fe88bfd7d19fb37dbf4cfaa08e20f32ac01260b38ba8dcfc1937",
+      "bytes": 7347695,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_2.jsonl",
+      "archive_path": "flight/algorithm/navigation_uav_2.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "1ad554e2106f353391dafb876aa544061c435531730e63c236e5a403f68c0f12"
+    },
+    "flight/algorithm/navigation_uav_3_latest.json": {
+      "sha256": "0fc9956738bab1007daf303a254d72a573bb5060dc7ed7064876dfafee224283",
+      "bytes": 34509,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_3_latest.json",
+      "archive_path": "flight/algorithm/navigation_uav_3_latest.json",
+      "archive_kind": "full",
+      "archive_sha256": "0fc9956738bab1007daf303a254d72a573bb5060dc7ed7064876dfafee224283"
+    },
+    "flight/algorithm/control_uav_4.csv": {
+      "sha256": "d3002f5ecc312ff35cfb7c86825b71af9a72d19d78adea242785668cb6cb3b65",
+      "bytes": 120876,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/control_uav_4.csv",
+      "archive_path": "flight/algorithm/control_uav_4.csv",
+      "archive_kind": "full",
+      "archive_sha256": "d3002f5ecc312ff35cfb7c86825b71af9a72d19d78adea242785668cb6cb3b65"
+    },
+    "flight/algorithm/navigation_uav_1.jsonl": {
+      "sha256": "6b829f5b666612790a553d999d7b4d47301a3c5fdcc8e761db406998b56b9b54",
+      "bytes": 8644064,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/algorithm/navigation_uav_1.jsonl",
+      "archive_path": "flight/algorithm/navigation_uav_1.jsonl.gz",
+      "archive_kind": "gzip",
+      "archive_sha256": "0b869cc43ca114740bcf43b1a5b813d6fe822a9d395afebd6610f2b634d33fe5"
+    },
+    "flight/execution_sources/prepare_radar_fleet.py": {
+      "sha256": "4b2a4a0cf6c079da0bc1b027076e670e53aa02a0da8e11347293dc968a20bd81",
+      "bytes": 3673,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/prepare_radar_fleet.py",
+      "archive_path": "flight/execution_sources/prepare_radar_fleet.py",
+      "archive_kind": "full",
+      "archive_sha256": "4b2a4a0cf6c079da0bc1b027076e670e53aa02a0da8e11347293dc968a20bd81"
+    },
+    "flight/execution_sources/city_swarm_run.py": {
+      "sha256": "8434b16011df98331ff74cd113ff568fd640f93787b5c1e4c0e9df99b8701541",
+      "bytes": 23242,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/city_swarm_run.py",
+      "archive_path": "flight/execution_sources/city_swarm_run.py",
+      "archive_kind": "full",
+      "archive_sha256": "8434b16011df98331ff74cd113ff568fd640f93787b5c1e4c0e9df99b8701541"
+    },
+    "flight/execution_sources/judge_terminal.py": {
+      "sha256": "672d08de637ff7e02cb486a093e47441f940918d16e750aeeb74e1b1a21acbe0",
+      "bytes": 1346,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/judge_terminal.py",
+      "archive_path": "flight/execution_sources/judge_terminal.py",
+      "archive_kind": "full",
+      "archive_sha256": "672d08de637ff7e02cb486a093e47441f940918d16e750aeeb74e1b1a21acbe0"
+    },
+    "flight/execution_sources/radar_fleet_models.py": {
+      "sha256": "3129b013345a6e953223b45c1200c3a703e35df7a27484602a52634ccc8bd5a2",
+      "bytes": 6570,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/radar_fleet_models.py",
+      "archive_path": "flight/execution_sources/radar_fleet_models.py",
+      "archive_kind": "full",
+      "archive_sha256": "3129b013345a6e953223b45c1200c3a703e35df7a27484602a52634ccc8bd5a2"
+    },
+    "flight/execution_sources/fixture_contacts.py": {
+      "sha256": "184bff8709d1fbe08c828233f4aba36f55ee1dca3ae6a28f4486883e45ec3557",
+      "bytes": 1300,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/fixture_contacts.py",
+      "archive_path": "flight/execution_sources/fixture_contacts.py",
+      "archive_kind": "full",
+      "archive_sha256": "184bff8709d1fbe08c828233f4aba36f55ee1dca3ae6a28f4486883e45ec3557"
+    },
+    "flight/execution_sources/six_radar_connectivity.py": {
+      "sha256": "78497eb4fc8997f6c5120f669b1aaada5399f56c896e2cafb302a95415deab9b",
+      "bytes": 23672,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/six_radar_connectivity.py",
+      "archive_path": "flight/execution_sources/six_radar_connectivity.py",
+      "archive_kind": "full",
+      "archive_sha256": "78497eb4fc8997f6c5120f669b1aaada5399f56c896e2cafb302a95415deab9b"
+    },
+    "flight/execution_sources/start_city_judge.py": {
+      "sha256": "6a43b2ee5e71c07530433f9f541f2cd0581b82d4ac0b61bf9a4c4892a9855507",
+      "bytes": 1250,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/start_city_judge.py",
+      "archive_path": "flight/execution_sources/start_city_judge.py",
+      "archive_kind": "full",
+      "archive_sha256": "6a43b2ee5e71c07530433f9f541f2cd0581b82d4ac0b61bf9a4c4892a9855507"
+    },
+    "flight/execution_sources/camera_actor_probe.py": {
+      "sha256": "67c3d756cef3d0f3bdb25092669fef9df2624c4464e485933f8df713c41d7239",
+      "bytes": 9958,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/camera_actor_probe.py",
+      "archive_path": "flight/execution_sources/camera_actor_probe.py",
+      "archive_kind": "full",
+      "archive_sha256": "67c3d756cef3d0f3bdb25092669fef9df2624c4464e485933f8df713c41d7239"
+    },
+    "flight/execution_sources/six_swarm_probe.py": {
+      "sha256": "8f1023ad5987685450e2d1440ed0f653a18241cf0c4a8ba744b97ad649db2581",
+      "bytes": 14699,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/six_swarm_probe.py",
+      "archive_path": "flight/execution_sources/six_swarm_probe.py",
+      "archive_kind": "full",
+      "archive_sha256": "8f1023ad5987685450e2d1440ed0f653a18241cf0c4a8ba744b97ad649db2581"
+    },
+    "flight/execution_sources/build_namespaced_gimbal_overlay.py": {
+      "sha256": "d6a3c3fb520a610d51891df0231619d90edb58fc71b192af3277788b204fa7ad",
+      "bytes": 5930,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/build_namespaced_gimbal_overlay.py",
+      "archive_path": "flight/execution_sources/build_namespaced_gimbal_overlay.py",
+      "archive_kind": "full",
+      "archive_sha256": "d6a3c3fb520a610d51891df0231619d90edb58fc71b192af3277788b204fa7ad"
+    },
+    "flight/execution_sources/flight_actor_probe.py": {
+      "sha256": "f126d0b6c4d46113e62400f18046b04482dbceba5bde07d3ab28489bfb6512ed",
+      "bytes": 8595,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/flight_actor_probe.py",
+      "archive_path": "flight/execution_sources/flight_actor_probe.py",
+      "archive_kind": "full",
+      "archive_sha256": "f126d0b6c4d46113e62400f18046b04482dbceba5bde07d3ab28489bfb6512ed"
+    },
+    "flight/execution_sources/evidence_writer.py": {
+      "sha256": "ac844fb0c1cf930d11a8c81eab7fc6b3980b38988c698da0afb21ba180b3101e",
+      "bytes": 1445,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/execution_sources/evidence_writer.py",
+      "archive_path": "flight/execution_sources/evidence_writer.py",
+      "archive_kind": "full",
+      "archive_sha256": "ac844fb0c1cf930d11a8c81eab7fc6b3980b38988c698da0afb21ba180b3101e"
+    },
+    "flight/visual_frames/uav_4_white_012.png": {
+      "sha256": "b5bed59eed3544ea161792208f176dfba61ca4ffb85c34cd51911e9072e7bb32",
+      "bytes": 140323,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_012.png",
+      "archive_path": "flight/visual_frames/uav_4_white_012.png",
+      "archive_kind": "full",
+      "archive_sha256": "b5bed59eed3544ea161792208f176dfba61ca4ffb85c34cd51911e9072e7bb32"
+    },
+    "flight/visual_frames/uav_4_green_003.png": {
+      "sha256": "2e72dacd454289679a9350f226ee333b9083ba0a833d412631d525e82146c70a",
+      "bytes": 156225,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_003.png",
+      "archive_path": "flight/visual_frames/uav_4_green_003.png",
+      "archive_kind": "full",
+      "archive_sha256": "2e72dacd454289679a9350f226ee333b9083ba0a833d412631d525e82146c70a"
+    },
+    "flight/visual_frames/uav_4_brown_021.png": {
+      "sha256": "3475a1011f42e03aff486c7acef9bf2f6f4e4c8089fbe05e838c6840057557c7",
+      "bytes": 158975,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_021.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_021.png",
+      "archive_kind": "full",
+      "archive_sha256": "3475a1011f42e03aff486c7acef9bf2f6f4e4c8089fbe05e838c6840057557c7"
+    },
+    "flight/visual_frames/uav_4_blue_026.png": {
+      "sha256": "a675960fbf0fd59c6cd3db0a8aa75b1b20e9cff9649cc75b8a8592fc33369629",
+      "bytes": 141416,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_026.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_026.png",
+      "archive_kind": "full",
+      "archive_sha256": "a675960fbf0fd59c6cd3db0a8aa75b1b20e9cff9649cc75b8a8592fc33369629"
+    },
+    "flight/visual_frames/uav_4_blue_028.png": {
+      "sha256": "29d5673d9a4e20ec53e0eeef3f02785d6f9166eb8270465ff650ebd2537d684c",
+      "bytes": 140716,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_028.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_028.png",
+      "archive_kind": "full",
+      "archive_sha256": "29d5673d9a4e20ec53e0eeef3f02785d6f9166eb8270465ff650ebd2537d684c"
+    },
+    "flight/visual_frames/uav_4_blue_011.png": {
+      "sha256": "a3074a7c1e9ba94aadd44f313063e2cf236d31b87aeb2fa350c7b949c169f58f",
+      "bytes": 162180,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_011.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_011.png",
+      "archive_kind": "full",
+      "archive_sha256": "a3074a7c1e9ba94aadd44f313063e2cf236d31b87aeb2fa350c7b949c169f58f"
+    },
+    "flight/visual_frames/uav_4_blue_023.png": {
+      "sha256": "e2b3e556f3f2b58d663b7a69f37d8314326ef67a153b0d7d9bfcc6ce170c4964",
+      "bytes": 141598,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_023.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_023.png",
+      "archive_kind": "full",
+      "archive_sha256": "e2b3e556f3f2b58d663b7a69f37d8314326ef67a153b0d7d9bfcc6ce170c4964"
+    },
+    "flight/visual_frames/uav_4_white_007.png": {
+      "sha256": "e83573d442ac3c8ee92ac76c189863c3cee1747bf31a8aa7fedf7db97f6800d5",
+      "bytes": 161870,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_007.png",
+      "archive_path": "flight/visual_frames/uav_4_white_007.png",
+      "archive_kind": "full",
+      "archive_sha256": "e83573d442ac3c8ee92ac76c189863c3cee1747bf31a8aa7fedf7db97f6800d5"
+    },
+    "flight/visual_frames/uav_6_green_038.png": {
+      "sha256": "a39716befbe57413846a97cb480217d29753d1d80b396aafb9902ab8b807fe53",
+      "bytes": 154869,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_038.png",
+      "archive_path": "flight/visual_frames/uav_6_green_038.png",
+      "archive_kind": "full",
+      "archive_sha256": "a39716befbe57413846a97cb480217d29753d1d80b396aafb9902ab8b807fe53"
+    },
+    "flight/visual_frames/uav_4_green_051.png": {
+      "sha256": "b355cb561523caeea3335095979acf3451f180e859a30e74705a7c884d2e3ff6",
+      "bytes": 159905,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_051.png",
+      "archive_path": "flight/visual_frames/uav_4_green_051.png",
+      "archive_kind": "full",
+      "archive_sha256": "b355cb561523caeea3335095979acf3451f180e859a30e74705a7c884d2e3ff6"
+    },
+    "flight/visual_frames/uav_6_red1_007.png": {
+      "sha256": "698624bd06d74c9e896d61bd10135ccb12ca90c6271289ed7bbeab3aa0e35ba0",
+      "bytes": 159696,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_red1_007.png",
+      "archive_path": "flight/visual_frames/uav_6_red1_007.png",
+      "archive_kind": "full",
+      "archive_sha256": "698624bd06d74c9e896d61bd10135ccb12ca90c6271289ed7bbeab3aa0e35ba0"
+    },
+    "flight/visual_frames/uav_4_green_013.png": {
+      "sha256": "24d39bf923e8c8e28039a1a258a340ecc503b2086d2784702c61cd460af7fe52",
+      "bytes": 142463,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_013.png",
+      "archive_path": "flight/visual_frames/uav_4_green_013.png",
+      "archive_kind": "full",
+      "archive_sha256": "24d39bf923e8c8e28039a1a258a340ecc503b2086d2784702c61cd460af7fe52"
+    },
+    "flight/visual_frames/uav_4_brown_022.png": {
+      "sha256": "66eca28ccc70074f2adf80fe1856639233f502fd18322b75a3cfc36f75df76ef",
+      "bytes": 159593,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_022.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_022.png",
+      "archive_kind": "full",
+      "archive_sha256": "66eca28ccc70074f2adf80fe1856639233f502fd18322b75a3cfc36f75df76ef"
+    },
+    "flight/visual_frames/uav_4_blue_007.png": {
+      "sha256": "fe48eb4286baf29f5e973ebefa2c1423e4cada23de4abfe97a18c74d5b41be24",
+      "bytes": 147686,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_007.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_007.png",
+      "archive_kind": "full",
+      "archive_sha256": "fe48eb4286baf29f5e973ebefa2c1423e4cada23de4abfe97a18c74d5b41be24"
+    },
+    "flight/visual_frames/uav_6_green_040.png": {
+      "sha256": "5a6f132a24446ba57db7bd06571ae212ee5e94dcadabe13257c5528bd1fe5be0",
+      "bytes": 156999,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_040.png",
+      "archive_path": "flight/visual_frames/uav_6_green_040.png",
+      "archive_kind": "full",
+      "archive_sha256": "5a6f132a24446ba57db7bd06571ae212ee5e94dcadabe13257c5528bd1fe5be0"
+    },
+    "flight/visual_frames/uav_4_green_002.png": {
+      "sha256": "5d69a4a52045f7dd52ec0bb222fd13f91388d2c95fac3e99ba980cb5fb57bc3d",
+      "bytes": 154731,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_002.png",
+      "archive_path": "flight/visual_frames/uav_4_green_002.png",
+      "archive_kind": "full",
+      "archive_sha256": "5d69a4a52045f7dd52ec0bb222fd13f91388d2c95fac3e99ba980cb5fb57bc3d"
+    },
+    "flight/visual_frames/uav_4_green_007.png": {
+      "sha256": "e83573d442ac3c8ee92ac76c189863c3cee1747bf31a8aa7fedf7db97f6800d5",
+      "bytes": 161870,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_007.png",
+      "archive_path": "flight/visual_frames/uav_4_green_007.png",
+      "archive_kind": "full",
+      "archive_sha256": "e83573d442ac3c8ee92ac76c189863c3cee1747bf31a8aa7fedf7db97f6800d5"
+    },
+    "flight/visual_frames/uav_4_green_048.png": {
+      "sha256": "3475a1011f42e03aff486c7acef9bf2f6f4e4c8089fbe05e838c6840057557c7",
+      "bytes": 158975,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_048.png",
+      "archive_path": "flight/visual_frames/uav_4_green_048.png",
+      "archive_kind": "full",
+      "archive_sha256": "3475a1011f42e03aff486c7acef9bf2f6f4e4c8089fbe05e838c6840057557c7"
+    },
+    "flight/visual_frames/uav_6_green_041.png": {
+      "sha256": "fb5630cd3b01f1df1efa2492348f3bf42326dc772b9af19369e74015510baa00",
+      "bytes": 155477,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_041.png",
+      "archive_path": "flight/visual_frames/uav_6_green_041.png",
+      "archive_kind": "full",
+      "archive_sha256": "fb5630cd3b01f1df1efa2492348f3bf42326dc772b9af19369e74015510baa00"
+    },
+    "flight/visual_frames/uav_4_green_011.png": {
+      "sha256": "38b81e766e5131fcf2c4074e940c598b20a03ffe45fea93fea1699dda33beea8",
+      "bytes": 149720,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_011.png",
+      "archive_path": "flight/visual_frames/uav_4_green_011.png",
+      "archive_kind": "full",
+      "archive_sha256": "38b81e766e5131fcf2c4074e940c598b20a03ffe45fea93fea1699dda33beea8"
+    },
+    "flight/visual_frames/uav_4_brown_019.png": {
+      "sha256": "c03eb1b93ecb9cdc477b5eacb4ea81996962490bf6a263b18d9075220b727e58",
+      "bytes": 158979,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_019.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_019.png",
+      "archive_kind": "full",
+      "archive_sha256": "c03eb1b93ecb9cdc477b5eacb4ea81996962490bf6a263b18d9075220b727e58"
+    },
+    "flight/visual_frames/uav_4_brown_004.png": {
+      "sha256": "bff23613428084d80e9524fb1bbfd839620950dce332185ea285065a9ecba765",
+      "bytes": 125032,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_004.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_004.png",
+      "archive_kind": "full",
+      "archive_sha256": "bff23613428084d80e9524fb1bbfd839620950dce332185ea285065a9ecba765"
+    },
+    "flight/visual_frames/uav_4_green_006.png": {
+      "sha256": "335d344712c760e32ed0a8c25829c328b95cc625197e22a33ed9bfd2290dcfdc",
+      "bytes": 157821,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_006.png",
+      "archive_path": "flight/visual_frames/uav_4_green_006.png",
+      "archive_kind": "full",
+      "archive_sha256": "335d344712c760e32ed0a8c25829c328b95cc625197e22a33ed9bfd2290dcfdc"
+    },
+    "flight/visual_frames/uav_6_brown_012.png": {
+      "sha256": "a39716befbe57413846a97cb480217d29753d1d80b396aafb9902ab8b807fe53",
+      "bytes": 154869,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_brown_012.png",
+      "archive_path": "flight/visual_frames/uav_6_brown_012.png",
+      "archive_kind": "full",
+      "archive_sha256": "a39716befbe57413846a97cb480217d29753d1d80b396aafb9902ab8b807fe53"
+    },
+    "flight/visual_frames/uav_4_green_021.png": {
+      "sha256": "6142a66c1bc146f88f4631324507f28f8e874b2fa4f7f3da72928a86cd4bf080",
+      "bytes": 138509,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_021.png",
+      "archive_path": "flight/visual_frames/uav_4_green_021.png",
+      "archive_kind": "full",
+      "archive_sha256": "6142a66c1bc146f88f4631324507f28f8e874b2fa4f7f3da72928a86cd4bf080"
+    },
+    "flight/visual_frames/uav_6_green_031.png": {
+      "sha256": "31ed1719dd8ce6e8d7a82c9e670617fd677b2c0e10f1c8bb17cd78d486eb2cc6",
+      "bytes": 158511,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_031.png",
+      "archive_path": "flight/visual_frames/uav_6_green_031.png",
+      "archive_kind": "full",
+      "archive_sha256": "31ed1719dd8ce6e8d7a82c9e670617fd677b2c0e10f1c8bb17cd78d486eb2cc6"
+    },
+    "flight/visual_frames/uav_4_blue_021.png": {
+      "sha256": "3291172fe206ca7c6ae93a639f2e62c265633e57c155fe02cf834aebcf075a43",
+      "bytes": 142990,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_021.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_021.png",
+      "archive_kind": "full",
+      "archive_sha256": "3291172fe206ca7c6ae93a639f2e62c265633e57c155fe02cf834aebcf075a43"
+    },
+    "flight/visual_frames/uav_6_green_034.png": {
+      "sha256": "97be8925265d90cb40bd681d5d87437d1dc1c4466de59e6b24fd719b6a9005e4",
+      "bytes": 153523,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_034.png",
+      "archive_path": "flight/visual_frames/uav_6_green_034.png",
+      "archive_kind": "full",
+      "archive_sha256": "97be8925265d90cb40bd681d5d87437d1dc1c4466de59e6b24fd719b6a9005e4"
+    },
+    "flight/visual_frames/uav_4_white_002.png": {
+      "sha256": "5d69a4a52045f7dd52ec0bb222fd13f91388d2c95fac3e99ba980cb5fb57bc3d",
+      "bytes": 154731,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_002.png",
+      "archive_path": "flight/visual_frames/uav_4_white_002.png",
+      "archive_kind": "full",
+      "archive_sha256": "5d69a4a52045f7dd52ec0bb222fd13f91388d2c95fac3e99ba980cb5fb57bc3d"
+    },
+    "flight/visual_frames/uav_6_green_043.png": {
+      "sha256": "b962e8849d164a73f501d2cc0027b89fa18cff639cf0481bc0a50eff598a3a5f",
+      "bytes": 156281,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_043.png",
+      "archive_path": "flight/visual_frames/uav_6_green_043.png",
+      "archive_kind": "full",
+      "archive_sha256": "b962e8849d164a73f501d2cc0027b89fa18cff639cf0481bc0a50eff598a3a5f"
+    },
+    "flight/visual_frames/uav_6_green_030.png": {
+      "sha256": "14206da3368304cc97bc391a3129c9abe178f819f07ac1566cf1eb4147954869",
+      "bytes": 158295,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_030.png",
+      "archive_path": "flight/visual_frames/uav_6_green_030.png",
+      "archive_kind": "full",
+      "archive_sha256": "14206da3368304cc97bc391a3129c9abe178f819f07ac1566cf1eb4147954869"
+    },
+    "flight/visual_frames/uav_4_blue_027.png": {
+      "sha256": "cea3695a2b256b71022c898be5597f030e2d935e5ecc81cc620213ed7a8dd4a0",
+      "bytes": 141387,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_027.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_027.png",
+      "archive_kind": "full",
+      "archive_sha256": "cea3695a2b256b71022c898be5597f030e2d935e5ecc81cc620213ed7a8dd4a0"
+    },
+    "flight/visual_frames/uav_6_red1_001.png": {
+      "sha256": "bd81e511bfe8bf9f3540511106681564b7f9975d9ec2903528f921c50495ecbf",
+      "bytes": 158755,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_red1_001.png",
+      "archive_path": "flight/visual_frames/uav_6_red1_001.png",
+      "archive_kind": "full",
+      "archive_sha256": "bd81e511bfe8bf9f3540511106681564b7f9975d9ec2903528f921c50495ecbf"
+    },
+    "flight/visual_frames/uav_4_brown_013.png": {
+      "sha256": "8e87e457a7523ae0bbbba627641bca96c09b13999433fbd492ebe0c7cc10bd7a",
+      "bytes": 146161,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_013.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_013.png",
+      "archive_kind": "full",
+      "archive_sha256": "8e87e457a7523ae0bbbba627641bca96c09b13999433fbd492ebe0c7cc10bd7a"
+    },
+    "flight/visual_frames/uav_4_white_011.png": {
+      "sha256": "321d5665bbc7392fc6b50aebff52eb1869c5f24c4d441b3f0fa797adc272858d",
+      "bytes": 139830,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_011.png",
+      "archive_path": "flight/visual_frames/uav_4_white_011.png",
+      "archive_kind": "full",
+      "archive_sha256": "321d5665bbc7392fc6b50aebff52eb1869c5f24c4d441b3f0fa797adc272858d"
+    },
+    "flight/visual_frames/uav_4_brown_024.png": {
+      "sha256": "b355cb561523caeea3335095979acf3451f180e859a30e74705a7c884d2e3ff6",
+      "bytes": 159905,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_024.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_024.png",
+      "archive_kind": "full",
+      "archive_sha256": "b355cb561523caeea3335095979acf3451f180e859a30e74705a7c884d2e3ff6"
+    },
+    "flight/visual_frames/uav_4_green_019.png": {
+      "sha256": "41239b391d8ff8f617d3936f91c2e705b521d90e93f556d0afb7332ccadcb979",
+      "bytes": 139163,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_019.png",
+      "archive_path": "flight/visual_frames/uav_4_green_019.png",
+      "archive_kind": "full",
+      "archive_sha256": "41239b391d8ff8f617d3936f91c2e705b521d90e93f556d0afb7332ccadcb979"
+    },
+    "flight/visual_frames/uav_4_blue_013.png": {
+      "sha256": "321d5665bbc7392fc6b50aebff52eb1869c5f24c4d441b3f0fa797adc272858d",
+      "bytes": 139830,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_013.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_013.png",
+      "archive_kind": "full",
+      "archive_sha256": "321d5665bbc7392fc6b50aebff52eb1869c5f24c4d441b3f0fa797adc272858d"
+    },
+    "flight/visual_frames/uav_6_green_035.png": {
+      "sha256": "25788e22e8d00f877e9c23a6009611299595e414f3648d079b8248770c244f68",
+      "bytes": 153788,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_035.png",
+      "archive_path": "flight/visual_frames/uav_6_green_035.png",
+      "archive_kind": "full",
+      "archive_sha256": "25788e22e8d00f877e9c23a6009611299595e414f3648d079b8248770c244f68"
+    },
+    "flight/visual_frames/uav_6_red1_005.png": {
+      "sha256": "6a20a4dab849d5fd1a6c0eff839691cc83e339b0fdf9bbd7356423a66513d071",
+      "bytes": 159894,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_red1_005.png",
+      "archive_path": "flight/visual_frames/uav_6_red1_005.png",
+      "archive_kind": "full",
+      "archive_sha256": "6a20a4dab849d5fd1a6c0eff839691cc83e339b0fdf9bbd7356423a66513d071"
+    },
+    "flight/visual_frames/uav_4_blue_010.png": {
+      "sha256": "c5e345fef3d6b6bef4b15315ca3ce2cab2ea5690a9ece74f26547515735dfdeb",
+      "bytes": 161988,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_010.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_010.png",
+      "archive_kind": "full",
+      "archive_sha256": "c5e345fef3d6b6bef4b15315ca3ce2cab2ea5690a9ece74f26547515735dfdeb"
+    },
+    "flight/visual_frames/uav_4_green_024.png": {
+      "sha256": "a4b94deeb2d46894c7f43a2bbb782014de5f455e3a51861cd7883f9060a9f026",
+      "bytes": 140372,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_024.png",
+      "archive_path": "flight/visual_frames/uav_4_green_024.png",
+      "archive_kind": "full",
+      "archive_sha256": "a4b94deeb2d46894c7f43a2bbb782014de5f455e3a51861cd7883f9060a9f026"
+    },
+    "flight/visual_frames/uav_4_blue_029.png": {
+      "sha256": "6507533689beba3807156476663a9d94cdb45fbc5f420f076b0e581745b4b5ae",
+      "bytes": 139878,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_029.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_029.png",
+      "archive_kind": "full",
+      "archive_sha256": "6507533689beba3807156476663a9d94cdb45fbc5f420f076b0e581745b4b5ae"
+    },
+    "flight/visual_frames/uav_4_green_008.png": {
+      "sha256": "c8f530ba06d8bf2411ed22a91e75f4abb3684a6dfd5fad7c21eb894cbc8378ef",
+      "bytes": 161285,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_008.png",
+      "archive_path": "flight/visual_frames/uav_4_green_008.png",
+      "archive_kind": "full",
+      "archive_sha256": "c8f530ba06d8bf2411ed22a91e75f4abb3684a6dfd5fad7c21eb894cbc8378ef"
+    },
+    "flight/visual_frames/uav_4_blue_022.png": {
+      "sha256": "9a214c6453b24e3733f85228e5411ec2f80f5e0c6b4953695398395e34794ac6",
+      "bytes": 141580,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_022.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_022.png",
+      "archive_kind": "full",
+      "archive_sha256": "9a214c6453b24e3733f85228e5411ec2f80f5e0c6b4953695398395e34794ac6"
+    },
+    "flight/visual_frames/uav_4_brown_023.png": {
+      "sha256": "8012a58cfe9346382e949a2e5aa1755971c1ee57733f705e7093eafe531046a4",
+      "bytes": 159395,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_023.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_023.png",
+      "archive_kind": "full",
+      "archive_sha256": "8012a58cfe9346382e949a2e5aa1755971c1ee57733f705e7093eafe531046a4"
+    },
+    "flight/visual_frames/uav_4_white_013.png": {
+      "sha256": "59aa133189fddd544e1c519537f38c126a9206cbf954ded224a37560ac87168c",
+      "bytes": 139584,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_013.png",
+      "archive_path": "flight/visual_frames/uav_4_white_013.png",
+      "archive_kind": "full",
+      "archive_sha256": "59aa133189fddd544e1c519537f38c126a9206cbf954ded224a37560ac87168c"
+    },
+    "flight/visual_frames/uav_4_green_053.png": {
+      "sha256": "5298b1f8b3a62718622b989aaa1d0d436b96b21ed8a1b88be5fee007712d4ff0",
+      "bytes": 162012,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_053.png",
+      "archive_path": "flight/visual_frames/uav_4_green_053.png",
+      "archive_kind": "full",
+      "archive_sha256": "5298b1f8b3a62718622b989aaa1d0d436b96b21ed8a1b88be5fee007712d4ff0"
+    },
+    "flight/visual_frames/uav_4_green_001.png": {
+      "sha256": "f010ee2ce2827b4b0b4d0e3d8d07d57a767f17778eaba02a953afc42f065dcc0",
+      "bytes": 149855,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_001.png",
+      "archive_path": "flight/visual_frames/uav_4_green_001.png",
+      "archive_kind": "full",
+      "archive_sha256": "f010ee2ce2827b4b0b4d0e3d8d07d57a767f17778eaba02a953afc42f065dcc0"
+    },
+    "flight/visual_frames/frames.jsonl": {
+      "sha256": "4f647e28681787fb0c7acccff88c638a8a7ffc4dd4120e6a9c5df55a26718a48",
+      "bytes": 52834,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/frames.jsonl",
+      "archive_path": "flight/visual_frames/frames.jsonl",
+      "archive_kind": "full",
+      "archive_sha256": "4f647e28681787fb0c7acccff88c638a8a7ffc4dd4120e6a9c5df55a26718a48"
+    },
+    "flight/visual_frames/uav_4_white_016.png": {
+      "sha256": "9987955dcefa613806b5198684796df86e7976e5691d0a0262bb90217209771d",
+      "bytes": 154681,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_016.png",
+      "archive_path": "flight/visual_frames/uav_4_white_016.png",
+      "archive_kind": "full",
+      "archive_sha256": "9987955dcefa613806b5198684796df86e7976e5691d0a0262bb90217209771d"
+    },
+    "flight/visual_frames/uav_4_white_005.png": {
+      "sha256": "2d5ed84417ec550f4c6547f11b7673dee560640a924f0ddc8daacc5fac5a1c04",
+      "bytes": 146825,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_005.png",
+      "archive_path": "flight/visual_frames/uav_4_white_005.png",
+      "archive_kind": "full",
+      "archive_sha256": "2d5ed84417ec550f4c6547f11b7673dee560640a924f0ddc8daacc5fac5a1c04"
+    },
+    "flight/visual_frames/uav_4_blue_008.png": {
+      "sha256": "23e21c47bd837337e88521d3da6d1b1bd8288cd5984074b92053e8ad36ba3544",
+      "bytes": 160994,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_008.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_008.png",
+      "archive_kind": "full",
+      "archive_sha256": "23e21c47bd837337e88521d3da6d1b1bd8288cd5984074b92053e8ad36ba3544"
+    },
+    "flight/visual_frames/uav_4_brown_026.png": {
+      "sha256": "5298b1f8b3a62718622b989aaa1d0d436b96b21ed8a1b88be5fee007712d4ff0",
+      "bytes": 162012,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_026.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_026.png",
+      "archive_kind": "full",
+      "archive_sha256": "5298b1f8b3a62718622b989aaa1d0d436b96b21ed8a1b88be5fee007712d4ff0"
+    },
+    "flight/visual_frames/uav_4_green_055.png": {
+      "sha256": "811802de9939cc6221343183f2e78239b87ab889a08348f578fdb002be78e98f",
+      "bytes": 160973,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_055.png",
+      "archive_path": "flight/visual_frames/uav_4_green_055.png",
+      "archive_kind": "full",
+      "archive_sha256": "811802de9939cc6221343183f2e78239b87ab889a08348f578fdb002be78e98f"
+    },
+    "flight/visual_frames/uav_6_brown_006.png": {
+      "sha256": "df2f0d75c13c2bbbf218137d60d587ca301578be2578a2885e74a3b366d67c58",
+      "bytes": 158594,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_brown_006.png",
+      "archive_path": "flight/visual_frames/uav_6_brown_006.png",
+      "archive_kind": "full",
+      "archive_sha256": "df2f0d75c13c2bbbf218137d60d587ca301578be2578a2885e74a3b366d67c58"
+    },
+    "flight/visual_frames/uav_4_brown_001.png": {
+      "sha256": "e385cd76523e9672d97de4775b3e91a3f86a7c7cea9f6fb710c027882166f26e",
+      "bytes": 125839,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_001.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_001.png",
+      "archive_kind": "full",
+      "archive_sha256": "e385cd76523e9672d97de4775b3e91a3f86a7c7cea9f6fb710c027882166f26e"
+    },
+    "flight/visual_frames/uav_4_green_023.png": {
+      "sha256": "9e41e041b27d1065e1262fd2d3639a67d414d4c1acc772a191ad0ed94535e88b",
+      "bytes": 139050,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_023.png",
+      "archive_path": "flight/visual_frames/uav_4_green_023.png",
+      "archive_kind": "full",
+      "archive_sha256": "9e41e041b27d1065e1262fd2d3639a67d414d4c1acc772a191ad0ed94535e88b"
+    },
+    "flight/visual_frames/uav_4_green_020.png": {
+      "sha256": "2ece0f38093f3a28f3bc8ed072c4bdb815aaa57746e26d3578a80203371134c2",
+      "bytes": 138517,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_020.png",
+      "archive_path": "flight/visual_frames/uav_4_green_020.png",
+      "archive_kind": "full",
+      "archive_sha256": "2ece0f38093f3a28f3bc8ed072c4bdb815aaa57746e26d3578a80203371134c2"
+    },
+    "flight/visual_frames/uav_4_green_025.png": {
+      "sha256": "ad89cd49612a7042dfa1c3cb97405825601b20bfd22985378bfe3c87e411728c",
+      "bytes": 140120,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_025.png",
+      "archive_path": "flight/visual_frames/uav_4_green_025.png",
+      "archive_kind": "full",
+      "archive_sha256": "ad89cd49612a7042dfa1c3cb97405825601b20bfd22985378bfe3c87e411728c"
+    },
+    "flight/visual_frames/uav_4_blue_015.png": {
+      "sha256": "59aa133189fddd544e1c519537f38c126a9206cbf954ded224a37560ac87168c",
+      "bytes": 139584,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_015.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_015.png",
+      "archive_kind": "full",
+      "archive_sha256": "59aa133189fddd544e1c519537f38c126a9206cbf954ded224a37560ac87168c"
+    },
+    "flight/visual_frames/uav_6_green_036.png": {
+      "sha256": "a1ca9b1193cc2b0c4290db2951699c69a55b79c752d35c58421b1a326ac64481",
+      "bytes": 154490,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_036.png",
+      "archive_path": "flight/visual_frames/uav_6_green_036.png",
+      "archive_kind": "full",
+      "archive_sha256": "a1ca9b1193cc2b0c4290db2951699c69a55b79c752d35c58421b1a326ac64481"
+    },
+    "flight/visual_frames/uav_4_blue_030.png": {
+      "sha256": "becd69ceb73ebc151675d145c4129fc4bc68e857bfaaafcaa71d1681ddf881c4",
+      "bytes": 139917,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_030.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_030.png",
+      "archive_kind": "full",
+      "archive_sha256": "becd69ceb73ebc151675d145c4129fc4bc68e857bfaaafcaa71d1681ddf881c4"
+    },
+    "flight/visual_frames/uav_4_blue_014.png": {
+      "sha256": "b5bed59eed3544ea161792208f176dfba61ca4ffb85c34cd51911e9072e7bb32",
+      "bytes": 140323,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_014.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_014.png",
+      "archive_kind": "full",
+      "archive_sha256": "b5bed59eed3544ea161792208f176dfba61ca4ffb85c34cd51911e9072e7bb32"
+    },
+    "flight/visual_frames/uav_4_green_022.png": {
+      "sha256": "c116b6ec3c3b4d8cc4d8e0495919deb57692f6eea4c036d2ba75c4fa3e0e4a03",
+      "bytes": 138861,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_022.png",
+      "archive_path": "flight/visual_frames/uav_4_green_022.png",
+      "archive_kind": "full",
+      "archive_sha256": "c116b6ec3c3b4d8cc4d8e0495919deb57692f6eea4c036d2ba75c4fa3e0e4a03"
+    },
+    "flight/visual_frames/uav_4_green_015.png": {
+      "sha256": "767570fce4504d9cefb4bc348e2a9c74a20708dca7382c9fd10f418bbea647c7",
+      "bytes": 139493,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_015.png",
+      "archive_path": "flight/visual_frames/uav_4_green_015.png",
+      "archive_kind": "full",
+      "archive_sha256": "767570fce4504d9cefb4bc348e2a9c74a20708dca7382c9fd10f418bbea647c7"
+    },
+    "flight/visual_frames/uav_4_green_014.png": {
+      "sha256": "0e8fbcfea6af068f36fa61f4969d39fb06add2bd834904aabbd0b7ddbeea978c",
+      "bytes": 141020,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_014.png",
+      "archive_path": "flight/visual_frames/uav_4_green_014.png",
+      "archive_kind": "full",
+      "archive_sha256": "0e8fbcfea6af068f36fa61f4969d39fb06add2bd834904aabbd0b7ddbeea978c"
+    },
+    "flight/visual_frames/uav_4_green_050.png": {
+      "sha256": "8012a58cfe9346382e949a2e5aa1755971c1ee57733f705e7093eafe531046a4",
+      "bytes": 159395,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_050.png",
+      "archive_path": "flight/visual_frames/uav_4_green_050.png",
+      "archive_kind": "full",
+      "archive_sha256": "8012a58cfe9346382e949a2e5aa1755971c1ee57733f705e7093eafe531046a4"
+    },
+    "flight/visual_frames/uav_4_green_049.png": {
+      "sha256": "66eca28ccc70074f2adf80fe1856639233f502fd18322b75a3cfc36f75df76ef",
+      "bytes": 159593,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_049.png",
+      "archive_path": "flight/visual_frames/uav_4_green_049.png",
+      "archive_kind": "full",
+      "archive_sha256": "66eca28ccc70074f2adf80fe1856639233f502fd18322b75a3cfc36f75df76ef"
+    },
+    "flight/visual_frames/uav_4_brown_020.png": {
+      "sha256": "05276ba7fd1685d4003d98d96fc0ebfb1dd35a520eda0de9039783c3486f8a7d",
+      "bytes": 157144,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_020.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_020.png",
+      "archive_kind": "full",
+      "archive_sha256": "05276ba7fd1685d4003d98d96fc0ebfb1dd35a520eda0de9039783c3486f8a7d"
+    },
+    "flight/visual_frames/uav_6_green_032.png": {
+      "sha256": "df2f0d75c13c2bbbf218137d60d587ca301578be2578a2885e74a3b366d67c58",
+      "bytes": 158594,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_032.png",
+      "archive_path": "flight/visual_frames/uav_6_green_032.png",
+      "archive_kind": "full",
+      "archive_sha256": "df2f0d75c13c2bbbf218137d60d587ca301578be2578a2885e74a3b366d67c58"
+    },
+    "flight/visual_frames/uav_6_green_029.png": {
+      "sha256": "46c3af127168a7906f8e6d6b6724c4cfd19bd25765b0bdfb0b69a1d4f7d7eab2",
+      "bytes": 158116,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_029.png",
+      "archive_path": "flight/visual_frames/uav_6_green_029.png",
+      "archive_kind": "full",
+      "archive_sha256": "46c3af127168a7906f8e6d6b6724c4cfd19bd25765b0bdfb0b69a1d4f7d7eab2"
+    },
+    "flight/visual_frames/uav_6_red1_002.png": {
+      "sha256": "b1d4313e8c7688ec5da35e1ffb54a0c64592f91e5070775cd6ed9a4e92087fdc",
+      "bytes": 157968,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_red1_002.png",
+      "archive_path": "flight/visual_frames/uav_6_red1_002.png",
+      "archive_kind": "full",
+      "archive_sha256": "b1d4313e8c7688ec5da35e1ffb54a0c64592f91e5070775cd6ed9a4e92087fdc"
+    },
+    "flight/visual_frames/uav_4_brown_002.png": {
+      "sha256": "8b69215ca16add8df172e953726be1672fd8280e9054e70797d4ec465044f586",
+      "bytes": 125264,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_002.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_002.png",
+      "archive_kind": "full",
+      "archive_sha256": "8b69215ca16add8df172e953726be1672fd8280e9054e70797d4ec465044f586"
+    },
+    "flight/visual_frames/uav_4_green_028.png": {
+      "sha256": "ceb491b8d9e5bb7c80b0ad7eb8599b1649c20fd51c7320f06e2935be53dda461",
+      "bytes": 151141,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_028.png",
+      "archive_path": "flight/visual_frames/uav_4_green_028.png",
+      "archive_kind": "full",
+      "archive_sha256": "ceb491b8d9e5bb7c80b0ad7eb8599b1649c20fd51c7320f06e2935be53dda461"
+    },
+    "flight/visual_frames/uav_4_brown_017.png": {
+      "sha256": "9cd5d470a3b8a3bc5e1bc07b682181ce19c6777fea3c2bbb1228ce03acca8301",
+      "bytes": 157361,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_017.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_017.png",
+      "archive_kind": "full",
+      "archive_sha256": "9cd5d470a3b8a3bc5e1bc07b682181ce19c6777fea3c2bbb1228ce03acca8301"
+    },
+    "flight/visual_frames/uav_3_blue_002.png": {
+      "sha256": "bf5677bed7a6bb3edb758ff5e4ffef0c93a7ce59016b60b9bc6ea0dd3fbd1201",
+      "bytes": 176662,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_3_blue_002.png",
+      "archive_path": "flight/visual_frames/uav_3_blue_002.png",
+      "archive_kind": "full",
+      "archive_sha256": "bf5677bed7a6bb3edb758ff5e4ffef0c93a7ce59016b60b9bc6ea0dd3fbd1201"
+    },
+    "flight/visual_frames/uav_6_green_033.png": {
+      "sha256": "6dd1ef8857389c09c9a06d412985013220d137dc2442329b8b0e27e648f44ee3",
+      "bytes": 157231,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_033.png",
+      "archive_path": "flight/visual_frames/uav_6_green_033.png",
+      "archive_kind": "full",
+      "archive_sha256": "6dd1ef8857389c09c9a06d412985013220d137dc2442329b8b0e27e648f44ee3"
+    },
+    "flight/visual_frames/uav_4_white_014.png": {
+      "sha256": "296abbc81edc287ee5c284d0dada904d5b3616fa20de483000111d9cd0afd3a4",
+      "bytes": 154669,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_014.png",
+      "archive_path": "flight/visual_frames/uav_4_white_014.png",
+      "archive_kind": "full",
+      "archive_sha256": "296abbc81edc287ee5c284d0dada904d5b3616fa20de483000111d9cd0afd3a4"
+    },
+    "flight/visual_frames/uav_6_green_046.png": {
+      "sha256": "26414c6c94522ef0c95975669ec0398f6217f749661a9bf74678f98baebaf3cb",
+      "bytes": 155758,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_046.png",
+      "archive_path": "flight/visual_frames/uav_6_green_046.png",
+      "archive_kind": "full",
+      "archive_sha256": "26414c6c94522ef0c95975669ec0398f6217f749661a9bf74678f98baebaf3cb"
+    },
+    "flight/visual_frames/uav_4_green_018.png": {
+      "sha256": "bea8dec16c92a26ffbcb2eb235f030896e02d19bcd986daeaef43b57f46a7bfb",
+      "bytes": 138458,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_018.png",
+      "archive_path": "flight/visual_frames/uav_4_green_018.png",
+      "archive_kind": "full",
+      "archive_sha256": "bea8dec16c92a26ffbcb2eb235f030896e02d19bcd986daeaef43b57f46a7bfb"
+    },
+    "flight/visual_frames/uav_6_brown_008.png": {
+      "sha256": "97be8925265d90cb40bd681d5d87437d1dc1c4466de59e6b24fd719b6a9005e4",
+      "bytes": 153523,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_brown_008.png",
+      "archive_path": "flight/visual_frames/uav_6_brown_008.png",
+      "archive_kind": "full",
+      "archive_sha256": "97be8925265d90cb40bd681d5d87437d1dc1c4466de59e6b24fd719b6a9005e4"
+    },
+    "flight/visual_frames/uav_3_blue_001.png": {
+      "sha256": "428e85f437f54f4fade428e0d46d67269e0528b16aa31754cc5df77fafdaa8ac",
+      "bytes": 172932,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_3_blue_001.png",
+      "archive_path": "flight/visual_frames/uav_3_blue_001.png",
+      "archive_kind": "full",
+      "archive_sha256": "428e85f437f54f4fade428e0d46d67269e0528b16aa31754cc5df77fafdaa8ac"
+    },
+    "flight/visual_frames/uav_4_blue_019.png": {
+      "sha256": "afe6ef8b18c0214d2ac28b9a0ed5e1b2a08ac628c8d39141f8a5bddce692ffa7",
+      "bytes": 148304,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_019.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_019.png",
+      "archive_kind": "full",
+      "archive_sha256": "afe6ef8b18c0214d2ac28b9a0ed5e1b2a08ac628c8d39141f8a5bddce692ffa7"
+    },
+    "flight/visual_frames/uav_4_green_027.png": {
+      "sha256": "94c18232bc5d67d00ffb82e0feab6601e28eb56228a3e05d93f8c884d3c7baff",
+      "bytes": 139283,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_027.png",
+      "archive_path": "flight/visual_frames/uav_4_green_027.png",
+      "archive_kind": "full",
+      "archive_sha256": "94c18232bc5d67d00ffb82e0feab6601e28eb56228a3e05d93f8c884d3c7baff"
+    },
+    "flight/visual_frames/uav_4_green_052.png": {
+      "sha256": "dd05e4ed8dc0918197122753b61b59d4a356ba791b2968e8728699a8a52fd766",
+      "bytes": 159900,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_052.png",
+      "archive_path": "flight/visual_frames/uav_4_green_052.png",
+      "archive_kind": "full",
+      "archive_sha256": "dd05e4ed8dc0918197122753b61b59d4a356ba791b2968e8728699a8a52fd766"
+    },
+    "flight/visual_frames/uav_6_green_037.png": {
+      "sha256": "8b90fca5b7b41ef19d1cecccccc311a05d17969f5200273126b8e057f1699381",
+      "bytes": 154835,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_037.png",
+      "archive_path": "flight/visual_frames/uav_6_green_037.png",
+      "archive_kind": "full",
+      "archive_sha256": "8b90fca5b7b41ef19d1cecccccc311a05d17969f5200273126b8e057f1699381"
+    },
+    "flight/visual_frames/uav_4_blue_009.png": {
+      "sha256": "35876789a9b0afcc14eb6b49cedfbbb4bbe026552ea439b37a6e8557b0386290",
+      "bytes": 161289,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_009.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_009.png",
+      "archive_kind": "full",
+      "archive_sha256": "35876789a9b0afcc14eb6b49cedfbbb4bbe026552ea439b37a6e8557b0386290"
+    },
+    "flight/visual_frames/uav_4_blue_016.png": {
+      "sha256": "296abbc81edc287ee5c284d0dada904d5b3616fa20de483000111d9cd0afd3a4",
+      "bytes": 154669,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_016.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_016.png",
+      "archive_kind": "full",
+      "archive_sha256": "296abbc81edc287ee5c284d0dada904d5b3616fa20de483000111d9cd0afd3a4"
+    },
+    "flight/visual_frames/uav_4_white_015.png": {
+      "sha256": "80911eafb0f836ec7ae33a1ba728ff2e95ae03922431f07b4e5291649e97d912",
+      "bytes": 160965,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_015.png",
+      "archive_path": "flight/visual_frames/uav_4_white_015.png",
+      "archive_kind": "full",
+      "archive_sha256": "80911eafb0f836ec7ae33a1ba728ff2e95ae03922431f07b4e5291649e97d912"
+    },
+    "flight/visual_frames/uav_4_white_004.png": {
+      "sha256": "1fe29b92386a05a748d5d5aa02241100468cb6e057e3c3fa63e236fb7ff81e91",
+      "bytes": 139705,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_004.png",
+      "archive_path": "flight/visual_frames/uav_4_white_004.png",
+      "archive_kind": "full",
+      "archive_sha256": "1fe29b92386a05a748d5d5aa02241100468cb6e057e3c3fa63e236fb7ff81e91"
+    },
+    "flight/visual_frames/uav_4_green_009.png": {
+      "sha256": "ee50c7b0e2d34e4daef64888dba350ad570bae77c0f14a1c0f94466d9caa8e49",
+      "bytes": 162927,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_009.png",
+      "archive_path": "flight/visual_frames/uav_4_green_009.png",
+      "archive_kind": "full",
+      "archive_sha256": "ee50c7b0e2d34e4daef64888dba350ad570bae77c0f14a1c0f94466d9caa8e49"
+    },
+    "flight/visual_frames/uav_6_red1_006.png": {
+      "sha256": "0dd203f9b4f4b8d8a2f0f6e96b25791630519c6cad32e6c78ee54ae15e0eb54f",
+      "bytes": 159694,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_red1_006.png",
+      "archive_path": "flight/visual_frames/uav_6_red1_006.png",
+      "archive_kind": "full",
+      "archive_sha256": "0dd203f9b4f4b8d8a2f0f6e96b25791630519c6cad32e6c78ee54ae15e0eb54f"
+    },
+    "flight/visual_frames/uav_4_green_012.png": {
+      "sha256": "332c6f52cafe5cfe46f2bd17b98c976699558b9374b7d23ff84369d1b5d826ee",
+      "bytes": 144393,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_012.png",
+      "archive_path": "flight/visual_frames/uav_4_green_012.png",
+      "archive_kind": "full",
+      "archive_sha256": "332c6f52cafe5cfe46f2bd17b98c976699558b9374b7d23ff84369d1b5d826ee"
+    },
+    "flight/visual_frames/uav_6_brown_011.png": {
+      "sha256": "8b90fca5b7b41ef19d1cecccccc311a05d17969f5200273126b8e057f1699381",
+      "bytes": 154835,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_brown_011.png",
+      "archive_path": "flight/visual_frames/uav_6_brown_011.png",
+      "archive_kind": "full",
+      "archive_sha256": "8b90fca5b7b41ef19d1cecccccc311a05d17969f5200273126b8e057f1699381"
+    },
+    "flight/visual_frames/uav_4_blue_025.png": {
+      "sha256": "e390474adc81d65f4b3e37052a9b0c543b3792959f599bfa580d48341e13b5e9",
+      "bytes": 140483,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_025.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_025.png",
+      "archive_kind": "full",
+      "archive_sha256": "e390474adc81d65f4b3e37052a9b0c543b3792959f599bfa580d48341e13b5e9"
+    },
+    "flight/visual_frames/uav_4_brown_015.png": {
+      "sha256": "1fb4e0c011cad6597e7bdcabd67976593cdabcd5b92576eb71a81a3b22167532",
+      "bytes": 150942,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_015.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_015.png",
+      "archive_kind": "full",
+      "archive_sha256": "1fb4e0c011cad6597e7bdcabd67976593cdabcd5b92576eb71a81a3b22167532"
+    },
+    "flight/visual_frames/uav_6_red1_004.png": {
+      "sha256": "1c443a4202c23d2315712ea0e9f3e63b0d8120dac516e71c80c709b40fffa6c3",
+      "bytes": 159066,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_red1_004.png",
+      "archive_path": "flight/visual_frames/uav_6_red1_004.png",
+      "archive_kind": "full",
+      "archive_sha256": "1c443a4202c23d2315712ea0e9f3e63b0d8120dac516e71c80c709b40fffa6c3"
+    },
+    "flight/visual_frames/uav_4_green_044.png": {
+      "sha256": "df2b1eb6473942d348d0b98907a1232c2084497f350ef8eb34231aa44839c92b",
+      "bytes": 150102,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_044.png",
+      "archive_path": "flight/visual_frames/uav_4_green_044.png",
+      "archive_kind": "full",
+      "archive_sha256": "df2b1eb6473942d348d0b98907a1232c2084497f350ef8eb34231aa44839c92b"
+    },
+    "flight/visual_frames/uav_5_blue_012.png": {
+      "sha256": "b51e70eae463c5fdcfcefe5fcaa3061b2e61a90c84b34863efba9841bcdd2a5a",
+      "bytes": 195423,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_5_blue_012.png",
+      "archive_path": "flight/visual_frames/uav_5_blue_012.png",
+      "archive_kind": "full",
+      "archive_sha256": "b51e70eae463c5fdcfcefe5fcaa3061b2e61a90c84b34863efba9841bcdd2a5a"
+    },
+    "flight/visual_frames/uav_4_brown_018.png": {
+      "sha256": "291a73b2435785463d9604053a3343eac04a668c4a72918599059ff2f27e8feb",
+      "bytes": 170737,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_018.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_018.png",
+      "archive_kind": "full",
+      "archive_sha256": "291a73b2435785463d9604053a3343eac04a668c4a72918599059ff2f27e8feb"
+    },
+    "flight/visual_frames/uav_4_blue_024.png": {
+      "sha256": "193ff7702682e7a68e8cf0a165b8cbce8fb92985a66a9f8e884d498f46adee13",
+      "bytes": 141837,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_024.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_024.png",
+      "archive_kind": "full",
+      "archive_sha256": "193ff7702682e7a68e8cf0a165b8cbce8fb92985a66a9f8e884d498f46adee13"
+    },
+    "flight/visual_frames/uav_6_red1_003.png": {
+      "sha256": "2107839dccad15d521f8e520d5b005209cad2406291ac33a799cac8299e2a736",
+      "bytes": 159727,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_red1_003.png",
+      "archive_path": "flight/visual_frames/uav_6_red1_003.png",
+      "archive_kind": "full",
+      "archive_sha256": "2107839dccad15d521f8e520d5b005209cad2406291ac33a799cac8299e2a736"
+    },
+    "flight/visual_frames/uav_4_brown_025.png": {
+      "sha256": "dd05e4ed8dc0918197122753b61b59d4a356ba791b2968e8728699a8a52fd766",
+      "bytes": 159900,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_025.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_025.png",
+      "archive_kind": "full",
+      "archive_sha256": "dd05e4ed8dc0918197122753b61b59d4a356ba791b2968e8728699a8a52fd766"
+    },
+    "flight/visual_frames/uav_4_white_006.png": {
+      "sha256": "335d344712c760e32ed0a8c25829c328b95cc625197e22a33ed9bfd2290dcfdc",
+      "bytes": 157821,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_006.png",
+      "archive_path": "flight/visual_frames/uav_4_white_006.png",
+      "archive_kind": "full",
+      "archive_sha256": "335d344712c760e32ed0a8c25829c328b95cc625197e22a33ed9bfd2290dcfdc"
+    },
+    "flight/visual_frames/uav_4_blue_017.png": {
+      "sha256": "80911eafb0f836ec7ae33a1ba728ff2e95ae03922431f07b4e5291649e97d912",
+      "bytes": 160965,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_017.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_017.png",
+      "archive_kind": "full",
+      "archive_sha256": "80911eafb0f836ec7ae33a1ba728ff2e95ae03922431f07b4e5291649e97d912"
+    },
+    "flight/visual_frames/uav_4_white_003.png": {
+      "sha256": "2e72dacd454289679a9350f226ee333b9083ba0a833d412631d525e82146c70a",
+      "bytes": 156225,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_003.png",
+      "archive_path": "flight/visual_frames/uav_4_white_003.png",
+      "archive_kind": "full",
+      "archive_sha256": "2e72dacd454289679a9350f226ee333b9083ba0a833d412631d525e82146c70a"
+    },
+    "flight/visual_frames/uav_4_brown_016.png": {
+      "sha256": "46a1483d070c6220568c9549e2bff33bf9cb96a08ec90cbb8474d8196bb781e0",
+      "bytes": 153612,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_016.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_016.png",
+      "archive_kind": "full",
+      "archive_sha256": "46a1483d070c6220568c9549e2bff33bf9cb96a08ec90cbb8474d8196bb781e0"
+    },
+    "flight/visual_frames/uav_4_brown_014.png": {
+      "sha256": "6967409ece8fa8e42f4e411bdf1c4736a17e9dd251f2cadf7383d69dba8e9606",
+      "bytes": 146030,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_014.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_014.png",
+      "archive_kind": "full",
+      "archive_sha256": "6967409ece8fa8e42f4e411bdf1c4736a17e9dd251f2cadf7383d69dba8e9606"
+    },
+    "flight/visual_frames/uav_4_brown_003.png": {
+      "sha256": "87ff88cc7b11348a9bd5678134d9ab6791972865751aec98857088fa49b4a0d0",
+      "bytes": 116543,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_003.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_003.png",
+      "archive_kind": "full",
+      "archive_sha256": "87ff88cc7b11348a9bd5678134d9ab6791972865751aec98857088fa49b4a0d0"
+    },
+    "flight/visual_frames/uav_3_blue_003.png": {
+      "sha256": "2fdf9e1b74e4e9e44f1a0aedf30b371ea8181a3a07ccba161248e9c63951e600",
+      "bytes": 160836,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_3_blue_003.png",
+      "archive_path": "flight/visual_frames/uav_3_blue_003.png",
+      "archive_kind": "full",
+      "archive_sha256": "2fdf9e1b74e4e9e44f1a0aedf30b371ea8181a3a07ccba161248e9c63951e600"
+    },
+    "flight/visual_frames/uav_3_blue_006.png": {
+      "sha256": "632d65b04d292ab83503db65fe227298e829b56cba214790eadede0b44ca4f84",
+      "bytes": 158073,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_3_blue_006.png",
+      "archive_path": "flight/visual_frames/uav_3_blue_006.png",
+      "archive_kind": "full",
+      "archive_sha256": "632d65b04d292ab83503db65fe227298e829b56cba214790eadede0b44ca4f84"
+    },
+    "flight/visual_frames/uav_6_brown_007.png": {
+      "sha256": "6dd1ef8857389c09c9a06d412985013220d137dc2442329b8b0e27e648f44ee3",
+      "bytes": 157231,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_brown_007.png",
+      "archive_path": "flight/visual_frames/uav_6_brown_007.png",
+      "archive_kind": "full",
+      "archive_sha256": "6dd1ef8857389c09c9a06d412985013220d137dc2442329b8b0e27e648f44ee3"
+    },
+    "flight/visual_frames/uav_4_blue_018.png": {
+      "sha256": "9987955dcefa613806b5198684796df86e7976e5691d0a0262bb90217209771d",
+      "bytes": 154681,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_018.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_018.png",
+      "archive_kind": "full",
+      "archive_sha256": "9987955dcefa613806b5198684796df86e7976e5691d0a0262bb90217209771d"
+    },
+    "flight/visual_frames/uav_4_green_004.png": {
+      "sha256": "1fe29b92386a05a748d5d5aa02241100468cb6e057e3c3fa63e236fb7ff81e91",
+      "bytes": 139705,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_004.png",
+      "archive_path": "flight/visual_frames/uav_4_green_004.png",
+      "archive_kind": "full",
+      "archive_sha256": "1fe29b92386a05a748d5d5aa02241100468cb6e057e3c3fa63e236fb7ff81e91"
+    },
+    "flight/visual_frames/uav_3_blue_005.png": {
+      "sha256": "956b4abe855301f09f6b677ea35f76b1aaf972c6759a451ad91da4f0e10af217",
+      "bytes": 167534,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_3_blue_005.png",
+      "archive_path": "flight/visual_frames/uav_3_blue_005.png",
+      "archive_kind": "full",
+      "archive_sha256": "956b4abe855301f09f6b677ea35f76b1aaf972c6759a451ad91da4f0e10af217"
+    },
+    "flight/visual_frames/uav_4_green_010.png": {
+      "sha256": "1ef4a8a1ba105c49884bc6602209d55a146c3a9dda60b47ea8841aec5b2b7d19",
+      "bytes": 152290,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_010.png",
+      "archive_path": "flight/visual_frames/uav_4_green_010.png",
+      "archive_kind": "full",
+      "archive_sha256": "1ef4a8a1ba105c49884bc6602209d55a146c3a9dda60b47ea8841aec5b2b7d19"
+    },
+    "flight/visual_frames/uav_6_brown_009.png": {
+      "sha256": "25788e22e8d00f877e9c23a6009611299595e414f3648d079b8248770c244f68",
+      "bytes": 153788,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_brown_009.png",
+      "archive_path": "flight/visual_frames/uav_6_brown_009.png",
+      "archive_kind": "full",
+      "archive_sha256": "25788e22e8d00f877e9c23a6009611299595e414f3648d079b8248770c244f68"
+    },
+    "flight/visual_frames/uav_4_blue_031.png": {
+      "sha256": "d175188c2c14c225e356df3004e34fe1ac02aee2d48cbf787acfc38ca434305b",
+      "bytes": 139303,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_031.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_031.png",
+      "archive_kind": "full",
+      "archive_sha256": "d175188c2c14c225e356df3004e34fe1ac02aee2d48cbf787acfc38ca434305b"
+    },
+    "flight/visual_frames/uav_4_white_010.png": {
+      "sha256": "544f3255d4bc7f46476246cc13605484dcc634ca36fd486efb44c642c1a9bbb3",
+      "bytes": 139643,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_010.png",
+      "archive_path": "flight/visual_frames/uav_4_white_010.png",
+      "archive_kind": "full",
+      "archive_sha256": "544f3255d4bc7f46476246cc13605484dcc634ca36fd486efb44c642c1a9bbb3"
+    },
+    "flight/visual_frames/uav_6_green_054.png": {
+      "sha256": "0dd203f9b4f4b8d8a2f0f6e96b25791630519c6cad32e6c78ee54ae15e0eb54f",
+      "bytes": 159694,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_054.png",
+      "archive_path": "flight/visual_frames/uav_6_green_054.png",
+      "archive_kind": "full",
+      "archive_sha256": "0dd203f9b4f4b8d8a2f0f6e96b25791630519c6cad32e6c78ee54ae15e0eb54f"
+    },
+    "flight/visual_frames/uav_6_green_039.png": {
+      "sha256": "00d8266f9586ccf430ac5b787cb1a493f26e25308ac547de0fd113d34a2735e7",
+      "bytes": 155954,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_039.png",
+      "archive_path": "flight/visual_frames/uav_6_green_039.png",
+      "archive_kind": "full",
+      "archive_sha256": "00d8266f9586ccf430ac5b787cb1a493f26e25308ac547de0fd113d34a2735e7"
+    },
+    "flight/visual_frames/uav_6_brown_005.png": {
+      "sha256": "31ed1719dd8ce6e8d7a82c9e670617fd677b2c0e10f1c8bb17cd78d486eb2cc6",
+      "bytes": 158511,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_brown_005.png",
+      "archive_path": "flight/visual_frames/uav_6_brown_005.png",
+      "archive_kind": "full",
+      "archive_sha256": "31ed1719dd8ce6e8d7a82c9e670617fd677b2c0e10f1c8bb17cd78d486eb2cc6"
+    },
+    "flight/visual_frames/uav_3_blue_004.png": {
+      "sha256": "de06b09d7f172589070eeb98482e5139a03397788f0f2f4bb4153d19d87f8d44",
+      "bytes": 167946,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_3_blue_004.png",
+      "archive_path": "flight/visual_frames/uav_3_blue_004.png",
+      "archive_kind": "full",
+      "archive_sha256": "de06b09d7f172589070eeb98482e5139a03397788f0f2f4bb4153d19d87f8d44"
+    },
+    "flight/visual_frames/uav_4_green_005.png": {
+      "sha256": "2d5ed84417ec550f4c6547f11b7673dee560640a924f0ddc8daacc5fac5a1c04",
+      "bytes": 146825,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_005.png",
+      "archive_path": "flight/visual_frames/uav_4_green_005.png",
+      "archive_kind": "full",
+      "archive_sha256": "2d5ed84417ec550f4c6547f11b7673dee560640a924f0ddc8daacc5fac5a1c04"
+    },
+    "flight/visual_frames/uav_4_green_047.png": {
+      "sha256": "05276ba7fd1685d4003d98d96fc0ebfb1dd35a520eda0de9039783c3486f8a7d",
+      "bytes": 157144,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_047.png",
+      "archive_path": "flight/visual_frames/uav_4_green_047.png",
+      "archive_kind": "full",
+      "archive_sha256": "05276ba7fd1685d4003d98d96fc0ebfb1dd35a520eda0de9039783c3486f8a7d"
+    },
+    "flight/visual_frames/uav_4_blue_020.png": {
+      "sha256": "d089c77a86957dacb65955c3b8da919c8454ab327d0abd46bde0fb25bdbf83ad",
+      "bytes": 144047,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_blue_020.png",
+      "archive_path": "flight/visual_frames/uav_4_blue_020.png",
+      "archive_kind": "full",
+      "archive_sha256": "d089c77a86957dacb65955c3b8da919c8454ab327d0abd46bde0fb25bdbf83ad"
+    },
+    "flight/visual_frames/uav_4_white_001.png": {
+      "sha256": "493e21d30a8f568c0433c856d43486d36892b6374c1d873beae676a9436c6120",
+      "bytes": 151935,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_001.png",
+      "archive_path": "flight/visual_frames/uav_4_white_001.png",
+      "archive_kind": "full",
+      "archive_sha256": "493e21d30a8f568c0433c856d43486d36892b6374c1d873beae676a9436c6120"
+    },
+    "flight/visual_frames/uav_4_green_042.png": {
+      "sha256": "46a1483d070c6220568c9549e2bff33bf9cb96a08ec90cbb8474d8196bb781e0",
+      "bytes": 153612,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_042.png",
+      "archive_path": "flight/visual_frames/uav_4_green_042.png",
+      "archive_kind": "full",
+      "archive_sha256": "46a1483d070c6220568c9549e2bff33bf9cb96a08ec90cbb8474d8196bb781e0"
+    },
+    "flight/visual_frames/uav_6_green_045.png": {
+      "sha256": "e7384bb77825b0f96e046dc3571f890d6d17944c20167459126fe48950bd34d9",
+      "bytes": 155227,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_green_045.png",
+      "archive_path": "flight/visual_frames/uav_6_green_045.png",
+      "archive_kind": "full",
+      "archive_sha256": "e7384bb77825b0f96e046dc3571f890d6d17944c20167459126fe48950bd34d9"
+    },
+    "flight/visual_frames/uav_4_white_009.png": {
+      "sha256": "ee50c7b0e2d34e4daef64888dba350ad570bae77c0f14a1c0f94466d9caa8e49",
+      "bytes": 162927,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_009.png",
+      "archive_path": "flight/visual_frames/uav_4_white_009.png",
+      "archive_kind": "full",
+      "archive_sha256": "ee50c7b0e2d34e4daef64888dba350ad570bae77c0f14a1c0f94466d9caa8e49"
+    },
+    "flight/visual_frames/uav_4_white_008.png": {
+      "sha256": "c8f530ba06d8bf2411ed22a91e75f4abb3684a6dfd5fad7c21eb894cbc8378ef",
+      "bytes": 161285,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_white_008.png",
+      "archive_path": "flight/visual_frames/uav_4_white_008.png",
+      "archive_kind": "full",
+      "archive_sha256": "c8f530ba06d8bf2411ed22a91e75f4abb3684a6dfd5fad7c21eb894cbc8378ef"
+    },
+    "flight/visual_frames/uav_4_green_017.png": {
+      "sha256": "108a9c870add107310945a03dcde021e4a3ceb870ed1c513bcec2eedb8ea56a6",
+      "bytes": 138417,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_017.png",
+      "archive_path": "flight/visual_frames/uav_4_green_017.png",
+      "archive_kind": "full",
+      "archive_sha256": "108a9c870add107310945a03dcde021e4a3ceb870ed1c513bcec2eedb8ea56a6"
+    },
+    "flight/visual_frames/uav_4_green_016.png": {
+      "sha256": "5d8aba6757e507664f9811dc04a5bc0707d3339ee6b6b3178dd66d7e88201883",
+      "bytes": 139022,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_016.png",
+      "archive_path": "flight/visual_frames/uav_4_green_016.png",
+      "archive_kind": "full",
+      "archive_sha256": "5d8aba6757e507664f9811dc04a5bc0707d3339ee6b6b3178dd66d7e88201883"
+    },
+    "flight/visual_frames/uav_4_brown_027.png": {
+      "sha256": "742da7e14114deba44eb43195ea0aa7479356aaafc080bb2489757cdef7514f0",
+      "bytes": 160502,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_brown_027.png",
+      "archive_path": "flight/visual_frames/uav_4_brown_027.png",
+      "archive_kind": "full",
+      "archive_sha256": "742da7e14114deba44eb43195ea0aa7479356aaafc080bb2489757cdef7514f0"
+    },
+    "flight/visual_frames/uav_6_brown_010.png": {
+      "sha256": "a1ca9b1193cc2b0c4290db2951699c69a55b79c752d35c58421b1a326ac64481",
+      "bytes": 154490,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_6_brown_010.png",
+      "archive_path": "flight/visual_frames/uav_6_brown_010.png",
+      "archive_kind": "full",
+      "archive_sha256": "a1ca9b1193cc2b0c4290db2951699c69a55b79c752d35c58421b1a326ac64481"
+    },
+    "flight/visual_frames/uav_4_green_026.png": {
+      "sha256": "0b102d8943933db7f6f5c161e773c78e048a41cb2f707827d33ac9814f4ba11f",
+      "bytes": 139994,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/visual_frames/uav_4_green_026.png",
+      "archive_path": "flight/visual_frames/uav_4_green_026.png",
+      "archive_kind": "full",
+      "archive_sha256": "0b102d8943933db7f6f5c161e773c78e048a41cb2f707827d33ac9814f4ba11f"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/grid_downsampler.py": {
+      "sha256": "9ca3a1eca32238b1ce0f3db8333ec5cb81450d89aac36695d159db3de643a07f",
+      "bytes": 8146,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/grid_downsampler.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/grid_downsampler.py",
+      "archive_kind": "full",
+      "archive_sha256": "9ca3a1eca32238b1ce0f3db8333ec5cb81450d89aac36695d159db3de643a07f"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/astar.py": {
+      "sha256": "9842a72009eb94be3b85c5f6d9d604176629eb821dc5f0627b154055cbe4ae10",
+      "bytes": 11575,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/astar.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/astar.py",
+      "archive_kind": "full",
+      "archive_sha256": "9842a72009eb94be3b85c5f6d9d604176629eb821dc5f0627b154055cbe4ae10"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/team_grid_subscriber.py": {
+      "sha256": "ea3f3e11a9ed8dee2de069e2e25a56b9acdee665bd0ba316030921a5ecc4d4fc",
+      "bytes": 6700,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/team_grid_subscriber.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/team_grid_subscriber.py",
+      "archive_kind": "full",
+      "archive_sha256": "ea3f3e11a9ed8dee2de069e2e25a56b9acdee665bd0ba316030921a5ecc4d4fc"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/__init__.py": {
+      "sha256": "7aa650fcf99394734f9e7edd522567fcd5a3a8289398c944380c44bc57236dff",
+      "bytes": 67,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/__init__.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/__init__.py",
+      "archive_kind": "full",
+      "archive_sha256": "7aa650fcf99394734f9e7edd522567fcd5a3a8289398c944380c44bc57236dff"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_safety.py": {
+      "sha256": "8c76fe7c8b5b6ee1f04baa07902e5c6172353ceded742090e8de0ed38d8437ef",
+      "bytes": 29924,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_safety.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_safety.py",
+      "archive_kind": "full",
+      "archive_sha256": "8c76fe7c8b5b6ee1f04baa07902e5c6172353ceded742090e8de0ed38d8437ef"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/local_grid.py": {
+      "sha256": "6539b8c2d2ea9018e534e76b719aa53458176a31d340e6081597dc071bd20b2f",
+      "bytes": 18456,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/local_grid.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/local_grid.py",
+      "archive_kind": "full",
+      "archive_sha256": "6539b8c2d2ea9018e534e76b719aa53458176a31d340e6081597dc071bd20b2f"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_runtime.py": {
+      "sha256": "cc1ca2192c48b974fb0f956a2592da10aa5ff0bb3f2a18913cf9c91380d06711",
+      "bytes": 51990,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_runtime.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_runtime.py",
+      "archive_kind": "full",
+      "archive_sha256": "cc1ca2192c48b974fb0f956a2592da10aa5ff0bb3f2a18913cf9c91380d06711"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/monitor.py": {
+      "sha256": "4ea55454fd0cef7fec71eab7a4df67f4692b1a96aa05d2244d1268f40cb8220a",
+      "bytes": 4343,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/monitor.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/monitor.py",
+      "archive_kind": "full",
+      "archive_sha256": "4ea55454fd0cef7fec71eab7a4df67f4692b1a96aa05d2244d1268f40cb8220a"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/waiting_points.py": {
+      "sha256": "e90791e5f315f3732bfd97c0da642255c1669ffc7d1b073cf861054e4752c1e9",
+      "bytes": 5444,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/waiting_points.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/waiting_points.py",
+      "archive_kind": "full",
+      "archive_sha256": "e90791e5f315f3732bfd97c0da642255c1669ffc7d1b073cf861054e4752c1e9"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/map_revision.py": {
+      "sha256": "9fa6bf4432f7bf3fa220ce4f122dc82ddfb9f40accab107529ea1c3880ff1f59",
+      "bytes": 4463,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/map_revision.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/map_revision.py",
+      "archive_kind": "full",
+      "archive_sha256": "9fa6bf4432f7bf3fa220ce4f122dc82ddfb9f40accab107529ea1c3880ff1f59"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/__init__.py": {
+      "sha256": "30b535b31dbbee8dda9c0475995bca095a9bcf5b40027c892b87925f4f1b1288",
+      "bytes": 1371,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/__init__.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/__init__.py",
+      "archive_kind": "full",
+      "archive_sha256": "30b535b31dbbee8dda9c0475995bca095a9bcf5b40027c892b87925f4f1b1288"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/stop_check.py": {
+      "sha256": "cdac03435454dd8ec834db9fd82b19b09751706d78a8d5370c4bc66c92d269ee",
+      "bytes": 3282,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/stop_check.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/stop_check.py",
+      "archive_kind": "full",
+      "archive_sha256": "cdac03435454dd8ec834db9fd82b19b09751706d78a8d5370c4bc66c92d269ee"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/bus.py": {
+      "sha256": "fee0770f1b56a0b9b004ea5e5c61b6fe39b82413864ea359282920e996310815",
+      "bytes": 4957,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/bus.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/bus.py",
+      "archive_kind": "full",
+      "archive_sha256": "fee0770f1b56a0b9b004ea5e5c61b6fe39b82413864ea359282920e996310815"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/position_cache.py": {
+      "sha256": "7ae1823e48b65d184d71c7ea9b8bcca128e4e5ae631f64165754a97cc8b6052a",
+      "bytes": 1494,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/position_cache.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/position_cache.py",
+      "archive_kind": "full",
+      "archive_sha256": "7ae1823e48b65d184d71c7ea9b8bcca128e4e5ae631f64165754a97cc8b6052a"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/core.py": {
+      "sha256": "2114c840c9e90100b1d9c5f8015d56aea17debd246e6080999c05605c0e508d7",
+      "bytes": 37553,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/core.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/core.py",
+      "archive_kind": "full",
+      "archive_sha256": "2114c840c9e90100b1d9c5f8015d56aea17debd246e6080999c05605c0e508d7"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/verdict.py": {
+      "sha256": "b082548b2b00cf0763c39618bd3d1cdc5bee10586c18e36e1078c04f18ac122f",
+      "bytes": 9586,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/verdict.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/verdict.py",
+      "archive_kind": "full",
+      "archive_sha256": "b082548b2b00cf0763c39618bd3d1cdc5bee10586c18e36e1078c04f18ac122f"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/geometry.py": {
+      "sha256": "6d89077b1ee28e068a8e0f66cecaa6caa22a401be5c246bccbaefda03ec33426",
+      "bytes": 4349,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/geometry.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/geometry.py",
+      "archive_kind": "full",
+      "archive_sha256": "6d89077b1ee28e068a8e0f66cecaa6caa22a401be5c246bccbaefda03ec33426"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/protocol.py": {
+      "sha256": "3140a010c964059f33fb45722bbaf7ff11d754242a35d3c4b66b06c269d2a9f4",
+      "bytes": 4328,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/protocol.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/protocol.py",
+      "archive_kind": "full",
+      "archive_sha256": "3140a010c964059f33fb45722bbaf7ff11d754242a35d3c4b66b06c269d2a9f4"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/executor.py": {
+      "sha256": "ed75a06cd4ffcd009bf00f1ced400613dcc3a8c639935f99769c82875946639d",
+      "bytes": 8111,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/executor.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/executor.py",
+      "archive_kind": "full",
+      "archive_sha256": "ed75a06cd4ffcd009bf00f1ced400613dcc3a8c639935f99769c82875946639d"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/__init__.py": {
+      "sha256": "54999699151f3d515968c3c097b0acb642a0e3a09d4a183e5535d6756d4fbb56",
+      "bytes": 191,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/__init__.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/__init__.py",
+      "archive_kind": "full",
+      "archive_sha256": "54999699151f3d515968c3c097b0acb642a0e3a09d4a183e5535d6756d4fbb56"
+    },
+    "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/route_planner.py": {
+      "sha256": "269fd79c5a55ceb05e626f5af3f779f3734cf7c449012643b0049ea7870529af",
+      "bytes": 8683,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/route_planner.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/route_planner.py",
+      "archive_kind": "full",
+      "archive_sha256": "269fd79c5a55ceb05e626f5af3f779f3734cf7c449012643b0049ea7870529af"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/allocation_geometry.py": {
+      "sha256": "7c2ba66fb781759762a14c6fb75477f499cea21425315cd71e46127287219e4e",
+      "bytes": 1557,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/allocation_geometry.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/allocation_geometry.py",
+      "archive_kind": "full",
+      "archive_sha256": "7c2ba66fb781759762a14c6fb75477f499cea21425315cd71e46127287219e4e"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_completion.py": {
+      "sha256": "49a6b4d32b4a5174cbd6d1cb5cf98f733761dc62205de99820f2e998acf909a2",
+      "bytes": 885,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_completion.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_completion.py",
+      "archive_kind": "full",
+      "archive_sha256": "49a6b4d32b4a5174cbd6d1cb5cf98f733761dc62205de99820f2e998acf909a2"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/red_observations.py": {
+      "sha256": "a4473505dce68b8702ea0befe44f21f50fb94564ed4917e3c9b265486479c121",
+      "bytes": 1043,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/red_observations.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/red_observations.py",
+      "archive_kind": "full",
+      "archive_sha256": "a4473505dce68b8702ea0befe44f21f50fb94564ed4917e3c9b265486479c121"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/visual_observation.py": {
+      "sha256": "4ed2e25d78b4d1e91aa369af0dc2b68890d3138df17e8727a87e4cef99a15bc7",
+      "bytes": 1857,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/visual_observation.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/visual_observation.py",
+      "archive_kind": "full",
+      "archive_sha256": "4ed2e25d78b4d1e91aa369af0dc2b68890d3138df17e8727a87e4cef99a15bc7"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/single_uav_avoidance.py": {
+      "sha256": "2dfaf2a4f63cab65f5100d9cda0f1805f80881984730ddf067feecefc6ebf79e",
+      "bytes": 11736,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/single_uav_avoidance.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/single_uav_avoidance.py",
+      "archive_kind": "full",
+      "archive_sha256": "2dfaf2a4f63cab65f5100d9cda0f1805f80881984730ddf067feecefc6ebf79e"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/mission_time.py": {
+      "sha256": "9f6a4c8763c0161629957df54eafc121d7b6b96a3d00b4c4e048b4d0d208a68b",
+      "bytes": 53564,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/mission_time.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/mission_time.py",
+      "archive_kind": "full",
+      "archive_sha256": "9f6a4c8763c0161629957df54eafc121d7b6b96a3d00b4c4e048b4d0d208a68b"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/fcu_configuration.py": {
+      "sha256": "3229c340f6490a0455c80f28f67ad2b06c13810ce303e986b5a780a9516492b7",
+      "bytes": 533,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/fcu_configuration.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/fcu_configuration.py",
+      "archive_kind": "full",
+      "archive_sha256": "3229c340f6490a0455c80f28f67ad2b06c13810ce303e986b5a780a9516492b7"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_task.py": {
+      "sha256": "161dc058c37babc28adafafb14e6d2a4842351defde1344f73661da1674ad7aa",
+      "bytes": 44739,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_task.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_task.py",
+      "archive_kind": "full",
+      "archive_sha256": "161dc058c37babc28adafafb14e6d2a4842351defde1344f73661da1674ad7aa"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/team_bench.py": {
+      "sha256": "9b65399dcc0712fbf3117e025e5b2b54467d5d0a5c6e79365e321903e44011f1",
+      "bytes": 38664,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/team_bench.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/team_bench.py",
+      "archive_kind": "full",
+      "archive_sha256": "9b65399dcc0712fbf3117e025e5b2b54467d5d0a5c6e79365e321903e44011f1"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py": {
+      "sha256": "20b68d7210abce6dbbab1288f2bdcdd46a23c9f49b761053ac673818dc128fee",
+      "bytes": 3663,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py",
+      "archive_kind": "full",
+      "archive_sha256": "20b68d7210abce6dbbab1288f2bdcdd46a23c9f49b761053ac673818dc128fee"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actor.py": {
+      "sha256": "a500f6f68430c9d9bb77bc571b837eebc623dfd337bf46e2e8448ae87db05eae",
+      "bytes": 25620,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actor.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actor.py",
+      "archive_kind": "full",
+      "archive_sha256": "a500f6f68430c9d9bb77bc571b837eebc623dfd337bf46e2e8448ae87db05eae"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_sim_node.py": {
+      "sha256": "75369af7e9aa3e8c029395d488d8339e484dc5e1845267c59abf6c7a5a63cdc4",
+      "bytes": 14095,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_sim_node.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_sim_node.py",
+      "archive_kind": "full",
+      "archive_sha256": "75369af7e9aa3e8c029395d488d8339e484dc5e1845267c59abf6c7a5a63cdc4"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_official.py": {
+      "sha256": "90dba8bb70d4cdf81cc56bb1382acb7e3119fd8da6349ac8523fd2b4a1d40000",
+      "bytes": 20779,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_official.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_official.py",
+      "archive_kind": "full",
+      "archive_sha256": "90dba8bb70d4cdf81cc56bb1382acb7e3119fd8da6349ac8523fd2b4a1d40000"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_actor.py": {
+      "sha256": "75506452543fc9f49d7150b262d7d8d8d537c0650b9b6b2b6e2766634202e429",
+      "bytes": 2549,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_actor.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_actor.py",
+      "archive_kind": "full",
+      "archive_sha256": "75506452543fc9f49d7150b262d7d8d8d537c0650b9b6b2b6e2766634202e429"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/position_brake.py": {
+      "sha256": "89c38ef2645e46d9552970b5473655e441ba5c591873436602e5ef0b8447d299",
+      "bytes": 1837,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/position_brake.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/position_brake.py",
+      "archive_kind": "full",
+      "archive_sha256": "89c38ef2645e46d9552970b5473655e441ba5c591873436602e5ef0b8447d299"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_endpoint.py": {
+      "sha256": "73c88d990c0e7dd152a3fdaf7321cb0725bbeb00bb83fdc6e0c65a1c7f61748f",
+      "bytes": 734,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_endpoint.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_endpoint.py",
+      "archive_kind": "full",
+      "archive_sha256": "73c88d990c0e7dd152a3fdaf7321cb0725bbeb00bb83fdc6e0c65a1c7f61748f"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/cooperative_tracker.py": {
+      "sha256": "cdec1352660d77a6be18a5ab0f47ebc51e507aadde0f38f874b69d1dd8315ae4",
+      "bytes": 29358,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/cooperative_tracker.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/cooperative_tracker.py",
+      "archive_kind": "full",
+      "archive_sha256": "cdec1352660d77a6be18a5ab0f47ebc51e507aadde0f38f874b69d1dd8315ae4"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_viz.py": {
+      "sha256": "ffbda5a5aa4495098d61c8245fb8189f455f6c143dbcd7a31792084bfbdb9d9f",
+      "bytes": 21664,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_viz.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_viz.py",
+      "archive_kind": "full",
+      "archive_sha256": "ffbda5a5aa4495098d61c8245fb8189f455f6c143dbcd7a31792084bfbdb9d9f"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py": {
+      "sha256": "4f04bf353c540d0dda5fbbf2837b17a8db4050ddc4692efb90e7dbc5711934c0",
+      "bytes": 25675,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py",
+      "archive_kind": "full",
+      "archive_sha256": "4f04bf353c540d0dda5fbbf2837b17a8db4050ddc4692efb90e7dbc5711934c0"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_offboard_server.py": {
+      "sha256": "fd37c26fc435fd3cffbbc0a11604825b0403c784161dd91199deb0d35ff07759",
+      "bytes": 10397,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_offboard_server.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_offboard_server.py",
+      "archive_kind": "full",
+      "archive_sha256": "fd37c26fc435fd3cffbbc0a11604825b0403c784161dd91199deb0d35ff07759"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_authority.py": {
+      "sha256": "a5577ca714eb7e7d4b1ad47293cf6812d8cf93e1abef63ffa4fde77c3384d749",
+      "bytes": 12880,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_authority.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_authority.py",
+      "archive_kind": "full",
+      "archive_sha256": "a5577ca714eb7e7d4b1ad47293cf6812d8cf93e1abef63ffa4fde77c3384d749"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_ablation.py": {
+      "sha256": "68c720f7b0705e4d8b909627f7b301e3e25ab5be1c3ad684ac5bd419ffec1995",
+      "bytes": 13941,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_ablation.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_ablation.py",
+      "archive_kind": "full",
+      "archive_sha256": "68c720f7b0705e4d8b909627f7b301e3e25ab5be1c3ad684ac5bd419ffec1995"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/navigation_feedback.py": {
+      "sha256": "2176370280d237f2e780a2755fdc18344191778f591bbd453f896df60921afcf",
+      "bytes": 2577,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/navigation_feedback.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/navigation_feedback.py",
+      "archive_kind": "full",
+      "archive_sha256": "2176370280d237f2e780a2755fdc18344191778f591bbd453f896df60921afcf"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/publisher_authority.py": {
+      "sha256": "1d5c56513e82b03a30a9c457b79ada9dfd198d4fafb98e8c05411565a120787f",
+      "bytes": 756,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/publisher_authority.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/publisher_authority.py",
+      "archive_kind": "full",
+      "archive_sha256": "1d5c56513e82b03a30a9c457b79ada9dfd198d4fafb98e8c05411565a120787f"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/judge_system.py": {
+      "sha256": "e5f0e154ce29181a223325259d707cbd91ea79831930012ae6d0412e789f177a",
+      "bytes": 22625,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/judge_system.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/judge_system.py",
+      "archive_kind": "full",
+      "archive_sha256": "e5f0e154ce29181a223325259d707cbd91ea79831930012ae6d0412e789f177a"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/strategy_compare.py": {
+      "sha256": "6a4287b93b0a187c90bda0255785b2e03c8ac8f44eb6f75dde079a40d7c96ad0",
+      "bytes": 38316,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/strategy_compare.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/strategy_compare.py",
+      "archive_kind": "full",
+      "archive_sha256": "6a4287b93b0a187c90bda0255785b2e03c8ac8f44eb6f75dde079a40d7c96ad0"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/verify_swarm_avoidance.py": {
+      "sha256": "96188e8b54d6f339033e434ff12f69b3e43c9a07c8dee59532d8a3b53c65f301",
+      "bytes": 8661,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/verify_swarm_avoidance.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/verify_swarm_avoidance.py",
+      "archive_kind": "full",
+      "archive_sha256": "96188e8b54d6f339033e434ff12f69b3e43c9a07c8dee59532d8a3b53c65f301"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_test.sh": {
+      "sha256": "ca0a50764bba62e01a948f043738d9277e1d9259a6787a7a3f9fe3b6c5970b0d",
+      "bytes": 299,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_test.sh",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_test.sh",
+      "archive_kind": "full",
+      "archive_sha256": "ca0a50764bba62e01a948f043738d9277e1d9259a6787a7a3f9fe3b6c5970b0d"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_occupancy.py": {
+      "sha256": "c3de3deca3196873123fb270e82dc70cd699c7adbdc097ca14533af0808be2f4",
+      "bytes": 1078,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_occupancy.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_occupancy.py",
+      "archive_kind": "full",
+      "archive_sha256": "c3de3deca3196873123fb270e82dc70cd699c7adbdc097ca14533af0808be2f4"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_allocator.py": {
+      "sha256": "f64cbeeda5c5dbb0a8be3ff64de69d232b537e46f4f0cb9ee6ad5eff066f343d",
+      "bytes": 60580,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_allocator.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_allocator.py",
+      "archive_kind": "full",
+      "archive_sha256": "f64cbeeda5c5dbb0a8be3ff64de69d232b537e46f4f0cb9ee6ad5eff066f343d"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_planner.py": {
+      "sha256": "d234ec7b6e52b6749c63adbba6036b813366bde028f5fa1fe5b17e4acc2ead99",
+      "bytes": 9472,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_planner.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_planner.py",
+      "archive_kind": "full",
+      "archive_sha256": "d234ec7b6e52b6749c63adbba6036b813366bde028f5fa1fe5b17e4acc2ead99"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/fleet_motion_guard.py": {
+      "sha256": "0fba3af4e76635162e67c6190958f76b74491c0e9289849a9ae3cdca61c8e507",
+      "bytes": 3171,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/fleet_motion_guard.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/fleet_motion_guard.py",
+      "archive_kind": "full",
+      "archive_sha256": "0fba3af4e76635162e67c6190958f76b74491c0e9289849a9ae3cdca61c8e507"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/persistent_los.py": {
+      "sha256": "ae53bd7f0319744247cc103957696bd575682e5ca85f10f7be3ce1521aefecd0",
+      "bytes": 7250,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/persistent_los.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/persistent_los.py",
+      "archive_kind": "full",
+      "archive_sha256": "ae53bd7f0319744247cc103957696bd575682e5ca85f10f7be3ce1521aefecd0"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_reservation.py": {
+      "sha256": "7ac79a9ca02c7f51c95e6fca53bdf32fe26782dcde22cbc8b30a7f39b9bb3863",
+      "bytes": 9741,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_reservation.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_reservation.py",
+      "archive_kind": "full",
+      "archive_sha256": "7ac79a9ca02c7f51c95e6fca53bdf32fe26782dcde22cbc8b30a7f39b9bb3863"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_manager.py": {
+      "sha256": "cba9e180792a8223abd4b30f14930720c43899b0cf9ee9b8907ea25b6de6f80a",
+      "bytes": 78486,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_manager.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_manager.py",
+      "archive_kind": "full",
+      "archive_sha256": "cba9e180792a8223abd4b30f14930720c43899b0cf9ee9b8907ea25b6de6f80a"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_quality.py": {
+      "sha256": "4d1b32dc78095298a03505fe7cd53b580de5f2436e350a50379221cfeb2c1df2",
+      "bytes": 2115,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_quality.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_quality.py",
+      "archive_kind": "full",
+      "archive_sha256": "4d1b32dc78095298a03505fe7cd53b580de5f2436e350a50379221cfeb2c1df2"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/csv_logger.py": {
+      "sha256": "0598fcda689c7c0560b238abc18d7e99c69ca2aad33b5444d00df8e6e2bbced0",
+      "bytes": 1932,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/csv_logger.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/csv_logger.py",
+      "archive_kind": "full",
+      "archive_sha256": "0598fcda689c7c0560b238abc18d7e99c69ca2aad33b5444d00df8e6e2bbced0"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracker_selection.py": {
+      "sha256": "badd269067a7a4b68bbb60c6c463ecbb450a4bd256c1865c7aa236438286662e",
+      "bytes": 1119,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracker_selection.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracker_selection.py",
+      "archive_kind": "full",
+      "archive_sha256": "badd269067a7a4b68bbb60c6c463ecbb450a4bd256c1865c7aa236438286662e"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/local_esdf.py": {
+      "sha256": "2aa85a3126de91946fa680cb7a68334919aeca373204008a09422753f0fc274a",
+      "bytes": 10157,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/local_esdf.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/local_esdf.py",
+      "archive_kind": "full",
+      "archive_sha256": "2aa85a3126de91946fa680cb7a68334919aeca373204008a09422753f0fc274a"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/track_bench.py": {
+      "sha256": "971b401ce669cce3644a3a8b4947150e746948f53a60e94a2ad2835b205180ed",
+      "bytes": 16310,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/track_bench.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/track_bench.py",
+      "archive_kind": "full",
+      "archive_sha256": "971b401ce669cce3644a3a8b4947150e746948f53a60e94a2ad2835b205180ed"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_multi_uav_3.sh": {
+      "sha256": "3224d64cb25167785d487767e13eba780dcd05f875b265eb949b573d184962f1",
+      "bytes": 4831,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_multi_uav_3.sh",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_multi_uav_3.sh",
+      "archive_kind": "full",
+      "archive_sha256": "3224d64cb25167785d487767e13eba780dcd05f875b265eb949b573d184962f1"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actors.sh": {
+      "sha256": "928d2c4dc2f971ca6a45f91874e5631fd77cd06a700d3ffb6866002e1ab52272",
+      "bytes": 187,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actors.sh",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actors.sh",
+      "archive_kind": "full",
+      "archive_sha256": "928d2c4dc2f971ca6a45f91874e5631fd77cd06a700d3ffb6866002e1ab52272"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py": {
+      "sha256": "4473b7d78b15bf2bad3c849434096e2db9b0e2e6515f487fbf95adab9f938c17",
+      "bytes": 146446,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "archive_kind": "full",
+      "archive_sha256": "4473b7d78b15bf2bad3c849434096e2db9b0e2e6515f487fbf95adab9f938c17"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/online_radar_planner.py": {
+      "sha256": "23573d60429fc427862d69f9979b77eefbbdd64cd56fea151747073b0978db5e",
+      "bytes": 15766,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/online_radar_planner.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/online_radar_planner.py",
+      "archive_kind": "full",
+      "archive_sha256": "23573d60429fc427862d69f9979b77eefbbdd64cd56fea151747073b0978db5e"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_observed_map.py": {
+      "sha256": "30222c259959ffce36aecbe9428854177e69326bfa31fc4d2518eb9d07937bb2",
+      "bytes": 2913,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_observed_map.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_observed_map.py",
+      "archive_kind": "full",
+      "archive_sha256": "30222c259959ffce36aecbe9428854177e69326bfa31fc4d2518eb9d07937bb2"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/stop_control_actors.sh": {
+      "sha256": "75c3bf536da6773f34614b813f810c38b9c5192a1144e9718541f17ed523399d",
+      "bytes": 87,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/stop_control_actors.sh",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/stop_control_actors.sh",
+      "archive_kind": "full",
+      "archive_sha256": "75c3bf536da6773f34614b813f810c38b9c5192a1144e9718541f17ed523399d"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_motion.py": {
+      "sha256": "3768795b95fb7d2066d4c54fbcdf6f651955a1cb2e28a4c49aaba30c4dac9a1b",
+      "bytes": 1853,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_motion.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_motion.py",
+      "archive_kind": "full",
+      "archive_sha256": "3768795b95fb7d2066d4c54fbcdf6f651955a1cb2e28a4c49aaba30c4dac9a1b"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_controller.py": {
+      "sha256": "edec754447850c043b9cbd266c2d524cd01a2e30324f8ea1a48d94b35c468f18",
+      "bytes": 2210,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_controller.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_controller.py",
+      "archive_kind": "full",
+      "archive_sha256": "edec754447850c043b9cbd266c2d524cd01a2e30324f8ea1a48d94b35c468f18"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/dwa_avoidance.py": {
+      "sha256": "4d2345cd99366eaee22170aed7e4ce4000440ee4bafe1189e9335ca63bd2bb9a",
+      "bytes": 95377,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/dwa_avoidance.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/dwa_avoidance.py",
+      "archive_kind": "full",
+      "archive_sha256": "4d2345cd99366eaee22170aed7e4ce4000440ee4bafe1189e9335ca63bd2bb9a"
+    },
+    "flight/swarm_sources/coordination/src/robocup_swarm/scripts/score_cal.py": {
+      "sha256": "3f593606c2ce536d462c76b24a02834bf8be33683caf68f77d2715363d923ebb",
+      "bytes": 12990,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/score_cal.py",
+      "archive_path": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/score_cal.py",
+      "archive_kind": "full",
+      "archive_sha256": "3f593606c2ce536d462c76b24a02834bf8be33683caf68f77d2715363d923ebb"
+    },
+    "flight/swarm_sources/perception/.gitignore": {
+      "sha256": "d51d54c5b8a9a6516c76cae2b6baca13315a53cb6325649e1b792ecb3b5df6b8",
+      "bytes": 262,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/.gitignore",
+      "archive_path": "flight/swarm_sources/perception/.gitignore",
+      "archive_kind": "full",
+      "archive_sha256": "d51d54c5b8a9a6516c76cae2b6baca13315a53cb6325649e1b792ecb3b5df6b8"
+    },
+    "flight/swarm_sources/perception/shared_inference_client.py": {
+      "sha256": "0af84e1b911c335c5be768e7776ef184a7f9eaba6112938b2e654cb6b466df1e",
+      "bytes": 6089,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_client.py",
+      "archive_path": "flight/swarm_sources/perception/shared_inference_client.py",
+      "archive_kind": "full",
+      "archive_sha256": "0af84e1b911c335c5be768e7776ef184a7f9eaba6112938b2e654cb6b466df1e"
+    },
+    "flight/swarm_sources/perception/perception_real.py": {
+      "sha256": "dea81d5ec8fe432ddacc5d1b6c6dc73eac1dfc9fb06486c3a59476368604f9bd",
+      "bytes": 100540,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py",
+      "archive_path": "flight/swarm_sources/perception/perception_real.py",
+      "archive_kind": "full",
+      "archive_sha256": "dea81d5ec8fe432ddacc5d1b6c6dc73eac1dfc9fb06486c3a59476368604f9bd"
+    },
+    "flight/swarm_sources/perception/recent_motion.py": {
+      "sha256": "cf6375665ef04e877e6439f4681fdc049fd2bcc9e7bb72c9298cc74a38e3efe5",
+      "bytes": 1500,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/recent_motion.py",
+      "archive_path": "flight/swarm_sources/perception/recent_motion.py",
+      "archive_kind": "full",
+      "archive_sha256": "cf6375665ef04e877e6439f4681fdc049fd2bcc9e7bb72c9298cc74a38e3efe5"
+    },
+    "flight/swarm_sources/perception/jersey_color.py": {
+      "sha256": "13d49f153f56cc826288272900e4662ce08d61cc2fad99f7b9a76bb156503365",
+      "bytes": 1779,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/jersey_color.py",
+      "archive_path": "flight/swarm_sources/perception/jersey_color.py",
+      "archive_kind": "full",
+      "archive_sha256": "13d49f153f56cc826288272900e4662ce08d61cc2fad99f7b9a76bb156503365"
+    },
+    "flight/swarm_sources/perception/requirements.txt": {
+      "sha256": "0c62c612281122d827f665c8d6f664278e1d9fd95dce297deff8c664bf0a3c2b",
+      "bytes": 244,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/requirements.txt",
+      "archive_path": "flight/swarm_sources/perception/requirements.txt",
+      "archive_kind": "full",
+      "archive_sha256": "0c62c612281122d827f665c8d6f664278e1d9fd95dce297deff8c664bf0a3c2b"
+    },
+    "flight/swarm_sources/perception/stationary_person.py": {
+      "sha256": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330",
+      "bytes": 368,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/stationary_person.py",
+      "archive_path": "flight/swarm_sources/perception/stationary_person.py",
+      "archive_kind": "full",
+      "archive_sha256": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330"
+    },
+    "flight/swarm_sources/perception/shared_inference_service.py": {
+      "sha256": "9a879fb687a413dca34ee1692a1d544695333e83c64c70985df1ac6ab29ccc2c",
+      "bytes": 10646,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py",
+      "archive_path": "flight/swarm_sources/perception/shared_inference_service.py",
+      "archive_kind": "full",
+      "archive_sha256": "9a879fb687a413dca34ee1692a1d544695333e83c64c70985df1ac6ab29ccc2c"
+    },
+    "flight/swarm_sources/perception/.gitattributes": {
+      "sha256": "e2430fe425e0b805a832523c07dada8b6edcbed939e5b4492a52c524535d6b9a",
+      "bytes": 94,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/.gitattributes",
+      "archive_path": "flight/swarm_sources/perception/.gitattributes",
+      "archive_kind": "full",
+      "archive_sha256": "e2430fe425e0b805a832523c07dada8b6edcbed939e5b4492a52c524535d6b9a"
+    },
+    "flight/swarm_sources/perception/camera_task.py": {
+      "sha256": "4a263742da1778115d98dec2dd64dcf1277e8f1a0e895859e1cca6745eef7efc",
+      "bytes": 896,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/camera_task.py",
+      "archive_path": "flight/swarm_sources/perception/camera_task.py",
+      "archive_kind": "full",
+      "archive_sha256": "4a263742da1778115d98dec2dd64dcf1277e8f1a0e895859e1cca6745eef7efc"
+    },
+    "flight/swarm_sources/perception/camera_geometry.py": {
+      "sha256": "319e32aa93e4bd40aef258775d03c2cd58e3812dd32a6078f23f138530f8e0cc",
+      "bytes": 2310,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/camera_geometry.py",
+      "archive_path": "flight/swarm_sources/perception/camera_geometry.py",
+      "archive_kind": "full",
+      "archive_sha256": "319e32aa93e4bd40aef258775d03c2cd58e3812dd32a6078f23f138530f8e0cc"
+    },
+    "flight/swarm_sources/perception/person_verifier.py": {
+      "sha256": "513aa57804ce342746400386cc0378090374b6d91e9fe24633ec09977ca2890d",
+      "bytes": 3884,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/person_verifier.py",
+      "archive_path": "flight/swarm_sources/perception/person_verifier.py",
+      "archive_kind": "full",
+      "archive_sha256": "513aa57804ce342746400386cc0378090374b6d91e9fe24633ec09977ca2890d"
+    },
+    "flight/swarm_sources/perception/README.md": {
+      "sha256": "f32265146e1a0d5f90124e965669ec0c4b9d4b4b8ce947168d3528a4938ae89b",
+      "bytes": 33519,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/README.md",
+      "archive_path": "flight/swarm_sources/perception/README.md",
+      "archive_kind": "full",
+      "archive_sha256": "f32265146e1a0d5f90124e965669ec0c4b9d4b4b8ce947168d3528a4938ae89b"
+    },
+    "flight/swarm_sources/perception/enhanced_tracker.py": {
+      "sha256": "d4eb217325c6496145b575ead792668f427dea4ea3e93a583a09cda0e3bbb6a6",
+      "bytes": 17504,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/enhanced_tracker.py",
+      "archive_path": "flight/swarm_sources/perception/enhanced_tracker.py",
+      "archive_kind": "full",
+      "archive_sha256": "d4eb217325c6496145b575ead792668f427dea4ea3e93a583a09cda0e3bbb6a6"
+    },
+    "flight/swarm_sources/perception/fresh_person.py": {
+      "sha256": "db7faf82bbda50d130a627f4d87c62b859eaf5298ef0f3555db21b9542c377f8",
+      "bytes": 2065,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/fresh_person.py",
+      "archive_path": "flight/swarm_sources/perception/fresh_person.py",
+      "archive_kind": "full",
+      "archive_sha256": "db7faf82bbda50d130a627f4d87c62b859eaf5298ef0f3555db21b9542c377f8"
+    },
+    "flight/swarm_sources/perception/patch/add_stereo_camera.py": {
+      "sha256": "a163d25497e25d389ad824dda212689886c54240f166d58a50e878624110cd07",
+      "bytes": 10556,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/patch/add_stereo_camera.py",
+      "archive_path": "flight/swarm_sources/perception/patch/add_stereo_camera.py",
+      "archive_kind": "full",
+      "archive_sha256": "a163d25497e25d389ad824dda212689886c54240f166d58a50e878624110cd07"
+    },
+    "flight/swarm_sources/perception/patch/README.md": {
+      "sha256": "18121435003938deabf6fb9d94278a90ac98a9fc1a912a72407ceef786a33c04",
+      "bytes": 3935,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/patch/README.md",
+      "archive_path": "flight/swarm_sources/perception/patch/README.md",
+      "archive_kind": "full",
+      "archive_sha256": "18121435003938deabf6fb9d94278a90ac98a9fc1a912a72407ceef786a33c04"
+    },
+    "flight/swarm_sources/perception/scripts/proc_util.sh": {
+      "sha256": "986e42f61e018005e53060472c0fcd88236c5876a64b08ac1f7b786983cdde8a",
+      "bytes": 2245,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/proc_util.sh",
+      "archive_path": "flight/swarm_sources/perception/scripts/proc_util.sh",
+      "archive_kind": "full",
+      "archive_sha256": "986e42f61e018005e53060472c0fcd88236c5876a64b08ac1f7b786983cdde8a"
+    },
+    "flight/swarm_sources/perception/scripts/check_target_report_schema.py": {
+      "sha256": "836f948b5d617a8a44ebaba7e96bcea17260a78edc86ec6e826bc920b2f4bf19",
+      "bytes": 7646,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/check_target_report_schema.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/check_target_report_schema.py",
+      "archive_kind": "full",
+      "archive_sha256": "836f948b5d617a8a44ebaba7e96bcea17260a78edc86ec6e826bc920b2f4bf19"
+    },
+    "flight/swarm_sources/perception/scripts/snapshot_cam.py": {
+      "sha256": "4d36648c90b46a6c0818f3c0220c1b0f6ac30186509882e968da5a5c98bbd4e4",
+      "bytes": 1099,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/snapshot_cam.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/snapshot_cam.py",
+      "archive_kind": "full",
+      "archive_sha256": "4d36648c90b46a6c0818f3c0220c1b0f6ac30186509882e968da5a5c98bbd4e4"
+    },
+    "flight/swarm_sources/perception/scripts/guide_patrol.py": {
+      "sha256": "d0cc20d63fb2d86740f0baf5ec08ad8a5639773ccd32888912a4894112dc63b4",
+      "bytes": 2831,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/guide_patrol.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/guide_patrol.py",
+      "archive_kind": "full",
+      "archive_sha256": "d0cc20d63fb2d86740f0baf5ec08ad8a5639773ccd32888912a4894112dc63b4"
+    },
+    "flight/swarm_sources/perception/scripts/run_actors.sh": {
+      "sha256": "4c20fd83e9598de64f850ae7cc17f544096d7561c759326539793c289b534fbc",
+      "bytes": 1775,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/run_actors.sh",
+      "archive_path": "flight/swarm_sources/perception/scripts/run_actors.sh",
+      "archive_kind": "full",
+      "archive_sha256": "4c20fd83e9598de64f850ae7cc17f544096d7561c759326539793c289b534fbc"
+    },
+    "flight/swarm_sources/perception/scripts/analyze_snap.py": {
+      "sha256": "5ae315e7d0ac7066cb63513295c737413db1be76113b80ea7bcc7d1866da8059",
+      "bytes": 7829,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/analyze_snap.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/analyze_snap.py",
+      "archive_kind": "full",
+      "archive_sha256": "5ae315e7d0ac7066cb63513295c737413db1be76113b80ea7bcc7d1866da8059"
+    },
+    "flight/swarm_sources/perception/scripts/guide_actor.py": {
+      "sha256": "bb7cf785585688448cfd705220574c97d59716de1a5a845b84f63b6e3d266ff5",
+      "bytes": 2153,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/guide_actor.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/guide_actor.py",
+      "archive_kind": "full",
+      "archive_sha256": "bb7cf785585688448cfd705220574c97d59716de1a5a845b84f63b6e3d266ff5"
+    },
+    "flight/swarm_sources/perception/scripts/rec_snap.py": {
+      "sha256": "1f3dad3ebc0fcd0f17f35ee1383fc26716b232f63287994121dcbdadb6c69ab9",
+      "bytes": 3737,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/rec_snap.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/rec_snap.py",
+      "archive_kind": "full",
+      "archive_sha256": "1f3dad3ebc0fcd0f17f35ee1383fc26716b232f63287994121dcbdadb6c69ab9"
+    },
+    "flight/swarm_sources/perception/scripts/verify_official_assets.py": {
+      "sha256": "dff32f08a47d6ad7b82459fe6965701055c501fd4be81bd488e923c981ccff09",
+      "bytes": 14935,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/verify_official_assets.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/verify_official_assets.py",
+      "archive_kind": "full",
+      "archive_sha256": "dff32f08a47d6ad7b82459fe6965701055c501fd4be81bd488e923c981ccff09"
+    },
+    "flight/swarm_sources/perception/scripts/control_actor_m2.py": {
+      "sha256": "921e7180f2195893405159a896db982ca8a2da722d3a18125a74566594172b48",
+      "bytes": 22062,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/control_actor_m2.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/control_actor_m2.py",
+      "archive_kind": "full",
+      "archive_sha256": "921e7180f2195893405159a896db982ca8a2da722d3a18125a74566594172b48"
+    },
+    "flight/swarm_sources/perception/scripts/replay_target_report.py": {
+      "sha256": "7212d60dd8140b4eab12867447769b9d155fa9619e0f702bfd209976111092e9",
+      "bytes": 6127,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/replay_target_report.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/replay_target_report.py",
+      "archive_kind": "full",
+      "archive_sha256": "7212d60dd8140b4eab12867447769b9d155fa9619e0f702bfd209976111092e9"
+    },
+    "flight/swarm_sources/perception/scripts/ground_truth_bridge.py": {
+      "sha256": "9f7c8c613434f6050584758d72670854b2c21434b023cee0b6eeaeb41b28c863",
+      "bytes": 4962,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/ground_truth_bridge.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/ground_truth_bridge.py",
+      "archive_kind": "full",
+      "archive_sha256": "9f7c8c613434f6050584758d72670854b2c21434b023cee0b6eeaeb41b28c863"
+    },
+    "flight/swarm_sources/perception/scripts/probe_actor_speed.py": {
+      "sha256": "78b5e9cfd33eaf32937b9ae64ff9ba5e1dbbcd516f6e81526547caddc79948bb",
+      "bytes": 2160,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/probe_actor_speed.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/probe_actor_speed.py",
+      "archive_kind": "full",
+      "archive_sha256": "78b5e9cfd33eaf32937b9ae64ff9ba5e1dbbcd516f6e81526547caddc79948bb"
+    },
+    "flight/swarm_sources/perception/scripts/fly_takeoff.py": {
+      "sha256": "6ca28d5972b438291be772da20c384df51888f1fee9eaad15f3b3bb097b6ea18",
+      "bytes": 7755,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/fly_takeoff.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/fly_takeoff.py",
+      "archive_kind": "full",
+      "archive_sha256": "6ca28d5972b438291be772da20c384df51888f1fee9eaad15f3b3bb097b6ea18"
+    },
+    "flight/swarm_sources/perception/scripts/env_robocup.sh": {
+      "sha256": "431fba1742dbfb20ee5fdfd5e023fecc49fa093bbf0e9846f854acf442f902cd",
+      "bytes": 3407,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/env_robocup.sh",
+      "archive_path": "flight/swarm_sources/perception/scripts/env_robocup.sh",
+      "archive_kind": "full",
+      "archive_sha256": "431fba1742dbfb20ee5fdfd5e023fecc49fa093bbf0e9846f854acf442f902cd"
+    },
+    "flight/swarm_sources/perception/scripts/judge_official_15s.py": {
+      "sha256": "9b874e149aa16ec72e9b62c7d2dc1f93b3e49921f2d09aceb88f6c4134ed3bba",
+      "bytes": 8882,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/judge_official_15s.py",
+      "archive_path": "flight/swarm_sources/perception/scripts/judge_official_15s.py",
+      "archive_kind": "full",
+      "archive_sha256": "9b874e149aa16ec72e9b62c7d2dc1f93b3e49921f2d09aceb88f6c4134ed3bba"
+    },
+    "flight/swarm_sources/perception/scripts/restart_stack_fly.sh": {
+      "sha256": "2349ff9c696b77b526f3cca56d9309adad808200fe66d0d18d9af295bc129aec",
+      "bytes": 6848,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/scripts/restart_stack_fly.sh",
+      "archive_path": "flight/swarm_sources/perception/scripts/restart_stack_fly.sh",
+      "archive_kind": "full",
+      "archive_sha256": "2349ff9c696b77b526f3cca56d9309adad808200fe66d0d18d9af295bc129aec"
+    },
+    "flight/swarm_sources/perception/launch/uav_only.launch": {
+      "sha256": "5ac9f1150130dfa617a70bd1932b8c548840b1f839462b0504b61281ed4848c4",
+      "bytes": 1449,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/launch/uav_only.launch",
+      "archive_path": "flight/swarm_sources/perception/launch/uav_only.launch",
+      "archive_kind": "full",
+      "archive_sha256": "5ac9f1150130dfa617a70bd1932b8c548840b1f839462b0504b61281ed4848c4"
+    },
+    "flight/swarm_sources/perception/launch/world_only.launch": {
+      "sha256": "d537d6a544fee994011d33c1f199c720a2569f620e630e7a35bcf27660bfef1b",
+      "bytes": 773,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/launch/world_only.launch",
+      "archive_path": "flight/swarm_sources/perception/launch/world_only.launch",
+      "archive_kind": "full",
+      "archive_sha256": "d537d6a544fee994011d33c1f199c720a2569f620e630e7a35bcf27660bfef1b"
+    },
+    "flight/swarm_sources/perception/launch/world_min.launch": {
+      "sha256": "ab34d77b59c036a24f01a70226be745f55d61096238bd820fa4e7baed0daa9e3",
+      "bytes": 1728,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/launch/world_min.launch",
+      "archive_path": "flight/swarm_sources/perception/launch/world_min.launch",
+      "archive_kind": "full",
+      "archive_sha256": "ab34d77b59c036a24f01a70226be745f55d61096238bd820fa4e7baed0daa9e3"
+    },
+    "flight/swarm_sources/perception/launch/robocup_1uav.launch": {
+      "sha256": "e0fa180dc286484a6f00a370ad748620bf7e5f585b9759f498e89d3d39134482",
+      "bytes": 2313,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/launch/robocup_1uav.launch",
+      "archive_path": "flight/swarm_sources/perception/launch/robocup_1uav.launch",
+      "archive_kind": "full",
+      "archive_sha256": "e0fa180dc286484a6f00a370ad748620bf7e5f585b9759f498e89d3d39134482"
+    },
+    "flight/swarm_sources/perception/worlds/actor_min.world": {
+      "sha256": "dae08641ca9c733b7ff1383400cb4fc7aee512a6cb9aba963cd96ab0c0fa5938",
+      "bytes": 16567,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/worlds/actor_min.world",
+      "archive_path": "flight/swarm_sources/perception/worlds/actor_min.world",
+      "archive_kind": "full",
+      "archive_sha256": "dae08641ca9c733b7ff1383400cb4fc7aee512a6cb9aba963cd96ab0c0fa5938"
+    },
+    "flight/swarm_sources/perception/tests/test_shared_inference.py": {
+      "sha256": "22dd1a03337d87d305707f918329691e011c85681df0e597db2729ded6028e48",
+      "bytes": 9144,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tests/test_shared_inference.py",
+      "archive_path": "flight/swarm_sources/perception/tests/test_shared_inference.py",
+      "archive_kind": "full",
+      "archive_sha256": "22dd1a03337d87d305707f918329691e011c85681df0e597db2729ded6028e48"
+    },
+    "flight/swarm_sources/perception/tools/calib_selfmask.py": {
+      "sha256": "a7bd303b90c81b51681a75720dc39f9d6d59dd0657cb923be7dc64c9f1b99f94",
+      "bytes": 12839,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/calib_selfmask.py",
+      "archive_path": "flight/swarm_sources/perception/tools/calib_selfmask.py",
+      "archive_kind": "full",
+      "archive_sha256": "a7bd303b90c81b51681a75720dc39f9d6d59dd0657cb923be7dc64c9f1b99f94"
+    },
+    "flight/swarm_sources/perception/tools/snap_frame.py": {
+      "sha256": "b9b50e22a4a912e32d84587184032a7c23d4d9f847b96df136473a047093dfbf",
+      "bytes": 1328,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/snap_frame.py",
+      "archive_path": "flight/swarm_sources/perception/tools/snap_frame.py",
+      "archive_kind": "full",
+      "archive_sha256": "b9b50e22a4a912e32d84587184032a7c23d4d9f847b96df136473a047093dfbf"
+    },
+    "flight/swarm_sources/perception/tools/test_red_slots.py": {
+      "sha256": "8add31f797eb4ea97f405e7ad28133d72eee4918ef9ca54134d286b4229f76ab",
+      "bytes": 6576,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/test_red_slots.py",
+      "archive_path": "flight/swarm_sources/perception/tools/test_red_slots.py",
+      "archive_kind": "full",
+      "archive_sha256": "8add31f797eb4ea97f405e7ad28133d72eee4918ef9ca54134d286b4229f76ab"
+    },
+    "flight/swarm_sources/perception/tools/diag_geom.py": {
+      "sha256": "6594f8f239901c17b37ccab000beaecbc6cde55fd36c5f0b500c20e31c801208",
+      "bytes": 3670,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/diag_geom.py",
+      "archive_path": "flight/swarm_sources/perception/tools/diag_geom.py",
+      "archive_kind": "full",
+      "archive_sha256": "6594f8f239901c17b37ccab000beaecbc6cde55fd36c5f0b500c20e31c801208"
+    },
+    "flight/swarm_sources/perception/tools/m3_verify.py": {
+      "sha256": "4d94301178fcc3acbdfd0fa149dbe617d87d86eb742dfae163a9a0edb58cf2b6",
+      "bytes": 14391,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/m3_verify.py",
+      "archive_path": "flight/swarm_sources/perception/tools/m3_verify.py",
+      "archive_kind": "full",
+      "archive_sha256": "4d94301178fcc3acbdfd0fa149dbe617d87d86eb742dfae163a9a0edb58cf2b6"
+    },
+    "flight/swarm_sources/perception/tools/probe_target_report.py": {
+      "sha256": "ce32ff969b253ae9b59bbd8ab6d9a80e9005e79e7c769cf836f1f7c5303e83ac",
+      "bytes": 6868,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/probe_target_report.py",
+      "archive_path": "flight/swarm_sources/perception/tools/probe_target_report.py",
+      "archive_kind": "full",
+      "archive_sha256": "ce32ff969b253ae9b59bbd8ab6d9a80e9005e79e7c769cf836f1f7c5303e83ac"
+    },
+    "flight/swarm_sources/perception/tools/hover_teleport.py": {
+      "sha256": "fb571799cba9cf4c1ef23ff6fae9d6058f643df099a32c74b3fc3b26c28f2ea4",
+      "bytes": 17749,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/hover_teleport.py",
+      "archive_path": "flight/swarm_sources/perception/tools/hover_teleport.py",
+      "archive_kind": "full",
+      "archive_sha256": "fb571799cba9cf4c1ef23ff6fae9d6058f643df099a32c74b3fc3b26c28f2ea4"
+    },
+    "flight/swarm_sources/perception/tools/val_cm.py": {
+      "sha256": "a2bbc4d041e6e2d251ecaef19da649f6ad7e371a8abefc7fc998259955f91421",
+      "bytes": 1957,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/val_cm.py",
+      "archive_path": "flight/swarm_sources/perception/tools/val_cm.py",
+      "archive_kind": "full",
+      "archive_sha256": "a2bbc4d041e6e2d251ecaef19da649f6ad7e371a8abefc7fc998259955f91421"
+    },
+    "flight/swarm_sources/perception/tools/test_assoc_gate.py": {
+      "sha256": "a421a99984c26a87c6e9a9cfd9d34f76bc856f3fe3f416774a42b53d246bddc4",
+      "bytes": 3481,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/test_assoc_gate.py",
+      "archive_path": "flight/swarm_sources/perception/tools/test_assoc_gate.py",
+      "archive_kind": "full",
+      "archive_sha256": "a421a99984c26a87c6e9a9cfd9d34f76bc856f3fe3f416774a42b53d246bddc4"
+    },
+    "flight/swarm_sources/perception/tools/m5_dump_analyze.py": {
+      "sha256": "259bb36f55be570b2f096e6c5b800792461413ad42dbf9a3e20e09a46e9f6c1f",
+      "bytes": 4468,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/m5_dump_analyze.py",
+      "archive_path": "flight/swarm_sources/perception/tools/m5_dump_analyze.py",
+      "archive_kind": "full",
+      "archive_sha256": "259bb36f55be570b2f096e6c5b800792461413ad42dbf9a3e20e09a46e9f6c1f"
+    },
+    "flight/swarm_sources/perception/tools/fly_to_actor.py": {
+      "sha256": "9eb0bfe0d9b61ff856c8ba3210d2ae7019c3a7451eb95db16b466b02004b248b",
+      "bytes": 19745,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/fly_to_actor.py",
+      "archive_path": "flight/swarm_sources/perception/tools/fly_to_actor.py",
+      "archive_kind": "full",
+      "archive_sha256": "9eb0bfe0d9b61ff856c8ba3210d2ae7019c3a7451eb95db16b466b02004b248b"
+    },
+    "flight/swarm_sources/perception/tools/audit_brown_red.py": {
+      "sha256": "f67000198311d17c52e490ed8b2f578052944ee720c2a6d680a6dfff91a5e54d",
+      "bytes": 3977,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/audit_brown_red.py",
+      "archive_path": "flight/swarm_sources/perception/tools/audit_brown_red.py",
+      "archive_kind": "full",
+      "archive_sha256": "f67000198311d17c52e490ed8b2f578052944ee720c2a6d680a6dfff91a5e54d"
+    },
+    "flight/swarm_sources/perception/tools/README.md": {
+      "sha256": "b04ce21893ed2931064322535799500bf026cdaa93097ec36c94d0d6cfcbf914",
+      "bytes": 2242,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/README.md",
+      "archive_path": "flight/swarm_sources/perception/tools/README.md",
+      "archive_kind": "full",
+      "archive_sha256": "b04ce21893ed2931064322535799500bf026cdaa93097ec36c94d0d6cfcbf914"
+    },
+    "flight/swarm_sources/perception/tools/diag_identity.py": {
+      "sha256": "02c394e5d15421e8ec3b0e9b2823637914823361e8b863d11d3596ad20b4eeee",
+      "bytes": 3158,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/diag_identity.py",
+      "archive_path": "flight/swarm_sources/perception/tools/diag_identity.py",
+      "archive_kind": "full",
+      "archive_sha256": "02c394e5d15421e8ec3b0e9b2823637914823361e8b863d11d3596ad20b4eeee"
+    },
+    "flight/swarm_sources/perception/tools/ht_watch.py": {
+      "sha256": "c179e3b3a82b6b992dcf6bb3f48417a01a5122efd106d20b0bff6f0a26d05413",
+      "bytes": 3900,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/ht_watch.py",
+      "archive_path": "flight/swarm_sources/perception/tools/ht_watch.py",
+      "archive_kind": "full",
+      "archive_sha256": "c179e3b3a82b6b992dcf6bb3f48417a01a5122efd106d20b0bff6f0a26d05413"
+    },
+    "flight/swarm_sources/perception/tools/dual_check.py": {
+      "sha256": "531fe13d72939f1f50d75b7b632041ec1953a6d4631481a85998140e4eed7513",
+      "bytes": 12433,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/tools/dual_check.py",
+      "archive_path": "flight/swarm_sources/perception/tools/dual_check.py",
+      "archive_kind": "full",
+      "archive_sha256": "531fe13d72939f1f50d75b7b632041ec1953a6d4631481a85998140e4eed7513"
+    },
+    "flight/swarm_sources/perception/docs/\u90e8\u7f72\u68c0\u67e5\u6e05\u5355.md": {
+      "sha256": "b2cdb2872204137be2f38b0b60cd6591a85a2b976520755ed83842afca7fd221",
+      "bytes": 10924,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/flight/swarm_sources/perception/docs/\u90e8\u7f72\u68c0\u67e5\u6e05\u5355.md",
+      "archive_path": "flight/swarm_sources/perception/docs/\u90e8\u7f72\u68c0\u67e5\u6e05\u5355.md",
+      "archive_kind": "full",
+      "archive_sha256": "b2cdb2872204137be2f38b0b60cd6591a85a2b976520755ed83842afca7fd221"
+    },
+    "scene/house.world": {
+      "sha256": "dd5a336dbd21245983fe0e2ec4ab74a2b4075d735def9d2e227db5732462ef5a",
+      "bytes": 930722,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/house.world",
+      "archive_path": "scene/house.world",
+      "archive_kind": "full",
+      "archive_sha256": "dd5a336dbd21245983fe0e2ec4ab74a2b4075d735def9d2e227db5732462ef5a"
+    },
+    "scene/base1.world": {
+      "sha256": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c",
+      "bytes": 620482,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/base1.world",
+      "archive_path": "scene/base1.world",
+      "archive_kind": "full",
+      "archive_sha256": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c"
+    },
+    "scene/generator.log": {
+      "sha256": "45ac357c0093991f7fb355eab10227b9f9afc15fd350ce6d4567cd53b3b3616d",
+      "bytes": 480,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/generator.log",
+      "archive_path": "scene/generator.log",
+      "archive_kind": "full",
+      "archive_sha256": "45ac357c0093991f7fb355eab10227b9f9afc15fd350ce6d4567cd53b3b3616d"
+    },
+    "scene/scene_manifest.json": {
+      "sha256": "cda2b5c99ac3bf502a418a058a94f7535bd1cc912caef907a99f72e5da77a3ef",
+      "bytes": 3349,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/scene_manifest.json",
+      "archive_path": "scene/scene_manifest.json",
+      "archive_kind": "full",
+      "archive_sha256": "cda2b5c99ac3bf502a418a058a94f7535bd1cc912caef907a99f72e5da77a3ef"
+    },
+    "scene/control_actor.py": {
+      "sha256": "17860c14403d9125b92540dfbe78d8f29acbf18f044f9fd061961be2a1615c3b",
+      "bytes": 31907,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/control_actor.py",
+      "archive_path": "scene/control_actor.py",
+      "archive_kind": "full",
+      "archive_sha256": "17860c14403d9125b92540dfbe78d8f29acbf18f044f9fd061961be2a1615c3b"
+    },
+    "scene/rover_static.world": {
+      "sha256": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81",
+      "bytes": 85801,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/rover_static.world",
+      "archive_path": "scene/rover_static.world",
+      "archive_kind": "full",
+      "archive_sha256": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81"
+    },
+    "scene/generate_isolated.py": {
+      "sha256": "5df57a07f25d970331c620ffc9309f89e7d1532cc943cc653a9f55f5c363946c",
+      "bytes": 18640,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/generate_isolated.py",
+      "archive_path": "scene/generate_isolated.py",
+      "archive_kind": "full",
+      "archive_sha256": "5df57a07f25d970331c620ffc9309f89e7d1532cc943cc653a9f55f5c363946c"
+    },
+    "scene/base3.world": {
+      "sha256": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f",
+      "bytes": 931223,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/base3.world",
+      "archive_path": "scene/base3.world",
+      "archive_kind": "full",
+      "archive_sha256": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f"
+    },
+    "scene/ObstacleAvoid.py": {
+      "sha256": "ddd45cda69ddbe3b7f90eae978752c60b9846967a17af3bc8a17d18076555e01",
+      "bytes": 8052,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/ObstacleAvoid.py",
+      "archive_path": "scene/ObstacleAvoid.py",
+      "archive_kind": "full",
+      "archive_sha256": "ddd45cda69ddbe3b7f90eae978752c60b9846967a17af3bc8a17d18076555e01"
+    },
+    "scene/robocup.world": {
+      "sha256": "7a9dbcff907b0c7ebca1eaf4ea870bc1922d5d53e9a05cc79737dcc1ce0a1c45",
+      "bytes": 2648227,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/robocup.world",
+      "archive_path": "scene/robocup.world",
+      "archive_kind": "full",
+      "archive_sha256": "7a9dbcff907b0c7ebca1eaf4ea870bc1922d5d53e9a05cc79737dcc1ce0a1c45"
+    },
+    "scene/obstacle.txt": {
+      "sha256": "5784892c79238a6b9c7beb56c2c736609b48db3a4136368415492438ba63043c",
+      "bytes": 42349,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/obstacle.txt",
+      "archive_path": "scene/obstacle.txt",
+      "archive_kind": "full",
+      "archive_sha256": "5784892c79238a6b9c7beb56c2c736609b48db3a4136368415492438ba63043c"
+    },
+    "scene/black_box.txt": {
+      "sha256": "d7e5cdf083689e39fce8f308340a0059b7a679824272e3c95b5d66679c40bc17",
+      "bytes": 1492,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/black_box.txt",
+      "archive_path": "scene/black_box.txt",
+      "archive_kind": "full",
+      "archive_sha256": "d7e5cdf083689e39fce8f308340a0059b7a679824272e3c95b5d66679c40bc17"
+    },
+    "scene/map_generator.py": {
+      "sha256": "6cc5338f6e37dd6e5dabde2f0cb31424266f8cc650d3c13336268db72036f27b",
+      "bytes": 19083,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/map_generator.py",
+      "archive_path": "scene/map_generator.py",
+      "archive_kind": "full",
+      "archive_sha256": "6cc5338f6e37dd6e5dabde2f0cb31424266f8cc650d3c13336268db72036f27b"
+    },
+    "scene/white_background.png": {
+      "sha256": "f2b15c6f0e6464a95b93743a1f998e67cd877baa63d0e445ee8e8e78f6853819",
+      "bytes": 507,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/white_background.png",
+      "archive_path": "scene/white_background.png",
+      "archive_kind": "full",
+      "archive_sha256": "f2b15c6f0e6464a95b93743a1f998e67cd877baa63d0e445ee8e8e78f6853819"
+    },
+    "scene/rover.world": {
+      "sha256": "b50168bb230bab3aa4d197cf6f41897fc6671ed56f87e329ef291739d92b806d",
+      "bytes": 1715702,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/rover.world",
+      "archive_path": "scene/rover.world",
+      "archive_kind": "full",
+      "archive_sha256": "b50168bb230bab3aa4d197cf6f41897fc6671ed56f87e329ef291739d92b806d"
+    },
+    "scene/base2.world": {
+      "sha256": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948",
+      "bytes": 931166,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/base2.world",
+      "archive_path": "scene/base2.world",
+      "archive_kind": "full",
+      "archive_sha256": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948"
+    },
+    "scene/score_cal.py": {
+      "sha256": "255d3895ea47cc337ab03b0e965e71213791244257044a4c32b04759fbc1d0e1",
+      "bytes": 13388,
+      "full_file_wsl": "/root/robocup_runs/manual_v129_20261005T083707Z/round_1_seed_8159/scene/score_cal.py",
+      "archive_path": "scene/score_cal.py",
+      "archive_kind": "full",
+      "archive_sha256": "255d3895ea47cc337ab03b0e965e71213791244257044a4c32b04759fbc1d0e1"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "executed_commit": "cb33a45",
+  "formal_competition_pass": false,
+  "raw_result_unchanged": true,
+  "competition_goal_met": false,
+  "trajectory_start_s": 1929.732,
+  "trajectory_end_s": 2055.212,
+  "observed_sim_s": 125.48,
+  "judge_deleted_count": 0,
+  "last_left_actors": {
+    "kind": "left_actors",
+    "sample_s": 2055.32,
+    "value": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "non_ground_contact_rows": 0,
+  "contact_observer_last": {
+    "kind": "CONTACT_OBSERVER_STOPPED",
+    "frames": 31734,
+    "first_sample_s": 1928.536,
+    "last_sample_s": 2055.468,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 94680,
+    "body_pairs": 51461
+  },
+  "contact_observer_covers_trajectory": true,
+  "maximum_actual_height_m": {
+    "uav_1": 3.6778531807371095,
+    "uav_2": 3.1791798707078116,
+    "uav_3": 3.037883463499488,
+    "uav_4": 2.9839678160372727,
+    "uav_5": 3.0466369483900735,
+    "uav_6": 2.86128213713457
+  },
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 31.12514009886583,
+    "uav_2": 60.613046021178995,
+    "uav_3": 43.57901607033943,
+    "uav_4": 31.030421135738308,
+    "uav_5": 71.0538297054905,
+    "uav_6": 12.20515956376467
+  },
+  "sampled_minimum_3d_separation_m": 2.974320570022479,
+  "executed_source_count": 140,
+  "executed_source_sha_mismatches": [],
+  "raw_stop_reason": "USER_INTERRUPTED",
+  "actual_stop_reason": "Codex early stop after executable same-generation planning starvation counterexample",
+  "not_full_600_seconds": true
+}

@@ -1,0 +1,6 @@
+# 非 ROS 依赖。ROS 侧的 rospy / cv_bridge / gazebo_msgs / sensor_msgs /
+# std_msgs / ros_actor_cmd_pose_plugin_msgs 由系统与 catkin 工作空间提供，
+# 不通过 pip 安装。
+ultralytics>=8.3.0
+opencv-python>=4.5.0
+numpy>=1.21.0
