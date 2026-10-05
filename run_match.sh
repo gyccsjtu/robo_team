@@ -864,6 +864,27 @@ do_start(){
         # (7) 必须官方剩余清单为空才发 MISSION_FINISHED：tracker 偶发空 → 飞机
         #     全停摆, 真比赛必扣分（_finish_cb 会让 agent 退出搜索循环）。
         export REQUIRE_LEFT_FOR_FINISH=1
+        # ---- 2026-10-05 比赛规则硬约束：撞墙/越界停止行为修复 ----
+        # (8) OOB_RECOVER_SPEED 3.0→5.0：旧值在 6m/s 越界下净速度仍向外漂移 3m/s，
+        #     实测 uav_2 在 2s 内 world_xy 漂到 199m（地图 +99m 外），EKF 崩坏后撞墙
+        #     强制坠地恢复。改为 5.0 m/s → 净速度 ≥ -1 m/s，1s 收回 1m，5s 收回 5m。
+        export OOB_RECOVER_SPEED=5.0
+        # (9) OOB_BYPASS_ACC_LIM=1：撞墙越界时跳过水平加速度限幅（0.125 m/s/帧爬升率），
+        #     让回收指令当帧生效。否则反向指令被延迟 5-10 帧（0.25-0.5s）才有效果，
+        #     期间飞机仍以原速度向外冲 1.5-3m。1=开（默认），0=关（A/B 对照）。
+        export OOB_BYPASS_ACC_LIM=1
+        # (10) MAP_GUARD_SOFT 2.0→6.0 + MAP_GUARD_MARGIN 1.0→2.0：总软减速带从 3m 扩到
+        #      8m。本机巡航 6 m/s 下，0.05s 一帧 0.3m，3m 软带只能覆盖 10 帧 = 0.5s，
+        #      飞机在进入软带到硬停之间的刹车距离不足会冲出硬边界。8m 软带提供 1.3s
+        #      缓冲，允许 MAX_ACC=2.5 m/s² 把横向速度从 6 m/s 降到 4 m/s 进入硬边界。
+        export MAP_GUARD_SOFT=6.0
+        export MAP_GUARD_MARGIN=2.0
+        # (11) RADAR_WARN_R 4.0→5.5：规则 §2.5(7) 碰撞扣 30/次，雷达预警半径扩到 5.5m
+        #      （车体级别障碍），留 1.5m 减速带宽。
+        export RADAR_WARN_R=5.5
+        # (12) EKF_JUMP_MIN_M 仍 3.0，但 swarm_agent.py 内已把单帧阈值收紧到
+        #      MAX_SPEED*dt*1.2（≈ 7.2m/s），并新增 1s 滑动累积窗口兜底慢速漂移。
+        export EKF_JUMP_MIN_M=3.0
 
         # ---- ⑤ 单机 DWA 避障（规则 §2.5(7) 碰撞扣30/次） ----
         # 2026-10-03 修复：route_planner.py 不是 ROS 节点（纯函数库，无 init_node），
