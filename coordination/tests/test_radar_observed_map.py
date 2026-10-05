@@ -47,3 +47,26 @@ class ObservationTests(unittest.TestCase):
         grid = self.grid()
         self.feed(grid, [2., 6., math.nan, math.nan], angle_increment=.001)
         self.assertEqual(grid.cells[grid.index(2., 0.)], 100)
+
+    def test_later_long_ray_preserves_recent_hit_and_original_age(self):
+        grid = self.grid()
+        self.feed(grid, [2., math.nan, math.nan, math.nan])
+        hit = grid.index(2., 0.)
+        for t in (10.5, 11., 12., 13.):
+            self.feed(grid, [7., math.nan, math.nan, math.nan], scan_s=t, pose_s=t, now_s=t)
+            self.assertEqual(grid.cells[hit], 100)
+            self.assertEqual(grid.observed_s[hit], 10.)
+        self.assertEqual(grid.snapshot(13.01)[hit], -1)
+
+    def test_expired_hit_needs_new_free_ray_and_new_hit_renews_age(self):
+        grid = self.grid()
+        self.feed(grid, [2., math.nan, math.nan, math.nan])
+        hit = grid.index(2., 0.)
+        self.feed(grid, [math.nan]*4, scan_s=14., pose_s=14., now_s=14.)
+        self.assertEqual(grid.snapshot(14.)[hit], -1)
+        self.feed(grid, [7., math.nan, math.nan, math.nan], scan_s=14.5, pose_s=14.5, now_s=14.5)
+        self.assertEqual(grid.cells[hit], 0)
+        self.assertEqual(grid.observed_s[hit], 14.5)
+        self.feed(grid, [2., math.nan, math.nan, math.nan], scan_s=15., pose_s=15., now_s=15.)
+        self.assertEqual(grid.cells[hit], 100)
+        self.assertEqual(grid.observed_s[hit], 15.)

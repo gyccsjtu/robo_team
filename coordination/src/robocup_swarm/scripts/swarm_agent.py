@@ -31,6 +31,7 @@ from sensor_msgs.msg import LaserScan
 from mavros_msgs.msg import State, PositionTarget
 from position_brake import PositionBrake
 from pose_quality import PoseQuality
+from pose_rate import PoseRate, motion_evidence
 from mavros_msgs.srv import CommandBool, SetMode, ParamSet
 from std_msgs.msg import String, Float32
 
@@ -344,6 +345,8 @@ class SwarmAgent(object):
         self._scan_window = deque(maxlen=6)
         self._velocity_sample = None  # (vx, vy, sample_s), ENU measured motion
         self._velocity_z = 0.
+        self._pose_rate_enabled = os.environ.get('SWARM_POSE_RATE_GUARD', '1') == '1'
+        self._pose_rate = PoseRate()
         self._pose_sample_s = 0.
         self._pose_quality = PoseQuality(MAX_SPEED, EKF_JUMP_MIN_M)
         self._authority_lock = threading.RLock()
@@ -641,6 +644,7 @@ class SwarmAgent(object):
         self._orientation_xyzw = (q.x,q.y,q.z,q.w)
         self.yaw = math.atan2(2.0 * (q.w * q.z + q.x * q.y),
                               1.0 - 2.0 * (q.y * q.y + q.z * q.z))
+        self._pose_rate.add((*new_xy, self.local_z), stamp, self.offset)
 
     def _scan_cb(self, msg):
         self._scan = msg
@@ -667,9 +671,12 @@ class SwarmAgent(object):
                                  msg.range_min, msg.range_max, self._scan_t, self._local_prev_t, now):
                 return
             self._scan_window.append(dict(sample_s=self._scan_t,position_xy=position,
+                pose_s=self._local_prev_t,
                 local_z=self.local_z,yaw=self.yaw,orientation_xyzw=self._orientation_xyzw,angle_min=msg.angle_min,
                 angle_increment=msg.angle_increment,range_min=msg.range_min,range_max=msg.range_max,
-                ranges=[float(v) if math.isfinite(v) else None for v in msg.ranges]))
+                ranges=[float(v) if math.isfinite(v) else None for v in msg.ranges],
+                nonfinite_ranges=[[i, 'nan' if math.isnan(v) else 'positive_infinity' if v > 0 else 'negative_infinity']
+                                  for i, v in enumerate(msg.ranges) if not math.isfinite(v)]))
             planner = getattr(self, '_online_planner', None)
             if planner is not None:
                 planner.carry_body_proof(observed, position, now, self._online_map_epoch_s)
@@ -699,6 +706,16 @@ class SwarmAgent(object):
         except (ValueError, TypeError):
             return
 
+    def _measured_motion(self, now):
+        quality = getattr(self, '_pose_quality', None)
+        if quality is not None and not quality.usable(now):
+            return None
+        enabled = getattr(self, '_pose_rate_enabled', False)
+        rate = getattr(self, '_pose_rate', None)
+        estimate = rate.estimate(now, self.offset) if enabled and rate is not None else None
+        return motion_evidence(self._velocity_sample, getattr(self, '_velocity_z', 0.),
+                               estimate, now, require_pose=enabled)
+
     def _publish_motion(self):
         quality = getattr(self, '_pose_quality', None)
         if quality is not None and not quality.usable(rospy.Time.now().to_sec()):
@@ -706,12 +723,15 @@ class SwarmAgent(object):
         if (getattr(self, '_motion_pub', None) is None or self.world_xy is None
                 or self._velocity_sample is None or self._local_prev_t is None):
             return
+        evidence = self._measured_motion(rospy.Time.now().to_sec())
+        if evidence is None:
+            return
         with self._authority_lock:
             self._motion_seq += 1
-            vx, vy, stamp = self._velocity_sample
+            vx, vy = evidence['selected_xy']
             message = dict(schema_version=1, run_id=self._motion_cache.run_id,
                 uav_id=self.uav_id, seq=self._motion_seq,
-                sample_s=min(stamp, self._local_prev_t), frame='world_enu_xy',
+                sample_s=min(evidence['sample_s'], self._local_prev_t), frame='world_enu_xy',
                 position_xy=list(self.world_xy), velocity_xy=[vx, vy])
             self._motion_cache.receive(message, rospy.Time.now().to_sec())
             self._motion_pub.publish(String(data=json.dumps(message)))
@@ -922,10 +942,10 @@ class SwarmAgent(object):
             self._look_at = None
             self._send_vel(0., 0.)
             return True
-        velocity = self._velocity_sample
-        fresh = (velocity is not None and 0 <= now-velocity[2] <= .5
+        evidence = self._measured_motion(now)
+        fresh = (evidence is not None and 0 <= now-evidence['sample_s'] <= .5
                  and 0 <= now-self._pose_sample_s <= .5)
-        speed = math.hypot(*velocity[:2]) if fresh else float('inf')
+        speed = evidence['speed_mps'] if fresh else float('inf')
         if sweep.finished or sweep.phase == 'NEXT_VIEW':
             self._look_at = None
             self._send_vel(0., 0.)
@@ -980,14 +1000,14 @@ class SwarmAgent(object):
         if quality is not None and not quality.usable(now):
             self._stopped_since = None
             return
-        velocity = self._velocity_sample
+        evidence = self._measured_motion(now)
         xyz = self.world_xy
-        if (xyz is None or self.local_z is None or velocity is None
+        if (xyz is None or self.local_z is None or evidence is None
                 or not 0 <= now - self._pose_sample_s <= .5
-                or not 0 <= now - velocity[2] <= .5):
+                or not 0 <= now - evidence['sample_s'] <= .5):
             self._stopped_since = None
             return
-        speed = math.sqrt(velocity[0] ** 2 + velocity[1] ** 2 + self._velocity_z ** 2)
+        speed = evidence['speed_mps']
         if not all(math.isfinite(v) for v in (*xyz, self.local_z, speed)):
             self._stopped_since = None
             return
@@ -1000,7 +1020,7 @@ class SwarmAgent(object):
         self._ack_seq += 1
         message = dict(schema_version=2, run_id=self._gate.run_id, uav_id=self.uav_id,
                        seq=self._ack_seq, generation=self._gate.generation,
-                       sample_s=min(self._pose_sample_s, velocity[2]),
+                       sample_s=min(self._pose_sample_s, evidence['sample_s']),
                        xyz=[xyz[0], xyz[1], self.local_z], speed_mps=speed,
                        stopped_s=duration, status='STOPPED' if duration >= 1. else 'STATE')
         self._authority_ack_pub.publish(String(data=json.dumps(message, allow_nan=False)))
@@ -1432,23 +1452,26 @@ class SwarmAgent(object):
             return vx, vy
         now = rospy.Time.now().to_sec()
         scan = self._scan
-        velocity = self._velocity_sample
+        evidence = self._measured_motion(now)
         pose_age = now - self._local_prev_t
-        if (scan is None or velocity is None or not 0 <= pose_age <= RADAR_FRESH_S
-                or not 0 <= now - velocity[2] <= RADAR_FRESH_S):
+        if (scan is None or evidence is None or not 0 <= pose_age <= RADAR_FRESH_S
+                or not 0 <= now - evidence['sample_s'] <= RADAR_FRESH_S):
+            self._final_stop_reason = 'RADAR_INPUT_MISSING_OR_STALE'
             rospy.logwarn_throttle(2., '[%s] RADAR_INPUT_MISSING_OR_STALE -> horizontal stop',
                                    self.uav_id)
             return 0., 0.
-        result = guard_velocity(
-            (vx, vy), velocity[:2], self.yaw, scan.ranges,
-            scan.angle_min, scan.angle_increment, scan.range_min, scan.range_max,
-            scan.header.stamp.to_sec(), now, max_age=RADAR_FRESH_S,
-            radius=RADAR_STOP_R, latency=RADAR_LATENCY_S, brake_accel=RADAR_BRAKE_MPS2)
-        if result['reason'] not in ('CLEAR', 'REQUESTED_STOP'):
-            self._final_stop_reason = 'RADAR_'+result['reason']
-            rospy.logwarn_throttle(2., '[%s] radar_guard=%s clearance=%s',
-                                   self.uav_id, result['reason'], result['clearance_m'])
-        return result['velocity_xy']
+        for measured in evidence['velocity_candidates']:
+            result = guard_velocity(
+                (vx, vy), measured, self.yaw, scan.ranges,
+                scan.angle_min, scan.angle_increment, scan.range_min, scan.range_max,
+                scan.header.stamp.to_sec(), now, max_age=RADAR_FRESH_S,
+                radius=RADAR_STOP_R, latency=RADAR_LATENCY_S, brake_accel=RADAR_BRAKE_MPS2)
+            if result['reason'] not in ('CLEAR', 'REQUESTED_STOP'):
+                self._final_stop_reason = 'RADAR_'+result['reason']
+                rospy.logwarn_throttle(2., '[%s] radar_guard=%s clearance=%s',
+                                       self.uav_id, result['reason'], result['clearance_m'])
+            vx, vy = result['velocity_xy']
+        return vx, vy
 
     def _online_velocity_clear(self, vx, vy):
         planner = getattr(self, '_online_planner', None)
@@ -1456,12 +1479,18 @@ class SwarmAgent(object):
             return True
         now = rospy.Time.now().to_sec()
         position = self.world_xy
-        measured = self._velocity_sample
-        if position is None or measured is None or not 0 <= now-measured[2] <= .5:
+        evidence = self._measured_motion(now)
+        if position is None or evidence is None:
             return False
         with self._online_map_lock:
             return all(planner.local_command_clear(self._online_map,position,velocity,now,
-                       self._online_map_epoch_s) for velocity in ((vx,vy),measured[:2]))
+                       self._online_map_epoch_s) for velocity in [(vx,vy)]+evidence['velocity_candidates'])
+
+    def _route_velocity_clear(self, vx, vy, now):
+        evidence = self._measured_motion(now)
+        return evidence is not None and all(self._route_gate.command_clear(
+            self.world_xy, (vx, vy), measured, now, self._gate.generation)
+            for measured in evidence['velocity_candidates'])
 
     def _grid_blocked(self, wx, wy):
         """世界点在栅格上是否不可通行（障碍或越界；越界也视为墙，防冲出地图）。"""
@@ -1727,9 +1756,7 @@ class SwarmAgent(object):
         vx, vy = self._friend_guard_velocity(vx, vy)
         route_gate = getattr(self, '_route_gate', None)
         if route_gate is not None and abs(vx)+abs(vy) > 0:
-            measured = self._velocity_sample[:2] if self._velocity_sample is not None else (float('nan'),)*2
-            if not route_gate.command_clear(self.world_xy, (vx, vy), measured,
-                                            rospy.Time.now().to_sec(), self._gate.generation):
+            if not self._route_velocity_clear(vx, vy, rospy.Time.now().to_sec()):
                 rospy.logwarn_throttle(2, '[%s] ROUTE_ENVELOPE_OR_GRANT_UNKNOWN -> horizontal stop', self.uav_id)
                 vx, vy = 0., 0.
                 self._final_stop_reason = 'ROUTE_ENVELOPE_OR_GRANT_UNKNOWN'
@@ -1760,6 +1787,7 @@ class SwarmAgent(object):
                 reason=self._final_stop_reason,command_xyz=[vx,vy,cmd.twist.linear.z],
                 world_xy=self.world_xy,local_z=self.local_z,
                 measured=[v if math.isfinite(v) else None for v in self._velocity_sample] if self._velocity_sample else None,
+                motion_evidence=self._measured_motion(rospy.Time.now().to_sec()),
                 hold_xyz=self._xyz_stop_requested,scan_window=list(self._scan_window)),allow_nan=False)+'\n'
             if changed:
                 self._navigation_log.write(snapshot)
@@ -1971,10 +1999,10 @@ class SwarmAgent(object):
         return path, goal_xy, True
 
     def _report_blocked_plan(self, reason, now):
-        position,velocity = self.world_xy,self._velocity_sample
+        position, evidence = self.world_xy, self._measured_motion(now)
         if (reason not in ('START_CLEARANCE_UNKNOWN','NO_REACHABLE_PROGRESS')
-                or position is None or velocity is None or not 0 <= now-velocity[2] <= .5
-                or math.hypot(*velocity[:2]) > .15 or not self._gate.can_move(now)):
+                or position is None or evidence is None or evidence['speed_mps'] > .15
+                or not self._gate.can_move(now)):
             self._blocked_plan = None
             return
         old = self._blocked_plan

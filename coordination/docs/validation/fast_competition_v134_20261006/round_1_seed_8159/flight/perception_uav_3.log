@@ -1,0 +1,27 @@
+[pr] 相机视差判决使用本运行逐机授权；旧assignment只供诊断
+[pr] 空间身份闸门开启：发布坐标须与融合估计一致(<=2.5m, 新鲜<=3s)
+[pr] 加载权重 /mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt
+[pr] v4.0 双目左目适配 | 相机 typhoon_h480_2::cgo3_camera_link <- /uav_3/cgo3_camera/image_raw | 内参 fx=376.0 cx=376.0 cy=240.0 图 752x480
+[pr] 类别顺序 ['red', 'green', 'blue', 'white', 'brown']
+[pr] shared_inference port=19731 ready=True (0=将回退进程内推理)
+[pr] v4.0(双目) 几何+运动+人判决+red双流 | conf=0.40  detect=5Hz  pub=10Hz
+[pr] 人判决: 标注ON 发布ON | H∈[1.30,2.40] 净速度≥0.15m/s 打分≥0.20 画框要求coast≤2
+[pr] 严格档(新建) H∈[1.15,2.10] AR∈[0.55,3.80] | 宽松档(hits>=5) H∈[0.80,3.20] AR∈[0.40,4.50]
+[pr] H_ref=1.75±0.70 H_gate=1.50 | 跟踪 alpha=0.50 beta=0.15 gate=3.0m min_hits=2 timeout=3.0s
+[pr] 帧间跳变门限(已确认 track) ON: gate=min(3.0, 1.5 + 3.0·dt)
+[pr] 心跳 loop=2 img_ts=0.000 img_age=-1.00s n_det=0 z=0.00m pub=0 coord=ON cam=(0.0,0.0,0.0)
+[pr] inference_device=shared first_inference_s=0.4841
+[pr] 心跳 loop=53 img_ts=1934.836 img_age=0.52s n_det=0 z=0.03m pub=0 coord=ON cam=(-0.0,0.0,0.0)
+[pr] 心跳 loop=103 img_ts=1939.844 img_age=0.52s n_det=0 z=0.05m pub=0 coord=ON cam=(-0.0,0.0,0.0)
+[pr] 心跳 loop=153 img_ts=1944.876 img_age=0.48s n_det=0 z=1.33m pub=0 coord=ON cam=(-0.0,-0.0,1.9)
+[pr] 心跳 loop=203 img_ts=1949.868 img_age=0.49s n_det=0 z=2.45m pub=0 coord=ON cam=(-5.9,-0.2,2.4)
+[pr] 心跳 loop=253 img_ts=1955.100 img_age=0.26s n_det=9 z=2.46m pub=0 coord=ON cam=(-13.4,-0.3,2.5)
+[INFO] [1791214690.755497, 1956.668000]: [PERC] yolo uav=typhoon_h480_2 target=blue uv=(555,258) world_xyz=(-26.42,12.93,1.2) conf=0.696 | img_ts=1956.156 | obs_id=obs-blue-1
+[pr] blue   c=0.77 H=1.80m 世界=( -26.52,  13.10) D=18.27m v=0.23m/s tid=3 hits=7 coast=0 CNF
+[pr] red 槽位=[None, None] (槽0/red1 槽1/red2; None=空)
+[pr] 统计 检出=14 噪声拦下=0 关联成功=7 新建=3 新建被几何拒=4 帧间跳变拒=0 外观特征=7
+[INFO] [1791214695.081286, 1957.360000]: [PERC] yolo uav=typhoon_h480_2 target=blue uv=(578,218) world_xyz=(-26.45,13.03,1.2) conf=0.773 | img_ts=1956.796 | obs_id=obs-blue-5
+[pr] 心跳 loop=303 img_ts=1959.900 img_age=0.46s n_det=20 z=2.56m pub=0 coord=ON cam=(-19.7,-0.5,2.6)
+[pr] 心跳 loop=353 img_ts=1965.000 img_age=0.36s n_det=20 z=2.74m pub=0 coord=ON cam=(-24.9,-1.5,2.8)
+[pr] 心跳 loop=403 img_ts=1969.964 img_age=0.40s n_det=20 z=2.93m pub=0 coord=ON cam=(-30.0,-1.8,2.9)
+[pr] 心跳 loop=453 img_ts=1975.084 img_age=0.28s n_det=20 z=3.04m pub=0 coord=ON cam=(-33.3,-4.0,3.0)

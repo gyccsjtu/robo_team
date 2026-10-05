@@ -1,0 +1,38 @@
+actor_4: communication initialized
+4 general change position
+current_position:   4       x: 16.0
+y: 33.0
+z: 1.0191
+middd_pos:     4       [x: 15.918364332694466
+y: 42.796037741980186
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 15.918434355056265
+y: 42.787660141498165
+z: 1.0191
+middd_pos:     4       [x: 24.360565360116638
+y: 46.155477385386405
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 24.35211215357271
+y: 46.15210345219175
+z: 1.0191
+middd_pos:     4       [x: 40.44265020975442
+y: 23.143978021899642
+z: 0.0]
+
+
+Traceback (most recent call last):
+  File "control_actor.py", line 662, in <module>
+    controlactors.loop()
+  File "control_actor.py", line 605, in loop
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request

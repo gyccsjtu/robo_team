@@ -1,0 +1,27 @@
+{
+  "candidate_revision": "v1.35",
+  "physical_execution": false,
+  "unique_tests_covered": 551,
+  "full_suite": {
+    "passed": 550,
+    "seconds": 10.478,
+    "command": "source /opt/ros/noetic/setup.bash && python3 -m unittest discover -s coordination/tests -p test_*.py",
+    "scope": "Full production code as now; before addition of one vertical-drift search regression."
+  },
+  "subsequent_search_file": {
+    "passed": 27,
+    "seconds": 0.216,
+    "command": "source /opt/ros/noetic/setup.bash && python3 -m unittest discover -s coordination/tests -p test_search_observation.py",
+    "scope": "Covers added vertical-drift regression plus existing search boundaries; production sources unchanged since full suite."
+  },
+  "source_sha256": {
+    "coordination/src/robocup_swarm/scripts/pose_rate.py": "8833b70b95650a8049f6e9f97d2f5941f53453201ef55ecbd3724e285d5bf3d4",
+    "coordination/src/robocup_swarm/scripts/radar_observed_map.py": "da7380910024d5825c8e40e1cc533720c06fe8504aa376a7b1dce9eb9770cabe",
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "4e9c9b0390f277e1f5877260c1b4039f9c985ff80274de22a3d28f7b64c3c3a1",
+    "coordination/scripts/city_swarm_run.py": "4b7ce55c3ced92a7437ca42093aa43ffa421c253ab3e5b126dcc48809bf90015",
+    "coordination/tests/test_pose_rate.py": "e055627eb94aca0c4191060198f86c0211917a799af54e1717a7d417f2d1eb40",
+    "coordination/tests/test_radar_observed_map.py": "7370624f2d96093d4b1a35dbe6f9fe2baec6a5473843473f4bf80203d72ffd83",
+    "coordination/tests/test_radar_velocity_guard.py": "9bad27424b6555859d7c4b6e09956c0639aff876b9ed37369a7b487d138f66df",
+    "coordination/tests/test_search_observation.py": "bb02a758ada9be480420e6b494db07922a0eebcd2486c23b686cb4855e406517"
+  }
+}

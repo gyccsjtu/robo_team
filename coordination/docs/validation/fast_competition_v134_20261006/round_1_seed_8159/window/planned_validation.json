@@ -1,0 +1,32 @@
+{
+  "candidate_commit": "a6f0307061d702e1c7c96c14b3b41fcc6d249a2f",
+  "code_revision": "v1.34",
+  "authorization": "direct_user_approved_new_search_plan_and_post_fix_physical_validation",
+  "user_instruction": "搞错了，队友用的不是我的代码，你现在按你的方案开始修吧",
+  "prior_instruction": "改完代码之后再跑仿真看有什么bug，发现bug后自动指定plan开始修改代码",
+  "actual_scheduled_wakeup_claimed": false,
+  "seed": 8159,
+  "maximum_attempts": 1,
+  "sim_limit_s": 600,
+  "offline_tests_passed": 534,
+  "questions": [
+    "official eliminated targets stay fenced and cancelled unexecuted search claims resume",
+    "actual inferred camera frames, bounded observation and automatic view/task change",
+    "remaining green blue brown judge continuity"
+  ],
+  "configuration_changes": {
+    "shared_gpu": true,
+    "wsl_memory_changed": false,
+    "sensors_changed": false,
+    "judge_changed": false
+  },
+  "selected_source_sha256": {
+    "coordination/scripts/city_swarm_run.py": "0381ae2f90fe09b3558c88c2d2892e0c80faa5b1ca6cd53efb8e8a7615589904",
+    "coordination/src/robocup_swarm/scripts/search_observation.py": "7dc59184a9628644fb5136d576e9c4a09fb47fd95a7af2198fd6e176c577e1a5",
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "681d2aae7660b9293ad32d8cc47e704731e8dd03edf80a97301bb19c725d508a",
+    "coordination/src/robocup_swarm/scripts/swarm_manager.py": "9e48d7d333c60b93ff1c1c84fb5ca71bbc9541a3382c4999ff5595ac6ac034d9",
+    "coordination/src/robocup_swarm/scripts/radar_observed_map.py": "b73bdfc459ff8e2db72a5fb63fd2b04ec4b812b8ccdc0940d8220d08de550bce",
+    "perception/camera_task.py": "a5fd517fc18332c9151098e70a8f6be76a8c85461972b6b333d41e7d3e092e41",
+    "perception/perception_real.py": "eddb000bb0720aa48e78f66b736aa4b8f43fe174ec87e473f75e20f55d412ff1"
+  }
+}

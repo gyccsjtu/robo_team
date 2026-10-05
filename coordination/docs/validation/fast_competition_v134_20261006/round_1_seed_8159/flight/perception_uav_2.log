@@ -1,0 +1,23 @@
+[pr] 相机视差判决使用本运行逐机授权；旧assignment只供诊断
+[pr] 空间身份闸门开启：发布坐标须与融合估计一致(<=2.5m, 新鲜<=3s)
+[pr] 加载权重 /mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt
+[pr] v4.0 双目左目适配 | 相机 typhoon_h480_1::cgo3_camera_link <- /uav_2/cgo3_camera/image_raw | 内参 fx=376.0 cx=376.0 cy=240.0 图 752x480
+[pr] 类别顺序 ['red', 'green', 'blue', 'white', 'brown']
+[pr] shared_inference port=19731 ready=True (0=将回退进程内推理)
+[pr] v4.0(双目) 几何+运动+人判决+red双流 | conf=0.40  detect=5Hz  pub=10Hz
+[pr] 人判决: 标注ON 发布ON | H∈[1.30,2.40] 净速度≥0.15m/s 打分≥0.20 画框要求coast≤2
+[pr] 严格档(新建) H∈[1.15,2.10] AR∈[0.55,3.80] | 宽松档(hits>=5) H∈[0.80,3.20] AR∈[0.40,4.50]
+[pr] H_ref=1.75±0.70 H_gate=1.50 | 跟踪 alpha=0.50 beta=0.15 gate=3.0m min_hits=2 timeout=3.0s
+[pr] 帧间跳变门限(已确认 track) ON: gate=min(3.0, 1.5 + 3.0·dt)
+[WARN] [1791214524.919446, 0.000000]: Inbound TCP/IP connection failed: connection from sender terminated before handshake header received. 0 bytes were received. Please check sender for additional details.
+[pr] 心跳 loop=2 img_ts=0.000 img_age=-1.00s n_det=0 z=0.00m pub=0 coord=ON cam=(3.0,-3.0,0.0)
+[pr] inference_device=shared first_inference_s=0.6971
+[pr] 心跳 loop=53 img_ts=1934.836 img_age=0.54s n_det=9 z=0.03m pub=0 coord=ON cam=(3.0,-3.0,0.0)
+[pr] 心跳 loop=103 img_ts=1939.844 img_age=0.53s n_det=13 z=0.05m pub=0 coord=ON cam=(3.0,-3.0,0.0)
+[pr] 心跳 loop=153 img_ts=1944.876 img_age=0.50s n_det=14 z=1.47m pub=0 coord=ON cam=(3.0,-3.0,2.0)
+[pr] 心跳 loop=203 img_ts=1949.868 img_age=0.51s n_det=14 z=2.41m pub=0 coord=ON cam=(1.9,-5.5,2.4)
+[pr] 心跳 loop=253 img_ts=1955.100 img_age=0.28s n_det=14 z=2.49m pub=0 coord=ON cam=(-3.1,-8.1,2.5)
+[pr] 心跳 loop=303 img_ts=1959.900 img_age=0.48s n_det=18 z=2.68m pub=0 coord=ON cam=(-8.0,-8.9,2.7)
+[pr] 心跳 loop=353 img_ts=1965.000 img_age=0.38s n_det=29 z=2.91m pub=0 coord=ON cam=(-12.9,-9.3,3.0)
+[pr] 心跳 loop=403 img_ts=1969.964 img_age=0.41s n_det=30 z=3.40m pub=0 coord=ON cam=(-15.6,-11.2,3.5)
+[pr] 心跳 loop=453 img_ts=1975.084 img_age=0.29s n_det=30 z=3.86m pub=0 coord=ON cam=(-15.9,-11.6,3.9)

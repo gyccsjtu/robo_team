@@ -1,6 +1,8 @@
 """ROS-free planar ray observations. Unknown is never inferred free by distance."""
 import math
 
+RECENT_HIT_S = 3.  # Existing observation TTL, not a new sensor/clearance parameter.
+
 
 class ObservedMap:
     def __init__(self, width, height, resolution, origin):
@@ -46,6 +48,13 @@ class ObservedMap:
             if index is not None:
                 (occupied if hit else free).add(index)
         for index in free-occupied:
+            # A longer next ray can have missed a low/angled surface. Keep the
+            # recent hit with its ORIGINAL timestamp; free rays must not renew
+            # a ghost indefinitely. After TTL only a new ray can clear it.
+            previous_s = self.observed_s[index]
+            if (self.cells[index] == 100 and previous_s is not None
+                    and 0 <= scan_s-previous_s <= RECENT_HIT_S):
+                continue
             self.cells[index], self.observed_s[index] = 0, scan_s
         for index in occupied:
             self.cells[index], self.observed_s[index] = 100, scan_s

@@ -1,0 +1,76 @@
+{
+  "control_input": false,
+  "source_commit": "a6f0307",
+  "sources_sha256": {
+    "observe_visual_accuracy.py": "9b53081aafd51a8e39377ead0d670c71b72e2b2025fe4abfb9e12b14ff9457b5",
+    "capture_visual_frames.py": "0a4a5bdc96e6d6bfdff0a100c7be2becef5116ddb6d1a47d0e5202196765bb41"
+  },
+  "children": [
+    {
+      "tag": "green",
+      "pid": 632,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers",
+        "--tag",
+        "green",
+        "--wall-seconds",
+        "6000"
+      ]
+    },
+    {
+      "tag": "blue",
+      "pid": 633,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers",
+        "--tag",
+        "blue",
+        "--wall-seconds",
+        "6000"
+      ]
+    },
+    {
+      "tag": "brown",
+      "pid": 634,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers",
+        "--tag",
+        "brown",
+        "--wall-seconds",
+        "6000"
+      ]
+    },
+    {
+      "tag": "actual_frames",
+      "pid": 635,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/capture_visual_frames.py",
+        "--output",
+        "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/actual_frames",
+        "--wall-seconds",
+        "6000",
+        "--limit-per-tag",
+        "24",
+        "--minimum-period",
+        "2"
+      ]
+    }
+  ],
+  "notes": [
+    "separate observer directory has no early startup result.json",
+    "native metrics may interpolate across actor teleport; retain raw and filter discontinuities in postrun audit"
+  ]
+}

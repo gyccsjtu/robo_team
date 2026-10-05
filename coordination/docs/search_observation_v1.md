@@ -1,5 +1,7 @@
 # 搜索观察接口 v1（冻结，2026-10-05）
 
+兼容增补v1.2（2026-10-06，v1.35候选）：city的agent使用新鲜velocity_local与自身已接受ENU位姿差分的较大三维速度判断到视点停稳及结果上报；差分无效时不得凭速度话题低读数开始观察或认定阻塞停稳。反馈/回执/已处理原图字段仍schema1不变，manager继续按既有原图投影及水平MotionCache复验，不声称独立复核每帧竖直速度。其他任务、STOP及占用语义不变；六机使用统一快照。
+
 实现修订v1.34；任务授权schema2、路线schema1、视觉schema2和共享metadata2不变。新增话题均为JSON/String、schema_version=1。city六机同快照启用SWARM_SEARCH_OBSERVATION=1；旧接入可不订阅新话题，但不可混用旧“到点圆形覆盖”与新搜索完成口径。
 
 冻结补充v1.1：/swarm/search_feedback_ack字段schema_version、run_id、uav_id、generation、seq、view_idx、accepted（true）。这是搜索结果收讫回执，不是运动授权。非终结视点等待有效回执才进入下一点；重发相同窗口只回执，不重复累计。最终结果以既有STOP流程换任务。实现必须同时升级manager与六个agent；新raw帧/反馈schema1字段不变。

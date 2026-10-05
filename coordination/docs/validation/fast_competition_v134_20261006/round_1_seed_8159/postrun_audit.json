@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "formal_competition_pass": false,
+  "raw_result_unchanged": true,
+  "observed_sim_s": 46.24000000000001,
+  "trajectory_start_s": 1929.94,
+  "trajectory_end_s": 1976.18,
+  "actual_judge_deleted_actor_ids": [],
+  "judge_deleted_count": 0,
+  "last_left_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "last_judge_time_usage_s": null,
+  "terminal": null,
+  "raw_status": "SIX_RADAR_CONNECTED",
+  "raw_error": "CHECK_INTERRUPTED_OR_WALL_TIMEOUT",
+  "non_ground_contact_rows": 2,
+  "static_contact_rows": 2,
+  "actor_contact_rows": 0,
+  "fleet_contact_rows": 0,
+  "first_static_contact": {
+    "kind": "UAV_BODY_CONTACT",
+    "sample_s": 1976.052,
+    "collision1": "gas_station_73::link::collision",
+    "collision2": "typhoon_h480_5::rotor_1::rotor_1_collision"
+  },
+  "contact_observer_last": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 11913,
+    "first_sample_s": 1928.76,
+    "last_sample_s": 1976.408,
+    "maximum_sample_gap_s": 0.00400000000013,
+    "sonar_virtual_pairs": 59112,
+    "body_pairs": 52099
+  },
+  "contact_observer_covers_trajectory": true,
+  "maximum_actual_height_m": {
+    "uav_1": 2.7352552452196166,
+    "uav_2": 4.053046509223834,
+    "uav_3": 3.207144612009825,
+    "uav_4": 3.2808496342997624,
+    "uav_5": 3.0914520294586434,
+    "uav_6": 2.998180672420184
+  },
+  "sampled_minimum_3d_separation_m": 2.8522328380424016,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 3.194095666842503,
+    "uav_2": 21.07053301158648,
+    "uav_3": 33.846550610099946,
+    "uav_4": 23.078475132929206,
+    "uav_5": 20.85606893496693,
+    "uav_6": 7.827635596071227
+  },
+  "command_mask_counts": {
+    "1500": 1821,
+    "1479": 2232,
+    "1528": 1379
+  },
+  "xyz_hold_z_recorded": {
+    "uav_1": 530,
+    "uav_2": 154,
+    "uav_3": 50,
+    "uav_4": 201,
+    "uav_5": 228,
+    "uav_6": 216
+  },
+  "green_white_events": {
+    "green": {
+      "yolo_detection": 23,
+      "track_reject": 113,
+      "track_publish": 9
+    },
+    "white": {
+      "yolo_detection": 57,
+      "track_reject": 62,
+      "track_publish": 142
+    }
+  },
+  "green_white_reject_reasons": {
+    "white": {
+      "verdict_hits": 50,
+      "verdict_static": 4,
+      "verdict_height": 6,
+      "verdict_range": 2
+    },
+    "green": {
+      "verdict_hits": 38,
+      "verdict_range": 50,
+      "verdict_static": 25
+    }
+  },
+  "executed_source_count": 129,
+  "executed_source_sha_mismatches": [],
+  "first_round_z_evidence": null,
+  "competition_goal_met": false,
+  "executed_commit": "a6f0307061d702e1c7c96c14b3b41fcc6d249a2f",
+  "executed_auxiliary_source_count": 12,
+  "executed_auxiliary_source_sha_mismatches": [],
+  "launch_matched_snapshot_files": 109,
+  "launch_snapshot_mismatches": [],
+  "processed_frame_count": 574,
+  "processed_frames_by_uav": {
+    "uav_5": 80,
+    "uav_1": 96,
+    "uav_3": 116,
+    "uav_4": 64,
+    "uav_6": 116,
+    "uav_2": 102
+  },
+  "maximum_processed_frame_receive_age_s": 0.6599999999998545,
+  "search_results": [
+    {
+      "schema_version": 2,
+      "run_id": "5f40b4cb-ae23-4054-8048-e8d44d1f5843",
+      "sim_s": 1956.516,
+      "event": "SEARCH_VIEW_RESULT",
+      "uav_id": "uav_1",
+      "details": {
+        "feedback": {
+          "schema_version": 1,
+          "run_id": "5f40b4cb-ae23-4054-8048-e8d44d1f5843",
+          "uav_id": "uav_1",
+          "generation": 1,
+          "cell": [
+            2,
+            4
+          ],
+          "view_idx": 0,
+          "view_xy": [
+            -32.5,
+            -28.5
+          ],
+          "phase": "REVIEW_PENDING",
+          "outcome": "NO_ACTUAL_PROGRESS",
+          "finished": true,
+          "window_start_s": 1956.516,
+          "blocked_since_s": 1950.516,
+          "frames": [],
+          "seq": 1,
+          "sample_s": 1956.516,
+          "position_xy": [
+            -2.036369764711708,
+            -5.207366117276251
+          ]
+        },
+        "observed_mask": 0
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "5f40b4cb-ae23-4054-8048-e8d44d1f5843",
+      "sim_s": 1963.664,
+      "event": "SEARCH_VIEW_RESULT",
+      "uav_id": "uav_1",
+      "details": {
+        "feedback": {
+          "schema_version": 1,
+          "run_id": "5f40b4cb-ae23-4054-8048-e8d44d1f5843",
+          "uav_id": "uav_1",
+          "generation": 2,
+          "cell": [
+            4,
+            7
+          ],
+          "view_idx": 0,
+          "view_xy": [
+            -18.5,
+            -7.5
+          ],
+          "phase": "REVIEW_PENDING",
+          "outcome": "NO_ROUTE_COMMIT",
+          "finished": true,
+          "window_start_s": 1963.664,
+          "blocked_since_s": 1957.664,
+          "frames": [],
+          "seq": 2,
+          "sample_s": 1963.664,
+          "position_xy": [
+            -1.9651484130881727,
+            -5.206359990872443
+          ]
+        },
+        "observed_mask": 0
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "5f40b4cb-ae23-4054-8048-e8d44d1f5843",
+      "sim_s": 1970.764,
+      "event": "SEARCH_VIEW_RESULT",
+      "uav_id": "uav_1",
+      "details": {
+        "feedback": {
+          "schema_version": 1,
+          "run_id": "5f40b4cb-ae23-4054-8048-e8d44d1f5843",
+          "uav_id": "uav_1",
+          "generation": 3,
+          "cell": [
+            3,
+            7
+          ],
+          "view_idx": 0,
+          "view_xy": [
+            -25.5,
+            -7.5
+          ],
+          "phase": "REVIEW_PENDING",
+          "outcome": "NO_ROUTE_COMMIT",
+          "finished": true,
+          "window_start_s": 1970.764,
+          "blocked_since_s": 1964.764,
+          "frames": [],
+          "seq": 3,
+          "sample_s": 1970.764,
+          "position_xy": [
+            -1.9746707319281995,
+            -5.186878570355475
+          ]
+        },
+        "observed_mask": 0
+      }
+    }
+  ],
+  "actual_stop_reason": "CONFIRMED_STATIC_BODY_CONTACT",
+  "independent_visual_observers_evidence_valid": false,
+  "independent_visual_observers_reason": "STARTED_AFTER_ROUND_END; zero samples cannot prove detection failure or parity",
+  "own_process_cleanup": {
+    "632": "exited",
+    "633": "exited",
+    "634": "exited",
+    "635": "exited",
+    "684": "exited",
+    "ports_closed": [
+      11375,
+      11376,
+      19731
+    ]
+  }
+}

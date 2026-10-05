@@ -9,6 +9,7 @@ import unittest
 SCRIPTS = Path(__file__).resolve().parents[1] / 'src/robocup_swarm/scripts'
 sys.path.insert(0, str(SCRIPTS))
 from radar_velocity_guard import guard_velocity
+from pose_rate import motion_evidence
 
 
 class RadarGuardTests(unittest.TestCase):
@@ -103,11 +104,12 @@ class AdapterTests(unittest.TestCase):
         # constructing the large map/control node.
         tree = ast.parse((SCRIPTS / 'swarm_agent.py').read_text(encoding='utf-8'))
         agent = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'SwarmAgent')
-        names = {'_radar_guard_velocity', '_grid_guard_velocity', '_online_velocity_clear', '_scan_cb', '_velocity_cb', '_send_vel'}
+        names = {'_radar_guard_velocity', '_grid_guard_velocity', '_online_velocity_clear', '_scan_cb', '_velocity_cb', '_send_vel', '_measured_motion'}
         selected = [n for n in agent.body if isinstance(n, ast.FunctionDef) and n.name in names]
         module = ast.fix_missing_locations(ast.Module(body=selected, type_ignores=[]))
         env = dict(RADAR_GUARD=1, RADAR_FRESH_S=.5, RADAR_STOP_R=1.2,
-                   RADAR_LATENCY_S=.5, RADAR_BRAKE_MPS2=.5, guard_velocity=guard_velocity)
+                   RADAR_LATENCY_S=.5, RADAR_BRAKE_MPS2=.5, guard_velocity=guard_velocity,
+                   motion_evidence=motion_evidence)
         env.update(math=math, MAX_ACC=2.5, CTRL_RATE=20., ALT_PANIC=5.7,
                    ALT_PANIC_HSCALE=.3, ALT_TARGET_CAP=4.5, ALT_HARD_CEIL=5.5,
                    ALT_HARD_MARGIN=.1, MIN_CRUISE_ALT=2., ALT_P=1., ALT_VZ_MIN=.2,
@@ -140,6 +142,7 @@ class AdapterTests(unittest.TestCase):
             _online_map=observed,_online_map_lock=threading.RLock(),_velocity_sample=(0.,0.,10.),
             _online_safe_grid=grid,_online_safe_s=8.,_online_safe_epoch=1.,_online_map_epoch_s=1.)
         a._online_velocity_clear=lambda vx,vy:self.methods['_online_velocity_clear'](a,vx,vy)
+        a._measured_motion=types.MethodType(self.methods['_measured_motion'],a)
         self.methods['GRID_GUARD']=1
         vx,vy=self.methods['_grid_guard_velocity'](a,2.,0.)
         self.assertGreater(vx,0.);self.assertLess(vx,2.);self.assertEqual(vy,0.)
@@ -151,6 +154,7 @@ class AdapterTests(unittest.TestCase):
     def test_missing_measured_velocity_stops_adapter(self):
         obj = types.SimpleNamespace(_scan=object(), _velocity_sample=None,
                                     _local_prev_t=10., uav_id='uav_1')
+        obj._measured_motion=types.MethodType(self.methods['_measured_motion'],obj)
         self.assertEqual(self.methods['_radar_guard_velocity'](obj, 2., 0.), (0., 0.))
 
     def test_delayed_scan_is_not_refreshed_by_arrival(self):
@@ -160,6 +164,7 @@ class AdapterTests(unittest.TestCase):
                                      angle_increment=math.pi / 180, range_min=.5, range_max=20.)
         obj = types.SimpleNamespace(_velocity_sample=(0., 0., 10.),
                                     _local_prev_t=10., yaw=0., uav_id='uav_1')
+        obj._measured_motion=types.MethodType(self.methods['_measured_motion'],obj)
         self.methods['_scan_cb'](obj, scan)
         self.assertEqual(obj._scan_t, 1.)
         self.assertEqual(self.methods['_radar_guard_velocity'](obj, 2., 0.), (0., 0.))
@@ -175,6 +180,7 @@ class AdapterTests(unittest.TestCase):
             _friend_guard_velocity=lambda x, y: (x, y),
             _publish_command=published.append)
         obj._radar_guard_velocity = types.MethodType(self.methods['_radar_guard_velocity'], obj)
+        obj._measured_motion=types.MethodType(self.methods['_measured_motion'],obj)
         self.methods['rospy'].logerr_throttle = lambda *a: None
         self.methods['_send_vel'](obj, 3., 0.)
         self.assertEqual((published[0].twist.linear.x, published[0].twist.linear.y), (0., 0.))

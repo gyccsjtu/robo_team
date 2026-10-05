@@ -1,5 +1,13 @@
 # 机队实测运动状态 v1（冻结）
 
+## v1.1兼容增补：自身位姿差分（2026-10-06，v1.35候选）
+
+字段与schema_version=1不变。统一新agent快照在SWARM_POSE_RATE_GUARD=1时同时读取MAVROS velocity_local及已经过PoseQuality接受的自身局部ENU位姿差分；局部系到world只平移，因此差分方向仍是world ENU。差分窗口0.3秒、最少0.2秒跨度，新鲜性0.5秒。变换变化、缺少有效跨度、时间回退、过期或定位隔离均不给出有效差分；不使用Gazebo/人物/障碍真值，不解除隔离或重新标定坐标。
+
+velocity_xy选择两种来源中水平模长较大的原向量，不平均相反方向。sample_s取两个来源及位置的最早实际采样时间。该单向量不能表达完整方向不确定性；自身雷达、在线净空和路线执行门仍分别检查两种速度方向。停稳ACK及阻塞反馈另使用两者较大的三维速度，不能用水平状态证明竖直已经停止。缺少任一必需的新鲜来源时不发新运动包、不确认STOPPED、不放行平移。原有序号、成员、TTL和占用规则保持。
+
+迁移须六agent、manager和共享服务来自同一新快照；消费者无需新增字段。SWARM_POSE_RATE_GUARD=0仅保留旧诊断行为，city固定启用1。本候选只完成离线检查，尚未证明实体制动效果。下文“速度使用MAVROS实测值”是旧v1口径，由本增补扩展为双来源。
+
 话题 `/swarm/motion_state`，ROS String承载JSON。字段：schema_version=1、run_id、uav_id、seq（逐机递增正整数）、sample_s（实际pose/velocity最早时间戳）、frame=`world_enu_xy`、position_xy、velocity_xy。只表达水平ENU坐标；位置由MAVROS局部坐标加启动时已知世界偏移，速度使用MAVROS实测值。不使用Gazebo真值。各机必须共享运行ID及明确的SWARM_UAV_IDS列表。
 
 接收端拒绝非成员、旧运行、错误版本/坐标系、重复/倒序seq和sample、非有限值、未来或超过0.5s样本。发包时间不能替代传感器时间。缺少任意成员的新鲜状态时，最终水平速度归零；这不证明物理停稳，也不释放任务或通道锁。

@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.log
+
+# 权重不放本目录 —— 权重就在上一级 `../weights/best_yolo11n_bino_v1.pt`，
+# 节点会自动找到它（见 README §3.3）。这里再放一份副本只会造成
+# "到底在加载哪一个"的困惑。
+*.pt
+weights/

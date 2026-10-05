@@ -14,6 +14,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = ROOT/'coordination/src/robocup_swarm/scripts'
 sys.path.insert(0, str(SCRIPTS))
+from pose_rate import PoseRate, motion_evidence
 sys.path.insert(0, str(ROOT/'perception'))
 from search_observation import (FrameCache, ObservationLedger, SearchSweep, valid_frame,
     visible_samples, proven_points, in_image, MIN_FRAMES, probes)
@@ -274,8 +275,9 @@ def clock_scope(now):
 class ActualCallbackTests(unittest.TestCase):
     def agent(self):
         clock, scope = clock_scope(100.5)
-        names = {'_control_search_view', '_finish_search_view', '_publish_search_result',
+        names = {'_control_search_view', '_finish_search_view', '_publish_search_result', '_measured_motion',
                  '_search_feedback_ack_cb', '_pause_search'}
+        scope['motion_evidence'] = motion_evidence
         functions = extracted(SCRIPTS/'swarm_agent.py', 'SwarmAgent', names, scope)
         messages, commands = [], []
         a = SimpleNamespace(uav_id=UID, world_xy=(-3.5, 0.), yaw=0., _pose_sample_s=100.5,
@@ -327,6 +329,19 @@ class ActualCallbackTests(unittest.TestCase):
         self.assertTrue(messages[-1]['finished'])
         self.assertEqual(messages[-1]['phase'], 'REVIEW_PENDING')
         self.assertEqual(a._search_ledger.points, {})
+
+    def test_actual_arrival_does_not_begin_observing_while_pose_drifts_vertically(self):
+        a, clock, messages, commands = self.agent()
+        a.offset=(0.,0.)
+        a._pose_rate_enabled=True
+        a._pose_rate=PoseRate()
+        for k in range(16):
+            a._pose_rate.add((-3.5,0.,2.2+.4*k*.02),clock.now-.3+k*.02,a.offset)
+        self.assertTrue(a._control_search_view(clock.now))  # Controls the stop; does not enter OBSERVE.
+        self.assertEqual(a._search_sweep.phase,'GO_TO_VIEW')
+        self.assertIsNone(a._search_sweep.window_s)
+        self.assertEqual(messages,[])
+        self.assertEqual(commands,[(0.,0.)])
 
     def test_actual_agent_checks_three_views_and_never_waits_for_fourth(self):
         a, clock, messages, commands = self.agent()

@@ -1,0 +1,22 @@
+[
+  {
+    "pid": 632,
+    "signal": "SIGINT",
+    "verified_command": "python3 -u /root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py --run /root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers --tag green --wall-seconds 6000 "
+  },
+  {
+    "pid": 633,
+    "signal": "SIGINT",
+    "verified_command": "python3 -u /root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py --run /root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers --tag blue --wall-seconds 6000 "
+  },
+  {
+    "pid": 634,
+    "signal": "SIGINT",
+    "verified_command": "python3 -u /root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py --run /root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers --tag brown --wall-seconds 6000 "
+  },
+  {
+    "pid": 635,
+    "signal": "SIGINT",
+    "verified_command": "python3 -u /root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/capture_visual_frames.py --output /root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/actual_frames --wall-seconds 6000 --limit-per-tag 24 --minimum-period 2 "
+  }
+]

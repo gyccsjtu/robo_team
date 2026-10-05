@@ -1,0 +1,9 @@
+Unable to register with master node [http://127.0.0.1:11375]: master may not be running yet. Will keep trying.
+Traceback (most recent call last):
+  File "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/capture_visual_frames.py", line 66, in <module>
+    if __name__=='__main__':main()
+  File "/root/robocup_runs/manual_v134_20261005T153320Z/round_1_seed_8159/observers/execution_sources/capture_visual_frames.py", line 23, in main
+    rospy.init_node('read_only_visual_frame_capture',anonymous=True)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/client.py", line 336, in init_node
+    raise rospy.exceptions.ROSInitException("Failed to initialize time. Please check logs for additional details")
+rospy.exceptions.ROSInitException: Failed to initialize time. Please check logs for additional details
