@@ -1,0 +1,99 @@
+{
+  "executed_commit": "dce0c64",
+  "run_id": "e7fade08-f55e-4237-9e57-76f15ea3d19e",
+  "control_input": false,
+  "formal_competition_pass": false,
+  "source_files": {
+    "/root/robocup_runs/goal_v126_20261005_082100/round_1_seed_8159/flight/independent_visual_accuracy_white.jsonl": "2f7c03ec5e579363a5b734057757bc59c07d835fa2480f955709d208750c533c",
+    "/root/robocup_runs/goal_v126_20261005_082100/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv": "f14abfdeab8cd7baa1b5da846e942df93a18190fcb62b9d769c8daeccf98cd70"
+  },
+  "windows": [
+    {
+      "ros_interval": [
+        1961,
+        1976
+      ],
+      "raw_projection": {
+        "samples": 22,
+        "aligned": 22,
+        "mean_error_m": 0.16075106474172463,
+        "maximum_error_m": 0.40487085567273134,
+        "strictly_below_1m": 22
+      },
+      "filtered_original_image": {
+        "samples": 21,
+        "aligned": 21,
+        "mean_error_m": 0.16917197025901748,
+        "maximum_error_m": 0.24584126857534214,
+        "strictly_below_1m": 21
+      },
+      "official_reports": {
+        "samples": 75,
+        "aligned": 75,
+        "mean_error_m": 0.2817676341271429,
+        "maximum_error_m": 0.7790317366130365,
+        "strictly_below_1m": 75
+      }
+    },
+    {
+      "ros_interval": [
+        2007,
+        2024
+      ],
+      "raw_projection": {
+        "samples": 48,
+        "aligned": 48,
+        "mean_error_m": 0.6188855012380392,
+        "maximum_error_m": 2.9578839766908924,
+        "strictly_below_1m": 36
+      },
+      "filtered_original_image": {
+        "samples": 47,
+        "aligned": 47,
+        "mean_error_m": 0.5734672326632677,
+        "maximum_error_m": 2.2217364136044098,
+        "strictly_below_1m": 36
+      },
+      "official_reports": {
+        "samples": 149,
+        "aligned": 149,
+        "mean_error_m": 0.604630944641908,
+        "maximum_error_m": 2.857896194065971,
+        "strictly_below_1m": 124
+      }
+    },
+    {
+      "ros_interval": [
+        2053,
+        2069
+      ],
+      "raw_projection": {
+        "samples": 30,
+        "aligned": 30,
+        "mean_error_m": 0.10800582718583837,
+        "maximum_error_m": 0.370803926623531,
+        "strictly_below_1m": 30
+      },
+      "filtered_original_image": {
+        "samples": 30,
+        "aligned": 30,
+        "mean_error_m": 0.0848151592369755,
+        "maximum_error_m": 0.1817226734967586,
+        "strictly_below_1m": 30
+      },
+      "official_reports": {
+        "samples": 106,
+        "aligned": 106,
+        "mean_error_m": 0.10164970784994991,
+        "maximum_error_m": 0.4818332127773576,
+        "strictly_below_1m": 106
+      }
+    }
+  ],
+  "limitations": [
+    "Raw rows include two detections at original stamp 2017.848; aggregates are not a one-to-one paired comparison.",
+    "Image metrics use acquisition time; official metrics use receipt time.",
+    "No actual miss/error-window image sequence was captured; these numbers do not establish an occlusion root cause."
+  ],
+  "conclusion": "Raw projection already exceeds 1m in the middle window. Removing tracking filters is not supported by these aggregate data. The v1.27 state repairs do not claim to fix geometry."
+}
