@@ -449,7 +449,8 @@ _CSV = logger("perception_%s" % UAV, [
     "bbox_u", "bbox_v", "bbox_w", "bbox_h", "target_x", "target_y",
     "target_z", "range_m", "height_m", "strict", "track_id", "hits",
     "image_stamp", "image_age_s", "inference_s", "source",
-    "person_frame_verified", "person_hits", "track_miss", "fresh_person_allowed"])
+    "person_frame_verified", "person_hits", "track_miss", "fresh_person_allowed",
+    "person_established", "person_current_verified"])
 # 调试快照**另开一条话题**：它原来和契约挤在同一条 topic 上，形状完全不同。
 # 调试通道与契约通道必须分开，否则要么队友解析不了、要么我自己的复盘脚本全废。
 DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
@@ -620,7 +621,7 @@ class Track(object):
         self.t = t
         self.observed_s = t
         self.green_frame_proof = False
-        self.person_support = FreshPerson()
+        self.person_support = FreshPerson(resume_after_miss=cls == 'white' and FAST_GREEN_WHITE)
         motion_window = BLUE_MOTION_WINDOW if cls == 'blue' else RECENT_MOTION_WINDOW
         motion_span = BLUE_MOTION_MIN_SPAN if cls == 'blue' else 1.
         self.recent_motion = RecentMotion(motion_window, motion_span) if motion_window > 0 else None
@@ -1362,7 +1363,7 @@ def main():
                 tk.person_support.observe(frame_stamp,d.get('person_frame_proof',False))
             else:
                 tk.coast(dt)
-                tk.person_support.observe(frame_stamp,False)
+                tk.person_support.missed(frame_stamp)
 
         # ---------- 2b) 新建（只认严格档，误检建不了轨）----------
         for j, d in enumerate(dets):
@@ -1434,7 +1435,9 @@ def main():
                         strict=True, track_id=tk.id, hits=tk.hits,
                         image_stamp=frame_stamp, image_age_s=frame_age,
                         inference_s=inference_s, source="verdict_%s" % _reject_reason,
-                        person_hits=tk.person_support.hits,track_miss=tk.miss,fresh_person_allowed=_fresh_person)
+                        person_hits=tk.person_support.hits,track_miss=tk.miss,fresh_person_allowed=_fresh_person,
+                        person_established=tk.person_support.established,
+                        person_current_verified=tk.person_support.current_verified)
                     continue
             # 运动性是随时间累积的，coast 期间净位移也在涨，这里按当前时刻重算
             tk.score = tk.conf * person_likelihood(tk.h) * tk.motion_factor(now)
@@ -1540,7 +1543,9 @@ def main():
                 inference_s=inference_s,
                 source="perception_track",person_hits=tk.person_support.hits,
                 track_miss=tk.miss,fresh_person_allowed=(FAST_RED_PERSON if cls == 'red' else FAST_GREEN_WHITE)
-                    and tk.person_support.allowed(cls,tk.miss,now,allow_red=FAST_RED_PERSON))
+                    and tk.person_support.allowed(cls,tk.miss,now,allow_red=FAST_RED_PERSON),
+                person_established=tk.person_support.established,
+                person_current_verified=tk.person_support.current_verified)
 
         # YOLO 实时视角：即使本帧没有有效目标也持续发布原图，避免 rqt
         # 画面在目标暂时丢失时冻结。检测框只作为当前帧的叠加层。

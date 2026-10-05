@@ -26,6 +26,20 @@ def bounded_query(function, timeout=5.):
     if not success:
         raise value
     return value
+
+
+def query_positions(function, health_check=None, on_retry=None, retryable=(OSError,)):
+    """One short retry for a failed RPC, never for a hung query or dead child."""
+    try:
+        return bounded_query(function)
+    except TimeoutError:
+        raise
+    except retryable as failure:
+        if health_check is not None:
+            health_check()
+        if on_retry is not None:
+            on_retry(str(failure))
+        return bounded_query(function, timeout=1.)
 from evidence_writer import JsonlEvidence, audit_jsonl
 from judge_terminal import completed as judge_completed
 
@@ -101,8 +115,10 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         green_white_confirm_revision='v1.24b_per_tracking_attempt',
         confirmation_attempt_revision='v1.25b_all_targets_per_attempt',
         tracking_refresh_maximum_deferral_s=20.,
-        maximum_speed_mps=3.,visual_fusion_revision='v2.13_red_fresh_person',tracker_selection_revision='v1.20_camera_takeover',
-        perception_csv_revision='v1.25_person_evidence',red_person_proof_revision='v1.25_three_original_frames',
+        maximum_speed_mps=3.,visual_fusion_revision='v2.14_white_recovery',tracker_selection_revision='v1.20_camera_takeover',
+        perception_csv_revision='v1.26_established_current_person',red_person_proof_revision='v1.25_three_original_frames',
+        fresh_person_recovery_revision='v1.26_white_qualified_current_frame',
+        model_state_query_revision='v1.26_single_bounded_rpc_retry',
         experimental_v123_enabled=experimental,
         stationary_green_revision='v1.24_three_original_person_frames',
         fresh_green_white_person_enabled=True,
@@ -285,6 +301,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
     terminal=None
     topic_last=None
     last_sample=-1.
+    query_retries=[]
     try:
         while rospy.Time.now().to_sec()-start < seconds:
             if owned_health_check is not None:
@@ -317,7 +334,15 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
                             positions[row['uav_id']]=[p.x,p.y,p.z]
                     return positions
                 try:
-                    positions=bounded_query(collect_positions)
+                    prior_retries=len(query_retries)
+                    def record_retry(failure):
+                        query_retries.append(failure)
+                        records.write(dict(kind='model_state_retry',sample_s=rospy.Time.now().to_sec(),
+                                           error=failure,maximum_retry_wall_s=1.))
+                    positions=query_positions(collect_positions,owned_health_check,record_retry,
+                                              retryable=(rospy.ServiceException,OSError))
+                    if len(query_retries)>prior_retries:
+                        now=rospy.Time.now().to_sec()
                 except Exception as failure:
                     error='CITY_MODEL_STATE_FAILURE:'+str(failure)
                     break
@@ -348,6 +373,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         maximum_displacements_m=movements,simulated_seconds=rospy.Time.now().to_sec()-start,
         minimum_sampled_separation_m=min((math.dist(s['positions'][a['uav_id']],s['positions'][b['uav_id']])
             for s in samples for i,a in enumerate(wiring['uavs']) for b in wiring['uavs'][i+1:]),default=None),
-        component_error=error,evidence_streams_verified=audit['valid'],fixture_only=False,
+        component_error=error,model_state_retry_count=len(query_retries),
+        evidence_streams_verified=audit['valid'],fixture_only=False,
         judge_terminal_evidence=terminal,left_actors_topic_last=topic_last,
         formal_competition_pass=False,armed_during_run_uavs=sorted(armed),**latest)

@@ -70,6 +70,54 @@ class FastFixTests(unittest.TestCase):
         proof.observe(10.6,False)
         self.assertFalse(proof.allowed('red',0,10.6,allow_red=True))
 
+    def test_white_recovery_requires_initial_three_consecutive_originals(self):
+        proof=FreshPerson(resume_after_miss=True)
+        proof.observe(10.,True);proof.missed(10.2)
+        for stamp in (10.4,10.6):
+            proof.observe(stamp,True)
+            self.assertFalse(proof.allowed('white',0,stamp))
+        proof.observe(10.8,True)
+        self.assertTrue(proof.allowed('white',0,10.8))
+        self.assertFalse(FreshPerson(resume_after_miss=True).allowed('white',0,10.8))
+
+    def test_qualified_white_recovers_only_on_a_new_verified_actual_frame(self):
+        proof=FreshPerson(resume_after_miss=True)
+        for stamp in (10.,10.2,10.4):proof.observe(stamp,True)
+        proof.missed(10.6)
+        self.assertFalse(proof.allowed('white',1,10.6))
+        self.assertFalse(proof.allowed('white',0,10.6))
+        proof.observe(10.4,True)  # Old image cannot recover or add a hit.
+        self.assertFalse(proof.allowed('white',0,10.6))
+        proof.observe(10.8,True)
+        self.assertEqual(proof.hits,1)
+        self.assertTrue(proof.allowed('white',0,10.9))
+        self.assertFalse(proof.allowed('green',0,10.9))
+        self.assertFalse(proof.allowed('red',0,10.9,allow_red=True))
+        for now in (10.7,11.81,float('nan')):
+            self.assertFalse(proof.allowed('white',0,now))
+
+    def test_failed_person_verification_or_long_loss_requires_new_three_frames(self):
+        for failed in ('unverified','long_loss','nan'):
+            proof=FreshPerson(resume_after_miss=True)
+            for stamp in (10.,10.2,10.4):proof.observe(stamp,True)
+            if failed=='unverified':proof.observe(10.6,False)
+            elif failed=='long_loss':proof.missed(11.5)
+            else:proof.missed(float('nan'))
+            for stamp in (11.6,11.8):
+                proof.observe(stamp,True)
+                self.assertFalse(proof.allowed('white',0,stamp))
+            proof.observe(12.,True)
+            self.assertTrue(proof.allowed('white',0,12.))
+
+    def test_missed_frame_default_keeps_legacy_three_frame_reacquisition(self):
+        proof=FreshPerson()
+        for stamp in (10.,10.2,10.4):proof.observe(stamp,True)
+        proof.missed(10.6);proof.observe(10.8,True)
+        self.assertFalse(proof.allowed('white',0,10.8))
+        self.assertFalse(proof.allowed('red',0,10.8,allow_red=True))
+        proof.observe(11.,True);proof.observe(11.2,True)
+        self.assertTrue(proof.allowed('white',0,11.2))
+
     def test_navigation_feedback_cannot_skip_freshness_generation_or_measured_stop(self):
         msg=dict(schema_version=1,run_id='run',uav_id='uav_1',generation=2,seq=1,
             sample_s=10.,blocked_since_s=4.,reason='START_CLEARANCE_UNKNOWN',position_xy=[0.,0.])
