@@ -1,0 +1,377 @@
+{
+  "kind": "constructed_task_schedule_using_actual_times_cells",
+  "physical_replay": false,
+  "complete_ros_callback_replay": false,
+  "limits": "Acknowledgment positions, target coordinates and initial generation are constructed; actual times/search cells/old search waypoint and real manager methods are used. Old/current core and manager comparison is not a new physical run.",
+  "old": {
+    "after_replacement": {
+      "cell_state": 1,
+      "owner": "uav_2",
+      "active_lease": [
+        17,
+        13
+      ]
+    },
+    "post_elimination_target_regrants": [
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2202.928,
+        "event": "TASK_GRANTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 3,
+          "key": [
+            "target",
+            "t5"
+          ]
+        }
+      }
+    ],
+    "idle_before_search_offer": false,
+    "active_task_after": {
+      "task": {
+        "task_type": 1,
+        "target_id": "t5",
+        "cell_ix": -1,
+        "cell_iy": -1,
+        "target_x": 10.0,
+        "target_y": 0.0
+      },
+      "key": [
+        "target",
+        "t5"
+      ],
+      "generation": 3,
+      "expires_s": 2205.928,
+      "stopping": false,
+      "started_s": 2202.928
+    },
+    "old_target_lock": {
+      "owner": "uav_2",
+      "generation": 3,
+      "point": [
+        10.0,
+        0.0
+      ],
+      "retired": false
+    },
+    "events": [
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2153.528,
+        "event": "TASK_GRANTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 1,
+          "key": [
+            "search",
+            15,
+            5
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2161.448,
+        "event": "STOP_REQUESTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 1
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2164.98,
+        "event": "STOPPED_ACKED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 1
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2164.98,
+        "event": "TASK_RETIRED",
+        "uav_id": "uav_2",
+        "details": {
+          "key": [
+            "search",
+            15,
+            5
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2164.98,
+        "event": "TASK_GRANTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 2,
+          "key": [
+            "target",
+            "t5"
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2165.032,
+        "event": "TASK_RELEASED",
+        "uav_id": "uav_2",
+        "details": {
+          "key": [
+            "search",
+            15,
+            5
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2201.84,
+        "event": "STOP_REQUESTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 2,
+          "reason": "ROUTE_REFRESH"
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2202.928,
+        "event": "STOPPED_ACKED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 2
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2202.928,
+        "event": "TASK_RETIRED",
+        "uav_id": "uav_2",
+        "details": {
+          "key": [
+            "target",
+            "t5"
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2202.928,
+        "event": "TASK_GRANTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 3,
+          "key": [
+            "target",
+            "t5"
+          ]
+        }
+      }
+    ]
+  },
+  "candidate": {
+    "after_replacement": {
+      "cell_state": 0,
+      "owner": null,
+      "active_lease": null
+    },
+    "post_elimination_target_regrants": [],
+    "idle_before_search_offer": true,
+    "active_task_after": {
+      "task": {
+        "task_type": 0,
+        "target_id": "",
+        "cell_ix": 17,
+        "cell_iy": 13,
+        "target_x": 10.0,
+        "target_y": 0.0
+      },
+      "key": [
+        "search",
+        17,
+        13
+      ],
+      "generation": 3,
+      "expires_s": 2206.0,
+      "stopping": false,
+      "started_s": 2203.0
+    },
+    "old_target_lock": {
+      "owner": "uav_2",
+      "generation": 2,
+      "point": [
+        10.0,
+        0.0
+      ],
+      "retired": true
+    },
+    "events": [
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2153.528,
+        "event": "TASK_GRANTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 1,
+          "key": [
+            "search",
+            15,
+            5
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2161.448,
+        "event": "STOP_REQUESTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 1
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2163.204,
+        "event": "TASK_INTENT_CANCELLED",
+        "uav_id": "uav_2",
+        "details": {
+          "key": [
+            "search",
+            17,
+            13
+          ],
+          "reason": "INTENT_REPLACED"
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2164.98,
+        "event": "STOPPED_ACKED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 1
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2164.98,
+        "event": "TASK_RETIRED",
+        "uav_id": "uav_2",
+        "details": {
+          "key": [
+            "search",
+            15,
+            5
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2164.98,
+        "event": "TASK_GRANTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 2,
+          "key": [
+            "target",
+            "t5"
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2165.032,
+        "event": "TASK_RELEASED",
+        "uav_id": "uav_2",
+        "details": {
+          "key": [
+            "search",
+            15,
+            5
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2184.636,
+        "event": "STOP_REQUESTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 2,
+          "reason": "TARGET_ELIMINATED"
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2202.928,
+        "event": "STOPPED_ACKED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 2
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2202.928,
+        "event": "TASK_RETIRED",
+        "uav_id": "uav_2",
+        "details": {
+          "key": [
+            "target",
+            "t5"
+          ]
+        }
+      },
+      {
+        "schema_version": 2,
+        "run_id": "run",
+        "sim_s": 2203.0,
+        "event": "TASK_GRANTED",
+        "uav_id": "uav_2",
+        "details": {
+          "generation": 3,
+          "key": [
+            "search",
+            17,
+            13
+          ]
+        }
+      }
+    ]
+  },
+  "source_sha256": {
+    "old": {
+      "task_authority.py": "a5577ca714eb7e7d4b1ad47293cf6812d8cf93e1abef63ffa4fde77c3384d749",
+      "swarm_manager.py": "cba9e180792a8223abd4b30f14930720c43899b0cf9ee9b8907ea25b6de6f80a"
+    },
+    "candidate": {
+      "task_authority.py": "1ec78838dcb6860f273d4e58cebfcf532fdf1a0812ab2377902a1651d3617ce0",
+      "swarm_manager.py": "6add2e68aa4bb19df9385a14058fc4d84db692acdff305b9ddc65665963c3446"
+    }
+  }
+}

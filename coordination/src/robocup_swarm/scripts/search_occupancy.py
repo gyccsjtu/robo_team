@@ -1,5 +1,25 @@
 """Keep auction occupancy aligned with verified task-authority releases."""
 from swarm_task import STATE_ASSIGNED, STATE_FREE
+from task_authority import task_key
+
+
+def apply_intent_cancellation(grid, event, run_id, current_locks, current_pending):
+    """Cancel only an unexecuted auction claim, never an occupied task lock."""
+    if not isinstance(event, dict) or event.get('event') != 'TASK_INTENT_CANCELLED':
+        return False
+    details = event.get('details')
+    if not isinstance(details, dict):
+        return False
+    key = details.get('key')
+    if not isinstance(key, list):
+        return False
+    try:
+        if any(task_key(task) == tuple(key) for task in current_pending.values()):
+            return False
+    except (ValueError, TypeError, KeyError, AttributeError):
+        return False
+    released = dict(event, event='TASK_RELEASED')
+    return apply_authority_release(grid, released, run_id, current_locks)
 
 
 def apply_authority_release(grid, event, run_id, current_locks):

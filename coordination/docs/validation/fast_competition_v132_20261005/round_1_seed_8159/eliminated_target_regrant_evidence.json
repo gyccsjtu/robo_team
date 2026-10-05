@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "actual_round": "a3deb4f",
+  "first_left_without_red": {
+    "kind": "left_actors",
+    "sample_s": 2184.636,
+    "value": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "regrants": [
+    {
+      "schema_version": 2,
+      "run_id": "4beb0d98-2a79-4b96-ad22-fff01ae3a050",
+      "sim_s": 2202.928,
+      "event": "TASK_GRANTED",
+      "uav_id": "uav_2",
+      "details": {
+        "generation": 9,
+        "key": [
+          "target",
+          "t5"
+        ]
+      }
+    }
+  ],
+  "postgrant_uav2_command_samples": 146,
+  "postgrant_uav2_maximum_command_speed_mps": 0.0,
+  "postgrant_observed_sim_s": 36.24800000000005,
+  "stopping_cause": "agent_requested_fix_confirmed_eliminated_target_regrant",
+  "full600": false
+}

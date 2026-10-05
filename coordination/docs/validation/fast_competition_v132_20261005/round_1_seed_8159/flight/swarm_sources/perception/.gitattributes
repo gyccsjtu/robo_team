@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.launch text eol=lf
+*.world text eol=lf

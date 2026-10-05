@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "authorization": "2026-10-05 user explicitly asked to run changed code and make a post-run bug-fix plan; separately authorized manual round, not a new scheduled window",
+  "executed_commit": "a3deb4f",
+  "single_physical_round": true,
+  "seed": 8159,
+  "maximum_sim_seconds": 600,
+  "questions": [
+    "Actual faster commands and physical motion without FLEE classifier gate",
+    "Bounded stopped yaw handoff obtains actual fresh images",
+    "Judge progress toward six targets"
+  ],
+  "stop_conditions": [
+    "judge6/6",
+    "building contact",
+    "basic service failure",
+    "confirmed new blocker and no useful reason to wait"
+  ]
+}

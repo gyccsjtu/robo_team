@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "formal_competition_pass": false,
+  "raw_result_unchanged": true,
+  "observed_sim_s": 309.32399999999984,
+  "trajectory_start_s": 1929.756,
+  "trajectory_end_s": 2239.08,
+  "actual_judge_deleted_actor_ids": [
+    3,
+    4,
+    5
+  ],
+  "judge_deleted_count": 3,
+  "last_left_actors": [
+    0,
+    1,
+    2
+  ],
+  "last_judge_time_usage_s": 256.74400000000014,
+  "terminal": null,
+  "raw_status": "SIX_RADAR_CONNECTED",
+  "raw_error": "CHECK_INTERRUPTED_OR_WALL_TIMEOUT",
+  "non_ground_contact_rows": 0,
+  "static_contact_rows": 0,
+  "actor_contact_rows": 0,
+  "fleet_contact_rows": 0,
+  "first_static_contact": null,
+  "contact_observer_last": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 77617,
+    "first_sample_s": 1928.736,
+    "last_sample_s": 2239.2,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 262828,
+    "body_pairs": 51510
+  },
+  "contact_observer_covers_trajectory": true,
+  "maximum_actual_height_m": {
+    "uav_1": 3.2071337307293457,
+    "uav_2": 3.275712065305519,
+    "uav_3": 3.4080484278910905,
+    "uav_4": 2.9471713022312644,
+    "uav_5": 3.1675546323432493,
+    "uav_6": 2.91986614715826
+  },
+  "sampled_minimum_3d_separation_m": 2.786525615178859,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 68.38767243256419,
+    "uav_2": 60.027905775122335,
+    "uav_3": 72.05258553181234,
+    "uav_4": 86.79476274075124,
+    "uav_5": 105.74087401368581,
+    "uav_6": 75.34029275160098
+  },
+  "command_mask_counts": {
+    "1500": 1830,
+    "1528": 11731,
+    "1479": 23443
+  },
+  "xyz_hold_z_recorded": {
+    "uav_4": 2586,
+    "uav_1": 1459,
+    "uav_2": 2255,
+    "uav_6": 2065,
+    "uav_3": 1611,
+    "uav_5": 1755
+  },
+  "green_white_events": {
+    "green": {
+      "yolo_detection": 56,
+      "track_reject": 206,
+      "track_publish": 114
+    },
+    "white": {
+      "yolo_detection": 48,
+      "track_reject": 39,
+      "track_publish": 153
+    }
+  },
+  "green_white_reject_reasons": {
+    "green": {
+      "verdict_hits": 94,
+      "verdict_static": 108,
+      "verdict_range": 4
+    },
+    "white": {
+      "verdict_hits": 4,
+      "verdict_static": 35
+    }
+  },
+  "executed_source_count": 140,
+  "executed_source_sha_mismatches": [],
+  "first_round_z_evidence": null,
+  "competition_goal_met": false,
+  "executed_commit": "a3deb4f",
+  "executed_source_mismatches": [],
+  "actual_stop_reason": "agent stopped to fix confirmed eliminated-target regrant",
+  "configured_full_round": false
+}

@@ -40,12 +40,47 @@ class TaskAuthority:
         self._last_ack_status = {}
         self.events, self.last_s = [], 0.
         self.closed = False
+        self.eliminated_targets = set()
+
+    def _cancel_pending(self, uid, now, reason):
+        task = self.pending.pop(uid, None)
+        if task is not None:
+            self._event('TASK_INTENT_CANCELLED', uid, now,
+                        key=list(self._key(uid, task)), reason=reason)
+
+    def _replace_pending(self, uid, task, now):
+        previous = self.pending.get(uid)
+        if previous is not None and self._key(uid, previous) != self._key(uid, task):
+            self._cancel_pending(uid, now, 'INTENT_REPLACED')
+        self.pending[uid] = copy.deepcopy(task)
+
+    def eliminate_target(self, tid, now):
+        """Fence official elimination without releasing physical occupancy."""
+        if not isinstance(tid, str) or not tid:
+            raise ValueError('TASK_TARGET')
+        self._time(now)
+        self.eliminated_targets.add(tid)
+        key = ('target', tid)
+        outputs = []
+        for uid in self.fleet:
+            pending = self.pending.get(uid)
+            if pending is not None and self._key(uid, pending) == key:
+                self._cancel_pending(uid, now, 'TARGET_ELIMINATED')
+            active = self.active.get(uid)
+            if active is not None and active['key'] == key:
+                if not active['stopping']:
+                    self._event('STOP_REQUESTED', uid, now,
+                                generation=active['generation'], reason='TARGET_ELIMINATED')
+                active['stopping'] = True
+                outputs.append(self._message(uid, active, 'STOP', now))
+        return outputs
 
     def close(self, now):
         """Fence the run permanently; retain occupancy until measured stop/exit."""
         self._time(now)
         self.closed = True
-        self.pending.clear()
+        for uid in list(self.pending):
+            self._cancel_pending(uid, now, 'RUN_CLOSED')
         outputs = []
         for uid, active in self.active.items():
             if not active['stopping']:
@@ -58,9 +93,10 @@ class TaskAuthority:
         """Stop and fence an old route generation before retrying its task."""
         self._time(now)
         active = self.active.get(uid)
-        if self.closed or active is None or active['stopping']:
+        if (self.closed or active is None or active['stopping']
+                or (active['key'][0] == 'target' and active['key'][1] in self.eliminated_targets)):
             return []
-        self.pending[uid] = copy.deepcopy(active['task'])
+        self._replace_pending(uid, active['task'], now)
         active['stopping'] = True
         self._event('STOP_REQUESTED', uid, now, generation=active['generation'], reason='ROUTE_REFRESH')
         return [self._message(uid, active, 'STOP', now)]
@@ -70,7 +106,7 @@ class TaskAuthority:
         self._time(now)
         if uid not in self.fleet:
             raise ValueError('UAV_ID')
-        self.pending.pop(uid, None)
+        self._cancel_pending(uid, now, 'TASK_WITHDRAWN')
         active = self.active.get(uid)
         if active is None:
             return []
@@ -105,6 +141,9 @@ class TaskAuthority:
         if task is None:
             return []
         key = self._key(uid, task)
+        if key[0] == 'target' and key[1] in self.eliminated_targets:
+            self._cancel_pending(uid, now, 'TARGET_ELIMINATED')
+            return []
         locked = self.locks.get(key)
         if locked is not None and not (locked['owner'] == uid and locked['retired']):
             self._event('TASK_BLOCKED', uid, now, holder=locked['owner'], key=list(key))
@@ -133,6 +172,9 @@ class TaskAuthority:
         if uid not in self.fleet:
             raise ValueError('UNKNOWN_UAV')
         key = self._key(uid, task)
+        if key[0] == 'target' and key[1] in self.eliminated_targets:
+            self._event('TASK_INTENT_BLOCKED', uid, now, key=list(key), reason='TARGET_ELIMINATED')
+            return []
         owner = self.intended_owner(key)
         if key[0] == 'target' and owner is not None and owner != uid:
             self._event('TASK_INTENT_BLOCKED', uid, now, key=list(key), owner=owner)
@@ -145,7 +187,7 @@ class TaskAuthority:
                 active['expires_s'] = now + self.lease_s
             self.locks[key]['point'] = (task['target_x'], task['target_y'])
             return [self._message(uid, active, 'GRANT', now)]
-        self.pending[uid] = copy.deepcopy(task)
+        self._replace_pending(uid, task, now)
         if active:
             if not active['stopping']:
                 active['stopping'] = True
@@ -209,7 +251,8 @@ class TaskAuthority:
             if active['stopping'] or now >= active['expires_s']:
                 if not active['stopping']:
                     active['stopping'] = True
-                    self.pending.setdefault(uid, copy.deepcopy(active['task']))
+                    if not (active['key'][0] == 'target' and active['key'][1] in self.eliminated_targets):
+                        self.pending.setdefault(uid, copy.deepcopy(active['task']))
                     self._event('STOP_REQUESTED', uid, now, generation=active['generation'])
                 outputs.append(self._message(uid, active, 'STOP', now))
             elif (self._last_ack_status.get(uid) == 'STATE'

@@ -1,5 +1,11 @@
 # Swarm 任务授权接口 v2（2026-10-03 冻结）
 
+兼容增补v2.3（2026-10-05冻结，v1.33候选）：纯核心新增 `eliminate_target(tid,now)`，在同一run中永久封禁官方已消除的目标；取消仅该目标的pending，对该目标活跃代次发STOP（STOP_REQUESTED.reason=TARGET_ELIMINATED），保留其他任务和合法pending搜索。后续offer被TASK_INTENT_BLOCKED拒绝（details.key、reason=TARGET_ELIMINATED），refresh/到期不会重派。两红内部槽只有官方两个红色都不存在时才封禁；不能把一个红色被删除当作内部身份匹配证据。原始任务/路线锁保持停稳退休及实际退出流程。
+
+新增schema2事件 `TASK_INTENT_CANCELLED`，details含key与reason（INTENT_REPLACED/TASK_WITHDRAWN/RUN_CLOSED/TARGET_ELIMINATED）；仅表示pending未执行意向被取消，不表示旧任务占用释放。相同key更新不产生取消事件。manager只对同run、同owner的STATE_ASSIGNED搜索格，且当前无该格活跃/退休锁、无任何飞机pending该格时取消格预留并置FREE，绝不据此置COVERED。已停稳但尚未退出的旧搜索格继续占用，原持有者可接新搜索以退出；原格不会对其他机放行。未知格预留、活跃搜索或pending搜索仍视为忙碌。闭合/撤销也使用此事件收回未执行意向。
+
+线上字段与task_type仍为schema2；route1/visual2/sharedmetadata2/阻塞反馈1不变。升级manager与纯核心及search_occupancy同一快照，agent无需JSON迁移。旧manager若忽略取消事件，仍可能保留幽灵搜索预留，不能只升级核心。此兼容变更有离线回放覆盖，实体搜索恢复尚待下一轮证明。
+
 兼容增补v2.2（2026-10-04冻结）：新增纯核心withdraw(uid,now)，撤销该机尚未执行的意向并对活跃任务发STOP，STOP_REQUESTED事件reason=TASK_WITHDRAWN。撤销不释放活跃/退休任务锁或几何通道，不将原任务自动加入重试队列；旧机仍须新鲜连续1秒停稳ACK及退出证据。用于相机接替：原持有者1.5秒没有自身原图，而另一名合格飞机有1秒内真实观测，候选持续至少0.75秒原图时间后才请求撤销；新机仍等待原目标锁按原规则实际释放，不能据候选/TTL直接GRANT。初次派遣时新鲜观察者优先级先于空闲/搜索池。无JSON字段或task_type变化，新增行为需升级manager/核心；旧agent无需数据迁移。这是待实飞的接替行为，不是接替完成证明。
 
 该观察者选择范围使用既有20m检测距离，移除额外5m派遣裕量：实飞接替候选从14.50m走到16.12m，旧15m门会在0.75秒去抖完成前使候选消失。范围仅用于选择当前已经产生有效实际图像的飞机；超20m的机仍可按既有无观察者接近流程规划。没有放宽雷达/机间距/路线门，也没有改变相机参数。

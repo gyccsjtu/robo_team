@@ -1,0 +1,22 @@
+[
+  {
+    "pid": 6486,
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash && exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/manual_v132_20261005T112121Z/round_1_seed_8159/flight --tag white --wall-seconds 4800",
+    "kind": "read_only_accuracy"
+  },
+  {
+    "pid": 6487,
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash && exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/manual_v132_20261005T112121Z/round_1_seed_8159/flight --tag red --wall-seconds 4800",
+    "kind": "read_only_accuracy"
+  },
+  {
+    "pid": 6488,
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash && exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/manual_v132_20261005T112121Z/round_1_seed_8159/flight/visual_frames --wall-seconds 4800 --limit-per-tag 160 --minimum-period 0.5",
+    "kind": "read_only_frames"
+  },
+  {
+    "pid": 63296,
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash && exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/manual_v132_20261005T112121Z/round_1_seed_8159/flight --tag blue --wall-seconds 4800",
+    "kind": "read_only_blue_accuracy_started_late"
+  }
+]

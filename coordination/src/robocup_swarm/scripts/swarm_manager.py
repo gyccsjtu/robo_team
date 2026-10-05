@@ -31,7 +31,7 @@ from search_completion import completion_state, parse_actor_list
 from visual_observation import VisualEvidence, TAG_TO_TID
 from red_observations import actor_slot_remaining
 from tracker_selection import tracker_rank, takeover_candidate
-from search_occupancy import apply_authority_release
+from search_occupancy import apply_authority_release, apply_intent_cancellation
 from navigation_feedback import accept as accept_navigation_feedback, refresh_due, RejectedTasks, task_key
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
@@ -457,7 +457,9 @@ class SwarmManager(object):
             os.makedirs(directory, exist_ok=True)
             self._authority_log = open(os.path.join(directory, 'authority_events.jsonl'), 'a', encoding='utf-8')
         for event in self._authority.events[self._authority_event_cursor:]:
-            if apply_authority_release(self.grid, event, self._authority.run_id, self._authority.locks):
+            if (apply_authority_release(self.grid, event, self._authority.run_id, self._authority.locks)
+                    or apply_intent_cancellation(self.grid, event, self._authority.run_id,
+                                                 self._authority.locks, self._authority.pending)):
                 uid = event['uav_id']
                 released = tuple(event['details']['key'][1:])
                 if self._active_leases.get(uid) == released:
@@ -588,35 +590,26 @@ class SwarmManager(object):
         return cb
 
     def _release_finished(self, left_ids):
-        """官方已确认并从场上删除的 actor → 立刻释放它的追踪机。
-
-        背景（第六轮实测故障）：agent 连续确认满 15s 后只在自己日志里打印
-        「目标 t5 已连续确认，可消除」，manager 的 tracker 却没有把它推进
-        _eliminated。后果是 _tracking 里 t3/t4/t5（早已被官方删掉的 actor）
-        一直占着飞机 —— 而 _idle_uavs() 把「正在追踪」的机视为不空闲，
-        这些机永远拿不到新任务，只能对着旧坐标空转；唯一剩下的 actor_1
-        （/left_actors="[1]"）反倒没有飞机去追，官方收不到检测，任务卡到超时。
-
-        权威来源就是官方 /left_actors：不在清单里 = 已被官方确认并删除。
-        """
-        for tid in list(self._tracking.keys()):
-            aid = self._tid_to_actor(tid)
-            if aid is None or actor_slot_remaining(aid, left_ids):
-                continue
-            uav = self._tracking.pop(tid)
-            bu = self._backup.pop(tid, None)
-            self._eliminated.add(tid)
-            t = self.tracker.targets.get(tid)
-            if t is not None:
-                t.eliminated = True
-            rospy.loginfo("[manager] 官方已消除 %s（不在 left_actors），"
-                          "释放 %s 回归搜索%s", tid, uav,
-                          ("（含备份机 %s）" % bu) if bu else "")
-        # 顺带把 tracker 里同样已消除、但当时没派机的目标也标掉
-        for tid in list(self.tracker.targets.keys()):
-            aid = self._tid_to_actor(tid)
-            if aid is not None and not actor_slot_remaining(aid, left_ids):
+        """Official elimination fences actual grants as well as business intent."""
+        with self._authority_lock:
+            now = rospy.Time.now().to_sec()
+            outputs = []
+            for aid in range(6):
+                if actor_slot_remaining(aid, left_ids):
+                    continue
+                tid = 't%d' % aid
+                uav = self._tracking.pop(tid, None)
+                bu = self._backup.pop(tid, None)
+                first = tid not in self._eliminated
                 self._eliminated.add(tid)
+                target = self.tracker.targets.get(tid)
+                if target is not None:
+                    target.eliminated = True
+                outputs.extend(self._authority.eliminate_target(tid, now))
+                if first:
+                    rospy.loginfo('[manager] 官方已消除 %s；追踪授权已封禁，'
+                                  '请求 %s 停稳后重新分配搜索（备份 %s）', tid, uav, bu)
+            self._emit_authority(outputs)
 
     def _left_cb(self, msg):
         """官方裁判发布的剩余 actor：'[]' 或 '[0, 2, 5]'。"""
@@ -1183,12 +1176,7 @@ class SwarmManager(object):
 
     # ---------------- 拍卖分配 ----------------
     def _idle_uavs(self):
-        """返回「空闲机」列表：无活跃任务（没有 owner==自己的 STATE_ASSIGNED 格，且不在追踪目标）。
-
-        这样可避免一台机还在飞往旧格途中就被重复分配新格、旧格无人接管。
-        机完成某格（confidence≥1.0 → 格变 STATE_COVERED，owner 清空）后自动变空闲。
-        正在追踪目标的机也不应被分配搜索格。
-        """
+        """Auction intent availability; retired occupancy remains held during exit."""
         idle = []
         for uid in self.uav_ids:
             if not self._navigation_eligible(uid):
@@ -1199,10 +1187,19 @@ class SwarmManager(object):
             if uid in self._tracking.values() or uid in self._backup.values():
                 continue
             busy = False
-            for c in self.grid.cells.values():
-                if c.state == STATE_ASSIGNED and c.owner == uid:
-                    busy = True
-                    break
+            with self._authority_lock:
+                for key, c in self.grid.cells.items():
+                    if c.state == STATE_ASSIGNED and c.owner == uid:
+                        lock = self._authority.locks.get(('search',) + tuple(key))
+                        # A stopped owner needs a new task to exit its retained cell.
+                        # Unknown claims and live/pending search intent still block.
+                        pending = self._authority.pending.get(uid)
+                        same_pending = (pending is not None and pending['task_type'] == 0
+                                        and (pending['cell_ix'], pending['cell_iy']) == tuple(key))
+                        if not (lock is not None and lock['owner'] == uid
+                                and lock['retired'] and not same_pending):
+                            busy = True
+                            break
             if not busy:
                 idle.append(uid)
         return idle

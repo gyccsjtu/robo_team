@@ -1,0 +1,16 @@
+{
+  "timestamp_utc": "2026-10-05T12:12:22.042905Z",
+  "archived_files": 433,
+  "archive_kinds": {
+    "full": 409,
+    "gzip": 23,
+    "tail": 1
+  },
+  "archive_errors": [],
+  "matching_processes": [],
+  "listening_ports": {
+    "11375": false,
+    "11376": false,
+    "19731": false
+  }
+}

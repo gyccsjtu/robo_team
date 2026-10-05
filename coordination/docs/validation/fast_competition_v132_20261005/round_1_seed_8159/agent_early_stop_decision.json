@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "reason": "CONFIRMED_ELIMINATED_TARGET_REGRANTED_TO_STATIONARY_AIRCRAFT",
+  "details": "Both red absent by2184.636; uav2 granted t5 generation9 at2202.928 after manager elimination; stationary REQUESTED_STOP persists. Faster tracking, both red+white eliminations observed. Stop for targeted authority fix.",
+  "actual_elapsed_sim_s": 308.10000000000014,
+  "actual_last_sample_s": 2237.856,
+  "judge_deleted": [
+    3,
+    4,
+    5
+  ],
+  "configured_limit_s": 600,
+  "full_round": false,
+  "agent_requested_stop": true,
+  "signal": "SIGINT to verified owned validator",
+  "validator_pid": 482,
+  "validator_command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/validate_fast_city.py --root /root/robocup_runs/manual_v132_20261005T112121Z --single-seed 8159 ",
+  "launcher_pid": 577,
+  "launcher_command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/six_radar_connectivity.py --output /root/robocup_runs/manual_v132_20261005T112121Z/round_1_seed_8159/flight --city-scene /root/robocup_runs/manual_v132_20261005T112121Z/round_1_seed_8159/scene --flight-seconds 600 "
+}
