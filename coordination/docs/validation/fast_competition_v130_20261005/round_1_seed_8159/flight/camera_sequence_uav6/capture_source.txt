@@ -1,0 +1,42 @@
+import json,time,threading
+from pathlib import Path
+import rospy,cv2
+from sensor_msgs.msg import Image
+from std_msgs.msg import String
+from cv_bridge import CvBridge
+out=Path('/root/robocup_runs/scheduled_v130_20261005T093242Z/round_1_seed_8159/flight/camera_sequence_uav6')
+out.mkdir(exist_ok=False)
+rospy.init_node('read_only_camera_missing_observation_sequence',anonymous=True)
+lock=threading.Lock();state={'count':0,'stamp':-1.,'task':None,'last_visual':None};bridge=CvBridge()
+log=(out/'frames.jsonl').open('x')
+def task_cb(msg):
+    try:v=json.loads(msg.data)
+    except ValueError:return
+    if v.get('uav_id')=='uav_6':
+        with lock:state['task']=v
+def visual_cb(msg):
+    try:v=json.loads(msg.data)
+    except ValueError:return
+    if v.get('uav_id')=='uav_6':
+        with lock:state['last_visual']=v
+def image_cb(msg):
+    stamp=msg.header.stamp.to_sec()
+    with lock:
+        if state['count']>=24 or stamp<=state['stamp'] or stamp-state['stamp']<.5:return
+        state['stamp']=stamp;state['count']+=1;name='frame_%03d.png'%state['count']
+        context={'task':state['task'],'latest_visual':state['last_visual']}
+        try:
+            img=bridge.imgmsg_to_cv2(msg,'bgr8')
+            if not cv2.imwrite(str(out/name),img):raise RuntimeError('PNG_WRITE_FAILED')
+            record=dict(image=name,image_sample_s=stamp,receive_s=rospy.Time.now().to_sec(),context=context,control_input=False,not_visual_evidence=True)
+        except Exception as error:record=dict(error=str(error),image_sample_s=stamp,context=context,control_input=False)
+        log.write(json.dumps(record)+'\n');log.flush()
+subs=[rospy.Subscriber('/swarm/authorized_assignment',String,task_cb,queue_size=10),rospy.Subscriber('/swarm/visual_observation',String,visual_cb,queue_size=30),rospy.Subscriber('/uav_6/cgo3_camera/image_raw',Image,image_cb,queue_size=2,buff_size=2**22)]
+deadline=time.monotonic()+180
+try:
+    while time.monotonic()<deadline and not rospy.is_shutdown() and state['count']<24:time.sleep(.2)
+finally:
+    for sub in subs:sub.unregister()
+    rospy.signal_shutdown('Read-only camera sequence finished')
+    with lock:log.close()
+    (out/'capture_summary.json').write_text(json.dumps(dict(frames=state['count'],wall_limit_s=180,control_input=False,not_visual_evidence=True,selection='uav6 current diagnostic window, independent of detection; no target visibility assumed'),indent=2)+'\n')

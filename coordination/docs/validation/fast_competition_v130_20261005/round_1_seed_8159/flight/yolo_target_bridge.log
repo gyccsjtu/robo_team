@@ -1,0 +1,5 @@
+[INFO] [1791192847.020949, 0.000000]: yolo_target_bridge 启动：visual_observation v2 → /swarm/target_states（6 个固定目标槽）
+[INFO] [1791194029.427570, 2119.044000]: 官方清单已无 blue(t1)，补发 eliminated
+[INFO] [1791194239.715178, 2152.672000]: 官方清单已无 green(t0)，补发 eliminated
+[INFO] [1791194345.287202, 2169.544000]: 官方清单已无 brown(t2)，补发 eliminated
+[INFO] [1791195444.991961, 2345.440000]: 官方清单已无 white(t3)，补发 eliminated

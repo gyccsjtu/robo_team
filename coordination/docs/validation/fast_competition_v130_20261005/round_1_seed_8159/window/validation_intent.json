@@ -1,0 +1,19 @@
+{
+  "automation_id": "3",
+  "scheduled_wake_utc": "2026-10-05T09:32:42.877Z",
+  "executed_commit": "be2945f",
+  "single_physical_round": true,
+  "seed": 8159,
+  "maximum_sim_seconds": 600,
+  "questions": [
+    "Same-generation tracking computation survives fresh camera coordinates and OBSERVED_FRONTIER endpoint changes",
+    "Task grant to PLAN_OFFERED to ROUTE_COMMITTED latency and actual tracking motion",
+    "Actual judge progress, contact coverage and true height"
+  ],
+  "stop_conditions": [
+    "judge6/6",
+    "building contact",
+    "basic service failure",
+    "proven new blocking condition with no useful reason to continue waiting"
+  ]
+}

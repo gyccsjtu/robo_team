@@ -1,0 +1,256 @@
+{
+  "status": "RUNNING",
+  "executed_core": "be2945f",
+  "sample_s": 2230.304,
+  "discard_reasons": {
+    "AUTHORITY_STOPPED_OR_EXPIRED": 35
+  },
+  "target_grants": [
+    {
+      "uav_id": "uav_4",
+      "target_id": "t0",
+      "generation": 2,
+      "granted_s": 1961.012,
+      "first_offer": {
+        "sample_s": 1961.832,
+        "ticket": 13,
+        "compute_sim_s": 0.768
+      },
+      "first_commit": {
+        "sample_s": 1961.844,
+        "ticket": 13
+      },
+      "grant_to_commit_s": 0.8320000000001073,
+      "offers": 6
+    },
+    {
+      "uav_id": "uav_3",
+      "target_id": "t1",
+      "generation": 2,
+      "granted_s": 1963.568,
+      "first_offer": null,
+      "first_commit": null,
+      "grant_to_commit_s": null,
+      "offers": 0
+    },
+    {
+      "uav_id": "uav_5",
+      "target_id": "t1",
+      "generation": 2,
+      "granted_s": 1977.852,
+      "first_offer": {
+        "sample_s": 1978.844,
+        "ticket": 31,
+        "compute_sim_s": 0.94
+      },
+      "first_commit": {
+        "sample_s": 1978.864,
+        "ticket": 31
+      },
+      "grant_to_commit_s": 1.0119999999999436,
+      "offers": 1
+    },
+    {
+      "uav_id": "uav_6",
+      "target_id": "t0",
+      "generation": 3,
+      "granted_s": 2016.612,
+      "first_offer": {
+        "sample_s": 2016.856,
+        "ticket": 66,
+        "compute_sim_s": 0.192
+      },
+      "first_commit": {
+        "sample_s": 2016.86,
+        "ticket": 66
+      },
+      "grant_to_commit_s": 0.24799999999981992,
+      "offers": 1
+    },
+    {
+      "uav_id": "uav_6",
+      "target_id": "t5",
+      "generation": 5,
+      "granted_s": 2034.264,
+      "first_offer": null,
+      "first_commit": null,
+      "grant_to_commit_s": null,
+      "offers": 0
+    },
+    {
+      "uav_id": "uav_4",
+      "target_id": "t2",
+      "generation": 6,
+      "granted_s": 2078.616,
+      "first_offer": null,
+      "first_commit": null,
+      "grant_to_commit_s": null,
+      "offers": 0
+    },
+    {
+      "uav_id": "uav_5",
+      "target_id": "t1",
+      "generation": 9,
+      "granted_s": 2098.304,
+      "first_offer": {
+        "sample_s": 2098.724,
+        "ticket": 132,
+        "compute_sim_s": 0.372
+      },
+      "first_commit": {
+        "sample_s": 2098.736,
+        "ticket": 132
+      },
+      "grant_to_commit_s": 0.431999999999789,
+      "offers": 19
+    },
+    {
+      "uav_id": "uav_3",
+      "target_id": "t0",
+      "generation": 9,
+      "granted_s": 2142.468,
+      "first_offer": {
+        "sample_s": 2143.224,
+        "ticket": 161,
+        "compute_sim_s": 0.704
+      },
+      "first_commit": {
+        "sample_s": 2143.232,
+        "ticket": 161
+      },
+      "grant_to_commit_s": 0.7640000000001237,
+      "offers": 7
+    },
+    {
+      "uav_id": "uav_6",
+      "target_id": "t2",
+      "generation": 11,
+      "granted_s": 2157.964,
+      "first_offer": {
+        "sample_s": 2158.796,
+        "ticket": 160,
+        "compute_sim_s": 0.784
+      },
+      "first_commit": {
+        "sample_s": 2158.824,
+        "ticket": 160
+      },
+      "grant_to_commit_s": 0.8600000000001273,
+      "offers": 8
+    },
+    {
+      "uav_id": "uav_6",
+      "target_id": "t5",
+      "generation": 12,
+      "granted_s": 2172.612,
+      "first_offer": {
+        "sample_s": 2173.092,
+        "ticket": 169,
+        "compute_sim_s": 0.428
+      },
+      "first_commit": {
+        "sample_s": 2173.1,
+        "ticket": 169
+      },
+      "grant_to_commit_s": 0.487999999999829,
+      "offers": 5
+    },
+    {
+      "uav_id": "uav_5",
+      "target_id": "t3",
+      "generation": 13,
+      "granted_s": 2181.552,
+      "first_offer": {
+        "sample_s": 2182.136,
+        "ticket": 206,
+        "compute_sim_s": 0.532
+      },
+      "first_commit": {
+        "sample_s": 2182.156,
+        "ticket": 206
+      },
+      "grant_to_commit_s": 0.6039999999998145,
+      "offers": 2
+    },
+    {
+      "uav_id": "uav_3",
+      "target_id": "t4",
+      "generation": 11,
+      "granted_s": 2184.468,
+      "first_offer": {
+        "sample_s": 2184.716,
+        "ticket": 198,
+        "compute_sim_s": 0.196
+      },
+      "first_commit": {
+        "sample_s": 2184.724,
+        "ticket": 198
+      },
+      "grant_to_commit_s": 0.25600000000031287,
+      "offers": 2
+    },
+    {
+      "uav_id": "uav_6",
+      "target_id": "t4",
+      "generation": 13,
+      "granted_s": 2192.912,
+      "first_offer": {
+        "sample_s": 2193.356,
+        "ticket": 175,
+        "compute_sim_s": 0.392
+      },
+      "first_commit": {
+        "sample_s": 2193.364,
+        "ticket": 175
+      },
+      "grant_to_commit_s": 0.45200000000022555,
+      "offers": 1
+    },
+    {
+      "uav_id": "uav_5",
+      "target_id": "t3",
+      "generation": 15,
+      "granted_s": 2193.204,
+      "first_offer": {
+        "sample_s": 2193.604,
+        "ticket": 211,
+        "compute_sim_s": 0.352
+      },
+      "first_commit": {
+        "sample_s": 2193.616,
+        "ticket": 211
+      },
+      "grant_to_commit_s": 0.4119999999998072,
+      "offers": 1
+    },
+    {
+      "uav_id": "uav_3",
+      "target_id": "t5",
+      "generation": 13,
+      "granted_s": 2201.62,
+      "first_offer": null,
+      "first_commit": null,
+      "grant_to_commit_s": null,
+      "offers": 0
+    },
+    {
+      "uav_id": "uav_6",
+      "target_id": "t4",
+      "generation": 14,
+      "granted_s": 2224.812,
+      "first_offer": {
+        "sample_s": 2230.516,
+        "ticket": 177,
+        "compute_sim_s": 0.552
+      },
+      "first_commit": {
+        "sample_s": 2230.532,
+        "ticket": 177
+      },
+      "grant_to_commit_s": 5.720000000000255,
+      "offers": 2
+    }
+  ],
+  "not_final": true,
+  "physical_effect_scope": "offer/commit timing only; no guarantee of sustained tracking or six eliminations"
+}

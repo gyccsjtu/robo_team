@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+  阶段二：在世界已就绪后，生成 typhoon_h480_0（PX4 SITL + 模型 + MAVROS）
+  不含 gzserver —— 世界由 world_only.launch 负责。
+-->
+<launch>
+    <arg name="x" default="-6.0"/>
+    <arg name="y" default="4.0"/>
+    <arg name="z" default="0.2"/>
+    <arg name="Y" default="0.0"/>
+
+    <group ns="typhoon_h480_0">
+        <arg name="fcu_url" default="udp://:24540@localhost:34580"/>
+        <include file="$(find px4)/launch/single_vehicle_spawn_xtd.launch">
+            <arg name="x" value="$(arg x)"/>
+            <arg name="y" value="$(arg y)"/>
+            <arg name="z" value="$(arg z)"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="$(arg Y)"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf"     value="typhoon_h480"/>
+            <arg name="mavlink_udp_port" value="18570"/>
+            <arg name="mavlink_tcp_port" value="4560"/>
+            <arg name="udp_gimbal_port"  value="13030"/>
+            <arg name="ID" value="0"/>
+            <arg name="ID_in_group" value="0"/>
+        </include>
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="1"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+</launch>

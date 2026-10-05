@@ -1,0 +1,132 @@
+actor_5: communication initialized
+5 general change position
+current_position:   5       x: 70.0
+y: -4.0
+z: 1.0191
+middd_pos:     5       [x: 110.49947071980867
+y: -8.96861706108745
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 110.49240756494089
+y: -8.96775055677261
+z: 1.0191
+middd_pos:     5       [x: 51.47067356854281
+y: -0.645242102669755
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 51.480193462763665
+y: -0.6465846071918957
+z: 1.0191
+middd_pos:     5       [x: 63.7049915899761
+y: 1.1167643578993136
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 63.69774723321446
+y: 1.115719528333584
+z: 1.0191
+middd_pos:     5       [x: 90.97102603479883
+y: -11.19271764466562
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_5"
+  pose: 
+    position: 
+      x: 47
+      y: 37
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+5 general change position
+current_position:   5       x: 90.96432326753447
+y: -11.185373959622027
+z: 1.0191
+middd_pos:     5       [x: 42.72437662873966
+y: 4.792600337919026
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 42.73311277809457
+y: 4.789706595003945
+z: 1.0191
+middd_pos:     5       [x: 29.713924625589883
+y: -42.335514613522776
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 29.715668104251368
+y: -42.32920245606571
+z: 1.0191
+middd_pos:     5       [x: 48.111813358677935
+y: 48.3110234853865
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 48.109981967678
+y: 48.30236787963125
+z: 1.0191
+middd_pos:     5       [x: -20.865062447512344
+y: 47.31566569567593
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: -20.858961536055812
+y: 47.31575347728446
+z: 1.0191
+middd_pos:     5       [x: 46.813846529687
+y: 47.69388203276199
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: 46.803982210933654
+y: 47.69382687034176
+z: 1.0191
+middd_pos:     5       [x: -9.104222246114915
+y: 36.86656603619748
+z: 0.0]
+
+
+5 general change position
+current_position:   5       x: -9.097383543390551
+y: 36.86789010707457
+z: 1.0191
+middd_pos:     5       [x: -15.418579781379648
+y: 42.15829713231207
+z: 0.0]
+
+
+Traceback (most recent call last):
+  File "control_actor.py", line 662, in <module>
+    controlactors.loop()
+  File "control_actor.py", line 605, in loop
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request

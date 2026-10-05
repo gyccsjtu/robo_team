@@ -43,7 +43,7 @@ class ReservedOrbitTests(unittest.TestCase):
         a.path_target = point
         a._pick_local_goal.return_value = (8., 4.)
         scope['_fly_orbit'](a)
-        self.assertEqual(a._send_vel.call_args.args, (0., 1.5))
+        self.assertEqual(a._send_vel.call_args.args, (0., 2.6))
         a._publish_claim.assert_called_once()
 
     def test_fleeing_orbit_leg_and_downstream_speed_limit_can_keep_up_with_two_meter_target(self):

@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "formal_competition_pass": false,
+  "raw_result_unchanged": true,
+  "observed_sim_s": 599.8520000000001,
+  "trajectory_start_s": 1930.896,
+  "trajectory_end_s": 2530.748,
+  "actual_judge_deleted_actor_ids": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "judge_deleted_count": 5,
+  "last_left_actors": [
+    5
+  ],
+  "last_judge_time_usage_s": 505.83600000000024,
+  "terminal": null,
+  "raw_status": "CITY_SIX_AIRCRAFT_MOVING",
+  "raw_error": null,
+  "non_ground_contact_rows": 7,
+  "static_contact_rows": 0,
+  "actor_contact_rows": 7,
+  "fleet_contact_rows": 0,
+  "first_static_contact": null,
+  "contact_observer_last": {
+    "kind": "CONTACT_OBSERVER_STOPPED",
+    "frames": 150284,
+    "first_sample_s": 1929.968,
+    "last_sample_s": 2531.1,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 403718,
+    "body_pairs": 49563
+  },
+  "contact_observer_covers_trajectory": true,
+  "maximum_actual_height_m": {
+    "uav_1": 2.973142499757002,
+    "uav_2": 3.552335804808015,
+    "uav_3": 2.9535873813449283,
+    "uav_4": 3.1678920067833514,
+    "uav_5": 2.8618430035351032,
+    "uav_6": 3.030686252904818
+  },
+  "sampled_minimum_3d_separation_m": 2.9762958393486123,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 103.79993594568676,
+    "uav_2": 133.29787016148887,
+    "uav_3": 98.88742753080886,
+    "uav_4": 65.99593665233628,
+    "uav_5": 125.17483766384949,
+    "uav_6": 84.79913922738233
+  },
+  "command_mask_counts": {
+    "1500": 1806,
+    "1479": 49205,
+    "1528": 20874
+  },
+  "xyz_hold_z_recorded": {
+    "uav_1": 3254,
+    "uav_2": 2768,
+    "uav_3": 3729,
+    "uav_6": 4479,
+    "uav_4": 3608,
+    "uav_5": 3036
+  },
+  "green_white_events": {
+    "white": {
+      "yolo_detection": 117,
+      "track_reject": 591,
+      "track_publish": 237
+    },
+    "green": {
+      "yolo_detection": 198,
+      "track_reject": 788,
+      "track_publish": 420
+    }
+  },
+  "green_white_reject_reasons": {
+    "white": {
+      "verdict_hits": 296,
+      "verdict_static": 139,
+      "verdict_range": 150,
+      "verdict_self": 6
+    },
+    "green": {
+      "verdict_hits": 410,
+      "verdict_static": 184,
+      "verdict_height": 34,
+      "verdict_range": 160
+    }
+  },
+  "executed_source_count": 140,
+  "executed_source_sha_mismatches": [],
+  "first_round_z_evidence": null,
+  "competition_goal_met": false,
+  "executed_commit": "be2945f",
+  "actual_stop_reason": "natural configured 600-second deadline; no agent SIGINT",
+  "configured_full_round": true
+}

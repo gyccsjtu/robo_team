@@ -11,7 +11,7 @@ from unittest.mock import Mock
 
 scripts = Path(__file__).parents[1]/'src/robocup_swarm/scripts'
 sys.path.insert(0, str(scripts))
-from target_motion import current_target_point
+from target_motion import current_target_point, handoff_reacquisition_point
 from task_authority import TaskGate
 
 
@@ -24,6 +24,7 @@ class TrackingBackoffTests(unittest.TestCase):
         names = ('_authorized_cb', '_assign_cb', '_resume_tracking_attempt', '_control', '_orbit_stale')
         methods = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name in names]
         self.scope = dict(json=json, math=math, current_target_point=current_target_point,
+            handoff_reacquisition_point=handoff_reacquisition_point,
             TRACK_GUIDANCE_TTL=1.5, SearchAssignment=SimpleNamespace,
             rospy=SimpleNamespace(Time=SimpleNamespace(now=lambda:SimpleNamespace(to_sec=lambda:self.now)),
                                   loginfo=Mock(), logwarn_throttle=Mock()))

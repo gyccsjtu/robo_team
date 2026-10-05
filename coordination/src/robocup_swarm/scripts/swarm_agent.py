@@ -42,7 +42,7 @@ from radar_velocity_guard import guard_velocity
 from collections import deque
 from task_authority import TaskGate
 from visual_observation import VisualEvidence, TAG_TO_TID
-from target_motion import TargetMotion, current_target_point
+from target_motion import TargetMotion, current_target_point, handoff_reacquisition_point
 from route_reservation import RouteGate, exclude_peers, valid_points
 from route_endpoint import connect_exact_goal
 from publisher_authority import PublisherAuthority
@@ -210,20 +210,15 @@ BUILDING_DIST    = 5.0      # 建筑判定距离 m（小于此值视为建筑附
 # ---- 目标盘旋确认 ----
 # 2026-09-29 调优：ORBIT_RADIUS 从 5.0 → 8.0，匹配 actor 的 uav_safety_radius=7.0m
 # （control_actor.py:53）—— 半径 < 7m 时 actor 会主动推 UAV，根本稳不住。
-# 8m 仍 << DETECT_RADIUS=20m，且 ORBIT_SPEED*ORBIT_RADIUS=0.96 m/s < 1.0 m/s 逃跑阈值。
+# 8m 仍小于DETECT_RADIUS=20m；在线盘旋速度由已提交路线和追踪速度配置控制。
 ORBIT_RADIUS    = 8.0     # 盘旋半径 m
-# 线速度 = ORBIT_SPEED * ORBIT_RADIUS，必须 < 1.0 m/s。
-# 官方 control_actor.py:211 —— 飞机以 >1.0 m/s 在 actor 20m 内连续待 2s，
-# actor 就进入逃跑态（速度 1.0 -> 2.0 且主动远离），坐标误差随之翻倍，
-# 官方 err_threshold=1m 就会频繁判定断链、15s 重来。0.12*8=0.96 m/s 安全。
+# Legacy non-online orbit angular rate; not an official UAV speed restriction.
+# The competition rule describes 1m/s walking and 2m/s fleeing targets.
+# Online tracking follows a committed radar route using the chase cap below.
 ORBIT_SPEED     = 0.12     # 盘旋角速度 rad/s（r=8m 时线速度 0.96 m/s）
-# SPOOK_DIST 从 15m 提到 22m：比逃跑触发边界 20m 还远，让 actor 永远看不到
-# 任何 > 1.0 m/s 的 UAV 冲进来。旧版 15m < 20m 时，全速段（20→15m）只 1 秒，
-# 确实攒不满 2s tracking_flag；但若中途建筑挡视线或 UAV 悬停几秒就会踩线。
-SPOOK_DIST      = 22.0    # 进入此距离就压速（官方逃跑判定边界 20m，我们提前 2m 保险）
-SPOOK_SPEED     = 0.8     # 必须 < 1.0 m/s，比旧版 0.9 更保守
-# 目标已进入 FLEE（state=1，实测逃跑 2.0 m/s）时，慢速 0.8 必然被甩开跟丢。
-# 此时短暂提速咬住（须略 >2.0）；目标不在逃跑时仍用 SPOOK_SPEED 防惊吓。
+# Keep the existing environment name for launch compatibility. All fresh target
+# guidance may chase at this speed, without waiting for a FLEE classification.
+# Search is not slowed by stale or unrelated target coordinates.
 FLEE_CHASE_SPEED  = float(os.environ.get('FLEE_CHASE_SPEED', '2.2'))
 FLEE_STATE_FRESH  = float(os.environ.get('FLEE_STATE_FRESH', '3.0'))
 # ---- 偏航对准（2026-10-01：修「盘旋时目标甩出视场」）----
@@ -366,6 +361,8 @@ class SwarmAgent(object):
         self.state = State()
         self.assignment = None      # SearchAssignment 当前任务
         self._v124_behavior = os.environ.get('SWARM_BEHAVIOR_BASELINE','') == 'c77063e'
+        self._handoff_yaw_reacquire = os.environ.get('SWARM_HANDOFF_REACQUIRE','0') == '1'
+        self._handoff_reacquire_window = None
 
         # ---- A* 避障 ----
         self.md, _ = load_metadata(METADATA_PATH)
@@ -721,6 +718,7 @@ class SwarmAgent(object):
                     return
                 if self._gate.stopping:
                     self._tracking_retry_pending = None
+                    self._handoff_reacquire_window = None
                     self._route_gate.clear()
                     self._route_pending = None
                     self._last_flight_v = (0., 0.)
@@ -735,6 +733,10 @@ class SwarmAgent(object):
                     self._orbit_target = self._orbit_center = self._target_to_orbit = None
                     self._look_at = None
                     self._tracking_retry_pending = ((self._gate.task['target_id'], self._gate.generation)
+                        if self._gate.task['task_type'] == 1 else None)
+                    granted_s = rospy.Time.now().to_sec()
+                    self._handoff_reacquire_window = ((self._gate.task['target_id'],
+                        self._gate.generation, granted_s, granted_s+5.)
                         if self._gate.task['task_type'] == 1 else None)
                     with self._plan_lock:
                         self._plan_ticket += 1
@@ -1985,8 +1987,16 @@ class SwarmAgent(object):
                         _track_id, rospy.Time.now().to_sec(), maximum_age=5.)
                 if getattr(self,'_v124_behavior',False):
                     self._look_at = None
+                    if getattr(self, '_handoff_yaw_reacquire', False):
+                        now = rospy.Time.now().to_sec()
+                        self._look_at = handoff_reacquisition_point(self.targets, self._t_seen,
+                            _track_id, self._gate.generation,
+                            getattr(self, '_handoff_reacquire_window', None), now,
+                            self._gate.can_move(now), self._giveup_until.get(_track_id, 0.))
                 self._send_vel(0.0, 0.0)
                 return
+            # Fresh guidance has resumed: this grant's one yaw opportunity ends.
+            self._handoff_reacquire_window = None
             tx, ty = self._target_to_orbit
             self._look_at = (tx, ty)       # 接近阶段机头就对准目标
             dist = math.hypot(tx - self.world_xy[0], ty - self.world_xy[1])
@@ -2021,12 +2031,9 @@ class SwarmAgent(object):
                 vx = POS_KP * err_x
                 vy = POS_KP * err_y
                 spd = math.hypot(vx, vy)
-                # 接近 actor 时压速，避免触发官方逃跑机制（详见 SPOOK_SPEED 注释）。
-                # 目标已逃跑则提速咬住，否则 0.8m/s 追 2.0m/s 必然跟丢。
-                if self._target_fleeing(_track_id):
-                    cap = FLEE_CHASE_SPEED
-                else:
-                    cap = SPOOK_SPEED if dist < SPOOK_DIST else MAX_SPEED
+                # Reporting can trigger 2m/s flight before motion classification
+                # catches up. Radar, reservation and braking still gate the command.
+                cap = min(MAX_SPEED, FLEE_CHASE_SPEED)
                 if spd > cap:
                     vx *= cap / spd
                     vy *= cap / spd
@@ -2079,17 +2086,6 @@ class SwarmAgent(object):
         if spd > MAX_SPEED:
             vx *= MAX_SPEED / spd
             vy *= MAX_SPEED / spd
-        # 已知目标在附近（即使 manager 尚未下发追踪指派）→ 提前压速，
-        # 避免以搜索速度冲进 20m 触发演员逃跑（实测演员被惊到 3.87m/s）。
-        # 例外：该目标已在逃跑 -> 提速咬住，避免慢速被甩开跟丢。
-        _ntd = self._nearest_target_dist()
-        if _ntd is not None and _ntd[1] < SPOOK_DIST:
-            _cap = (FLEE_CHASE_SPEED if self._target_fleeing(_ntd[0])
-                    else SPOOK_SPEED)
-            if spd > _cap:
-                vx *= _cap / spd
-                vy *= _cap / spd
-
         # === 友机避碰 ===
         vx, vy = self._apply_friend_avoidance(vx, vy)
 
@@ -2370,7 +2366,7 @@ class SwarmAgent(object):
                 return
             vx, vy = POS_KP*(local_goal[0]-wx), POS_KP*(local_goal[1]-wy)
             speed = math.hypot(vx, vy)
-            cap = min(MAX_SPEED,FLEE_CHASE_SPEED) if self._target_fleeing(self._orbit_target) else min(MAX_SPEED,1.5)
+            cap = min(MAX_SPEED, FLEE_CHASE_SPEED)
             if speed > cap:
                 vx, vy = vx*cap/speed, vy*cap/speed
             vx, vy = self._apply_friend_avoidance(vx, vy)
@@ -2428,9 +2424,9 @@ class SwarmAgent(object):
         # 基础速度
         base_speed = MAX_SPEED
 
-        # 1. 追踪目标时降速（确认需要稳定）
+        # 1. Do not cap tracking below a 2m/s target while waiting for FLEE state.
         if self._orbit_target is not None:
-            base_speed = min(MAX_SPEED,FLEE_CHASE_SPEED) if self._target_fleeing(self._orbit_target) else min(MAX_SPEED,1.5)
+            base_speed = min(MAX_SPEED, FLEE_CHASE_SPEED)
         # 2. ORCA 激活时（友机近）降速
         elif self._friend_positions:
             # 检查是否有近距友机

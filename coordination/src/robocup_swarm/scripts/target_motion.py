@@ -16,6 +16,20 @@ def current_target_point(targets, stamps, tid, now, maximum_age=1.):
         return None
 
 
+def handoff_reacquisition_point(targets, stamps, tid, generation, window, now,
+                                authorized, cooldown_until):
+    """A bounded yaw hint from actual images; never authorize translation."""
+    try:
+        target, granted_generation, start, end = window
+        if (not authorized or target != tid or granted_generation != generation
+                or not all(math.isfinite(v) for v in (start, end, now, cooldown_until))
+                or not 0 < end-start <= 5. or not start <= now < end):
+            return None
+        return current_target_point(targets, stamps, tid, now, maximum_age=5.)
+    except (TypeError, ValueError):
+        return None
+
+
 class TargetMotion:
     def __init__(self):
         self.history, self.fast_counts = {}, {}

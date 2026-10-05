@@ -1,0 +1,81 @@
+{
+  "source_byte_sha256": "cdd267c7eec3bd1170090cdd6011fd98b656d05e43add6cfbe93d76a689c57bd",
+  "mode": "constructed callbacks with recorded coordinates/time, not physical replay",
+  "executed_profile": "c77063e",
+  "control_input": false,
+  "results": [
+    {
+      "target_id": "t2",
+      "generation": 6,
+      "grant_s": 2078.616,
+      "image_s": 2074.908,
+      "image_age_s": 3.7080000000000837,
+      "cases": [
+        {
+          "baseline": true,
+          "look_at": null,
+          "velocity_request": [
+            0.0,
+            0.0
+          ],
+          "cooldown": 2138.616,
+          "reset_count": 7,
+          "original_image_s": 2074.908,
+          "route_pending": null
+        },
+        {
+          "baseline": false,
+          "look_at": [
+            35.07,
+            25.6
+          ],
+          "velocity_request": [
+            0.0,
+            0.0
+          ],
+          "cooldown": 2138.616,
+          "reset_count": 7,
+          "original_image_s": 2074.908,
+          "route_pending": null
+        }
+      ]
+    },
+    {
+      "target_id": "t5",
+      "generation": 5,
+      "grant_s": 2034.264,
+      "image_s": 2029.892,
+      "image_age_s": 4.371999999999844,
+      "cases": [
+        {
+          "baseline": true,
+          "look_at": null,
+          "velocity_request": [
+            0.0,
+            0.0
+          ],
+          "cooldown": 2094.264,
+          "reset_count": 7,
+          "original_image_s": 2029.892,
+          "route_pending": null
+        },
+        {
+          "baseline": false,
+          "look_at": [
+            57.43,
+            -1.34
+          ],
+          "velocity_request": [
+            0.0,
+            0.0
+          ],
+          "cooldown": 2094.264,
+          "reset_count": 7,
+          "original_image_s": 2029.892,
+          "route_pending": null
+        }
+      ]
+    }
+  ],
+  "interpretation": "baseline suppresses stopped yaw; disabling full baseline is only a diagnostic comparison, not a proposed rollback"
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "pid": 6492,
+    "command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/scheduled_v130_20261005T093242Z/round_1_seed_8159/flight --tag white --wall-seconds 4800 "
+  },
+  {
+    "pid": 6503,
+    "command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/scheduled_v130_20261005T093242Z/round_1_seed_8159/flight --tag red --wall-seconds 4800 "
+  },
+  {
+    "pid": 6531,
+    "command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/scheduled_v130_20261005T093242Z/round_1_seed_8159/flight/visual_frames --wall-seconds 4800 --limit-per-tag 160 --minimum-period 0.5 "
+  },
+  {
+    "pid": 28310,
+    "command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/scheduled_v130_20261005T093242Z/round_1_seed_8159/flight --tag green --wall-seconds 4800 "
+  }
+]

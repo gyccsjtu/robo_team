@@ -1,0 +1,726 @@
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1941.884, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 1, "key": ["search", 2, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1941.884, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 1, "key": ["search", 4, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1941.884, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 1, "key": ["search", 0, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1941.884, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 1, "key": ["search", 15, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1941.888, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 1, "key": ["search", 0, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1941.888, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 1, "key": ["search", 13, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1956.82, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1957.208, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1960.148, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1961.012, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1961.012, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 15, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1961.012, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 2, "key": ["target", "t0"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1961.064, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 15, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1963.568, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1963.568, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 0, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1963.568, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 2, "key": ["target", "t1"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1963.62, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["search", 0, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1968.88, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1969.968, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1969.968, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["target", "t1"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1969.968, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 3, "key": ["search", 1, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1970.02, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["target", "t1"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1971.976, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 1, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1972.804, "event": "ACK_REJECTED", "uav_id": "uav_5", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1974.644, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1975.436, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1975.436, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 2, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1975.436, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 2, "key": ["search", 2, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1977.852, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1977.852, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 0, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1977.852, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 2, "key": ["target", "t1"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1977.876, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 1, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1977.912, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 0, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1980.38, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1981.412, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1981.412, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["target", "t0"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1981.412, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 3, "key": ["search", 4, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1981.468, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["target", "t0"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1984.844, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1985.48, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1986.552, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1986.552, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["target", "t1"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1986.552, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 3, "key": ["search", 1, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1986.608, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["target", "t1"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1987.508, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1987.508, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 4, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1987.508, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 2, "key": ["search", 4, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1987.576, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 1, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1987.844, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1988.808, "event": "ACK_REJECTED", "uav_id": "uav_5", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1990.564, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 1}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1990.564, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 13, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1990.564, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 2, "key": ["search", 13, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 1999.976, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 3, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2003.28, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 3}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2003.28, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 1, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2003.28, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 4, "key": ["search", 1, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2005.476, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 2, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2006.688, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2006.688, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 2, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2006.688, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 3, "key": ["search", 2, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2007.784, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 3}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2010.904, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 3}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2010.904, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 1, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2010.904, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 4, "key": ["search", 0, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2011.476, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 3, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2012.332, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2012.888, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 3}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2012.888, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2012.892, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 4}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2014.712, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 3}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2014.712, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 4, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2014.712, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 4, "key": ["search", 9, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2014.772, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 4, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2015.82, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 4}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2015.82, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 1, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2015.82, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 5, "key": ["search", 10, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2015.872, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["search", 1, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2015.908, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2015.908, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 4, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2015.908, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 3, "key": ["search", 11, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2015.96, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 4, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2016.036, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 3}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2016.036, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 2, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2016.036, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 4, "key": ["search", 0, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2016.612, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 2}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2016.612, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 13, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2016.612, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 3, "key": ["target", "t0"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2016.664, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 13, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2019.804, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 1, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2021.844, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 2, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2024.48, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 3}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2025.512, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 3}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2025.512, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["target", "t0"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2025.512, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 4, "key": ["search", 13, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2025.568, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["target", "t0"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2028.376, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2029.368, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2030.328, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 4}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2034.264, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 4}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2034.264, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 13, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2034.264, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 5, "key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2034.312, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 13, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2035.376, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2037.368, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2038.08, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2039.164, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2039.164, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2039.164, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 6, "key": ["search", 13, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2039.216, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2040.444, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2040.944, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2040.996, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 4, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2041.872, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2044.204, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 4}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2044.204, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 0, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2044.204, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 5, "key": ["search", 0, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2044.776, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 4, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2045.876, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2046.68, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2047.368, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2048.376, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2048.512, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 4}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2048.512, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 9, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2048.512, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 5, "key": ["search", 9, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2049.368, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2049.804, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2049.804, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 0, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2049.804, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 6, "key": ["search", 2, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2049.876, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 5, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2052.992, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2052.992, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 10, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2052.992, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 6, "key": ["search", 10, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2052.992, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 3, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2054.684, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2054.756, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 0, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2055.872, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2056.056, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 3}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2056.056, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 11, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2056.056, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 4, "key": ["search", 11, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2056.376, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2057.764, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2057.764, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 13, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2057.764, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 7, "key": ["search", 11, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2057.776, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 4, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2059.372, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2061.488, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 4}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2061.488, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 0, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2061.488, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 5, "key": ["search", 0, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2062.316, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 13, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2067.676, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2070.888, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2070.888, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 0, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2070.888, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 6, "key": ["search", 4, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2073.292, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 0, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2075.332, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2078.616, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2078.616, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 9, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2078.616, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 6, "key": ["target", "t2"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2078.664, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 9, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2079.876, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 6, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2082.536, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2082.78, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 4}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2082.904, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2082.904, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 2, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2082.904, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 7, "key": ["search", 2, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2084.78, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2085.812, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2085.812, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["target", "t2"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2085.812, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 7, "key": ["search", 9, 9]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2085.868, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["target", "t2"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2086.208, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 4}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2086.208, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 11, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2086.208, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 5, "key": ["search", 9, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2086.276, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 6, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2086.784, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2086.784, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2087.856, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 5}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2087.856, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 9, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2087.856, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 6, "key": ["search", 7, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2087.912, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 9, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2088.784, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2089.868, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2089.868, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 10, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2089.868, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 7, "key": ["search", 10, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2090.112, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2090.112, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 11, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2090.112, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 8, "key": ["search", 11, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2091.756, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 11, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2091.88, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2092.104, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2092.104, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 2, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2092.104, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 8, "key": ["search", 4, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2092.468, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 11, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2095.336, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2095.336, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 4, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2095.336, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 7, "key": ["search", 6, 3]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2096.372, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2097.204, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2098.304, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2098.304, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 4, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2098.304, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 9, "key": ["target", "t1"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2098.356, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 4, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2100.08, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2100.368, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2101.496, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 4, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2103.564, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2103.564, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 9, 9]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2103.564, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 8, "key": ["search", 7, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2107.368, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2109.372, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2109.876, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2110.368, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2111.868, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2112.368, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2113.364, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2113.716, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 9, 9]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2114.864, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2116.18, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2116.184, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2119.08, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 9}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2119.808, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 6}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2119.808, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 7, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2119.808, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 7, "key": ["search", 15, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2119.936, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2119.936, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 6, 3]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2119.936, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 8, "key": ["search", 6, 9]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2119.996, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 6, 3]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2120.504, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 9}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2120.504, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["target", "t1"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2120.504, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 10, "key": ["search", 4, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2120.556, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["target", "t1"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2120.576, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 7, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2121.82, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2121.82, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 10, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2121.82, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 8, "key": ["search", 10, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2121.876, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 8, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2123.116, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2124.112, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 7, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2124.864, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2124.864, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 11, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2124.864, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 9, "key": ["search", 11, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2127.112, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2129.404, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2129.404, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2130.936, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2130.936, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 6, 9]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2130.936, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 9, "key": ["search", 16, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2131.004, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 6, 9]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2133.164, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2133.164, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 7, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2133.164, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 9, "key": ["search", 5, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2133.64, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2133.908, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 2, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2134.144, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2135.14, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2136.348, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2139.48, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 9}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2139.824, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 7, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2142.468, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2142.468, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 10, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2142.468, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 9, "key": ["target", "t0"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2142.524, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["search", 10, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2142.564, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 9}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2142.564, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 11, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2142.564, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 10, "key": ["search", 13, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2148.152, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 11, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2149.876, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 7, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2151.88, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2153.708, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 7}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2153.708, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 15, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2153.708, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 8, "key": ["search", 15, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2153.916, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2153.976, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 9}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2154.324, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2155.02, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 9}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2155.02, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["target", "t0"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2155.02, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 10, "key": ["search", 7, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2155.076, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["target", "t0"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2155.252, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2155.252, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 4, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2155.252, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 11, "key": ["search", 8, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2157.92, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2157.964, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2157.964, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 13, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2157.964, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 11, "key": ["target", "t2"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2158.024, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 13, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2158.424, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2159.408, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 4, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2159.416, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2160.42, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2160.976, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 9, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2164.936, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 9}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2164.936, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 16, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2164.936, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 10, "key": ["search", 16, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2164.976, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 9, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2166.264, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 9}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2166.264, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 5, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2166.264, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 10, "key": ["search", 5, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2168.924, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 11}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2169.24, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2169.58, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 11}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2172.24, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2172.404, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 11}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2172.404, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 8, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2172.452, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 8, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2172.48, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 12, "key": ["search", 8, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2172.612, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 11}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2172.612, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["target", "t2"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2172.612, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 12, "key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2172.672, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["target", "t2"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2175.08, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2175.084, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2178.408, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 8}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2178.408, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 15, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2178.408, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 9, "key": ["search", 21, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2178.788, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2178.788, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 16, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2178.788, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 11, "key": ["search", 16, 10]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2178.836, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 16, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2180.128, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2181.552, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2181.552, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 8, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2181.552, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 13, "key": ["target", "t3"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2181.608, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 8, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2182.516, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 15, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2182.924, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2183.076, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2184.468, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2184.468, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 7, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2184.468, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 11, "key": ["target", "t4"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2184.524, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["search", 7, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2186.564, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2186.564, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 5, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2186.564, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 11, "key": ["search", 7, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2187.616, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 11, "reason": "TASK_WITHDRAWN"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2188.924, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 5, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2190.976, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2191.668, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 11}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2191.668, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["target", "t4"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2191.668, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 12, "key": ["search", 9, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2191.724, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["target", "t4"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2191.816, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2192.004, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2192.004, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["target", "t3"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2192.004, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 14, "key": ["search", 8, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2192.056, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["target", "t3"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2192.2, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2192.912, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2192.912, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2192.912, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 13, "key": ["target", "t4"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2192.968, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2193.204, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2193.204, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 8, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2193.204, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 15, "key": ["target", "t3"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2193.252, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 8, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2197.748, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2198.708, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2201.38, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2201.62, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2201.62, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 9, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2201.62, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 13, "key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2201.668, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["search", 9, 14]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2202.452, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2202.452, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["target", "t3"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2202.452, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 16, "key": ["search", 10, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2202.512, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["target", "t3"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2207.376, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2207.708, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2208.42, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2208.42, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2208.42, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 14, "key": ["search", 8, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2208.476, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 9, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2208.476, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2212.356, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 9}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2212.356, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 21, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2212.356, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 10, "key": ["search", 21, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2212.376, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 11, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2212.856, "event": "ACK_REJECTED", "uav_id": "uav_5", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2213.852, "event": "ACK_REJECTED", "uav_id": "uav_5", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2214.188, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 11}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2214.188, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 16, 10]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2214.188, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 12, "key": ["search", 16, 10]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2215.18, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2216.86, "event": "ACK_REJECTED", "uav_id": "uav_5", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2217.18, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2217.18, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 16}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2218.556, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 10}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2218.556, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 21, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2218.556, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 11, "key": ["search", 23, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2220.304, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 16}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2220.304, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 10, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2220.304, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 17, "key": ["search", 16, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2220.568, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2220.568, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 8, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2220.568, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 15, "key": ["search", 6, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2220.576, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 11, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2220.62, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["search", 8, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2223.764, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 11}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2223.764, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 7, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2223.764, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 12, "key": ["search", 7, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2223.776, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 13, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2223.808, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 21, 2]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2224.812, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2224.812, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["target", "t4"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2224.812, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 14, "key": ["target", "t4"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2227.18, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2230.208, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 10, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2230.312, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2230.312, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 7, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2230.312, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 13, "key": ["search", 7, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2235.856, "event": "ACK_REJECTED", "uav_id": "uav_5", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2243.264, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 7, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2244.276, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 12, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2245.78, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 11}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2247.736, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2247.736, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 16, 10]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2247.736, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 13, "key": ["search", 16, 10]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2248.656, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 11}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2248.656, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 23, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2248.656, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 12, "key": ["search", 25, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2250.376, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 17, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2251.26, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 23, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2253.752, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 17}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2253.752, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 16, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2253.752, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 18, "key": ["search", 16, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2253.776, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 15, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2256.128, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2257.212, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2257.212, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["target", "t4"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2257.212, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 15, "key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2257.268, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["target", "t4"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2257.628, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2257.628, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 6, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2257.628, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 16, "key": ["search", 6, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2259.168, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2260.376, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 13, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2263.664, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2263.664, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 7, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2263.664, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 14, "key": ["search", 7, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2266.08, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 18}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2268.58, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2269.612, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2269.612, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2269.612, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 16, "key": ["search", 14, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2269.664, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2270.052, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 18}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2270.052, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 16, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2270.052, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 19, "key": ["search", 18, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2271.18, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2273.18, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2274.372, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2274.372, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 7, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2274.372, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 15, "key": ["search", 1, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2275.176, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2275.18, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 16}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2276.208, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 12}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2276.208, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 25, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2276.208, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 13, "key": ["search", 25, 9]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2276.804, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 16, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2276.812, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 16}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2276.812, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 14, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2276.812, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 17, "key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2276.868, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 14, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2277.624, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 7, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2278.288, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2278.288, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 16, 10]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2278.288, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 14, "key": ["search", 20, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2280.988, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 16, 10]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2285.008, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 25, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2287.68, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 16, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2289.816, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2291.02, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 16}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2291.02, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 6, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2291.02, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 17, "key": ["search", 6, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2292.48, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2295.504, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2295.504, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 18, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2295.504, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 20, "key": ["search", 20, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2299.404, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 18, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2299.68, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2303.056, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 13}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2303.056, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 25, 9]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2303.056, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 14, "key": ["search", 25, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2304.376, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 15, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2305.84, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2307.512, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2307.512, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 1, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2307.512, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 16, "key": ["search", 4, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2307.576, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 17, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2307.84, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2309.72, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 1, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2310.064, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 17}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2310.064, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2310.064, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 18, "key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2310.076, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 14, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2310.956, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 25, 9]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2312.776, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 17}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2313.488, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2313.488, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 20, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2313.488, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 15, "key": ["search", 20, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2314.016, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2315.836, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2316.12, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 17}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2316.12, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 6, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2316.12, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 18, "key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2317.78, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2321.188, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2321.188, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 20, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2321.188, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 16, "key": ["search", 18, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2323.78, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2325.876, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 20}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2326.956, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 14}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2326.956, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 25, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2326.956, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 15, "key": ["search", 25, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2327.036, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 20, 8]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2328.804, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 20}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2328.804, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 20, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2328.804, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 21, "key": ["search", 24, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2330.336, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 18}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2332.016, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2332.488, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 16}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2332.604, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 20, 13]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2333.764, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 18}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2333.764, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2333.764, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 19, "key": ["target", "t3"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2333.82, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2334.12, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["search", 6, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2334.868, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 25, 12]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2335.736, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 16}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2335.736, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 18, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2335.736, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 17, "key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2335.792, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 18, 6]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2337.576, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 16, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2340.364, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 16}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2340.364, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 4, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2340.364, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 17, "key": ["search", 4, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2343.44, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2344.98, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2344.98, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 21}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2345.44, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2345.52, "event": "ACK_REJECTED", "uav_id": "uav_4", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2346.976, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.308, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 15}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.308, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 25, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.308, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 16, "key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.612, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.612, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["target", "t3"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.612, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 20, "key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.672, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["target", "t3"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.752, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 21}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.752, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 24, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.752, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 22, "key": ["search", 18, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.776, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 18, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2348.808, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 24, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2352.06, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 25, 15]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2352.368, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 18}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2352.368, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2352.368, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 19, "key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2365.776, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 17, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2366.788, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 17}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2366.788, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2366.788, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 18, "key": ["search", 17, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2366.84, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2370.376, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 17, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2373.328, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 17}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2373.328, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 4, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2373.328, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 18, "key": ["search", 4, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2378.376, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 16, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2380.956, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 16}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2380.956, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2380.956, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 17, "key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2380.976, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 20, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2382.564, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 20}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2382.564, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2382.564, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 21, "key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2382.576, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 22, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2385.652, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 22}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2385.652, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 18, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2385.652, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 23, "key": ["search", 18, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2385.676, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 19, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2389.468, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2389.468, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2389.468, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 20, "key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2389.78, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 18}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2392.988, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 18}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2392.988, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 17, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2392.988, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 19, "key": ["search", 14, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2396.308, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 17, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2396.672, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2397.672, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2403.376, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 18, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2403.88, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 23}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2406.5, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 23}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2406.5, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 18, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2406.5, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 24, "key": ["search", 21, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2406.556, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 18, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2407.104, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 18}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2407.104, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 4, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2407.104, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 19, "key": ["search", 4, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2408.376, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 21}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2411.668, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 21}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2411.668, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2411.668, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 22, "key": ["search", 13, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2411.676, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 17, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2413.208, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 17}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2413.208, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2413.208, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 18, "key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2414.816, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 9, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2417.38, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2420.764, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2420.764, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 4, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2420.764, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 20, "key": ["search", 12, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2420.776, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 20, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2421.376, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2421.38, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 22}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2421.868, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 20}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2421.868, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2421.868, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 21, "key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2421.892, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 24}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2424.588, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2424.588, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 14, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2424.588, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 20, "key": ["search", 18, 3]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2424.864, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 22}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2424.864, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 13, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2424.864, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 23, "key": ["search", 24, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2424.92, "event": "TASK_RELEASED", "uav_id": "uav_6", "details": {"key": ["search", 13, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2425.052, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 24}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2425.052, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 21, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2425.052, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 25, "key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2425.112, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 21, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2425.428, "event": "TASK_RELEASED", "uav_id": "uav_4", "details": {"key": ["search", 4, 7]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2427.38, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 20}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2430.388, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 20}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2430.388, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 18, 3]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2430.388, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 21, "key": ["search", 22, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2430.436, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 18, 3]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2433.088, "event": "TASK_RELEASED", "uav_id": "uav_1", "details": {"key": ["search", 14, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2434.468, "event": "ACK_REJECTED", "uav_id": "uav_6", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2437.508, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2443.012, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2443.284, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 18, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2445.58, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 25}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2446.308, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 18}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2446.308, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2446.308, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 19, "key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2446.508, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2446.652, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 25}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2446.652, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2446.652, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 26, "key": ["search", 22, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2446.708, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["target", "t5"]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2449.012, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2450.776, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 20, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2451.508, "event": "ACK_REJECTED", "uav_id": "uav_2", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2452.464, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 20}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2452.464, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 12, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2452.464, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 21, "key": ["search", 12, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2452.476, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 21, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2453.52, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 21}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2453.52, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2453.52, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 22, "key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2454.876, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 23, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2458.212, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 23}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2458.212, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 24, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2458.212, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 24, "key": ["search", 24, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2460.476, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 21, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2463.788, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 21}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2463.788, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 22, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2463.788, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 22, "key": ["search", 22, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2465.876, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 22}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2466.968, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 22}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2466.968, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2466.968, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 23, "key": ["search", 17, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2471.236, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["search", 18, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2476.392, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 19, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2479.608, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 19}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2479.608, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2479.608, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 20, "key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2479.676, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 26, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2482.752, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 26}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2482.752, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 22, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2482.752, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 27, "key": ["search", 25, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2482.776, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 21, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2487.952, "event": "TASK_RELEASED", "uav_id": "uav_5", "details": {"key": ["search", 22, 11]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2489.912, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 21}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2489.912, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 12, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2489.912, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 22, "key": ["search", 12, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2489.984, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 24, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2491.012, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 24}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2491.012, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 24, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2491.012, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 25, "key": ["search", 24, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2493.876, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 22, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2494.276, "event": "STOP_REQUESTED", "uav_id": "uav_2", "details": {"generation": 20}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2495.336, "event": "STOPPED_ACKED", "uav_id": "uav_1", "details": {"generation": 22}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2495.336, "event": "TASK_RETIRED", "uav_id": "uav_1", "details": {"key": ["search", 22, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2495.336, "event": "TASK_GRANTED", "uav_id": "uav_1", "details": {"generation": 23, "key": ["search", 22, 16]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2496.636, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2497.272, "event": "ACK_REJECTED", "uav_id": "uav_3", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2497.64, "event": "ACK_REJECTED", "uav_id": "uav_1", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2497.756, "event": "STOPPED_ACKED", "uav_id": "uav_2", "details": {"generation": 20}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2497.756, "event": "TASK_RETIRED", "uav_id": "uav_2", "details": {"key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2497.756, "event": "TASK_GRANTED", "uav_id": "uav_2", "details": {"generation": 21, "key": ["search", 25, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2497.776, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 23, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2500.116, "event": "TASK_RELEASED", "uav_id": "uav_2", "details": {"key": ["search", 20, 5]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2501.22, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 23}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2501.22, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 17, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2501.22, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 24, "key": ["search", 17, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2512.58, "event": "STOP_REQUESTED", "uav_id": "uav_3", "details": {"generation": 24}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2515.768, "event": "STOPPED_ACKED", "uav_id": "uav_3", "details": {"generation": 24}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2515.768, "event": "TASK_RETIRED", "uav_id": "uav_3", "details": {"key": ["search", 17, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2515.768, "event": "TASK_GRANTED", "uav_id": "uav_3", "details": {"generation": 25, "key": ["search", 21, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2515.776, "event": "STOP_REQUESTED", "uav_id": "uav_5", "details": {"generation": 27, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2518.604, "event": "STOPPED_ACKED", "uav_id": "uav_5", "details": {"generation": 27}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2518.604, "event": "TASK_RETIRED", "uav_id": "uav_5", "details": {"key": ["search", 25, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2518.604, "event": "TASK_GRANTED", "uav_id": "uav_5", "details": {"generation": 28, "key": ["search", 25, 1]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2519.976, "event": "STOP_REQUESTED", "uav_id": "uav_4", "details": {"generation": 22, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2525.452, "event": "ACK_REJECTED", "uav_id": "uav_5", "details": {}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2526.812, "event": "STOPPED_ACKED", "uav_id": "uav_4", "details": {"generation": 22}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2526.812, "event": "TASK_RETIRED", "uav_id": "uav_4", "details": {"key": ["search", 12, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2526.812, "event": "TASK_GRANTED", "uav_id": "uav_4", "details": {"generation": 23, "key": ["search", 12, 17]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2526.876, "event": "STOP_REQUESTED", "uav_id": "uav_6", "details": {"generation": 25, "reason": "ROUTE_REFRESH"}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2527.868, "event": "TASK_RELEASED", "uav_id": "uav_3", "details": {"key": ["search", 17, 4]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2528.312, "event": "STOPPED_ACKED", "uav_id": "uav_6", "details": {"generation": 25}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2528.312, "event": "TASK_RETIRED", "uav_id": "uav_6", "details": {"key": ["search", 24, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2528.312, "event": "TASK_GRANTED", "uav_id": "uav_6", "details": {"generation": 26, "key": ["search", 24, 0]}}
+{"schema_version": 2, "run_id": "0bcd8961-b09a-4d59-89f0-b7aec69a5706", "sim_s": 2528.376, "event": "STOP_REQUESTED", "uav_id": "uav_1", "details": {"generation": 23, "reason": "ROUTE_REFRESH"}}

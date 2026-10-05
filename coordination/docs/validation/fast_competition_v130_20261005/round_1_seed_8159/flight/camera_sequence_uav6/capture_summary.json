@@ -1,0 +1,7 @@
+{
+  "frames": 24,
+  "wall_limit_s": 180,
+  "control_input": false,
+  "not_visual_evidence": true,
+  "selection": "uav6 current diagnostic window, independent of detection; no target visibility assumed"
+}

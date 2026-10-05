@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "method": "Actual _control source branches in constructed fixture; local planner result and friend avoidance replaced. No ROS schedule, final radar/reservation/acceleration or physics replay.",
+  "configs": {
+    "MAX_SPEED": 3.0,
+    "FLEE_CHASE_SPEED": 2.6
+  },
+  "results": {
+    "executed_v130": {
+      "control_source_sha256_utf8_lf": "ebbb42b104da8236763baf092535c9b08b7507350aa1c13826cb88170cdacab3",
+      "tracking_without_flee_xy": [
+        0.0,
+        0.8
+      ],
+      "search_near_stale_red_xy": [
+        0.0,
+        0.30000000000000004
+      ]
+    },
+    "candidate_v132": {
+      "control_source_sha256_utf8_lf": "6e3c0560d18fba579c772c0f067784aabd933ebf5aac9930664854661e47f5ed",
+      "tracking_without_flee_xy": [
+        0.0,
+        2.6
+      ],
+      "search_near_stale_red_xy": [
+        0.0,
+        3.0
+      ],
+      "source_comment_only_revision_after_replay_sha256_utf8_lf": "a6417b7b0fa19e9fa53dfe93fd1711c02d5b14ec183ee06eb66c9bd82592f26b"
+    }
+  }
+}

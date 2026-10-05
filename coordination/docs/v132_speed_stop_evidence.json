@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "executed_commit": "be2945f",
+  "raw_root": "/root/robocup_runs/scheduled_v130_20261005T093242Z/round_1_seed_8159/flight",
+  "method": "Final sampled control commands; median over speed>0.05, not time weighted or physical velocity. Stop runs require adjacent control samples <=0.6s; no inference across gaps. Task grants are events, not inferred receipt failures.",
+  "uavs": {
+    "uav_1": {
+      "samples": 2561,
+      "zero_command_fraction": 0.30495900039047247,
+      "moving_command_median_mps": 0.95856667196657,
+      "command_maximum_mps": 2.474785460695686,
+      "command_around_point8_samples": 202,
+      "task_grants": 23,
+      "search_grants": 22,
+      "longest_sampled_contiguous_zero_windows": [
+        [
+          1931.636,
+          1947.036
+        ],
+        [
+          2332.492,
+          2342.788
+        ],
+        [
+          2435.188,
+          2445.036
+        ],
+        [
+          2359.688,
+          2367.192
+        ],
+        [
+          2318.036,
+          2324.348
+        ]
+      ]
+    },
+    "uav_2": {
+      "samples": 2529,
+      "zero_command_fraction": 0.2665085013839462,
+      "moving_command_median_mps": 0.9639527346784105,
+      "command_maximum_mps": 2.463428195321894,
+      "command_around_point8_samples": 206,
+      "task_grants": 21,
+      "search_grants": 21,
+      "longest_sampled_contiguous_zero_windows": [
+        [
+          1931.956,
+          1949.256
+        ],
+        [
+          1978.056,
+          1988.208
+        ],
+        [
+          2082.956,
+          2088.608
+        ],
+        [
+          2208.356,
+          2212.856
+        ],
+        [
+          2150.056,
+          2154.456
+        ]
+      ]
+    },
+    "uav_3": {
+      "samples": 2533,
+      "zero_command_fraction": 0.3446506119226214,
+      "moving_command_median_mps": 0.8,
+      "command_maximum_mps": 2.480116826596031,
+      "command_around_point8_samples": 394,
+      "task_grants": 25,
+      "search_grants": 21,
+      "longest_sampled_contiguous_zero_windows": [
+        [
+          1931.968,
+          1948.468
+        ],
+        [
+          2197.82,
+          2208.82
+        ],
+        [
+          1960.168,
+          1970.42
+        ],
+        [
+          2431.268,
+          2440.168
+        ],
+        [
+          2136.368,
+          2143.024
+        ]
+      ]
+    },
+    "uav_4": {
+      "samples": 2547,
+      "zero_command_fraction": 0.3380447585394582,
+      "moving_command_median_mps": 0.8,
+      "command_maximum_mps": 2.4482854703632384,
+      "command_around_point8_samples": 386,
+      "task_grants": 23,
+      "search_grants": 21,
+      "longest_sampled_contiguous_zero_windows": [
+        [
+          1932.012,
+          1947.212
+        ],
+        [
+          1966.912,
+          1982.112
+        ],
+        [
+          2075.512,
+          2086.264
+        ],
+        [
+          2129.512,
+          2137.912
+        ],
+        [
+          2520.016,
+          2528.012
+        ]
+      ]
+    },
+    "uav_5": {
+      "samples": 2536,
+      "zero_command_fraction": 0.2866719242902208,
+      "moving_command_median_mps": 0.8,
+      "command_maximum_mps": 2.4797382424699785,
+      "command_around_point8_samples": 855,
+      "task_grants": 28,
+      "search_grants": 23,
+      "longest_sampled_contiguous_zero_windows": [
+        [
+          1931.952,
+          1947.252
+        ],
+        [
+          1974.852,
+          1987.608
+        ],
+        [
+          2184.552,
+          2193.552
+        ],
+        [
+          2438.356,
+          2447.304
+        ],
+        [
+          2194.304,
+          2203.004
+        ]
+      ]
+    },
+    "uav_6": {
+      "samples": 2535,
+      "zero_command_fraction": 0.40552268244575934,
+      "moving_command_median_mps": 0.8,
+      "command_maximum_mps": 2.4739371394239162,
+      "command_around_point8_samples": 629,
+      "task_grants": 26,
+      "search_grants": 18,
+      "longest_sampled_contiguous_zero_windows": [
+        [
+          2194.112,
+          2230.368
+        ],
+        [
+          1932.012,
+          1949.712
+        ],
+        [
+          2242.224,
+          2258.064
+        ],
+        [
+          2179.512,
+          2193.212
+        ],
+        [
+          2030.376,
+          2040.812
+        ]
+      ]
+    }
+  },
+  "raw_sha256": {
+    "control_uav_1.csv": "701edc83813cb54c5d3b7f2142f4febc045ff08441a20400110c76e711c1ae1d",
+    "control_uav_2.csv": "a68100f4c009e9a764bb8a9a61a2c14d3c8e3660e66a8670742f39c519a71701",
+    "control_uav_3.csv": "490a8a03c6099db9e4951237461c6ee2d502795078bfe72c1bde0fbb9ed85b32",
+    "control_uav_4.csv": "e9267a7baf5f4d3e47baf63a8e1c518c5e8f507e98b43708cda72d7b98946f5d",
+    "control_uav_5.csv": "f75d741b2c52bbb6009e8ef49f68170b3cdcc1ab6529dfe0bb0f4806aaae1237",
+    "control_uav_6.csv": "9e6e6df2eeac9532c8b1c73c3f76771c29569dc8d0af3c8fce536d7c0e25da79"
+  }
+}
