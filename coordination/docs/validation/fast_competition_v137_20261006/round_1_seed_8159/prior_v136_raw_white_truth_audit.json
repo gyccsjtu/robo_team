@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "control_input": false,
+  "source_run": "/root/robocup_runs/heartbeat_v136_20261005T203253Z/round_1_seed_8159",
+  "raw_white_detections": [
+    {
+      "source": "perception_typhoon_h480_4.csv",
+      "stamp": 1950.272,
+      "raw_xy": [
+        -25.357919954422584,
+        12.916556193782892
+      ],
+      "person_verified": "False",
+      "truth_xy": [
+        51.02992265243181,
+        -38.31307860393984
+      ],
+      "error_m": 91.97596414084282
+    },
+    {
+      "source": "perception_typhoon_h480_4.csv",
+      "stamp": 1951.352,
+      "raw_xy": [
+        -26.609518117103793,
+        13.468151727949571
+      ],
+      "person_verified": "False",
+      "truth_xy": [
+        50.245409160719625,
+        -37.56755203589744
+      ],
+      "error_m": 92.25683121346991
+    },
+    {
+      "source": "perception_typhoon_h480_4.csv",
+      "stamp": 1956.408,
+      "raw_xy": [
+        -25.877872281747926,
+        13.01480598691262
+      ],
+      "person_verified": "False",
+      "truth_xy": [
+        46.582468708418006,
+        -34.08664386389833
+      ],
+      "error_m": 86.42365182321088
+    },
+    {
+      "source": "perception_typhoon_h480_4.csv",
+      "stamp": 2319.512,
+      "raw_xy": [
+        46.31217020560201,
+        63.04292799062467
+      ],
+      "person_verified": "False",
+      "truth_xy": [
+        46.61552984290132,
+        -35.07954447869671
+      ],
+      "error_m": 98.1229414080228
+    },
+    {
+      "source": "perception_typhoon_h480_2.csv",
+      "stamp": 2124.76,
+      "raw_xy": [
+        -24.5209733248064,
+        -35.12213556053508
+      ],
+      "person_verified": "False",
+      "truth_xy": [
+        54.46877940779467,
+        -38.23268967786312
+      ],
+      "error_m": 79.05097459028752
+    },
+    {
+      "source": "perception_typhoon_h480_3.csv",
+      "stamp": 2059.636,
+      "raw_xy": [
+        42.43432067584394,
+        -31.02069264475518
+      ],
+      "person_verified": "True",
+      "truth_xy": [
+        44.50952164329037,
+        -35.33297847021461
+      ],
+      "error_m": 4.785631420800074
+    },
+    {
+      "source": "perception_typhoon_h480_3.csv",
+      "stamp": 2059.944,
+      "raw_xy": [
+        42.39180201543631,
+        -30.999797449273583
+      ],
+      "person_verified": "True",
+      "truth_xy": [
+        44.50952164329037,
+        -35.33297847021461
+      ],
+      "error_m": 4.822986023454959
+    },
+    {
+      "source": "perception_typhoon_h480_3.csv",
+      "stamp": 2099.856,
+      "raw_xy": [
+        38.055358616772864,
+        -27.417569471812527
+      ],
+      "person_verified": "True",
+      "truth_xy": [
+        37.63808431697417,
+        -26.628989331976772
+      ],
+      "error_m": 0.8921751387568851
+    },
+    {
+      "source": "perception_typhoon_h480_3.csv",
+      "stamp": 2114.768,
+      "raw_xy": [
+        51.63169119814054,
+        8.42871568344614
+      ],
+      "person_verified": "False",
+      "truth_xy": [
+        45.4500126123505,
+        -38.192320721481856
+      ],
+      "error_m": 47.029078085878275
+    },
+    {
+      "source": "perception_typhoon_h480_3.csv",
+      "stamp": 2121.26,
+      "raw_xy": [
+        49.949573362354755,
+        -35.19446860138386
+      ],
+      "person_verified": "True",
+      "truth_xy": [
+        50.9628462752568,
+        -38.21699674944869
+      ],
+      "error_m": 3.187851690694723
+    },
+    {
+      "source": "perception_typhoon_h480_3.csv",
+      "stamp": 2425.348,
+      "raw_xy": [
+        82.94928659707384,
+        17.782207560387654
+      ],
+      "person_verified": "False",
+      "truth_xy": [
+        24.781073361016965,
+        20.685269042621268
+      ],
+      "error_m": 58.24061123515969
+    }
+  ],
+  "notes": [
+    "comparison only diagnosis; image contents unavailable for v136 white",
+    "exclude truth bracket gap>.2/jump>max(.5,3dt)",
+    "no accepted white original observation existed"
+  ]
+}

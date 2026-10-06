@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "control_input": false,
+  "official_judge_executed": false,
+  "source_sha256": {
+    "observe_visual_accuracy.py": "9b53081aafd51a8e39377ead0d670c71b72e2b2025fe4abfb9e12b14ff9457b5",
+    "capture_visual_frames.py": "0a4a5bdc96e6d6bfdff0a100c7be2becef5116ddb6d1a47d0e5202196765bb41",
+    "rejected_white_frame_readonly.py": "315fed5b9ff94f706d4545d6872b38c8fc68f9328a9038a0407e514616981c3c",
+    "route_broadcast_readonly.py": "303bab7e473494221857cbcf6c769b3cb3a4499ff53bc0850f613d74b415e5ce"
+  },
+  "observers": [
+    {
+      "tag": "green",
+      "pid": 3972,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "green",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T02:04:52Z"
+    },
+    {
+      "tag": "blue",
+      "pid": 3973,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "blue",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T02:04:52Z"
+    },
+    {
+      "tag": "brown",
+      "pid": 3974,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "brown",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T02:04:52Z"
+    },
+    {
+      "tag": "white",
+      "pid": 3975,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "white",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T02:04:52Z"
+    },
+    {
+      "tag": "red",
+      "pid": 3976,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "red",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T02:04:52Z"
+    },
+    {
+      "tag": "frames",
+      "pid": 3977,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/capture_visual_frames.py",
+        "--output",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/visual_frames",
+        "--wall-seconds",
+        "6000",
+        "--limit-per-tag",
+        "48"
+      ],
+      "started_utc": "2026-10-06T02:04:52Z"
+    },
+    {
+      "tag": "white_originals",
+      "pid": 15685,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/rejected_white_frame_readonly.py"
+      ],
+      "started_utc": "2026-10-06T02:06:54Z"
+    },
+    {
+      "tag": "route_broadcast",
+      "pid": 49512,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/route_broadcast_readonly.py"
+      ],
+      "started_utc": "2026-10-06T02:14:35Z"
+    }
+  ],
+  "limits": [
+    "truth interpolation must exclude jump/gap; receipt times are not judge timers",
+    "PNG48/tag only accepted actual frames; no complete rejected-white image coverage",
+    "actor/body truth never goes to control",
+    "white raw-detection-only capture96 cap, exact header match, missing original explicitly logged; no additional inference/control",
+    "route snapshots start after flight startup; recording receipt differs from actual agent callback receipt"
+  ]
+}

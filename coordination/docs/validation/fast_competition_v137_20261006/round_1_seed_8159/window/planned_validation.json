@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "automation_id": "3",
+  "actual_wakeup_utc": "2026-10-06T02:02:28.847Z",
+  "maximum_physical_attempts": 1,
+  "seed": 8159,
+  "sim_limit_s": 600,
+  "expected_commit": "f5b20efe41d44769591b011d85f5581bf6fe9202",
+  "control_input_truth": false,
+  "validation_questions": [
+    "retained same-generation braking cache actually applied",
+    "four-meter guide and stop-go command utilization",
+    "remaining blue/brown/white continuous confirmation and actual judge result"
+  ],
+  "stop_on": [
+    "all6 eliminated",
+    "building contact",
+    "base service failure",
+    "proved new blocker and no remaining useful experiment"
+  ],
+  "original_harness_authorization_label_is_legacy": true,
+  "expected_guardrails": [
+    "same shared GPU and WSL memory",
+    "local cruise2.2 and independent realheight",
+    "task2 route1 visual2 metadata2",
+    "no global cleanup no other task interference",
+    "no new physical attempt this wake"
+  ]
+}

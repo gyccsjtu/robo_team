@@ -1,0 +1,207 @@
+{
+  "scope": "hypothesis only; unique raw per original frame joins, ambiguous retains old, observed callback schedule approximate; no entity movement or judge replay",
+  "colors": {
+    "green": {
+      "raw_join": {
+        "unique_original": 69
+      },
+      "old": {
+        "total": 202,
+        "aligned": 201,
+        "under1": 201,
+        "mean": 0.2994275909966205,
+        "max": 0.8862055393464255,
+        "longest": [
+          [
+            2033.436,
+            2047.636,
+            14.200000000000045
+          ]
+        ]
+      },
+      "actual_raw_coordinates_candidate": {
+        "total": 202,
+        "aligned": 201,
+        "under1": 198,
+        "mean": 0.31699076537180826,
+        "max": 1.0753878669924535,
+        "longest": [
+          [
+            2033.436,
+            2047.636,
+            14.200000000000045
+          ],
+          [
+            1962.136,
+            1962.736,
+            0.6000000000001364
+          ]
+        ]
+      },
+      "replay_difference_median": 0.0004048936544743213,
+      "replay_difference_max": 0.004189947917594899
+    },
+    "blue": {
+      "raw_join": {
+        "unique_original": 107,
+        "unresolved_original": 6
+      },
+      "old": {
+        "total": 220,
+        "aligned": 218,
+        "under1": 185,
+        "mean": 9.900377861696416,
+        "max": 87.19084563234043,
+        "longest": [
+          [
+            2073.636,
+            2088.536,
+            14.900000000000091
+          ],
+          [
+            2069.236,
+            2072.436,
+            3.200000000000273
+          ],
+          [
+            2072.636,
+            2072.736,
+            0.09999999999990905
+          ]
+        ]
+      },
+      "actual_raw_coordinates_candidate": {
+        "total": 220,
+        "aligned": 218,
+        "under1": 189,
+        "mean": 9.822306559438926,
+        "max": 86.67603443715433,
+        "longest": [
+          [
+            2073.636,
+            2088.536,
+            14.900000000000091
+          ],
+          [
+            2069.236,
+            2073.036,
+            3.800000000000182
+          ]
+        ]
+      },
+      "replay_difference_median": 0.00041101256487027435,
+      "replay_difference_max": 0.004017305024410477
+    },
+    "brown": {
+      "raw_join": {
+        "unique_original": 259,
+        "unresolved_original": 5
+      },
+      "old": {
+        "total": 579,
+        "aligned": 577,
+        "under1": 526,
+        "mean": 3.5371582016960117,
+        "max": 72.6001417247703,
+        "longest": [
+          [
+            2085.536,
+            2097.536,
+            12.0
+          ],
+          [
+            2074.436,
+            2084.736,
+            10.299999999999727
+          ],
+          [
+            2187.236,
+            2197.436,
+            10.200000000000273
+          ],
+          [
+            2177.536,
+            2186.736,
+            9.199999999999818
+          ],
+          [
+            2169.536,
+            2176.836,
+            7.299999999999727
+          ]
+        ]
+      },
+      "actual_raw_coordinates_candidate": {
+        "total": 579,
+        "aligned": 577,
+        "under1": 527,
+        "mean": 3.5399653914286615,
+        "max": 72.62186724862572,
+        "longest": [
+          [
+            2085.536,
+            2097.536,
+            12.0
+          ],
+          [
+            2074.436,
+            2084.936,
+            10.5
+          ],
+          [
+            2187.236,
+            2197.436,
+            10.200000000000273
+          ],
+          [
+            2177.236,
+            2187.036,
+            9.800000000000182
+          ],
+          [
+            2169.536,
+            2176.436,
+            6.900000000000091
+          ]
+        ]
+      },
+      "replay_difference_median": 0.0003990209742798218,
+      "replay_difference_max": 0.004876005193969651
+    },
+    "white": {
+      "raw_join": {
+        "unique_original": 15
+      },
+      "old": {
+        "total": 47,
+        "aligned": 47,
+        "under1": 47,
+        "mean": 0.20325514634192962,
+        "max": 0.555592381067593,
+        "longest": [
+          [
+            2178.736,
+            2183.336,
+            4.599999999999909
+          ]
+        ]
+      },
+      "actual_raw_coordinates_candidate": {
+        "total": 47,
+        "aligned": 47,
+        "under1": 47,
+        "mean": 0.25317817204765874,
+        "max": 0.6241724642365718,
+        "longest": [
+          [
+            2178.736,
+            2183.336,
+            4.599999999999909
+          ]
+        ]
+      },
+      "replay_difference_median": 0.0004677969044948142,
+      "replay_difference_max": 0.0006601778828913978
+    }
+  }
+}

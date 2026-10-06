@@ -1,0 +1,24 @@
+actor_0: communication initialized
+model_state: 
+  model_name: "actor_0"
+  pose: 
+    position: 
+      x: 81
+      y: 3
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+actor_0 has been deleted

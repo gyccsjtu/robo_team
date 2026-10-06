@@ -1,0 +1,64 @@
+{
+  "candidate_revision": "v1.38",
+  "previous_actual_commit": "f5b20efe41d44769591b011d85f5581bf6fe9202",
+  "candidate_physical_run": false,
+  "final_unittest_count": 597,
+  "syntax_files_checked": 9,
+  "files": {
+    "coordination/scripts/capture_visual_frames.py": {
+      "working_sha256": "6d7b2d9c5377d58fcb82a688771b29fa56e6b26707f6219d36d9bb35ae1a0bb0",
+      "working_crlf_count": 0,
+      "bytes": 6467,
+      "git_normalized_sha256": "6d7b2d9c5377d58fcb82a688771b29fa56e6b26707f6219d36d9bb35ae1a0bb0"
+    },
+    "coordination/scripts/city_swarm_run.py": {
+      "working_sha256": "b288ac7287884f87b47796ea66124ccbaf4562dd3f1e32f7a1e41a0bd273acd1",
+      "working_crlf_count": 0,
+      "bytes": 25025,
+      "git_normalized_sha256": "b288ac7287884f87b47796ea66124ccbaf4562dd3f1e32f7a1e41a0bd273acd1"
+    },
+    "coordination/scripts/observe_visual_accuracy.py": {
+      "working_sha256": "76303cd91e4c7f3654ef834708820c066e5a3f5828c7d2703d3b52f0bade8633",
+      "working_crlf_count": 0,
+      "bytes": 5928,
+      "git_normalized_sha256": "76303cd91e4c7f3654ef834708820c066e5a3f5828c7d2703d3b52f0bade8633"
+    },
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": {
+      "working_sha256": "121f22307428877f40e007a993e42d0fd74fadfd4002f1c747a1965ba52db48e",
+      "working_crlf_count": 1825,
+      "bytes": 166354,
+      "git_normalized_sha256": "9ad3d7dc76dabf4381eb9ffea99856c994c4200a5a3080514678f3833c51d078"
+    },
+    "coordination/src/robocup_swarm/scripts/orbit_geometry.py": {
+      "working_sha256": "07b2f0f75d0d3d546b4aeec7614d6fbda76decc86ca1ebc59c8045248a975573",
+      "working_crlf_count": 0,
+      "bytes": 2050,
+      "git_normalized_sha256": "07b2f0f75d0d3d546b4aeec7614d6fbda76decc86ca1ebc59c8045248a975573"
+    },
+    "coordination/tests/test_reserved_orbit.py": {
+      "working_sha256": "e39f123ee943ae1d7cf0b3639f4854be03cfb86942f73515daaad7299d06822b",
+      "working_crlf_count": 0,
+      "bytes": 4320,
+      "git_normalized_sha256": "e39f123ee943ae1d7cf0b3639f4854be03cfb86942f73515daaad7299d06822b"
+    },
+    "coordination/tests/test_visual_accuracy_observer.py": {
+      "working_sha256": "501b0686e68412fe66e4c65d51d51d922115e8e1cc9f2c0be392a0229765e19a",
+      "working_crlf_count": 0,
+      "bytes": 3275,
+      "git_normalized_sha256": "501b0686e68412fe66e4c65d51d51d922115e8e1cc9f2c0be392a0229765e19a"
+    },
+    "coordination/tests/test_orbit_geometry.py": {
+      "working_sha256": "9df0ac411816011d37a524f532e9a91834793d309320d9c3bfe93f9d3511d270",
+      "working_crlf_count": 0,
+      "bytes": 7363,
+      "git_normalized_sha256": "9df0ac411816011d37a524f532e9a91834793d309320d9c3bfe93f9d3511d270"
+    },
+    "coordination/tests/test_visual_gap_capture.py": {
+      "working_sha256": "83b4a4e649117bc528bbabdc46fa82f6f2807e02e21c10948c43032be8ee40fc",
+      "working_crlf_count": 0,
+      "bytes": 2883,
+      "git_normalized_sha256": "83b4a4e649117bc528bbabdc46fa82f6f2807e02e21c10948c43032be8ee40fc"
+    }
+  },
+  "line_ending_note": "Candidate swarm_agent working copy includes CRLF inherited from previous code; Git autocrlf normalizes to LF. Both working and normalized SHA preserved. Archived executed source remains -text and byte-exact."
+}

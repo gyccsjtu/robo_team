@@ -1,0 +1,370 @@
+[INFO] [1791252293.681807, 0.000000]: swarm_manager 启动，机队: ['uav_1', 'uav_2', 'uav_3', 'uav_4', 'uav_5', 'uav_6']
+[INFO] [1791252293.687507, 0.000000]: [manager] 搜索栅格边界 x[-50,130] y[-60,60]（元数据）
+[INFO] [1791252293.691003, 0.000000]: [manager] Online mode: metadata bounds only, no stored obstacle or LOS prior
+[INFO] [1791252293.772401, 0.000000]: [manager] 集群管理器启动，机队: ['uav_1', 'uav_2', 'uav_3', 'uav_4', 'uav_5', 'uav_6']
+[WARN] [1791252294.405302, 1930.860000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791252296.086658, 1931.132000]: [manager] 官方剩余 actor: [0, 1, 2, 3, 4, 5]
+[WARN] [1791252326.252504, 1935.960000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791252358.136083, 1941.060000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791252366.315832, 1942.368000]: [manager] 分配 uav_1 → 格 (2,4) 飞行距离 41.3m 租约 30.7s
+[INFO] [1791252366.321366, 1942.368000]: [manager] 分配 uav_1 → 格 (2,4) 中心 (-32.5,-28.5)
+[INFO] [1791252366.323579, 1942.368000]: [manager] 分配 uav_2 → 格 (4,2) 飞行距离 45.0m 租约 32.5s
+[INFO] [1791252366.327660, 1942.368000]: [manager] 分配 uav_2 → 格 (4,2) 中心 (-18.5,-42.5)
+[INFO] [1791252366.329387, 1942.368000]: [manager] 分配 uav_3 → 格 (0,4) 飞行距离 54.6m 租约 37.3s
+[INFO] [1791252366.335560, 1942.368000]: [manager] 分配 uav_3 → 格 (0,4) 中心 (-46.5,-28.5)
+[INFO] [1791252366.337653, 1942.368000]: [manager] 分配 uav_4 → 格 (15,12) 飞行距离 61.9m 租约 41.0s
+[INFO] [1791252366.343192, 1942.372000]: [manager] 分配 uav_4 → 格 (15,12) 中心 (58.5,27.5)
+[INFO] [1791252366.345294, 1942.372000]: [manager] 分配 uav_5 → 格 (0,14) 飞行距离 60.4m 租约 40.2s
+[INFO] [1791252366.349264, 1942.372000]: [manager] 分配 uav_5 → 格 (0,14) 中心 (-46.5,41.5)
+[INFO] [1791252366.350461, 1942.372000]: [manager] 分配 uav_6 → 格 (13,14) 飞行距离 56.6m 租约 38.3s
+[INFO] [1791252366.353621, 1942.372000]: [manager] 分配 uav_6 → 格 (13,14) 中心 (44.5,41.5)
+[INFO] [1791252489.449321, 1962.064000]: [manager] 发现新目标 t0 @ (31.5, 18.2)，由 uav_4 首次检测
+[INFO] [1791252489.453134, 1962.064000]: [manager] Camera/search tracker uav_4 selected for t0
+[INFO] [1791252489.459588, 1962.064000]: [ALGO] dispatch target=t0 pos=(31.51,18.22) | uav=uav_4 pos=(17.27,3.37) | dist=20.577m | detect_radius=20.0m | is_captured=False | flight_time_est=6.9s
+[INFO] [1791252489.461477, 1962.064000]: [manager] 派遣 uav_4 追踪目标 t0 @ (31.5, 18.2), 距离 20.6m
+[INFO] [1791252489.898997, 1962.136000]: [manager] 官方首次发现 t0 → 规则4 计时起点对齐 1962.1
+[INFO] [1791252502.568790, 1964.160000]: [manager] 目标 t0 确认进度 7% (confirm_since=1.0s, resets=0, rejects=0, observers=uav_4)
+[INFO] [1791252506.558726, 1964.800000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=1 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791252513.204396, 1965.860000]: [manager] 分配 uav_3 → 格 (2,8) 飞行距离 31.5m 租约 25.8s
+[INFO] [1791252513.209253, 1965.864000]: [manager] 分配 uav_3 → 格 (2,8) 中心 (-32.5,-0.5)
+[INFO] [1791252538.299028, 1969.872000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=1 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791252545.727127, 1971.064000]: [manager] 分配 uav_1 → 格 (2,5) 飞行距离 35.8m 租约 27.9s
+[INFO] [1791252545.731660, 1971.064000]: [manager] 分配 uav_1 → 格 (2,5) 中心 (-32.5,-21.5)
+[INFO] [1791252568.215970, 1974.660000]: [manager] 目标 t0 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791252568.235237, 1974.664000]: [manager] 分配 uav_4 → 格 (5,4) 飞行距离 43.7m 租约 31.9s
+[INFO] [1791252568.240514, 1974.664000]: [manager] 分配 uav_4 → 格 (5,4) 中心 (-11.5,-28.5)
+[INFO] [1791252583.542302, 1977.112000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=2 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791252590.734716, 1978.264000]: [manager] 分配 uav_1 → 格 (1,5) 飞行距离 42.0m 租约 31.0s
+[INFO] [1791252590.738823, 1978.264000]: [manager] 分配 uav_1 → 格 (1,5) 中心 (-39.5,-21.5)
+[INFO] [1791252633.524314, 1985.104000]: [manager] 发现新目标 t1 @ (-26.7, 13.2)，由 uav_3 首次检测
+[INFO] [1791252633.526695, 1985.104000]: [manager] Camera/search tracker uav_3 selected for t1
+[INFO] [1791252633.530982, 1985.104000]: [ALGO] dispatch target=t1 pos=(-26.67,13.22) | uav=uav_3 pos=(-15.82,-1.11) | dist=17.978m | detect_radius=20.0m | is_captured=False | flight_time_est=6.0s
+[INFO] [1791252633.533653, 1985.104000]: [manager] 派遣 uav_3 追踪目标 t1 @ (-26.7, 13.2), 距离 18.0m
+[INFO] [1791252683.260446, 1993.060000]: [manager] 目标 t1 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791252683.279967, 1993.064000]: [manager] 分配 uav_3 → 格 (4,8) 飞行距离 2.5m 租约 11.3s
+[INFO] [1791252683.291010, 1993.064000]: [manager] 分配 uav_3 → 格 (4,8) 中心 (-18.5,-0.5)
+[INFO] [1791252721.021188, 1999.096000]: [manager] Camera/search tracker uav_3 selected for t1
+[INFO] [1791252721.030081, 1999.100000]: [ALGO] dispatch target=t1 pos=(-26.87,13.53) | uav=uav_3 pos=(-17.89,-0.65) | dist=16.786m | detect_radius=20.0m | is_captured=False | flight_time_est=5.6s
+[INFO] [1791252721.032758, 1999.100000]: [manager] 派遣 uav_3 追踪目标 t1 @ (-26.9, 13.5), 距离 16.8m
+[INFO] [1791252773.937641, 2007.564000]: [manager] 目标 t1 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791252773.956651, 2007.564000]: [manager] 分配 uav_3 → 格 (6,7) 飞行距离 14.8m 租约 17.4s
+[INFO] [1791252773.965291, 2007.568000]: [manager] 分配 uav_3 → 格 (6,7) 中心 (-4.5,-7.5)
+[INFO] [1791252890.771120, 2026.248000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=3 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791252897.762419, 2027.364000]: [manager] 分配 uav_2 → 格 (3,2) 飞行距离 7.2m 租约 13.6s
+[INFO] [1791252897.772177, 2027.364000]: [manager] 分配 uav_2 → 格 (3,2) 中心 (-25.5,-42.5)
+[INFO] [1791252905.804879, 2028.652000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=6 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791252912.757020, 2029.764000]: [manager] 分配 uav_3 → 格 (4,8) 飞行距离 15.3m 租约 17.6s
+[INFO] [1791252912.767174, 2029.764000]: [manager] 分配 uav_3 → 格 (4,8) 中心 (-18.5,-0.5)
+[INFO] [1791252935.342127, 2033.372000]: [manager] Camera/search tracker uav_6 selected for t0
+[INFO] [1791252935.348585, 2033.372000]: [ALGO] dispatch target=t0 pos=(45.44,22.46) | uav=uav_6 pos=(33.29,15.60) | dist=13.950m | detect_radius=20.0m | is_captured=False | flight_time_est=4.6s
+[INFO] [1791252935.352033, 2033.376000]: [manager] 派遣 uav_6 追踪目标 t0 @ (45.4, 22.5), 距离 13.9m
+[INFO] [1791252936.346531, 2033.536000]: [manager] 官方首次发现 t0 → 规则4 计时起点对齐 2033.5
+[INFO] [1791252942.772289, 2034.560000]: [manager] 目标 t0 确认进度 7% (confirm_since=1.0s, resets=2, rejects=0, observers=uav_4,uav_6)
+[INFO] [1791252952.422013, 2036.104000]: [manager] 发现新目标 t5 @ (37.6, 18.7)，由 uav_6 首次检测
+[INFO] [1791252952.424747, 2036.104000]: [manager] Camera/search tracker uav_3 selected for t5
+[INFO] [1791252952.432800, 2036.104000]: [ALGO] dispatch target=t5 pos=(37.61,18.74) | uav=uav_3 pos=(-9.06,-4.69) | dist=52.220m | detect_radius=20.0m | is_captured=False | flight_time_est=17.4s
+[INFO] [1791252952.434659, 2036.104000]: [manager] 派遣 uav_3 追踪目标 t5 @ (37.6, 18.7), 距离 52.2m
+[INFO] [1791252952.608431, 2036.136000]: [manager] 官方首次发现 t4 → 规则4 计时起点对齐 2036.1
+[INFO] [1791252955.903893, 2036.664000]: [manager] 目标 t0 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791252958.647772, 2037.100000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=4 view=0 outcome=OBSERVED finished=True mask=2
+[INFO] [1791252965.908848, 2038.260000]: [manager] 分配 uav_2 → 格 (3,5) 飞行距离 20.8m 租约 20.4s
+[INFO] [1791252965.918363, 2038.264000]: [manager] 分配 uav_2 → 格 (3,5) 中心 (-25.5,-21.5)
+[INFO] [1791252971.377178, 2039.136000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=3 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791252974.788376, 2039.684000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=4 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791252976.523489, 2039.960000]: [manager] 目标 t5 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791252978.407266, 2040.264000]: [manager] 分配 uav_5 → 格 (2,13) 飞行距离 15.4m 租约 17.7s
+[INFO] [1791252978.410926, 2040.264000]: [manager] 分配 uav_5 → 格 (2,13) 中心 (-32.5,34.5)
+[INFO] [1791252982.203944, 2040.868000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=4 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791252982.773690, 2040.960000]: [manager] 目标 t0 确认进度 7% (confirm_since=1.0s, resets=4, rejects=2, observers=uav_4,uav_6)
+[INFO] [1791252990.921578, 2042.264000]: [manager] 分配 uav_1 → 格 (0,12) 飞行距离 48.7m 租约 34.4s
+[INFO] [1791252990.928284, 2042.264000]: [manager] 分配 uav_1 → 格 (0,12) 中心 (-46.5,27.5)
+[INFO] [1791252990.931432, 2042.264000]: [manager] 分配 uav_4 → 格 (9,3) 飞行距离 29.0m 租约 24.5s
+[INFO] [1791252990.936486, 2042.264000]: [manager] 分配 uav_4 → 格 (9,3) 中心 (16.5,-35.5)
+[INFO] [1791253002.164287, 2044.064000]: [manager] 目标 t0 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253022.811112, 2047.364000]: [manager] 目标 t5 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791253022.835652, 2047.364000]: [manager] 分配 uav_3 → 格 (4,8) 飞行距离 11.3m 租约 15.7s
+[INFO] [1791253022.840832, 2047.368000]: [manager] 分配 uav_3 → 格 (4,8) 中心 (-18.5,-0.5)
+[INFO] [1791253029.675255, 2048.464000]: [manager] 目标 t0 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253030.958093, 2048.644000]: [manager] 官方剩余 actor: [1, 2, 3, 4, 5]
+[INFO] [1791253030.960431, 2048.644000]: [manager] 官方已消除 t0；追踪授权已封禁，请求 uav_6 停稳后重新分配搜索（备份 None）
+[INFO] [1791253036.102751, 2049.464000]: [manager] 分配 uav_6 → 格 (11,12) 飞行距离 7.9m 租约 14.0s
+[INFO] [1791253036.109691, 2049.464000]: [manager] 分配 uav_6 → 格 (11,12) 中心 (30.5,27.5)
+[INFO] [1791253103.788305, 2060.292000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=4 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791253111.132468, 2061.464000]: [manager] 分配 uav_5 → 格 (4,12) 飞行距离 16.0m 租约 18.0s
+[INFO] [1791253111.140349, 2061.464000]: [manager] 分配 uav_5 → 格 (4,12) 中心 (-18.5,27.5)
+[INFO] [1791253129.466243, 2064.396000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=5 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791253133.278242, 2065.008000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=9 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791253136.132086, 2065.464000]: [manager] 分配 uav_6 → 格 (13,11) 飞行距离 15.3m 租约 17.7s
+[INFO] [1791253136.139811, 2065.464000]: [manager] 分配 uav_6 → 格 (13,11) 中心 (44.5,20.5)
+[INFO] [1791253149.269140, 2067.564000]: [manager] 分配 uav_3 → 格 (6,10) 飞行距离 19.8m 租约 19.9s
+[INFO] [1791253149.276263, 2067.564000]: [manager] 分配 uav_3 → 格 (6,10) 中心 (-4.5,13.5)
+[INFO] [1791253149.279460, 2067.564000]: [manager] 发现新目标 t2 @ (-19.9, 41.9)，由 uav_5 首次检测
+[INFO] [1791253149.281488, 2067.564000]: [manager] Camera/search tracker uav_5 selected for t2
+[INFO] [1791253149.287826, 2067.568000]: [ALGO] dispatch target=t2 pos=(-19.85,41.89) | uav=uav_5 pos=(-26.30,35.01) | dist=9.434m | detect_radius=20.0m | is_captured=False | flight_time_est=3.1s
+[INFO] [1791253149.290138, 2067.568000]: [manager] 派遣 uav_5 追踪目标 t2 @ (-19.9, 41.9), 距离 9.4m
+[INFO] [1791253149.704122, 2067.636000]: [manager] 官方首次发现 t2 → 规则4 计时起点对齐 2067.6
+[INFO] [1791253159.356481, 2069.180000]: [manager] Camera/search tracker uav_4 selected for t1
+[INFO] [1791253159.360488, 2069.180000]: [ALGO] dispatch target=t1 pos=(25.55,-45.99) | uav=uav_4 pos=(11.54,-37.91) | dist=16.177m | detect_radius=20.0m | is_captured=False | flight_time_est=5.4s
+[INFO] [1791253159.361626, 2069.180000]: [manager] 派遣 uav_4 追踪目标 t1 @ (25.6, -46.0), 距离 16.2m
+[INFO] [1791253159.700348, 2069.236000]: [manager] 官方首次发现 t1 → 规则4 计时起点对齐 2069.2
+[INFO] [1791253172.371094, 2071.260000]: [manager] 目标 t1 确认进度 7% (confirm_since=1.0s, resets=2, rejects=0, observers=uav_3,uav_4)
+[INFO] [1791253179.264433, 2072.364000]: [manager] 目标 t1 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253187.205116, 2073.636000]: [manager] 官方首次发现 t1 → 规则4 计时起点对齐 2073.6
+[INFO] [1791253192.199145, 2074.436000]: [manager] 官方首次发现 t2 → 规则4 计时起点对齐 2074.4
+[INFO] [1791253199.252980, 2075.564000]: [manager] 目标 t1 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253212.375221, 2077.660000]: [manager] 目标 t1 确认进度 7% (confirm_since=1.0s, resets=4, rejects=2, observers=uav_3,uav_4)
+[INFO] [1791253219.263439, 2078.764000]: [manager] 目标 t1 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253246.775120, 2083.164000]: [manager] 目标 t1 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253261.613250, 2085.536000]: [manager] 官方首次发现 t2 → 规则4 计时起点对齐 2085.5
+[INFO] [1791253274.284761, 2087.564000]: [manager] 目标 t1 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253278.925608, 2088.304000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=6 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791253281.745485, 2088.740000]: [manager] 官方剩余 actor: [2, 3, 4, 5]
+[INFO] [1791253281.746834, 2088.740000]: [manager] 官方已消除 t1；追踪授权已封禁，请求 uav_4 停稳后重新分配搜索（备份 None）
+[INFO] [1791253281.907010, 2088.764000]: [manager] 分配 uav_4 → 格 (9,3) 飞行距离 6.9m 租约 13.5s
+[INFO] [1791253281.910940, 2088.764000]: [manager] 分配 uav_4 → 格 (9,3) 中心 (16.5,-35.5)
+[INFO] [1791253294.392388, 2090.764000]: [manager] 分配 uav_6 → 格 (15,10) 飞行距离 16.0m 租约 18.0s
+[INFO] [1791253294.398006, 2090.764000]: [manager] 分配 uav_6 → 格 (15,10) 中心 (58.5,13.5)
+[INFO] [1791253301.289736, 2091.864000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253314.034441, 2093.904000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=10 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791253321.297225, 2095.064000]: [manager] 分配 uav_3 → 格 (8,9) 飞行距离 15.2m 租约 17.6s
+[INFO] [1791253321.304554, 2095.064000]: [manager] 分配 uav_3 → 格 (8,9) 中心 (9.5,6.5)
+[INFO] [1791253328.769329, 2096.264000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253369.605867, 2102.792000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=7 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791253371.141266, 2103.036000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=7 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791253376.300343, 2103.860000]: [manager] 分配 uav_6 → 格 (13,8) 飞行距离 15.6m 租约 17.8s
+[INFO] [1791253376.306116, 2103.860000]: [manager] 分配 uav_6 → 格 (13,8) 中心 (44.5,-0.5)
+[INFO] [1791253388.155019, 2105.760000]: [manager] 目标 t2 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791253388.821921, 2105.864000]: [manager] 分配 uav_4 → 格 (11,2) 飞行距离 14.9m 租约 17.4s
+[INFO] [1791253388.826854, 2105.864000]: [manager] 分配 uav_4 → 格 (11,2) 中心 (30.5,-42.5)
+[INFO] [1791253388.828359, 2105.864000]: [manager] 分配 uav_5 → 格 (4,12) 飞行距离 9.5m 租约 14.8s
+[INFO] [1791253388.833414, 2105.864000]: [manager] 分配 uav_5 → 格 (4,12) 中心 (-18.5,27.5)
+[INFO] [1791253443.685676, 2114.644000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=7 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791253450.689269, 2115.764000]: [manager] 分配 uav_2 → 格 (5,7) 飞行距离 17.5m 租约 18.8s
+[INFO] [1791253450.694343, 2115.764000]: [manager] 分配 uav_2 → 格 (5,7) 中心 (-11.5,-7.5)
+[INFO] [1791253459.363662, 2117.152000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=11 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791253466.316135, 2118.264000]: [manager] 分配 uav_3 → 格 (10,11) 飞行距离 19.5m 租约 19.7s
+[INFO] [1791253466.321154, 2118.264000]: [manager] 分配 uav_3 → 格 (10,11) 中心 (23.5,20.5)
+[INFO] [1791253485.218399, 2121.288000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=8 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791253489.319128, 2121.944000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=8 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791253491.945878, 2122.364000]: [manager] 分配 uav_5 → 格 (6,14) 飞行距离 19.2m 租约 19.6s
+[INFO] [1791253491.950572, 2122.364000]: [manager] 分配 uav_5 → 格 (6,14) 中心 (-4.5,41.5)
+[INFO] [1791253504.453904, 2124.364000]: [manager] 分配 uav_6 → 格 (11,6) 飞行距离 20.3m 租约 20.2s
+[INFO] [1791253504.458394, 2124.364000]: [manager] 分配 uav_6 → 格 (11,6) 中心 (30.5,-14.5)
+[INFO] [1791253513.041380, 2125.736000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=8 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791253520.075856, 2126.864000]: [manager] 分配 uav_4 → 格 (13,4) 飞行距离 19.2m 租约 19.6s
+[INFO] [1791253520.080379, 2126.864000]: [manager] 分配 uav_4 → 格 (13,4) 中心 (44.5,-28.5)
+[INFO] [1791253528.289779, 2128.176000]: [manager] Camera/search tracker uav_4 selected for t5
+[INFO] [1791253528.296684, 2128.180000]: [ALGO] dispatch target=t5 pos=(41.23,-35.28) | uav=uav_4 pos=(30.82,-41.75) | dist=12.262m | detect_radius=20.0m | is_captured=False | flight_time_est=4.1s
+[INFO] [1791253528.298512, 2128.180000]: [manager] 派遣 uav_4 追踪目标 t5 @ (41.2, -35.3), 距离 12.3m
+[INFO] [1791253529.270229, 2128.336000]: [manager] 官方首次发现 t4 → 规则4 计时起点对齐 2128.3
+[INFO] [1791253532.262643, 2128.812000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=7 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791253539.458646, 2129.964000]: [manager] 分配 uav_1 → 格 (2,11) 飞行距离 15.4m 租约 17.7s
+[INFO] [1791253539.462821, 2129.964000]: [manager] 分配 uav_1 → 格 (2,11) 中心 (-32.5,20.5)
+[INFO] [1791253540.070787, 2130.060000]: [manager] 目标 t5 确认进度 7% (confirm_since=1.0s, resets=2, rejects=2, observers=uav_4,uav_6)
+[INFO] [1791253578.209608, 2136.164000]: [manager] 目标 t5 确认进度 7% (confirm_since=1.0s, resets=3, rejects=2, observers=uav_4,uav_6)
+[INFO] [1791253585.096129, 2137.264000]: [manager] 目标 t5 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253588.753368, 2137.848000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=8 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791253595.722926, 2138.964000]: [manager] 分配 uav_2 → 格 (7,9) 飞行距离 20.4m 租约 20.2s
+[INFO] [1791253595.727940, 2138.964000]: [manager] 分配 uav_2 → 格 (7,9) 中心 (2.5,6.5)
+[WARN] [1791253608.207828, 2140.960000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[INFO] [1791253611.974756, 2141.564000]: [manager] 目标 t5 确认进度 7% (confirm_since=1.0s, resets=5, rejects=4, observers=uav_4,uav_6)
+[INFO] [1791253618.850586, 2142.664000]: [manager] 目标 t5 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253623.597229, 2143.400000]: [manager] 官方剩余 actor: [2, 3, 5]
+[INFO] [1791253637.366757, 2145.604000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=12 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791253645.427418, 2146.892000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=9 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791253648.991105, 2147.464000]: [manager] 分配 uav_3 → 格 (8,12) 飞行距离 15.9m 租约 18.0s
+[INFO] [1791253648.995920, 2147.464000]: [manager] 分配 uav_3 → 格 (8,12) 中心 (9.5,27.5)
+[INFO] [1791253661.493727, 2149.464000]: [manager] 分配 uav_5 → 格 (8,13) 飞行距离 15.4m 租约 17.7s
+[INFO] [1791253661.498517, 2149.464000]: [manager] 分配 uav_5 → 格 (8,13) 中心 (9.5,34.5)
+[INFO] [1791253675.441662, 2151.692000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=9 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791253676.484504, 2151.860000]: [manager] 目标 t5 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791253676.509195, 2151.864000]: [manager] 分配 uav_4 → 格 (9,0) 飞行距离 13.0m 租约 16.5s
+[INFO] [1791253676.515207, 2151.864000]: [manager] 分配 uav_4 → 格 (9,0) 中心 (16.5,-56.5)
+[INFO] [1791253689.051839, 2153.868000]: [manager] 分配 uav_6 → 格 (11,3) 飞行距离 21.7m 租约 20.8s
+[INFO] [1791253689.058471, 2153.868000]: [manager] 分配 uav_6 → 格 (11,3) 中心 (30.5,-35.5)
+[INFO] [1791253770.175723, 2166.848000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=9 view=0 outcome=OBSERVED finished=True mask=20
+[INFO] [1791253774.261955, 2167.500000]: [manager] Camera/search tracker uav_3 selected for t2
+[INFO] [1791253774.272021, 2167.504000]: [ALGO] dispatch target=t2 pos=(22.04,31.09) | uav=uav_3 pos=(13.45,25.46) | dist=10.269m | detect_radius=20.0m | is_captured=False | flight_time_est=3.4s
+[INFO] [1791253774.274802, 2167.504000]: [manager] 派遣 uav_3 追踪目标 t2 @ (22.0, 31.1), 距离 10.3m
+[INFO] [1791253774.470176, 2167.536000]: [manager] 官方首次发现 t2 → 规则4 计时起点对齐 2167.5
+[INFO] [1791253779.024228, 2168.264000]: [manager] 分配 uav_2 → 格 (7,8) 飞行距离 6.3m 租约 13.1s
+[INFO] [1791253779.029737, 2168.264000]: [manager] 分配 uav_2 → 格 (7,8) 中心 (2.5,-0.5)
+[INFO] [1791253784.631227, 2169.160000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253786.976310, 2169.536000]: [manager] 官方首次发现 t2 → 规则4 计时起点对齐 2169.5
+[INFO] [1791253797.129138, 2171.160000]: [manager] 目标 t2 确认进度 7% (confirm_since=1.0s, resets=13, rejects=11, observers=uav_3,uav_5)
+[INFO] [1791253802.908910, 2172.084000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=11 view=0 outcome=OBSERVED finished=False mask=10
+[INFO] [1791253803.400873, 2172.164000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253830.268416, 2176.464000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253832.980093, 2176.896000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=10 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791253835.098555, 2177.236000]: [manager] 官方首次发现 t2 → 规则4 计时起点对齐 2177.2
+[INFO] [1791253836.973598, 2177.536000]: [manager] 官方首次发现 t2 → 规则4 计时起点对齐 2177.5
+[INFO] [1791253837.050989, 2177.548000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=10 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791253839.598663, 2177.952000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=10 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791253839.652889, 2177.960000]: [manager] 分配 uav_5 → 格 (10,15) 飞行距离 19.0m 租约 19.5s
+[INFO] [1791253839.658414, 2177.964000]: [manager] 分配 uav_5 → 格 (10,15) 中心 (23.5,48.5)
+[INFO] [1791253844.221764, 2178.692000]: [manager] 发现新目标 t3 @ (41.8, -36.4)，由 uav_6 首次检测
+[INFO] [1791253844.235455, 2178.692000]: [ALGO] dispatch target=t3 pos=(41.77,-36.43) | uav=uav_6 pos=(30.58,-34.69) | dist=11.328m | detect_radius=20.0m | is_captured=False | flight_time_est=3.8s
+[INFO] [1791253844.238987, 2178.696000]: [manager] 派遣 uav_6 追踪目标 t3 @ (41.8, -36.4), 距离 11.3m
+[INFO] [1791253844.481399, 2178.736000]: [manager] 官方首次发现 t3 → 规则4 计时起点对齐 2178.7
+[INFO] [1791253846.110229, 2178.996000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=11 view=1 outcome=OBSERVED finished=True mask=10
+[INFO] [1791253852.153780, 2179.960000]: [manager] 分配 uav_2 → 格 (6,8) 飞行距离 7.0m 租约 13.5s
+[INFO] [1791253852.159325, 2179.964000]: [manager] 分配 uav_2 → 格 (6,8) 中心 (-4.5,-0.5)
+[INFO] [1791253857.788592, 2180.864000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253864.667823, 2181.964000]: [manager] 分配 uav_4 → 格 (10,1) 飞行距离 7.4m 租约 13.7s
+[INFO] [1791253864.675131, 2181.964000]: [manager] 分配 uav_4 → 格 (10,1) 中心 (23.5,-49.5)
+[INFO] [1791253870.909366, 2182.960000]: [manager] 目标 t2 确认进度 7% (confirm_since=1.0s, resets=18, rejects=16, observers=uav_3,uav_5)
+[INFO] [1791253877.796609, 2184.064000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253895.739836, 2186.936000]: [manager] 官方首次发现 t2 → 规则4 计时起点对齐 2186.9
+[INFO] [1791253897.617309, 2187.236000]: [manager] 官方首次发现 t2 → 规则4 计时起点对齐 2187.2
+[INFO] [1791253905.308214, 2188.464000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253911.773448, 2189.500000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=11 view=0 outcome=OBSERVED finished=True mask=2
+[INFO] [1791253918.407716, 2190.560000]: [manager] 目标 t3 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791253918.416220, 2190.564000]: [manager] 目标 t2 确认进度 7% (confirm_since=1.0s, resets=21, rejects=19, observers=uav_3,uav_5)
+[INFO] [1791253918.444665, 2190.568000]: [manager] 分配 uav_6 → 格 (12,4) 飞行距离 6.9m 租约 13.4s
+[INFO] [1791253918.449268, 2190.568000]: [manager] 分配 uav_6 → 格 (12,4) 中心 (37.5,-28.5)
+[INFO] [1791253925.286674, 2191.660000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[WARN] [1791253931.533492, 2192.660000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[INFO] [1791253931.559190, 2192.664000]: [manager] 分配 uav_2 → 格 (7,12) 飞行距离 28.4m 租约 24.2s
+[INFO] [1791253931.565470, 2192.664000]: [manager] 分配 uav_2 → 格 (7,12) 中心 (2.5,27.5)
+[INFO] [1791253931.722459, 2192.692000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=12 view=0 outcome=OBSERVED finished=True mask=20
+[INFO] [1791253944.051107, 2194.664000]: [manager] 分配 uav_4 → 格 (10,0) 飞行距离 6.3m 租约 13.1s
+[INFO] [1791253944.056821, 2194.664000]: [manager] 分配 uav_4 → 格 (10,0) 中心 (23.5,-56.5)
+[INFO] [1791253951.557749, 2195.864000]: [manager] 目标 t2 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791253964.685864, 2197.964000]: [manager] 目标 t2 确认进度 7% (confirm_since=1.0s, resets=24, rejects=22, observers=uav_3,uav_5)
+[INFO] [1791253996.460077, 2203.048000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=12 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791254005.324259, 2204.464000]: [manager] 分配 uav_6 → 格 (15,4) 飞行距离 20.9m 租约 20.5s
+[INFO] [1791254005.332694, 2204.464000]: [manager] 分配 uav_6 → 格 (15,4) 中心 (58.5,-28.5)
+[INFO] [1791254006.442536, 2204.644000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=13 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791254017.813713, 2206.464000]: [manager] 分配 uav_4 → 格 (7,4) 飞行距离 34.3m 租约 27.2s
+[INFO] [1791254017.818652, 2206.464000]: [manager] 分配 uav_4 → 格 (7,4) 中心 (2.5,-28.5)
+[INFO] [1791254018.425439, 2206.560000]: [manager] 目标 t2 已跟丢（8s 无检测）→ 释放追踪/备份机
+[INFO] [1791254026.125524, 2207.788000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=11 view=0 outcome=OBSERVED finished=True mask=20
+[INFO] [1791254030.311583, 2208.464000]: [manager] 分配 uav_3 → 格 (12,16) 飞行距离 21.9m 租约 21.0s
+[INFO] [1791254030.318264, 2208.464000]: [manager] 分配 uav_3 → 格 (12,16) 中心 (37.5,55.5)
+[INFO] [1791254059.085152, 2213.064000]: [manager] 分配 uav_5 → 格 (6,17) 飞行距离 30.0m 租约 25.0s
+[INFO] [1791254059.090763, 2213.064000]: [manager] 分配 uav_5 → 格 (6,17) 中心 (-4.5,59.5)
+[INFO] [1791254213.767781, 2237.808000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=16 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791254215.872891, 2238.144000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=13 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791254220.984224, 2238.964000]: [manager] 分配 uav_3 → 格 (14,15) 飞行距离 15.3m 租约 17.7s
+[INFO] [1791254220.989199, 2238.964000]: [manager] 分配 uav_3 → 格 (14,15) 中心 (51.5,48.5)
+[INFO] [1791254233.512300, 2240.964000]: [manager] 分配 uav_2 → 格 (8,12) 飞行距离 7.1m 租约 13.5s
+[INFO] [1791254233.520027, 2240.964000]: [manager] 分配 uav_2 → 格 (8,12) 中心 (9.5,27.5)
+[INFO] [1791254344.739946, 2258.760000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=17 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791254351.659649, 2259.868000]: [manager] 分配 uav_3 → 格 (16,17) 飞行距离 17.4m 租约 18.7s
+[INFO] [1791254351.666285, 2259.868000]: [manager] 分配 uav_3 → 格 (16,17) 中心 (65.5,59.5)
+[INFO] [1791254371.336674, 2263.012000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=14 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791254378.550854, 2264.168000]: [manager] 分配 uav_2 → 格 (11,10) 飞行距离 25.9m 租约 22.9s
+[INFO] [1791254378.557801, 2264.168000]: [manager] 分配 uav_2 → 格 (11,10) 中心 (30.5,13.5)
+[INFO] [1791254416.231927, 2270.196000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=15 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791254422.907094, 2271.264000]: [manager] 分配 uav_2 → 格 (8,10) 飞行距离 13.9m 租约 17.0s
+[INFO] [1791254422.912100, 2271.264000]: [manager] 分配 uav_2 → 格 (8,10) 中心 (9.5,13.5)
+[WARN] [1791254461.021318, 2277.360000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[INFO] [1791254546.132576, 2290.976000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=12 view=0 outcome=EXECUTION_GATE_BLOCKED finished=True mask=0
+[INFO] [1791254553.568554, 2292.164000]: [manager] 分配 uav_1 → 格 (0,9) 飞行距离 17.4m 租约 18.7s
+[INFO] [1791254553.573947, 2292.164000]: [manager] 分配 uav_1 → 格 (0,9) 中心 (-46.5,6.5)
+[INFO] [1791254563.125208, 2293.692000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=15 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791254569.926349, 2294.780000]: [manager] 分配 uav_6 → 格 (17,3) 飞行距离 16.4m 租约 18.2s
+[INFO] [1791254569.934473, 2294.780000]: [manager] 分配 uav_6 → 格 (17,3) 中心 (72.5,-35.5)
+[INFO] [1791254632.554357, 2304.800000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=19 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791254639.205904, 2305.864000]: [manager] 分配 uav_3 → 格 (18,16) 飞行距离 14.4m 租约 17.2s
+[INFO] [1791254639.213766, 2305.868000]: [manager] 分配 uav_3 → 格 (18,16) 中心 (79.5,55.5)
+[INFO] [1791254700.758020, 2315.712000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=13 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791254707.966866, 2316.864000]: [manager] 分配 uav_1 → 格 (0,6) 飞行距离 21.8m 租约 20.9s
+[INFO] [1791254707.972952, 2316.864000]: [manager] 分配 uav_1 → 格 (0,6) 中心 (-46.5,-14.5)
+[INFO] [1791254715.362658, 2318.048000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=16 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791254719.711484, 2318.744000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=17 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791254722.353219, 2319.164000]: [manager] 分配 uav_6 → 格 (19,5) 飞行距离 19.3m 租约 19.7s
+[INFO] [1791254722.358531, 2319.164000]: [manager] 分配 uav_6 → 格 (19,5) 中心 (86.5,-21.5)
+[INFO] [1791254735.482232, 2321.268000]: [manager] 分配 uav_2 → 格 (9,10) 飞行距离 8.3m 租约 14.2s
+[INFO] [1791254735.488940, 2321.268000]: [manager] 分配 uav_2 → 格 (9,10) 中心 (16.5,13.5)
+[INFO] [1791254784.492158, 2329.104000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=20 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791254791.118613, 2330.164000]: [manager] 分配 uav_3 → 格 (20,15) 飞行距离 16.5m 租约 18.3s
+[INFO] [1791254791.124984, 2330.164000]: [manager] 分配 uav_3 → 格 (20,15) 中心 (93.5,48.5)
+[INFO] [1791254837.629969, 2337.604000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=17 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791254844.906470, 2338.768000]: [manager] 分配 uav_6 → 格 (17,6) 飞行距离 14.8m 租约 17.4s
+[INFO] [1791254844.911715, 2338.768000]: [manager] 分配 uav_6 → 格 (17,6) 中心 (72.5,-14.5)
+[INFO] [1791254863.245541, 2341.696000]: [manager] Camera/search tracker uav_3 selected for t5
+[INFO] [1791254863.252003, 2341.696000]: [ALGO] dispatch target=t5 pos=(96.31,44.85) | uav=uav_3 pos=(90.07,54.15) | dist=11.203m | detect_radius=20.0m | is_captured=False | flight_time_est=3.7s
+[INFO] [1791254863.254165, 2341.700000]: [manager] 派遣 uav_3 追踪目标 t5 @ (96.3, 44.9), 距离 11.2m
+[INFO] [1791254863.465608, 2341.736000]: [manager] 官方首次发现 t5 → 规则4 计时起点对齐 2341.7
+[INFO] [1791254873.006400, 2343.260000]: [manager] 目标 t5 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791254882.570127, 2344.792000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=18 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791254886.140705, 2345.364000]: [manager] 目标 t5 确认进度 7% (confirm_since=1.0s, resets=8, rejects=6, observers=uav_3,uav_4,uav_6)
+[INFO] [1791254889.297504, 2345.864000]: [manager] 分配 uav_6 → 格 (18,4) 飞行距离 0.9m 租约 10.4s
+[INFO] [1791254889.302778, 2345.864000]: [manager] 分配 uav_6 → 格 (18,4) 中心 (79.5,-28.5)
+[INFO] [1791254893.011630, 2346.460000]: [manager] 目标 t5 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791254899.269679, 2347.464000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=14 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791254906.172463, 2348.568000]: [manager] 分配 uav_1 → 格 (2,6) 飞行距离 14.1m 租约 17.1s
+[INFO] [1791254906.182525, 2348.568000]: [manager] 分配 uav_1 → 格 (2,6) 中心 (-32.5,-14.5)
+[INFO] [1791254918.641162, 2350.560000]: [manager] 目标 t5 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791254926.953822, 2351.892000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=19 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791254931.758966, 2352.660000]: [manager] 目标 t5 确认进度 7% (confirm_since=1.0s, resets=10, rejects=8, observers=uav_3,uav_4,uav_6)
+[INFO] [1791254937.404552, 2353.564000]: [manager] 分配 uav_6 → 格 (21,4) 飞行距离 21.1m 租约 20.5s
+[INFO] [1791254937.409141, 2353.564000]: [manager] 分配 uav_6 → 格 (21,4) 中心 (100.5,-28.5)
+[INFO] [1791254938.154096, 2353.684000]: [manager] 目标 t5 规则5 被重置（误差或间隔超限）→ confirm_since 清零
+[INFO] [1791254957.957025, 2356.828000]: [manager] 官方剩余 actor: [2, 3]
+[INFO] [1791254957.958698, 2356.828000]: [manager] 官方已消除 t4；追踪授权已封禁，请求 None 停稳后重新分配搜索（备份 None）
+[INFO] [1791254957.960281, 2356.828000]: [manager] 官方已消除 t5；追踪授权已封禁，请求 uav_3 停稳后重新分配搜索（备份 None）
+[INFO] [1791254958.194534, 2356.864000]: [manager] 分配 uav_3 → 格 (20,15) 飞行距离 5.5m 租约 12.8s
+[INFO] [1791254958.199274, 2356.864000]: [manager] 分配 uav_3 → 格 (20,15) 中心 (93.5,48.5)
+[INFO] [1791255004.946269, 2364.344000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=20 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791255012.576205, 2365.564000]: [manager] 分配 uav_6 → 格 (18,5) 飞行距离 5.8m 租约 12.9s
+[INFO] [1791255012.581168, 2365.564000]: [manager] 分配 uav_6 → 格 (18,5) 中心 (79.5,-21.5)
+[WARN] [1791255025.059371, 2367.560000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[INFO] [1791255034.406666, 2369.056000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=23 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791255041.336773, 2370.164000]: [manager] 分配 uav_3 → 格 (22,17) 飞行距离 17.8m 租约 18.9s
+[INFO] [1791255041.350534, 2370.164000]: [manager] 分配 uav_3 → 格 (22,17) 中心 (107.5,59.5)
+[INFO] [1791255125.942622, 2383.700000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=21 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791255133.260965, 2384.868000]: [manager] 分配 uav_6 → 格 (17,5) 飞行距离 7.4m 租约 13.7s
+[INFO] [1791255133.268811, 2384.868000]: [manager] 分配 uav_6 → 格 (17,5) 中心 (72.5,-21.5)
+[WARN] [1791255249.368969, 2403.444000]: [manager] SEARCH_FEEDBACK_REJECTED
+[INFO] [1791255252.489791, 2403.944000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=22 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791255259.496502, 2405.064000]: [manager] 分配 uav_6 → 格 (17,4) 飞行距离 4.6m 租约 12.3s
+[INFO] [1791255259.501791, 2405.064000]: [manager] 分配 uav_6 → 格 (17,4) 中心 (72.5,-28.5)
+[INFO] [1791255340.461127, 2418.016000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=23 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791255347.666940, 2419.164000]: [manager] 分配 uav_6 → 格 (16,4) 飞行距离 6.9m 租约 13.4s
+[INFO] [1791255347.678397, 2419.164000]: [manager] 分配 uav_6 → 格 (16,4) 中心 (65.5,-28.5)
+[INFO] [1791255412.006681, 2429.460000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=24 view=0 outcome=OBSERVED finished=True mask=2
+[INFO] [1791255413.771198, 2429.740000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=18 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791255418.930326, 2430.564000]: [manager] 分配 uav_6 → 格 (15,1) 飞行距离 22.5m 租约 21.3s
+[INFO] [1791255418.935854, 2430.564000]: [manager] 分配 uav_6 → 格 (15,1) 中心 (58.5,-49.5)
+[INFO] [1791255431.419639, 2432.564000]: [manager] 分配 uav_5 → 格 (7,17) 飞行距离 6.6m 租约 13.3s
+[INFO] [1791255431.427979, 2432.564000]: [manager] 分配 uav_5 → 格 (7,17) 中心 (2.5,59.5)
+[INFO] [1791255482.971775, 2440.812000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=17 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791255490.173041, 2441.964000]: [manager] 分配 uav_1 → 格 (4,4) 飞行距离 22.4m 租约 21.2s
+[INFO] [1791255490.177823, 2441.964000]: [manager] 分配 uav_1 → 格 (4,4) 中心 (-18.5,-28.5)
+[INFO] [1791255603.956909, 2460.164000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=18 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791255609.170651, 2461.000000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=26 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791255611.458736, 2461.364000]: [manager] 分配 uav_1 → 格 (3,6) 飞行距离 2.7m 租约 11.3s
+[INFO] [1791255611.467383, 2461.368000]: [manager] 分配 uav_1 → 格 (3,6) 中心 (-25.5,-14.5)
+[INFO] [1791255623.967449, 2463.364000]: [manager] 分配 uav_3 → 格 (24,16) 飞行距离 15.8m 租约 17.9s
+[INFO] [1791255623.974080, 2463.364000]: [manager] 分配 uav_3 → 格 (24,16) 中心 (121.5,55.5)
+[INFO] [1791255638.532481, 2465.696000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=26 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791255645.831171, 2466.864000]: [manager] 分配 uav_6 → 格 (14,1) 飞行距离 7.1m 租约 13.5s
+[INFO] [1791255645.835748, 2466.864000]: [manager] 分配 uav_6 → 格 (14,1) 中心 (51.5,-49.5)
+[INFO] [1791255649.253166, 2467.412000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=19 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791255658.335091, 2468.864000]: [manager] 分配 uav_1 → 格 (3,7) 飞行距离 6.9m 租约 13.4s
+[INFO] [1791255658.340387, 2468.864000]: [manager] 分配 uav_1 → 格 (3,7) 中心 (-25.5,-7.5)
+[INFO] [1791255661.679365, 2469.400000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=27 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791255670.836704, 2470.864000]: [manager] 分配 uav_3 → 格 (21,17) 飞行距离 5.6m 租约 12.8s
+[INFO] [1791255670.841489, 2470.864000]: [manager] 分配 uav_3 → 格 (21,17) 中心 (100.5,59.5)
+[WARN] [1791255703.323237, 2476.060000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[INFO] [1791255708.569951, 2476.900000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=28 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791255712.979962, 2477.604000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=27 view=0 outcome=OBSERVED finished=True mask=2
+[INFO] [1791255715.215033, 2477.964000]: [manager] 分配 uav_3 → 格 (23,17) 飞行距离 8.7m 租约 14.4s
+[INFO] [1791255715.220498, 2477.964000]: [manager] 分配 uav_3 → 格 (23,17) 中心 (114.5,59.5)
+[INFO] [1791255727.728756, 2479.964000]: [manager] 分配 uav_6 → 格 (15,0) 飞行距离 9.4m 租约 14.7s
+[INFO] [1791255727.732938, 2479.964000]: [manager] 分配 uav_6 → 格 (15,0) 中心 (58.5,-56.5)
+[INFO] [1791255734.923895, 2481.116000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=20 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791255768.367010, 2486.464000]: [manager] 分配 uav_1 → 格 (4,5) 飞行距离 14.9m 租约 17.5s
+[INFO] [1791255768.375818, 2486.464000]: [manager] 分配 uav_1 → 格 (4,5) 中心 (-18.5,-21.5)
+[INFO] [1791255816.708874, 2494.200000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=28 view=0 outcome=OBSERVED finished=False mask=8
+[INFO] [1791255862.050387, 2501.452000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=28 view=1 outcome=OBSERVED finished=True mask=8
+[INFO] [1791255869.017251, 2502.568000]: [manager] 分配 uav_6 → 格 (17,1) 飞行距离 14.3m 租约 17.2s
+[INFO] [1791255869.022006, 2502.568000]: [manager] 分配 uav_6 → 格 (17,1) 中心 (72.5,-49.5)
+[INFO] [1791255893.452561, 2506.472000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=21 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791255900.878187, 2507.664000]: [manager] 分配 uav_1 → 格 (3,3) 飞行距离 16.5m 租约 18.2s
+[INFO] [1791255900.884769, 2507.664000]: [manager] 分配 uav_1 → 格 (3,3) 中心 (-25.5,-35.5)
+[INFO] [1791255994.259689, 2522.600000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=29 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791256001.545416, 2523.764000]: [manager] 分配 uav_6 → 格 (21,1) 飞行距离 28.8m 租约 24.4s
+[INFO] [1791256001.552734, 2523.768000]: [manager] 分配 uav_6 → 格 (21,1) 中心 (100.5,-49.5)

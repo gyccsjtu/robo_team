@@ -1,0 +1,51 @@
+actor_4: communication initialized
+4 general change position
+current_position:   4       x: 16.0
+y: 33.0
+z: 1.0191
+middd_pos:     4       [x: 61.850843135752285
+y: 39.358787035334686
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 61.800680475289155
+y: 39.34279796356256
+z: 1.0191
+middd_pos:     4       [x: 31.083254620579694
+y: 35.957251735008526
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 31.093120886607558
+y: 35.95826534859459
+z: 1.0191
+middd_pos:     4       [x: 30.515778640754462
+y: -45.92844985035753
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: 85
+      y: 8
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+actor_4 has been deleted

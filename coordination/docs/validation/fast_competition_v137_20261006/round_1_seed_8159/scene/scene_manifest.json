@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "development_scene": true,
+  "formal_competition_pass": false,
+  "source_directory": "/root/third_party_official/XTDrone_official/robocup",
+  "seed": 8159,
+  "attempts": [
+    {
+      "seed": 8159,
+      "clearance_m": [
+        2.725,
+        5.725,
+        4.052853932724445,
+        6.4634066095210185,
+        4.5,
+        4.5
+      ]
+    }
+  ],
+  "positions": {
+    "uav_1": [
+      0.0,
+      -3.0
+    ],
+    "uav_2": [
+      3.0,
+      -3.0
+    ],
+    "uav_3": [
+      0.0,
+      0.0
+    ],
+    "uav_4": [
+      3.0,
+      0.0
+    ],
+    "uav_5": [
+      0.0,
+      3.0
+    ],
+    "uav_6": [
+      3.0,
+      3.0
+    ]
+  },
+  "startup_checks": {
+    "uav_1": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 2.725
+    },
+    "uav_2": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 5.725
+    },
+    "uav_3": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 4.052853932724445
+    },
+    "uav_4": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 6.4634066095210185
+    },
+    "uav_5": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 4.5
+    },
+    "uav_6": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 4.5
+    }
+  },
+  "actor_ids": [
+    "actor_0",
+    "actor_1",
+    "actor_2",
+    "actor_3",
+    "actor_4",
+    "actor_5"
+  ],
+  "red_matching_revision": "organizer_clarification_20261003_v1",
+  "red_matching_source": "User-relayed organizer clarification; either red truth matches a red report",
+  "adapted_judge_sha256": "255d3895ea47cc337ab03b0e965e71213791244257044a4c32b04759fbc1d0e1",
+  "source_sha256": {
+    "house.world": "a7fe29c191a3b44a17173a2f773c3503390a07cc5940a8171a104a42bd622e5d",
+    "base1.world": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c",
+    "control_actor.py": "85035e4dc692abe2e12fd0ed0b115b711e6be6a0f13b42bcc73b6a0b70c31e50",
+    "rover_static.world": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81",
+    "base3.world": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f",
+    "ObstacleAvoid.py": "ddd45cda69ddbe3b7f90eae978752c60b9846967a17af3bc8a17d18076555e01",
+    "obstacle.txt": "6e4f357cd23f87b0e616a5141af7036d76f047604e69d323f2241b47bba2e1d3",
+    "black_box.txt": "a67f18f7546b2fa0a3b538e3f071835e1200a715182a9eda87ddec387a567316",
+    "map_generator.py": "6cc5338f6e37dd6e5dabde2f0cb31424266f8cc650d3c13336268db72036f27b",
+    "white_background.png": "f2b15c6f0e6464a95b93743a1f998e67cd877baa63d0e445ee8e8e78f6853819",
+    "rover.world": "cae815ba13115c687c530067002e851452c915b6a32231731a7840fe847db36f",
+    "base2.world": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948",
+    "score_cal.py": "708858e5881a0b9f01f4835ffc338e1abe80dc7c8df22665b6ac0e6b5ecbd989"
+  },
+  "adaptations": [
+    "isolated output paths",
+    "seeded map randomness",
+    "reject exhausted random placement; original fallback produced empty world and mismatched obstacle data",
+    "250Hz PX4-compatible physics",
+    "Python3 actor range",
+    "30s teleport per rule; platform copy used 25s",
+    "actor transient service retry without Python2 print crash or fictitious pose",
+    "actor teleport wait yields for 20ms simulated time; original deadline unchanged",
+    "red reports match either remaining red actor; isolated judge copy only"
+  ]
+}

@@ -29,10 +29,12 @@ def main():
     from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run', required=True)
+    parser.add_argument('--result-file', help='Actual flight result; defaults to RUN/result.json')
     parser.add_argument('--tag', choices=('green','blue','brown','white','red','red1','red2'), default='green')
     parser.add_argument('--wall-seconds', type=float, default=740.)
     args = parser.parse_args()
     run = Path(args.run).resolve()
+    result_file = Path(args.result_file).resolve() if args.result_file else run/'result.json'
     if not math.isfinite(args.wall_seconds) or args.wall_seconds <= 0:
         parser.error('--wall-seconds must be positive and finite')
     red = args.tag in ('red','red1','red2')
@@ -60,7 +62,8 @@ def main():
     service_failures = 0
     try:
         last_sample = -1.
-        while time.monotonic() < deadline and not (run/'result.json').exists():
+        while (time.monotonic() < deadline and not rospy.is_shutdown()
+               and not result_file.exists()):
             before = rospy.Time.now().to_sec()
             if before-last_sample >= .05:
                 for actor_id in actor_ids:

@@ -46,6 +46,7 @@ from visual_observation import VisualEvidence, TAG_TO_TID
 from target_motion import TargetMotion, current_target_point, handoff_reacquisition_point
 from route_reservation import RouteGate, exclude_peers, valid_points
 from route_endpoint import connect_exact_goal
+from orbit_geometry import orbit_goal
 from publisher_authority import PublisherAuthority
 from fcu_configuration import configure as configure_fcu_parameters
 from fleet_motion_guard import MotionCache, protect as protect_fleet_motion
@@ -214,6 +215,9 @@ BUILDING_DIST    = 5.0      # 建筑判定距离 m（小于此值视为建筑附
 # （control_actor.py:53）—— 半径 < 7m 时 actor 会主动推 UAV，根本稳不住。
 # 8m 仍小于DETECT_RADIUS=20m；在线盘旋速度由已提交路线和追踪速度配置控制。
 ORBIT_RADIUS    = 8.0     # 盘旋半径 m
+ORBIT_PLAN_CHORD = float(os.environ.get('SWARM_ORBIT_PLAN_CHORD_M', '0'))
+if not math.isfinite(ORBIT_PLAN_CHORD) or not 0. <= ORBIT_PLAN_CHORD <= 2.*ORBIT_RADIUS:
+    raise ValueError('Invalid orbit planning chord')
 # Legacy non-online orbit angular rate; not an official UAV speed restriction.
 # The competition rule describes 1m/s walking and 2m/s fleeing targets.
 # Online tracking follows a committed radar route using the chase cap below.
@@ -358,6 +362,7 @@ class SwarmAgent(object):
         self._route_gate = RouteGate(self._gate.run_id, uav_id)
         self._route_pending = None
         self._route_pending_s = 0.
+        self._orbit_plan_chord_m = ORBIT_PLAN_CHORD
         self._route_offer_id = 0
         self._peer_routes = None
         self._peer_routes_seq = 0
@@ -2651,8 +2656,16 @@ class SwarmAgent(object):
             changed = previous is None or math.dist(previous[0], (tx, ty)) > .5
             arrived = previous is not None and math.dist(previous[1], (wx, wy)) < .5
             if changed or arrived:
-                angle = math.atan2(wy-ty, wx-tx) + .2
-                point = (tx+ORBIT_RADIUS*math.cos(angle), ty+ORBIT_RADIUS*math.sin(angle))
+                chord = getattr(self, '_orbit_plan_chord_m', 0.)
+                if chord > 0.:
+                    motion = self._measured_motion(now)
+                    candidates = motion['velocity_candidates'] if motion is not None else ()
+                    target_velocity = self.targets.get(self._orbit_target, (tx, ty, 0., 0.))[2:4]
+                    point = orbit_goal((wx, wy), (tx, ty), ORBIT_RADIUS, chord,
+                                       candidates, target_velocity)
+                else:
+                    angle = math.atan2(wy-ty, wx-tx) + .2
+                    point = (tx+ORBIT_RADIUS*math.cos(angle), ty+ORBIT_RADIUS*math.sin(angle))
                 self._reserved_orbit_goal = ((tx, ty), point)
             point = self._reserved_orbit_goal[1]
             if now-getattr(self, '_last_orbit_request_s', -100.) >= 1.:

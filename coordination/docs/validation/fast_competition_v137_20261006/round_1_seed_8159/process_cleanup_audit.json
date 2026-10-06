@@ -1,0 +1,165 @@
+{
+  "utc": "2026-10-06T03:08:03.599987Z",
+  "scope": "only verified own observer cmdlines; no global cleanup",
+  "observers": [
+    {
+      "pid": 3972,
+      "tag": "green",
+      "cmdline_before": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "green",
+        "--wall-seconds",
+        "6000"
+      ],
+      "state_before": "S",
+      "signals": [
+        "SIGINT",
+        "SIGTERM_AFTER_GRACE",
+        "SIGKILL_AFTER_SIGINT_SIGTERM_AND_VERIFIED_CMDLINE"
+      ],
+      "cmdline_after": null,
+      "state_after": null
+    },
+    {
+      "pid": 3973,
+      "tag": "blue",
+      "cmdline_before": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "blue",
+        "--wall-seconds",
+        "6000"
+      ],
+      "state_before": "S",
+      "signals": [
+        "SIGINT",
+        "SIGTERM_AFTER_GRACE",
+        "SIGKILL_AFTER_SIGINT_SIGTERM_AND_VERIFIED_CMDLINE"
+      ],
+      "cmdline_after": null,
+      "state_after": null
+    },
+    {
+      "pid": 3974,
+      "tag": "brown",
+      "cmdline_before": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "brown",
+        "--wall-seconds",
+        "6000"
+      ],
+      "state_before": "S",
+      "signals": [
+        "SIGINT",
+        "SIGTERM_AFTER_GRACE",
+        "SIGKILL_AFTER_SIGINT_SIGTERM_AND_VERIFIED_CMDLINE"
+      ],
+      "cmdline_after": null,
+      "state_after": null
+    },
+    {
+      "pid": 3975,
+      "tag": "white",
+      "cmdline_before": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "white",
+        "--wall-seconds",
+        "6000"
+      ],
+      "state_before": "S",
+      "signals": [
+        "SIGINT",
+        "SIGTERM_AFTER_GRACE",
+        "SIGKILL_AFTER_SIGINT_SIGTERM_AND_VERIFIED_CMDLINE"
+      ],
+      "cmdline_after": null,
+      "state_after": null
+    },
+    {
+      "pid": 3976,
+      "tag": "red",
+      "cmdline_before": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers",
+        "--tag",
+        "red",
+        "--wall-seconds",
+        "6000"
+      ],
+      "state_before": "S",
+      "signals": [
+        "SIGINT",
+        "SIGTERM_AFTER_GRACE",
+        "SIGKILL_AFTER_SIGINT_SIGTERM_AND_VERIFIED_CMDLINE"
+      ],
+      "cmdline_after": null,
+      "state_after": null
+    },
+    {
+      "pid": 3977,
+      "tag": "frames",
+      "cmdline_before": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/execution_sources/capture_visual_frames.py",
+        "--output",
+        "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/observers/visual_frames",
+        "--wall-seconds",
+        "6000",
+        "--limit-per-tag",
+        "48"
+      ],
+      "state_before": "S",
+      "signals": [
+        "SIGINT"
+      ],
+      "cmdline_after": null,
+      "state_after": null
+    },
+    {
+      "pid": 15685,
+      "tag": "white_originals",
+      "cmdline_before": null,
+      "state_before": null,
+      "signals": [],
+      "cmdline_after": null,
+      "state_after": null
+    },
+    {
+      "pid": 49512,
+      "tag": "route_broadcast",
+      "cmdline_before": null,
+      "state_before": null,
+      "signals": [],
+      "cmdline_after": null,
+      "state_after": null
+    }
+  ],
+  "launcher_pid": 612,
+  "launcher_cmdline": null,
+  "launcher_state": null,
+  "own_ports_listening": [],
+  "own_observers_all_inactive": true
+}

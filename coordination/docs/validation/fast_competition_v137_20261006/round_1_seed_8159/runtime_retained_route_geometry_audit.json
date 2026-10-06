@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "control_input": false,
+  "geometry_queries": 43,
+  "actual_moving_geometry_examples": [
+    {
+      "source_file": "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+      "sample_s": 2045.836,
+      "uav_id": "uav_5",
+      "generation": 4,
+      "snapshot_received_s": 2045.364,
+      "snapshot_seq": 231,
+      "actual_nav_command_xy": [
+        0.12494059223490227,
+        0.003853363724316426
+      ],
+      "current_only_failure": [
+        {
+          "ok": false,
+          "reason": "ROUTE_MEASURED_ENVELOPE",
+          "velocity_xy": [
+            0.8794991374015808,
+            -0.5302510857582092
+          ],
+          "stopping_distance_m": 1.5681742227279227,
+          "measured_envelope": "CURRENT",
+          "retained_snapshot_seq": null,
+          "first_rejected_xy": [
+            -40.269233104870764,
+            39.26855597037797
+          ],
+          "distance_from_route_m": 0.7314440296220326
+        },
+        {
+          "ok": false,
+          "reason": "ROUTE_MEASURED_ENVELOPE",
+          "velocity_xy": [
+            0.887203367203735,
+            -0.6565756605900362
+          ],
+          "stopping_distance_m": 1.770086752604024,
+          "measured_envelope": "CURRENT",
+          "retained_snapshot_seq": null,
+          "first_rejected_xy": [
+            -40.48600131173377,
+            39.290833868852175
+          ],
+          "distance_from_route_m": 0.7091661311478248
+        }
+      ],
+      "retained_pass": true,
+      "reconstructed_grant_seq": 1
+    },
+    {
+      "source_file": "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+      "sample_s": 2076.588,
+      "uav_id": "uav_5",
+      "generation": 6,
+      "snapshot_received_s": 2076.364,
+      "snapshot_seq": 293,
+      "actual_nav_command_xy": [
+        -0.12056622012966657,
+        0.03299676595735981
+      ],
+      "current_only_failure": [
+        {
+          "ok": false,
+          "reason": "ROUTE_MEASURED_ENVELOPE",
+          "velocity_xy": [
+            0.6090548634529114,
+            0.00826373789459467
+          ],
+          "stopping_distance_m": 0.6755715773715425,
+          "measured_envelope": "CURRENT",
+          "retained_snapshot_seq": null,
+          "first_rejected_xy": [
+            -24.748544672801202,
+            34.91733534626557
+          ],
+          "distance_from_route_m": 0.7559884613884567
+        },
+        {
+          "ok": false,
+          "reason": "ROUTE_MEASURED_ENVELOPE",
+          "velocity_xy": [
+            0.7318922838446461,
+            -0.026702601835241306
+          ],
+          "stopping_distance_m": 0.9025689616769761,
+          "measured_envelope": "CURRENT",
+          "retained_snapshot_seq": null,
+          "first_rejected_xy": [
+            -24.792675877244307,
+            34.88513453188639
+          ],
+          "distance_from_route_m": 0.7165901830175105
+        }
+      ],
+      "retained_pass": true,
+      "reconstructed_grant_seq": 1
+    },
+    {
+      "source_file": "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+      "sample_s": 2082.988,
+      "uav_id": "uav_5",
+      "generation": 6,
+      "snapshot_received_s": 2082.86,
+      "snapshot_seq": 306,
+      "actual_nav_command_xy": [
+        -0.12276777941303989,
+        0.02351749004445795
+      ],
+      "current_only_failure": [
+        {
+          "ok": false,
+          "reason": "ROUTE_MEASURED_ENVELOPE",
+          "velocity_xy": [
+            -0.7684645723568974,
+            0.34063017928130696
+          ],
+          "stopping_distance_m": 1.126854333217635,
+          "measured_envelope": "CURRENT",
+          "retained_snapshot_seq": null,
+          "first_rejected_xy": [
+            -32.30520710042118,
+            36.71092367782419
+          ],
+          "distance_from_route_m": 0.7109236778241907
+        }
+      ],
+      "retained_pass": true,
+      "reconstructed_grant_seq": 1
+    },
+    {
+      "source_file": "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+      "sample_s": 2097.936,
+      "uav_id": "uav_5",
+      "generation": 6,
+      "snapshot_received_s": 2097.864,
+      "snapshot_seq": 336,
+      "actual_nav_command_xy": [
+        0.11639601029048699,
+        -0.04557377303292811
+      ],
+      "current_only_failure": [
+        {
+          "ok": false,
+          "reason": "ROUTE_MEASURED_ENVELOPE",
+          "velocity_xy": [
+            0.2932162284851074,
+            0.5517705678939819
+          ],
+          "stopping_distance_m": 0.7028471126496207,
+          "measured_envelope": "CURRENT",
+          "retained_snapshot_seq": null,
+          "first_rejected_xy": [
+            -22.66592808071733,
+            36.764238335731825
+          ],
+          "distance_from_route_m": 0.7529390056887576
+        },
+        {
+          "ok": false,
+          "reason": "ROUTE_MEASURED_ENVELOPE",
+          "velocity_xy": [
+            0.4568733209406329,
+            0.7259865986439608
+          ],
+          "stopping_distance_m": 1.1646807183767618,
+          "measured_envelope": "CURRENT",
+          "retained_snapshot_seq": null,
+          "first_rejected_xy": [
+            -22.64435490053141,
+            36.71403158338045
+          ],
+          "distance_from_route_m": 0.7140315833804465
+        }
+      ],
+      "retained_pass": true,
+      "reconstructed_grant_seq": 1
+    },
+    {
+      "source_file": "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+      "sample_s": 2134.836,
+      "uav_id": "uav_5",
+      "generation": 9,
+      "snapshot_received_s": 2134.364,
+      "snapshot_seq": 409,
+      "actual_nav_command_xy": [
+        0.12180706150440586,
+        0.02807204601844851
+      ],
+      "current_only_failure": [
+        {
+          "ok": false,
+          "reason": "ROUTE_MEASURED_ENVELOPE",
+          "velocity_xy": [
+            1.712088295867546,
+            0.10465846803452611
+          ],
+          "stopping_distance_m": 3.799841804605183,
+          "measured_envelope": "CURRENT",
+          "retained_snapshot_seq": null,
+          "first_rejected_xy": [
+            -4.751142996797851,
+            33.79724127654085
+          ],
+          "distance_from_route_m": 0.7488570032021489
+        }
+      ],
+      "retained_pass": true,
+      "reconstructed_grant_seq": 1
+    },
+    {
+      "source_file": "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+      "sample_s": 2152.836,
+      "uav_id": "uav_5",
+      "generation": 10,
+      "snapshot_received_s": 2152.36,
+      "snapshot_seq": 445,
+      "actual_nav_command_xy": [
+        0.03247993144996387,
+        -0.12070647891892816
+      ],
+      "current_only_failure": [
+        {
+          "ok": false,
+          "reason": "ROUTE_MEASURED_ENVELOPE",
+          "velocity_xy": [
+            1.0858894278837223,
+            -0.2714248318490197
+          ],
+          "stopping_distance_m": 1.8124761272543988,
+          "measured_envelope": "CURRENT",
+          "retained_snapshot_seq": null,
+          "first_rejected_xy": [
+            -0.04653366778082457,
+            40.58929250778084
+          ],
+          "distance_from_route_m": 0.7034663322191754
+        }
+      ],
+      "retained_pass": true,
+      "reconstructed_grant_seq": 1
+    }
+  ],
+  "limit": "grant seq reconstructed; read-only snapshot receipt differs from agent callback; not counterfactual physical outcome"
+}

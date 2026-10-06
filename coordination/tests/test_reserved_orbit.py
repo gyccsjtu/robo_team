@@ -46,7 +46,7 @@ class ReservedOrbitTests(unittest.TestCase):
         self.assertEqual(a._send_vel.call_args.args, (0., 2.6))
         a._publish_claim.assert_called_once()
 
-    def test_fleeing_orbit_leg_and_downstream_speed_limit_can_keep_up_with_two_meter_target(self):
+    def test_fleeing_command_cap_does_not_reintroduce_a_lower_speed_cap(self):
         a=self.agent();a._target_fleeing=lambda tid:True
         point=(8.*math.cos(.2),8.*math.sin(.2))
         a._reserved_orbit_goal=((0.,0.),point);a.path_target=point

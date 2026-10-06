@@ -1,0 +1,382 @@
+{
+  "scope": "independent observer, not actual judge timer; observer receipts not exact bridge or judge callbacks; post-elimination truths ignored; transient errors after teleports retained but do not interpolate across jumps",
+  "interpolation": "truth brackets gap <=.2s, displacement<=max(.5m,3*gap); no extrapolation",
+  "run_id": "8ce6d37b-f755-4220-8445-381bcee33040",
+  "colors": {
+    "green": {
+      "actor_truth_samples": {
+        "0": 2039
+      },
+      "image_coordinates": {
+        "total": 67,
+        "aligned": 67,
+        "missing": 0,
+        "below1": 67,
+        "max_error_m": 0.8067068153801739,
+        "mean_error_m": 0.22592262170005106,
+        "longest_accurate_sampling_spans": [
+          [
+            2032.432,
+            2046.952,
+            14.519999999999982
+          ],
+          [
+            1960.736,
+            1966.344,
+            5.607999999999947
+          ]
+        ]
+      },
+      "uploaded_coordinates": {
+        "total": 202,
+        "aligned": 201,
+        "missing": 1,
+        "below1": 201,
+        "max_error_m": 0.8866582200887968,
+        "mean_error_m": 0.2994604312777862,
+        "longest_accurate_sampling_spans": [
+          [
+            2033.436,
+            2047.636,
+            14.200000000000045
+          ],
+          [
+            1962.136,
+            1967.836,
+            5.7000000000000455
+          ]
+        ]
+      },
+      "source_ids": {
+        "uav_4": 15,
+        "uav_6": 52
+      },
+      "image_sample_bounds": [
+        1960.736,
+        2046.952
+      ],
+      "upload_sample_bounds": [
+        1962.136,
+        2047.736
+      ]
+    },
+    "blue": {
+      "actor_truth_samples": {
+        "1": 2757
+      },
+      "image_coordinates": {
+        "total": 108,
+        "aligned": 98,
+        "missing": 10,
+        "below1": 73,
+        "max_error_m": 91.35983505119465,
+        "mean_error_m": 22.080457505049708,
+        "longest_accurate_sampling_spans": [
+          [
+            2066.224,
+            2088.448,
+            22.223999999999705
+          ]
+        ]
+      },
+      "uploaded_coordinates": {
+        "total": 220,
+        "aligned": 218,
+        "missing": 2,
+        "below1": 185,
+        "max_error_m": 87.19133968080264,
+        "mean_error_m": 9.90039667777859,
+        "longest_accurate_sampling_spans": [
+          [
+            2073.636,
+            2088.536,
+            14.900000000000091
+          ],
+          [
+            2069.236,
+            2072.436,
+            3.200000000000273
+          ],
+          [
+            2072.636,
+            2072.736,
+            0.09999999999990905
+          ]
+        ]
+      },
+      "source_ids": {
+        "uav_5": 1,
+        "uav_3": 24,
+        "uav_4": 74,
+        "uav_1": 1,
+        "uav_2": 8
+      },
+      "image_sample_bounds": [
+        1975.644,
+        2269.608
+      ],
+      "upload_sample_bounds": [
+        1985.136,
+        2088.736
+      ]
+    },
+    "brown": {
+      "actor_truth_samples": {
+        "2": 10524
+      },
+      "image_coordinates": {
+        "total": 264,
+        "aligned": 263,
+        "missing": 1,
+        "below1": 261,
+        "max_error_m": 1.1474668712146707,
+        "mean_error_m": 0.19546531181379262,
+        "longest_accurate_sampling_spans": [
+          [
+            2073.384,
+            2097.572,
+            24.188000000000102
+          ],
+          [
+            2168.76,
+            2183.284,
+            14.523999999999887
+          ],
+          [
+            2183.58,
+            2197.288,
+            13.708000000000084
+          ],
+          [
+            2166.248,
+            2168.408,
+            2.1599999999998545
+          ],
+          [
+            2066.224,
+            2067.752,
+            1.5279999999997926
+          ],
+          [
+            2126.096,
+            2127.124,
+            1.0279999999997926
+          ]
+        ]
+      },
+      "uploaded_coordinates": {
+        "total": 579,
+        "aligned": 577,
+        "missing": 2,
+        "below1": 526,
+        "max_error_m": 72.60039612378185,
+        "mean_error_m": 3.537170386300929,
+        "longest_accurate_sampling_spans": [
+          [
+            2085.536,
+            2097.536,
+            12.0
+          ],
+          [
+            2074.436,
+            2084.736,
+            10.299999999999727
+          ],
+          [
+            2187.236,
+            2197.436,
+            10.200000000000273
+          ],
+          [
+            2177.536,
+            2186.736,
+            9.199999999999818
+          ],
+          [
+            2169.536,
+            2176.836,
+            7.299999999999727
+          ],
+          [
+            2167.536,
+            2169.336,
+            1.7999999999997272
+          ],
+          [
+            2067.636,
+            2068.536,
+            0.900000000000091
+          ],
+          [
+            2177.236,
+            2177.336,
+            0.09999999999990905
+          ]
+        ]
+      },
+      "source_ids": {
+        "uav_5": 157,
+        "uav_3": 107
+      },
+      "image_sample_bounds": [
+        2066.224,
+        2197.528
+      ],
+      "upload_sample_bounds": [
+        2067.636,
+        2198.936
+      ]
+    },
+    "white": {
+      "actor_truth_samples": {
+        "3": 10582
+      },
+      "image_coordinates": {
+        "total": 17,
+        "aligned": 17,
+        "missing": 0,
+        "below1": 15,
+        "max_error_m": 2.4914713243936326,
+        "mean_error_m": 0.5815590560808311,
+        "longest_accurate_sampling_spans": [
+          [
+            2177.368,
+            2181.872,
+            4.503999999999905
+          ],
+          [
+            2385.304,
+            2385.568,
+            0.2640000000001237
+          ]
+        ]
+      },
+      "uploaded_coordinates": {
+        "total": 47,
+        "aligned": 47,
+        "missing": 0,
+        "below1": 47,
+        "max_error_m": 0.5552420163494954,
+        "mean_error_m": 0.20330514180513956,
+        "longest_accurate_sampling_spans": [
+          [
+            2178.736,
+            2183.336,
+            4.599999999999909
+          ]
+        ]
+      },
+      "source_ids": {
+        "uav_6": 15,
+        "uav_5": 2
+      },
+      "image_sample_bounds": [
+        2169.096,
+        2385.568
+      ],
+      "upload_sample_bounds": [
+        2178.736,
+        2183.336
+      ]
+    },
+    "red": {
+      "actor_truth_samples": {
+        "5": 7029,
+        "4": 3477
+      },
+      "image_coordinates": {
+        "total": 130,
+        "aligned": 130,
+        "missing": 0,
+        "below1": 124,
+        "max_error_m": 117.51779446685251,
+        "mean_error_m": 3.7852661443346083,
+        "longest_accurate_sampling_spans": [
+          [
+            2127.124,
+            2143.284,
+            16.16000000000031
+          ],
+          [
+            2339.492,
+            2354.588,
+            15.096000000000004
+          ],
+          [
+            2035.352,
+            2039.192,
+            3.839999999999918
+          ],
+          [
+            2020.568,
+            2023.212,
+            2.6440000000000055
+          ],
+          [
+            2118.404,
+            2118.736,
+            0.33199999999987995
+          ],
+          [
+            2032.432,
+            2032.432,
+            0.0
+          ]
+        ]
+      },
+      "uploaded_coordinates": {
+        "total": 348,
+        "aligned": 348,
+        "missing": 0,
+        "below1": 333,
+        "max_error_m": 93.27429343359324,
+        "mean_error_m": 4.256358533527395,
+        "longest_accurate_sampling_spans": [
+          [
+            2128.236,
+            2143.236,
+            15.0
+          ],
+          [
+            2341.736,
+            2355.236,
+            13.5
+          ],
+          [
+            2036.136,
+            2040.636,
+            4.5
+          ]
+        ]
+      },
+      "source_ids": {
+        "uav_6": 31,
+        "uav_5": 4,
+        "uav_4": 50,
+        "uav_3": 45
+      },
+      "image_sample_bounds": [
+        2020.568,
+        2354.588
+      ],
+      "upload_sample_bounds": [
+        2036.136,
+        2355.236
+      ]
+    }
+  },
+  "prior_ready_clock_plus_usage_was_not_exact_delete_clock": {
+    "0": 2048.328,
+    "1": 2088.412,
+    "4": 2143.12,
+    "5": 2356.516
+  },
+  "removal_receipt_upper_bound_s": {
+    "0": 2048.644,
+    "1": 2088.74,
+    "4": 2143.4,
+    "5": 2356.828
+  },
+  "cutoff_note": "CITY_JUDGE_CLOCK_READY is not necessarily the judge start_time. Cutoffs derive from actual left_actors observer receipts, not ready+Time usage. Missing model truth is never extrapolated.",
+  "metrics_recalculated_with_actual_removal_receipts": true
+}

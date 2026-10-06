@@ -1,0 +1,10 @@
+{
+  "removal_receipt_upper_bound_s": {
+    "0": 2048.644,
+    "1": 2088.74,
+    "4": 2143.4,
+    "5": 2356.828
+  },
+  "observer_callback_not_judge_delete_timestamp": true,
+  "raw_judge_time_usage_unchanged": true
+}

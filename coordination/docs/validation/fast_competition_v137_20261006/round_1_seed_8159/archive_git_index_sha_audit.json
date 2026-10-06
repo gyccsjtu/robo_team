@@ -1,0 +1,11 @@
+{
+  "scope": "Selected manifest entries in staged Git blobs; generated audit, archive_manifest and README excluded from source-byte comparison",
+  "selected_archive_files_checked": 365,
+  "lossless_gzip_files_checked": 3,
+  "sha_mismatches": [],
+  "gzip_source_mismatches": [],
+  "candidate_code_files_checked": 9,
+  "executed_commit": "f5b20efe41d44769591b011d85f5581bf6fe9202",
+  "candidate_revision": "v1.38",
+  "candidate_entity_run": false
+}
