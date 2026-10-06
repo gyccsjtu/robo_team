@@ -29,6 +29,8 @@
 
 ## 新增冻结反馈接口 v1
 
+2026-10-06兼容修订v1.1增加追踪专用TARGET_VISUAL_LOST，schema1不变；以[brown_white_recovery_v139.md](brown_white_recovery_v139.md)为增量约定。下面两原因限制保留为v1初始历史。
+
 `/swarm/navigation_feedback`，std_msgs/String JSON，纯逻辑校验在navigation_feedback.py。
 字段固定：schema_version=1、run_id、uav_id、generation、seq、sample_s、blocked_since_s、reason、position_xy。
 reason仅START_CLEARANCE_UNKNOWN或NO_REACHABLE_PROGRESS。

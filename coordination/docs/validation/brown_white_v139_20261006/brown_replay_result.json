@@ -1,0 +1,54 @@
+{
+  "kind": "observer_scheduled_not_complete_callbacks",
+  "visual_count": 264,
+  "official_count": 579,
+  "baseline_reproduction_max_m": 0.004876005193969651,
+  "baseline": {
+    "outputs": 579,
+    "accurate": 526,
+    "longest_s": 12.0
+  },
+  "candidate": {
+    "outputs": 579,
+    "accurate": 531,
+    "longest_s": 13.5
+  },
+  "breaks": [
+    {
+      "t": 2068.636,
+      "old_error": 1.0301065065886912,
+      "new_error": 1.3798470277859056
+    },
+    {
+      "t": 2084.836,
+      "old_error": 1.0126825033457796,
+      "new_error": 0.946229679941732
+    },
+    {
+      "t": 2169.436,
+      "old_error": 1.0535816792456243,
+      "new_error": 0.5216882906621733
+    },
+    {
+      "t": 2176.936,
+      "old_error": 1.0149095923158815,
+      "new_error": 0.9371187551353383
+    },
+    {
+      "t": 2177.436,
+      "old_error": 1.0024187359159777,
+      "new_error": 0.9237652151578871
+    },
+    {
+      "t": 2186.836,
+      "old_error": 1.0584304951522066,
+      "new_error": 0.8896199654782613
+    }
+  ],
+  "fixed_breaks": 5,
+  "enable_candidate": true,
+  "source_sha256": {
+    "source_aligned_fusion.py": "5500b0bd157cb36fc7f78ecbbbfb64846da506f61b692564cd5810bfebb10156",
+    "yolo_target_bridge.py": "bd7939afed76f02d15385ea71e6483339493571bc0c91909ed9656f2c58b5793"
+  }
+}

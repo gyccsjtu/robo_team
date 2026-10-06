@@ -47,6 +47,7 @@ from target_motion import TargetMotion, current_target_point, handoff_reacquisit
 from route_reservation import RouteGate, exclude_peers, valid_points
 from route_endpoint import connect_exact_goal
 from orbit_geometry import orbit_goal
+from white_reacquisition import WhiteReacquisition
 from publisher_authority import PublisherAuthority
 from fcu_configuration import configure as configure_fcu_parameters
 from fleet_motion_guard import MotionCache, protect as protect_fleet_motion
@@ -460,6 +461,9 @@ class SwarmAgent(object):
         self._tracking_retry_pending = None  # One fresh-evidence retry per new target grant.
         self._last_confirm_t = 0.0   # 上次确认时间
         self._target_to_orbit = None  # 待盘旋目标位置 (x, y)
+        self._white_reacquire = WhiteReacquisition()
+        self._white_reacquire_enabled = os.environ.get('SWARM_WHITE_REACQUIRE', '0') == '1'
+        self._white_reacquire_phase = None
         self._t_seen = {}          # tid -> 最后一次收到位置的时刻（判定目标是否已消失）
         self._giveup_until = {}    # tid -> 该时刻前不再自动盘旋（放弃过 / 已消除）
         self._claims = {}          # tid -> (uav_id, 时刻) 别机正在确认的目标
@@ -760,6 +764,8 @@ class SwarmAgent(object):
                 if not self._gate.receive(message, rospy.Time.now().to_sec()):
                     return
                 if self._gate.stopping:
+                    if getattr(self, '_white_reacquire', None) is not None:
+                        self._white_reacquire.cancel()
                     if getattr(self, '_search_enabled', False):
                         self._pause_search(rospy.Time.now().to_sec())
                     self._tracking_retry_pending = None
@@ -770,6 +776,8 @@ class SwarmAgent(object):
                     self.path, self.path_target = [], None
                     return
                 if previous_generation != self._gate.generation:
+                    if getattr(self, '_white_reacquire', None) is not None:
+                        self._white_reacquire.reset(self._gate.generation, rospy.Time.now().to_sec())
                     if getattr(self, '_search_enabled', False):
                         self._pause_search(rospy.Time.now().to_sec())
                     self._route_gate.clear()
@@ -1159,6 +1167,12 @@ class SwarmAgent(object):
                 if observation is None:
                     return
                 tid = TAG_TO_TID[observation['target_id']]
+                if (getattr(self, '_white_reacquire_enabled', False)
+                        and observation['target_id'] == 'white' and observation['uav_id'] == self.uav_id
+                        and self._gate.can_move(rospy.Time.now().to_sec())
+                        and self._gate.task['task_type'] == 1 and self._gate.task['target_id'] == tid):
+                    self._white_reacquire.observe(self._gate.generation, observation['sample_s'],
+                        observation['xyz'][:2], rospy.Time.now().to_sec())
                 if observation['sample_s'] < self._t_seen.get(tid, -1.):
                     return
                 target = TargetState()
@@ -1179,6 +1193,8 @@ class SwarmAgent(object):
     def _target_cb(self, msg):
         """Cache confirmed camera coordinates and update this assigned target."""
         if msg.eliminated:
+            if msg.target_id == 't3' and getattr(self, '_white_reacquire', None) is not None:
+                self._white_reacquire.cancel()
             self.targets.pop(msg.target_id, None)
             self._target_state.pop(msg.target_id, None)
             # BUGFIX: 目标消除后必须清除盘旋状态，否则飞机会卡在盘旋不动
@@ -2047,7 +2063,7 @@ class SwarmAgent(object):
 
     def _report_blocked_plan(self, reason, now):
         position, evidence = self.world_xy, self._measured_motion(now)
-        if (reason not in ('START_CLEARANCE_UNKNOWN','NO_REACHABLE_PROGRESS')
+        if (reason not in ('START_CLEARANCE_UNKNOWN','NO_REACHABLE_PROGRESS','TARGET_VISUAL_LOST')
                 or position is None or evidence is None or evidence['speed_mps'] > .15
                 or not self._gate.can_move(now)):
             self._blocked_plan = None
@@ -2062,6 +2078,27 @@ class SwarmAgent(object):
                 run_id=self._gate.run_id,uav_id=self.uav_id,generation=self._gate.generation,
                 seq=self._blocked_feedback_seq,sample_s=now,blocked_since_s=old[0],
                 position_xy=list(position),reason=reason),allow_nan=False)))
+
+    def _control_white_reacquire(self, now, target_id, in_cooldown):
+        eligible = (target_id == TAG_TO_TID['white'] and not in_cooldown
+                    and self._gate.can_move(now))
+        state, point = self._white_reacquire.step(self._gate.generation, now, self.world_xy, eligible)
+        if state != self._white_reacquire_phase:
+            if state == 'FAILED':
+                self._blocked_plan = None
+            rospy.loginfo('[%s] WHITE_REACQUIRE %s generation=%s original_s=%s',
+                self.uav_id, state, self._gate.generation, self._white_reacquire.sample_s)
+            self._white_reacquire_phase = state
+        if state == 'RESUMED':
+            self._target_to_orbit = point
+            self._blocked_plan = None
+        if state in ('SCANNING', 'FAILED'):
+            self._look_at = point
+            self._send_vel(0., 0.)
+            if state == 'FAILED':
+                self._report_blocked_plan('TARGET_VISUAL_LOST', now)
+            return True
+        return False
 
     # ---------------- 异步规划接口 ----------------
     def _request_plan(self, goal_xy):
@@ -2214,6 +2251,8 @@ class SwarmAgent(object):
             self._send_vel(0., 0.)
             return
         if not self._gate.can_move(rospy.Time.now().to_sec()):
+            if getattr(self, '_white_reacquire', None) is not None:
+                self._white_reacquire.cancel()
             self._look_at = None
             self._send_vel(0., 0.)
             return
@@ -2271,6 +2310,9 @@ class SwarmAgent(object):
             _track_id = getattr(self.assignment, 'target_id', None)
             _in_cooldown = (_track_id and
                             rospy.Time.now().to_sec() < self._giveup_until.get(_track_id, 0.0))
+            if (getattr(self, '_white_reacquire_enabled', False)
+                    and self._control_white_reacquire(rospy.Time.now().to_sec(), _track_id, _in_cooldown)):
+                return
             if _in_cooldown or self._orbit_stale() or self._target_to_orbit is None:
                 # Backoff stops translation, not observation. Never fall through
                 # to search with a retained orbit route after _abort_orbit.

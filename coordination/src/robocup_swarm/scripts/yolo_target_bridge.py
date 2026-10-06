@@ -31,6 +31,7 @@ import threading
 from visual_observation import VisualEvidence, TAG_TO_TID
 from search_completion import parse_actor_list
 from red_observations import RedObservations, actor_slot_remaining
+from source_aligned_fusion import SourceAlignedFusion
 
 # ---- 非红色身份与内部红色几何槽（红色槽不声明actor身份）----
 TAG_TO_TID = {
@@ -101,7 +102,7 @@ class _Track(object):
     __slots__ = ("tag", "obs", "x", "y", "vx", "vy", "conf",
                  "t_obs", "position_s", "alive", "elim_pending",
                  "_last_fx", "_last_fy", "_last_ft",
-                 "_high_conf_count", "_motion_history", "_last_vel_mag")
+                 "_high_conf_count", "_motion_history", "_last_vel_mag", "source_fusion", "alignment")
 
     def __init__(self, tag):
         self.tag = tag
@@ -121,6 +122,8 @@ class _Track(object):
         self._high_conf_count = 0  # 连续高置信度帧数
         self._motion_history = []   # 运动历史，用于一致性校验
         self._last_vel_mag = 0.0   # 上一次速度幅值
+        self.source_fusion = SourceAlignedFusion()
+        self.alignment = None
 
 
 def parse_report(payload):
@@ -170,13 +173,14 @@ def parse_left_actors(raw):
 class TargetBridgeCore(object):
     """纯逻辑桥（无 rospy）。"""
 
-    def __init__(self):
+    def __init__(self, brown_alignment=False):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
+        self.brown_alignment = brown_alignment
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
         self._left_seen = False
 
     # ---- 感知输入 ----
-    def report(self, t, target_id, x, y, conf):
+    def report(self, t, target_id, x, y, conf, source_id=None, observation_id=None):
         """吸收一条 YOLO 观测。非法参数抛 ValueError。"""
         tag = str(target_id)
         if tag not in self.tracks:
@@ -196,6 +200,8 @@ class TargetBridgeCore(object):
             tr._high_conf_count = 0
             tr._motion_history = []
             tr._last_vel_mag = 0.
+            tr.source_fusion = SourceAlignedFusion()
+            tr.alignment = None
             tr.alive = False
         w = conf * conf if conf > 0.0 else 1e-6
         # 先裁剪过期观测：一致性锚点只在 OBS_WINDOW 内有效。
@@ -215,6 +221,12 @@ class TargetBridgeCore(object):
             if math.hypot(x - tr.x, y - tr.y) > SPREAD_FAR_M:
                 return
         # 超过 COAST_TIME：真·重捕获，允许任意位置。
+        alignment = None
+        if self.brown_alignment and tag == 'brown' and source_id is not None:
+            alignment = tr.source_fusion.observe(source_id, t, (x,y), conf, observation_id)
+            if alignment is None:
+                return
+        tr.alignment = alignment
         tr.obs.append((float(t), x, y, w, conf))
 
         sw = sum(o[3] for o in tr.obs)
@@ -224,7 +236,12 @@ class TargetBridgeCore(object):
         tr.conf = max(o[4] for o in tr.obs)
 
         # 速度差分 + EMA（用融合位置，保证平滑）
-        if tr._last_fx is not None:
+        if alignment is not None:
+            fx, fy = alignment['xy']
+            position_s = alignment['position_s']
+            tr.vx, tr.vy = alignment['velocity']
+            tr.alignment = alignment
+        elif tr._last_fx is not None:
             dt = position_s - tr._last_ft
             if dt >= VEL_DT_MIN:
                 tr.vx = _vel_ema(tr.vx, (fx - tr._last_fx) / dt)
@@ -355,7 +372,7 @@ class YoloTargetBridge(object):
         self._rospy = rospy
         self._TargetState = TargetState
         self._ActorInfo = ActorInfo
-        self.core = TargetBridgeCore()
+        self.core = TargetBridgeCore(brown_alignment=os.environ.get('BRIDGE_BROWN_ALIGNED', '0') == '1')
         self._red_observations = RedObservations()
         self._lock = threading.RLock()
         self.evidence = VisualEvidence(os.environ.get('ROBOCUP_RUN_ID', ''),
@@ -405,7 +422,8 @@ class YoloTargetBridge(object):
                     if tag is None:
                         return
                     observation['target_id'] = tag
-                self.core.report(stamp, tag, x, y, observation['confidence'])
+                self.core.report(stamp, tag, x, y, observation['confidence'],
+                                 observation['uav_id'], observation['observation_id'])
                 track = self.core.tracks[tag]
                 if not track.alive or track.t_obs != stamp or tag in self.core.eliminated:
                     return
@@ -451,6 +469,10 @@ class YoloTargetBridge(object):
             am.x = round(ev["x"], 3)
             am.y = round(ev["y"], 3)
             self._actor_pubs[tag].publish(am)
+            if tag == 'brown' and track.alignment is not None:
+                self._rospy.loginfo_throttle(.5, 'BROWN_ALIGNMENT %s', json.dumps(dict(
+                    track.alignment, original_s=track.t_obs, prediction_s=self._now(),
+                    uploaded_xy=[am.x, am.y], extrapolation_xy=[ev['x']-track.x, ev['y']-track.y])))
 
     def _tick(self, _evt):
         with self._lock:

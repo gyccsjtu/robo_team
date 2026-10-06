@@ -1,0 +1,8 @@
+{
+  "coordination/src/robocup_swarm/scripts/source_aligned_fusion.py": "5500b0bd157cb36fc7f78ecbbbfb64846da506f61b692564cd5810bfebb10156",
+  "coordination/src/robocup_swarm/scripts/white_reacquisition.py": "a6e384e62632354ef985d9748c3d3030ecf27997bf3a13c294040b4702ac30ce",
+  "coordination/src/robocup_swarm/scripts/swarm_agent.py": "9e6009d7e21c894dea4382ae2f0eb8eae0136593fba91ab75b4d74f5eb0364eb",
+  "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py": "bd7939afed76f02d15385ea71e6483339493571bc0c91909ed9656f2c58b5793",
+  "coordination/src/robocup_swarm/scripts/navigation_feedback.py": "3f739f451dd5e0881d470b716596b1f7f2fc7f84da0af9882d77d190e15d6102",
+  "coordination/scripts/city_swarm_run.py": "5a8400f9aeb41922277da463c069cbb1e7baeb007282bec4a2f0bb816c9a58a3"
+}

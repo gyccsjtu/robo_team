@@ -1,0 +1,9 @@
+{
+  "ports_open": {
+    "11375": false,
+    "11376": false,
+    "19731": false
+  },
+  "selected_processes": [],
+  "physical_simulation_started": false
+}

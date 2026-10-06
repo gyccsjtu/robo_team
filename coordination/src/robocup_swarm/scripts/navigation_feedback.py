@@ -38,7 +38,8 @@ def accept(message, run_id, fleet, active, motion, now, previous_seq):
                 or message['run_id'] != run_id or uid not in fleet or not task or task['stopping']
                 or type(message['generation']) is not int or message['generation'] != task['generation'] or type(message['seq']) is not int
                 or message['seq'] <= previous_seq.get(uid,0) or not state
-                or message['reason'] not in ('START_CLEARANCE_UNKNOWN','NO_REACHABLE_PROGRESS')
+                or message['reason'] not in ('START_CLEARANCE_UNKNOWN','NO_REACHABLE_PROGRESS','TARGET_VISUAL_LOST')
+                or (message['reason'] == 'TARGET_VISUAL_LOST' and task.get('task', {}).get('task_type') != 1)
                 or len(message['position_xy']) != 2
                 or not all(math.isfinite(x) for x in (*message['position_xy'],message['sample_s'],message['blocked_since_s'],now))
                 or not 0 <= now-message['sample_s'] <= .5
