@@ -7,6 +7,8 @@ sys.path.insert(0,str(ROOT/'src/robocup_swarm/scripts'))
 sys.path.insert(0,str(ROOT/'src/robocup_navigation/src'))
 from bounded_escape import choose_exit, RestEvidence
 from robocup_navigation.astar import GridMap
+from online_radar_planner import OnlinePlanner
+from radar_observed_map import ObservedMap
 
 
 class BoundedEscapeTests(unittest.TestCase):
@@ -88,6 +90,56 @@ class RestEvidenceTests(unittest.TestCase):
             rest.update(self.evidence(10.25),10.25,2)
             self.assertFalse(rest.update(self.evidence(stamp),now,authority))
             self.assertFalse(rest.update(self.evidence(stamp+.25),now+.25,authority))
+
+
+class ExitSnapshotTests(unittest.TestCase):
+    def fixture(self):
+        observed = ObservedMap(40,40,.25,(0.,0.))
+        observed.cells = [0]*1600
+        observed.observed_s = [10.]*1600
+        observed.last_scan_s = 10.
+        observed.version = 3
+        observed.cells[20*40+25] = 100
+        return observed,OnlinePlanner((5.125,5.125)),(5.125,5.125)
+
+    def test_same_snapshot_and_peer_filter_apply_to_both_radii(self):
+        observed,planner,start = self.fixture()
+        before = (list(observed.cells),list(observed.observed_s))
+        filtered = []
+        def peer_filter(grid):
+            filtered.append(grid)
+            return grid
+        result = planner.exit_candidate(observed,start,10.,1,peer_filter)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(filtered),2)
+        self.assertFalse(filtered[0].is_free(filtered[0].world_to_cell(start)))
+        self.assertTrue(filtered[1].is_free(filtered[1].world_to_cell(start)))
+        self.assertEqual(result['points'][0],start)
+        self.assertEqual(result['blocking_hits'],((6.375,5.125),))
+        self.assertEqual((result['scan_s'],result['version'],result['epoch']),(10.,3,1))
+        self.assertEqual(planner.radius,1.2)
+        self.assertEqual(before,(observed.cells,observed.observed_s))
+
+    def test_peer_blocked_start_and_stale_scan_cannot_escape(self):
+        observed,planner,start = self.fixture()
+        def peer_filter(grid):
+            cells = bytearray(grid.cells)
+            cell = grid.world_to_cell(start)
+            cells[cell[1]*grid.width+cell[0]] = 1
+            return GridMap(grid.width,grid.height,grid.resolution,grid.origin,bytes(cells),'map')
+        self.assertIsNone(planner.exit_candidate(observed,start,10.,1,peer_filter))
+        self.assertIsNone(planner.exit_candidate(observed,start,10.501,1,lambda g:g))
+        self.assertIsNone(planner.exit_candidate(observed,start,10.,1,None))
+
+    def test_unknown_only_and_hit_inside_recovery_radius_stay_blocked(self):
+        observed,planner,start = self.fixture()
+        observed.cells = [-1]*1600
+        observed.observed_s = [None]*1600
+        self.assertIsNone(planner.exit_candidate(observed,start,10.,1,lambda g:g))
+        observed,planner,start = self.fixture()
+        observed.cells[20*40+25] = 0
+        observed.cells[20*40+23] = 100
+        self.assertIsNone(planner.exit_candidate(observed,start,10.,1,lambda g:g))
 
 
 if __name__ == '__main__':

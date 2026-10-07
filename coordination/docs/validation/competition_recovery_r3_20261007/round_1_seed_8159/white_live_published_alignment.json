@@ -1,0 +1,91 @@
+{
+  "status": "LIVE_NOT_JUDGE_RESULT",
+  "rows": [
+    {
+      "source": "perception_typhoon_h480_5.csv",
+      "original_s": 2017.576,
+      "conf": "0.76",
+      "xy": [
+        "-26.00810770445119",
+        "13.271911013513357"
+      ],
+      "nearest_truth_dt": 0.012000000000170985,
+      "error_m": 115.36376129737961
+    },
+    {
+      "source": "perception_typhoon_h480_5.csv",
+      "original_s": 2019.98,
+      "conf": "0.613",
+      "xy": [
+        "-26.366091844021803",
+        "13.393906596791428"
+      ],
+      "nearest_truth_dt": 0.012000000000170985,
+      "error_m": 118.10389353523554
+    },
+    {
+      "source": "perception_typhoon_h480_5.csv",
+      "original_s": 2019.98,
+      "conf": "0.613",
+      "xy": [
+        "-26.63457994869976",
+        "13.48540328424998"
+      ],
+      "nearest_truth_dt": 0.012000000000170985,
+      "error_m": 118.38376622306497
+    },
+    {
+      "source": "perception_typhoon_h480_5.csv",
+      "original_s": 2019.98,
+      "conf": "0.613",
+      "xy": [
+        "-26.701701974869245",
+        "13.50827745611462"
+      ],
+      "nearest_truth_dt": 0.012000000000170985,
+      "error_m": 118.45373720306061
+    },
+    {
+      "source": "perception_typhoon_h480_5.csv",
+      "original_s": 2019.98,
+      "conf": "0.613",
+      "xy": [
+        "-26.712888979230826",
+        "13.512089818092058"
+      ],
+      "nearest_truth_dt": 0.012000000000170985,
+      "error_m": 118.46539914192812
+    },
+    {
+      "source": "perception_typhoon_h480_5.csv",
+      "original_s": 2019.98,
+      "conf": "0.613",
+      "xy": [
+        "-26.756235318318247",
+        "13.526154193014492"
+      ],
+      "nearest_truth_dt": 0.012000000000170985,
+      "error_m": 118.51046951750433
+    },
+    {
+      "source": "perception_typhoon_h480_5.csv",
+      "original_s": 2019.98,
+      "conf": "0.613",
+      "xy": [
+        "-26.77511173677156",
+        "13.532233289981349"
+      ],
+      "nearest_truth_dt": 0.012000000000170985,
+      "error_m": 118.5300893203167
+    }
+  ],
+  "unique_original_s": [
+    2017.576,
+    2019.98
+  ],
+  "interpretation": "Seven CSV publishes contain only two independent original images. Both published coordinates are over115m from aligned official white truth. Actual bridge input trace has two accepted inputs and alive=false; no official activation. Raw image001 inspected, with right-side background human candidate and another UAV in view; do not infer all rejection causes from image alone.",
+  "raw_images": [
+    "observers/frames/uav_6_white_001.png",
+    "observers/frames/uav_6_white_002.png"
+  ]
+}

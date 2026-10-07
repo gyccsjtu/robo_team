@@ -248,6 +248,48 @@ class OnlinePlanner:
         points = (tuple(start),) + tuple(result.points) + (tuple(endpoint),)
         return dict(ok=True, reason='GOAL_OBSERVED' if complete else 'OBSERVED_FRONTIER', points=points)
 
+    def exit_candidate(self, observed, position, now, epoch, grid_filter):
+        """Propose a short exit using two radii on the same observed snapshot.
+
+        The caller supplies the same frozen peer/retained-route exclusion for
+        both grids. Only existing body proof is copied; fresh hits still revoke
+        it. No authorization or execution state is changed by this method.
+        """
+        from bounded_escape import choose_exit
+        if (not callable(grid_filter) or self.radius != 1.2 or observed.last_scan_s is None
+                or not math.isfinite(now)
+                or len(position) != 2 or not all(math.isfinite(v) for v in position)
+                or not 0 <= now-observed.last_scan_s <= .5):
+            return None
+        index = observed.index(*position)
+        if index is None:
+            return None
+        initial = (index % observed.width,index // observed.width)
+        normal = grid_filter(self.grid(observed, position, now, epoch))
+        recovery = OnlinePlanner(self.seed_xy, self.seed_radius, radius=.9)
+        with self._body_lock:
+            recovery.body_proof = set(self.body_proof)
+            recovery.epoch = self.epoch
+            recovery._body_sample_s = self._body_sample_s
+        narrow = grid_filter(recovery.grid(observed, position, now, epoch))
+        hits = []
+        values = observed.snapshot(now)
+        reach = math.ceil((self.radius+observed.resolution/2)/observed.resolution)
+        for dy in range(-reach,reach+1):
+            for dx in range(-reach,reach+1):
+                ix,iy = initial[0]+dx,initial[1]+dy
+                if (0 <= ix < observed.width and 0 <= iy < observed.height
+                        and math.hypot(dx,dy)*observed.resolution <= self.radius+observed.resolution/2
+                        and values[iy*observed.width+ix] == 100):
+                    hits.append((observed.origin[0]+(ix+.5)*observed.resolution,
+                                 observed.origin[1]+(iy+.5)*observed.resolution))
+        points = choose_exit(normal,narrow,position,hits)
+        if points is None:
+            return None
+        return dict(points=points, grid=narrow, planner=recovery,
+                    scan_s=observed.last_scan_s, epoch=epoch, version=observed.version,
+                    blocking_hits=tuple(hits))
+
     @staticmethod
     def connector_clear(grid, start, end):
         """Check every crossed grid cell, including cells touched at corners."""

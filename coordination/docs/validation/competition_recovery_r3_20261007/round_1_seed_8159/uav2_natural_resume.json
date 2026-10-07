@@ -1,0 +1,20 @@
+{
+  "kind": "observed_natural_resume_not_candidate_execution",
+  "anchor_xy": [
+    51.087116549158814,
+    -22.66407113006316
+  ],
+  "start_s": 2017.572,
+  "first_exit_1m_s": 2285.376,
+  "duration_s": 267.8040000000003,
+  "first_exit_position": [
+    52.13436643491216,
+    -23.205789171360585,
+    2.4076799314549384
+  ],
+  "executed_commit": "e83839b",
+  "notes": [
+    "First1m displacement is a threshold observation, not full root cause",
+    "No recovery candidate code was executed; do not attribute resume to new worktree changes"
+  ]
+}

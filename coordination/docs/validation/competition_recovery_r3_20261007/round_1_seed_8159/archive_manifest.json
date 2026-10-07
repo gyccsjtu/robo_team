@@ -1,0 +1,67 @@
+[
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/judge.log",
+    "archived": "flight/judge.log",
+    "source_sha256": "fb548e0842685e6fbea4eabfffb9018779adc385946837d5e9a9cad114d12d20",
+    "size": 1672
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/result.json",
+    "archived": "flight/result.json",
+    "source_sha256": "c43eeb04e0f5b4ca5e04926864da9fc2daf2bd3e19b9f66f8bc4217bc4fa39d8",
+    "size": 20430
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/city_trajectory.jsonl",
+    "archived": "flight/city_trajectory.jsonl.gz",
+    "source_sha256": "151302b96b5a85da067120216b678a77731b9df6d565e53b18e3f246de31f9b5",
+    "size": 1352043
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/city_contacts.log",
+    "archived": "flight/city_contacts.log.gz",
+    "source_sha256": "12846b753dc9272180713c1068620c203b49e47234fa0f1e6d2d11354247333f",
+    "size": 780579
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/source_manifest.json",
+    "archived": "source_manifest.json",
+    "source_sha256": "9d7c9d9214a090cea676043e8c847160341e7cc63e91b702b64c0a1cd561defc",
+    "size": 25172
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/live_checkpoint_source_audit.json",
+    "archived": "live_checkpoint_source_audit.json",
+    "source_sha256": "e73b7ae954dacf2211fc725961a6b91ed0ff585dedf08627dec155b1df3807f0",
+    "size": 1012
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/uav2_natural_resume.json",
+    "archived": "uav2_natural_resume.json",
+    "source_sha256": "84d75fe458ff7f9f94d47bed1ced80c7caea2d8809230b031c7c8bc3be4e07f2",
+    "size": 545
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/uav2_recorded_footprint_replay.json",
+    "archived": "uav2_recorded_footprint_replay.json",
+    "source_sha256": "1ce8af2d82fde54d418a4334d0d1b67a7688d3229bf7727f40594234df4f8f45",
+    "size": 5737
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/white_live_published_alignment.json",
+    "archived": "white_live_published_alignment.json",
+    "source_sha256": "9530d0208faf0ee1955c11983d3fffb9e00006082e17d095aa3efd9d3096e6cb",
+    "size": 2581
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/blue_live_original_alignment.json",
+    "archived": "blue_live_original_alignment.json",
+    "source_sha256": "c9114bc4df180e4817a26bf96649636220bbbe08e2aeffab38b654589253a513",
+    "size": 8080
+  },
+  {
+    "source": "/root/robocup_runs/competition_recovery_r3_20261007/budget.json",
+    "archived": "budget.json",
+    "source_sha256": "459bd0349e484ebd1a9e993ada0a5514f281894fd4194842154417f1317d5267"
+  }
+]

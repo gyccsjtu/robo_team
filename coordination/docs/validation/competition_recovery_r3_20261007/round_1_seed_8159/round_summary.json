@@ -1,0 +1,34 @@
+{
+  "executed_commit": "e83839b",
+  "candidate_commit_at_round_end": "34cba60",
+  "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+  "judge_deleted": [
+    0
+  ],
+  "judge_deleted_count": 1,
+  "judge_terminal_summary": false,
+  "trajectory_first_s": 1930.744,
+  "trajectory_last_s": 2530.692,
+  "trajectory_span_s": 599.9480000000001,
+  "maximum_true_z": 3.4204388668952954,
+  "travel_m": {
+    "uav_1": 398.63206508851135,
+    "uav_2": 221.99875232162148,
+    "uav_3": 424.76013310915164,
+    "uav_4": 407.36926335109507,
+    "uav_5": 449.68032623105375,
+    "uav_6": 471.15157833954487
+  },
+  "non_ground_contact_rows": 0,
+  "contact_observer_last": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 150298,
+    "first_sample_s": 1929.708,
+    "last_sample_s": 2530.896,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 418516,
+    "body_pairs": 50108
+  },
+  "raw_root": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159",
+  "new_escape_executed": false
+}

@@ -1,0 +1,42 @@
+{
+  "captured_utc": "2026-10-07T10:34:03.652576Z",
+  "run_directory": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159",
+  "status": "RUNNING_NOT_FINAL",
+  "source_audit": {
+    "swarm_source_manifest.json": {
+      "matched": 138,
+      "total": 138
+    },
+    "execution_sources.json": {
+      "matched": 13,
+      "total": 13
+    }
+  },
+  "mismatches": [],
+  "trajectory_span_s": 58.024000000000115,
+  "actual_travel_3d_m": {
+    "uav_1": 33.94192247093504,
+    "uav_2": 40.6857205043005,
+    "uav_3": 48.994192390349184,
+    "uav_4": 46.2818592799274,
+    "uav_5": 45.382336522565154,
+    "uav_6": 27.27682487597442
+  },
+  "maximum_true_z_m": 3.4204388668952954,
+  "latest_judge_remaining": {
+    "kind": "left_actors",
+    "sample_s": 1985.808,
+    "value": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "notes": [
+    "Live checkpoint only; not full600sec evidence or completion",
+    "Official judge source unchanged; no new simulation launched this turn"
+  ]
+}

@@ -8,7 +8,8 @@ class PositionBrake:
         self.transform = None
         self.altitude = None
 
-    def encode(self, velocity, yaw_rate, position, transform, hold_altitude=None):
+    def encode(self, velocity, yaw_rate, position, transform, hold_altitude=None,
+               moving_altitude=None):
         if len(velocity) != 3 or not all(math.isfinite(v) for v in velocity) or not math.isfinite(yaw_rate):
             raise ValueError('NONFINITE_SETPOINT')
         moving = math.hypot(*velocity[:2]) > 1e-9
@@ -33,7 +34,13 @@ class PositionBrake:
         elif self.altitude is None:
             self.altitude = hold_altitude
         holding_xyz = holding and self.altitude is not None
-        return dict(coordinate_frame=1, type_mask=1528 if holding_xyz else 1500 if holding else 1479,
+        # Explicit vertical velocity (takeoff, landing, height emergency) wins.
+        # Moving XY with a requested Z position ignores VZ, not VX/VY.
+        moving_z = (moving and moving_altitude is not None and position is not None
+                    and abs(velocity[2]) <= 1e-9)
+        if moving_z and not math.isfinite(moving_altitude):
+            raise ValueError('INVALID_MOVING_ALTITUDE')
+        return dict(coordinate_frame=1, type_mask=1528 if holding_xyz else 1500 if holding else 1507 if moving_z else 1479,
                     position_xy=self.anchor if holding else (0., 0.),
-                    position_z=self.altitude if holding_xyz else 0.,
+                    position_z=self.altitude if holding_xyz else moving_altitude if moving_z else 0.,
                     velocity_xyz=(0.,0.,0.) if holding_xyz else tuple(velocity), yaw_rate=yaw_rate)

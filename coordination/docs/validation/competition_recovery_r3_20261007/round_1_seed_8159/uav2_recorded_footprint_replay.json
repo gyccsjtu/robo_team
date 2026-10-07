@@ -1,0 +1,322 @@
+{
+  "scope": "Partial recorded scan windows, no previous body-proof replay; current hit cannot be removed by body proof",
+  "results": [
+    {
+      "s": 2018.12,
+      "reason": "ONLINE_SPACE_UNKNOWN",
+      "position_xy": [
+        51.089082709979266,
+        -22.76602038834244
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [],
+      "zero_command_query": true
+    },
+    {
+      "s": 2018.22,
+      "reason": "MOVING",
+      "position_xy": [
+        51.15064047975466,
+        -22.786530108191073
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [],
+      "zero_command_query": true
+    },
+    {
+      "s": 2018.268,
+      "reason": "ONLINE_SPACE_UNKNOWN",
+      "position_xy": [
+        51.16930579347536,
+        -22.791199297644198
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            51.75,
+            -21.75
+          ],
+          "stamp": 2018.244
+        },
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2018.244
+        }
+      ],
+      "zero_command_query": false
+    },
+    {
+      "s": 2018.776,
+      "reason": "RADAR_BRAKING_REQUIRED",
+      "position_xy": [
+        51.36734580202028,
+        -22.82350215408951
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            51.75,
+            -21.75
+          ],
+          "stamp": 2018.748
+        },
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2018.748
+        }
+      ],
+      "zero_command_query": false
+    },
+    {
+      "s": 2021.568,
+      "reason": "AUTHORITY_STOP",
+      "position_xy": [
+        51.32280158204958,
+        -22.6367689082399
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            51.75,
+            -21.75
+          ],
+          "stamp": 2019.248
+        },
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2021.252
+        }
+      ],
+      "zero_command_query": false
+    },
+    {
+      "s": 2025.12,
+      "reason": "REQUESTED_STOP",
+      "position_xy": [
+        51.26370810670778,
+        -22.73278293106705
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2024.756
+        }
+      ],
+      "zero_command_query": false
+    },
+    {
+      "s": 2031.168,
+      "reason": "AUTHORITY_STOP",
+      "position_xy": [
+        51.233118049334735,
+        -22.751309008337557
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2030.768
+        }
+      ],
+      "zero_command_query": false
+    },
+    {
+      "s": 2032.368,
+      "reason": "REQUESTED_STOP",
+      "position_xy": [
+        51.22741126222536,
+        -22.750128359533846
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2032.268
+        }
+      ],
+      "zero_command_query": false
+    },
+    {
+      "s": 2036.428,
+      "reason": "RADAR_STALE_SCAN",
+      "position_xy": [
+        51.18215750856325,
+        -22.768385500647128
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2036.268
+        }
+      ],
+      "zero_command_query": false
+    },
+    {
+      "s": 2036.468,
+      "reason": "REQUESTED_STOP",
+      "position_xy": [
+        51.18168448610231,
+        -22.768293947912753
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2036.268
+        }
+      ],
+      "zero_command_query": false
+    },
+    {
+      "s": 2038.42,
+      "reason": "AUTHORITY_STOP",
+      "position_xy": [
+        51.18695639772341,
+        -22.76797923538834
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2038.272
+        }
+      ],
+      "zero_command_query": false
+    },
+    {
+      "s": 2039.468,
+      "reason": "REQUESTED_STOP",
+      "position_xy": [
+        51.19258689088747,
+        -22.770769686438143
+      ],
+      "feed_ok": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "blocking_recent_hits": [
+        {
+          "xy": [
+            52.0,
+            -21.75
+          ],
+          "stamp": 2039.272
+        }
+      ],
+      "zero_command_query": false
+    }
+  ]
+}

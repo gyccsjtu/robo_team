@@ -8,6 +8,30 @@ from position_brake import PositionBrake
 
 
 class PositionBrakeTests(unittest.TestCase):
+    def test_moving_xy_can_hold_z_without_ignoring_horizontal_velocity(self):
+        gate = PositionBrake()
+        output = gate.encode((.3,0.,0.),.2,(2.,3.),'frame',moving_altitude=2.4)
+        self.assertEqual(output['type_mask'],1507)
+        self.assertEqual(output['position_z'],2.4)
+        self.assertEqual(output['velocity_xyz'],(.3,0.,0.))
+        self.assertEqual(output['yaw_rate'],.2)
+        mask = output['type_mask']
+        self.assertTrue(mask & 1 and mask & 2)  # Ignore PX/PY.
+        self.assertFalse(mask & 4)  # Use PZ.
+        self.assertFalse(mask & 8 or mask & 16)  # Use VX/VY.
+        self.assertTrue(mask & 32)  # Ignore VZ.
+
+    def test_vertical_emergency_and_missing_pose_override_moving_z_hold(self):
+        gate = PositionBrake()
+        for vz in (-1.,.8):
+            output = gate.encode((.3,0.,vz),0.,(2.,3.),'frame',moving_altitude=2.4)
+            self.assertEqual(output['type_mask'],1479)
+            self.assertEqual(output['velocity_xyz'][2],vz)
+        self.assertEqual(gate.encode((.3,0.,0.),0.,None,'frame',
+                                    moving_altitude=2.4)['type_mask'],1479)
+        with self.assertRaises(ValueError):
+            gate.encode((.3,0.,0.),0.,(2.,3.),'frame',moving_altitude=float('nan'))
+
     def test_xyz_stop_latches_altitude_and_explicit_descent_keeps_velocity_mode(self):
         gate = PositionBrake()
         first = gate.encode((0.,0.,0.),0.,(2.,3.),'frame',hold_altitude=2.3)
