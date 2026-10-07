@@ -67,6 +67,7 @@ NEW_TRACK_CONF = float(os.environ.get("BRIDGE_NEW_TRACK_CONF", "0.7"))
 # Actual white-person camera observations are often below the other colors'
 # threshold. Preserve their measured confidence; do not relabel it as 0.7.
 WHITE_NEW_TRACK_CONF = float(os.environ.get("BRIDGE_WHITE_NEW_TRACK_CONF", "0.4"))
+BROWN_NEW_TRACK_CONF = float(os.environ.get("BRIDGE_BROWN_NEW_TRACK_CONF", "0.6"))
 
 # ---- 国家一等奖标准改进：多帧验证 + 自适应参数 ----
 # 多帧验证：新轨迹需要连续 N 帧高置信度观测才能激活
@@ -103,7 +104,8 @@ class _Track(object):
     __slots__ = ("tag", "obs", "x", "y", "vx", "vy", "conf",
                  "t_obs", "position_s", "alive", "elim_pending",
                  "_last_fx", "_last_fy", "_last_ft",
-                 "_high_conf_count", "_motion_history", "_last_vel_mag", "source_fusion", "alignment")
+                 "_high_conf_count", "_motion_history", "_last_vel_mag", "source_fusion", "alignment",
+                 "_brown_source_samples")
 
     def __init__(self, tag):
         self.tag = tag
@@ -125,6 +127,7 @@ class _Track(object):
         self._last_vel_mag = 0.0   # 上一次速度幅值
         self.source_fusion = SourceAlignedFusion()
         self.alignment = None
+        self._brown_source_samples = {}
 
 
 def parse_report(payload):
@@ -174,10 +177,14 @@ def parse_left_actors(raw):
 class TargetBridgeCore(object):
     """纯逻辑桥（无 rospy）。"""
 
-    def __init__(self, brown_alignment=False, red_motion_limits=False):
+    def __init__(self, brown_alignment=False, red_motion_limits=False, brown_activation=False):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
         self.brown_alignment = brown_alignment
         self.red_motion_limits = red_motion_limits
+        self.brown_activation = brown_activation
+        if brown_activation and (not math.isfinite(BROWN_NEW_TRACK_CONF)
+                                 or not 0 < BROWN_NEW_TRACK_CONF <= 1):
+            raise ValueError('INVALID_BROWN_ACTIVATION_CONFIDENCE')
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
         self._left_seen = False
 
@@ -190,6 +197,14 @@ class TargetBridgeCore(object):
         if tag in self.eliminated:
             return False                # 已消除目标的残余观测，不复活
         tr = self.tracks[tag]
+        if self.brown_activation and tag == 'brown':
+            if (not isinstance(source_id,str) or not source_id
+                    or not isinstance(observation_id,str) or not observation_id
+                    or not math.isfinite(t)):
+                return False
+            previous = tr._brown_source_samples.get(source_id)
+            if previous is not None and (t <= previous[0] or observation_id == previous[1]):
+                return False
         if t < tr.t_obs:
             return False
         if t - tr.t_obs > COAST_TIME:
@@ -255,6 +270,8 @@ class TargetBridgeCore(object):
         tr.x, tr.y = fx, fy
         tr.position_s = position_s
         tr.t_obs = float(t)
+        if self.brown_activation and tag == 'brown':
+            tr._brown_source_samples[source_id] = (float(t),observation_id)
         
         # ---- 国家一等奖标准改进：多帧验证 ----
         # 记录运动历史
@@ -266,6 +283,8 @@ class TargetBridgeCore(object):
         # 新轨激活逻辑：需要连续多帧高置信度 + 运动一致性校验
         if not tr.alive:
             threshold = WHITE_NEW_TRACK_CONF if tag == 'white' else NEW_TRACK_CONF
+            if self.brown_activation and tag == 'brown':
+                threshold = BROWN_NEW_TRACK_CONF
             if conf >= threshold:
                 tr._high_conf_count += 1
                 # 额外校验：运动一致性（误检目标通常运动异常）
@@ -380,7 +399,8 @@ class YoloTargetBridge(object):
         self._ActorInfo = ActorInfo
         self.core = TargetBridgeCore(
             brown_alignment=os.environ.get('BRIDGE_BROWN_ALIGNED', '0') == '1',
-            red_motion_limits=os.environ.get('BRIDGE_RED_MOTION_LIMITS', '0') == '1')
+            red_motion_limits=os.environ.get('BRIDGE_RED_MOTION_LIMITS', '0') == '1',
+            brown_activation=os.environ.get('BRIDGE_BROWN_ACTIVATION', '0') == '1')
         self._red_observations = RedObservations()
         self._lock = threading.RLock()
         self._trace = None

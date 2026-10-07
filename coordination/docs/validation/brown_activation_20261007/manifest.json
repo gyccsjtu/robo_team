@@ -1,0 +1,17 @@
+{
+  "base_commit": "d7f89a0",
+  "tests": 707,
+  "scope": "Offline original input and nearest-time truth diagnosis; no actual candidate flight",
+  "sources": [
+    {
+      "path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_brown.jsonl",
+      "sha256": "ba6766e0affe7beda45f892719bf6ed0d2f96317a00d015870e00424d57726b4",
+      "bytes": 939354
+    },
+    {
+      "path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/algorithm/bridge_trace.jsonl",
+      "sha256": "9e7c3e9c64a60116afd7182245d3315775c07cf2ef6898df1a045640bdcc167b",
+      "bytes": 310939
+    }
+  ]
+}

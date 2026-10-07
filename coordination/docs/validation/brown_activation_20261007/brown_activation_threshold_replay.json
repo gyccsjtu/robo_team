@@ -1,0 +1,809 @@
+{
+  "scope": "Actual accepted brown originals replayed through current pure bridge; no task, physical or judge replay",
+  "candidate_thresholds": [
+    {
+      "threshold": 0.7,
+      "first_activation_s": null,
+      "states": [
+        {
+          "sample_s": 2459.148,
+          "receipt_s": 2459.472,
+          "confidence": 0.478,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2476.296,
+          "receipt_s": 2476.756,
+          "confidence": 0.692,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2477.628,
+          "receipt_s": 2478.072,
+          "confidence": 0.81,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2477.956,
+          "receipt_s": 2478.556,
+          "confidence": 0.609,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2478.332,
+          "receipt_s": 2478.872,
+          "confidence": 0.852,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2478.748,
+          "receipt_s": 2479.272,
+          "confidence": 0.711,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2486.784,
+          "receipt_s": 2487.276,
+          "confidence": 0.753,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2487.064,
+          "receipt_s": 2487.556,
+          "confidence": 0.775,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2487.344,
+          "receipt_s": 2487.756,
+          "confidence": 0.678,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2487.604,
+          "receipt_s": 2488.072,
+          "confidence": 0.47,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2487.856,
+          "receipt_s": 2488.272,
+          "confidence": 0.668,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2488.132,
+          "receipt_s": 2488.556,
+          "confidence": 0.77,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2490.792,
+          "receipt_s": 2491.272,
+          "confidence": 0.53,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2492.576,
+          "receipt_s": 2493.076,
+          "confidence": 0.424,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2492.976,
+          "receipt_s": 2493.556,
+          "confidence": 0.558,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2500.116,
+          "receipt_s": 2500.756,
+          "confidence": 0.457,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        }
+      ]
+    },
+    {
+      "threshold": 0.65,
+      "first_activation_s": 2487.344,
+      "states": [
+        {
+          "sample_s": 2459.148,
+          "receipt_s": 2459.472,
+          "confidence": 0.478,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2476.296,
+          "receipt_s": 2476.756,
+          "confidence": 0.692,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2477.628,
+          "receipt_s": 2478.072,
+          "confidence": 0.81,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2477.956,
+          "receipt_s": 2478.556,
+          "confidence": 0.609,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2478.332,
+          "receipt_s": 2478.872,
+          "confidence": 0.852,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2478.748,
+          "receipt_s": 2479.272,
+          "confidence": 0.711,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2486.784,
+          "receipt_s": 2487.276,
+          "confidence": 0.753,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2487.064,
+          "receipt_s": 2487.556,
+          "confidence": 0.775,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2487.344,
+          "receipt_s": 2487.756,
+          "confidence": 0.678,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.604,
+          "receipt_s": 2488.072,
+          "confidence": 0.47,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.856,
+          "receipt_s": 2488.272,
+          "confidence": 0.668,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2488.132,
+          "receipt_s": 2488.556,
+          "confidence": 0.77,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2490.792,
+          "receipt_s": 2491.272,
+          "confidence": 0.53,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2492.576,
+          "receipt_s": 2493.076,
+          "confidence": 0.424,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2492.976,
+          "receipt_s": 2493.556,
+          "confidence": 0.558,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2500.116,
+          "receipt_s": 2500.756,
+          "confidence": 0.457,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        }
+      ]
+    },
+    {
+      "threshold": 0.6,
+      "first_activation_s": 2477.956,
+      "states": [
+        {
+          "sample_s": 2459.148,
+          "receipt_s": 2459.472,
+          "confidence": 0.478,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2476.296,
+          "receipt_s": 2476.756,
+          "confidence": 0.692,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2477.628,
+          "receipt_s": 2478.072,
+          "confidence": 0.81,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2477.956,
+          "receipt_s": 2478.556,
+          "confidence": 0.609,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2478.332,
+          "receipt_s": 2478.872,
+          "confidence": 0.852,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2478.748,
+          "receipt_s": 2479.272,
+          "confidence": 0.711,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2486.784,
+          "receipt_s": 2487.276,
+          "confidence": 0.753,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2487.064,
+          "receipt_s": 2487.556,
+          "confidence": 0.775,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2487.344,
+          "receipt_s": 2487.756,
+          "confidence": 0.678,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.604,
+          "receipt_s": 2488.072,
+          "confidence": 0.47,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.856,
+          "receipt_s": 2488.272,
+          "confidence": 0.668,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2488.132,
+          "receipt_s": 2488.556,
+          "confidence": 0.77,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2490.792,
+          "receipt_s": 2491.272,
+          "confidence": 0.53,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2492.576,
+          "receipt_s": 2493.076,
+          "confidence": 0.424,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2492.976,
+          "receipt_s": 2493.556,
+          "confidence": 0.558,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2500.116,
+          "receipt_s": 2500.756,
+          "confidence": 0.457,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        }
+      ]
+    },
+    {
+      "threshold": 0.55,
+      "first_activation_s": 2477.956,
+      "states": [
+        {
+          "sample_s": 2459.148,
+          "receipt_s": 2459.472,
+          "confidence": 0.478,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2476.296,
+          "receipt_s": 2476.756,
+          "confidence": 0.692,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2477.628,
+          "receipt_s": 2478.072,
+          "confidence": 0.81,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2477.956,
+          "receipt_s": 2478.556,
+          "confidence": 0.609,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2478.332,
+          "receipt_s": 2478.872,
+          "confidence": 0.852,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2478.748,
+          "receipt_s": 2479.272,
+          "confidence": 0.711,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2486.784,
+          "receipt_s": 2487.276,
+          "confidence": 0.753,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2487.064,
+          "receipt_s": 2487.556,
+          "confidence": 0.775,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2487.344,
+          "receipt_s": 2487.756,
+          "confidence": 0.678,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.604,
+          "receipt_s": 2488.072,
+          "confidence": 0.47,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.856,
+          "receipt_s": 2488.272,
+          "confidence": 0.668,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2488.132,
+          "receipt_s": 2488.556,
+          "confidence": 0.77,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2490.792,
+          "receipt_s": 2491.272,
+          "confidence": 0.53,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2492.576,
+          "receipt_s": 2493.076,
+          "confidence": 0.424,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2492.976,
+          "receipt_s": 2493.556,
+          "confidence": 0.558,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2500.116,
+          "receipt_s": 2500.756,
+          "confidence": 0.457,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        }
+      ]
+    },
+    {
+      "threshold": 0.5,
+      "first_activation_s": 2477.956,
+      "states": [
+        {
+          "sample_s": 2459.148,
+          "receipt_s": 2459.472,
+          "confidence": 0.478,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2476.296,
+          "receipt_s": 2476.756,
+          "confidence": 0.692,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2477.628,
+          "receipt_s": 2478.072,
+          "confidence": 0.81,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2477.956,
+          "receipt_s": 2478.556,
+          "confidence": 0.609,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2478.332,
+          "receipt_s": 2478.872,
+          "confidence": 0.852,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2478.748,
+          "receipt_s": 2479.272,
+          "confidence": 0.711,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2486.784,
+          "receipt_s": 2487.276,
+          "confidence": 0.753,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2487.064,
+          "receipt_s": 2487.556,
+          "confidence": 0.775,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2487.344,
+          "receipt_s": 2487.756,
+          "confidence": 0.678,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.604,
+          "receipt_s": 2488.072,
+          "confidence": 0.47,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.856,
+          "receipt_s": 2488.272,
+          "confidence": 0.668,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2488.132,
+          "receipt_s": 2488.556,
+          "confidence": 0.77,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2490.792,
+          "receipt_s": 2491.272,
+          "confidence": 0.53,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2492.576,
+          "receipt_s": 2493.076,
+          "confidence": 0.424,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        },
+        {
+          "sample_s": 2492.976,
+          "receipt_s": 2493.556,
+          "confidence": 0.558,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2500.116,
+          "receipt_s": 2500.756,
+          "confidence": 0.457,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 0
+        }
+      ]
+    },
+    {
+      "threshold": 0.4,
+      "first_activation_s": 2477.956,
+      "states": [
+        {
+          "sample_s": 2459.148,
+          "receipt_s": 2459.472,
+          "confidence": 0.478,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2476.296,
+          "receipt_s": 2476.756,
+          "confidence": 0.692,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2477.628,
+          "receipt_s": 2478.072,
+          "confidence": 0.81,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2477.956,
+          "receipt_s": 2478.556,
+          "confidence": 0.609,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2478.332,
+          "receipt_s": 2478.872,
+          "confidence": 0.852,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2478.748,
+          "receipt_s": 2479.272,
+          "confidence": 0.711,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2486.784,
+          "receipt_s": 2487.276,
+          "confidence": 0.753,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2487.064,
+          "receipt_s": 2487.556,
+          "confidence": 0.775,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2487.344,
+          "receipt_s": 2487.756,
+          "confidence": 0.678,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.604,
+          "receipt_s": 2488.072,
+          "confidence": 0.47,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2487.856,
+          "receipt_s": 2488.272,
+          "confidence": 0.668,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2488.132,
+          "receipt_s": 2488.556,
+          "confidence": 0.77,
+          "accepted": true,
+          "alive": true,
+          "high_conf_count": 3
+        },
+        {
+          "sample_s": 2490.792,
+          "receipt_s": 2491.272,
+          "confidence": 0.53,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2492.576,
+          "receipt_s": 2493.076,
+          "confidence": 0.424,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        },
+        {
+          "sample_s": 2492.976,
+          "receipt_s": 2493.556,
+          "confidence": 0.558,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 2
+        },
+        {
+          "sample_s": 2500.116,
+          "receipt_s": 2500.756,
+          "confidence": 0.457,
+          "accepted": true,
+          "alive": false,
+          "high_conf_count": 1
+        }
+      ]
+    }
+  ]
+}

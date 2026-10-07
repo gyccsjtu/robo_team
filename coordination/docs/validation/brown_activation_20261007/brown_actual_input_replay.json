@@ -1,0 +1,698 @@
+{
+  "scope": "Original accepted observations through pure cores; tick at recorded receipt approximates idle drop, no physical or judge replay",
+  "source_trace": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/algorithm/bridge_trace.jsonl",
+  "source_trace_sha256": "9e7c3e9c64a60116afd7182245d3315775c07cf2ef6898df1a045640bdcc167b",
+  "old_maximum_fused_difference_m": 0.0,
+  "old_first_alive_s": null,
+  "candidate_first_alive_s": 2477.956,
+  "inputs": [
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 8,
+        "sample_s": 2459.148,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          104.15,
+          17.49,
+          1.25
+        ],
+        "confidence": 0.478,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:8"
+      },
+      "receipt_s": 2459.472,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2459.148,
+        "position_s": 2459.148,
+        "confidence": 0.478,
+        "xy": [
+          104.15,
+          17.49
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2459.148,
+        "position_s": 2459.148,
+        "confidence": 0.478,
+        "xy": [
+          104.15,
+          17.49
+        ],
+        "high_conf_count": 0
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 50,
+        "sample_s": 2476.296,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          104.08,
+          16.73,
+          1.25
+        ],
+        "confidence": 0.692,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:50"
+      },
+      "receipt_s": 2476.756,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2476.296,
+        "position_s": 2476.296,
+        "confidence": 0.692,
+        "xy": [
+          104.08,
+          16.73
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2476.296,
+        "position_s": 2476.296,
+        "confidence": 0.692,
+        "xy": [
+          104.08,
+          16.73
+        ],
+        "high_conf_count": 1
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 52,
+        "sample_s": 2477.628,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.79,
+          16.9,
+          1.25
+        ],
+        "confidence": 0.81,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:52"
+      },
+      "receipt_s": 2478.072,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2477.628,
+        "position_s": 2477.628,
+        "confidence": 0.81,
+        "xy": [
+          103.79,
+          16.9
+        ],
+        "high_conf_count": 1
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2477.628,
+        "position_s": 2477.628,
+        "confidence": 0.81,
+        "xy": [
+          103.79,
+          16.9
+        ],
+        "high_conf_count": 2
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 58,
+        "sample_s": 2477.956,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.71,
+          17.04,
+          1.25
+        ],
+        "confidence": 0.609,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:58"
+      },
+      "receipt_s": 2478.556,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2477.956,
+        "position_s": 2477.956,
+        "confidence": 0.81,
+        "xy": [
+          103.71000000000001,
+          17.04
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": true,
+        "t_obs": 2477.956,
+        "position_s": 2477.956,
+        "confidence": 0.81,
+        "xy": [
+          103.71000000000001,
+          17.04
+        ],
+        "high_conf_count": 3
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 62,
+        "sample_s": 2478.332,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.77,
+          17.0,
+          1.25
+        ],
+        "confidence": 0.852,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:62"
+      },
+      "receipt_s": 2478.872,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2478.332,
+        "position_s": 2478.332,
+        "confidence": 0.852,
+        "xy": [
+          103.77,
+          17.0
+        ],
+        "high_conf_count": 1
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": true,
+        "t_obs": 2478.332,
+        "position_s": 2478.332,
+        "confidence": 0.852,
+        "xy": [
+          103.77,
+          17.0
+        ],
+        "high_conf_count": 3
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 66,
+        "sample_s": 2478.748,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.85,
+          16.92,
+          1.25
+        ],
+        "confidence": 0.711,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:66"
+      },
+      "receipt_s": 2479.272,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2478.748,
+        "position_s": 2478.748,
+        "confidence": 0.852,
+        "xy": [
+          103.85,
+          16.92
+        ],
+        "high_conf_count": 2
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": true,
+        "t_obs": 2478.748,
+        "position_s": 2478.748,
+        "confidence": 0.852,
+        "xy": [
+          103.85,
+          16.92
+        ],
+        "high_conf_count": 3
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 113,
+        "sample_s": 2486.784,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.74,
+          17.31,
+          1.25
+        ],
+        "confidence": 0.753,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:113"
+      },
+      "receipt_s": 2487.276,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2486.784,
+        "position_s": 2486.784,
+        "confidence": 0.753,
+        "xy": [
+          103.74,
+          17.31
+        ],
+        "high_conf_count": 1
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2486.784,
+        "position_s": 2486.784,
+        "confidence": 0.753,
+        "xy": [
+          103.74,
+          17.31
+        ],
+        "high_conf_count": 1
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 117,
+        "sample_s": 2487.064,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.78,
+          17.32,
+          1.25
+        ],
+        "confidence": 0.775,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:117"
+      },
+      "receipt_s": 2487.556,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2487.064,
+        "position_s": 2487.064,
+        "confidence": 0.775,
+        "xy": [
+          103.78,
+          17.32
+        ],
+        "high_conf_count": 2
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2487.064,
+        "position_s": 2487.064,
+        "confidence": 0.775,
+        "xy": [
+          103.78,
+          17.32
+        ],
+        "high_conf_count": 2
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 120,
+        "sample_s": 2487.344,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.94,
+          17.19,
+          1.25
+        ],
+        "confidence": 0.678,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:120"
+      },
+      "receipt_s": 2487.756,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2487.344,
+        "position_s": 2487.344,
+        "confidence": 0.775,
+        "xy": [
+          103.94,
+          17.19
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": true,
+        "t_obs": 2487.344,
+        "position_s": 2487.344,
+        "confidence": 0.775,
+        "xy": [
+          103.94,
+          17.19
+        ],
+        "high_conf_count": 3
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 126,
+        "sample_s": 2487.604,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.99,
+          17.27,
+          1.25
+        ],
+        "confidence": 0.47,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:126"
+      },
+      "receipt_s": 2488.072,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2487.604,
+        "position_s": 2487.604,
+        "confidence": 0.775,
+        "xy": [
+          103.99,
+          17.27
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": true,
+        "t_obs": 2487.604,
+        "position_s": 2487.604,
+        "confidence": 0.775,
+        "xy": [
+          103.99,
+          17.27
+        ],
+        "high_conf_count": 3
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 129,
+        "sample_s": 2487.856,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          104.05,
+          17.3,
+          1.25
+        ],
+        "confidence": 0.668,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:129"
+      },
+      "receipt_s": 2488.272,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2487.856,
+        "position_s": 2487.856,
+        "confidence": 0.678,
+        "xy": [
+          104.05,
+          17.3
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": true,
+        "t_obs": 2487.856,
+        "position_s": 2487.856,
+        "confidence": 0.678,
+        "xy": [
+          104.05,
+          17.3
+        ],
+        "high_conf_count": 3
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 135,
+        "sample_s": 2488.132,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.95,
+          17.45,
+          1.25
+        ],
+        "confidence": 0.77,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:135"
+      },
+      "receipt_s": 2488.556,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2488.132,
+        "position_s": 2488.132,
+        "confidence": 0.77,
+        "xy": [
+          103.95,
+          17.45
+        ],
+        "high_conf_count": 1
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": true,
+        "t_obs": 2488.132,
+        "position_s": 2488.132,
+        "confidence": 0.77,
+        "xy": [
+          103.95,
+          17.45
+        ],
+        "high_conf_count": 3
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 158,
+        "sample_s": 2490.792,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          103.45,
+          17.9,
+          1.25
+        ],
+        "confidence": 0.53,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:158"
+      },
+      "receipt_s": 2491.272,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2490.792,
+        "position_s": 2490.792,
+        "confidence": 0.53,
+        "xy": [
+          103.45,
+          17.9
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2490.792,
+        "position_s": 2490.792,
+        "confidence": 0.53,
+        "xy": [
+          103.45,
+          17.9
+        ],
+        "high_conf_count": 0
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 178,
+        "sample_s": 2492.576,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          104.19,
+          17.41,
+          1.25
+        ],
+        "confidence": 0.424,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:178"
+      },
+      "receipt_s": 2493.076,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2492.576,
+        "position_s": 2492.576,
+        "confidence": 0.424,
+        "xy": [
+          104.19,
+          17.41
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2492.576,
+        "position_s": 2492.576,
+        "confidence": 0.424,
+        "xy": [
+          104.19,
+          17.41
+        ],
+        "high_conf_count": 0
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 182,
+        "sample_s": 2492.976,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          104.44,
+          17.16,
+          1.25
+        ],
+        "confidence": 0.558,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:182"
+      },
+      "receipt_s": 2493.556,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2492.976,
+        "position_s": 2492.976,
+        "confidence": 0.558,
+        "xy": [
+          104.43999999999998,
+          17.16
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2492.976,
+        "position_s": 2492.976,
+        "confidence": 0.558,
+        "xy": [
+          104.43999999999998,
+          17.16
+        ],
+        "high_conf_count": 0
+      }
+    },
+    {
+      "original": {
+        "schema_version": 2,
+        "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+        "uav_id": "uav_6",
+        "seq": 230,
+        "sample_s": 2500.116,
+        "target_id": "brown",
+        "frame_id": "world_enu",
+        "xyz": [
+          104.12,
+          17.52,
+          1.25
+        ],
+        "confidence": 0.457,
+        "observation_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49:uav_6:230"
+      },
+      "receipt_s": 2500.756,
+      "old": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2500.116,
+        "position_s": 2500.116,
+        "confidence": 0.457,
+        "xy": [
+          104.12,
+          17.52
+        ],
+        "high_conf_count": 0
+      },
+      "candidate": {
+        "accepted": true,
+        "alive": false,
+        "t_obs": 2500.116,
+        "position_s": 2500.116,
+        "confidence": 0.457,
+        "xy": [
+          104.12,
+          17.52
+        ],
+        "high_conf_count": 0
+      }
+    }
+  ]
+}
