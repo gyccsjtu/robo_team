@@ -174,9 +174,10 @@ def parse_left_actors(raw):
 class TargetBridgeCore(object):
     """纯逻辑桥（无 rospy）。"""
 
-    def __init__(self, brown_alignment=False):
+    def __init__(self, brown_alignment=False, red_motion_limits=False):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
         self.brown_alignment = brown_alignment
+        self.red_motion_limits = red_motion_limits
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
         self._left_seen = False
 
@@ -350,11 +351,14 @@ class TargetBridgeCore(object):
             # 时延补偿外推：见 EXTRAP_* 注释。coast 期 te 封顶，位置不漂移。
             # The fused position belongs to the weighted image time.
             # Latest-image freshness remains governed by t_obs above.
-            te = max(0., min(t - tr.position_s, EXTRAP_MAX_T)) * extrap_factor
+            red_limits = self.red_motion_limits and tr.tag in ('red1', 'red2')
+            time_limit = 1.5 if red_limits else EXTRAP_MAX_T
+            distance_limit = 3.0 if red_limits else EXTRAP_MAX_D
+            te = max(0., min(t - tr.position_s, time_limit)) * extrap_factor
             ex, ey = tr.vx * te, tr.vy * te
             ed = math.hypot(ex, ey)
             # 自适应距离限幅
-            max_d = EXTRAP_MAX_D * (1.0 if vel_mag >= EXTRAP_VEL_THRESHOLD else 0.7)
+            max_d = distance_limit * (1.0 if vel_mag >= EXTRAP_VEL_THRESHOLD else 0.7)
             if ed > max_d and ed > 0.0:
                 ex, ey = ex * max_d / ed, ey * max_d / ed
             state = 1 if math.hypot(tr.vx, tr.vy) >= FLEE_SPEED else 0
@@ -374,7 +378,9 @@ class YoloTargetBridge(object):
         self._rospy = rospy
         self._TargetState = TargetState
         self._ActorInfo = ActorInfo
-        self.core = TargetBridgeCore(brown_alignment=os.environ.get('BRIDGE_BROWN_ALIGNED', '0') == '1')
+        self.core = TargetBridgeCore(
+            brown_alignment=os.environ.get('BRIDGE_BROWN_ALIGNED', '0') == '1',
+            red_motion_limits=os.environ.get('BRIDGE_RED_MOTION_LIMITS', '0') == '1')
         self._red_observations = RedObservations()
         self._lock = threading.RLock()
         self._trace = None

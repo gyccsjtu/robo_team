@@ -1,0 +1,6 @@
+{
+  "actual_core_parameter": "red_motion_limits=True",
+  "actual_uploaded_prediction_count": 83,
+  "matches_offline_distance_and_time_candidate": true,
+  "limits_only_pure_core_replay": true
+}
