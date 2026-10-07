@@ -2,7 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'src/robocup_swarm/scripts'))
-from tracker_selection import tracker_rank, takeover_candidate
+from tracker_selection import tracker_rank, takeover_candidate, held_position
 
 
 class TrackerSelectionTests(unittest.TestCase):
@@ -31,3 +31,23 @@ class TrackerSelectionTests(unittest.TestCase):
     def test_observer_outside_dispatch_range_does_not_displace_near_aircraft(self):
         self.assertLess(tracker_rank('near',5.,[('far',9.8)],10.,15.),
                         tracker_rank('far',20.,[('far',9.8)],10.,15.))
+
+    def test_hold_is_off_by_default_and_returns_nothing_then(self):
+        # hold_s<=0 must reproduce the original behaviour: no held position at all.
+        for hold in (0.0, -1.0):
+            self.assertIsNone(held_position((3., 4., 100.0), 105.0, hold))
+
+    def test_hold_returns_the_remembered_position_inside_the_window(self):
+        self.assertEqual(held_position((3., 4., 100.0), 101.0, 8.0), (3., 4.))
+        self.assertEqual(held_position((3., 4., 100.0), 108.0, 8.0), (3., 4.))
+
+    def test_hold_expires_and_refuses_negative_or_undefined_age(self):
+        self.assertIsNone(held_position((3., 4., 100.0), 108.1, 8.0))
+        self.assertIsNone(held_position((3., 4., 100.0), 99.0, 8.0))
+        self.assertIsNone(held_position((3., 4., 100.0), None, 8.0))
+
+    def test_hold_rejects_missing_or_non_finite_state(self):
+        self.assertIsNone(held_position(None, 101.0, 8.0))
+        self.assertIsNone(held_position((float('nan'), 4., 100.0), 101.0, 8.0))
+        self.assertIsNone(held_position((3., 4., float('inf')), 101.0, 8.0))
+        self.assertIsNone(held_position((3., 4.), 101.0, 8.0))

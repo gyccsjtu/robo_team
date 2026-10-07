@@ -48,6 +48,8 @@ from route_reservation import RouteGate, exclude_peers, valid_points
 from route_endpoint import connect_exact_goal
 from orbit_geometry import orbit_goal
 from white_reacquisition import WhiteReacquisition
+from tracking_navigation import TrackingNavigation
+from companion_tracking import companion_guidance
 from publisher_authority import PublisherAuthority
 from fcu_configuration import configure as configure_fcu_parameters
 from fleet_motion_guard import MotionCache, protect as protect_fleet_motion
@@ -462,6 +464,12 @@ class SwarmAgent(object):
         self._last_confirm_t = 0.0   # 上次确认时间
         self._target_to_orbit = None  # 待盘旋目标位置 (x, y)
         self._white_reacquire = WhiteReacquisition()
+        navigation_s = float(os.environ.get('SWARM_TRACK_NAVIGATION_S', '0'))
+        if not math.isfinite(navigation_s) or navigation_s < 0:
+            raise ValueError('Invalid tracking navigation window')
+        self._tracking_navigation = TrackingNavigation(navigation_s) if navigation_s > 0 else None
+        self._tracking_navigation_phase = None
+        self._companion_tracking_enabled = os.environ.get('SWARM_COMPANION_TRACKING','0') == '1'
         self._white_reacquire_enabled = os.environ.get('SWARM_WHITE_REACQUIRE', '0') == '1'
         self._white_reacquire_phase = None
         self._t_seen = {}          # tid -> 最后一次收到位置的时刻（判定目标是否已消失）
@@ -2079,6 +2087,86 @@ class SwarmAgent(object):
                 seq=self._blocked_feedback_seq,sample_s=now,blocked_since_s=old[0],
                 position_xy=list(position),reason=reason),allow_nan=False)))
 
+    def _fly_companion(self, now, target_id):
+        record = self.targets.get(target_id)
+        stamp = self._t_seen.get(target_id)
+        if record is None or stamp is None or not self._gate.can_move(now):
+            self._send_vel(0.,0.)
+            return
+        guidance = companion_guidance(self.world_xy,record[:2],record[2:4],now-stamp,
+                                      maximum_speed=min(MAX_SPEED,FLEE_CHASE_SPEED))
+        if guidance is None:
+            self._send_vel(0.,0.)
+            return
+        self._look_at = guidance['look_at']
+        if guidance['speed_mps'] < .05:
+            self._send_vel(0.,0.)
+            return
+        goal = guidance['goal']
+        if self._need_replan_track(goal) and now-self._plan_fail_t >= 2.:
+            self._request_plan(goal)
+        local_goal = self._pick_local_goal()
+        if local_goal is None:
+            self._send_vel(0.,0.)
+            return
+        vx,vy = POS_KP*(local_goal[0]-self.world_xy[0]),POS_KP*(local_goal[1]-self.world_xy[1])
+        speed = math.hypot(vx,vy)
+        cap = guidance['speed_mps']
+        if speed > cap:
+            vx,vy = vx*cap/speed,vy*cap/speed
+        self._send_vel(*self._apply_friend_avoidance(vx,vy))
+
+    def _control_tracking_navigation(self, now, target_id, in_cooldown):
+        navigation = getattr(self, '_tracking_navigation', None)
+        if navigation is None or in_cooldown:
+            return False
+        record = self.targets.get(target_id)
+        point = record[:2] if record is not None else None
+        white = getattr(self, '_white_reacquire', None)
+        allow_scan = not (target_id == TAG_TO_TID['white'] and white is not None and white.used)
+        phase, destination = navigation.step(self._gate.generation, target_id, now,
+            self.world_xy, point, self._t_seen.get(target_id),
+            eligible=self._gate.can_move(now), allow_scan=allow_scan)
+        if phase != self._tracking_navigation_phase:
+            self._blocked_plan = None
+            rospy.loginfo('[%s] TRACK_NAVIGATION %s target=%s generation=%s original_s=%s',
+                self.uav_id, phase, target_id, self._gate.generation, self._t_seen.get(target_id))
+            self._tracking_navigation_phase = phase
+        if phase == 'CURRENT':
+            return False
+        self._look_at = point
+        if phase == 'APPROACH':
+            # An old observation is only a bounded navigation hint. Every
+            # command still passes actual route/map/lidar/fleet gates.
+            if self._need_replan_track(destination) and now-self._plan_fail_t >= 2.:
+                self._request_plan(destination)
+            # A previously committed route may still aim at the person's old
+            # position. Do not use it to pass through the observation standoff.
+            committed_target = getattr(self, 'path_target', None)
+            if committed_target is None or math.dist(committed_target, destination) > .75:
+                self._send_vel(0., 0.)
+                return True
+            local_goal = self._pick_local_goal()
+            if local_goal is None:
+                self._send_vel(0., 0.)
+                return True
+            vx = POS_KP*(local_goal[0]-self.world_xy[0])
+            vy = POS_KP*(local_goal[1]-self.world_xy[1])
+            speed = math.hypot(vx, vy)
+            cap = min(MAX_SPEED, FLEE_CHASE_SPEED)
+            if speed > cap:
+                vx, vy = vx*cap/speed, vy*cap/speed
+            self._send_vel(*self._apply_friend_avoidance(vx, vy))
+            return True
+        if phase == 'REACQUIRE':
+            self._look_at = destination
+            if target_id == TAG_TO_TID['white'] and white is not None:
+                white.used = True  # One opportunity shared with white's existing scan.
+        self._send_vel(0., 0.)
+        if phase == 'FAILED':
+            self._report_blocked_plan('TARGET_VISUAL_LOST', now)
+        return True
+
     def _control_white_reacquire(self, now, target_id, in_cooldown):
         eligible = (target_id == TAG_TO_TID['white'] and not in_cooldown
                     and self._gate.can_move(now))
@@ -2313,6 +2401,9 @@ class SwarmAgent(object):
             if (getattr(self, '_white_reacquire_enabled', False)
                     and self._control_white_reacquire(rospy.Time.now().to_sec(), _track_id, _in_cooldown)):
                 return
+            if (getattr(self, '_tracking_navigation', None) is not None
+                    and self._control_tracking_navigation(rospy.Time.now().to_sec(), _track_id, _in_cooldown)):
+                return
             if _in_cooldown or self._orbit_stale() or self._target_to_orbit is None:
                 # Backoff stops translation, not observation. Never fall through
                 # to search with a retained orbit route after _abort_orbit.
@@ -2341,6 +2432,9 @@ class SwarmAgent(object):
                 return
             # Fresh guidance has resumed: this grant's one yaw opportunity ends.
             self._handoff_reacquire_window = None
+            if getattr(self,'_companion_tracking_enabled',False):
+                self._fly_companion(rospy.Time.now().to_sec(),_track_id)
+                return
             tx, ty = self._target_to_orbit
             self._look_at = (tx, ty)       # 接近阶段机头就对准目标
             dist = math.hypot(tx - self.world_xy[0], ty - self.world_xy[1])

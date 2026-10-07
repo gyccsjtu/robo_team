@@ -83,6 +83,7 @@ _CSV_HELPER = os.path.abspath(os.path.join(
 if _CSV_HELPER not in sys.path:
     sys.path.insert(0, _CSV_HELPER)
 from csv_logger import logger
+from frame_probe import FIELDS as FRAME_FIELDS, frame_row, summarize_raw_boxes
 
 # ---------------- 参数 ----------------
 # 权重查找顺序（本仓库自包含优先，找不到才退回部署位置）：
@@ -451,7 +452,19 @@ _CSV = logger("perception_%s" % UAV, [
     "target_z", "range_m", "height_m", "strict", "track_id", "hits",
     "image_stamp", "image_age_s", "inference_s", "source",
     "person_frame_verified", "person_hits", "track_miss", "fresh_person_allowed",
-    "person_established", "person_current_verified"])
+    "person_established", "person_current_verified",
+    # Gate inputs, added 2026-10-07 so a rejection can be re-evaluated offline
+    # under a different setting (e.g. PR_FAST_GREEN_WHITE) instead of guessed at.
+    # csv_logger ignores keys that are not declared here, and rotates the file
+    # when this list changes, so the extra columns are inert until the next run.
+    "recent_speed", "sp", "max_disp", "score_ema", "attached", "confirm_hits",
+    "verdict_score", "verdict_sp", "verdict_disp", "stationary_person",
+    "person_gate_allowed", "green_frame_proof", "motion_samples", "motion_span_s"])
+# 逐帧分母（N7，2026-10-07）：上面那份 CSV 只在"有检出/有拒发/有上报"时才写行，
+# 于是"15s 判据被检出间隙打断"没法归因到"模型没出框"还是"被我们自己的门限丢了"。
+# 这一份每处理一帧写一条，只记录、不参与控制。文件名刻意不叫 perception*.csv ——
+# audit_fast_city.py / replay_image_motion.py 用 perception*.csv 通配读事件流。
+_FRAMES = logger("frame_probe_%s" % UAV, FRAME_FIELDS)
 # 调试快照**另开一条话题**：它原来和契约挤在同一条 topic 上，形状完全不同。
 # 调试通道与契约通道必须分开，否则要么队友解析不了、要么我自己的复盘脚本全废。
 DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
@@ -1233,6 +1246,7 @@ def main():
                                 keep.append(b)
                         filtered_boxes.extend(keep)
                     # 遍历过滤后的boxes
+                    _geo_rej_before = _stat["n_geo_rej"]
                     for b in filtered_boxes:
                         cid = int(b.cls)
                         conf = float(b.conf)
@@ -1318,6 +1332,26 @@ def main():
                             strict=strict, image_stamp=frame_stamp,
                             image_age_s=frame_age, inference_s=inference_s,
                             source="yolo_raw",person_frame_verified=_person_proof)
+
+                    # ---- 逐帧分母（N7）：这一帧模型到底出没出框 ----
+                    # 放在几何门限之后、关联之前：此刻 res.boxes 是模型的原始输出，
+                    # dets 是本帧过了宽松几何档的框，n_geo_rej 的差值是本帧被几何丢掉的。
+                    # 记录本身不得影响主循环，所以整个写入用 try 兜住。
+                    try:
+                        _raw_xyxy = []
+                        for _rb in res.boxes:
+                            _rcid = int(_rb.cls)
+                            _rx1, _ry1, _rx2, _ry2 = [float(v) for v in _rb.xyxy[0]]
+                            _raw_xyxy.append((CLASSES[_rcid] if _rcid < len(CLASSES) else "?",
+                                              float(_rb.conf), _rx1, _ry1, _rx2, _ry2))
+                        _FRAMES.write(**frame_row(
+                            summarize_raw_boxes(_raw_xyxy, ROI_TOP, ROI_BOT),
+                            rospy.Time.now().to_sec(), frame_stamp, frame_age, inference_s,
+                            len(dets), _stat["n_geo_rej"] - _geo_rej_before,
+                            (px, py, pz), yaw_cam, (img.shape[1], img.shape[0]),
+                            not _local_inference))
+                    except Exception as _frame_probe_error:
+                        print("[pr] frame_probe 写失败: %s" % _frame_probe_error, flush=True)
 
         # A completed inference with zero boxes is still a real search image.
         # Never report a received-only, failed, repeated or pre-grant image.
@@ -1448,14 +1482,44 @@ def main():
                 _skip_attach = (_cur_tid_for_verdict is not None and
                     (_cur_tid_for_verdict == _need_tid or
                      (tk.cls == 'red' and _cur_tid_for_verdict in ('t4','t5'))))
+                _stationary = stationary_person_allowed(
+                    _cur_tid_for_verdict,tk.cls,tk.green_frame_proof and STATIONARY_GREEN_ON,
+                    tk.miss,tk.observed_s,now)
                 _person_ok, _reject_reason = tk.verdict(
                     now, max_coast=MAX_COAST_PUB,
                     attach_check=not _skip_attach,
                     verified_person=_fresh_person,
-                    stationary_person=stationary_person_allowed(
-                        _cur_tid_for_verdict,tk.cls,tk.green_frame_proof and STATIONARY_GREEN_ON,
-                        tk.miss,tk.observed_s,now))
+                    stationary_person=_stationary)
                 if not _person_ok:
+                    # Record every input of the seven gates. RecentMotion.speed and
+                    # FreshPerson.allowed are side-effect free, so an offline replay
+                    # can re-decide this exact rejection under another setting.
+                    try:
+                        _recent_speed = (tk.recent_motion.speed(tk.observed_s if now is None else now)
+                                         if tk.recent_motion is not None else None)
+                    except Exception:
+                        _recent_speed = None
+                    # Measurability, recorded separately: RecentMotion.speed returns
+                    # 0.0 both for "measured as stationary" and for "not enough
+                    # samples to measure", and only the second case should fall back
+                    # to sp/max_disp. Without this the two are indistinguishable
+                    # offline (2026-10-07: white was rejected as static at 17 m with
+                    # hits>=5, i.e. sparse sampling, not a stationary actor).
+                    _motion_samples, _motion_span = None, None
+                    try:
+                        if tk.recent_motion is not None:
+                            _now_s = tk.observed_s if now is None else now
+                            _window = tk.recent_motion.window_s
+                            _pts = [p for p in tk.recent_motion.samples
+                                    if 0 <= _now_s - p[0] <= _window]
+                            _motion_samples = len(_pts)
+                            _motion_span = (_pts[-1][0] - _pts[0][0]) if len(_pts) >= 2 else 0.
+                    except Exception:
+                        _motion_samples, _motion_span = None, None
+                    try:
+                        _attached = bool(tk.attached_to_cam())
+                    except Exception:
+                        _attached = None
                     _CSV.write(
                         ros_time=rospy.Time.now().to_sec(), event="track_reject",
                         target_id=("%s%d" % (tk.cls, 0) if tk.cls != "red" else "red"),
@@ -1468,7 +1532,16 @@ def main():
                         inference_s=inference_s, source="verdict_%s" % _reject_reason,
                         person_hits=tk.person_support.hits,track_miss=tk.miss,fresh_person_allowed=_fresh_person,
                         person_established=tk.person_support.established,
-                        person_current_verified=tk.person_support.current_verified)
+                        person_current_verified=tk.person_support.current_verified,
+                        recent_speed=_recent_speed, sp=tk.sp, max_disp=tk.max_disp,
+                        score_ema=tk.score_ema, attached=_attached,
+                        confirm_hits=CONFIRM_HITS, verdict_score=VERDICT_SCORE,
+                        verdict_sp=VERDICT_SP, verdict_disp=VERDICT_DISP,
+                        stationary_person=_stationary,
+                        person_gate_allowed=tk.person_support.allowed(
+                            tk.cls,tk.miss,now,allow_red=FAST_RED_PERSON),
+                        green_frame_proof=bool(tk.green_frame_proof),
+                        motion_samples=_motion_samples, motion_span_s=_motion_span)
                     continue
             # 运动性是随时间累积的，coast 期间净位移也在涨，这里按当前时刻重算
             tk.score = tk.conf * person_likelihood(tk.h) * tk.motion_factor(now)

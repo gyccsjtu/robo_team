@@ -1,0 +1,65 @@
+{
+  "provenance": {
+    "repo": "gitee.com/robin_shaun/XTDrone",
+    "path": "robocup/",
+    "rule_pdf_source": "rcccaa.drct-caa.org.cn article id=138 (20260911)",
+    "captured_utc": "2026-10-06",
+    "captured_by": "workbuddy"
+  },
+  "variants": {
+    "20261006": {
+      "note": "upstream as of 2026-10-05; control_actor rewritten, no teleportation",
+      "files": {
+        "map_generator.py": {
+          "bytes": 18083,
+          "sha256": "f9edec80bf539eba2684a513a43f16ee38dacd1a80f92dae8ae4d9d54315ed93"
+        },
+        "base1.world": {
+          "bytes": 620482,
+          "sha256": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c"
+        },
+        "base2.world": {
+          "bytes": 931166,
+          "sha256": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948"
+        },
+        "base3.world": {
+          "bytes": 931223,
+          "sha256": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f"
+        },
+        "rover_static.world": {
+          "bytes": 85801,
+          "sha256": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81"
+        },
+        "control_actor.py": {
+          "bytes": 34674,
+          "sha256": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7"
+        },
+        "ObstacleAvoid.py": {
+          "bytes": 8983,
+          "sha256": "8226209795345a19086706725bce9c4fa7469960c3c89a244346a9840ee9dae0"
+        },
+        "score_cal.py": {
+          "bytes": 13133,
+          "sha256": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1"
+        },
+        "white_background.png": {
+          "bytes": 507,
+          "sha256": "f2b15c6f0e6464a95b93743a1f998e67cd877baa63d0e445ee8e8e78f6853819"
+        }
+      }
+    },
+    "legacy_actor_teleport": {
+      "note": "pre-2026-10-05 control_actor: teleportation_interval=25 (scene generator rewrites it to 30 per rule PDF); used for A/B only",
+      "files": {
+        "control_actor.py": {
+          "bytes": 31942,
+          "sha256": "85035e4dc692abe2e12fd0ed0b115b711e6be6a0f13b42bcc73b6a0b70c31e50"
+        },
+        "ObstacleAvoid.py": {
+          "bytes": 8052,
+          "sha256": "ddd45cda69ddbe3b7f90eae978752c60b9846967a17af3bc8a17d18076555e01"
+        }
+      }
+    }
+  }
+}

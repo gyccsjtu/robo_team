@@ -3,11 +3,22 @@
 Source: user relayed organizer clarification on 2026-10-03. This does not
 claim an upstream release implements it. Neither aircraft nor perception
 receive actor truth: matching runs exclusively inside the judge process.
+
+Retirement (2026-10-06): upstream now implements the same rule natively via
+`_process_red_detection` (Gitee commits c1bf7439 / 4a6542ba, 2026-10-04).
+Applying this adapter to such a source would replace the upstream callbacks and
+leave the upstream implementation as dead code, so `adapt_red_judge` now returns
+upstream sources unchanged and stays in place only for older judge copies.
 """
 import ast
 
+UPSTREAM_MARKER = '_process_red_detection'
+
 
 def adapt_red_judge(source):
+    # Defer to upstream when it already implements the organizer rule.
+    if UPSTREAM_MARKER in source:
+        return source
     tree = ast.parse(source)
     callbacks = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)
                  and n.name in ('actor_info_callback', 'actor_info1_callback', 'actor_info2_callback')}

@@ -11,7 +11,8 @@ export PYTHONDONTWRITEBYTECODE=1
 run_root="${CITY_RUN_ROOT:-/root/robocup_runs/city_$(date +%Y%m%d_%H%M%S)_$$}"
 mkdir -p "$run_root"
 python3 "$repo_dir/coordination/scripts/prepare_competition_scene.py" \
-    --output "$run_root/scene" --seed "${CITY_SEED:-17}"
+    --output "$run_root/scene" --seed "${CITY_SEED:-17}" \
+    --actor "${CITY_ACTOR:-upstream}"
 exec python3 "$repo_dir/coordination/scripts/six_radar_connectivity.py" \
     --output "$run_root/flight" --city-scene "$run_root/scene" \
     --flight-seconds "${CITY_SECONDS:-600}" "$@"

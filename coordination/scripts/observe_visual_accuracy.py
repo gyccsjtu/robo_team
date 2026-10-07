@@ -55,8 +55,10 @@ def main():
             save('image', value, images)
     def official_cb(message):
         save('official', [rospy.Time.now().to_sec(), message.x, message.y], official)
-    subscriptions = [rospy.Subscriber('/swarm/visual_observation', String, image_cb, queue_size=100),
-        rospy.Subscriber('/actor_'+('red' if red else args.tag)+'_info', ActorInfo, official_cb, queue_size=100)]
+    subscriptions = [rospy.Subscriber('/swarm/visual_observation', String, image_cb, queue_size=100)]
+    official_tags = ('red1','red2') if red else (args.tag,)
+    subscriptions.extend(rospy.Subscriber('/actor_'+tag+'_info', ActorInfo,
+        official_cb, queue_size=100) for tag in official_tags)
     service = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
     deadline = time.monotonic()+args.wall_seconds
     service_failures = 0

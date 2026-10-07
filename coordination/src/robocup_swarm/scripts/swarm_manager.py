@@ -30,7 +30,7 @@ from allocation_geometry import screen_leg
 from search_completion import completion_state, parse_actor_list
 from visual_observation import VisualEvidence, TAG_TO_TID
 from red_observations import actor_slot_remaining
-from tracker_selection import tracker_rank, takeover_candidate
+from tracker_selection import tracker_rank, takeover_candidate, held_position
 from search_occupancy import apply_authority_release, apply_intent_cancellation
 from navigation_feedback import accept as accept_navigation_feedback, refresh_due, RejectedTasks, task_key
 from search_observation import FrameCache, ObservationLedger
@@ -98,6 +98,14 @@ EDGE_NEAR     = float(os.environ.get("EDGE_NEAR", "2.0"))    # 距障碍 <= 此�
 # 派追踪机用的目标位置缓存有效期 s：agent /swarm/detection 上报后，
 # 若超过此时长无新检测，认为目标已跟丢，不再用过期坐标派机（防追鬼）。
 TRUTH_TTL = float(os.environ.get("TRUTH_TTL", "8.0"))  # 延长缓存时间，减少因网络延迟导致的误判
+# 追踪任务保持时长 s（2026-10-07 新增；默认 0 = 关闭，行为与原版完全一致）。
+# 依据（N1/run2 归档实测）：_get_target_pos() 在目标超过 OBS_TTL(=1.0 s) 无观测时返回 None，
+# 而 _dispatch_pending_targets() 拿到 None 就既不派机、还会释放已在途的追踪机；
+# 同时实测追踪机被派时距目标 13~61 m、实际地速 p50 ~0.6 m/s ⇒ 十几秒的派单窗口只够飞 ~8 m，
+# 结果只有「此刻正被看见的那个目标」能持续获得注视（N1：t0 覆盖 53 s，其余 7~18 s）。
+# 设 >0 时，允许用最近一次融合位置在 SWARM_TARGET_HOLD_S 秒内继续派机/保持追踪。
+# 不改变任何安全门限、速度上限或放行条件；设回 0 即完全恢复原行为。
+SWARM_TARGET_HOLD_S = float(os.environ.get("SWARM_TARGET_HOLD_S", "0"))
 # 格中心落在建筑里时，去这些半径的环上找可达的替代航点（m）
 WAYPOINT_RING = (2.0, 3.5, 5.0)
 CLEARANCE_MAX = float(os.environ.get("CLEARANCE_MAX", "24.0"))  # 距离场最大计算范围 m
@@ -283,6 +291,7 @@ class SwarmManager(object):
         self.tracker = CooperativeTracker(official_only=True)
         self._truth_cache = {}     # target_id -> (x, y, t) 缓存，t 为检测上报时间，超 TRUTH_TTL 作废
         self._truth_pos = {}      # target_id -> (x, y) 仅真值源写入（SEED_TRUTH=1），tracker 误差门槛用
+        self._held_pos = {}       # target_id -> (x, y, t) 最近一次融合位置；仅 SWARM_TARGET_HOLD_S>0 时用于保持追踪
         self._cur_targets = {}    # target_id -> 本周期是否有检测（用于 lose 判定）
         self._eliminated = set()
         # 确认期冗余备份机：tid -> uav_id（见 _dispatch_backup）
@@ -830,7 +839,20 @@ class SwarmManager(object):
         if ct is not None:
             fx = ct.fused(now) if now is not None else None
             if fx is not None:
+                if SWARM_TARGET_HOLD_S > 0.0 and now is not None:
+                    originals = [o for o in getattr(ct, 'last_obs', {}).values()
+                                 if o.los and 0 <= now-o.t <= ct.obs_ttl]
+                    if originals:
+                        latest = max(originals, key=lambda o: o.t)
+                        # Navigation remembers the actual sample, not a query-time
+                        # extrapolation with a newly manufactured cache timestamp.
+                        self._held_pos[tid] = (latest.x, latest.y, latest.t)
                 return fx
+        # 无新鲜观测：观测有效期(1 s)远短于「飞到目标」所需时间，故默认行为会让目标在
+        # 抵达前就不可派/被释放。仅在显式开启保证时才用最近一次融合位置续期（有界）。
+        held = held_position(self._held_pos.get(tid), now, SWARM_TARGET_HOLD_S)
+        if held is not None:
+            return held
         return None, None
 
     def _dispatch_pending_targets(self):
@@ -1228,6 +1250,7 @@ class SwarmManager(object):
                 self._backup.pop(tid, None)
                 self._truth_cache.pop(tid, None)
                 self._truth_pos.pop(tid, None)
+                self._held_pos.pop(tid, None)
                 continue
             if ev == "evade":
                 rospy.loginfo("[manager] 规则4：目标 %s 首次确认后墙钟 %.0fs 未消除 → 瞬移，"

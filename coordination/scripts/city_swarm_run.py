@@ -80,6 +80,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         ONLINE_RADAR_PLANNING='1',RADAR_START_CLEARANCE_FILE=str(clearance),SWARM_LOOKAHEAD_M='4.0',
         SWARM_ORBIT_PLAN_CHORD_M='9.0',
         SWARM_WHITE_REACQUIRE='1',BRIDGE_BROWN_ALIGNED='1',
+        SWARM_TARGET_HOLD_S='8',SWARM_TRACK_NAVIGATION_S='8',
+        SWARM_COMPANION_TRACKING='1',
         SEED_TRUTH='0',VIS_ENABLE='0',SWARM_SEARCH_OBSERVATION='1',SWARM_POSE_RATE_GUARD='1',RADAR_GUARD='1',SWARM_MAX_SPEED='3.0',PR_RECENT_MOTION_WINDOW='4.0',FLEE_CHASE_SPEED='2.6',
         PR_COORD_HZ='10',
         PR_FAST_GREEN_WHITE='1',
@@ -160,6 +162,16 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         observer_dispatch_range_m=20.,camera_takeover_debounce_original_s=.75,
         white_track_activation_confidence=.4,other_track_activation_confidence=.7,
         tracking_guidance_revision='v1.18',tracking_guidance_coast_s=1.5,
+        tracking_navigation_revision='v1_original_image_bounded_approach',
+        tracking_navigation_window_s=8.,tracking_navigation_standoff_m=10.,
+        tracking_navigation_scan_s=3.,tracking_navigation_timestamp='original_image',
+        companion_tracking_revision='v1_visual_motion_standoff',
+        companion_tracking_standoff_m=10.,companion_plan_forward_m=9.,
+        tracking_execution_mode='companion',legacy_orbit_parameters_active=False,
+        confirmed_visual_acceptance_revision='v1_explicit_core_acceptance',
+        bridge_trace_revision='v1_exact_input_and_upload_order',
+        actor_environment_revision='v1_gazebo_world_pose_body_twist',
+        actor_environment_control_input=False,
         visual_evidence_incoming_max_age_s=1.,
         person_motion_revision='v1.4',recent_motion_window_s=4.,
         target_motion_revision='v1.5',flee_chase_speed_mps=2.6,
@@ -173,7 +185,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         teammate_radar_source_commit='f45671b04bb8d7a6d2dcad5f891879e02ba0f6d5',
         person_verifier_weights_sha256=hashlib.sha256((repo/'weights/yolo11n_person.pt').read_bytes()).hexdigest(),
         red_matching_revision='organizer_clarification_20261004_v2_agent_remaining',
-        red_report_topic='/actor_red_info',red_coordination_identity='geometric_track_slot_not_actor_id',
+        red_report_topics=['/actor_red1_info','/actor_red2_info'],red_report_class='red',
+        red_coordination_identity='geometric_track_slot_not_actor_id',
         altitude_configuration_revision='v1.17',altitude_reference='MAVROS_LOCAL',
         cruise_altitude_m=2.2,horizontal_takeoff_gate_local_m=2.,
         motion_evidence_minimum_world_height_m=1.,
@@ -193,7 +206,27 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
     if not changed.success:
         raise RuntimeError('CITY_PHYSICS_SLOWDOWN_FAILED')
     scripts=snapshot/'coordination/src/robocup_swarm/scripts'
-    processes=[spawn(['python3','-u',str(scripts/'yolo_target_bridge.py')],'yolo_target_bridge',flight_env)]
+    processes=[spawn(['python3','-u',str(scripts/'yolo_target_bridge.py')],'yolo_target_bridge',
+        dict(flight_env,BRIDGE_TRACE_JSONL=str(out/'algorithm/bridge_trace.jsonl')))]
+    # Platform-only input: new actors require actual world pose AND velocity.
+    # The legacy MAVROS pose bridge has zero twist and cannot trigger escape.
+    actor_wiring=out/'actor_environment_wiring.json'
+    actor_wiring.write_text(json.dumps(wiring))
+    actor_status=out/'actor_environment_odometry.json'
+    actor_bridge=spawn(['python3','-u',str(out/'execution_sources/actor_environment_bridge.py'),
+        '--wiring',str(actor_wiring),'--status',str(actor_status)],
+        'actor_environment_odometry',flight_env)
+    processes.append(actor_bridge)
+    actor_deadline=time.monotonic()+25.
+    while not actor_status.exists():
+        if owned_health_check is not None:
+            owned_health_check()
+        if actor_bridge.poll() is not None or time.monotonic() >= actor_deadline:
+            raise RuntimeError('ACTOR_ENVIRONMENT_ODOMETRY_STARTUP_FAILED')
+        time.sleep(.05)
+    actor_ready=json.loads(actor_status.read_text())
+    if not actor_ready.get('ready') or actor_ready.get('run_id') != run_id:
+        raise RuntimeError('ACTOR_ENVIRONMENT_ODOMETRY_RUN_MISMATCH')
     # Observe native physics contacts before arming. Sonar sensing volumes are
     # verified separately; logical uav IDs must never substitute model names.
     contact_binary=Path(flight_env.get('CITY_CONTACT_OBSERVER_BINARY',

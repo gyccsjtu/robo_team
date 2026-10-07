@@ -28,6 +28,7 @@ import math
 import os
 import re
 import threading
+from pathlib import Path
 from visual_observation import VisualEvidence, TAG_TO_TID
 from search_completion import parse_actor_list
 from red_observations import RedObservations, actor_slot_remaining
@@ -181,15 +182,15 @@ class TargetBridgeCore(object):
 
     # ---- 感知输入 ----
     def report(self, t, target_id, x, y, conf, source_id=None, observation_id=None):
-        """吸收一条 YOLO 观测。非法参数抛 ValueError。"""
+        """Return whether this actual input was accepted; invalid tags raise."""
         tag = str(target_id)
         if tag not in self.tracks:
             raise ValueError("未知 tag %r" % tag)
         if tag in self.eliminated:
-            return                      # 已消除目标的残余观测，不复活
+            return False                # 已消除目标的残余观测，不复活
         tr = self.tracks[tag]
         if t < tr.t_obs:
-            return
+            return False
         if t - tr.t_obs > COAST_TIME:
             # A reacquisition can follow an official teleport or a different
             # geometric red slot. Do not derive velocity across the lost track,
@@ -214,18 +215,18 @@ class TargetBridgeCore(object):
         if tr.obs:
             ox, oy = tr.obs[-1][1], tr.obs[-1][2]
             if math.hypot(x - ox, y - oy) > OBS_SPREAD_M:
-                return
+                return False
         elif tr.t_obs > 0.0 and (t - tr.t_obs) <= COAST_TIME:
             # 跨窗校验：窗空但跟丢不超过 COAST_TIME，新观测必须离最后融合位置
             # SPREAD_FAR_M 内。真人 1.5s 走不了 10m；超距=跟丢重跟到错误物体。
             if math.hypot(x - tr.x, y - tr.y) > SPREAD_FAR_M:
-                return
+                return False
         # 超过 COAST_TIME：真·重捕获，允许任意位置。
         alignment = None
         if self.brown_alignment and tag == 'brown' and source_id is not None:
             alignment = tr.source_fusion.observe(source_id, t, (x,y), conf, observation_id)
             if alignment is None:
-                return
+                return False
         tr.alignment = alignment
         tr.obs.append((float(t), x, y, w, conf))
 
@@ -282,6 +283,7 @@ class TargetBridgeCore(object):
                 # 置信度不够，重置计数
                 tr._high_conf_count = 0
         # 已激活轨迹不受此限（延续观测允许低置信度）
+        return True
 
     # ---- 裁判输入 ----
     def set_left(self, t, raw):
@@ -375,6 +377,12 @@ class YoloTargetBridge(object):
         self.core = TargetBridgeCore(brown_alignment=os.environ.get('BRIDGE_BROWN_ALIGNED', '0') == '1')
         self._red_observations = RedObservations()
         self._lock = threading.RLock()
+        self._trace = None
+        trace_path = os.environ.get('BRIDGE_TRACE_JSONL')
+        if trace_path:
+            path = Path(trace_path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            self._trace = path.open('a', encoding='utf-8', buffering=1)
         self.evidence = VisualEvidence(os.environ.get('ROBOCUP_RUN_ID', ''),
             os.environ.get('SWARM_UAV_IDS', 'uav_1,uav_2,uav_3,uav_4,uav_5,uav_6').split(','))
         from robocup_swarm.msg import TargetDetection
@@ -388,7 +396,7 @@ class YoloTargetBridge(object):
         self._actor_pubs = {}
         for tag in TAG_TO_TID:
             self._actor_pubs[tag] = rospy.Publisher(
-                "/actor_%s_info" % ('red' if tag in ('red1','red2') else tag), ActorInfo, queue_size=3)
+                "/actor_%s_info" % tag, ActorInfo, queue_size=3)
         rospy.Subscriber('/swarm/visual_observation', _msg_string_cls(), self._visual_cb, queue_size=50)
         rospy.Subscriber("/left_actors", _msg_string_cls(),
                          self._left_cb, queue_size=5)
@@ -422,10 +430,15 @@ class YoloTargetBridge(object):
                     if tag is None:
                         return
                     observation['target_id'] = tag
-                self.core.report(stamp, tag, x, y, observation['confidence'],
-                                 observation['uav_id'], observation['observation_id'])
+                accepted = self.core.report(stamp, tag, x, y, observation['confidence'],
+                                            observation['uav_id'], observation['observation_id'])
                 track = self.core.tracks[tag]
-                if not track.alive or track.t_obs != stamp or tag in self.core.eliminated:
+                if getattr(self,'_trace',None) is not None:
+                    self._trace_record(dict(kind='input', receipt_s=self._now(),
+                        observation=observation, accepted=accepted, alive=track.alive,
+                        fused_xy=[track.x,track.y], velocity=[track.vx,track.vy],
+                        original_s=track.t_obs, position_s=track.position_s, window=track.obs))
+                if not accepted or not track.alive or track.t_obs != stamp or tag in self.core.eliminated:
                     return
                 detection = self._TargetDetection()
                 detection.header.stamp = self._rospy.Time.from_sec(stamp)
@@ -436,6 +449,14 @@ class YoloTargetBridge(object):
                 self._confirmed_pub.publish(_msg_string_cls()(data=json.dumps(observation, allow_nan=False)))
         except (ValueError, TypeError, KeyError):
             return
+
+    def _trace_record(self, value):
+        stream = getattr(self,'_trace',None)
+        if stream is not None:
+            try:
+                stream.write(json.dumps(value,allow_nan=False)+'\n')
+            except (OSError,ValueError) as error:
+                self._rospy.logwarn_throttle(2.,'BRIDGE_TRACE_FAILED %s',error)
 
     def _left_cb(self, msg):
         with self._lock:
@@ -469,6 +490,12 @@ class YoloTargetBridge(object):
             am.x = round(ev["x"], 3)
             am.y = round(ev["y"], 3)
             self._actor_pubs[tag].publish(am)
+            if getattr(self,'_trace',None) is not None:
+                self._trace_record(dict(kind='upload', receipt_s=self._now(), tag=tag,
+                    prediction_s=getattr(self,'_last_prediction_s',None),
+                    requested_xy=[am.x,am.y], fused_xy=[track.x,track.y],
+                    velocity=[track.vx,track.vy], original_s=track.t_obs,
+                    position_s=track.position_s, window=track.obs))
             if tag == 'brown' and track.alignment is not None:
                 self._rospy.loginfo_throttle(.5, 'BROWN_ALIGNMENT %s', json.dumps(dict(
                     track.alignment, original_s=track.t_obs, prediction_s=self._now(),
@@ -476,7 +503,8 @@ class YoloTargetBridge(object):
 
     def _tick(self, _evt):
         with self._lock:
-            for ev in self.core.tick(self._now()):
+            self._last_prediction_s = self._now()
+            for ev in self.core.tick(self._last_prediction_s):
                 self._emit(ev)
 
 

@@ -58,8 +58,11 @@ CONFIRM_TIME = 15.0     # 规则5：连续确认时长 s
 ERR_TOL = 1.0           # 规则5：单次上报坐标误差上限 m
 GAP_TOL = 1.0           # 规则5：相邻上报最大间隔 s
 # 规则4：首次被裁判正确检测起墙钟跨度 → 瞬移。
-# 以官方规则 PDF 为准 = 30s；control_actor.py 里 teleportation_interval=25 是旧版本差异。
-# 若实测裁判脚本仍是 25s，启动脚本 export TELEPORT_INTERVAL=25 覆盖即可。
+# 事实（2026-10-06 核实）：官方平台源码里 teleportation_interval=25，我们的
+# 场景生成器按规则 PDF 把它改写成 30（所有归档场景实测均为 30）；而官方 2026-10-05
+# 提交 5618334d「修复行人瞬移的问题」已把瞬移整段删除，改为「被上报 + 快机靠近 → 逃跑」。
+# 因此本常量只是开发期模型：比赛模式用 CooperativeTracker(official_only=True)
+# （swarm_manager.py:283），evade 分支不生效，本值不参与实跑。
 EVADE_TIME = float(os.environ.get("TELEPORT_INTERVAL", "30"))
 OBS_TTL = 1.0           # 单条观测的有效期 s（超过则视为陈旧，不计入）
 
@@ -125,7 +128,7 @@ class CooperativeTarget(object):
         self.eliminated = False
         self.evaded = False
 
-        # ---- 规则4：裁判首次收到合格上报起 25 s 墙钟跨度（匹配 control_actor.teleportation_interval=25）----
+        # ---- 规则4：裁判首次收到合格上报起 EVADE_TIME 墙钟跨度（场景里为 30s，见文件头说明）----
         # 这里用 cooperative_tracker 自己的 confirm_since 起始时刻作为代理 —— 因为三门槛判定
         # 和裁判完全一致，所以 confirm_since 首次非 None 的时刻 == 裁判的 find_time。
         self._first_confirm_t = None   # 首次进入确认状态的时刻（只设一次，瞬移后重置）
@@ -275,8 +278,8 @@ class CooperativeTarget(object):
             self.confirm_since = None                   # 全员看不见 → 清零
             self.last_ok_t = None
 
-        # 规则4：裁判首次收到合格上报起 25 s 墙钟跨度未消除 → 瞬移
-        # 与 control_actor.actor_teleportation_callback 对齐：teleportation_interval = 25s
+        # 规则4：裁判首次收到合格上报起 EVADE_TIME 墙钟跨度未消除 → 瞬移
+        # （场景实测 30s；官方 2026-10-05 起已删除瞬移，本分支在 official_only 下不生效）
         if (not self.official_only and not self._evade_fired and self._first_confirm_t is not None
                 and now - self._first_confirm_t >= self.evade_time):
             self.evaded = True
