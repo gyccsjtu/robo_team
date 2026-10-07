@@ -30,6 +30,7 @@ from geometry_msgs.msg import PoseStamped, TwistStamped
 from sensor_msgs.msg import LaserScan
 from mavros_msgs.msg import State, PositionTarget
 from position_brake import PositionBrake
+from bounded_escape import RestEvidence
 from pose_quality import PoseQuality
 from pose_rate import PoseRate, motion_evidence
 from mavros_msgs.srv import CommandBool, SetMode, ParamSet
@@ -365,6 +366,13 @@ class SwarmAgent(object):
         self._route_gate = RouteGate(self._gate.run_id, uav_id)
         self._route_pending = None
         self._route_pending_s = 0.
+        self._escape_enabled = os.environ.get('SWARM_BOUNDED_ESCAPE','0') == '1'
+        self._escape_rest = RestEvidence()
+        self._escape_ready = False
+        self._escape_active = None
+        self._escape_pending = None
+        self._escape_used = set()
+        self._computed_escape = None
         self._orbit_plan_chord_m = ORBIT_PLAN_CHORD
         self._route_offer_id = 0
         self._peer_routes = None
@@ -773,6 +781,8 @@ class SwarmAgent(object):
                 if not self._gate.receive(message, rospy.Time.now().to_sec()):
                     return
                 if self._gate.stopping:
+                    if getattr(self,'_escape_enabled',False):
+                        self._cancel_escape('AUTHORITY_STOP')
                     if getattr(self, '_white_reacquire', None) is not None:
                         self._white_reacquire.cancel()
                     if getattr(self, '_search_enabled', False):
@@ -785,6 +795,8 @@ class SwarmAgent(object):
                     self.path, self.path_target = [], None
                     return
                 if previous_generation != self._gate.generation:
+                    if getattr(self,'_escape_enabled',False):
+                        self._cancel_escape('GENERATION_CHANGED')
                     if getattr(self, '_white_reacquire', None) is not None:
                         self._white_reacquire.reset(self._gate.generation, rospy.Time.now().to_sec())
                     if getattr(self, '_search_enabled', False):
@@ -1020,6 +1032,8 @@ class SwarmAgent(object):
 
     def _publish_authority_state(self):
         now = rospy.Time.now().to_sec()
+        if getattr(self,'_escape_enabled',False):
+            self._update_escape_rest(now)
         quality = getattr(self, '_pose_quality', None)
         if quality is not None and not quality.usable(now):
             self._stopped_since = None
@@ -1068,9 +1082,38 @@ class SwarmAgent(object):
                     if ticket != self._plan_ticket or generation != self._gate.generation or message['points'] != path:
                         self._route_gate.clear()
                         return
+                    escape = getattr(self,'_escape_pending',None)
+                    if escape is not None and escape['ticket'] == ticket:
+                        now = rospy.Time.now().to_sec()
+                        if (escape['generation'] != generation
+                                or escape['offset'] != self.offset
+                                or escape['epoch'] != self._online_map_epoch_s
+                                or not 0 <= now-escape['scan_s'] <= 1.5
+                                or generation in self._escape_used
+                                or not self._update_escape_rest(now)
+                                or not self._escape_path_valid([list(self.world_xy)]+path,escape)):
+                            self._route_gate.clear()
+                            self._route_pending = self._escape_pending = None
+                            rospy.loginfo('[%s] BOUNDED_ESCAPE_GRANT_REJECTED gen=%s offer=%s',
+                                          self.uav_id,generation,ticket)
+                            return
+                        escape['started_s'] = now
+                        escape['local_z'] = self.local_z
+                        escape['points'] = path
+                        escape['travel_m'] = 0.
+                        escape['last_pose_xy'] = self.world_xy
+                        escape['pose_s'] = self._pose_sample_s
+                        self._escape_active = escape
+                        self._escape_used.add(generation)
+                        self._escape_pending = None
+                        rospy.loginfo('[%s] BOUNDED_ESCAPE_COMMITTED gen=%s offer=%s',
+                                      self.uav_id,generation,ticket)
+                    elif getattr(self,'_escape_active',None) is not None:
+                        self._escape_active = None
                     self.path, self.path_target = path, target
                     self._route_offer_id = ticket
                     self._route_pending = None
+                    self._escape_pending = None
                     rospy.loginfo('[%s] ROUTE_COMMITTED offer=%s points=%s', self.uav_id, ticket, len(path))
         except (ValueError, TypeError, KeyError):
             return
@@ -1520,11 +1563,123 @@ class SwarmAgent(object):
             vx, vy = result['velocity_xy']
         return vx, vy
 
+    def _update_escape_rest(self, now):
+        task = self._gate.task
+        quality = getattr(self,'_pose_quality',None)
+        last_command = getattr(self,'_last_flight_v',None)
+        eligible = (self._gate.can_move(now) and task is not None and task['task_type'] == 0
+            and getattr(self,'_takeoff_done',False) and not self._landing
+            and getattr(self,'_pose_rate_enabled',False)
+            and quality is not None and quality.usable(now)
+            and self.world_xy is not None and self.local_z is not None
+            and math.isfinite(self.local_z) and self.local_z <= ALT_HARD_CEIL
+            and self.offset is not None and 0 <= now-self._pose_sample_s <= .5
+            and last_command is not None and math.hypot(*last_command) < 1e-9)
+        key = (self._gate.run_id,self._gate.generation,self.offset,self._online_map_epoch_s)
+        self._escape_ready = self._escape_rest.update(
+            self._measured_motion(now) if eligible else None,now,key if eligible else None)
+        return self._escape_ready
+
+    def _cancel_escape(self, reason):
+        if getattr(self,'_escape_active',None) is not None:
+            rospy.loginfo('[%s] BOUNDED_ESCAPE_END reason=%s generation=%s',
+                          self.uav_id,reason,self._escape_active['generation'])
+            self.path, self.path_target = [], None
+            self._last_flight_v = self._last_cmd_v = (0.,0.)
+        self._escape_active = self._escape_pending = None
+        self._escape_altitude_request = None
+        self._escape_ready = False
+        self._escape_rest.reset()
+
+    def _current_escape(self, now):
+        escape = getattr(self,'_escape_active',None)
+        if escape is None:
+            return None
+        record = self._route_gate.record
+        quality = getattr(self,'_pose_quality',None)
+        if (not self._gate.can_move(now) or self._gate.task is None
+                or self._gate.task['task_type'] != 0
+                or escape['generation'] != self._gate.generation
+                or escape['offset'] != self.offset or escape['epoch'] != self._online_map_epoch_s
+                or not 0 <= now-escape['started_s'] <= 15.
+                or not getattr(self,'_takeoff_done',False) or self._landing
+                or quality is None or not quality.usable(now)
+                or self.local_z is None or not math.isfinite(self.local_z)
+                or self.world_xy is None or self._measured_motion(now) is None
+                or not 0 <= now-self._pose_sample_s <= .5
+                or record is None or record['generation'] != escape['generation']
+                or record['offer_id'] != escape['ticket'] or record['points'] != escape['points']
+                or now < self._route_gate.last_s or now >= record['expires_s']):
+            self._cancel_escape('AUTHORITY_ROUTE_POSE_OR_TIMEOUT')
+            return None
+        if self._pose_sample_s < escape['pose_s']:
+            self._cancel_escape('POSE_TIME_BACKWARDS')
+            return None
+        if self._pose_sample_s > escape['pose_s']:
+            escape['travel_m'] += math.dist(self.world_xy,escape['last_pose_xy'])
+            escape['last_pose_xy'],escape['pose_s'] = self.world_xy,self._pose_sample_s
+        if escape['travel_m'] > 2.:
+            self._cancel_escape('MEASURED_EXIT_DISTANCE_EXCEEDED')
+            return None
+        return escape
+
+    def _escape_path_valid(self, path, proposal):
+        if sum(math.dist(a,b) for a,b in zip(path,path[1:])) > 2.+1e-9:
+            return False
+        for before,after in zip(path,path[1:]):
+            step = (after[0]-before[0],after[1]-before[1])
+            if (not OnlinePlanner.connector_clear(proposal['grid'],before,after)
+                    or any(sum((before[i]-hit[i])*step[i] for i in (0,1)) < -1e-9
+                           for hit in proposal['blocking_hits'])):
+                return False
+        return True
+
+    def _escape_limit_velocity(self, vx, vy, now):
+        was_active = getattr(self,'_escape_active',None) is not None
+        escape = self._current_escape(now)
+        if escape is None:
+            if was_active:
+                self._final_stop_reason = 'ESCAPE_AUTHORITY_INVALIDATED'
+                return 0.,0.
+            return vx,vy
+        if any((self.world_xy[0]-hit[0])*vx+(self.world_xy[1]-hit[1])*vy < -1e-9
+               for hit in escape['blocking_hits']):
+            self._final_stop_reason = 'ESCAPE_DIRECTION_TOWARD_HIT'
+            return 0.,0.
+        speed = math.hypot(vx,vy)
+        scale = min(1.,.3/max(speed,1e-9))
+        return vx*scale,vy*scale
+
+    def _control_escape(self, now):
+        escape = self._current_escape(now)
+        if escape is None:
+            return False
+        with self._online_map_lock:
+            complete = (math.dist(self.world_xy,escape['points'][-1]) <= .15
+                and self._online_planner.local_command_clear(self._online_map,self.world_xy,
+                    (0.,0.),now,self._online_map_epoch_s))
+        if complete:
+            self._cancel_escape('NORMAL_CLEARANCE_REJOINED')
+            self._send_vel(0.,0.)
+            return True
+        goal = self._pick_local_goal()
+        self._look_at = goal
+        if goal is None:
+            self._send_vel(0.,0.)
+        else:
+            vx,vy = (POS_KP*(goal[i]-self.world_xy[i]) for i in (0,1))
+            vx,vy = self._escape_limit_velocity(vx,vy,now)
+            self._send_vel(*self._apply_friend_avoidance(vx,vy))
+        return True
+
     def _online_velocity_clear(self, vx, vy):
         planner = getattr(self, '_online_planner', None)
         if planner is None or abs(vx)+abs(vy) < 1e-9:
             return True
         now = rospy.Time.now().to_sec()
+        escape = self._current_escape(now) if getattr(self,'_escape_enabled',False) else None
+        if escape is not None:
+            planner = escape['planner']
         position = self.world_xy
         evidence = self._measured_motion(now)
         if position is None or evidence is None:
@@ -1717,6 +1872,9 @@ class SwarmAgent(object):
         self._final_stop_reason = 'REQUESTED_STOP'
         self._route_velocity_evidence = {}
         requested_xy = (vx, vy)
+        self._escape_altitude_request = None
+        if getattr(self,'_escape_enabled',False):
+            vx,vy = self._escape_limit_velocity(vx,vy,rospy.Time.now().to_sec())
         quality = getattr(self, '_pose_quality', None)
         if quality is not None and not quality.usable(rospy.Time.now().to_sec()):
             self._last_cmd_v = (0., 0.)
@@ -1819,6 +1977,12 @@ class SwarmAgent(object):
                            cmd.twist.linear.x, cmd.twist.linear.y)
             cmd.twist.linear.x = cmd.twist.linear.x * ALT_EMERG_HSCALE
             cmd.twist.linear.y = cmd.twist.linear.y * ALT_EMERG_HSCALE
+        if getattr(self,'_escape_enabled',False):
+            escape = self._current_escape(rospy.Time.now().to_sec())
+            if (escape is not None and self.local_z is not None and self.local_z <= ALT_HARD_CEIL
+                    and (vz is None or abs(vz) < 1e-9)):
+                cmd.twist.linear.z = 0.
+                self._escape_altitude_request = escape['local_z']
         # Final horizontal authority: check the command after all direction/
         # acceleration changes, including bounds recovery. Braking must not be
         # undone by the ordinary acceleration limiter on this or the next tick.
@@ -1827,6 +1991,8 @@ class SwarmAgent(object):
             vx, vy = 0., 0.
             self._final_stop_reason = 'AUTHORITY_STOP'
         vx, vy = self._friend_guard_velocity(vx, vy)
+        if getattr(self,'_escape_enabled',False):
+            vx,vy = self._escape_limit_velocity(vx,vy,rospy.Time.now().to_sec())
         route_gate = getattr(self, '_route_gate', None)
         if route_gate is not None and abs(vx)+abs(vy) > 0:
             vx, vy = self._route_guard_velocity(vx, vy, rospy.Time.now().to_sec())
@@ -1867,6 +2033,11 @@ class SwarmAgent(object):
                 world_xy=self.world_xy,local_z=self.local_z,
                 measured=[v if math.isfinite(v) else None for v in self._velocity_sample] if self._velocity_sample else None,
                 motion_evidence=self._measured_motion(rospy.Time.now().to_sec()),
+                bounded_escape=(dict(generation=self._escape_active['generation'],
+                    offer_id=self._escape_active['ticket'],started_s=self._escape_active['started_s'],
+                    scan_s=self._escape_active['scan_s'],radius_m=.9,speed_limit_mps=.3,
+                    travel_m=self._escape_active['travel_m'],local_z=self._escape_active['local_z'])
+                    if getattr(self,'_escape_active',None) is not None else None),
                 hold_xyz=self._xyz_stop_requested,scan_window=list(self._scan_window)),allow_nan=False)+'\n'
             if changed:
                 self._navigation_log.write(snapshot)
@@ -1970,8 +2141,11 @@ class SwarmAgent(object):
             and 0 <= rospy.Time.now().to_sec()-self._pose_sample_s <= .5) else None
         fields = self._position_brake.encode((cmd.twist.linear.x, cmd.twist.linear.y, cmd.twist.linear.z),
                                              cmd.twist.angular.z, position, self.offset,
-            hold_altitude=self.local_z if (getattr(self,'_xyz_stop_requested',False)
-                and position is not None) else None)
+            hold_altitude=(getattr(self,'_escape_altitude_request',None)
+                if getattr(self,'_escape_altitude_request',None) is not None else self.local_z)
+                if (getattr(self,'_xyz_stop_requested',False)
+                and position is not None) else None,
+            moving_altitude=getattr(self,'_escape_altitude_request',None) if position is not None else None)
         message = PositionTarget()
         message.header.stamp = rospy.Time.now()
         message.coordinate_frame, message.type_mask = fields['coordinate_frame'], fields['type_mask']
@@ -2003,6 +2177,7 @@ class SwarmAgent(object):
     def _compute_plan(self, goal_xy):
         """从当前世界坐标 A* 规划到 goal_xy。纯计算：返回 (path, goal, ok)，
         不修改 self.path / self.path_target（由后台线程调用，提交交给主循环视角）。"""
+        self._computed_escape = None
         if self.world_xy is None:
             return [], goal_xy, False
         if self._online_planner is not None:
@@ -2029,6 +2204,21 @@ class SwarmAgent(object):
                 rospy.logwarn_throttle(2, '[%s] ONLINE_PLAN waiting for fresh fleet evidence', self.uav_id)
                 return [], goal_xy, False
             result = self._online_planner.route(grid, self.world_xy, goal_xy, frozen, now)
+            if result['reason'] == 'START_CLEARANCE_UNKNOWN' and getattr(self,'_escape_enabled',False):
+                with self._authority_lock:
+                    escape_generation = self._gate.generation
+                    eligible = (self._update_escape_rest(rospy.Time.now().to_sec())
+                        and escape_generation not in self._escape_used
+                        and self._escape_active is None)
+                    start = self.world_xy
+                    altitude, offset = self.local_z, self.offset
+                if eligible:
+                    proposal = self._online_planner.exit_candidate(frozen,start,now,epoch,
+                        lambda candidate: exclude_peers(candidate,self.uav_id,motion,peers,peer_now))
+                    if proposal is not None:
+                        proposal.update(generation=escape_generation,local_z=altitude,offset=offset)
+                        self._computed_escape = proposal
+                        result = dict(ok=True,reason='BOUNDED_ESCAPE_PROPOSAL',points=proposal['points'])
             self.grid = self._online_safe_grid = grid
             self._online_safe_s, self._online_safe_epoch = frozen.last_scan_s, epoch
             rospy.loginfo('[%s] ONLINE_PLAN %s version=%s', self.uav_id, result['reason'], frozen.version)
@@ -2200,6 +2390,9 @@ class SwarmAgent(object):
     def _request_plan(self, goal_xy):
         """异步投递；追踪同代次先完成在途规划，下一次再取最新相机目标。"""
         with self._authority_lock, self._plan_lock:
+            if (getattr(self,'_escape_enabled',False)
+                    and self._current_escape(rospy.Time.now().to_sec()) is not None):
+                return
             candidate = (float(goal_xy[0]), float(goal_xy[1]))
             generation = self._gate.generation
             tracking = self._gate.task is not None and self._gate.task['task_type'] == 1
@@ -2258,6 +2451,15 @@ class SwarmAgent(object):
                     if self.world_xy is None:
                         continue
                     path = [list(self.world_xy)] + [list(p) for p in path]
+                    proposal = getattr(self,'_computed_escape',None)
+                    if proposal is not None:
+                        if (proposal['generation'] != generation
+                                or not self._update_escape_rest(rospy.Time.now().to_sec())
+                                or not self._escape_path_valid(path,proposal)):
+                            self._plan_fail_t = rospy.Time.now().to_sec()
+                            continue
+                        proposal['ticket'] = ticket
+                    self._escape_pending = proposal
                     self._route_pending = (ticket, path, target, generation)
                     self._route_pending_s = rospy.Time.now().to_sec()
                     rospy.loginfo('[%s] PLAN_OFFERED generation=%s ticket=%s elapsed_s=%.3f',
@@ -2310,6 +2512,10 @@ class SwarmAgent(object):
         """沿全局路径从最近点往前取 LOOKAHEAD 距离的引导目标。"""
         if not self.path or self.world_xy is None:
             return None
+        escape = self._current_escape(rospy.Time.now().to_sec()) if getattr(self,'_escape_enabled',False) else None
+        if not self.path:
+            return None
+        safe_grid = escape['grid'] if escape is not None else getattr(self,'_online_safe_grid',None)
         route_gate = getattr(self, '_route_gate', None)
         connector_guard = (lambda start, end: route_gate.connector_clear(start, end,
             rospy.Time.now().to_sec(), self._gate.generation)) if route_gate is not None else None
@@ -2331,13 +2537,13 @@ class SwarmAgent(object):
                 candidate = (x0 + (x1 - x0) * frac, y0 + (y1 - y0) * frac)
                 planner = getattr(self, '_online_planner', None)
                 if planner is not None:
-                    return planner.visible_goal(self._online_safe_grid,self.world_xy,
+                    return planner.visible_goal(safe_grid,self.world_xy,
                                                 self.path[best:i+1]+[candidate],connector_guard)
                 return candidate
             acc += seg
         planner = getattr(self, '_online_planner', None)
         if planner is not None:
-            return planner.visible_goal(self._online_safe_grid,self.world_xy,self.path[best:],connector_guard)
+            return planner.visible_goal(safe_grid,self.world_xy,self.path[best:],connector_guard)
         return self.path[-1]
 
     def _control(self):
@@ -2408,6 +2614,10 @@ class SwarmAgent(object):
             self._target_to_orbit = None
             self._look_at = None
             self._send_vel(0.0, 0.0)
+            return
+
+        if (getattr(self,'_escape_enabled',False)
+                and self._control_escape(rospy.Time.now().to_sec())):
             return
 
         # === 任务类型处理 ===

@@ -23,3 +23,5 @@
 PositionBrake新增可选moving_altitude：移动XY且无显式Z速度、有当前有效位置时输出标准PositionTarget掩码1507，使用VX/VY及PZ、忽略VZ与PX/PY。显式升降及缺失位置保留旧速度模式；原停止XYZ保持语义不变。2项新增测试逐位核对掩码及紧急升降优先级。agent尚未传入此参数，不声称实体退出高度已保持。
 
 后续全量验证692项，13.010秒，OK。此轮已自然收尾，实体执行仍为e83839b，退出候选未执行。精选原件、压缩解压SHA和派生统计在validation/competition_recovery_r3_20261007/round_1_seed_8159，完整日志仍留原WSL目录。
+
+最新状态：停稳、proposal/实际grant、最终限速、高度保持和失效取消已接入agent；此前“尚未接入”是各步当时状态。实现及验证限制见bounded_escape_integration_20261007.md，路线兼容v1.4。尚无实体退出效果；下一步先检查实际扫描历史的可达性，不原样重跑旧代码。
