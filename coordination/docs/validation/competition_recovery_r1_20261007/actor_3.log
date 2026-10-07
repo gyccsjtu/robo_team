@@ -1,0 +1,15 @@
+actor_3: communication initialized
+actor_3 was reported; waiting for a fast UAV
+actor_3 escape triggered by typhoon_h480_3
+actor_3 escape route unavailable; choosing a local target
+actor_3 finished escape route
+Traceback (most recent call last):
+  File "control_actor.py", line 812, in <module>
+    controlactors.loop()
+  File "control_actor.py", line 755, in loop
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request

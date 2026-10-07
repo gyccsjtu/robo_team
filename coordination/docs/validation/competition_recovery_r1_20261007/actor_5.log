@@ -1,0 +1,56 @@
+actor_5: communication initialized
+5 general change position
+current_position:   5       x: 52.0
+y: 32.0
+z: 1.0191
+subtarget_pos: 5       [x: -8.75
+y: -14.75
+z: 0.0, x: -18.95
+y: -36.25
+z: 0.0, x: -32.380519696537164
+y: -45.57481785333529
+z: 0.0]
+
+
+Gazebo model state service5  call failed: unable to connect to service: connection from sender terminated before handshake header received. 0 bytes were received. Please check sender for additional details.
+Traceback (most recent call last):
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_base.py", line 569, in connect
+    self.read_header()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_base.py", line 664, in read_header
+    self._validate_header(read_ros_handshake_header(sock, self.read_buff, self.protocol.buff_size))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rosgraph/network.py", line 359, in read_ros_handshake_header
+    raise ROSHandshakeException("connection from sender terminated before handshake header received. %s bytes were received. Please check sender for additional details."%b.tell())
+rosgraph.network.ROSHandshakeException: connection from sender terminated before handshake header received. 0 bytes were received. Please check sender for additional details.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_service.py", line 509, in call
+    transport.connect(dest_addr, dest_port, service_uri)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_base.py", line 596, in connect
+    raise TransportInitError(str(e)) #re-raise i/o error
+rospy.exceptions.TransportInitError: connection from sender terminated before handshake header received. 0 bytes were received. Please check sender for additional details.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "control_actor.py", line 662, in loop
+    get_actor_state = self.gazeboModelstate('actor_' + self.id, 'ground_plane')
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_service.py", line 442, in __call__
+    return self.call(*args, **kwds)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/impl/tcpros_service.py", line 512, in call
+    raise ServiceException("unable to connect to service: %s"%e)
+rospy.service.ServiceException: unable to connect to service: connection from sender terminated before handshake header received. 0 bytes were received. Please check sender for additional details.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "control_actor.py", line 812, in <module>
+    controlactors.loop()
+  File "control_actor.py", line 669, in loop
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request
