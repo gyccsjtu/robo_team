@@ -1,0 +1,55 @@
+{
+  "executed_head": "5ec9afe1ccbee5f6535ad5988861e6b0790f62f8",
+  "sources": [
+    {
+      "file": "swarm_agent.py",
+      "source": "/mnt/d/a/.robocup/robo_team/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "snapshot": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "current_sha256": "5cdc1f28f4b3eb810ffde2013f6d49fc78c431e638aa8940780b8cd4e88b0c6f",
+      "snapshot_sha256": "5cdc1f28f4b3eb810ffde2013f6d49fc78c431e638aa8940780b8cd4e88b0c6f"
+    },
+    {
+      "file": "swarm_manager.py",
+      "source": "/mnt/d/a/.robocup/robo_team/coordination/src/robocup_swarm/scripts/swarm_manager.py",
+      "snapshot": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_manager.py",
+      "current_sha256": "166c13c5130cd86a52abb1c79f5165aa3e1af16a34c5d87ae7247af9d5751bf4",
+      "snapshot_sha256": "166c13c5130cd86a52abb1c79f5165aa3e1af16a34c5d87ae7247af9d5751bf4"
+    },
+    {
+      "file": "yolo_target_bridge.py",
+      "source": "/mnt/d/a/.robocup/robo_team/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py",
+      "snapshot": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py",
+      "current_sha256": "c1f711c4ab3bfa76f22a79e73761302928e3480cce3ad113b596763aa8830c03",
+      "snapshot_sha256": "c1f711c4ab3bfa76f22a79e73761302928e3480cce3ad113b596763aa8830c03"
+    },
+    {
+      "file": "tracking_navigation.py",
+      "source": "/mnt/d/a/.robocup/robo_team/coordination/src/robocup_swarm/scripts/tracking_navigation.py",
+      "snapshot": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracking_navigation.py",
+      "current_sha256": "4d5219ad00151fe5ec3bc0761024d2360b049eb10a64ac3202a4f94cbc53dfaa",
+      "snapshot_sha256": "4d5219ad00151fe5ec3bc0761024d2360b049eb10a64ac3202a4f94cbc53dfaa"
+    },
+    {
+      "file": "companion_tracking.py",
+      "source": "/mnt/d/a/.robocup/robo_team/coordination/src/robocup_swarm/scripts/companion_tracking.py",
+      "snapshot": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/companion_tracking.py",
+      "current_sha256": "f6bd3dbc8a259c626e937bd0cd87b3a86b28588631dc0260a9b13c044ac93231",
+      "snapshot_sha256": "f6bd3dbc8a259c626e937bd0cd87b3a86b28588631dc0260a9b13c044ac93231"
+    },
+    {
+      "file": "actor_environment_bridge.py",
+      "source": "/mnt/d/a/.robocup/robo_team/coordination/scripts/actor_environment_bridge.py",
+      "snapshot": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/actor_environment_bridge.py",
+      "current_sha256": "d7214b777ebb0ea7cc2ced7733e888defad868600e854d5f70f494a2b4b57595",
+      "snapshot_sha256": "d7214b777ebb0ea7cc2ced7733e888defad868600e854d5f70f494a2b4b57595"
+    },
+    {
+      "file": "city_swarm_run.py",
+      "source": "/mnt/d/a/.robocup/robo_team/coordination/scripts/city_swarm_run.py",
+      "snapshot": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/city_swarm_run.py",
+      "current_sha256": "7ca319af6404e4aaa05b6b4047e0d39a8110c38d040eb1dbd2fa120ba5c658c8",
+      "snapshot_sha256": "7ca319af6404e4aaa05b6b4047e0d39a8110c38d040eb1dbd2fa120ba5c658c8"
+    }
+  ],
+  "official_judge_unchanged": true
+}

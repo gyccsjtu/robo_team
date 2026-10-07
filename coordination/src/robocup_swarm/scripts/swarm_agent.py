@@ -48,7 +48,7 @@ from route_reservation import RouteGate, exclude_peers, valid_points
 from route_endpoint import connect_exact_goal
 from orbit_geometry import orbit_goal
 from white_reacquisition import WhiteReacquisition
-from tracking_navigation import TrackingNavigation
+from tracking_navigation import TrackingNavigation, StoppedObservation
 from companion_tracking import companion_guidance
 from publisher_authority import PublisherAuthority
 from fcu_configuration import configure as configure_fcu_parameters
@@ -469,6 +469,7 @@ class SwarmAgent(object):
             raise ValueError('Invalid tracking navigation window')
         self._tracking_navigation = TrackingNavigation(navigation_s) if navigation_s > 0 else None
         self._tracking_navigation_phase = None
+        self._stopped_observation = StoppedObservation(self.uav_id, navigation_s) if navigation_s > 0 else None
         self._companion_tracking_enabled = os.environ.get('SWARM_COMPANION_TRACKING','0') == '1'
         self._white_reacquire_enabled = os.environ.get('SWARM_WHITE_REACQUIRE', '0') == '1'
         self._white_reacquire_phase = None
@@ -1175,6 +1176,10 @@ class SwarmAgent(object):
                 if observation is None:
                     return
                 tid = TAG_TO_TID[observation['target_id']]
+                stopped_view = getattr(self, '_stopped_observation', None)
+                if stopped_view is not None:
+                    stopped_view.observe(observation['uav_id'], tid, observation['sample_s'],
+                        observation['xyz'][:2], rospy.Time.now().to_sec())
                 if (getattr(self, '_white_reacquire_enabled', False)
                         and observation['target_id'] == 'white' and observation['uav_id'] == self.uav_id
                         and self._gate.can_move(rospy.Time.now().to_sec())
@@ -1201,6 +1206,9 @@ class SwarmAgent(object):
     def _target_cb(self, msg):
         """Cache confirmed camera coordinates and update this assigned target."""
         if msg.eliminated:
+            stopped_view = getattr(self, '_stopped_observation', None)
+            if stopped_view is not None:
+                stopped_view.images.pop(msg.target_id, None)
             if msg.target_id == 't3' and getattr(self, '_white_reacquire', None) is not None:
                 self._white_reacquire.cancel()
             self.targets.pop(msg.target_id, None)
@@ -2341,7 +2349,22 @@ class SwarmAgent(object):
         if not self._gate.can_move(rospy.Time.now().to_sec()):
             if getattr(self, '_white_reacquire', None) is not None:
                 self._white_reacquire.cancel()
-            self._look_at = None
+            view = getattr(self, '_stopped_observation', None)
+            quality = getattr(self, '_pose_quality', None)
+            now = rospy.Time.now().to_sec()
+            blocked = [tid for tid, until in getattr(self, '_giveup_until', {}).items() if not math.isfinite(until)]
+            self._look_at = (view.look(now, self._gate.stopping, self._gate.generation, blocked,
+                eligible=self.world_xy is not None and getattr(self, '_takeoff_done', False)
+                and not getattr(self, '_landing', False)
+                and (quality is None or quality.usable(now))) if view is not None else None)
+            if view is not None:
+                selected = view.selected if self._look_at is not None else None
+                state = (self._gate.generation, selected)
+                if state != getattr(self, '_stopped_observation_phase', None):
+                    self._stopped_observation_phase = state
+                    rospy.loginfo('[%s] STOP_OBSERVATION target=%s generation=%s original_s=%s',
+                        self.uav_id, selected, self._gate.generation,
+                        view.images[selected][0] if selected is not None else None)
             self._send_vel(0., 0.)
             return
         """有任务 → A* 绕障飞向格中心；无任务 → 原地悬停。"""

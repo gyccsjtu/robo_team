@@ -855,6 +855,18 @@ class SwarmManager(object):
             return held
         return None, None
 
+    def _cancel_stale_tracking_intent(self, tid, now):
+        """Cancel only an ungranted stale target intent, retaining old occupancy."""
+        with self._authority_lock:
+            # A camera callback may have restored evidence since the caller's
+            # check. It uses this same lock; never withdraw a newly fresh intent.
+            if self._get_target_pos(tid, now)[0] is not None:
+                return
+            for uid, intent in tuple(self._authority.pending.items()):
+                if intent['task_type'] == 1 and intent['target_id'] == tid:
+                    self._emit_authority(self._authority.withdraw(uid, now))
+                    rospy.loginfo('[manager] STALE_TRACKING_INTENT_CANCELLED %s target=%s',uid,tid)
+
     def _dispatch_pending_targets(self):
         """给「已知但未消除」的目标派追踪机（只派一次，已在追的只更新位置）。"""
         now = rospy.Time.now().to_sec()
@@ -866,6 +878,7 @@ class SwarmManager(object):
                 continue
             tx, ty = self._get_target_pos(tid, now)
             if tx is None:
+                self._cancel_stale_tracking_intent(tid, now)
                 # 目标已跟丢（缓存过期 + 融合无观测）：释放追踪/备份机去搜别的，
                 # 避免飞机继续追一个不存在的过期坐标。
                 if tid in self._tracking or tid in self._backup:

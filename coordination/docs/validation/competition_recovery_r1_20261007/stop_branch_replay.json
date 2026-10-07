@@ -1,0 +1,128 @@
+{
+  "kind": "constructed_stop_branch_replay_from_real_blue_input",
+  "not_full_ros_or_entity_replay": true,
+  "no_reacquired_image_claim": true,
+  "sources": {
+    "executed": {
+      "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "sha256": "5cdc1f28f4b3eb810ffde2013f6d49fc78c431e638aa8940780b8cd4e88b0c6f"
+    },
+    "candidate": {
+      "path": "/mnt/d/a/.robocup/robo_team/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "sha256": "4c6b737e1550315b8dd54d92ec99a1667c9edf42c47553151478be411bf6bfb3"
+    }
+  },
+  "input": {
+    "kind": "input",
+    "receipt_s": 1967.864,
+    "observation": {
+      "schema_version": 2,
+      "run_id": "8498be5c-3d05-4bb1-9584-1c3edf72e60f",
+      "uav_id": "uav_5",
+      "seq": 12,
+      "sample_s": 1967.388,
+      "target_id": "blue",
+      "frame_id": "world_enu",
+      "xyz": [
+        -26.77,
+        13.35,
+        1.25
+      ],
+      "confidence": 0.82,
+      "observation_id": "8498be5c-3d05-4bb1-9584-1c3edf72e60f:uav_5:12"
+    },
+    "accepted": true,
+    "alive": true,
+    "fused_xy": [
+      -26.78900062460962,
+      13.392751405371643
+    ],
+    "velocity": [
+      -0.06651587922080723,
+      -0.05446142437646571
+    ],
+    "original_s": 1967.388,
+    "position_s": 1967.2283947532792,
+    "window": [
+      [
+        1967.052,
+        -26.81,
+        13.44,
+        0.6084,
+        0.78
+      ],
+      [
+        1967.388,
+        -26.77,
+        13.35,
+        0.6723999999999999,
+        0.82
+      ]
+    ]
+  },
+  "outputs": {
+    "executed": [
+      {
+        "query_s": 1967.864,
+        "look_at": null,
+        "original_s": 1967.388
+      },
+      {
+        "query_s": 1970.0,
+        "look_at": null,
+        "original_s": 1967.388
+      },
+      {
+        "query_s": 1972.0,
+        "look_at": null,
+        "original_s": 1967.388
+      },
+      {
+        "query_s": 1975.4,
+        "look_at": null,
+        "original_s": 1967.388
+      },
+      {
+        "query_s": 1978.148,
+        "look_at": null,
+        "original_s": 1967.388
+      }
+    ],
+    "candidate": [
+      {
+        "query_s": 1967.864,
+        "look_at": [
+          -26.77,
+          13.35
+        ],
+        "original_s": 1967.388
+      },
+      {
+        "query_s": 1970.0,
+        "look_at": [
+          -26.77,
+          13.35
+        ],
+        "original_s": 1967.388
+      },
+      {
+        "query_s": 1972.0,
+        "look_at": [
+          -26.77,
+          13.35
+        ],
+        "original_s": 1967.388
+      },
+      {
+        "query_s": 1975.4,
+        "look_at": null,
+        "original_s": 1967.388
+      },
+      {
+        "query_s": 1978.148,
+        "look_at": null,
+        "original_s": 1967.388
+      }
+    ]
+  }
+}

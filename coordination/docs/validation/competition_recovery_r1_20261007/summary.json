@@ -1,0 +1,24 @@
+{
+  "executed_head": "5ec9afe",
+  "sim_first_s": 1929.436,
+  "sim_last_s": 2014.236,
+  "sim_span_s": 84.80000000000018,
+  "judge_eliminations": 0,
+  "not_complete_600_seconds": true,
+  "reason": "CONFIRMED_TRACKING_HANDOFF_CAMERA_DROPOUT",
+  "path_length_3d_m": {
+    "uav_1": 26.952548652052926,
+    "uav_2": 68.92599480076896,
+    "uav_3": 74.41751744240787,
+    "uav_4": 52.75616063086338,
+    "uav_5": 59.98289925929532,
+    "uav_6": 24.956270000140986
+  },
+  "max_true_altitude_m": 3.310450872446704,
+  "non_ground_contacts": {},
+  "contact_frame_count": 21511,
+  "contact_first_s": 1928.384,
+  "contact_last_s": 2014.424,
+  "contact_coverage": true,
+  "process_state": "owned runner/launcher/gzserver and observers gone; ports 11375/11376/19731 closed, checked after shutdown"
+}

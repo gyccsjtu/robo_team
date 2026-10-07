@@ -1,0 +1,121 @@
+{
+  "wall_time": 1791352799.9182649,
+  "topics": {
+    "/actor_red1_info": {
+      "type": "ros_actor_cmd_pose_plugin_msgs/ActorInfo",
+      "publishers": [
+        "/yolo_target_bridge",
+        "/perception_real_927670_1791352698269",
+        "/perception_real_927667_1791352698272",
+        "/perception_real_927671_1791352698264",
+        "/perception_real_927666_1791352698285",
+        "/perception_real_927669_1791352698337",
+        "/perception_real_927668_1791352698453"
+      ],
+      "subscribers": [
+        "/score_cal",
+        "/independent_visual_accuracy_931015_1791352716203"
+      ]
+    },
+    "/actor_red2_info": {
+      "type": "ros_actor_cmd_pose_plugin_msgs/ActorInfo",
+      "publishers": [
+        "/yolo_target_bridge",
+        "/perception_real_927670_1791352698269",
+        "/perception_real_927667_1791352698272",
+        "/perception_real_927671_1791352698264",
+        "/perception_real_927666_1791352698285",
+        "/perception_real_927669_1791352698337",
+        "/perception_real_927668_1791352698453"
+      ],
+      "subscribers": [
+        "/score_cal",
+        "/independent_visual_accuracy_931015_1791352716203"
+      ]
+    },
+    "/xtdrone/typhoon_h480_0/ground_truth/odom": {
+      "type": "nav_msgs/Odometry",
+      "publishers": [
+        "/actor_environment_odometry"
+      ],
+      "subscribers": [
+        "/actor_1",
+        "/actor_5",
+        "/actor_0",
+        "/actor_2",
+        "/actor_4",
+        "/actor_3"
+      ]
+    },
+    "/xtdrone/typhoon_h480_1/ground_truth/odom": {
+      "type": "nav_msgs/Odometry",
+      "publishers": [
+        "/actor_environment_odometry"
+      ],
+      "subscribers": [
+        "/actor_1",
+        "/actor_5",
+        "/actor_0",
+        "/actor_2",
+        "/actor_4",
+        "/actor_3"
+      ]
+    },
+    "/xtdrone/typhoon_h480_2/ground_truth/odom": {
+      "type": "nav_msgs/Odometry",
+      "publishers": [
+        "/actor_environment_odometry"
+      ],
+      "subscribers": [
+        "/actor_1",
+        "/actor_5",
+        "/actor_0",
+        "/actor_2",
+        "/actor_4",
+        "/actor_3"
+      ]
+    },
+    "/xtdrone/typhoon_h480_3/ground_truth/odom": {
+      "type": "nav_msgs/Odometry",
+      "publishers": [
+        "/actor_environment_odometry"
+      ],
+      "subscribers": [
+        "/actor_1",
+        "/actor_5",
+        "/actor_0",
+        "/actor_2",
+        "/actor_4",
+        "/actor_3"
+      ]
+    },
+    "/xtdrone/typhoon_h480_4/ground_truth/odom": {
+      "type": "nav_msgs/Odometry",
+      "publishers": [
+        "/actor_environment_odometry"
+      ],
+      "subscribers": [
+        "/actor_1",
+        "/actor_5",
+        "/actor_0",
+        "/actor_2",
+        "/actor_4",
+        "/actor_3"
+      ]
+    },
+    "/xtdrone/typhoon_h480_5/ground_truth/odom": {
+      "type": "nav_msgs/Odometry",
+      "publishers": [
+        "/actor_environment_odometry"
+      ],
+      "subscribers": [
+        "/actor_1",
+        "/actor_5",
+        "/actor_0",
+        "/actor_2",
+        "/actor_4",
+        "/actor_3"
+      ]
+    }
+  }
+}

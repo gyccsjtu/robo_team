@@ -2,6 +2,40 @@
 import math
 
 
+class StoppedObservation:
+    """Local own-camera bearing during STOP; never a movement/visual authority."""
+    def __init__(self, own_id, window_s=8.):
+        if not own_id or not math.isfinite(window_s) or window_s <= 0:
+            raise ValueError('Invalid stopped observation bounds')
+        self.own_id, self.window_s = own_id, window_s
+        self.images = {}
+        self.key = self.selected = None
+
+    def observe(self, uid, tid, stamp, point, now):
+        if (uid != self.own_id or tid not in ('t0','t1','t2','t3','t4','t5')
+                or len(point) != 2
+                or not all(math.isfinite(v) for v in (stamp, now)+tuple(point))
+                or not 0 <= now-stamp <= 1.
+                or stamp <= self.images.get(tid, (-math.inf, None))[0]):
+            return False
+        self.images[tid] = (stamp, tuple(point))
+        return True
+
+    def look(self, now, stopping, generation, blocked=(), eligible=True):
+        if not stopping or not eligible or not math.isfinite(now):
+            self.key = self.selected = None
+            return None
+        if generation != self.key:
+            self.key, self.selected = generation, None
+        valid = {tid: value for tid, value in self.images.items()
+                 if tid not in blocked and 0 <= now-value[0] <= self.window_s}
+        # Keep the same observed person through the handoff instead of turning
+        # on every other camera detection. Only real new own images renew it.
+        if self.selected not in valid:
+            self.selected = max(valid, key=lambda tid: (valid[tid][0], tid)) if valid else None
+        return valid[self.selected][1] if self.selected is not None else None
+
+
 class TrackingNavigation:
     def __init__(self, window_s=8., fresh_s=1.5, standoff_m=10.):
         if not all(math.isfinite(x) and x > 0 for x in (window_s, fresh_s, standoff_m)):

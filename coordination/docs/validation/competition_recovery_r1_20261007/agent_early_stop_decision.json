@@ -1,0 +1,16 @@
+{
+  "reason": "CONFIRMED_TRACKING_HANDOFF_CAMERA_DROPOUT",
+  "decision_wall": 1791353226.913595,
+  "sim_span_at_decision_s": 82.38000000000011,
+  "actual_signal": "SIGINT",
+  "owned_runner_pid": 925428,
+  "evidence": {
+    "blue_dispatch_s": 1967.864,
+    "blue_agent_task_s": 1978.148,
+    "blue_original_s": 1967.387999999,
+    "white_task_s": 1980.068,
+    "white_latest_original_s": 1977.692
+  },
+  "not_complete_600_seconds": true,
+  "explanation": "P0 escape input verified, P1 current stop handoff clears yaw and first blue grant receives an image older than navigation bound; stop and fix before another validation"
+}

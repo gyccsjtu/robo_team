@@ -22,6 +22,7 @@ class VisualRendezvousTests(unittest.TestCase):
             tracker=SimpleNamespace(targets={'t1':SimpleNamespace(eliminated=False,observers=[])},
                 assign_observers=Mock()),
             _get_target_pos=lambda tid,now:position,_target_authority_held=lambda tid:held,
+            _cancel_stale_tracking_intent=Mock(),
             status={'uav_5':SimpleNamespace(connected=True,x=0.,y=0.)},
             _tracker_rank=lambda tid,uid,d:d,
             grid=SimpleNamespace(x_min=-50.,x_max=130.,y_min=-60.,y_max=60.),

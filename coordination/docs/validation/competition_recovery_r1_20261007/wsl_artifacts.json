@@ -1,0 +1,2897 @@
+[
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/candidate_execution_audit.json",
+    "bytes": 3606,
+    "sha256": "67a1d3189e2e23dfaf3e14619ed71ea8ed09a3b035e742231aa465bb4aac2c3a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/validation_authorization.json",
+    "bytes": 178,
+    "sha256": "2c3099b521258dee15b7c9299a69e79cd90378006c87f3dcca60a8e250513bcd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/source_manifest.json",
+    "bytes": 25069,
+    "sha256": "58ef525324ed40bf14cfa6884209ce0c3ecc7f8891351a01a86616ef5e2b58d0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/agent_early_stop_decision.json",
+    "bytes": 625,
+    "sha256": "89aeab97d1afca7741689ba28f518d08e4f92bf81f59f3e1d16d15670f616919"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/live_checkpoint.json",
+    "bytes": 1055,
+    "sha256": "0c66bec1a80d50a160718ef4d4b6549ddc947c49dfe8d30053b2b932b8119610"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/transport_topology_audit.json",
+    "bytes": 3045,
+    "sha256": "21bf1bbffdb356066b721326b1d5c20382f6b6c2421c0634673f0aa0f9d1080d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/launcher.log",
+    "bytes": 7297,
+    "sha256": "d9860f210d2f70040f4fa93a99a9abb3308ee940a5380513258c8e7d5d676cae"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/early_stop.json",
+    "bytes": 379,
+    "sha256": "37a391da7c31ed7b950b6602df179d7a0eb2defeb5bbe1c111aab8c6f3b755f3"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/perception_uav_6.log",
+    "bytes": 2896,
+    "sha256": "93a453be7cf5a81af8aa01b583ba9eabd32f0f9ea856e23667a30394e01bcb4b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/world_ready.json",
+    "bytes": 58,
+    "sha256": "7f34799e29c38a7a853100a32aa2a2a12b47ce584aa7f51f3967c4a398f3db06"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/mavros.launch",
+    "bytes": 5375,
+    "sha256": "84012c578d763388655b03e8a45fa23629fcef937a8dd7409ad179511946e9ba"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/agent_uav_5.log",
+    "bytes": 17521,
+    "sha256": "54bc49e4307697f978b5a364b76984f85987464b536fe32da0fd483716c220d4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources.json",
+    "bytes": 1243,
+    "sha256": "988bd713cf13b36dbe3de825f1306b17037bbd8cae013f151ca2c14e12e7f34a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/judge.log",
+    "bytes": 1523,
+    "sha256": "e7f8bbaa118ae91baa6589b7a722b3eec10238e6493bacccc82a18837c32d83f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_source_manifest.json",
+    "bytes": 17102,
+    "sha256": "0647ec4a99374fb2171b8401fb84253c7362f85a5eac4e824885636d314f34b5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/connectivity.world",
+    "bytes": 2648227,
+    "sha256": "8f5c41e2e78c66257d13a617d808f3b7fc009e1008f69ec0477fffc756671ad1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/actor_2.log",
+    "bytes": 550,
+    "sha256": "114791f7c083a8918e452ea2b9c6ec329399c381eaec2c16e919ce28d1cbe238"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/yolo_target_bridge.log",
+    "bytes": 139,
+    "sha256": "a84e720332dd450582c1d301b595e6155598ab97e6eed13a16edd5d48e0c0405"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/actor_4.log",
+    "bytes": 756,
+    "sha256": "f330867617bf28cd3f4040c08dc15169956f0742f449bb1ef44ac94a42466434"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/city_bounds.json",
+    "bytes": 477,
+    "sha256": "463e2f6de13c1688a3022d2bde0890823fb2da609a3e216971436c077a7c4da4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/city_contacts.log",
+    "bytes": 165247,
+    "sha256": "37b5c48edc6d21f557b08aaee373b7b271c615a693744025ee9914c7cd3c8200"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/contact_sonar_whitelist_models.txt",
+    "bytes": 534,
+    "sha256": "4be32d1ffbc3df4bb306baec5779ee4941dfe6ccb9f7c47b2648461450d0baa1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/mavros.log",
+    "bytes": 264606,
+    "sha256": "61a1469567595614d6520a67d866a2dd26a291ca596d6bbbd5e0a615c09fb647"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/actor_5.log",
+    "bytes": 3186,
+    "sha256": "d2b51dff16075275e84b529f27484d488e34af1c44e14b58489ccb0260af665a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_2.log",
+    "bytes": 2762,
+    "sha256": "73b99ad36449569a34c1b4dbc1d4591321e34b9ac8761c9a843eab921ac55eb4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/roscore.log",
+    "bytes": 973,
+    "sha256": "a181c82eb205211cabd6ee6717ae56abd0e18c59fc61c185f142ab7dc0afde7b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_5.log",
+    "bytes": 2762,
+    "sha256": "4bda1d2f5cc8d413d6a9ca01d372a152c3f80f84764767ce0d032cf516e9ee28"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/city_trajectory.jsonl",
+    "bytes": 194228,
+    "sha256": "1faffcede9fca40a7fe146bd558d348d73337fefbf9cb24e1d990aedf233470f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/result.json",
+    "bytes": 19391,
+    "sha256": "91eafe6bdb0bd90d9ebba17ba7c11095663c88628cf24bdb396de2fe8ccfb5f2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/shared_inference.json",
+    "bytes": 192,
+    "sha256": "f0293326d65d490a2a484e09fc74461683af60309ece310d49aeecac6b997dc1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/perception_uav_3.log",
+    "bytes": 3163,
+    "sha256": "a9d815e10ee9ee0001711a98f5b78e219a76df6bf0537305f1cd79501e49cfc7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_1.log",
+    "bytes": 2947,
+    "sha256": "7cf2150d8c0dc58165def1aa42d073cdc87867a3ae824ef30ec40aa3c6fa5001"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/city_commands.jsonl",
+    "bytes": 1948862,
+    "sha256": "e1722a791ec8360513342ea75589d208898b157300ec18c68f82d4d7974429b5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/agent_uav_4.log",
+    "bytes": 17718,
+    "sha256": "7e4225fdec3284bc2501035912a505fbf09c3c534cd7e792b656e26e179e840b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/city_contact_observer.cc",
+    "bytes": 4370,
+    "sha256": "5d3908f72872c0c01b8deac21395edeb45cb4edc51115f1642c8cec8f3b06bc4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/agent_uav_3.log",
+    "bytes": 20452,
+    "sha256": "08f2162b5d794a86854ff13fbd326a0c7bf11fc3082d9d90a3bb996ab3e59968"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/actor_environment_wiring.json",
+    "bytes": 3051,
+    "sha256": "2df1a9d18b81d30fdea63f5c7a24614fce9db5d791a888d5f1d9b1f2b789775a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/gimbal_runtime_manifest.json",
+    "bytes": 13421,
+    "sha256": "f6ed8800d8013afc69c67e9a8db3d78148837a284036c9335e657417a0ce53e5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/actor_environment_odometry.log",
+    "bytes": 59094,
+    "sha256": "5f27093114041288b92fd67dd9105e24a4348c596468134548a5301ade4d1474"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/perception_uav_2.log",
+    "bytes": 2912,
+    "sha256": "0d6595296ce65626acdf5714b9da934cc4db7adb3ee3c1ec4b1292814c9f1a43"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/agent_uav_1.log",
+    "bytes": 14437,
+    "sha256": "b729bc05d0f1cf81656e5e77c3c59f5ef83575fa796452b00d1b749d600cdd1d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/perception_uav_4.log",
+    "bytes": 8790,
+    "sha256": "5db66f3497dc88083308a1992d8c9c2d185266b654278eeb399dd08ee07af1e3"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/startup_clearance.json",
+    "bytes": 881,
+    "sha256": "1c3e134ad89e5ea7ae890dc6516f5f7ec7adba9e5a2d384f9279ad58d567075b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/city_events.jsonl",
+    "bytes": 77325,
+    "sha256": "508b21b38abb8e7ae2bdb0b9e04f6c0f7cf88c69db767348c7b68e21569efa8d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_3.log",
+    "bytes": 2762,
+    "sha256": "2c80ed924871e4fd0044424879e06c3f1a3bf89f5a530c83bb430970ff5f18c2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/actor_0.log",
+    "bytes": 550,
+    "sha256": "85dbfc17adb4986ae79061b67751d627138bb0ec5b777e615e802a5d6a9ef609"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/city_control_config.json",
+    "bytes": 6167,
+    "sha256": "1054b68cbebcfa3f4990b392cfdc8076a867e20e48991df1ab1c531b500b4a45"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/agent_uav_2.log",
+    "bytes": 18905,
+    "sha256": "7580fe087645ce14366173f1ddd2b18fc1fb7069f4d4512f044f8b092380b362"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/actor_environment_odometry.json",
+    "bytes": 706,
+    "sha256": "5788516438fc870bff0a6285f698daa3f37322ad1d96cdc024006ec607884788"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_estimator_config.json",
+    "bytes": 495,
+    "sha256": "6ac5ed739185104e6d5043b8144adb236c75f6a0b242d2bb78b3c2666feaf239"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/wiring.json",
+    "bytes": 3833,
+    "sha256": "609defbdf58fe62e241da254c30768e22b7dd312ae1163436cbf3ccde130c0c2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/perception_uav_1.log",
+    "bytes": 2784,
+    "sha256": "d644b26aa162d8c9dac5abef00ea1f409a6020604a4eb1ab9fce4373f27b5544"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/shared_inference.log",
+    "bytes": 301,
+    "sha256": "b64f9a0e2f8ed53501541bb5d0a1c8b97ad2b8045ae0c92998098db8103a2505"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/gzserver.log",
+    "bytes": 108579873,
+    "sha256": "97630731d8aa9694af06e2cf9ff4c5db54ccbf069f8d7960a7b43d078221951a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_4.log",
+    "bytes": 2762,
+    "sha256": "6955de0bffe68077b4a21820be1bd81f837ca2f8264116114680971279b27a6a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/contact_observer_manifest.json",
+    "bytes": 450,
+    "sha256": "f4c74746b7ef1801cdebf47a229bdd2df790ff8846e6b9e50b49acc088334119"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/agent_uav_6.log",
+    "bytes": 14970,
+    "sha256": "b1638ec650ba3a88f8f3b9e7b88936b05a18ed667ec58073de1c6509040a68db"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_manager.log",
+    "bytes": 7831,
+    "sha256": "a437a2fee22618772795aea08d46618a73830ebd11269163bc3da4c7d724e3cd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_6.log",
+    "bytes": 2762,
+    "sha256": "a8280734fa84b979ee7c5d4c581638749292dba1726b1a2b71e9f9273c92dc27"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/actor_1.log",
+    "bytes": 550,
+    "sha256": "b907750d7bd7a3bc7f1a312257ce869ffa4056c779addb6e4d51cde8dd113318"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/development_physics.json",
+    "bytes": 150,
+    "sha256": "85b9a1943ec79fc1e277526531cc4a34c1f3568c865a7f5c038b588eea5b77f4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/perception_uav_5.log",
+    "bytes": 6021,
+    "sha256": "91adeb42f45bbec0aa624db162f80a17f1ca047d703f45a0d5727191999c1377"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/actor_3.log",
+    "bytes": 726,
+    "sha256": "61f3ed3927cf808e0f819a3d33b74744bee5f2fe4c79f4548237bd5c05b2ab7c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_6/dataman",
+    "bytes": 7866640,
+    "sha256": "280103323d1aaef760a134f11df247364e309f36e076ac099832361657091fec"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_6/eeprom/parameters_6011",
+    "bytes": 344,
+    "sha256": "e7e68fb61aa098636cd5b8de8147c83d56579b589b2627f55a62e417541ef715"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_6/log/2026-10-07/05_57_57.ulg",
+    "bytes": 19106753,
+    "sha256": "341d910398c9fa537b9befbc6f930f4626ea7b860e6ffb4ae0e431ea752d5880"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rcS",
+    "bytes": 11825,
+    "sha256": "2c1c90336f1049e5f2bbf731532b6acdb4cdf9d2b7d38488c0a7105b3522c2f0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.balloon_defaults",
+    "bytes": 278,
+    "sha256": "5dd041f20082140ac63a90826b541ebf669e27088e4a580e46ded95b4ad291e5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.rover_apps",
+    "bytes": 481,
+    "sha256": "f6963467ce7c763abaebe92af4df44e7f6e9c08e83ee74e43d54c7375b714daf"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.boat_defaults",
+    "bytes": 765,
+    "sha256": "c93841e546341209442014702f8b50a9f8de49a3d7028c2663f352cbd44a7a73"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.autostart",
+    "bytes": 11703,
+    "sha256": "27658dbdd27429849297e07dc0936a9d98c692488c843a82fba48284a0a27a74"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.mc_defaults",
+    "bytes": 655,
+    "sha256": "a23bae9e6604b4ed8a33057e36d440efcabf6c900fcc3a85c261b204d1ee76b7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.serial",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.vtol_defaults",
+    "bytes": 894,
+    "sha256": "e9162327e32328f437fe916f7a7fd3d1c2d9bfa0f9c492072d7e18828e42aad1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.airship_apps",
+    "bytes": 1537,
+    "sha256": "29a0b173211c2cbf34fc4c47af875c33c4bae483158af214b729f3bb7a2fcabc"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.uuv_defaults",
+    "bytes": 584,
+    "sha256": "7a9c13993bdd1ec93a139f8b5f6c31741fc92e325e0273dc539a6e973a3f5136"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.interface",
+    "bytes": 5983,
+    "sha256": "6173aedf4a49a20996c7d1ffb5012c180980b3bdf4138c0ee7b713eb099e3f51"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.fw_apps",
+    "bytes": 523,
+    "sha256": "1b7f951554808c8aeacdf785a7f3a70d8e7db2700958bb454c491eac664a6856"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.airship_defaults",
+    "bytes": 276,
+    "sha256": "15c1209551a3a91f117a4edd2428f1c430d82407168ad8ad90d8c374c5554b21"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.vehicle_setup",
+    "bytes": 1755,
+    "sha256": "0f812d6741d81af7542b12677a62162bf4d1b9f916d3ad3e280366a3d2054796"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.thermal_cal",
+    "bytes": 1052,
+    "sha256": "90ef2969c75fdd857d0f4de1b5a6c738eb9d3a560e4395e323c3c18dfbadcb5e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.balloon_apps",
+    "bytes": 813,
+    "sha256": "6ede0405b5b2b1925a4c7052c605f696ed08bc1ff6d1689dcdb4f4ee07bef845"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.rover_defaults",
+    "bytes": 800,
+    "sha256": "393df9846826322cbda8aeeece9a4284ba0ae7186ef7d926ec1bbbb85374e33a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.mc_apps",
+    "bytes": 1820,
+    "sha256": "aa68f9ffe7aa97183f8fe49565e8e21532ece0ba04251fe10bc03a0c4f8b8385"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.uuv_apps",
+    "bytes": 888,
+    "sha256": "8c44976a50133661c85d98d2e86538e0661157e985c71216091fcfccf06d00c5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.vtol_apps",
+    "bytes": 1234,
+    "sha256": "4c7b4afdf5b12be957095f1d79fd20445c69304896d1925b5e8b17adf49fd0e3"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.autostart.post",
+    "bytes": 1797,
+    "sha256": "6ee5d2500f913cca98cb84d6c3c885c558a156ff639034968033e4039beaa76b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.logging",
+    "bytes": 688,
+    "sha256": "cdebb7daed5b05c3cc5e6ea43c2bdcb14b44b65aca9d5c0fc1aed7f20b7e00e6"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.fw_defaults",
+    "bytes": 1490,
+    "sha256": "0893daf94bd82b85bca96a7af250369c87421c84f923a515b91ddf01586f1275"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/rc.sensors",
+    "bytes": 3722,
+    "sha256": "8f09acc1d6137c7923d0b86a61de26a971847bd908ef98e027a62730f5315605"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/2105_maja",
+    "bytes": 943,
+    "sha256": "487ef085c0da34e059d6ec70137025733cc22df90e089f687a1fc32ddac2a6e6"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/9001_octo_+",
+    "bytes": 638,
+    "sha256": "02b0b1fb712aa5b83dccfb418296190f3c5097d27735d3f7c7d3a9061a5364d3"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4010_dji_f330",
+    "bytes": 422,
+    "sha256": "6194ee3341781f430274f8615f767e4397135d4acec9a0d6036ee755cb17c5d7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4900_crazyflie",
+    "bytes": 1714,
+    "sha256": "6b67743dbd4fff9aae3c5d64ced141b17a393306e9b73daddd904f00ecfd7338"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4051_s250aq",
+    "bytes": 1285,
+    "sha256": "ee507a270e27aeb41ca8c2be6b92cc239bb72812b6c9c91b822b528d98094717"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/5001_quad_+",
+    "bytes": 635,
+    "sha256": "14d8b8464c8393d2be3dc1fad56f8d2616b01637b00d0cf2193ca2545fc7315c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4061_atl_mantis_edu",
+    "bytes": 4815,
+    "sha256": "45f14fd360f47dc2a334756971d33013a512282ab38d7fce966a92d5bc0da6e6"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/14002_tri_y_yaw-",
+    "bytes": 425,
+    "sha256": "ee165f9c68467efaf3c60accd88d72bb9e3621099a1c4a1748e3cb36f1b89930"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/1001_rc_quad_x.hil",
+    "bytes": 1053,
+    "sha256": "71804b4fd7d1ec81f92135e49096841924d30dda40e2e748b146299b35844ab7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4500_clover4",
+    "bytes": 702,
+    "sha256": "2ccb9f8e299fb775c6212e034be3264133bb3a8a9f7c5a0955ec230db830909a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/16001_helicopter",
+    "bytes": 1320,
+    "sha256": "a6e95119f062791725675cf1394e8c883ee11b01695549aa6f22af1f3738bad9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/50003_aion_robotics_r1_rover",
+    "bytes": 2402,
+    "sha256": "392123a51989758d7b67516f265ea8d5bab7565ef39935354e2669ff28919b86"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4901_crazyflie21",
+    "bytes": 1648,
+    "sha256": "51a627280a7cd18653dc993a2a6e6e937c6f3e5ca42591ab8c4a635542bcdcbc"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3033_wingwing",
+    "bytes": 1168,
+    "sha256": "62c81d325a17f2cda34c6d9b181db19defca8e6f0784bf1f9d33ed89396c9a16"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4020_holybro_px4vision_v1_5",
+    "bytes": 3820,
+    "sha256": "73d677a2d1399e2f23e5f194e17e4ac437ffc00f59af0073eee6255b427bd729"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/1000_rc_fw_easystar.hil",
+    "bytes": 1881,
+    "sha256": "f94148a412ec5002919680f66b53ddbbce49eb21aa6a32dd96507362fe62ae48"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13006_vtol_standard_delta",
+    "bytes": 1005,
+    "sha256": "42d45f25c34fcb570336f86a84a2a93ad89ac97345f35b123fb6be2e805d9204"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4100_tiltquadrotor",
+    "bytes": 635,
+    "sha256": "bf3004779622735af9d28ecf5e78e7a4c73ad1cdd935c4e231cde4ee930edd48"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/6002_draco_r",
+    "bytes": 3069,
+    "sha256": "3725ac5f20e677f7b1009ffa13437c0f4c2d44562da2f3d7d0bf822d64ffc023"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/1102_tailsitter_duo_sih.hil",
+    "bytes": 2054,
+    "sha256": "d6d49b476bc5d7ea846044fb7bc7fe53e11833e53088468a2cd2a7c40ab858b7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/12002_steadidrone_mavrik",
+    "bytes": 1013,
+    "sha256": "b18b5e7b58b7ccab018817f74a10e7a837475dd2cf2c67bff4265bd1d9600297"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/1100_rc_quad_x_sih.hil",
+    "bytes": 1182,
+    "sha256": "6732bbb271fae3959962dfa416026c12c77d46ee484de0350510361078799b36"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3000_generic_wing",
+    "bytes": 422,
+    "sha256": "1db42b70fe6aa44deadf87d972bc008ae8975bb458fae446566c738d79bbc381"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4031_3dr_quad",
+    "bytes": 504,
+    "sha256": "67e092e3e98be0c5df5671a468933740bac0137226b814d1dc97c3a557dce8d5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3034_fx79",
+    "bytes": 599,
+    "sha256": "b8521fa3ea4def29083a447618fd15e88e8bffd9bd3ffcce5be1b4e80f8af4e5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4073_ifo-s",
+    "bytes": 2394,
+    "sha256": "d01dbf4edc057031824b92bbc62ff2e93b39cef1abd67c69ad39bfc4d06c424a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/10016_3dr_iris",
+    "bytes": 970,
+    "sha256": "204adfb7292e33dab4d5d292d3c86a3274458d30fcd8bf85cd2d16f7ac468d26"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3100_tbs_caipirinha",
+    "bytes": 1532,
+    "sha256": "8f61ab139f8e603f8570a7057bac6bb3b9d4237ec4effd54c0e7588f52bc4c7d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/2106_albatross",
+    "bytes": 983,
+    "sha256": "d56828d0d7fd86edf16b7bf9face50b20d85534cadc8fc9c646fb45f284379d5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13000_generic_vtol_standard",
+    "bytes": 1548,
+    "sha256": "1c4fee868207f82ae49907d929cea6e3361884b7cf1c8147dd837e04302c0e97"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3030_io_camflyer",
+    "bytes": 1050,
+    "sha256": "ed2c419d7a2d96aa2afbb0cb12cb7e1c323dc2d2b28fdd953afcfa1acb7595de"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13010_claire",
+    "bytes": 772,
+    "sha256": "d158a88146bd600d3ff1c0d21ca78c683add79e8fcbed70171c7a1ce2b582454"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13013_deltaquad",
+    "bytes": 3974,
+    "sha256": "98ac9ed8171b9724cd024402e7ded7af69441238633b869221c253097e8ffd6a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/50000_generic_ground_vehicle",
+    "bytes": 1222,
+    "sha256": "40c3a8e13e0d913cb35efe2bf3536e503e7bab2ff061b5ce5b37eaaec88b22f0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4030_3dr_solo",
+    "bytes": 2588,
+    "sha256": "a5b287e9d8a860d628d0649f876192cef48611d67a77817c08e8c62c2e31a05e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4016_holybro_px4vision",
+    "bytes": 3319,
+    "sha256": "1f1a2d3216656e6693d600c73124047adbe168100f1243023a47d17d5fc4774f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/17002_TF-AutoG2",
+    "bytes": 1251,
+    "sha256": "ee6d4d1925cfbf5cf3a16c7f7aa9ae610a75598f4011916bbf7bfcd7a65ae1a6"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4050_generic_250",
+    "bytes": 1041,
+    "sha256": "95fe43430cee9c66a1b5eef7b003ffeffe5c1fcb901ca18f21769cdf44d05241"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4071_ifo",
+    "bytes": 2122,
+    "sha256": "82918195869a79ca388dc68a1ead779d8dd865b2d9005a78061250e5276c494f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/18001_TF-B1",
+    "bytes": 622,
+    "sha256": "7836c418b27c311b23fd127702e4570af29ddf73ea3be28c9e3390da58ab62cb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13012_convergence",
+    "bytes": 1845,
+    "sha256": "79ebb6985c50ab9d48e63567777939008db5309a32306112d38ae50b964d3f71"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13009_vtol_spt_ranger",
+    "bytes": 2321,
+    "sha256": "1ed70aa93048663886e5fe91a2bbbe8ed1cdd34c5797ecd6edcd06407d69e43f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/2200_mini_talon",
+    "bytes": 1150,
+    "sha256": "914be69af693b5ed6479f1b963f1297245405062b97b1aeeb504520482e0e039"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4009_qav250",
+    "bytes": 794,
+    "sha256": "10520fe18ca693919732df0df177cc6b4ee5a7628ebfce03f88314bfdbad5584"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3036_pigeon",
+    "bytes": 1176,
+    "sha256": "30ca23c725f280ed01f76f1424d37850fd053de119996826c75df7be8e470ba4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/50004_nxpcup_car_dfrobot_gpx",
+    "bytes": 1875,
+    "sha256": "c5ed782c62ac7819eed1f03e4c99c2f82a709645d52f5d5d2028b00f5d5fda72"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3031_phantom",
+    "bytes": 1215,
+    "sha256": "14714d181ab4b8a72770cf276f9876abf99edebe88190c60d8a9e20781240861"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4040_reaper",
+    "bytes": 1006,
+    "sha256": "2857d5f719487d884523a33102ba11806cb83ab50bab92201b6fc52eeec399bb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13001_caipirinha_vtol",
+    "bytes": 922,
+    "sha256": "3458c731f3ffaf034604104a7d788664584b5cde3bfb3952a57ed1351a261ee9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/10017_steadidrone_qu4d",
+    "bytes": 979,
+    "sha256": "c39ed85acd237213fa0ee21699cfa970d25cf2a914f2323b779650c89975ab75"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4017_nxp_hovergames",
+    "bytes": 517,
+    "sha256": "469dce52290001151869dacb555d1bc463936f13e9fd2a2430e1e1fa006bf110"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13030_generic_vtol_quad_tiltrotor",
+    "bytes": 1689,
+    "sha256": "9fbc1fc5dd0bdd10722eedf76ed5fc2a47bf1542e8a0283bf34ff4f7b1754e52"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/60002_uuv_bluerov2_heavy",
+    "bytes": 1345,
+    "sha256": "b1ce8119c6a661e92b742c6eaeec374f588ccc808e84c358443a1ac0d29f6e69"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/8001_octo_x",
+    "bytes": 1406,
+    "sha256": "c90bf5b10cd660cfd3c1b4468bfac2f21d72c197ce9d9b839511f6e9c4d5ac21"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/11001_hexa_cox",
+    "bytes": 823,
+    "sha256": "c72c19714c2c3a66938c58872a8c6562f0ce8ced11a2177cb9ea3f890a605304"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4015_holybro_s500",
+    "bytes": 481,
+    "sha256": "bdb1e795eedb793cc786c4b0cf380ed634556f7fc9fd299d1706be06e428a5de"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/1002_standard_vtol.hil",
+    "bytes": 2912,
+    "sha256": "bc6fe1f48ddda6df373585282a358cd1a3136cdf144cdf7d5cbc8819be8c5084"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/12001_octo_cox",
+    "bytes": 452,
+    "sha256": "31023ccc2fefd59733aba97a8f65a71f087d155dae32d73677da71b181978ef7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/7001_hexa_+",
+    "bytes": 1192,
+    "sha256": "6ab357cc87bb2911eb9a4291ddca28d8515341f96cf304ea5e92b10153417010"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/17003_TF-G2",
+    "bytes": 1004,
+    "sha256": "b882542bdbe86d8c335af91cd7d24c2a05e814bd9624e0f53db09c582905982f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4041_beta75x",
+    "bytes": 1437,
+    "sha256": "bb942add674e1d2b051a521ed929e958b57c0d57d1bbe903aff824aee446fe8f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/60000_uuv_generic",
+    "bytes": 321,
+    "sha256": "c00b82ba0fd1be7675acd0fe1d710e4900b0cc0df60711cd825d363716bb385b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/10018_tbs_endurance",
+    "bytes": 1044,
+    "sha256": "3d363a441e2ba18e89c3da6a7b22e34b8c4860c2ef551826793d63857a073de4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/60001_uuv_hippocampus",
+    "bytes": 382,
+    "sha256": "98f0fc4e088a5d2c5dd2597ad4b042d5c0e9a1f063e81d4c61514784eda6d7ce"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13050_generic_vtol_octo",
+    "bytes": 745,
+    "sha256": "69386064eb6bd086935271d022c0473364e0f69b29fdec68553b320fa8e8bf72"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4080_zmr250",
+    "bytes": 777,
+    "sha256": "47cf6fd9c704d99f4357bea7b9071990d206ec87f256e72f12579bfb230f6bfb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13004_quad+_tailsitter",
+    "bytes": 620,
+    "sha256": "1b4fa6bfe6593b982ca3774153f0ca213b8198e41abdbdef0b59c97653dced6e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4052_holybro_qav250",
+    "bytes": 1363,
+    "sha256": "89881a080072c0643252dd0bc71d3497477f6e8d3b3b0fe87c87166a7abd2dfe"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13002_firefly6",
+    "bytes": 1363,
+    "sha256": "646516a8cb247aa5f9de9e853b46665e73e432d2062887568523a720127f879c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13005_vtol_AAERT_quad",
+    "bytes": 1393,
+    "sha256": "724c676c8a0756ea6cb7bb2e605579a182fa5a105e6d0f34ee6122061ef806b9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4090_nanomind",
+    "bytes": 805,
+    "sha256": "7437906f7f6fcd1eea1d590ada5564c93c0795635c1c2b0d636dd07d7ad39e4a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4060_dji_matrice_100",
+    "bytes": 564,
+    "sha256": "368961386e3846d867ef3a3bca7dffd10af292635c8a864e575b564fe85a49e8"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13200_generic_vtol_tailsitter",
+    "bytes": 1026,
+    "sha256": "15b211fd5c317de88c5da6f2a1b41a5f09144add60a268eba59db5c2430e0dca"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13014_vtol_babyshark",
+    "bytes": 2843,
+    "sha256": "fa5445fec24728b158db5c9ed525e82169d263275f67212b63f40ed1213f5395"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/14001_tri_y_yaw+",
+    "bytes": 425,
+    "sha256": "6bf91c3f4de44a75aa0566340efc61f99087390b596a89d21ce4b80d965ee16d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/24001_dodeca_cox",
+    "bytes": 1006,
+    "sha256": "5311eefb6dbe5f8e2be2e10f7b63c91aaf1b510581ba277d33ca24ed22b5c36b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/1101_rc_plane_sih.hil",
+    "bytes": 1584,
+    "sha256": "ca58feb626cf858132d5c24f74174781709b88afa95d12a8c1f69eb41d7de9d7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/6001_hexa_x",
+    "bytes": 1198,
+    "sha256": "daf319fd5021ea35e41c5e8575f443608891fc2ed2011fb847d4e90f34c46758"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4019_x500_v2",
+    "bytes": 494,
+    "sha256": "18b1fb063a148a34431620954d91bce19b6054b774cf5a7938a4a01ffea3f99e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/15001_coax_heli",
+    "bytes": 1082,
+    "sha256": "8942552f105d8494f1b3fea49a378e1b00bcd3747375be31186a2c2c54bf3cb4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13008_QuadRanger",
+    "bytes": 1237,
+    "sha256": "a72fbf829222fad25299b0ac8d4728954fdcdd39eede9bb5bc2fa67d5c1be010"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3035_viper",
+    "bytes": 458,
+    "sha256": "b95bc979366b8c3e0a0e30689476751486323d169065996f0cf5fd2d2cb274a2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3032_skywalker_x5",
+    "bytes": 981,
+    "sha256": "77e67f8fe863653399ff8a8f0b274dca9b483c14ba32923a37c95ec7dce04e20"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4014_s500",
+    "bytes": 368,
+    "sha256": "1912306e7fb5cd745b7c13835ee54a199e1efc31c5a127f9834fd9ad68fa5388"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4072_draco",
+    "bytes": 1948,
+    "sha256": "4320a9f7e26e3a1590a6333d479b504323606d99b6cae78175ac517aef3ae107"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/10015_tbs_discovery",
+    "bytes": 900,
+    "sha256": "1f253567d612ed88f0fdfa27d72f4187da479b4469734a4fca11f463e8e77500"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4001_quad_x",
+    "bytes": 945,
+    "sha256": "cfd71a58453a02076e9f2c71f3b0239c93dc30320927360d262e093baf4ecd8a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13007_vtol_AAVVT_quad",
+    "bytes": 899,
+    "sha256": "952942aa37abb5af403aac79d12cca396e4902099503ba13be225c5475ab7f0f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/2100_standard_plane",
+    "bytes": 1050,
+    "sha256": "4601f40748f72b47dbe408cebc6890f6ad576b9988f5bc566b468103a7856e9a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/2507_cloudship",
+    "bytes": 408,
+    "sha256": "4975ad1f3c8547fc6a2d2d5f2022c3194eb41f03c8adb2ad60783414eab1d02b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/3037_parrot_disco_mod",
+    "bytes": 1115,
+    "sha256": "2fd2bf63bdbc49267489a9f9c06e24980c47cddf383172d9751cbc59219f8518"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4003_qavr5",
+    "bytes": 570,
+    "sha256": "8ec4aaf06f53549a08f72de0710c4edb69a09bebd4609e7d58462c050a124f9a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/13003_quad_tailsitter",
+    "bytes": 1136,
+    "sha256": "54a0f9ab1e2c5b3436a5c9412741c9db16738493e8ebf7c457cd5accceb2201e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4011_dji_f450",
+    "bytes": 428,
+    "sha256": "b7e1ff27a8347167bb88fca8a5b1beaf7139da4d76f7366f3d9bfbe86d050d3d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d/airframes/4053_holybro_kopis2",
+    "bytes": 1311,
+    "sha256": "d93efc0015086ab57d5d600c39a396827f20583d41af26eec322c7104def6d64"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/extras/component_general.json.xz",
+    "bytes": 296,
+    "sha256": "b9ce631eb2064c1684e006e654216232f77586a018c1a1fce23b4948f0f6ffbd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/extras/all_events.json.xz",
+    "bytes": 10344,
+    "sha256": "20e821cf78ab4d2656a4fd55a9ea8df3f5e745e1dcdba59643cc6848fea4b6c7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/extras/actuators.json.xz",
+    "bytes": 1996,
+    "sha256": "b93e2dd1ec800470342223b66c08538b1532c5f92cfb0548e99d37fc3e4f945d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/extras/parameters.json.xz",
+    "bytes": 60968,
+    "sha256": "d6342c35dbfeabfebb17de1817b34f744cce18f11a9dc13854b034486575efa8"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers-sitl/package_drop.aux.mix",
+    "bytes": 219,
+    "sha256": "b3fcccbff45fd19caed7db521fd85b14c41365f11a3ea8d317c15bb9bd491070"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers-sitl/quad_x_vtol.main.mix",
+    "bytes": 302,
+    "sha256": "88f6f054d4f1ef57a60d97876d6a94872e1370f4869c8f3f75c17304d22b6890"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers-sitl/standard_vtol_sitl.main.mix",
+    "bytes": 753,
+    "sha256": "991d61b070fbf14fbdb9088dcbc38ed8b18567add1abaab5cf24cd88fd2b07c4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers-sitl/delta_wing_sitl.main.mix",
+    "bytes": 853,
+    "sha256": "ecb7efa390dc13158ca54304d31812220fc4539e890d8df5835814b2398440d1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers-sitl/plane_sitl.main.mix",
+    "bytes": 895,
+    "sha256": "a25599eb9333853a9970e38a0f3142cb20b463bfb19355fe6e74be9f52e0b201"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers-sitl/uuv_x_sitl.main.mix",
+    "bytes": 821,
+    "sha256": "605c29e4392a14a3384ac6e23f0ababeffd7e8b3d5b8b828d1cf3bab69570779"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers-sitl/tiltrotor_sitl.main.mix",
+    "bytes": 1034,
+    "sha256": "4305a30d1d84eaf82bd35a21feb1f678d9be3d3c3d802e5497ecc939377fe648"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers-sitl/autogyro_sitl.main.mix",
+    "bytes": 962,
+    "sha256": "915068f818104cf9f89de0d318851c74e96dd685c8177aca69cf768661d4e5c8"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/rcS",
+    "bytes": 7213,
+    "sha256": "abbffa8a9510b98b27a020d994b7710e989fc53c7b33d181110041f7e0415e9a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/px4-rc.params",
+    "bytes": 127,
+    "sha256": "63244e6f067a1cdc06f24a4d06de115954f42699a82f377047fbe190a98fddda"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/rc.replay",
+    "bytes": 731,
+    "sha256": "91dc8fa3717a3fc0e6a8889a0c33fe2d36583d3f78010b97e15d12455c5d471f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/px4-rc.simulator",
+    "bytes": 639,
+    "sha256": "a42ec8ab069e4d3e5662910ce4a5e203eaa949f3045abc5998aa0ec66cef1ee0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/px4-rc.rtps",
+    "bytes": 125,
+    "sha256": "1b358d43fbc3eed6af8e7b0313a96fef9d423cfa9b4f1cc001ae0c23cbdc6ebd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/px4-rc.mavlink",
+    "bytes": 1563,
+    "sha256": "e607500c12553d10879b581101c9e03aa47c73bf37faf359bb0c0ad56424452c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1015_iris_obs_avoid.post",
+    "bytes": 117,
+    "sha256": "42d6db190ff202c2d3a6a1682a1287553c14075a600e8f610f330709fd17d66a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/10020_if750a",
+    "bytes": 408,
+    "sha256": "7fabec514f551a51b84e38fbb9dbadf2a8d0f3c6283e0c623b0e237bd6b92bdd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1037_believer",
+    "bytes": 1152,
+    "sha256": "2d499bfe42d695ed9df9921e53e6d7de4910117bb0dcfa50dcaa4532c6a1af2a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1013_iris_vision",
+    "bytes": 370,
+    "sha256": "ea77fe5cc2ba58de6bb819fefcf686008667670d2f4c32671b008451b9069727"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/3011_hexarotor_x",
+    "bytes": 631,
+    "sha256": "ca0434e1ae5f926d0318480ca865f878210c856accfda2a22ece7642c3254914"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/10017_iris_ctrlalloc",
+    "bytes": 889,
+    "sha256": "09b3d72a49ad2eb053509295e94f2209dc5f16ec6dbc5ff514d00734ab55e45b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1033_plane_lidar",
+    "bytes": 142,
+    "sha256": "26456c8531a35d681d12b5bec2b0665d8b4a3f2fb7aa5e0ec4774d14aa41b238"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/10018_iris_foggy_lidar",
+    "bytes": 169,
+    "sha256": "3ead6cfd4f99f622e8ae52b6336a54ba27a4d0375f1f48a54ad57b3e84e0f90b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1019_iris_dual_gps",
+    "bytes": 189,
+    "sha256": "0466b5ebbc390c65c68487240a0cc40940cdd72f8d1671c4318047d6796c23f4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1012_iris_rplidar",
+    "bytes": 161,
+    "sha256": "7a5a33293bcab6d4a2af6c396a5e43a34d8bb39dd655609f2854018cd317a413"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/6012_typhoon_h480_ctrlalloc.post",
+    "bytes": 386,
+    "sha256": "32ea87d83d09ae220abb639c9853dadd2a467df8a7a226f1e76f6dde053386b0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1020_uuv_generic",
+    "bytes": 217,
+    "sha256": "13511bbabed4ad04217441d5ca9da3cac38e8ee3755079a4fe8f5a5f33678c28"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1033_rascal",
+    "bytes": 1089,
+    "sha256": "9b5c2a803373687641edb6da74db103356c501d2beb9de6a7774233afcc43066"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1035_techpod",
+    "bytes": 833,
+    "sha256": "67e38bdb14151e1fdf5d29fdbe2d6486635556f4f97530cc1d952ed362a15aa9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1038_glider",
+    "bytes": 160,
+    "sha256": "62abba2ff81196129a131ca08a7203ba03206e89a13d8ff1a27438d4623829a8"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1061_r1_rover",
+    "bytes": 1023,
+    "sha256": "95a755ee915126e9c2657b8b6bae3fa1f5bbfd72561af81435cbf9c99db88e2b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1070_boat",
+    "bytes": 1299,
+    "sha256": "97635c40292d5e542fb9ac0379f77ce7e789daecccf6313a2445dd9c65b0e6ef"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/10016_iris",
+    "bytes": 165,
+    "sha256": "982f170d692f4f7a4cf01b5e74f05b7e7a856dc7da64e6da77edc16f342dce38"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/10030_px4vision",
+    "bytes": 160,
+    "sha256": "710b125a0ff3f7ff0b584aeca352be96c0f4bf54c5a7c37155184130cfb55aff"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1022_uuv_bluerov2_heavy",
+    "bytes": 2266,
+    "sha256": "c37f2692fee89255e840e205afbce9bfacb88ea2b279485a329a165002634b24"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1031_plane_cam",
+    "bytes": 227,
+    "sha256": "cc9b3b1ce5368314a3c803e8c2ec194627a4c088b199625e4a42a549a831d1dc"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1013_iris_vision.post",
+    "bytes": 85,
+    "sha256": "2a2cb498f49b74b72c4b67b657088f2e886202823db818b081f1895950920600"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/6012_typhoon_h480_ctrlalloc",
+    "bytes": 1736,
+    "sha256": "c824f7c78792fe67f31695b387b922a630d877068d5dfe4a2d7f9bc4825f777d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1032_plane_catapult",
+    "bytes": 125,
+    "sha256": "ec43bc5fec336ca670051705fda7904753f1ed8259dcbf5d638a7f7e901752fe"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1015_iris_obs_avoid",
+    "bytes": 209,
+    "sha256": "ed585153dbec96ec1058a0853d79de0e8b5d3500ebd296e940cb7a192fe33dbb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1043_standard_vtol_drop",
+    "bytes": 1402,
+    "sha256": "ae0cb93753352950ae1e00ce6f1e657c44f47b2d76d5c9933fb190baef94bfbb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1036_malolo",
+    "bytes": 1086,
+    "sha256": "81e942fb27f6982cc7f98225701c461d7348e1bc43449534abda7575c1d6f4b2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1021_uuv_hippocampus",
+    "bytes": 229,
+    "sha256": "43ef347e3610a5d7c34291429d88a31cc380a332906a056c20e5bc8f04ef3e10"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1018_iris_vision_velocity",
+    "bytes": 241,
+    "sha256": "922a017433c9f4653424c0316e4bf7c5002f1c75f0087de22e33eac079708f51"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/6011_typhoon_h480",
+    "bytes": 724,
+    "sha256": "6d2038fb76fdeabdbf341d4e6a839aebac11b4c8dd652266b2e92d166b562ca0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1014_solo",
+    "bytes": 173,
+    "sha256": "06412731c011cd39613f0dc1add22b4ceac0e854904e14ee9063f074f6543276"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1043_standard_vtol_drop.post",
+    "bytes": 67,
+    "sha256": "884c80f043a4f225d6f8ee7d2f1f17c5fe315f947984212fe67a9b33bf437ae3"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1041_tailsitter",
+    "bytes": 2329,
+    "sha256": "927952416550b2fd3f9a3f505eec83fa14ac0ce33fd7046ed968f6501ca2dcc0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/17001_tf-g1",
+    "bytes": 1067,
+    "sha256": "27c91fd29a0c5ea02df976eea895c11658e71c059ad88166ee7f69cae0342f3c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1030_plane",
+    "bytes": 1854,
+    "sha256": "01b6c8d02c4488bb3c68d06ea53fc3cdac6216ee8e8b902843c86f38a7d91fc3"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1060_rover",
+    "bytes": 1014,
+    "sha256": "c88d7b7eacedf0d46702a50d0138568a3519f2a927e6929eda071e1761543b49"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1011_iris_irlock",
+    "bytes": 341,
+    "sha256": "575c32275493beef4fe897f119dd44f3ebadfcb20895c5aaf550a9d098e1e5ad"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1040_standard_vtol",
+    "bytes": 2419,
+    "sha256": "01546dce321ac5031383acc7478296b54201f3c937238628ead4c4dbf8245f61"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1062_tf-r1",
+    "bytes": 979,
+    "sha256": "4206d6301a099e073d2107aabeb485da79db41fa6d7a1a3646e0e06ae8f72b83"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/3010_quadrotor_x",
+    "bytes": 183,
+    "sha256": "1f57f12b0bdc4602d45a36a0056aaae75fa267c9d1045f272ebc7edcea0f5a4b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/6011_typhoon_h480.post",
+    "bytes": 422,
+    "sha256": "a3662cca257ca008674f959f31564a03da4091fd68d77f6ad40c7d62c178aa02"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1034_rascal-electric",
+    "bytes": 1088,
+    "sha256": "560acf45af700fedeaefbec49b64df04f80d6aab4bce09e284433d6867b9d4fd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1042_tiltrotor",
+    "bytes": 2687,
+    "sha256": "a65ae38be02f6ffde699a567164b3abe1cc36f9a8ace1af61ceb07bf2adbc534"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/2507_cloudship",
+    "bytes": 1062,
+    "sha256": "87a03a92c90e7fdb31683c15f9fa86e9093955652a18d8bdb6b9a7ffd24490cb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1017_iris_opt_flow_mockup",
+    "bytes": 333,
+    "sha256": "394c8b562535f3555d1fb57f679c055002e31ec8aef0c013e85f76d3091c313b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1010_iris_opt_flow.post",
+    "bytes": 92,
+    "sha256": "8b622367299a6ed48a92937f0ea4e3087e5783fa7121b8833006791fb09ba1e5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/init.d-posix/airframes/1010_iris_opt_flow",
+    "bytes": 376,
+    "sha256": "4c53de7f676cf233550c0e5af0906e2843c7fe02807c2edb12386bcdfa60f184"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/CCPM.main.mix",
+    "bytes": 1218,
+    "sha256": "31b9151c9c4882e0eefa178123f48f08da0fca67652dc0c7d909311fda38354a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_dc.main.mix",
+    "bytes": 164,
+    "sha256": "4f1ea027f40faf671d3eb2aeeba795e00bfdeb256b1125a3cf7d243baa944d5a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/TF-AutoG2.main.mix",
+    "bytes": 1099,
+    "sha256": "aa95d59065b8fe2afe03d895e0165979aeaa8067ec5ce16bc737685c46687eb4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/octo_cox.main.mix",
+    "bytes": 22,
+    "sha256": "a74f4e9147bacf3304df462e0a1f42d0225b204c72efc1a99b61c40135ec9694"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/claire.aux.mix",
+    "bytes": 461,
+    "sha256": "dd06b35f2dc9f8a4a3b23dc8a9a226b80271a7570061000a907505363d7d928a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/mount.aux.mix",
+    "bytes": 294,
+    "sha256": "5f89093f78baaa7cee6e7bbf47899bde3dfdf5aec24accdf38f9f2a3ea3e1173"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_+_vtol.main.mix",
+    "bytes": 584,
+    "sha256": "1ae1d9f05d7ebc6cbf7335be986797f305e630b2bc94d6733a5bc03d3aa6f191"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_x.main.mix",
+    "bytes": 297,
+    "sha256": "66d2fcf1308af244b159ff09eff29016a9fc137f522533c697b72fa422be4e39"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/vectored6dof.main.mix",
+    "bytes": 1085,
+    "sha256": "37ebaab7852a3eb11ad2b09b30a57ab467c4a28b7647a3f6179103d22b37402a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/deltaquad.main.mix",
+    "bytes": 902,
+    "sha256": "fbaf928401877d3520a4155708c7aa0ecf8e872483ea89c3b1c31ced26e0bfb5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/babyshark.main.mix",
+    "bytes": 806,
+    "sha256": "c4004a2d6b0850a268b3dfde34fcfa8a5c934c1d27456efcc33494b9e1631011"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/pass.aux.mix",
+    "bytes": 476,
+    "sha256": "70a91228eb5b6b065b1c8bd2554c3fd68b1a16c429f20371172291b28c46009f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_x_vtol.main.mix",
+    "bytes": 497,
+    "sha256": "260b0e65e0503fdf7fd7341c0d3365a7346bb9f87e3332fd595106739db61c92"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/vtol_AAVVT.aux.mix",
+    "bytes": 1697,
+    "sha256": "536bff64b7780dcc9a99f2eb977f2aad94eb7c009eb26de283eba859c17ee905"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/firefly6.aux.mix",
+    "bytes": 570,
+    "sha256": "711a0a8aa0b56b88119a8afb73fdf6a6a8758c8e4503d63d6683c62d5b0c6382"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/vtol_delta.aux.mix",
+    "bytes": 1304,
+    "sha256": "af5070e71bc09ca0111fac1df874fce2ad8beaa3564b4beaa178903923c15378"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/tilt_quad.aux.mix",
+    "bytes": 693,
+    "sha256": "e1e3acfa401119a46d5e7fd0a819d4c9274240d579324bc6230196f4dd5a4cce"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/hexa_+.main.mix",
+    "bytes": 16,
+    "sha256": "f329f5f6f208ac2ea59907bea5b3eb05b76e7ae0ee095af80a36e108b456e9ad"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/octo_cox_w.main.mix",
+    "bytes": 66,
+    "sha256": "0c7956f9c2498d7a2f84895ebd40ad3206f1e7a653bdc3805022ad01cb07077d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_h.main.mix",
+    "bytes": 363,
+    "sha256": "e619c342e47ac6adc3787004e9e84771d7d2c401fb507dd4c49de82843771ade"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_+.main.mix",
+    "bytes": 362,
+    "sha256": "294d65c2313c25f47b197fedd30315e39080c2f31e95fb41448bba8da70cfd52"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/AETRFG.main.mix",
+    "bytes": 2503,
+    "sha256": "a97662f50683858c5eed5f17615d96c954f8669905521a96db917467965fdf08"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/vtol_tailsitter_duo.main.mix",
+    "bytes": 1108,
+    "sha256": "d0be6bdd498b2a4e2574e468d2ef35c602783e43739656a04798b43dc4b640fa"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/blade130.main.mix",
+    "bytes": 537,
+    "sha256": "6b80cb2af7f462d8c3f09ad385225aa430e7008df6f00eb2cd4c40f5e3382d36"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/firefly6.main.mix",
+    "bytes": 94,
+    "sha256": "0ccc75facedb51c17077a824bbae68c39dc36e94630da5f58585b740908e1232"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/mount_legs.aux.mix",
+    "bytes": 388,
+    "sha256": "36b4207794f48027747da74697ee447504b9c29872b928163afdffd438c1e9e7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/tri_y_yaw-.main.mix",
+    "bytes": 159,
+    "sha256": "12a4c1e7520a1ca2c429f12a3ca187884bc7265c6efa8629bbbd24ece31970d2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_s250aq.main.mix",
+    "bytes": 100,
+    "sha256": "2ffb6ba518459c32c77f9ff4b3899393663e8c9c89dbc871da9a0b5462fb0c9d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/vtol_convergence.main.mix",
+    "bytes": 594,
+    "sha256": "66db5ca0cc40c4e9bfbdad2ff51663f261040768b612e4c398f8036c2ef92107"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/vtol_tailsitter_duo_sat.main.mix",
+    "bytes": 1182,
+    "sha256": "4f636c8ebae3b365610a2d375822c70f116a918e6feb82143d916bab85a2312e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/fw_generic_wing.main.mix",
+    "bytes": 1216,
+    "sha256": "769180813f0977a97fd934e50dd15a4b7d2ca08871478ca81ac509072296ae9d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/octo_x.main.mix",
+    "bytes": 16,
+    "sha256": "3e8cdd09c0f58840908b36b1d9d961c92ffc6da1e4baa5bb3f76580023c82ae4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_w.main.mix",
+    "bytes": 366,
+    "sha256": "3db9434060d08a35e253f33b571ed00175847eb40ab1123b29350a0ee6a21b6d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/AAVVTWFF.main.mix",
+    "bytes": 2264,
+    "sha256": "80671590d660209936fefbb1337751a021feeb2a9fb767aaaceeb38d5187880b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/AAERTWF.main.mix",
+    "bytes": 2721,
+    "sha256": "5134ad642662b1c4c5c279d66324e00179172f854cd31760b4132f86dbe9d5ed"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/rover_generic.main.mix",
+    "bytes": 1002,
+    "sha256": "486f5bbebf96989d67abad45aab6a79cd847b82b2c592db95963cc388319309a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/tri_y_yaw+.main.mix",
+    "bytes": 158,
+    "sha256": "594d7b7fb2583d8f936020b21a9dc9d99613bf83d66851101d516d51e5481503"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/IO_pass.main.mix",
+    "bytes": 576,
+    "sha256": "0ed3d7efc68d25b8987a9f53aaa249b2fcf4188eedef41ff98122fbf4ff861b2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_x_cw.main.mix",
+    "bytes": 78,
+    "sha256": "4985a6e1bcacbb17374c528d9df3ab2bc44e013cd4e8bb15cdbaac3d4acfe9ea"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/coax.main.mix",
+    "bytes": 721,
+    "sha256": "62ddfb2da05eac8df329378eff84012a081b535eecbb88735df6352b2606f16b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/hexa_x.main.mix",
+    "bytes": 17,
+    "sha256": "580ff9349bcadecbe1da68f6852847b56ed0bf21829340357990cc6ac880480e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/hexa_cox.main.mix",
+    "bytes": 22,
+    "sha256": "74e12e1cbe80277a94b523bba5b5007204112472f9e35ccb00f168ac838d2871"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/AAVVTWFF_vtail.main.mix",
+    "bytes": 1967,
+    "sha256": "cd2b842d1142d5c66ab0c6f1223f08f36465f28693afc75ce18625bf3ba3eda0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/generic_diff_rover.main.mix",
+    "bytes": 829,
+    "sha256": "23cc47d1a7eefc34fb1d9ac0bcd6fe2ea6132c0e1880ca56e793863607f0005f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/delta.main.mix",
+    "bytes": 1273,
+    "sha256": "570863fd0df7764670b892dc82bb7c251c7d9c74f8c37284633ee971d0d9a42c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/claire.main.mix",
+    "bytes": 121,
+    "sha256": "8e9111897e2bb04176fb9fa9975a9878756de0abab89b8130c87a9413ce69482"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/uuv_x.main.mix",
+    "bytes": 853,
+    "sha256": "cc71204d3190b46ce484dfe29066d8edd9b2b84bdf127f60897e2c2fe813fdfe"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/rover_diff_and_servo.main.mix",
+    "bytes": 1232,
+    "sha256": "fa511c0e474e030676a9f706e9e71df10b56e9e25f106355f2d7352efa4af89f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/tilt_quad.main.mix",
+    "bytes": 678,
+    "sha256": "8a24985377616df647656304de014d9b99392dfdcee10a492c65f8121399d5a4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/vtol_TTTTAAER.aux.mix",
+    "bytes": 752,
+    "sha256": "d604b4ce5311e91afd9b62d601b3534c03744e48a696da8bfb57551f5e0d5676"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/cloudship.main.mix",
+    "bytes": 1602,
+    "sha256": "106aa044da7887111f994abbbb42c37e96e77bf61fcf4866286374c99a6b4c24"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/octo_+.main.mix",
+    "bytes": 16,
+    "sha256": "877f1b58b8be41ab6be0acf0861643b1ff2f013fbe1db3b851e4c8c31e2ae4e2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/quad_x_vtol_AAERT.main.mix",
+    "bytes": 437,
+    "sha256": "2a9d5b550843d5b1749fe09e06d591fe36bf4daae35a978a21bb8c1481818c0b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/standard_vtol_hitl.main.mix",
+    "bytes": 504,
+    "sha256": "616cb6e6b19695f6a66bf84ac8cc46f72f4128a604849fcee0950a155bedb63a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/AERT.main.mix",
+    "bytes": 2436,
+    "sha256": "275e85a7fe2bab9d9da6c0d281380ba14f5c57d0a8edc8b7aab84af5b8a5272d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/dodeca_top_cox.main.mix",
+    "bytes": 48,
+    "sha256": "3dda2f0879377e8fc7b8a674d2d2320c9ca660eb937d1ec315aaff4e800e06f3"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/Viper.main.mix",
+    "bytes": 1656,
+    "sha256": "bd1f6346bbe8465c1fc771a2917ebfbc327c5a0d7e9991000aa232f8179fb1ad"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/vtol_AAERT.aux.mix",
+    "bytes": 459,
+    "sha256": "f1d957b117dca6b478fd886628b4e384364ce6a136e4293ee86378915b59bbb6"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_etc/mixers/dodeca_bottom_cox.aux.mix",
+    "bytes": 48,
+    "sha256": "8d06c2cc413de8c4274e8d38dbab21950e7a516c6baceddf3098de0df87afe9e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_4.csv",
+    "bytes": 181449,
+    "sha256": "90bd88dcf11eb8dcc51ebe8074bb968424e67a9d3662584f3017528ebc89f6f7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_4_latest.json",
+    "bytes": 100688,
+    "sha256": "36000cdf23fc7655fd693d160b85afc3ba3bdf34f1b3a4707a2db5b6687c4ec4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_0.csv",
+    "bytes": 50663,
+    "sha256": "69de98720b0d71ad69733ad9ad66672a65352914bd50f22a3a0f85a3dc493580"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/algorithm.csv",
+    "bytes": 16900,
+    "sha256": "eacf5bf615923b11bb3ba5245d491aa014d572699c59e41f28c4894073318b3f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_2.csv",
+    "bytes": 51227,
+    "sha256": "d2395b03943098d927e732bfb70ab9db5dec6c837e87159a41eceabcc56e0615"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+    "bytes": 6717763,
+    "sha256": "8eeb482601d5e8ef0cb96bf1b26e19744de2eea4b9734bbb2c570a5b38bde03a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_5.csv",
+    "bytes": 50378,
+    "sha256": "56aa45bcfbe96cf048d9f2991921b82c570c3500de79b7008aa9aa53c1a0d04f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/control_uav_1.csv",
+    "bytes": 82387,
+    "sha256": "26ba37a078de03607590e62a9e691b96935b358751abce324a3f009be15afc54"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_1_latest.json",
+    "bytes": 95262,
+    "sha256": "6e0bd17fb4849472334ea0d610ec908766b7e15818fe03df7e05c7ca61a1905e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_2.csv",
+    "bytes": 39489,
+    "sha256": "c8963dea33eeb627553baf36a926dd0c501a8b0f3c2b58286958933cb128e67a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_6.jsonl",
+    "bytes": 5361597,
+    "sha256": "6f25e5176d5e836e8d8a7133968ed0d452723ec5f8fe23af95c4146b5f0973f3"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/bridge_trace.jsonl",
+    "bytes": 68459,
+    "sha256": "335c20f9fd2348fc1c57573a3aad65e313fb95ab35ed9a27f2d677fb1ef07d6e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv",
+    "bytes": 89123,
+    "sha256": "0d2264698eee48e13e26d611b3c4d43645952b0426f2af9b3daba7ebfea24b40"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_5.csv",
+    "bytes": 46410,
+    "sha256": "74ef7e194a5fca6d5daf63ad62257879c3aed07e9e9924b309ee303374cb2b19"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/control_uav_5.csv",
+    "bytes": 85275,
+    "sha256": "24d5733fb1666b23e7e2ed4eed689e7d9fe26cfaccaea6698a8ebeb1b9bca758"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_3.jsonl",
+    "bytes": 8434286,
+    "sha256": "1856eb5a8e685c6e2501c4151236ad6b71d4298af718ae7796eeefff9b03f9cb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_3.csv",
+    "bytes": 51106,
+    "sha256": "2b3fc6e1212e5e8dea7827343ba51ea7e38a9c5182cedfe4bd74ca9eda74c862"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/control_uav_3.csv",
+    "bytes": 87604,
+    "sha256": "59194cda1ec45f9313fe469b1bb34fcec2bd4f2391f1ba01ac4b39c4e41db163"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_1.csv",
+    "bytes": 51113,
+    "sha256": "c01fe6c2ff17a2556fdc97d05f097aa48f4b47cd6af1b68bf23de9b263db2d99"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_5_latest.json",
+    "bytes": 102564,
+    "sha256": "6e0ae7e7377988af0a071d1132abd7bc3ea865105e6355fb1cc55273a5b4e2d0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_2_latest.json",
+    "bytes": 96055,
+    "sha256": "30cac87ade399d6dc846fcca783b469118caf42cd1832a76be0fa7e2df3c0745"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_4.jsonl",
+    "bytes": 8451774,
+    "sha256": "1c0c231d1c2a368535834562f50aae4532b496779ecea3e0d397fca7b286fbfd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_0.csv",
+    "bytes": 1044,
+    "sha256": "3995d2a56267449914fa8696a6c85de681bf2211328e120786e494cba9105b55"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_1.csv",
+    "bytes": 31288,
+    "sha256": "ad2c61e87468b95b80b260dca6c5fc8ec80024032642a9fc97222b427d4b84fd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/control_uav_2.csv",
+    "bytes": 85529,
+    "sha256": "2fd27c2c348a2d4b1e8116684fc1451cf997d1d4a6e1b36b42fee596b84f07f2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/route_events.jsonl",
+    "bytes": 52095,
+    "sha256": "1e50e6970236206ceb4947032d0d2b4e121737b521e9b2fe856298e83b970c77"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/authority_events.jsonl",
+    "bytes": 25539,
+    "sha256": "f15c4bd13e32a9bd20568a87ee5a4b5cbc9fc4bb4ea44517eea63500430d6741"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/control_uav_6.csv",
+    "bytes": 78756,
+    "sha256": "0d852a4d094157c19d53af11d0481c0155816098dcc1b78e26745d8281814357"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/search_camera_frames.jsonl",
+    "bytes": 747368,
+    "sha256": "723e7f0bb6aeb689bbe0044f4821334afef73326b56fb2092ddec2eee75a9bb1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_6_latest.json",
+    "bytes": 89222,
+    "sha256": "22b234c165dc52f2a8a091615b007d88357c09639ac729c4c5014378bde28014"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_2.jsonl",
+    "bytes": 6159458,
+    "sha256": "4dfe3c07f074a3ddc3f11fc1f7d4f03dfd52c1b74bdd414d0f8eec0ba6ce1154"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_4.csv",
+    "bytes": 51715,
+    "sha256": "9e1d80ae505a2b8d6e3edafcf5c8fd26f265336457d04751f27ec89132afcd8b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_3_latest.json",
+    "bytes": 89729,
+    "sha256": "60ce32662d65bb9115cc284aad426311fdc8240896611c5003bc8909559b2ea9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/control_uav_4.csv",
+    "bytes": 84847,
+    "sha256": "4bf6cb0142e19c236a0038f174e567a6b7dbe18a6231daef0285d31ef1da4727"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_1.jsonl",
+    "bytes": 8725061,
+    "sha256": "9c2217d2f3bd8380a63424a587abb9eeff9771485b6ff2107684f74703e03582"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_3/dataman",
+    "bytes": 7866640,
+    "sha256": "280103323d1aaef760a134f11df247364e309f36e076ac099832361657091fec"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_3/eeprom/parameters_6011",
+    "bytes": 344,
+    "sha256": "1ccb9c692d0086f3b05a964f01870957a43dace7cb908bcf286b72e5ca3f1e3b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_3/log/2026-10-07/05_57_57.ulg",
+    "bytes": 19124461,
+    "sha256": "12a41ead62adf08640e217505d8af89a5d26d9c941634a50c6e483d1b1f784a8"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/actor_environment_bridge.py",
+    "bytes": 5931,
+    "sha256": "d7214b777ebb0ea7cc2ced7733e888defad868600e854d5f70f494a2b4b57595"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/prepare_radar_fleet.py",
+    "bytes": 3673,
+    "sha256": "4b2a4a0cf6c079da0bc1b027076e670e53aa02a0da8e11347293dc968a20bd81"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/city_swarm_run.py",
+    "bytes": 27297,
+    "sha256": "7ca319af6404e4aaa05b6b4047e0d39a8110c38d040eb1dbd2fa120ba5c658c8"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/judge_terminal.py",
+    "bytes": 1346,
+    "sha256": "672d08de637ff7e02cb486a093e47441f940918d16e750aeeb74e1b1a21acbe0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/radar_fleet_models.py",
+    "bytes": 6570,
+    "sha256": "3129b013345a6e953223b45c1200c3a703e35df7a27484602a52634ccc8bd5a2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/fixture_contacts.py",
+    "bytes": 1300,
+    "sha256": "184bff8709d1fbe08c828233f4aba36f55ee1dca3ae6a28f4486883e45ec3557"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/six_radar_connectivity.py",
+    "bytes": 23703,
+    "sha256": "99567458a277dc6afab06f805a8eb8582326ea12fc15f1f540c91bca3fb7a206"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/start_city_judge.py",
+    "bytes": 1250,
+    "sha256": "6a43b2ee5e71c07530433f9f541f2cd0581b82d4ac0b61bf9a4c4892a9855507"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/camera_actor_probe.py",
+    "bytes": 9958,
+    "sha256": "67c3d756cef3d0f3bdb25092669fef9df2624c4464e485933f8df713c41d7239"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/six_swarm_probe.py",
+    "bytes": 14699,
+    "sha256": "8f1023ad5987685450e2d1440ed0f653a18241cf0c4a8ba744b97ad649db2581"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/build_namespaced_gimbal_overlay.py",
+    "bytes": 5930,
+    "sha256": "d6a3c3fb520a610d51891df0231619d90edb58fc71b192af3277788b204fa7ad"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/flight_actor_probe.py",
+    "bytes": 8595,
+    "sha256": "f126d0b6c4d46113e62400f18046b04482dbceba5bde07d3ab28489bfb6512ed"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/execution_sources/evidence_writer.py",
+    "bytes": 1445,
+    "sha256": "ac844fb0c1cf930d11a8c81eab7fc6b3980b38988c698da0afb21ba180b3101e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/models/typhoon_h480_0.sdf",
+    "bytes": 44042,
+    "sha256": "6a8a2bc1bef362230a1c131fef5a460ae3ec3e26cb5b4bdb59cb97e62aba3a90"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/models/typhoon_h480_3.sdf",
+    "bytes": 44042,
+    "sha256": "567fb5ce15e10acb346974499ef9eb7f93d8f4fb542c1ba3ba929d57315c37e1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/models/typhoon_h480_1.sdf",
+    "bytes": 44042,
+    "sha256": "15e3da6b232f83002f9970b2d026a8fefa9c66e046bdc0fe045ae7efb8d4ff90"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/models/typhoon_h480_5.sdf",
+    "bytes": 44042,
+    "sha256": "538078fa88cc0980d4192e0b9700ec3f3897a672bb8ef8e279f384064a4e9c50"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/models/typhoon_h480_4.sdf",
+    "bytes": 44042,
+    "sha256": "1dca296beb04bb640fbcd93e8dc74fe1931051cce4e1be8a77c3fac0e5f43365"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/models/typhoon_h480_2.sdf",
+    "bytes": 44042,
+    "sha256": "c648cfb4fc22731c67297e889ddae5149f26bfc4f38a69446ee75ff2764aacbd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/models/model_manifest.json",
+    "bytes": 868,
+    "sha256": "813b5493bb3ac3b9b6040f5ad3745b8d118d67c2e10094ae65b391a6a3eee2cc"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_4/dataman",
+    "bytes": 7866640,
+    "sha256": "280103323d1aaef760a134f11df247364e309f36e076ac099832361657091fec"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_4/eeprom/parameters_6011",
+    "bytes": 344,
+    "sha256": "aed5004c4d8a6857a0b2fe22b9948dd6aa339fc2c0a87f3c827f617d1580d74e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_4/log/2026-10-07/05_57_57.ulg",
+    "bytes": 19119667,
+    "sha256": "0e930dbf3c705330b26b51d383fc176dffec971bf4f058d4883cd895131a6c63"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/grid_downsampler.py",
+    "bytes": 8146,
+    "sha256": "9ca3a1eca32238b1ce0f3db8333ec5cb81450d89aac36695d159db3de643a07f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/astar.py",
+    "bytes": 11575,
+    "sha256": "9842a72009eb94be3b85c5f6d9d604176629eb821dc5f0627b154055cbe4ae10"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/team_grid_subscriber.py",
+    "bytes": 6700,
+    "sha256": "ea3f3e11a9ed8dee2de069e2e25a56b9acdee665bd0ba316030921a5ecc4d4fc"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/__init__.py",
+    "bytes": 67,
+    "sha256": "7aa650fcf99394734f9e7edd522567fcd5a3a8289398c944380c44bc57236dff"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_safety.py",
+    "bytes": 29924,
+    "sha256": "8c76fe7c8b5b6ee1f04baa07902e5c6172353ceded742090e8de0ed38d8437ef"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/local_grid.py",
+    "bytes": 18456,
+    "sha256": "6539b8c2d2ea9018e534e76b719aa53458176a31d340e6081597dc071bd20b2f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_runtime.py",
+    "bytes": 51990,
+    "sha256": "cc1ca2192c48b974fb0f956a2592da10aa5ff0bb3f2a18913cf9c91380d06711"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/monitor.py",
+    "bytes": 4343,
+    "sha256": "4ea55454fd0cef7fec71eab7a4df67f4692b1a96aa05d2244d1268f40cb8220a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/waiting_points.py",
+    "bytes": 5444,
+    "sha256": "e90791e5f315f3732bfd97c0da642255c1669ffc7d1b073cf861054e4752c1e9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/map_revision.py",
+    "bytes": 4463,
+    "sha256": "9fa6bf4432f7bf3fa220ce4f122dc82ddfb9f40accab107529ea1c3880ff1f59"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/__init__.py",
+    "bytes": 1371,
+    "sha256": "30b535b31dbbee8dda9c0475995bca095a9bcf5b40027c892b87925f4f1b1288"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/stop_check.py",
+    "bytes": 3282,
+    "sha256": "cdac03435454dd8ec834db9fd82b19b09751706d78a8d5370c4bc66c92d269ee"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/bus.py",
+    "bytes": 4957,
+    "sha256": "fee0770f1b56a0b9b004ea5e5c61b6fe39b82413864ea359282920e996310815"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/position_cache.py",
+    "bytes": 1494,
+    "sha256": "7ae1823e48b65d184d71c7ea9b8bcca128e4e5ae631f64165754a97cc8b6052a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/core.py",
+    "bytes": 37553,
+    "sha256": "2114c840c9e90100b1d9c5f8015d56aea17debd246e6080999c05605c0e508d7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/verdict.py",
+    "bytes": 9586,
+    "sha256": "b082548b2b00cf0763c39618bd3d1cdc5bee10586c18e36e1078c04f18ac122f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/geometry.py",
+    "bytes": 4349,
+    "sha256": "6d89077b1ee28e068a8e0f66cecaa6caa22a401be5c246bccbaefda03ec33426"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/protocol.py",
+    "bytes": 4328,
+    "sha256": "3140a010c964059f33fb45722bbaf7ff11d754242a35d3c4b66b06c269d2a9f4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/executor.py",
+    "bytes": 8111,
+    "sha256": "ed75a06cd4ffcd009bf00f1ced400613dcc3a8c639935f99769c82875946639d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/__init__.py",
+    "bytes": 191,
+    "sha256": "54999699151f3d515968c3c097b0acb642a0e3a09d4a183e5535d6756d4fbb56"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/route_planner.py",
+    "bytes": 8683,
+    "sha256": "269fd79c5a55ceb05e626f5af3f779f3734cf7c449012643b0049ea7870529af"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/allocation_geometry.py",
+    "bytes": 1557,
+    "sha256": "7c2ba66fb781759762a14c6fb75477f499cea21425315cd71e46127287219e4e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_completion.py",
+    "bytes": 885,
+    "sha256": "49a6b4d32b4a5174cbd6d1cb5cf98f733761dc62205de99820f2e998acf909a2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/red_observations.py",
+    "bytes": 1043,
+    "sha256": "a4473505dce68b8702ea0befe44f21f50fb94564ed4917e3c9b265486479c121"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/visual_observation.py",
+    "bytes": 1857,
+    "sha256": "4ed2e25d78b4d1e91aa369af0dc2b68890d3138df17e8727a87e4cef99a15bc7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/single_uav_avoidance.py",
+    "bytes": 11736,
+    "sha256": "2dfaf2a4f63cab65f5100d9cda0f1805f80881984730ddf067feecefc6ebf79e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/mission_time.py",
+    "bytes": 53564,
+    "sha256": "9f6a4c8763c0161629957df54eafc121d7b6b96a3d00b4c4e048b4d0d208a68b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/fcu_configuration.py",
+    "bytes": 533,
+    "sha256": "3229c340f6490a0455c80f28f67ad2b06c13810ce303e986b5a780a9516492b7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_task.py",
+    "bytes": 45165,
+    "sha256": "f88d2cadf097f0999455ceb1aad3e7e6469725868184dbc6b3415b3c73031fcb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/team_bench.py",
+    "bytes": 38664,
+    "sha256": "9b65399dcc0712fbf3117e025e5b2b54467d5d0a5c6e79365e321903e44011f1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_rate.py",
+    "bytes": 4359,
+    "sha256": "8833b70b95650a8049f6e9f97d2f5941f53453201ef55ecbd3724e285d5bf3d4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py",
+    "bytes": 3663,
+    "sha256": "20b68d7210abce6dbbab1288f2bdcdd46a23c9f49b761053ac673818dc128fee"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actor.py",
+    "bytes": 25620,
+    "sha256": "a500f6f68430c9d9bb77bc571b837eebc623dfd337bf46e2e8448ae87db05eae"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_sim_node.py",
+    "bytes": 14095,
+    "sha256": "75369af7e9aa3e8c029395d488d8339e484dc5e1845267c59abf6c7a5a63cdc4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_official.py",
+    "bytes": 20779,
+    "sha256": "90dba8bb70d4cdf81cc56bb1382acb7e3119fd8da6349ac8523fd2b4a1d40000"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_actor.py",
+    "bytes": 2549,
+    "sha256": "75506452543fc9f49d7150b262d7d8d8d537c0650b9b6b2b6e2766634202e429"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/position_brake.py",
+    "bytes": 1837,
+    "sha256": "89c38ef2645e46d9552970b5473655e441ba5c591873436602e5ef0b8447d299"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_endpoint.py",
+    "bytes": 734,
+    "sha256": "73c88d990c0e7dd152a3fdaf7321cb0725bbeb00bb83fdc6e0c65a1c7f61748f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/cooperative_tracker.py",
+    "bytes": 29084,
+    "sha256": "a67bb5e6345230c441cc926fac863db2e7f39be769c259bf689597a0b7159fd0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/companion_tracking.py",
+    "bytes": 1437,
+    "sha256": "f6bd3dbc8a259c626e937bd0cd87b3a86b28588631dc0260a9b13c044ac93231"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_viz.py",
+    "bytes": 21664,
+    "sha256": "ffbda5a5aa4495098d61c8245fb8189f455f6c143dbcd7a31792084bfbdb9d9f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py",
+    "bytes": 28197,
+    "sha256": "c1f711c4ab3bfa76f22a79e73761302928e3480cce3ad113b596763aa8830c03"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_offboard_server.py",
+    "bytes": 10397,
+    "sha256": "fd37c26fc435fd3cffbbc0a11604825b0403c784161dd91199deb0d35ff07759"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_authority.py",
+    "bytes": 15078,
+    "sha256": "1ec78838dcb6860f273d4e58cebfcf532fdf1a0812ab2377902a1651d3617ce0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_ablation.py",
+    "bytes": 13941,
+    "sha256": "68c720f7b0705e4d8b909627f7b301e3e25ab5be1c3ad684ac5bd419ffec1995"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/navigation_feedback.py",
+    "bytes": 2708,
+    "sha256": "3f739f451dd5e0881d470b716596b1f7f2fc7f84da0af9882d77d190e15d6102"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/publisher_authority.py",
+    "bytes": 756,
+    "sha256": "1d5c56513e82b03a30a9c457b79ada9dfd198d4fafb98e8c05411565a120787f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/judge_system.py",
+    "bytes": 22625,
+    "sha256": "e5f0e154ce29181a223325259d707cbd91ea79831930012ae6d0412e789f177a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/strategy_compare.py",
+    "bytes": 38316,
+    "sha256": "6a4287b93b0a187c90bda0255785b2e03c8ac8f44eb6f75dde079a40d7c96ad0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/verify_swarm_avoidance.py",
+    "bytes": 8661,
+    "sha256": "96188e8b54d6f339033e434ff12f69b3e43c9a07c8dee59532d8a3b53c65f301"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_test.sh",
+    "bytes": 299,
+    "sha256": "ca0a50764bba62e01a948f043738d9277e1d9259a6787a7a3f9fe3b6c5970b0d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/orbit_geometry.py",
+    "bytes": 2050,
+    "sha256": "07b2f0f75d0d3d546b4aeec7614d6fbda76decc86ca1ebc59c8045248a975573"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_occupancy.py",
+    "bytes": 1888,
+    "sha256": "8146a1bd01cba4a3c842121e00b1006a92eaf720ce23abc5bcc3cf804668e8fe"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_allocator.py",
+    "bytes": 60580,
+    "sha256": "f64cbeeda5c5dbb0a8be3ff64de69d232b537e46f4f0cb9ee6ad5eff066f343d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_planner.py",
+    "bytes": 9472,
+    "sha256": "d234ec7b6e52b6749c63adbba6036b813366bde028f5fa1fe5b17e4acc2ead99"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/fleet_motion_guard.py",
+    "bytes": 3171,
+    "sha256": "0fba3af4e76635162e67c6190958f76b74491c0e9289849a9ae3cdca61c8e507"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracking_navigation.py",
+    "bytes": 2585,
+    "sha256": "4d5219ad00151fe5ec3bc0761024d2360b049eb10a64ac3202a4f94cbc53dfaa"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/white_reacquisition.py",
+    "bytes": 2626,
+    "sha256": "a6e384e62632354ef985d9748c3d3030ecf27997bf3a13c294040b4702ac30ce"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/persistent_los.py",
+    "bytes": 7250,
+    "sha256": "ae53bd7f0319744247cc103957696bd575682e5ca85f10f7be3ce1521aefecd0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_reservation.py",
+    "bytes": 16536,
+    "sha256": "86f8dfcfc3b0c92eba8543983b49fdfbd28391e264ac5412399b60c64a72804d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_manager.py",
+    "bytes": 85586,
+    "sha256": "166c13c5130cd86a52abb1c79f5165aa3e1af16a34c5d87ae7247af9d5751bf4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_quality.py",
+    "bytes": 2115,
+    "sha256": "4d1b32dc78095298a03505fe7cd53b580de5f2436e350a50379221cfeb2c1df2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/csv_logger.py",
+    "bytes": 1932,
+    "sha256": "0598fcda689c7c0560b238abc18d7e99c69ca2aad33b5444d00df8e6e2bbced0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_observation.py",
+    "bytes": 17799,
+    "sha256": "7dc59184a9628644fb5136d576e9c4a09fb47fd95a7af2198fd6e176c577e1a5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracker_selection.py",
+    "bytes": 2123,
+    "sha256": "a8e5ac7689fe0bd1874d233f9456e292a748ed432cdc9d694242e7c908064745"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/local_esdf.py",
+    "bytes": 10157,
+    "sha256": "2aa85a3126de91946fa680cb7a68334919aeca373204008a09422753f0fc274a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/track_bench.py",
+    "bytes": 16310,
+    "sha256": "971b401ce669cce3644a3a8b4947150e746948f53a60e94a2ad2835b205180ed"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_multi_uav_3.sh",
+    "bytes": 4831,
+    "sha256": "3224d64cb25167785d487767e13eba780dcd05f875b265eb949b573d184962f1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/source_aligned_fusion.py",
+    "bytes": 2831,
+    "sha256": "5500b0bd157cb36fc7f78ecbbbfb64846da506f61b692564cd5810bfebb10156"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actors.sh",
+    "bytes": 187,
+    "sha256": "928d2c4dc2f971ca6a45f91874e5631fd77cd06a700d3ffb6866002e1ab52272"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+    "bytes": 171933,
+    "sha256": "5cdc1f28f4b3eb810ffde2013f6d49fc78c431e638aa8940780b8cd4e88b0c6f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/online_radar_planner.py",
+    "bytes": 15876,
+    "sha256": "e195d1622094251d2bea6b359eefd69bb583df903834d83c1a893e6387c29ab2"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_observed_map.py",
+    "bytes": 3559,
+    "sha256": "da7380910024d5825c8e40e1cc533720c06fe8504aa376a7b1dce9eb9770cabe"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/stop_control_actors.sh",
+    "bytes": 87,
+    "sha256": "75c3bf536da6773f34614b813f810c38b9c5192a1144e9718541f17ed523399d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_motion.py",
+    "bytes": 2536,
+    "sha256": "d72f9ca5d9b99c5a3a67be3c53bba721e9e92ea5c54efd9adcb03120cc2ea58b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_controller.py",
+    "bytes": 2210,
+    "sha256": "edec754447850c043b9cbd266c2d524cd01a2e30324f8ea1a48d94b35c468f18"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/dwa_avoidance.py",
+    "bytes": 95377,
+    "sha256": "4d2345cd99366eaee22170aed7e4ce4000440ee4bafe1189e9335ca63bd2bb9a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/score_cal.py",
+    "bytes": 13133,
+    "sha256": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/.gitignore",
+    "bytes": 262,
+    "sha256": "d51d54c5b8a9a6516c76cae2b6baca13315a53cb6325649e1b792ecb3b5df6b8"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_client.py",
+    "bytes": 6089,
+    "sha256": "0af84e1b911c335c5be768e7776ef184a7f9eaba6112938b2e654cb6b466df1e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py",
+    "bytes": 107595,
+    "sha256": "fff906f94041391d605101a84ab41c053068980c86e5ca4d066c1aae56ebd55f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/recent_motion.py",
+    "bytes": 1500,
+    "sha256": "cf6375665ef04e877e6439f4681fdc049fd2bcc9e7bb72c9298cc74a38e3efe5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/jersey_color.py",
+    "bytes": 1779,
+    "sha256": "13d49f153f56cc826288272900e4662ce08d61cc2fad99f7b9a76bb156503365"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/requirements.txt",
+    "bytes": 244,
+    "sha256": "0c62c612281122d827f665c8d6f664278e1d9fd95dce297deff8c664bf0a3c2b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/stationary_person.py",
+    "bytes": 368,
+    "sha256": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py",
+    "bytes": 10646,
+    "sha256": "9a879fb687a413dca34ee1692a1d544695333e83c64c70985df1ac6ab29ccc2c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/.gitattributes",
+    "bytes": 94,
+    "sha256": "e2430fe425e0b805a832523c07dada8b6edcbed939e5b4492a52c524535d6b9a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/camera_task.py",
+    "bytes": 1586,
+    "sha256": "a5fd517fc18332c9151098e70a8f6be76a8c85461972b6b333d41e7d3e092e41"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/camera_geometry.py",
+    "bytes": 2310,
+    "sha256": "319e32aa93e4bd40aef258775d03c2cd58e3812dd32a6078f23f138530f8e0cc"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/person_verifier.py",
+    "bytes": 3884,
+    "sha256": "513aa57804ce342746400386cc0378090374b6d91e9fe24633ec09977ca2890d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/frame_probe.py",
+    "bytes": 4479,
+    "sha256": "ec9d262b012832ff04579b77ad7a9b4114ef39eb541a2333a680de4295cc6cd1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/README.md",
+    "bytes": 33519,
+    "sha256": "f32265146e1a0d5f90124e965669ec0c4b9d4b4b8ce947168d3528a4938ae89b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/enhanced_tracker.py",
+    "bytes": 17504,
+    "sha256": "d4eb217325c6496145b575ead792668f427dea4ea3e93a583a09cda0e3bbb6a6"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/fresh_person.py",
+    "bytes": 2065,
+    "sha256": "db7faf82bbda50d130a627f4d87c62b859eaf5298ef0f3555db21b9542c377f8"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/patch/add_stereo_camera.py",
+    "bytes": 10556,
+    "sha256": "a163d25497e25d389ad824dda212689886c54240f166d58a50e878624110cd07"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/patch/README.md",
+    "bytes": 3935,
+    "sha256": "18121435003938deabf6fb9d94278a90ac98a9fc1a912a72407ceef786a33c04"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/proc_util.sh",
+    "bytes": 2245,
+    "sha256": "986e42f61e018005e53060472c0fcd88236c5876a64b08ac1f7b786983cdde8a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/check_target_report_schema.py",
+    "bytes": 7646,
+    "sha256": "836f948b5d617a8a44ebaba7e96bcea17260a78edc86ec6e826bc920b2f4bf19"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/snapshot_cam.py",
+    "bytes": 1099,
+    "sha256": "4d36648c90b46a6c0818f3c0220c1b0f6ac30186509882e968da5a5c98bbd4e4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/guide_patrol.py",
+    "bytes": 2831,
+    "sha256": "d0cc20d63fb2d86740f0baf5ec08ad8a5639773ccd32888912a4894112dc63b4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/run_actors.sh",
+    "bytes": 1775,
+    "sha256": "4c20fd83e9598de64f850ae7cc17f544096d7561c759326539793c289b534fbc"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/analyze_snap.py",
+    "bytes": 7829,
+    "sha256": "5ae315e7d0ac7066cb63513295c737413db1be76113b80ea7bcc7d1866da8059"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/guide_actor.py",
+    "bytes": 2153,
+    "sha256": "bb7cf785585688448cfd705220574c97d59716de1a5a845b84f63b6e3d266ff5"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/rec_snap.py",
+    "bytes": 3737,
+    "sha256": "1f3dad3ebc0fcd0f17f35ee1383fc26716b232f63287994121dcbdadb6c69ab9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/verify_official_assets.py",
+    "bytes": 14935,
+    "sha256": "dff32f08a47d6ad7b82459fe6965701055c501fd4be81bd488e923c981ccff09"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/control_actor_m2.py",
+    "bytes": 22062,
+    "sha256": "921e7180f2195893405159a896db982ca8a2da722d3a18125a74566594172b48"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/replay_target_report.py",
+    "bytes": 6127,
+    "sha256": "7212d60dd8140b4eab12867447769b9d155fa9619e0f702bfd209976111092e9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/ground_truth_bridge.py",
+    "bytes": 4962,
+    "sha256": "9f7c8c613434f6050584758d72670854b2c21434b023cee0b6eeaeb41b28c863"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/probe_actor_speed.py",
+    "bytes": 2160,
+    "sha256": "78b5e9cfd33eaf32937b9ae64ff9ba5e1dbbcd516f6e81526547caddc79948bb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/fly_takeoff.py",
+    "bytes": 7755,
+    "sha256": "6ca28d5972b438291be772da20c384df51888f1fee9eaad15f3b3bb097b6ea18"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/env_robocup.sh",
+    "bytes": 3407,
+    "sha256": "431fba1742dbfb20ee5fdfd5e023fecc49fa093bbf0e9846f854acf442f902cd"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/judge_official_15s.py",
+    "bytes": 8882,
+    "sha256": "9b874e149aa16ec72e9b62c7d2dc1f93b3e49921f2d09aceb88f6c4134ed3bba"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/restart_stack_fly.sh",
+    "bytes": 6848,
+    "sha256": "2349ff9c696b77b526f3cca56d9309adad808200fe66d0d18d9af295bc129aec"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/launch/uav_only.launch",
+    "bytes": 1449,
+    "sha256": "5ac9f1150130dfa617a70bd1932b8c548840b1f839462b0504b61281ed4848c4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/launch/world_only.launch",
+    "bytes": 773,
+    "sha256": "d537d6a544fee994011d33c1f199c720a2569f620e630e7a35bcf27660bfef1b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/launch/world_min.launch",
+    "bytes": 1728,
+    "sha256": "ab34d77b59c036a24f01a70226be745f55d61096238bd820fa4e7baed0daa9e3"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/launch/robocup_1uav.launch",
+    "bytes": 2313,
+    "sha256": "e0fa180dc286484a6f00a370ad748620bf7e5f585b9759f498e89d3d39134482"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/worlds/actor_min.world",
+    "bytes": 16567,
+    "sha256": "dae08641ca9c733b7ff1383400cb4fc7aee512a6cb9aba963cd96ab0c0fa5938"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tests/test_frame_probe.py",
+    "bytes": 6925,
+    "sha256": "bce4027c77f1db7f761c1bc7084c23f2256227d61714ceca0485ff598bc4fbd1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tests/test_shared_inference.py",
+    "bytes": 9144,
+    "sha256": "22dd1a03337d87d305707f918329691e011c85681df0e597db2729ded6028e48"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/calib_selfmask.py",
+    "bytes": 12839,
+    "sha256": "a7bd303b90c81b51681a75720dc39f9d6d59dd0657cb923be7dc64c9f1b99f94"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/snap_frame.py",
+    "bytes": 1328,
+    "sha256": "b9b50e22a4a912e32d84587184032a7c23d4d9f847b96df136473a047093dfbf"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/test_red_slots.py",
+    "bytes": 6576,
+    "sha256": "8add31f797eb4ea97f405e7ad28133d72eee4918ef9ca54134d286b4229f76ab"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/diag_geom.py",
+    "bytes": 3670,
+    "sha256": "6594f8f239901c17b37ccab000beaecbc6cde55fd36c5f0b500c20e31c801208"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/m3_verify.py",
+    "bytes": 14391,
+    "sha256": "4d94301178fcc3acbdfd0fa149dbe617d87d86eb742dfae163a9a0edb58cf2b6"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/probe_target_report.py",
+    "bytes": 6868,
+    "sha256": "ce32ff969b253ae9b59bbd8ab6d9a80e9005e79e7c769cf836f1f7c5303e83ac"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/hover_teleport.py",
+    "bytes": 17749,
+    "sha256": "fb571799cba9cf4c1ef23ff6fae9d6058f643df099a32c74b3fc3b26c28f2ea4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/val_cm.py",
+    "bytes": 1957,
+    "sha256": "a2bbc4d041e6e2d251ecaef19da649f6ad7e371a8abefc7fc998259955f91421"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/test_assoc_gate.py",
+    "bytes": 3481,
+    "sha256": "a421a99984c26a87c6e9a9cfd9d34f76bc856f3fe3f416774a42b53d246bddc4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/m5_dump_analyze.py",
+    "bytes": 4468,
+    "sha256": "259bb36f55be570b2f096e6c5b800792461413ad42dbf9a3e20e09a46e9f6c1f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/fly_to_actor.py",
+    "bytes": 19745,
+    "sha256": "9eb0bfe0d9b61ff856c8ba3210d2ae7019c3a7451eb95db16b466b02004b248b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/audit_brown_red.py",
+    "bytes": 3977,
+    "sha256": "f67000198311d17c52e490ed8b2f578052944ee720c2a6d680a6dfff91a5e54d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/README.md",
+    "bytes": 2242,
+    "sha256": "b04ce21893ed2931064322535799500bf026cdaa93097ec36c94d0d6cfcbf914"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/diag_identity.py",
+    "bytes": 3158,
+    "sha256": "02c394e5d15421e8ec3b0e9b2823637914823361e8b863d11d3596ad20b4eeee"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/ht_watch.py",
+    "bytes": 3900,
+    "sha256": "c179e3b3a82b6b992dcf6bb3f48417a01a5122efd106d20b0bff6f0a26d05413"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/dual_check.py",
+    "bytes": 12433,
+    "sha256": "531fe13d72939f1f50d75b7b632041ec1953a6d4631481a85998140e4eed7513"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/swarm_sources/perception/docs/\u90e8\u7f72\u68c0\u67e5\u6e05\u5355.md",
+    "bytes": 10924,
+    "sha256": "b2cdb2872204137be2f38b0b60cd6591a85a2b976520755ed83842afca7fd221"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_2/dataman",
+    "bytes": 7866640,
+    "sha256": "280103323d1aaef760a134f11df247364e309f36e076ac099832361657091fec"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_2/eeprom/parameters_6011",
+    "bytes": 344,
+    "sha256": "488ebc32469ff0c430532eaa80314eac6c466531fea357050613b92cde6706a1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_2/log/2026-10-07/05_57_56.ulg",
+    "bytes": 19148977,
+    "sha256": "54c17af7655aa48ffb1c935c9e5bd045ab567df0ab534f12072fb399c5f7ff55"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_1/dataman",
+    "bytes": 7866640,
+    "sha256": "280103323d1aaef760a134f11df247364e309f36e076ac099832361657091fec"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_1/eeprom/parameters_6011",
+    "bytes": 344,
+    "sha256": "6259d37c8f059f3b12268507c6d28c2a01b4979d524a780c04a960e75cbf662c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_1/log/2026-10-07/05_57_56.ulg",
+    "bytes": 19148141,
+    "sha256": "fa51fbfacbaa86e7f231bfa478edf28bd859e6591fb1d46b2632e4f5fff04603"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_5/dataman",
+    "bytes": 7866640,
+    "sha256": "280103323d1aaef760a134f11df247364e309f36e076ac099832361657091fec"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_5/eeprom/parameters_6011",
+    "bytes": 344,
+    "sha256": "76436f524f1def030abbda69451fd0daf81f9e1189ed14a6edef768f60af77e9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/flight/px4_uav_5/log/2026-10-07/05_57_57.ulg",
+    "bytes": 19112706,
+    "sha256": "99ab5be771d6749c9bd645b7228fd67670713cfc26e37930607c6a94ea6bef22"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/brown.log",
+    "bytes": 228,
+    "sha256": "767d37bd3b56b885737d54a0a573ae0d9f20bbf17a1aae7d6bdac90f9c4b72ee"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy_white.jsonl",
+    "bytes": 146115,
+    "sha256": "0a1b600b33d0046a884d670f1c3db90067526f2eed3963a51edbd28b4d342496"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/white.log",
+    "bytes": 228,
+    "sha256": "83130fdb5312a6aca63d1d7975e5e44b6619b6fe907594e79578a43fe3d66d0e"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy.jsonl",
+    "bytes": 130438,
+    "sha256": "1bbb226c684fe9c4ab7816a6078c405bb5a2d340beb0576bf794bd0184042e26"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy_red.jsonl",
+    "bytes": 230908,
+    "sha256": "e6ce8c0d8b5688facef7797e340e90389c77aae4015306f7ca5badeebf0d7fe8"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy_white.json",
+    "bytes": 785,
+    "sha256": "200ff6c7174a8b6cc10376c94a452a636a62b0036977a2143af103303b0697ea"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/blue.log",
+    "bytes": 228,
+    "sha256": "90b76a950f654094a15e4fe9e49e93743ed2264f812e41282af5a1ba8bc45a92"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/green.log",
+    "bytes": 228,
+    "sha256": "0955f947e5346df34b62a03c93bc8f787f9d890fddb023fdb06348950dd43e38"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/manifest.json",
+    "bytes": 4594,
+    "sha256": "82359b8305141b9d89f47af17de4ed98d6dd223c240cbc0924c465cf4628b2c9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy_blue.json",
+    "bytes": 766,
+    "sha256": "6aa0ae0060210002305289be0fe6ce8bd45adb38f5b3b7d98da9640dc0319be4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy.json",
+    "bytes": 701,
+    "sha256": "a48033ad134eb346a655f1dc551f04de4563f4686b1b0a16ae959610255be691"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy_blue.jsonl",
+    "bytes": 129858,
+    "sha256": "c2a5b4d441f92bc6ee76286746d85524060f5f428d671445d03a9b30db464d80"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy_brown.json",
+    "bytes": 712,
+    "sha256": "be8c9674c394d4dc228b25d3e541929b697d8783970acbd43ccc890d6b178cb4"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy_brown.jsonl",
+    "bytes": 128486,
+    "sha256": "29615e198503916e10a89f5c06bbaf9b7ba403df397796f93d4e15843e8afc61"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/independent_visual_accuracy_red.json",
+    "bytes": 781,
+    "sha256": "d33d59b3cdb2ad7b286848294c801f851344047fe3eead6b9da97e479482d915"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/red.log",
+    "bytes": 342,
+    "sha256": "eb0c48a3b9bdb0599cd86ff276fe25fe6733b3287a47d9dffad22c520bbe4ae6"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/scripts/capture_visual_frames.py",
+    "bytes": 6467,
+    "sha256": "6d7b2d9c5377d58fcb82a688771b29fa56e6b26707f6219d36d9bb35ae1a0bb0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/scripts/observe_visual_accuracy.py",
+    "bytes": 6013,
+    "sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_012.png",
+    "bytes": 160888,
+    "sha256": "da3b1f9865ca660220907681cb56e862ce14b330950c6c7b883cdfb779317ca7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_5_blue_003.png",
+    "bytes": 185767,
+    "sha256": "2fe353fa5fbd487af285cb77183ea1d65f0fed4e3523d33df0aed8d67eb51037"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_004.png",
+    "bytes": 146671,
+    "sha256": "46048aa35b4418212e4e4539ce1deec332e3c0e132fb73beb7e3533c60949b14"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_002.png",
+    "bytes": 167862,
+    "sha256": "3a897a047a21d397cda159273c9c7f55035c5ac55c72a8dcb9e4105fcdfcec55"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_008.png",
+    "bytes": 160443,
+    "sha256": "e7654c6ab12a153ac380cd57d62303fd8391240e52c822b5aaaae129c1d3eb2b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_006.png",
+    "bytes": 148671,
+    "sha256": "c0e6536e23370111e030c8db8852af2fa957026a2530cc6629cd746cc99930e1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_5_blue_005.png",
+    "bytes": 118488,
+    "sha256": "d54bb33ec9a0aebecf55a3e29849bab868ecd1811d3503a8b4d9b8081dfb287b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/frames.jsonl",
+    "bytes": 12012,
+    "sha256": "289a68a4c7fabfb73aa28fc62c3f85d7d672aa26b76007ea5fb2af42abc081a7"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_005.png",
+    "bytes": 162088,
+    "sha256": "a6de52094aee942830a7c2d9a412f670e630a161fa23c59a03d8a2a08e889839"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_002.png",
+    "bytes": 154757,
+    "sha256": "1378c9e18ef1b1e7d853cd91bf5245cd4fb03350744235d9d109cf677a9cff45"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_015.png",
+    "bytes": 155203,
+    "sha256": "55735a7a64d5b85966f4f0f2e8038ea672d6173d47f58e36918a68ff736c1bdb"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_010.png",
+    "bytes": 160774,
+    "sha256": "0124c2026495ddbf7c7506bc8048d679c48f5ac07f4100c04964cb2452dcee28"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_3_blue_001.png",
+    "bytes": 165859,
+    "sha256": "5e198a72deaf8f6b1824a187b3cfcb1530a25b12480e2a2bc5541e8c1c8df506"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_004.png",
+    "bytes": 161192,
+    "sha256": "eabc87b03a9f5c3ede2127368cef92bc06976415c228c5177da540219c776f1f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_003.png",
+    "bytes": 137077,
+    "sha256": "452347008faad9fbed469db6b4803bca3bbb9a9a98f9b230a94f4dc9a586d2b9"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_007.png",
+    "bytes": 156990,
+    "sha256": "1af17b06b133ee625e81459e0884d3f64149038291994f353584ae5ba577b57f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_006.png",
+    "bytes": 160870,
+    "sha256": "9890f6c02cd626abcbb177e1bc69974718277b62b8fb93d86df9fadf0247c157"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_014.png",
+    "bytes": 159176,
+    "sha256": "a57f64c23823fff796a3ac60d04d2927cda48950c049962230598d2d611391b6"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_003.png",
+    "bytes": 159655,
+    "sha256": "c6476b687301af0f803aa6e1d83b76cd045b182e2fa4a45bc1042d003d5105ec"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_5_blue_002.png",
+    "bytes": 142365,
+    "sha256": "78123634feaa60eb3993f8f3353fa6daab3f92366711de5a973e180d34e201ef"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_013.png",
+    "bytes": 160678,
+    "sha256": "485adad75b86e0d868fa64809ba8a9e67792f2042ed84d7c80b9559a68911f88"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_011.png",
+    "bytes": 160769,
+    "sha256": "a34f6cab606b09c8141d21754ceb62c85f6a59eee814d5387758accaa29f5a3f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_005.png",
+    "bytes": 137128,
+    "sha256": "49af7d7517c2d0260bd36a3883b3ace12eb86b484935ae7fa0cc070b56de2307"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_001.png",
+    "bytes": 146767,
+    "sha256": "310056debf1519ff5273db210160afa38c20e5a01946ffcc250a6269a2054002"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_5_blue_004.png",
+    "bytes": 124131,
+    "sha256": "990703cf0b04b8b16b6dc5c43f039d97700654444e3f30b880963fdcd47cc0cc"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_001.png",
+    "bytes": 146547,
+    "sha256": "a0e4ba82fba4d78a2f0c10daebaf3d5167afd952fa0702a051952fce780a625b"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/observers/frames/uav_4_white_gap_009.png",
+    "bytes": 161985,
+    "sha256": "d4332883a838ea0377cb891c1d4b07328818ab39205ea00cdff1404cc1f53221"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/house.world",
+    "bytes": 930722,
+    "sha256": "dd5a336dbd21245983fe0e2ec4ab74a2b4075d735def9d2e227db5732462ef5a"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/base1.world",
+    "bytes": 620482,
+    "sha256": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/generator.log",
+    "bytes": 480,
+    "sha256": "8f22193fbc3a5790907c929d80f0db16d22b32039ab2427284cae4da73885a73"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/scene_manifest.json",
+    "bytes": 3770,
+    "sha256": "1c49fe25576729d9af0dd4c5d6f767926d95e35f16fe83d01059e147ae6c6133"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/control_actor.py",
+    "bytes": 34647,
+    "sha256": "2f9bc6ed1cb4dec9c5b2160b3d14330c262d65466ba6199d84787757f75a4df0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/rover_static.world",
+    "bytes": 85801,
+    "sha256": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/generate_isolated.py",
+    "bytes": 17626,
+    "sha256": "7fcb80d32991b510e6a9e68b811b5e34840eac4788fc94b13c2aeb62f3675664"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/base3.world",
+    "bytes": 931223,
+    "sha256": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/ObstacleAvoid.py",
+    "bytes": 8983,
+    "sha256": "8226209795345a19086706725bce9c4fa7469960c3c89a244346a9840ee9dae0"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/robocup.world",
+    "bytes": 2648227,
+    "sha256": "8f5c41e2e78c66257d13a617d808f3b7fc009e1008f69ec0477fffc756671ad1"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/obstacle.txt",
+    "bytes": 42349,
+    "sha256": "5784892c79238a6b9c7beb56c2c736609b48db3a4136368415492438ba63043c"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/black_box.txt",
+    "bytes": 1492,
+    "sha256": "d7e5cdf083689e39fce8f308340a0059b7a679824272e3c95b5d66679c40bc17"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/map_generator.py",
+    "bytes": 18083,
+    "sha256": "f9edec80bf539eba2684a513a43f16ee38dacd1a80f92dae8ae4d9d54315ed93"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/white_background.png",
+    "bytes": 507,
+    "sha256": "f2b15c6f0e6464a95b93743a1f998e67cd877baa63d0e445ee8e8e78f6853819"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/rover.world",
+    "bytes": 1715702,
+    "sha256": "b50168bb230bab3aa4d197cf6f41897fc6671ed56f87e329ef291739d92b806d"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/base2.world",
+    "bytes": 931166,
+    "sha256": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948"
+  },
+  {
+    "path": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159/scene/score_cal.py",
+    "bytes": 13133,
+    "sha256": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1"
+  }
+]

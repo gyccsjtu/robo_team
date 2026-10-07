@@ -1,0 +1,182 @@
+[
+  {
+    "path": "actor_0.log",
+    "sha256": "85dbfc17adb4986ae79061b67751d627138bb0ec5b777e615e802a5d6a9ef609",
+    "bytes": 550
+  },
+  {
+    "path": "actor_1.log",
+    "sha256": "b907750d7bd7a3bc7f1a312257ce869ffa4056c779addb6e4d51cde8dd113318",
+    "bytes": 550
+  },
+  {
+    "path": "actor_2.log",
+    "sha256": "114791f7c083a8918e452ea2b9c6ec329399c381eaec2c16e919ce28d1cbe238",
+    "bytes": 550
+  },
+  {
+    "path": "actor_3.log",
+    "sha256": "61f3ed3927cf808e0f819a3d33b74744bee5f2fe4c79f4548237bd5c05b2ab7c",
+    "bytes": 726
+  },
+  {
+    "path": "actor_4.log",
+    "sha256": "f330867617bf28cd3f4040c08dc15169956f0742f449bb1ef44ac94a42466434",
+    "bytes": 756
+  },
+  {
+    "path": "actor_5.log",
+    "sha256": "d2b51dff16075275e84b529f27484d488e34af1c44e14b58489ccb0260af665a",
+    "bytes": 3186
+  },
+  {
+    "path": "actor_environment_odometry.json",
+    "sha256": "5788516438fc870bff0a6285f698daa3f37322ad1d96cdc024006ec607884788",
+    "bytes": 706
+  },
+  {
+    "path": "agent_early_stop_decision.json",
+    "sha256": "89aeab97d1afca7741689ba28f518d08e4f92bf81f59f3e1d16d15670f616919",
+    "bytes": 625
+  },
+  {
+    "path": "agent_uav_1.log",
+    "sha256": "b729bc05d0f1cf81656e5e77c3c59f5ef83575fa796452b00d1b749d600cdd1d",
+    "bytes": 14437
+  },
+  {
+    "path": "agent_uav_2.log",
+    "sha256": "7580fe087645ce14366173f1ddd2b18fc1fb7069f4d4512f044f8b092380b362",
+    "bytes": 18905
+  },
+  {
+    "path": "agent_uav_3.log",
+    "sha256": "08f2162b5d794a86854ff13fbd326a0c7bf11fc3082d9d90a3bb996ab3e59968",
+    "bytes": 20452
+  },
+  {
+    "path": "agent_uav_4.log",
+    "sha256": "7e4225fdec3284bc2501035912a505fbf09c3c534cd7e792b656e26e179e840b",
+    "bytes": 17718
+  },
+  {
+    "path": "agent_uav_5.log",
+    "sha256": "54bc49e4307697f978b5a364b76984f85987464b536fe32da0fd483716c220d4",
+    "bytes": 17521
+  },
+  {
+    "path": "agent_uav_6.log",
+    "sha256": "b1638ec650ba3a88f8f3b9e7b88936b05a18ed667ec58073de1c6509040a68db",
+    "bytes": 14970
+  },
+  {
+    "path": "bridge_trace.jsonl.gz",
+    "sha256": "38361c4bb22a6342cf7bd1a4b2e624d6a3af933710f795c690f8b3a6ae61c7c7",
+    "bytes": 5969
+  },
+  {
+    "path": "candidate_execution_audit.json",
+    "sha256": "67a1d3189e2e23dfaf3e14619ed71ea8ed09a3b035e742231aa465bb4aac2c3a",
+    "bytes": 3606
+  },
+  {
+    "path": "city_commands.jsonl.gz",
+    "sha256": "0b037e9d7efa987e8f40e5ad7d0183345945edf1cf581a570bb93a337ad7b781",
+    "bytes": 232082
+  },
+  {
+    "path": "city_contacts.log.gz",
+    "sha256": "405010c33851bf279a8dfcc0eaa568a4ad8164922097e9bbabf4cdf642e3b19c",
+    "bytes": 7700
+  },
+  {
+    "path": "city_control_config.json",
+    "sha256": "1054b68cbebcfa3f4990b392cfdc8076a867e20e48991df1ab1c531b500b4a45",
+    "bytes": 6167
+  },
+  {
+    "path": "city_events.jsonl.gz",
+    "sha256": "a29b4edd3cc65990775802d70cddfe02af02350f7243f3656e6ed4cb18788457",
+    "bytes": 4138
+  },
+  {
+    "path": "city_trajectory.jsonl.gz",
+    "sha256": "241ca9e9f2abbf44af4f264065b0ff575d97e25abbfda450ea8d185ef49e9825",
+    "bytes": 73175
+  },
+  {
+    "path": "execution_sources.json",
+    "sha256": "988bd713cf13b36dbe3de825f1306b17037bbd8cae013f151ca2c14e12e7f34a",
+    "bytes": 1243
+  },
+  {
+    "path": "judge.log",
+    "sha256": "e7f8bbaa118ae91baa6589b7a722b3eec10238e6493bacccc82a18837c32d83f",
+    "bytes": 1523
+  },
+  {
+    "path": "result.json",
+    "sha256": "91eafe6bdb0bd90d9ebba17ba7c11095663c88628cf24bdb396de2fe8ccfb5f2",
+    "bytes": 19391
+  },
+  {
+    "path": "stop_branch_replay.json",
+    "sha256": "7ed4d1a8e0fb2e01b8b4d4252c2bbdebcfa7fd44fd29c434774ed04082a38527",
+    "bytes": 2798
+  },
+  {
+    "path": "summary.json",
+    "sha256": "110b8f608b903af71e824f1d903e1335aad253f0100fa397532aacb95624a6d8",
+    "bytes": 784
+  },
+  {
+    "path": "swarm_manager.log",
+    "sha256": "a437a2fee22618772795aea08d46618a73830ebd11269163bc3da4c7d724e3cd",
+    "bytes": 7831
+  },
+  {
+    "path": "transport_topology_audit.json",
+    "sha256": "21bf1bbffdb356066b721326b1d5c20382f6b6c2421c0634673f0aa0f9d1080d",
+    "bytes": 3045
+  },
+  {
+    "path": "validation_authorization.json",
+    "sha256": "2c3099b521258dee15b7c9299a69e79cd90378006c87f3dcca60a8e250513bcd",
+    "bytes": 178
+  },
+  {
+    "path": "wsl_artifacts.json",
+    "sha256": "121f02945f6768e364dabb0d693d49ad19cff45a735bdd3aee74f81fa163e3a6",
+    "bytes": 140562
+  },
+  {
+    "path": "frames/frames.jsonl",
+    "sha256": "289a68a4c7fabfb73aa28fc62c3f85d7d672aa26b76007ea5fb2af42abc081a7",
+    "bytes": 12012
+  },
+  {
+    "path": "frames/uav_4_white_001.png",
+    "sha256": "310056debf1519ff5273db210160afa38c20e5a01946ffcc250a6269a2054002",
+    "bytes": 146767
+  },
+  {
+    "path": "frames/uav_4_white_002.png",
+    "sha256": "3a897a047a21d397cda159273c9c7f55035c5ac55c72a8dcb9e4105fcdfcec55",
+    "bytes": 167862
+  },
+  {
+    "path": "frames/uav_4_white_006.png",
+    "sha256": "9890f6c02cd626abcbb177e1bc69974718277b62b8fb93d86df9fadf0247c157",
+    "bytes": 160870
+  },
+  {
+    "path": "frames/uav_4_white_gap_009.png",
+    "sha256": "d4332883a838ea0377cb891c1d4b07328818ab39205ea00cdff1404cc1f53221",
+    "bytes": 161985
+  },
+  {
+    "path": "frames/uav_4_white_gap_014.png",
+    "sha256": "a57f64c23823fff796a3ac60d04d2927cda48950c049962230598d2d611391b6",
+    "bytes": 159176
+  }
+]

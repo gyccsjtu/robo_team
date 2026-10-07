@@ -168,6 +168,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         companion_tracking_revision='v1_visual_motion_standoff',
         companion_tracking_standoff_m=10.,companion_plan_forward_m=9.,
         tracking_execution_mode='companion',legacy_orbit_parameters_active=False,
+        stop_observation_revision='v1_own_accepted_original_bearing_during_stop',
+        stop_observation_maximum_image_age_s=8.,task_authority_compatibility='v2.6',
         confirmed_visual_acceptance_revision='v1_explicit_core_acceptance',
         bridge_trace_revision='v1_exact_input_and_upload_order',
         actor_environment_revision='v1_gazebo_world_pose_body_twist',
