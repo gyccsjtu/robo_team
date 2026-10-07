@@ -83,7 +83,8 @@ def _load(device, conf):
     _PERSON_VERIFIER=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),device,
         os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'),
         classes=(1,),proof_classes=(1,)+((3,) if os.environ.get('PR_FAST_GREEN_WHITE','0') == '1' else ())
-            +((0,) if os.environ.get('PR_FAST_RED_PERSON','0') == '1' else ()),
+            +((0,) if os.environ.get('PR_FAST_RED_PERSON','0') == '1' else ())
+            +((2,) if os.environ.get('PR_FAST_BLUE_PERSON','0') == '1' else ()),
         color_check=os.environ.get('PR_COLOR_VERIFY','0')=='1')
     # Touch the predictor so the first real request does not pay model setup.
     import numpy as np

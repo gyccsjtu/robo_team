@@ -45,8 +45,9 @@ class FreshPerson:
         if self.hits >= 3:
             self.established = True
 
-    def allowed(self, color, miss, now, allow_red=False):
+    def allowed(self, color, miss, now, allow_red=False, allow_blue=False):
         qualified = self.hits >= 3 or self.resume_after_miss and color == 'white' and self.established
-        return ((color in ('green','white') or color == 'red' and allow_red) and miss == 0
+        return ((color in ('green','white') or color == 'red' and allow_red
+                 or color == 'blue' and allow_blue) and miss == 0
                 and self.current_verified and qualified
                 and self.stamp is not None and math.isfinite(now) and 0 <= now-self.stamp <= 1.)

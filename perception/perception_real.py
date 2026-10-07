@@ -377,6 +377,7 @@ BLUE_MOTION_MIN_SPAN = float(os.environ.get('PR_BLUE_MOTION_MIN_SPAN', '1'))
 BLUE_IDENTITY_GUARD = os.environ.get('PR_BLUE_IDENTITY_GUARD', '0') == '1'
 STATIONARY_GREEN_ON = os.environ.get('PR_STATIONARY_GREEN','0') == '1'
 FAST_GREEN_WHITE = os.environ.get('PR_FAST_GREEN_WHITE','0') == '1'
+FAST_BLUE_PERSON = os.environ.get('PR_FAST_BLUE_PERSON','0') == '1'
 FAST_RED_PERSON = os.environ.get('PR_FAST_RED_PERSON','0') == '1'
 WHITE_SHORT_MISS_RECOVERY = os.environ.get('PR_WHITE_SHORT_MISS_RECOVERY','1') == '1'
 # --- 视差判据（v3.5b 新增，专治"机身跟着观测机转向而漏网"）---
@@ -815,7 +816,7 @@ class Track(object):
         # 当前在动，或者生命期内动过 —— 见 VERDICT_DISP 的注释（治 actor 卡死）
         recent_speed = self.recent_motion.speed(self.observed_s if now is None else now) if self.recent_motion is not None else None
         blue_qualified = self.blue_identity is not None and self.blue_identity.allowed(self.observed_s if now is None else now)
-        if self.blue_identity is not None and not blue_qualified:
+        if self.blue_identity is not None and not blue_qualified and not verified_person:
             return False, "blue_identity"
         if not blue_qualified and not stationary_person and not verified_person and ((recent_speed is not None and recent_speed < VERDICT_SP) or (recent_speed is None and self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP)):
             return False, "static"
@@ -1091,7 +1092,7 @@ def main():
     person_verifier=PersonVerifier(os.environ.get('PR_PERSON_VERIFY_WEIGHTS',''),infer_device,
         os.environ.get('PR_PERSON_VERIFY_CONF','.1'),os.environ.get('PR_PERSON_VERIFY_IOU','.25'),
         classes=(1,),proof_classes=(1,)+((3,) if FAST_GREEN_WHITE else ())
-            +((0,) if FAST_RED_PERSON else ()),
+            +((0,) if FAST_RED_PERSON else ())+((2,) if FAST_BLUE_PERSON else ()),
         color_check=os.environ.get('PR_COLOR_VERIFY','0')=='1')
     n_loop = 0
     _t_live = 0.0            # 心跳上次打印墙钟（5s 一次，证明主线程活着）
@@ -1485,8 +1486,9 @@ def main():
             # v3.5：发布侧的人判决默认开启：静止建筑/招牌误检不能占用追踪机。
             # 真机若确实允许静止目标，可显式设置 PR_PUB_VERDICT=0 做对照实验；
             # 关闭后会放大假目标占机风险。
-            _fresh_person=(FAST_RED_PERSON if tk.cls == 'red' else FAST_GREEN_WHITE) and tk.person_support.allowed(
-                tk.cls,tk.miss,now,allow_red=FAST_RED_PERSON)
+            _fresh_person=(FAST_RED_PERSON if tk.cls == 'red' else
+                FAST_BLUE_PERSON if tk.cls == 'blue' else FAST_GREEN_WHITE) and tk.person_support.allowed(
+                tk.cls,tk.miss,now,allow_red=FAST_RED_PERSON,allow_blue=FAST_BLUE_PERSON)
             if PUB_VERDICT:
                 # A following camera keeps its assigned person centered at any
                 # valid detection range. Only a live per-aircraft task skips
@@ -1662,8 +1664,9 @@ def main():
                 image_stamp=frame_stamp, image_age_s=frame_age,
                 inference_s=inference_s,
                 source="perception_track",person_hits=tk.person_support.hits,
-                track_miss=tk.miss,fresh_person_allowed=(FAST_RED_PERSON if cls == 'red' else FAST_GREEN_WHITE)
-                    and tk.person_support.allowed(cls,tk.miss,now,allow_red=FAST_RED_PERSON),
+                track_miss=tk.miss,fresh_person_allowed=(FAST_RED_PERSON if cls == 'red' else
+                    FAST_BLUE_PERSON if cls == 'blue' else FAST_GREEN_WHITE)
+                    and tk.person_support.allowed(cls,tk.miss,now,allow_red=FAST_RED_PERSON,allow_blue=FAST_BLUE_PERSON),
                 person_established=tk.person_support.established,
                 person_current_verified=tk.person_support.current_verified,
                 original_s=tk.observed_s,raw_target_x=tk.raw_xy[0],raw_target_y=tk.raw_xy[1],

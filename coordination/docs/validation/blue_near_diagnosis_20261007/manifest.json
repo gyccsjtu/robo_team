@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "executed_commit": "e83839b",
+  "candidate_not_physically_executed": true,
+  "truth_for_offline_diagnosis_only": true,
+  "sources": [
+    {
+      "path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_blue.jsonl",
+      "sha256": "2a921a433907d3df724377499b595150abe16808fe778552b2e0e7aa0e248afb",
+      "bytes": 929840
+    },
+    {
+      "path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_0.csv",
+      "sha256": "0384ffe260e51de8cc2db1de9b0698d30cf569f0a31efc115938c75c7c667d2d",
+      "bytes": 366508
+    },
+    {
+      "path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_1.csv",
+      "sha256": "8bd81e037e24a0821c479a04e4352bd9af43ad5189f7e1cd6fb6263fcc6c372f",
+      "bytes": 367264
+    },
+    {
+      "path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_2.csv",
+      "sha256": "edb2d6e347734832fe97a9d29f2378c95857f6d0f8e114d302cb05a59c4b3dcf",
+      "bytes": 759074
+    },
+    {
+      "path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv",
+      "sha256": "af59d8b12f1862898e0d9235629b4eeb8f65c61c4eb2526e63118ca8a517834b",
+      "bytes": 308021
+    },
+    {
+      "path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_4.csv",
+      "sha256": "5b48d391a33e63dcecc54eb447f618e874b0987a8904bb6f283679b96c5a39ea",
+      "bytes": 170836
+    },
+    {
+      "path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_5.csv",
+      "sha256": "b6d347fbf20bfabfcc02d095eccf4c0a66c15370c201bc17f3b672b6dafc7f49",
+      "bytes": 1354926
+    }
+  ],
+  "accurate_near_detection_rows": 85,
+  "accurate_near_camera_originals": 85
+}

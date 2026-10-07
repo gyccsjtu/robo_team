@@ -5,9 +5,11 @@ from pathlib import Path
 import sys
 from types import SimpleNamespace as NS
 import unittest
+from unittest.mock import patch
 
 PERCEPTION=Path(__file__).parents[2]/'perception'
 sys.path.insert(0,str(PERCEPTION))
+from person_verifier import PersonVerifier
 from motion_identity import MotionIdentity
 from recent_motion import RecentMotion
 from fresh_person import FreshPerson
@@ -77,3 +79,42 @@ class BlueMotionIdentityTests(unittest.TestCase):
             tr.update(.4*math.sin(i*.1),0.,.1,.9,(50.,50.),(15.,30.),10.,1.8,10.+i*.1)
         self.assertEqual(tr.verdict(18.,attach_check=False),(False,'blue_identity'))
         self.assertEqual(tr.hits,81)
+
+    def test_stationary_blue_requires_three_distinct_verified_originals(self):
+        proof=FreshPerson()
+        for stamp in (10.,10.,10.2):proof.observe(stamp,True)
+        self.assertFalse(proof.allowed('blue',0,10.2,allow_blue=True))
+        proof.observe(10.4,True)
+        self.assertFalse(proof.allowed('blue',0,10.4))
+        self.assertTrue(proof.allowed('blue',0,10.4,allow_blue=True))
+        self.assertFalse(proof.allowed('blue',1,10.4,allow_blue=True))
+        self.assertFalse(proof.allowed('blue',0,11.41,allow_blue=True))
+        proof.observe(10.6,False)
+        self.assertFalse(proof.allowed('blue',0,10.6,allow_blue=True))
+
+    def test_actual_stationary_blue_verified_person_preserves_geometry_gates(self):
+        tr=actual_track_class(True)('blue',0.,0.,.9,(50.,50.),(15.,30.),10.,1.8,10.)
+        for i in range(1,6):tr.update(0.,0.,.2,.9,(50.,50.),(15.,30.),10.,1.8,10.+i*.2)
+        self.assertEqual(tr.verdict(11.,attach_check=False),(False,'blue_identity'))
+        self.assertTrue(tr.verdict(11.,verified_person=True)[0])
+        tr.rng=100.
+        self.assertEqual(tr.verdict(11.,verified_person=True),(False,'range'))
+        tr.rng=10.;tr.h=10.
+        self.assertEqual(tr.verdict(11.,verified_person=True),(False,'height'))
+
+    def test_blue_person_proof_needs_person_overlap_and_valid_blue_crop(self):
+        rectangle=[10.,20.,30.,60.]
+        box=NS(cls=2,xyxy=[rectangle])
+        verifier=PersonVerifier('configured',color_check=True,proof_classes=(2,))
+        people=[NS(cls=0,xyxy=[rectangle])]
+        verifier.model=lambda *a,**kw:[NS(boxes=people)]
+        for fractions,expected in [(None,False),
+            (dict(blue=.05,white=.8,green=0.,red=0.,brown=0.),False),
+            (dict(blue=.8,white=.05,green=0.,red=0.,brown=0.),True)]:
+            with patch('jersey_color.filter_boxes',return_value=[box]),patch('jersey_color.torso_fractions',return_value=fractions):
+                self.assertEqual(verifier.filter_boxes(None,[box]),[box])
+                self.assertEqual(bool(verifier.verified_boxes),expected)
+        people.clear()
+        with patch('jersey_color.filter_boxes',return_value=[box]),patch('jersey_color.torso_fractions',return_value=dict(blue=.8,white=0.)):
+            verifier.filter_boxes(None,[box])
+            self.assertEqual(verifier.verified_boxes,[])
