@@ -30,6 +30,7 @@ import re
 import threading
 from pathlib import Path
 from visual_observation import VisualEvidence, TAG_TO_TID
+from report_readiness import ReportReadiness
 from search_completion import parse_actor_list
 from red_observations import RedObservations, actor_slot_remaining
 from source_aligned_fusion import SourceAlignedFusion
@@ -402,6 +403,8 @@ class YoloTargetBridge(object):
             red_motion_limits=os.environ.get('BRIDGE_RED_MOTION_LIMITS', '0') == '1',
             brown_activation=os.environ.get('BRIDGE_BROWN_ACTIVATION', '0') == '1')
         self._red_observations = RedObservations()
+        self._approach_reporting = os.environ.get('BRIDGE_APPROACH_REPORTING','0') == '1'
+        self._report_readiness = ReportReadiness()
         self._lock = threading.RLock()
         self._trace = None
         trace_path = os.environ.get('BRIDGE_TRACE_JSONL')
@@ -430,7 +433,7 @@ class YoloTargetBridge(object):
         pub_hz = float(os.environ.get("BRIDGE_PUB_HZ", "10"))
         self._timer = rospy.Timer(rospy.Duration(1.0 / max(1.0, pub_hz)),
                                   self._tick)
-        rospy.loginfo("yolo_target_bridge 启动：visual_observation v2 → /swarm/target_states"
+        rospy.loginfo("yolo_target_bridge 启动：visual_observation v2/v3 → /swarm/target_states"
                       "（%d 个固定目标槽）", len(TAG_TO_TID))
 
     def _now(self):
@@ -459,11 +462,15 @@ class YoloTargetBridge(object):
                 accepted = self.core.report(stamp, tag, x, y, observation['confidence'],
                                             observation['uav_id'], observation['observation_id'])
                 track = self.core.tracks[tag]
+                if getattr(self,'_approach_reporting',False):
+                    self._report_readiness.observe(observation,self._now(),accepted)
                 if getattr(self,'_trace',None) is not None:
                     self._trace_record(dict(kind='input', receipt_s=self._now(),
                         observation=observation, accepted=accepted, alive=track.alive,
                         fused_xy=[track.x,track.y], velocity=[track.vx,track.vy],
-                        original_s=track.t_obs, position_s=track.position_s, window=track.obs))
+                        original_s=track.t_obs, position_s=track.position_s, window=track.obs,
+                        report_readiness=(self._report_readiness.sources.get((tag,observation['uav_id']))
+                            if getattr(self,'_approach_reporting',False) else None)))
                 if not accepted or not track.alive or track.t_obs != stamp or tag in self.core.eliminated:
                     return
                 detection = self._TargetDetection()
@@ -488,6 +495,8 @@ class YoloTargetBridge(object):
         with self._lock:
             newly = self.core.set_left(self._now(), msg.data)
         for tag in newly:
+            if getattr(self,'_approach_reporting',False):
+                self._report_readiness.clear(tag)
             self._rospy.loginfo("官方清单已无 %s(%s)，补发 eliminated",
                                 tag, TAG_TO_TID[tag])
 
@@ -510,7 +519,9 @@ class YoloTargetBridge(object):
         tag = TID_TO_TAG.get(ev["tid"])
         if (tag is not None and tag in self._actor_pubs
                 and not ev["eliminated"]
-                and ev.get("state", 0) != 3 and 0 <= self._now()-track.t_obs <= COAST_TIME):
+                and ev.get("state", 0) != 3 and 0 <= self._now()-track.t_obs <= COAST_TIME
+                and (not getattr(self,'_approach_reporting',False)
+                     or self._report_readiness.allowed(tag,self._now(),track.t_obs))):
             am = self._ActorInfo()
             am.cls = 'red' if tag in ('red1', 'red2') else tag
             am.x = round(ev["x"], 3)

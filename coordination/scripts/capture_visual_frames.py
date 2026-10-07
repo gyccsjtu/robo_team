@@ -16,7 +16,7 @@ class GapCapture:
 
     def observe(self, observation, now_s):
         uid, stamp = observation.get('uav_id'), observation.get('sample_s')
-        if (observation.get('target_id') != self.color or observation.get('schema_version') != 2
+        if (observation.get('target_id') != self.color or observation.get('schema_version') not in (2,3)
                 or uid not in ('uav_%d'%i for i in range(1, 7))
                 or not isinstance(stamp, (int, float)) or not math.isfinite(stamp)
                 or not math.isfinite(now_s) or not 0. <= now_s-stamp <= 1.):

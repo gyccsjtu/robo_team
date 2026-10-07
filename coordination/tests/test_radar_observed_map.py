@@ -24,6 +24,27 @@ class ObservationTests(unittest.TestCase):
         self.assertEqual(grid.cells[grid.index(5., 0.)], 100)
         self.assertEqual(grid.cells[grid.index(0., 4.)], -1)
 
+    def test_partial_update_never_turns_clip_into_hit_or_clears_outside(self):
+        grid=self.grid()
+        self.feed(grid,[5.,math.nan,math.nan,math.nan])
+        outside=grid.index(5.,0.)
+        self.assertTrue(self.feed(grid,[7.,math.nan,math.nan,math.nan],
+            scan_s=10.2,pose_s=10.2,now_s=10.2,maximum_distance=3.))
+        self.assertEqual(grid.cells[grid.index(3.,0.)],0)
+        self.assertEqual((grid.cells[outside],grid.observed_s[outside]),(100,10.))
+        self.assertEqual(grid.cells[grid.index(7.,0.)],-1)
+        self.assertTrue(self.feed(grid,[2.,math.nan,math.nan,math.nan],
+            scan_s=10.4,pose_s=10.4,now_s=10.4,maximum_distance=3.))
+        self.assertEqual(grid.cells[grid.index(2.,0.)],100)
+
+    def test_partial_update_preserves_blind_zone_and_rejects_stale_alignment(self):
+        grid=self.grid()
+        for kw in (dict(maximum_distance=.1),dict(maximum_distance=math.nan),
+                   dict(maximum_distance=3.,pose_s=9.),dict(maximum_distance=3.,now_s=11.)):
+            self.assertFalse(self.feed(grid,[7.]*4,**kw))
+        self.feed(grid,[7.,math.nan,math.nan,math.nan],maximum_distance=3.)
+        self.assertEqual(grid.cells[grid.index(-.1,0.)],-1)
+
     def test_no_return_does_not_fill_a_free_disk(self):
         grid = self.grid()
         self.feed(grid, [math.inf, math.nan, math.nan, math.nan])

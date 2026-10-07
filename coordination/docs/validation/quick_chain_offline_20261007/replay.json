@@ -1,0 +1,332 @@
+{
+  "historical_scans": [
+    {
+      "source": "navigation_uav_1_latest.json",
+      "scan_s": 2527.748,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 10044,
+      "near_known": 4484
+    },
+    {
+      "source": "navigation_uav_1_latest.json",
+      "scan_s": 2528.248,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 6794,
+      "near_known": 3701
+    },
+    {
+      "source": "navigation_uav_1_latest.json",
+      "scan_s": 2528.748,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 12730,
+      "near_known": 4883
+    },
+    {
+      "source": "navigation_uav_1_latest.json",
+      "scan_s": 2529.248,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 12912,
+      "near_known": 4966
+    },
+    {
+      "source": "navigation_uav_1_latest.json",
+      "scan_s": 2529.748,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 12741,
+      "near_known": 4961
+    },
+    {
+      "source": "navigation_uav_1_latest.json",
+      "scan_s": 2530.248,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 12575,
+      "near_known": 4787
+    },
+    {
+      "source": "navigation_uav_2_latest.json",
+      "scan_s": 2528.348,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 18186,
+      "near_known": 7065
+    },
+    {
+      "source": "navigation_uav_2_latest.json",
+      "scan_s": 2528.848,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 18222,
+      "near_known": 7085
+    },
+    {
+      "source": "navigation_uav_2_latest.json",
+      "scan_s": 2529.348,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 15122,
+      "near_known": 7035
+    },
+    {
+      "source": "navigation_uav_2_latest.json",
+      "scan_s": 2529.848,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 13846,
+      "near_known": 6165
+    },
+    {
+      "source": "navigation_uav_2_latest.json",
+      "scan_s": 2530.348,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 14847,
+      "near_known": 6930
+    },
+    {
+      "source": "navigation_uav_2_latest.json",
+      "scan_s": 2530.848,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 14945,
+      "near_known": 6919
+    },
+    {
+      "source": "navigation_uav_3_latest.json",
+      "scan_s": 2527.928,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20324,
+      "near_known": 7333
+    },
+    {
+      "source": "navigation_uav_3_latest.json",
+      "scan_s": 2528.428,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20320,
+      "near_known": 7332
+    },
+    {
+      "source": "navigation_uav_3_latest.json",
+      "scan_s": 2528.928,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20323,
+      "near_known": 7334
+    },
+    {
+      "source": "navigation_uav_3_latest.json",
+      "scan_s": 2529.428,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20321,
+      "near_known": 7335
+    },
+    {
+      "source": "navigation_uav_3_latest.json",
+      "scan_s": 2529.928,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20321,
+      "near_known": 7334
+    },
+    {
+      "source": "navigation_uav_3_latest.json",
+      "scan_s": 2530.428,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20326,
+      "near_known": 7334
+    },
+    {
+      "source": "navigation_uav_4_latest.json",
+      "scan_s": 2527.908,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20321,
+      "near_known": 7333
+    },
+    {
+      "source": "navigation_uav_4_latest.json",
+      "scan_s": 2528.408,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20324,
+      "near_known": 7334
+    },
+    {
+      "source": "navigation_uav_4_latest.json",
+      "scan_s": 2528.908,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 15496,
+      "near_known": 6686
+    },
+    {
+      "source": "navigation_uav_4_latest.json",
+      "scan_s": 2529.408,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 16861,
+      "near_known": 7220
+    },
+    {
+      "source": "navigation_uav_4_latest.json",
+      "scan_s": 2529.908,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 16961,
+      "near_known": 7255
+    },
+    {
+      "source": "navigation_uav_4_latest.json",
+      "scan_s": 2530.408,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 15801,
+      "near_known": 6815
+    },
+    {
+      "source": "navigation_uav_5_latest.json",
+      "scan_s": 2528.236,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20324,
+      "near_known": 7333
+    },
+    {
+      "source": "navigation_uav_5_latest.json",
+      "scan_s": 2528.736,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20324,
+      "near_known": 7334
+    },
+    {
+      "source": "navigation_uav_5_latest.json",
+      "scan_s": 2529.236,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20323,
+      "near_known": 7333
+    },
+    {
+      "source": "navigation_uav_5_latest.json",
+      "scan_s": 2529.736,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20324,
+      "near_known": 7334
+    },
+    {
+      "source": "navigation_uav_5_latest.json",
+      "scan_s": 2530.236,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20296,
+      "near_known": 7331
+    },
+    {
+      "source": "navigation_uav_5_latest.json",
+      "scan_s": 2530.736,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20317,
+      "near_known": 7334
+    },
+    {
+      "source": "navigation_uav_6_latest.json",
+      "scan_s": 2528.436,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 20299,
+      "near_known": 7334
+    },
+    {
+      "source": "navigation_uav_6_latest.json",
+      "scan_s": 2528.936,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 15835,
+      "near_known": 6822
+    },
+    {
+      "source": "navigation_uav_6_latest.json",
+      "scan_s": 2529.436,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 16108,
+      "near_known": 6936
+    },
+    {
+      "source": "navigation_uav_6_latest.json",
+      "scan_s": 2529.936,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 18561,
+      "near_known": 7332
+    },
+    {
+      "source": "navigation_uav_6_latest.json",
+      "scan_s": 2530.436,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 17083,
+      "near_known": 7307
+    },
+    {
+      "source": "navigation_uav_6_latest.json",
+      "scan_s": 2530.936,
+      "full_accepted": true,
+      "near_accepted": true,
+      "fake_hits": 0,
+      "full_known": 18708,
+      "near_known": 7333
+    }
+  ],
+  "legacy_visual_inputs": 178,
+  "legacy_internal_accepted": 177,
+  "legacy_v2_official_permits": 0,
+  "limitation": "Historical trace lacks camera_xyz and person proof; no retroactive fabricated distance. Near-field replay is individual real scans, not complete callback or physical movement; historical scans do not establish the new 0.2s cadence."
+}

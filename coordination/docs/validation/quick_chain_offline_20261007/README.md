@@ -1,0 +1,9 @@
+# 接近后上报与近场扫描离线核验
+
+721项全量检查通过，原始输出见tests.txt。检查实际感知发布块的v3同图相机/人体证明、重复图去重及不匹配相机时间拒发；ReportReadiness检查远距离不上传、三图与跨度、白色证明、失效恢复及旧来源许可不借用；实际scan回调检查局部/完整频率与缺速度证据；官方包装器仅对实际mission_finished=true的ROS退出写终态，外部关闭仍失败。有效旧授权pending边界沿用test_route_speed_budget，不放宽任务/STOP/制动或占用语义。
+
+replay.json来自r3六机最后扫描窗口的36份真实扫描，逐份完整与11.95米近场裁剪比较无新增虚假障碍命中。历史178条v2桥输入，177条原接受，没有相机原图位置，均不得开启新官方上报。没有补造距离或人体证明，回放不证明新0.2秒频率的实体效果。
+
+previous_r4保留原始budget、launcher、judge、控制配置、源清单；previous_r4_manifest.json记录WSL路径、字节SHA及当前缺result/端口关闭的补充事实。原budget的RUNNING未改，ROSInterruptException具体关闭来源仍未知，不能充作正常600秒结束证据。
+
+实际六机效果等待本次唯一8159实体轮，开发环境与正式相机/地图兼容仍有限制。

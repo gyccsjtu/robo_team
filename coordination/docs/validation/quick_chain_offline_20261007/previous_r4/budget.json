@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "maximum_attempts": 1,
+  "attempts": [
+    {
+      "index": 1,
+      "seed": 8159,
+      "sim_limit_s": 600,
+      "output": "/root/robocup_runs/competition_recovery_r4_20261007/round_1_seed_8159",
+      "status": "RUNNING",
+      "started_utc": "2026-10-07T12:27:08Z",
+      "authorization": "user_requested_one_additional_random_map",
+      "owned_launcher_pid": 1556749,
+      "wall_seconds": 2006.6,
+      "first_static_contact": null,
+      "actor_contact_rows": 0,
+      "fleet_contact_rows": 0,
+      "run_id": "df044ec8-d447-46ba-9fb8-c45893788171",
+      "selected_seed": 8159
+    }
+  ]
+}

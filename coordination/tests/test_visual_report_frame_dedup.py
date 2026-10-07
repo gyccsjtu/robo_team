@@ -21,7 +21,9 @@ class VisualReportFrameDedupTests(unittest.TestCase):
     def test_fast_publish_checks_cannot_multiply_original_images_or_coast(self):
         emitted = []
         track = SimpleNamespace(miss=0, observed_s=10., x=2., y=3., conf=.6,
-                                pub_xy=lambda: (2., 3.), uv=(None, None))
+                                pub_xy=lambda: (2., 3.), uv=(None, None),
+                                camera_s=10., camera_xyz=[0.,0.,2.5],
+                                person_support=SimpleNamespace(current_verified=True))
         scope = dict(COORD_ON=True, COORD_HZ=10., now=10., _coord_t=0., _obs_seq=0,
             visual_pub_list=[('white', 0, track)], pub_list=[], pubs={'white': [None]},
             _published_visual_samples={}, json=json, TARGET_Z=1.25, UAV='model',
@@ -38,6 +40,7 @@ class VisualReportFrameDedupTests(unittest.TestCase):
         exec(code, scope)
         self.assertEqual(len(emitted), 1)
         track.miss, track.observed_s = 0, 10.6
+        track.camera_s = 10.6
         scope['now'] = 10.8
         exec(code, scope)
         self.assertEqual([x['sample_s'] for x in emitted], [10., 10.6])

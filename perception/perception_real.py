@@ -1440,6 +1440,7 @@ def main():
                           appearance_feat=appear_feat)
                 tk.green_frame_proof = d.get('green_frame_proof',False)
                 tk.person_support.observe(frame_stamp,d.get('person_frame_proof',False))
+                tk.camera_xyz, tk.camera_s = [float(px),float(py),float(pz)], frame_stamp
             else:
                 tk.coast(dt)
                 tk.person_support.missed(frame_stamp)
@@ -1457,6 +1458,7 @@ def main():
                                     appearance_feat=d.get("appearance")))
                 tracks[-1].green_frame_proof = d.get('green_frame_proof',False)
                 tracks[-1].person_support.observe(frame_stamp,d.get('person_frame_proof',False))
+                tracks[-1].camera_xyz, tracks[-1].camera_s = [float(px),float(py),float(pz)], frame_stamp
 
         # ---------- 3) 清理 ----------
         # 原判据 math.hypot(tk.x, tk.y) 是"距世界原点"的距离，与飞机在哪无关：
@@ -1750,13 +1752,16 @@ def main():
                 # Only an actual match in this camera frame creates new evidence.
                 # Track prediction/coast may support UI, but cannot extend confirmation.
                 if (_tk.miss == 0 and 0 < _tk.observed_s <= now <= _tk.observed_s+1.
+                        and getattr(_tk,'camera_s',None) == _tk.observed_s
                         and _tk.observed_s > _published_visual_samples.get(_tag, 0.)):
                     _logical_uid = os.environ.get('PR_LOGICAL_UAV_ID', UAV)
                     _visual_run = os.environ.get('ROBOCUP_RUN_ID', '')
-                    visual_coord.publish(String(data=json.dumps(dict(schema_version=2,
+                    visual_coord.publish(String(data=json.dumps(dict(schema_version=3,
                         run_id=_visual_run, uav_id=_logical_uid, seq=_obs_seq, sample_s=_tk.observed_s,
                         target_id=_tag, frame_id='world_enu', xyz=[round(_tk.x, 2), round(_tk.y, 2), TARGET_Z],
-                        confidence=float(_tk.conf), observation_id='%s:%s:%d' % (_visual_run, _logical_uid, _obs_seq)),
+                        confidence=float(_tk.conf), camera_xyz=list(_tk.camera_xyz),
+                        person_frame_verified=bool(_tk.person_support.current_verified),
+                        observation_id='%s:%s:%d' % (_visual_run, _logical_uid, _obs_seq)),
                         allow_nan=False)))
                     _published_visual_samples[_tag] = _tk.observed_s
                 # === 仿真环境日志：YOLO 检测输出 + ROS 时间戳 ===

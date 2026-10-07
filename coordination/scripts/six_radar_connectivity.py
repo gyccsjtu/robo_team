@@ -368,17 +368,20 @@ def main():
         report['owned_children_before_cleanup'] = dict(
             schema_version=1, wall_time_s=time.time(),
             processes=owned_process_snapshot(children))
+        (out / 'result_before_cleanup.json').write_text(json.dumps(report, indent=2))
         if 'rospy' in locals():
             rospy.signal_shutdown('Owned fixture completed')
         for process, log in reversed(children):
             if process.poll() is None:
-                os.killpg(process.pid, signal.SIGTERM)
+                try:os.killpg(process.pid, signal.SIGTERM)
+                except ProcessLookupError:pass
         deadline = time.monotonic() + 5
         for process, log in reversed(children):
             try:
                 process.wait(timeout=max(.1, deadline-time.monotonic()))
             except subprocess.TimeoutExpired:
-                os.killpg(process.pid, signal.SIGKILL)
+                try:os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:pass
                 process.wait(timeout=5)
             log.close()
         (out / 'result.json').write_text(json.dumps(report, indent=2))

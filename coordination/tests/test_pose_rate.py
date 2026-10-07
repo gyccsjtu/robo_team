@@ -211,6 +211,43 @@ class ActualAdapterTests(unittest.TestCase):
         self.assertIn([3,'positive_infinity'],record['nonfinite_ranges'])
         json.dumps(record,allow_nan=False)
 
+    def test_actual_current_scan_updates_between_full_map_publications(self):
+        a=self.agent(); a._online_map=ObservedMap(160,160,.25,(-20.,-20.))
+        a._online_map_lock=threading.RLock(); a._online_map_offset=a.offset; a._online_map_epoch_s=1.
+        a._online_planner=None; a._scan_window=deque(maxlen=6)
+        published=[]; a._map_pub=SimpleNamespace(publish=published.append)
+        a.grid=SimpleNamespace(width=160,height=160,resolution=.25,origin=(-20.,-20.))
+        a._orientation_xyzw=(0.,0.,0.,1.); a._current_scan_corridor=True
+        a._measured_motion=lambda now:dict(velocity_candidates=[(0.,0.),(.4,0.)])
+        self.methods['_scan_cb'].__globals__['MAX_SPEED']=3.
+        def scan(stamp,hit=math.inf):
+            self.now=stamp; a._local_prev_t=stamp
+            a._scan_cb(SimpleNamespace(ranges=[hit]*360,angle_min=-math.pi,
+                angle_increment=math.pi/180,range_min=.5,range_max=20.,
+                header=SimpleNamespace(stamp=SimpleNamespace(to_sec=lambda:stamp))))
+        scan(10.)
+        far=a._online_map.index(15.,0.)
+        old_stamp=a._online_map.observed_s[far]
+        scan(10.21,2.)
+        self.assertEqual(len(published),1)
+        self.assertEqual(a._online_map.version,2)
+        self.assertEqual(a._online_map.observed_s[far],old_stamp)
+        self.assertEqual(a._online_map.cells[a._online_map.index(2.,0.)],100)
+        scan(10.42)
+        self.assertEqual(len(published),1)
+        scan(10.5)
+        self.assertEqual(len(published),2)  # Full due bypasses the local throttle.
+        self.assertEqual(a._online_map.version,4)
+        self.assertEqual(a._online_map.cells[a._online_map.index(2.,0.)],100)
+        a._measured_motion=lambda now:None
+        scan(10.71)
+        self.assertEqual(a._online_map.version,4)
+        scan(11.)
+        self.assertEqual(len(published),3)
+        a._current_scan_corridor=False
+        scan(11.21)
+        self.assertEqual(len(published),3)  # Off retains the original 0.5s cadence.
+
 
 if __name__ == '__main__':
     unittest.main()

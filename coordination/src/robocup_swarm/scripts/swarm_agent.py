@@ -356,6 +356,7 @@ class SwarmAgent(object):
         self._velocity_sample = None  # (vx, vy, sample_s), ENU measured motion
         self._velocity_z = 0.
         self._pose_rate_enabled = os.environ.get('SWARM_POSE_RATE_GUARD', '1') == '1'
+        self._current_scan_corridor = os.environ.get('SWARM_CURRENT_SCAN_CORRIDOR','0') == '1'
         self._pose_rate = PoseRate()
         self._pose_sample_s = 0.
         self._pose_quality = PoseQuality(MAX_SPEED, EKF_JUMP_MIN_M)
@@ -684,8 +685,14 @@ class SwarmAgent(object):
         if observed is None or self._map_pub is None:
             return
         position = self.world_xy
+        local_updates = getattr(self,'_current_scan_corridor',False)
+        period = .2 if local_updates else .5
+        last_full = getattr(self,'_online_full_scan_s',None)
+        full_due = local_updates and (last_full is None or self._scan_t-last_full >= .5
+                                      or self._online_map_offset != self.offset)
         if (position is None or self._local_prev_t is None
-                or (observed.last_scan_s is not None and self._scan_t-observed.last_scan_s < .5)):
+                or (observed.last_scan_s is not None and self._scan_t-observed.last_scan_s < period
+                    and not full_due)):
             return
         now = rospy.Time.now().to_sec()
         with self._online_map_lock:
@@ -695,8 +702,19 @@ class SwarmAgent(object):
                 observed = self._online_map = ObservedMap(self.grid.width, self.grid.height, self.grid.resolution, self.grid.origin)
                 self._online_map_offset = self.offset
                 self._online_map_epoch_s = self._scan_t
+                self._online_full_scan_s = None
+            last_full = getattr(self,'_online_full_scan_s',None)
+            full = not local_updates or last_full is None or self._scan_t-last_full >= .5
+            maximum_distance = None
+            if not full:
+                evidence = self._measured_motion(now)
+                if evidence is None:
+                    return
+                speed = max([MAX_SPEED]+[math.hypot(*v) for v in evidence['velocity_candidates']])
+                maximum_distance = speed*.5+speed*speed+1.2+observed.resolution
             if not observed.feed(msg.ranges, position, self.yaw, msg.angle_min, msg.angle_increment,
-                                 msg.range_min, msg.range_max, self._scan_t, self._local_prev_t, now):
+                                 msg.range_min, msg.range_max, self._scan_t, self._local_prev_t, now,
+                                 maximum_distance=maximum_distance):
                 return
             self._scan_window.append(dict(sample_s=self._scan_t,position_xy=position,
                 pose_s=self._local_prev_t,
@@ -708,6 +726,9 @@ class SwarmAgent(object):
             planner = getattr(self, '_online_planner', None)
             if planner is not None:
                 planner.carry_body_proof(observed, position, now, self._online_map_epoch_s)
+            if not full:
+                return  # Near-field evidence is current; whole-map publication stays decimated.
+            self._online_full_scan_s = self._scan_t
             map_epoch, values, version = self._online_map_epoch_s, observed.snapshot(now), observed.version
         output = OccupancyGrid()
         output.header.stamp = msg.header.stamp

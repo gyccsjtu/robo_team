@@ -1,0 +1,32 @@
+{
+  "/root/robocup_runs/competition_recovery_r4_20261007/budget.json": {
+    "sha256": "643aea247a07b6352a3ba8a03553f4053879c7602d201a31a2a5b8835b6d0d0e",
+    "size": 624
+  },
+  "/root/robocup_runs/competition_recovery_r4_20261007/round_1_seed_8159/launcher.log": {
+    "sha256": "73081eaaa032294da12295a15416cbecd06d9a5bfd99e303b918acce5634b556",
+    "size": 8498
+  },
+  "/root/robocup_runs/competition_recovery_r4_20261007/round_1_seed_8159/source_manifest.json": {
+    "sha256": "5c5a97961c74207112b40de740e32ce3158d92641852fdf3e264a6a88b2c1adf",
+    "size": 25421
+  },
+  "/root/robocup_runs/competition_recovery_r4_20261007/round_1_seed_8159/flight/judge.log": {
+    "sha256": "b2502bc25e0d2c5e98cee85dd99c19f44a6c78f467cc213497c8e49c031b433c",
+    "size": 1485
+  },
+  "/root/robocup_runs/competition_recovery_r4_20261007/round_1_seed_8159/flight/city_control_config.json": {
+    "sha256": "f552aefdbdd069770433a53a0e0427f4d5c6ca040ad25a6368c6af624fe598c4",
+    "size": 7342
+  },
+  "supplement": {
+    "checked_utc": "2026-10-07T15:26:47Z",
+    "ports_open": {
+      "11375": false,
+      "11376": false,
+      "19731": false
+    },
+    "result_exists": false,
+    "note": "Raw RUNNING budget preserved; prior owned runner and stack no longer exist. Missing result and ROSInterruptException do not prove successful finish or its cause."
+  }
+}

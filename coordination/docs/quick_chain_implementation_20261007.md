@@ -1,0 +1,15 @@
+# 六机快速主链实施记录
+
+基线5b11166，执行用户批准的六机快速修复方案。接近后上报接口见visual_observation_v3.md；蓝色三图人体/蓝衣与棕色0.6激活保留，白色官方出口另要求同图人体白衣证明，不猜测115–118米错误位置。
+
+近场扫描：SWARM_CURRENT_SCAN_CORRIDOR通用默认0、city默认1，局部实际完整LaserScan输入最多每0.2仿真秒更新，完整范围更新/地图发布每0.5秒，A*继续异步。近场长度覆盖max(配置最大速度,两个实测方向速度)的原0.5秒延迟/0.5米每平方秒制动距离，加原1.2米半径及格宽；由真实射线更新，不擦掉近期命中，不清未知盘，不续原障碍时效。完整扫描到期不被0.2秒节流延后。两种更新共用同一有锁ObservedMap及原version/epoch，单元原3秒TTL、扫描0.5秒和位姿对齐0.1秒均保持。
+
+旧有效路线等待新授权期间继续引导的代码已存在（v1.36/v1.37）；本次保留并用现有授权续约、代次及pending边界检查，不另建绕过授权通路。已实现有界脱困保持真实offer/grant及0.3米每秒/2米限制。搜索3/追踪2.6保持，0.125是起步单步，不乘5。
+
+基础服务：新官方score_cal._finish会关闭ROS，Rate.sleep可能抛ROSInterruptException而使runpy没返回全局变量。包装器从该实际异常帧取官方mission_finished/left_actors/target_finish/score；仅官方mission_finished=true的预期ROS异常允许写终态并正常退出，外部关闭或未知异常仍失败。原官方程序不改。额外judge_exit_diagnostic.json保留实际异常和状态。launcher在清理前保存result_before_cleanup.json，runner的finally保存终态及前清理证据，缺最终result仍明确记录。
+
+旧r4遗留budget仍写RUNNING，但实时自有进程及端口全部消失；原文件不覆盖。其333.172仿真秒、裁判0/6、原始CITY_COMPONENT_EXIT及ROSInterruptException是部分失败证据，不能据此认定正常结束或外部关闭的具体来源，不能恢复它为新测试。
+
+完成对应离线检查和回放后，复用validate_fast_city.py --single-seed 8159，新独立一次预算，最多600秒。及时启动五色准确度与原图捕获，统一新快照核SHA；6/6提前结束，建筑接触/服务失败收尾。结果与剩余问题另记，不原样重跑。
+
+离线结果：ROS Noetic及现有devel环境下721项通过；11份生产文件Python3.8语法检查通过。实际scan回调夹具验证局部0.2秒/完整0.5秒及关闭开关后的旧频率，缺实测运动时不做局部放行；完整扫描到期不被局部节流延后。已有真实扫描36份逐份近场裁剪回放均无虚假命中，178条旧v2输入177条原接受记录不会取得官方许可。回放未补造相机位置，不是新频率或完整实体反事实。详见validation/quick_chain_offline_20261007。首轮测试未加载ROS导致test_uav_motion导入失败；加载现有ROS后全量通过，不改生产代码绕过测试。

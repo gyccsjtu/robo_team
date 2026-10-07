@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 
 class PerceptionDiscoveryTests(unittest.TestCase):
-    def publish(self, observed_s=9.8, miss=0):
+    def publish(self, observed_s=9.8, miss=0, camera_s=None):
         source = Path(__file__).parents[2] / 'perception/perception_real.py'
         tree = ast.parse(source.read_text(encoding='utf-8'))
         block = next(n for n in ast.walk(tree) if isinstance(n, ast.If)
@@ -16,7 +16,10 @@ class PerceptionDiscoveryTests(unittest.TestCase):
                      and n.test.values[0].id == 'COORD_ON')
         visual, legacy = [], []
         tk = SimpleNamespace(miss=miss, observed_s=observed_s, x=1., y=2., conf=.87,
-                             pub_xy=lambda: (99., 99.), uv=(30., 40.))
+                             pub_xy=lambda: (99., 99.), uv=(30., 40.),
+                             camera_s=observed_s if camera_s is None else camera_s,
+                             camera_xyz=[-3.,2.,2.5],
+                             person_support=SimpleNamespace(current_verified=True))
         env = dict(COORD_ON=True, COORD_HZ=2., now=10., _coord_t=0., _obs_seq=0,
             _published_visual_samples={},
             pub_list=[], visual_pub_list=[('green', 0, tk)], pubs={'green': [None]},
@@ -36,7 +39,11 @@ class PerceptionDiscoveryTests(unittest.TestCase):
         self.assertEqual(visual[0]['sample_s'], 9.8)
         self.assertEqual(visual[0]['confidence'], .87)
         self.assertEqual(visual[0]['run_id'], 'run')
+        self.assertEqual(visual[0]['schema_version'], 3)
+        self.assertEqual(visual[0]['camera_xyz'], [-3.,2.,2.5])
+        self.assertIs(visual[0]['person_frame_verified'], True)
 
     def test_unassigned_coast_or_old_frame_still_cannot_create_evidence(self):
         self.assertEqual(self.publish(miss=1)[0], [])
         self.assertEqual(self.publish(observed_s=8.8)[0], [])
+        self.assertEqual(self.publish(camera_s=9.9)[0], [])

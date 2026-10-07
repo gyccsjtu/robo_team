@@ -99,13 +99,23 @@ def main():
                 if stop_started is not None and time.monotonic()-stop_started > 60:
                     raise RuntimeError('OWNED_LAUNCHER_CLEANUP_TIMEOUT')
                 time.sleep(2)
+        except BaseException as error:
+            record['runner_error']=dict(type=type(error).__name__,message=str(error))
+            raise
         finally:
-            if child.poll() is None:child.terminate()
-            try:child.wait(timeout=60)
-            except subprocess.TimeoutExpired:record['cleanup_incomplete']=True
-    record.update(status='STOPPED_AFTER_CONTACT' if first_static else 'ENDED',returncode=child.returncode,
-        wall_seconds=round(time.monotonic()-start,1),raw_result=read(out/'flight/result.json'))
-    write(budget,state);print(json.dumps(record),flush=True)
+            try:
+                if child.poll() is None:child.terminate()
+                try:child.wait(timeout=60)
+                except subprocess.TimeoutExpired:record['cleanup_incomplete']=True
+            finally:
+                result=read(out/'flight/result.json')
+                checkpoint=read(out/'flight/result_before_cleanup.json')
+                record.update(status='CLEANUP_INCOMPLETE' if child.poll() is None else
+                    'STOPPED_AFTER_CONTACT' if first_static else 'ENDED',returncode=child.poll(),
+                    wall_seconds=round(time.monotonic()-start,1),raw_result=result,
+                    before_cleanup_result=checkpoint)
+                write(budget,state)
+    print(json.dumps(record),flush=True)
 
 
 if __name__=='__main__':main()
