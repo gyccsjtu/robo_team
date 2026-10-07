@@ -1,0 +1,305 @@
+{
+  "scope": "Actual first auction positions + actual screen_leg + actual city separation; missing complete manager locks/cooldowns, no physical route replay",
+  "source_cycle": "1",
+  "positions": {
+    "uav_1": [
+      0.01304650167003274,
+      -3.0033128820359707
+    ],
+    "uav_2": [
+      3.0071375713450834,
+      -2.987461310811341
+    ],
+    "uav_3": [
+      -0.0002812272869050503,
+      -0.0015045823529362679
+    ],
+    "uav_4": [
+      3.006873114500195,
+      0.00039150798693299294
+    ],
+    "uav_5": [
+      0.011234769015572965,
+      3.0198676674626768
+    ],
+    "uav_6": [
+      3.005518448902876,
+      3.0013243947178125
+    ]
+  },
+  "separation_m": 2.5,
+  "variants": {
+    "interleaved": {
+      "allocation": [
+        {
+          "uav_id": "uav_1",
+          "cell_key": [
+            0,
+            3
+          ],
+          "target_x": -46.5,
+          "target_y": -35.5,
+          "uav_x": 0.01304650167003274,
+          "uav_y": -3.0033128820359707,
+          "distance_m": 56.74062185515213,
+          "utility": 4.695118786118937
+        },
+        {
+          "uav_id": "uav_2",
+          "cell_key": [
+            15,
+            5
+          ],
+          "target_x": 58.5,
+          "target_y": -21.5,
+          "uav_x": 3.0071375713450834,
+          "uav_y": -2.987461310811341,
+          "distance_m": 58.49933221195203,
+          "utility": 4.702822603685588
+        },
+        {
+          "uav_id": "uav_3",
+          "cell_key": [
+            0,
+            10
+          ],
+          "target_x": -46.5,
+          "target_y": 13.5,
+          "uav_x": -0.0002812272869050503,
+          "uav_y": -0.0015045823529362679,
+          "distance_m": 48.42018661600453,
+          "utility": 4.507731472329879
+        },
+        {
+          "uav_id": "uav_4",
+          "cell_key": [
+            15,
+            12
+          ],
+          "target_x": 58.5,
+          "target_y": 27.5,
+          "uav_x": 3.006873114500195,
+          "uav_y": 0.00039150798693299294,
+          "distance_m": 61.93315427736729,
+          "utility": 4.680668457226327
+        },
+        {
+          "uav_id": "uav_5",
+          "cell_key": [
+            0,
+            14
+          ],
+          "target_x": -46.5,
+          "target_y": 41.5,
+          "uav_x": 0.011234769015572965,
+          "uav_y": 3.0198676674626768,
+          "distance_m": 60.365681840496656,
+          "utility": 4.696343181595034
+        },
+        {
+          "uav_id": "uav_6",
+          "cell_key": [
+            13,
+            14
+          ],
+          "target_x": 44.5,
+          "target_y": 41.5,
+          "uav_x": 3.005518448902876,
+          "uav_y": 3.0013243947178125,
+          "distance_m": 56.60335699015642,
+          "utility": 4.701084583939187
+        }
+      ],
+      "home_matches": {
+        "uav_1": true,
+        "uav_2": true,
+        "uav_3": true,
+        "uav_4": true,
+        "uav_5": true,
+        "uav_6": true
+      }
+    },
+    "sectors_3x2": {
+      "allocation": [
+        {
+          "uav_id": "uav_1",
+          "cell_key": [
+            3,
+            0
+          ],
+          "target_x": -25.5,
+          "target_y": -56.5,
+          "uav_x": 0.01304650167003274,
+          "uav_y": -3.0033128820359707,
+          "distance_m": 59.26897227381048,
+          "utility": 4.707310277261895
+        },
+        {
+          "uav_id": "uav_2",
+          "cell_key": [
+            14,
+            3
+          ],
+          "target_x": 51.5,
+          "target_y": -35.5,
+          "uav_x": 3.0071375713450834,
+          "uav_y": -2.987461310811341,
+          "distance_m": 58.383412700359,
+          "utility": 4.71616587299641
+        },
+        {
+          "uav_id": "uav_3",
+          "cell_key": [
+            0,
+            12
+          ],
+          "target_x": -46.5,
+          "target_y": 27.5,
+          "uav_x": -0.0002812272869050503,
+          "uav_y": -0.0015045823529362679,
+          "distance_m": 54.02366703801757,
+          "utility": 4.5737676672165986
+        },
+        {
+          "uav_id": "uav_4",
+          "cell_key": [
+            17,
+            8
+          ],
+          "target_x": 72.5,
+          "target_y": -0.5,
+          "uav_x": 3.006873114500195,
+          "uav_y": 0.00039150798693299294,
+          "distance_m": 69.49492841916913,
+          "utility": 4.605050715808309
+        },
+        {
+          "uav_id": "uav_5",
+          "cell_key": [
+            10,
+            17
+          ],
+          "target_x": 23.5,
+          "target_y": 59.5,
+          "uav_x": 0.011234769015572965,
+          "uav_y": 3.0198676674626768,
+          "distance_m": 61.16966111053119,
+          "utility": 4.688303388894688
+        },
+        {
+          "uav_id": "uav_6",
+          "cell_key": [
+            17,
+            10
+          ],
+          "target_x": 72.5,
+          "target_y": 13.5,
+          "uav_x": 3.005518448902876,
+          "uav_y": 3.0013243947178125,
+          "distance_m": 70.28303604370493,
+          "utility": 4.597169639562951
+        }
+      ],
+      "home_matches": {
+        "uav_1": true,
+        "uav_2": true,
+        "uav_3": true,
+        "uav_4": true,
+        "uav_5": true,
+        "uav_6": true
+      }
+    },
+    "sectors_3x2_row_major_counterexample": {
+      "allocation": [
+        {
+          "uav_id": "uav_1",
+          "cell_key": [
+            3,
+            0
+          ],
+          "target_x": -25.5,
+          "target_y": -56.5,
+          "uav_x": 0.01304650167003274,
+          "uav_y": -3.0033128820359707,
+          "distance_m": 59.26897227381048,
+          "utility": 4.707310277261895
+        },
+        {
+          "uav_id": "uav_2",
+          "cell_key": [
+            14,
+            3
+          ],
+          "target_x": 51.5,
+          "target_y": -35.5,
+          "uav_x": 3.0071375713450834,
+          "uav_y": -2.987461310811341,
+          "distance_m": 58.383412700359,
+          "utility": 4.71616587299641
+        },
+        {
+          "uav_id": "uav_3",
+          "cell_key": [
+            0,
+            4
+          ],
+          "target_x": -46.5,
+          "target_y": -28.5,
+          "uav_x": -0.0002812272869050503,
+          "uav_y": -0.0015045823529362679,
+          "distance_m": 54.53795088753388,
+          "utility": 4.42069188552097
+        },
+        {
+          "uav_id": "uav_4",
+          "cell_key": [
+            15,
+            12
+          ],
+          "target_x": 58.5,
+          "target_y": 27.5,
+          "uav_x": 3.006873114500195,
+          "uav_y": 0.00039150798693299294,
+          "distance_m": 61.93315427736729,
+          "utility": 4.520668457226327
+        },
+        {
+          "uav_id": "uav_5",
+          "cell_key": [
+            10,
+            17
+          ],
+          "target_x": 23.5,
+          "target_y": 59.5,
+          "uav_x": 0.011234769015572965,
+          "uav_y": 3.0198676674626768,
+          "distance_m": 61.16966111053119,
+          "utility": 4.688303388894688
+        },
+        {
+          "uav_id": "uav_6",
+          "cell_key": [
+            17,
+            14
+          ],
+          "target_x": 72.5,
+          "target_y": 41.5,
+          "uav_x": 3.005518448902876,
+          "uav_y": 3.0013243947178125,
+          "distance_m": 79.445773892741,
+          "utility": 4.50554226107259
+        }
+      ],
+      "home_matches": {
+        "uav_1": true,
+        "uav_2": true,
+        "uav_3": false,
+        "uav_4": false,
+        "uav_5": true,
+        "uav_6": true
+      }
+    }
+  },
+  "initial_wrong_reconstruction": "Prior default4.5m rejected all six; actual city config2.5m must be used. This correction changes reconstruction inputs, no production separation change.",
+  "candidate_mapping_note": "Zone ownership0,1,3,2,4,5 matches canonical2column3row startup; prior row-major mapping rejected home sectors for middle aircraft. Generic default remains interleaved."
+}

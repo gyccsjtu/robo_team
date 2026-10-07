@@ -1,0 +1,25 @@
+{
+  "scope": "Offline candidate evidence, no new physical round",
+  "tests": {
+    "total": 679,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reported_s": 20.46
+  },
+  "specialized_tests": 7,
+  "files": {
+    "first_auction_geometry_reconstruction.json": "5a4eb702d240e33f3e1ef04e56037a2b2a01efb498b12c42bd53940e7733c182",
+    "offline_tests.txt": "415e67419e229a5778804704562774874ec77fc4cbb675426f6933697c774cd1"
+  },
+  "production_files": [
+    "coordination/src/robocup_swarm/scripts/swarm_task.py",
+    "coordination/scripts/city_swarm_run.py"
+  ],
+  "current_physical_execution": "e83839b6c39888312e51490a960a0ea7f204ea0d",
+  "limits": [
+    "Spatial responsibility does not certify route or actual observation",
+    "Canonical startup mapping only; alternate spawn layout needs review",
+    "No real candidate coverage or 6/6 result yet"
+  ]
+}

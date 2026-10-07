@@ -83,13 +83,20 @@ class SearchCell(object):
 class CoverageGrid(object):
     """200×100 覆盖栅格：20×10 个 10×10 m 搜索格。"""
 
-    def __init__(self, x_min, x_max, y_min, y_max, cell_m=GRID_SIZE_M, num_uavs=6):
+    def __init__(self, x_min, x_max, y_min, y_max, cell_m=GRID_SIZE_M, num_uavs=6,
+                 zone_layout=None):
         self.x_min, self.x_max = float(x_min), float(x_max)
         self.y_min, self.y_max = float(y_min), float(y_max)
         self.cell_m = float(cell_m)
         self.nx = int(math.ceil((self.x_max - self.x_min) / self.cell_m))
         self.ny = int(math.ceil((self.y_max - self.y_min) / self.cell_m))
         self.num_uavs = num_uavs
+        self.zone_layout = (os.environ.get('SWARM_SEARCH_ZONE_LAYOUT', 'interleaved')
+                            if zone_layout is None else zone_layout)
+        if self.zone_layout not in ('interleaved', 'sectors_3x2'):
+            raise ValueError('Unknown search zone layout')
+        if self.zone_layout == 'sectors_3x2' and num_uavs != 6:
+            raise ValueError('sectors_3x2 requires six aircraft')
         self.cells = {}
         for ix in range(self.nx):
             for iy in range(self.ny):
@@ -130,6 +137,15 @@ class CoverageGrid(object):
         # 这样相邻的格子在不同区域，便于分散搜索
         zone_cells = {i: [] for i in range(self.num_uavs)}
 
+        if self.zone_layout == 'sectors_3x2':
+            # Public bounds only. No actor positions or obstacle truth enter
+            # the partition. Cell centres keep partial edge cells in bounds.
+            for key, cell in self.cells.items():
+                column = min(2, int(3*(cell.cx-self.x_min)/(self.x_max-self.x_min)))
+                row = min(1, int(2*(cell.cy-self.y_min)/(self.y_max-self.y_min)))
+                zone_cells[3*row+column].append(key)
+            return zone_cells
+
         # 按 x 坐标排序的格子列表
         sorted_cells = sorted(self.cells.keys(), key=lambda k: (k[1], k[0]))
 
@@ -151,6 +167,12 @@ class CoverageGrid(object):
         # 从 uav_1, uav_2, ... 提取数字
         try:
             num = int(uav_id.split('_')[1])
+            if self.zone_layout == 'sectors_3x2':
+                # Canonical two-column, three-row fleet startup: the middle
+                # left aircraft owns the northwest sector, middle right the
+                # southeast. A simple row-major assignment sends both through
+                # their startup peers and is rejected by the existing screen.
+                return (0, 1, 3, 2, 4, 5)[(num - 1) % 6]
             return (num - 1) % self.num_uavs
         except:
             return 0
@@ -527,9 +549,16 @@ class TaskAllocator(object):
             # 也排除正在执行任务的其他飞机的目标位置
             other_executing = {oid: pos for oid, pos in executing_uav_targets.items() if oid != uav_id}
 
-            for key in sorted(remaining):
-                if candidate_filter is not None and not candidate_filter(uav_id, key, assigned):
-                    continue
+            candidates = [key for key in sorted(remaining)
+                          if candidate_filter is None or candidate_filter(uav_id, key, assigned)]
+            if self.grid.zone_layout == 'sectors_3x2':
+                home = self.grid.get_uav_zone(uav_id)
+                home_candidates = [key for key in candidates if self.grid.get_zone_id(key) == home]
+                # Cross-zone takeover only when no admissible home cell is
+                # available. Filtering and existing occupancy still apply.
+                if home_candidates:
+                    candidates = home_candidates
+            for key in candidates:
                 u = self.utility(uav_id, ux, uy, key, assigned_positions, risk_map, task_counts, other_uavs, other_executing) + self._priority_bonus(key, n_prio)
                 if u > best_u:
                     best_u = u
