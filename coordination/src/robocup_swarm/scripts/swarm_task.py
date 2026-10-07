@@ -188,13 +188,13 @@ def _envf(name, default):
     except ValueError:
         return default
 
-_PRIORITY_ON = os.environ.get('PRIORITY_CORNER', '1') not in ('0', 'false', 'False', '')
+_PRIORITY_ON = os.environ.get('PRIORITY_CORNER', '0') not in ('0', 'false', 'False', '')
 _PRIORITY_DECAY = _envf('PRIORITY_DECAY', 300.0)
 _PRIORITY_RADIUS = _envf('PRIORITY_RADIUS', 30.0)
 _PRIORITY_BONUS = _envf('PRIORITY_BONUS', 60.0)
 _PRIORITY_MAX_UAV = int(_envf('PRIORITY_MAX_UAV', 2.0))   # 每轮最多几架被引到优先区
 _PRIORITY_POINTS = []
-for _tok in os.environ.get('PRIORITY_POINTS', '-35,-28').split(';'):
+for _tok in os.environ.get('PRIORITY_POINTS', '').split(';'):
     try:
         _a, _b = _tok.split(',')
         _PRIORITY_POINTS.append((float(_a), float(_b)))
@@ -457,17 +457,13 @@ class TaskAllocator(object):
         return False
 
     def _priority_bonus(self, key, n_prio=0, now=None):
-        """早期偏置：让「已知最晚才被发现的角落」在任务前段就被覆盖。
-        
-        背景：actor_5 出生在 (-35,-28) 的建筑区，是搜索最晚触达的角落；
-        elapsed = max(各目标发现时刻)，它一个人决定了扣分。
-        
-        注意：建筑物内部的格会被 manager 直接标成 STATE_COVERED（飞不进去，
-        永不参与拍卖），所以不能给「角落格本身」加偏置 —— 要给**建筑周边**
-        的空格加，让飞机沿建筑边缘扫，靠探测半径覆盖到里面。
-        
-        环境变量（默认开启，关掉用 PRIORITY_CORNER=0）：
-          PRIORITY_POINTS  优先覆盖的坐标，默认 '-35,-28'
+        """Optional explicitly configured search priorities for development.
+
+        Disabled by default; no target birth coordinate is assumed. Competition
+        runs disable this feature even if inherited from a development shell.
+
+        环境变量（显式配置开关及地点后才生效）：
+          PRIORITY_POINTS  自定义搜索优先坐标，默认空
           PRIORITY_RADIUS  影响半径(米)，默认 30
           PRIORITY_BONUS   效用偏置，默认 60（约等于「多飞 60 秒也值得」）
           PRIORITY_DECAY   偏置在多少秒内线性衰减到 0，默认 300
