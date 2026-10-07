@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "source_root": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight",
+  "control_changes": false,
+  "navigation_moving_records": 1621,
+  "navigation_steady_moving_records": 0,
+  "navigation_moving_event_median": 0.125,
+  "same_aircraft_aligned_truth_median": 0.655232181361709,
+  "truth_alignment_max_delta_s": 0.15,
+  "moving_episode_median_s": 1.2519999999999527,
+  "preceding_stop_reasons": {
+    "REQUESTED_STOP": 266,
+    "ONLINE_SPACE_UNKNOWN": 745,
+    "RADAR_STALE_SCAN": 234,
+    "ROUTE_MEASURED_ENVELOPE": 292,
+    "RADAR_INPUT_MISSING_OR_STALE": 27,
+    "ROUTE_ENVELOPE_OR_GRANT_UNKNOWN": 33,
+    "FLEET_RELATIVE_BRAKING_REQUIRED": 8,
+    "ROUTE_MOTION_EVIDENCE_MISSING": 2,
+    "RADAR_BRAKING_REQUIRED": 12,
+    "ROUTE_REQUESTED_ENVELOPE": 2
+  },
+  "control_csv_records": 15128,
+  "control_csv_nonzero_records": 9652,
+  "control_csv_all_median": 0.4999992736857793,
+  "control_csv_nonzero_median": 0.9998862943094566,
+  "example_uav5_command_sequence": [
+    {
+      "sample_s": 1946.796,
+      "horizontal_command_mps": 0.2499999992200446
+    },
+    {
+      "sample_s": 1946.996,
+      "horizontal_command_mps": 0.7499999231220424
+    },
+    {
+      "sample_s": 1947.248,
+      "horizontal_command_mps": 1.3749984173519105
+    },
+    {
+      "sample_s": 1947.448,
+      "horizontal_command_mps": 1.8749912820756396
+    },
+    {
+      "sample_s": 1947.696,
+      "horizontal_command_mps": 2.000023057637933
+    },
+    {
+      "sample_s": 1947.896,
+      "horizontal_command_mps": 1.8
+    },
+    {
+      "sample_s": 1948.096,
+      "horizontal_command_mps": 1.7999999999999998
+    },
+    {
+      "sample_s": 1948.296,
+      "horizontal_command_mps": 1.7999999999999998
+    },
+    {
+      "sample_s": 1948.496,
+      "horizontal_command_mps": 1.8
+    },
+    {
+      "sample_s": 1948.748,
+      "horizontal_command_mps": 1.7999999999999998
+    },
+    {
+      "sample_s": 1948.948,
+      "horizontal_command_mps": 1.7174307489902811
+    },
+    {
+      "sample_s": 1949.196,
+      "horizontal_command_mps": 1.5549341085903996
+    }
+  ],
+  "interpretation": "Navigation jsonl appends only reason transitions; MOVING records select the first acceleration-limited request, not the whole interval. Control CSV samples at >=0.2s. Neither is a full transmitted setpoint or PX4 tracking-error trace.",
+  "sources": [
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/city_trajectory.jsonl",
+      "bytes": 1349584,
+      "sha256": "1961e127f2a48986d376a73a2823af56ae594ae3bd38c9429432511c5b2d864c"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "bytes": 167089,
+      "sha256": "9e6009d7e21c894dea4382ae2f0eb8eae0136593fba91ab75b4d74f5eb0364eb"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/navigation_uav_1.jsonl",
+      "bytes": 80690515,
+      "sha256": "dae9f7bc39b51f5b93e9c62b2f929bf8c4199fd4536fccc4a7eb2c4e8a3dfc9f"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/control_uav_1.csv",
+      "bytes": 588659,
+      "sha256": "a7b87977a74c893d35300f3b0a1e4b16bba12cea268cdf0d14ba7e7ddb0d2951"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/navigation_uav_2.jsonl",
+      "bytes": 64700845,
+      "sha256": "6b42b48868b20c8ed20cb5e94f40b09a0e697b461fa54fb7d4aeabee80fc5923"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/control_uav_2.csv",
+      "bytes": 585075,
+      "sha256": "8eed997d4cb06dcb1a1fe67f57b399ec6678d982db40d2f813839397b536a368"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/navigation_uav_3.jsonl",
+      "bytes": 60472460,
+      "sha256": "7bb736e43d83edde0c4e3e648f699bcb3469a1fe210808ba454626f68c15a251"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/control_uav_3.csv",
+      "bytes": 585820,
+      "sha256": "d2334960ab9e17a284535d58e56e31b39411a5cd5e3db12bc614b0dda75ff1da"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/navigation_uav_4.jsonl",
+      "bytes": 51556726,
+      "sha256": "830d64be795649d67cdc2e45462f4358af1dcbc54faf12e401db87ddc9bedfe3"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/control_uav_4.csv",
+      "bytes": 577857,
+      "sha256": "336c0f453cbbb971d739e5db012c0198ba2ba59f3707b9c243fc16406584c4bd"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+      "bytes": 40781249,
+      "sha256": "064bbd9c930639eab6991fbf954ff8b66f1a4077ea086f6bcd1798d839b71d5b"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/control_uav_5.csv",
+      "bytes": 550251,
+      "sha256": "e450a498dc62890ff6ff27fba7cbea5cba229625a708a32bbb75536135dd408f"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/navigation_uav_6.jsonl",
+      "bytes": 57617404,
+      "sha256": "05a9e09888c796644887d09bf8b18ff01864b3bc54d62c198b3db46aa729965d"
+    },
+    {
+      "path": "/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight/algorithm/control_uav_6.csv",
+      "bytes": 588702,
+      "sha256": "f34cc81ef54e4077e022240018117ee0e35da85e70c71a8b8d5997a34425c88f"
+    }
+  ]
+}

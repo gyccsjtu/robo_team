@@ -1,0 +1,13 @@
+# 0.125米每秒指令与约0.65米每秒实体速度的口径核验
+
+复核WorkBuddy归档轮 `/root/robocup_runs/improve_n1_upstream_20261006T225159Z/round_1_seed_8159/flight`（其N8记录的运行目录），没有启动仿真或改控制。使用该轮执行快照的实际swarm_agent.py、六份navigation/control日志和city_trajectory；逐文件路径、字节数、SHA及派生统计在validation/command_speed_audit_20261007/aligned_statistics.json。
+
+两个原数都可以复现：1621条MOVING导航记录的水平command_xyz中位数0.125米每秒；同机原sample_s与轨迹相邻差分段中点对齐（最近时间差不超过0.15秒），实体速度中位数0.655232米每秒。不能简单说时钟或单位测错。
+
+关键在于执行源码只有reason变化时才append到navigation JSONL。相同reason的周期快照只覆盖latest.json，不保留完整序列。这1621条MOVING全部由其他reason切入，没有一条持续MOVING记录。加速度限幅MAX_ACC/CTRL_RATE=2.5/20=0.125；前次停控清零_last_cmd_v，所以重新起步的首个非零指令通常恰好0.125。command_xyz在这些瞬间是速度请求，但其分布不代表整段速度请求。
+
+用约0.2仿真秒一次的control CSV重新计算：15128条velocity采样，包含停控的水平指令中位数0.499999；9652条非零采样中位数0.999886米每秒。5号机1946.748切入MOVING时指令0.125；CSV1946.796为0.25、1947.448为1.874991、1948.096和1948.748为1.8；1949.248因ONLINE_SPACE_UNKNOWN停止。不能说飞机整段只收到0.125，也不能根据5倍比值把指令乘5。
+
+同时，重启瞬间已有实测速度，速度请求与实体响应不必相等；position hold/速度模式切换、制动响应及惯性需要连续发送的PositionTarget与PX4状态才能进一步定量。当前CSV仍是agent内命令采样，导航写入之后还存在位置质量/坠落处理及编码，不能将其宣称完整MAVROS/PX4实际接收流。此次核验解决统计矛盾，不证明PX4完整稳态跟踪正确。
+
+实际速度仍低：MOVING片段中位跨度1.252秒，频繁停走属真实问题。切入前的停车原因为ONLINE_SPACE_UNKNOWN745次、ROUTE_MEASURED_ENVELOPE292、REQUESTED_STOP266、RADAR_STALE_SCAN234等，事件次数不等于各原因占用时间或首要物理根因。下一步比较同机同仿真时段、按时间采样/加权的指令与实际速度，并区分起步、稳定运动和制动；优先修导致频繁断行的具体原因，不统一放宽门限、不盲增速度上限。本轮没有改飞控参数或新增运行脚本。
