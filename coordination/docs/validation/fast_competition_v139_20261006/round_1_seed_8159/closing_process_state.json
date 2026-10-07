@@ -1,0 +1,42 @@
+{
+  "checked_utc": "2026-10-07T04:10Z",
+  "own_processes": [
+    {
+      "previous_pid": 581,
+      "current_cmdline": null
+    },
+    {
+      "previous_pid": 583,
+      "current_cmdline": null
+    },
+    {
+      "previous_pid": 2790,
+      "current_cmdline": null
+    },
+    {
+      "previous_pid": 2791,
+      "current_cmdline": null
+    },
+    {
+      "previous_pid": 2792,
+      "current_cmdline": null
+    },
+    {
+      "previous_pid": 2793,
+      "current_cmdline": null
+    },
+    {
+      "previous_pid": 2794,
+      "current_cmdline": null
+    },
+    {
+      "previous_pid": 2795,
+      "current_cmdline": null
+    }
+  ],
+  "ports_open": {
+    "11375": false,
+    "11376": false,
+    "19731": false
+  }
+}

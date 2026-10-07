@@ -1,0 +1,13 @@
+{
+  "pid": 581,
+  "cmdline": [
+    "python3",
+    "/mnt/d/a/.robocup/robo_team/coordination/scripts/validate_fast_city.py",
+    "--root",
+    "/root/robocup_runs/heartbeat_v139_20261006T073534Z",
+    "--single-seed",
+    "8159"
+  ],
+  "commit": "2fcfe869d43dcdfa519de880a3ad171bd6936e35",
+  "authorization": "heartbeat_20261006T073534Z_one_round"
+}

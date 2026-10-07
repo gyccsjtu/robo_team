@@ -1,0 +1,67 @@
+CITY_JUDGE_CLOCK_READY 1931.556000
+
+(Multi-UAV search simulation competition judgment system:3047): dbind-WARNING **: 15:37:28.563: AT-SPI: Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files
+find actor_0
+find actor_5
+find actor_0
+find actor_3
+find actor_3
+find actor_3
+find actor_5
+actor_5 tracking success
+find actor_1
+find actor_1
+find actor_1
+find actor_1
+actor_5 is OK
+Time usage: 70.74000000000001
+score: 374.9
+find actor_1
+find actor_1
+find actor_2
+find actor_1
+find actor_1
+actor_2 is OK
+Time usage: 94.44399999999996
+score: 524.9
+find actor_3
+find actor_3
+find actor_1
+find actor_1
+find actor_1
+actor_1 is OK
+Time usage: 188.84399999999982
+score: 624.9
+find actor_4
+find actor_3
+find actor_3
+find actor_3
+find actor_3
+find actor_3
+find actor_3
+find actor_4
+find actor_4
+actor_4 is OK
+Time usage: 431.2360000000001
+score: 774.9
+find actor_0
+find actor_0
+find actor_0
+Traceback (most recent call last):
+  File "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/flight/execution_sources/start_city_judge.py", line 39, in <module>
+    main()
+  File "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/flight/execution_sources/start_city_judge.py", line 30, in main
+    state=runpy.run_path(str(script),run_name='__main__')
+  File "/usr/lib/python3.8/runpy.py", line 265, in run_path
+    return _run_module_code(code, init_globals, run_name,
+  File "/usr/lib/python3.8/runpy.py", line 97, in _run_module_code
+    _run_code(code, mod_globals, init_globals,
+  File "/usr/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/scene/score_cal.py", line 391, in <module>
+    rate.sleep()
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 103, in sleep
+    sleep(self._remaining(curr_time))
+  File "/opt/ros/noetic/lib/python3/dist-packages/rospy/timer.py", line 165, in sleep
+    raise rospy.exceptions.ROSInterruptException("ROS shutdown request")
+rospy.exceptions.ROSInterruptException: ROS shutdown request

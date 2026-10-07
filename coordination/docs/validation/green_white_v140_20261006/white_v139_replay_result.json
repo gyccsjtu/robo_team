@@ -1,0 +1,23 @@
+{
+  "kind": "observer_scheduled_not_complete_callbacks",
+  "visual_count": 114,
+  "official_count": 473,
+  "baseline_reproduction_max_m": 0.3705486838441875,
+  "baseline": {
+    "outputs": 473,
+    "accurate": 442,
+    "longest_s": 11.800000000000182
+  },
+  "candidate": {
+    "outputs": 473,
+    "accurate": 429,
+    "longest_s": 11.800000000000182
+  },
+  "breaks": [],
+  "fixed_breaks": 0,
+  "enable_candidate": false,
+  "source_sha256": {
+    "source_aligned_fusion.py": "5500b0bd157cb36fc7f78ecbbbfb64846da506f61b692564cd5810bfebb10156",
+    "yolo_target_bridge.py": "bd7939afed76f02d15385ea71e6483339493571bc0c91909ed9656f2c58b5793"
+  }
+}

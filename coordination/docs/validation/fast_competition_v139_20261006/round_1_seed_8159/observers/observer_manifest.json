@@ -1,0 +1,119 @@
+{
+  "control_input": false,
+  "observers": [
+    {
+      "tag": "green",
+      "pid": 2790,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "green",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T07:37:16Z"
+    },
+    {
+      "tag": "blue",
+      "pid": 2791,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "blue",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T07:37:16Z"
+    },
+    {
+      "tag": "brown",
+      "pid": 2792,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "brown",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T07:37:16Z"
+    },
+    {
+      "tag": "white",
+      "pid": 2793,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "white",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T07:37:16Z"
+    },
+    {
+      "tag": "red",
+      "pid": 2794,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers/execution_sources/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "red",
+        "--wall-seconds",
+        "6000"
+      ],
+      "started_utc": "2026-10-06T07:37:16Z"
+    },
+    {
+      "tag": "frames",
+      "pid": 2795,
+      "command": [
+        "python3",
+        "-u",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers/execution_sources/capture_visual_frames.py",
+        "--output",
+        "/root/robocup_runs/heartbeat_v139_20261006T073534Z/round_1_seed_8159/observers/frames",
+        "--wall-seconds",
+        "6000",
+        "--loss-color",
+        "white",
+        "--loss-limit",
+        "24",
+        "--loss-limit-per-gap",
+        "8"
+      ],
+      "started_utc": "2026-10-06T07:37:16Z"
+    }
+  ],
+  "source_sha256": {
+    "observe_visual_accuracy.py": "76303cd91e4c7f3654ef834708820c066e5a3f5828c7d2703d3b52f0bade8633",
+    "capture_visual_frames.py": "6d7b2d9c5377d58fcb82a688771b29fa56e6b26707f6219d36d9bb35ae1a0bb0"
+  }
+}

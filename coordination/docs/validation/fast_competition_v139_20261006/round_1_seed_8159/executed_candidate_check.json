@@ -1,0 +1,12 @@
+{
+  "swarm": {
+    "count": 133,
+    "mismatch": []
+  },
+  "configuration": {
+    "brown_fusion_revision": "v1.39_source_aligned_original_time",
+    "white_reacquisition_revision": "v1.39_own_image_once_per_generation_3s",
+    "orbit_plan_chord_m": 9.0
+  },
+  "run_id": "37865253-0a83-4517-a12f-aefdda9cc19a"
+}

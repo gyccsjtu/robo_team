@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "formal_competition_pass": false,
+  "raw_result_unchanged": true,
+  "observed_sim_s": 599.96,
+  "trajectory_start_s": 1931.328,
+  "trajectory_end_s": 2531.288,
+  "actual_judge_deleted_actor_ids": [
+    1,
+    2,
+    4,
+    5
+  ],
+  "judge_deleted_count": 4,
+  "last_left_actors": [
+    0,
+    3
+  ],
+  "last_judge_time_usage_s": 431.2360000000001,
+  "terminal": null,
+  "raw_status": "CITY_SIX_AIRCRAFT_MOVING",
+  "raw_error": null,
+  "non_ground_contact_rows": 0,
+  "static_contact_rows": 0,
+  "actor_contact_rows": 0,
+  "fleet_contact_rows": 0,
+  "first_static_contact": null,
+  "contact_observer_last": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 150406,
+    "first_sample_s": 1929.84,
+    "last_sample_s": 2531.46,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 434488,
+    "body_pairs": 50129
+  },
+  "contact_observer_covers_trajectory": true,
+  "maximum_actual_height_m": {
+    "uav_1": 3.1190500856180994,
+    "uav_2": 3.088405918268244,
+    "uav_3": 3.019525456164153,
+    "uav_4": 3.0557567783115562,
+    "uav_5": 3.161150490788656,
+    "uav_6": 3.7436165658975393
+  },
+  "sampled_minimum_3d_separation_m": 2.954574831783029,
+  "maximum_horizontal_displacement_m": {
+    "uav_1": 70.27111465437049,
+    "uav_2": 52.88633662254724,
+    "uav_3": 54.05262034568213,
+    "uav_4": 49.99888559627323,
+    "uav_5": 59.90602108870641,
+    "uav_6": 126.0153643226717
+  },
+  "command_mask_counts": {
+    "1500": 1721,
+    "1479": 48927,
+    "1528": 21222
+  },
+  "xyz_hold_z_recorded": {
+    "uav_1": 3972,
+    "uav_3": 3062,
+    "uav_6": 3946,
+    "uav_4": 3880,
+    "uav_5": 3127,
+    "uav_2": 3235
+  },
+  "green_white_events": {
+    "white": {
+      "yolo_detection": 160,
+      "track_reject": 578,
+      "track_publish": 484
+    },
+    "green": {
+      "yolo_detection": 190,
+      "track_reject": 405,
+      "track_publish": 414
+    }
+  },
+  "green_white_reject_reasons": {
+    "white": {
+      "verdict_hits": 300,
+      "verdict_range": 4,
+      "verdict_static": 274
+    },
+    "green": {
+      "verdict_hits": 284,
+      "verdict_static": 95,
+      "verdict_range": 26
+    }
+  },
+  "executed_source_count": 133,
+  "executed_source_sha_mismatches": [],
+  "first_round_z_evidence": null,
+  "competition_goal_met": false
+}

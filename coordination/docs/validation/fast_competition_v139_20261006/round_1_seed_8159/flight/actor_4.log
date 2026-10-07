@@ -1,0 +1,132 @@
+actor_4: communication initialized
+4 general change position
+current_position:   4       x: 16.0
+y: 33.0
+z: 1.0191
+middd_pos:     4       [x: 40.964520083488665
+y: 2.3118718026401126
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 40.95852472304424
+y: 2.318754902643872
+z: 1.0191
+middd_pos:     4       [x: 27.202774559789447
+y: -25.724500116803405
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 27.205995196448587
+y: -25.717933839424713
+z: 1.0191
+middd_pos:     4       [x: 78.47823488759286
+y: -42.56305757592857
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 78.47014405509066
+y: -42.56039927058855
+z: 1.0191
+middd_pos:     4       [x: 48.03820467074678
+y: -40.44895270054053
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 48.04728316159863
+y: -40.44958164376099
+z: 1.0191
+middd_pos:     4       [x: 34.78490598822752
+y: -16.712895148909794
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: 34.78805443794329
+y: -16.718532158892614
+z: 1.0191
+middd_pos:     4       [x: -44.40050455361093
+y: 20.77384642162326
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: -44.39356906241594
+y: 20.770561773196093
+z: 1.0191
+middd_pos:     4       [x: -34.821563829771534
+y: 6.100706142461519
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: -34.826211399061606
+y: 6.107829035345139
+z: 1.0191
+middd_pos:     4       [x: -7.347716711682438
+y: 5.865783827291253
+z: 0.0]
+
+
+model_state: 
+  model_name: "actor_4"
+  pose: 
+    position: 
+      x: -16
+      y: 0
+      z: 0.0
+    orientation: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      w: 0.0
+  twist: 
+    linear: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    angular: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  reference_frame: ''
+4 general change position
+current_position:   4       x: -15.950337034181942
+y: 0.03366882573174558
+z: 1.0191
+middd_pos:     4       [x: -7.321399656365614
+y: 7.369330533460243
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: -7.326074371771216
+y: 7.365296992516944
+z: 1.0191
+middd_pos:     4       [x: -44.22906737761362
+y: 7.7724584551708205
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: -44.21982883604437
+y: 7.772356606566102
+z: 1.0191
+middd_pos:     4       [x: -45.622043564704526
+y: 31.423584745408775
+z: 0.0]
+
+
+4 general change position
+current_position:   4       x: -45.62152530618006
+y: 31.41484173410121
+z: 1.0191
+middd_pos:     4       [x: -19.382893927032008
+y: 43.15978287858772
+z: 0.0]
+
+
+actor_4 has been deleted

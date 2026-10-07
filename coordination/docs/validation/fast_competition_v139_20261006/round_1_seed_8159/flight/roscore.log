@@ -1,0 +1,31 @@
+... logging to /root/.ros/log/ad9fa30c-c158-11f1-b6ea-bf3477e490a7/roslaunch-LAPTOP-N12OBQTV-608.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+[31mWARNING: disk usage in log directory [/root/.ros/log] is over 1GB.
+It's recommended that you use the 'rosclean' command.[0m
+]2;roscore
+[1mstarted roslaunch server http://LAPTOP-N12OBQTV:45235/[0m
+ros_comm version 1.17.4
+
+
+SUMMARY
+========
+
+PARAMETERS
+ * /rosdistro: noetic
+ * /rosversion: 1.17.4
+
+NODES
+
+auto-starting new master
+[1mprocess[master]: started with pid [618][0m
+[1mROS_MASTER_URI=http://LAPTOP-N12OBQTV:11375/[0m
+]2;roscore http://LAPTOP-N12OBQTV:11375/
+[1msetting /run_id to ad9fa30c-c158-11f1-b6ea-bf3477e490a7[0m
+[1mprocess[rosout-1]: started with pid [628][0m
+started core service [/rosout]
+[rosout-1] killing on exit
+[master] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
