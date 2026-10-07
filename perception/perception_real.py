@@ -66,6 +66,7 @@ from gazebo_msgs.srv import GetLinkState
 from sensor_msgs.msg import Image, CameraInfo
 from camera_geometry import calibration, aligned_translation, vertical_extent
 from recent_motion import RecentMotion
+from motion_identity import MotionIdentity
 from stationary_person import allowed as stationary_person_allowed
 from fresh_person import FreshPerson
 from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
@@ -373,6 +374,7 @@ VERDICT_DISP = float(os.environ.get("PR_VERDICT_DISP", "2.5"))  # 生命期最�
 RECENT_MOTION_WINDOW = float(os.environ.get('PR_RECENT_MOTION_WINDOW', '0'))
 BLUE_MOTION_WINDOW = float(os.environ.get('PR_BLUE_MOTION_WINDOW', str(RECENT_MOTION_WINDOW)))
 BLUE_MOTION_MIN_SPAN = float(os.environ.get('PR_BLUE_MOTION_MIN_SPAN', '1'))
+BLUE_IDENTITY_GUARD = os.environ.get('PR_BLUE_IDENTITY_GUARD', '0') == '1'
 STATIONARY_GREEN_ON = os.environ.get('PR_STATIONARY_GREEN','0') == '1'
 FAST_GREEN_WHITE = os.environ.get('PR_FAST_GREEN_WHITE','0') == '1'
 FAST_RED_PERSON = os.environ.get('PR_FAST_RED_PERSON','0') == '1'
@@ -459,7 +461,8 @@ _CSV = logger("perception_%s" % UAV, [
     # when this list changes, so the extra columns are inert until the next run.
     "recent_speed", "sp", "max_disp", "score_ema", "attached", "confirm_hits",
     "verdict_score", "verdict_sp", "verdict_disp", "stationary_person",
-    "person_gate_allowed", "green_frame_proof", "motion_samples", "motion_span_s"])
+    "person_gate_allowed", "green_frame_proof", "motion_samples", "motion_span_s",
+    "original_s", "raw_target_x", "raw_target_y", "blue_identity_qualified", "blue_identity_allowed"])
 # 逐帧分母（N7，2026-10-07）：上面那份 CSV 只在"有检出/有拒发/有上报"时才写行，
 # 于是"15s 判据被检出间隙打断"没法归因到"模型没出框"还是"被我们自己的门限丢了"。
 # 这一份每处理一帧写一条，只记录、不参与控制。文件名刻意不叫 perception*.csv ——
@@ -634,6 +637,7 @@ class Track(object):
         self.vx, self.vy = 0.0, 0.0
         self.t = t
         self.observed_s = t
+        self.raw_xy = (x,y)
         self.green_frame_proof = False
         self.person_support = FreshPerson(resume_after_miss=cls == 'white' and FAST_GREEN_WHITE
                                          and WHITE_SHORT_MISS_RECOVERY)
@@ -642,6 +646,9 @@ class Track(object):
         self.recent_motion = RecentMotion(motion_window, motion_span) if motion_window > 0 else None
         if self.recent_motion is not None:
             self.recent_motion.observe(t,x,y)
+        self.blue_identity = MotionIdentity() if cls == 'blue' and BLUE_IDENTITY_GUARD else None
+        if self.blue_identity is not None:
+            self.blue_identity.observe(t,x,y)
         self.hits = 1
         self.miss = 0
         self.conf = conf
@@ -699,8 +706,11 @@ class Track(object):
         if not math.isfinite(t) or t <= self.observed_s or dt <= 0:
             return False
         self.observed_s = t
+        self.raw_xy = (zx,zy)
         if self.recent_motion is not None:
             self.recent_motion.observe(t,zx,zy)
+        if self.blue_identity is not None:
+            self.blue_identity.observe(t,zx,zy)
         px, py = self.predict(dt)
         rx, ry = zx - px, zy - py
         self.x = px + ALPHA * rx
@@ -804,7 +814,10 @@ class Track(object):
         self.motion_factor(now)                 # 刷新 self.sp
         # 当前在动，或者生命期内动过 —— 见 VERDICT_DISP 的注释（治 actor 卡死）
         recent_speed = self.recent_motion.speed(self.observed_s if now is None else now) if self.recent_motion is not None else None
-        if not stationary_person and not verified_person and ((recent_speed is not None and recent_speed < VERDICT_SP) or (recent_speed is None and self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP)):
+        blue_qualified = self.blue_identity is not None and self.blue_identity.allowed(self.observed_s if now is None else now)
+        if self.blue_identity is not None and not blue_qualified:
+            return False, "blue_identity"
+        if not blue_qualified and not stationary_person and not verified_person and ((recent_speed is not None and recent_speed < VERDICT_SP) or (recent_speed is None and self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP)):
             return False, "static"
         if self.score_ema < VERDICT_SCORE:
             return False, "score"
@@ -1541,7 +1554,10 @@ def main():
                         person_gate_allowed=tk.person_support.allowed(
                             tk.cls,tk.miss,now,allow_red=FAST_RED_PERSON),
                         green_frame_proof=bool(tk.green_frame_proof),
-                        motion_samples=_motion_samples, motion_span_s=_motion_span)
+                        motion_samples=_motion_samples, motion_span_s=_motion_span,
+                        original_s=tk.observed_s,raw_target_x=tk.raw_xy[0],raw_target_y=tk.raw_xy[1],
+                        blue_identity_qualified=tk.blue_identity.qualified if tk.blue_identity is not None else None,
+                        blue_identity_allowed=tk.blue_identity.allowed(now) if tk.blue_identity is not None else None)
                     continue
             # 运动性是随时间累积的，coast 期间净位移也在涨，这里按当前时刻重算
             tk.score = tk.conf * person_likelihood(tk.h) * tk.motion_factor(now)
@@ -1649,7 +1665,10 @@ def main():
                 track_miss=tk.miss,fresh_person_allowed=(FAST_RED_PERSON if cls == 'red' else FAST_GREEN_WHITE)
                     and tk.person_support.allowed(cls,tk.miss,now,allow_red=FAST_RED_PERSON),
                 person_established=tk.person_support.established,
-                person_current_verified=tk.person_support.current_verified)
+                person_current_verified=tk.person_support.current_verified,
+                original_s=tk.observed_s,raw_target_x=tk.raw_xy[0],raw_target_y=tk.raw_xy[1],
+                blue_identity_qualified=tk.blue_identity.qualified if tk.blue_identity is not None else None,
+                blue_identity_allowed=tk.blue_identity.allowed(now) if tk.blue_identity is not None else None)
 
         # YOLO 实时视角：即使本帧没有有效目标也持续发布原图，避免 rqt
         # 画面在目标暂时丢失时冻结。检测框只作为当前帧的叠加层。

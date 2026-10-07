@@ -1,0 +1,2831 @@
+{
+  "runs": [
+    {
+      "root": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159",
+      "groups": {
+        "accurate": {
+          "count": 0,
+          "old_allowed": 0,
+          "new_allowed": 0,
+          "identity_allowed": 0
+        },
+        "far_error": {
+          "count": 13,
+          "old_allowed": 12,
+          "new_allowed": 0,
+          "identity_allowed": 0
+        },
+        "other": {
+          "count": 0,
+          "old_allowed": 0,
+          "new_allowed": 0,
+          "identity_allowed": 0
+        }
+      },
+      "samples": [
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1963.896,
+          "error": 80.61765767678506,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1965.612,
+          "error": 82.30833386734065,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1965.9,
+          "error": 82.98220370807309,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1967.052,
+          "error": 84.29712598940168,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1967.388,
+          "error": 84.65611358550552,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1994.592,
+          "error": 105.02123710946124,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1995.452,
+          "error": 106.02603630831386,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1995.748,
+          "error": 106.43646452272621,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1996.088,
+          "error": 106.69352460011618,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1997.284,
+          "error": 107.18343375488172,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1997.564,
+          "error": 107.22372699532498,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1997.896,
+          "error": 107.23890470378365,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "2",
+          "stamp": 1955.436,
+          "error": 72.29993190508004,
+          "old_verdict": [
+            false,
+            "hits"
+          ],
+          "new_verdict": [
+            false,
+            "hits"
+          ],
+          "identity_allowed": false
+        }
+      ]
+    },
+    {
+      "root": "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159",
+      "groups": {
+        "accurate": {
+          "count": 4,
+          "old_allowed": 4,
+          "new_allowed": 0,
+          "identity_allowed": 0
+        },
+        "far_error": {
+          "count": 53,
+          "old_allowed": 48,
+          "new_allowed": 3,
+          "identity_allowed": 3
+        },
+        "other": {
+          "count": 0,
+          "old_allowed": 0,
+          "new_allowed": 0,
+          "identity_allowed": 0
+        }
+      },
+      "samples": [
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1962.556,
+          "error": 77.7783672227652,
+          "old_verdict": [
+            false,
+            "hits"
+          ],
+          "new_verdict": [
+            false,
+            "hits"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "5",
+          "stamp": 1972.64,
+          "error": 88.12858668967202,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1972.996,
+          "error": 87.71363861832104,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1973.332,
+          "error": 88.50214881690897,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1973.656,
+          "error": 88.7670413534834,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "5",
+          "stamp": 1973.976,
+          "error": 87.64321501241811,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "5",
+          "stamp": 1974.304,
+          "error": 87.30643607109101,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "5",
+          "stamp": 1974.636,
+          "error": 87.41427067528095,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1975.164,
+          "error": 88.59418645136896,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1975.968,
+          "error": 88.07923713765568,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1976.268,
+          "error": 87.70147311805346,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1976.576,
+          "error": 87.80487323231836,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1976.872,
+          "error": 87.92113056757537,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1977.14,
+          "error": 88.21821375940529,
+          "old_verdict": [
+            false,
+            "static"
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1977.408,
+          "error": 88.44638345441355,
+          "old_verdict": [
+            false,
+            "static"
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1977.724,
+          "error": 88.20759968837224,
+          "old_verdict": [
+            false,
+            "static"
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1978.044,
+          "error": 88.5846826079494,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1979.772,
+          "error": 89.263749585743,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1980.068,
+          "error": 88.90259646005143,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1980.404,
+          "error": 89.23102551871249,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1980.732,
+          "error": 89.56265826577473,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1981.02,
+          "error": 89.90185437354312,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1981.288,
+          "error": 90.1799921396477,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1981.588,
+          "error": 90.85826311757451,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1981.82,
+          "error": 91.26516783973643,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "2",
+          "stamp": 1984.872,
+          "error": 94.02731131162741,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "12",
+          "stamp": 2128.928,
+          "error": 152.20161985417738,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "1",
+          "stamp": 1957.924,
+          "error": 73.17574410315125,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "1",
+          "stamp": 1958.948,
+          "error": 74.01935761677788,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "1",
+          "stamp": 1959.256,
+          "error": 74.52548634461141,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "1",
+          "stamp": 1959.616,
+          "error": 75.16588125339342,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "1",
+          "stamp": 1959.964,
+          "error": 75.98261034440866,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "1",
+          "stamp": 1961.16,
+          "error": 77.69836572805117,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "1",
+          "stamp": 1974.924,
+          "error": 87.69278117898611,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "1",
+          "stamp": 1975.164,
+          "error": 87.24974428615799,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "1",
+          "stamp": 1975.416,
+          "error": 87.32878263426356,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "20",
+          "stamp": 2517.464,
+          "error": 0.4832780732145916,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "20",
+          "stamp": 2517.776,
+          "error": 0.32685740388661577,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "20",
+          "stamp": 2519.128,
+          "error": 0.3753432533095319,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "20",
+          "stamp": 2519.496,
+          "error": 0.2693957260902925,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2009.656,
+          "error": 109.00737316145289,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2016.424,
+          "error": 115.51891203992233,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2016.736,
+          "error": 115.88294392870529,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2017.368,
+          "error": 116.7306474816263,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2019.492,
+          "error": 118.93357228611507,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2020.384,
+          "error": 120.01232029687749,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2020.684,
+          "error": 120.27891240239225,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2021.004,
+          "error": 120.46947675466583,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2022.236,
+          "error": 121.57990725414875,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2022.52,
+          "error": 121.85244264286858,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2025.492,
+          "error": 124.63720591933921,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2025.72,
+          "error": 124.77323087182523,
+          "old_verdict": [
+            false,
+            "static"
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2047.928,
+          "error": 142.6475600115031,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2048.372,
+          "error": 143.08696677217347,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2048.78,
+          "error": 143.54315784834267,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "7",
+          "stamp": 2049.144,
+          "error": 144.02564943826746,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_5",
+          "track": "10",
+          "stamp": 2056.576,
+          "error": 151.34544272930472,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        }
+      ]
+    },
+    {
+      "root": "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159",
+      "groups": {
+        "accurate": {
+          "count": 73,
+          "old_allowed": 72,
+          "new_allowed": 68,
+          "identity_allowed": 68
+        },
+        "far_error": {
+          "count": 25,
+          "old_allowed": 24,
+          "new_allowed": 0,
+          "identity_allowed": 0
+        },
+        "other": {
+          "count": 15,
+          "old_allowed": 11,
+          "new_allowed": 1,
+          "identity_allowed": 1
+        }
+      },
+      "samples": [
+        {
+          "camera": "perception_typhoon_h480_4",
+          "track": "5",
+          "stamp": 1975.644,
+          "error": 78.88062795649702,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1980.34,
+          "error": 82.20542621707034,
+          "old_verdict": [
+            false,
+            "hits"
+          ],
+          "new_verdict": [
+            false,
+            "hits"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1981.0,
+          "error": 82.65722939768142,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1983.204,
+          "error": 84.89890865505605,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1983.6,
+          "error": 85.49478026010446,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1984.588,
+          "error": 85.94570081014545,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1984.952,
+          "error": 85.86481524504313,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1986.592,
+          "error": 87.36857409424209,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1988.128,
+          "error": 89.28790968501684,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1988.416,
+          "error": 89.84692090938927,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1991.588,
+          "error": 91.0300974923942,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1992.32,
+          "error": 91.38700315189251,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1993.772,
+          "error": 91.31189442382181,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1995.312,
+          "error": 90.92020910154409,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1995.868,
+          "error": 90.47945510211272,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1996.62,
+          "error": 89.11939407032217,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1997.16,
+          "error": 88.163845407522,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 1998.568,
+          "error": 86.84455432186917,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 2003.344,
+          "error": 82.73353453526306,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 2004.116,
+          "error": 82.6579998525349,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 2004.36,
+          "error": 82.5088850527932,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 2007.648,
+          "error": 79.31569908565133,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "3",
+          "stamp": 2009.832,
+          "error": 76.97267706543282,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "8",
+          "stamp": 2062.212,
+          "error": 82.25751853714674,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_2",
+          "track": "8",
+          "stamp": 2064.124,
+          "error": 81.5758886075309,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2066.224,
+          "error": 0.42665651622317874,
+          "old_verdict": [
+            false,
+            "hits"
+          ],
+          "new_verdict": [
+            false,
+            "hits"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2066.604,
+          "error": 0.344034694970338,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2066.98,
+          "error": 0.4996864895426231,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2067.348,
+          "error": 0.7818758236926998,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2067.752,
+          "error": 0.9027351527081505,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2068.148,
+          "error": 0.8942625149518266,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2068.476,
+          "error": 0.8789727821540243,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2068.844,
+          "error": 0.677330490726998,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2069.156,
+          "error": 0.6418235533221048,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2069.484,
+          "error": 0.5836967127619251,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2069.844,
+          "error": 0.3643650762052161,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2070.196,
+          "error": 0.17575528181003253,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2070.564,
+          "error": 0.33341923274069823,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2070.896,
+          "error": 0.4521472507673041,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2071.22,
+          "error": 0.4421073541137115,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2071.552,
+          "error": 0.3877687864608618,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2071.904,
+          "error": 0.3747215062464099,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2072.192,
+          "error": 0.44137043459211056,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2073.116,
+          "error": 0.45771911501685003,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2073.384,
+          "error": 0.38046353570340036,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2073.66,
+          "error": 0.47884338351328815,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2073.948,
+          "error": 0.34575763018469,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2074.252,
+          "error": 0.23395756287762218,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2074.564,
+          "error": 0.2139607393893503,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2074.892,
+          "error": 0.22229764854843181,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2075.212,
+          "error": 0.19418883080149293,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2075.488,
+          "error": 0.23200214974914415,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2075.752,
+          "error": 0.24770737760734685,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2076.072,
+          "error": 0.16878997851645058,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2076.356,
+          "error": 0.17402565458764294,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2076.612,
+          "error": 0.1793092342307288,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2076.9,
+          "error": 0.1794940481995287,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2077.176,
+          "error": 0.16767496118126596,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2077.424,
+          "error": 0.30953764968993047,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2077.684,
+          "error": 0.4534617658917568,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2077.976,
+          "error": 0.5135358487455136,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2078.256,
+          "error": 0.5738631607674707,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2078.512,
+          "error": 0.6030517423620042,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2078.788,
+          "error": 0.5376171904926479,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2079.072,
+          "error": 0.6714773066763068,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2079.336,
+          "error": 0.783899528726615,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2079.608,
+          "error": 0.6268323334440875,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2079.912,
+          "error": 0.5829430487664549,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2080.188,
+          "error": 0.5997697634185605,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2080.436,
+          "error": 0.5319907303105339,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2080.688,
+          "error": 0.498018112184713,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2080.928,
+          "error": 0.5084498381683162,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2081.152,
+          "error": 0.47970673104510275,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2081.396,
+          "error": 0.4805766216876073,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2081.704,
+          "error": 0.45766464704731286,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2082.008,
+          "error": 0.3801744679916568,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2082.308,
+          "error": 0.40283684728389324,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2082.608,
+          "error": 0.44936025930290086,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2082.96,
+          "error": 0.4142980930916105,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2083.324,
+          "error": 0.41347738925815813,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2083.684,
+          "error": 0.41062077040173744,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2084.12,
+          "error": 0.4096071520923867,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2084.464,
+          "error": 0.504308130013586,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2084.788,
+          "error": 0.5167240783260494,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2085.076,
+          "error": 0.5652368392967272,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2085.332,
+          "error": 0.6107090698680868,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2085.624,
+          "error": 0.5407357596531818,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2085.952,
+          "error": 0.47092516948031293,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2086.276,
+          "error": 0.3794777888742607,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2086.548,
+          "error": 0.4460743378479715,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2086.86,
+          "error": 0.47850579637523116,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2087.18,
+          "error": 0.45878798894135375,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2087.432,
+          "error": 0.4892530000283438,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2087.64,
+          "error": 0.5364102938963292,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2087.84,
+          "error": 0.5822557714067137,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2088.056,
+          "error": 0.5398644174578388,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2088.252,
+          "error": 0.5610037053673645,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2088.448,
+          "error": 0.5463130095888451,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_3",
+          "track": "9",
+          "stamp": 2088.632,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            true,
+            ""
+          ],
+          "identity_allowed": true
+        },
+        {
+          "camera": "perception_typhoon_h480_0",
+          "track": "7",
+          "stamp": 2103.94,
+          "error": null,
+          "old_verdict": [
+            false,
+            "hits"
+          ],
+          "new_verdict": [
+            false,
+            "hits"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "12",
+          "stamp": 2265.248,
+          "error": null,
+          "old_verdict": [
+            false,
+            "hits"
+          ],
+          "new_verdict": [
+            false,
+            "hits"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2267.344,
+          "error": null,
+          "old_verdict": [
+            false,
+            "hits"
+          ],
+          "new_verdict": [
+            false,
+            "hits"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2267.72,
+          "error": null,
+          "old_verdict": [
+            false,
+            "static"
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2268.132,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2268.54,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2268.888,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2269.236,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2269.608,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2269.944,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2270.284,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2270.588,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2271.888,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        },
+        {
+          "camera": "perception_typhoon_h480_1",
+          "track": "13",
+          "stamp": 2273.572,
+          "error": null,
+          "old_verdict": [
+            true,
+            ""
+          ],
+          "new_verdict": [
+            false,
+            "blue_identity"
+          ],
+          "identity_allowed": false
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Actual Track init/update/verdict methods; raw-to-track identity reconstructed by timestamp and <=1px bbox centre.",
+    "Track birth is earliest matched logged raw detection; unseen earlier measurements are unavailable.",
+    "No coasting/association/appearance/camera attachment callbacks are reconstructed; attach_check=False in both variants.",
+    "Offline truth labels refer to historic published coordinates, not new predicted geometry.",
+    "No actual new ROS pipeline or judge continuity is proven."
+  ]
+}

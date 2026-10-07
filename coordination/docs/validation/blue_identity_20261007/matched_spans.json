@@ -1,0 +1,23 @@
+{
+  "runs": [
+    {
+      "run": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159",
+      "old_longest_matched_accurate_subset_span_s": 0.0,
+      "new_longest_matched_accurate_subset_span_s": 0.0
+    },
+    {
+      "run": "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159",
+      "old_longest_matched_accurate_subset_span_s": 0.36799999999993815,
+      "new_longest_matched_accurate_subset_span_s": 0.0
+    },
+    {
+      "run": "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159",
+      "old_longest_matched_accurate_subset_span_s": 21.84400000000005,
+      "new_longest_matched_accurate_subset_span_s": 20.299999999999727
+    }
+  ],
+  "limitations": [
+    "Only matched camera/track samples, not all intervening observations or actual judge callbacks.",
+    "Cannot substitute these spans for official continuous confirmation."
+  ]
+}

@@ -53,7 +53,7 @@ class StationaryPersonTests(unittest.TestCase):
         exec(compile(ast.Module(body=[method],type_ignores=[]),str(source),'exec'),env)
         values=dict(hits=10,miss=0,h=1.8,rng=10.,observed_s=10.,
             sp=0.,max_disp=0.,score_ema=.8,motion_factor=lambda now:None,
-            attached_to_cam=lambda:False,recent_motion=SimpleNamespace(speed=lambda now:0.))
+        attached_to_cam=lambda:False,recent_motion=SimpleNamespace(speed=lambda now:0.),blue_identity=None)
         values.update(changes)
         return env['verdict'](SimpleNamespace(**values),now=10.5,stationary_person=proof,verified_person=verified)
 

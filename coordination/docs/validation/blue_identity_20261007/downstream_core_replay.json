@@ -1,0 +1,20 @@
+{
+  "runs": [
+    {
+      "run": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159",
+      "passed_images": 0,
+      "alive_after_inputs": 0,
+      "unmatched_original_images": 0
+    },
+    {
+      "run": "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159",
+      "passed_images": 3,
+      "alive_after_inputs": 0,
+      "unmatched_original_images": 0
+    }
+  ],
+  "limitations": [
+    "Uses reconstructed identity gate outcome and original visual payloads, not full perception association replay.",
+    "No new physical or judge effect proven."
+  ]
+}
