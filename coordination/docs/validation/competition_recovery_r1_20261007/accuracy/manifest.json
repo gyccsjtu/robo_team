@@ -1,0 +1,30 @@
+[
+  {
+    "path": "independent_visual_accuracy.json",
+    "sha256": "a48033ad134eb346a655f1dc551f04de4563f4686b1b0a16ae959610255be691"
+  },
+  {
+    "path": "independent_visual_accuracy_blue.json",
+    "sha256": "6aa0ae0060210002305289be0fe6ce8bd45adb38f5b3b7d98da9640dc0319be4"
+  },
+  {
+    "path": "independent_visual_accuracy_blue.jsonl.gz",
+    "sha256": "37ae103fcde53caa7477bd0f3766d8ec1b4262eacf7934556faede052a299e71"
+  },
+  {
+    "path": "independent_visual_accuracy_brown.json",
+    "sha256": "be8c9674c394d4dc228b25d3e541929b697d8783970acbd43ccc890d6b178cb4"
+  },
+  {
+    "path": "independent_visual_accuracy_red.json",
+    "sha256": "d33d59b3cdb2ad7b286848294c801f851344047fe3eead6b9da97e479482d915"
+  },
+  {
+    "path": "independent_visual_accuracy_white.json",
+    "sha256": "200ff6c7174a8b6cc10376c94a452a636a62b0036977a2143af103303b0697ea"
+  },
+  {
+    "path": "independent_visual_accuracy_white.jsonl.gz",
+    "sha256": "5122dbac7a62350916502085114e02ca1286501a2759bee8dabf67b4641e14dd"
+  }
+]

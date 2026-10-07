@@ -1,0 +1,87 @@
+[
+  {
+    "image": "/mnt/d/a/.robocup/tmp/blue_r1_uav_3_blue_001.png",
+    "blue_boxes": [
+      {
+        "conf": 0.8123,
+        "box": [
+          617.36,
+          191.07,
+          629.98,
+          222.03
+        ],
+        "torso": {
+          "red": 0.0,
+          "green": 0.0,
+          "blue": 0.8472222222222222,
+          "white": 0.013888888888888888,
+          "brown": 0.027777777777777776
+        }
+      }
+    ],
+    "shared": true,
+    "queue_s": 0.0
+  },
+  {
+    "image": "/mnt/d/a/.robocup/robo_team/coordination/docs/validation/fast_competition_v137_20261006/round_1_seed_8159/observers/visual_frames/uav_2_blue_028.png",
+    "blue_boxes": [
+      {
+        "conf": 0.723,
+        "box": [
+          82.53,
+          119.69,
+          112.68,
+          202.89
+        ],
+        "torso": {
+          "red": 0.0,
+          "green": 0.0,
+          "blue": 0.14747474747474748,
+          "white": 0.6727272727272727,
+          "brown": 0.09090909090909091
+        }
+      },
+      {
+        "conf": 0.557,
+        "box": [
+          85.58,
+          198.1,
+          109.84,
+          244.65
+        ],
+        "torso": {
+          "red": 0.0,
+          "green": 0.0,
+          "blue": 0.31140350877192985,
+          "white": 0.0,
+          "brown": 0.0
+        }
+      }
+    ],
+    "shared": true,
+    "queue_s": 0.0
+  },
+  {
+    "image": "/mnt/d/a/.robocup/robo_team/coordination/docs/validation/fast_competition_v137_20261006/round_1_seed_8159/observers/visual_frames/uav_3_blue_002.png",
+    "blue_boxes": [
+      {
+        "conf": 0.7533,
+        "box": [
+          552.76,
+          191.2,
+          562.77,
+          218.66
+        ],
+        "torso": {
+          "red": 0.0,
+          "green": 0.0,
+          "blue": 0.7272727272727273,
+          "white": 0.07272727272727272,
+          "brown": 0.0
+        }
+      }
+    ],
+    "shared": true,
+    "queue_s": 0.0
+  }
+]

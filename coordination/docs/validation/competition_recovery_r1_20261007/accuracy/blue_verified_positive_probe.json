@@ -1,0 +1,60 @@
+[
+  {
+    "image": "/mnt/d/a/.robocup/robo_team/coordination/docs/validation/fast_competition_v137_20261006/round_1_seed_8159/observers/visual_frames/uav_4_blue_013.png",
+    "blue": [
+      {
+        "conf": 0.7339,
+        "xyxy": [
+          371.5,
+          189.33,
+          382.37,
+          208.06
+        ],
+        "torso": {
+          "red": 0.0,
+          "green": 0.0,
+          "blue": 0.6571428571428571,
+          "white": 0.0,
+          "brown": 0.0
+        }
+      }
+    ]
+  },
+  {
+    "image": "/mnt/d/a/.robocup/robo_team/coordination/docs/validation/fast_competition_v137_20261006/round_1_seed_8159/observers/visual_frames/uav_4_blue_023.png",
+    "blue": [
+      {
+        "conf": 0.8594,
+        "xyxy": [
+          313.49,
+          191.48,
+          330.36,
+          233.94
+        ],
+        "torso": {
+          "red": 0.0,
+          "green": 0.0,
+          "blue": 0.8758169934640523,
+          "white": 0.0,
+          "brown": 0.0
+        }
+      },
+      {
+        "conf": 0.7223,
+        "xyxy": [
+          312.88,
+          192.42,
+          327.11,
+          217.84
+        ],
+        "torso": {
+          "red": 0.0,
+          "green": 0.0,
+          "blue": 0.7857142857142857,
+          "white": 0.0,
+          "brown": 0.08571428571428572
+        }
+      }
+    ]
+  }
+]
