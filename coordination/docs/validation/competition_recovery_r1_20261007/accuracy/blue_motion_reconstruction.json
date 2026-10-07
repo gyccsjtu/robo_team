@@ -1,0 +1,1324 @@
+[
+  {
+    "root": "/root/robocup_runs/competition_recovery_r1_20261007/round_1_seed_8159",
+    "limitations": [
+      "Raw-to-track association reconstructed by same stamp and bbox center within 1 px.",
+      "Only logged matched raw measurements are used; missing update history may change speed.",
+      "Far error includes NPC and other errors; accurate labels are offline truth only.",
+      "Threshold counts are diagnostics, not production acceptance or continuous judge timing."
+    ],
+    "groups": {
+      "accurate": {
+        "count": 0,
+        "pass_speed_05": 0,
+        "pass_displacement_25": 0,
+        "measurable": 0
+      },
+      "far_error": {
+        "count": 13,
+        "pass_speed_05": 0,
+        "pass_displacement_25": 0,
+        "measurable": 12
+      },
+      "other": {
+        "count": 0,
+        "pass_speed_05": 0,
+        "pass_displacement_25": 0,
+        "measurable": 0
+      }
+    },
+    "published_samples": [
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1963.896,
+        "error": 80.61765767678506,
+        "speed": 0.31998807455320105,
+        "span": 2.9279999999998836,
+        "displacement": 1.511426507743157,
+        "count": 4
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1965.612,
+        "error": 82.30833386734065,
+        "speed": 0.059051491893143015,
+        "span": 3.9120000000000346,
+        "displacement": 0.2529843838138275,
+        "count": 5
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1965.9,
+        "error": 82.98220370807309,
+        "speed": 0.15277059173169225,
+        "span": 2.464000000000169,
+        "displacement": 0.29952866405608597,
+        "count": 5
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1967.052,
+        "error": 84.29712598940168,
+        "speed": 0.07406903450719597,
+        "span": 3.6159999999999854,
+        "displacement": 0.309653507177529,
+        "count": 9
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1967.388,
+        "error": 84.65611358550552,
+        "speed": 0.05518469252682384,
+        "span": 3.951999999999998,
+        "displacement": 0.4955198364884951,
+        "count": 10
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1994.592,
+        "error": 105.02123710946124,
+        "speed": 0.040261042213708374,
+        "span": 3.7840000000001055,
+        "displacement": 0.510346863623332,
+        "count": 6
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1995.452,
+        "error": 106.02603630831386,
+        "speed": 0.4190140393797491,
+        "span": 1.8840000000000146,
+        "displacement": 0.9817101680046113,
+        "count": 6
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1995.748,
+        "error": 106.43646452272621,
+        "speed": 0.29770043288343945,
+        "span": 2.1800000000000637,
+        "displacement": 0.23531467588611518,
+        "count": 7
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1996.088,
+        "error": 106.69352460011618,
+        "speed": 0.19698530086867275,
+        "span": 2.519999999999982,
+        "displacement": 0.11227239533544003,
+        "count": 8
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1997.284,
+        "error": 107.18343375488172,
+        "speed": 0.23567752539779646,
+        "span": 3.716000000000122,
+        "displacement": 2.1705501622134413,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1997.564,
+        "error": 107.22372699532498,
+        "speed": 0.19479974010191484,
+        "span": 3.9960000000000946,
+        "displacement": 0.2658899919043345,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "2",
+        "stamp": 1997.896,
+        "error": 107.23890470378365,
+        "speed": 0.1721073390891699,
+        "span": 3.6720000000000255,
+        "displacement": 0.16519204934531143,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "2",
+        "stamp": 1955.436,
+        "error": 72.29993190508004,
+        "speed": 0.0,
+        "span": 0.8119999999998981,
+        "displacement": 1.4458552589581508,
+        "count": 4
+      }
+    ]
+  },
+  {
+    "root": "/root/robocup_runs/heartbeat_v137_20261006T020228Z/round_1_seed_8159",
+    "limitations": [
+      "Raw-to-track association reconstructed by same stamp and bbox center within 1 px.",
+      "Only logged matched raw measurements are used; missing update history may change speed.",
+      "Far error includes NPC and other errors; accurate labels are offline truth only.",
+      "Threshold counts are diagnostics, not production acceptance or continuous judge timing."
+    ],
+    "groups": {
+      "accurate": {
+        "count": 73,
+        "pass_speed_05": 70,
+        "pass_displacement_25": 65,
+        "measurable": 73
+      },
+      "far_error": {
+        "count": 25,
+        "pass_speed_05": 1,
+        "pass_displacement_25": 0,
+        "measurable": 25
+      },
+      "other": {
+        "count": 15,
+        "pass_speed_05": 2,
+        "pass_displacement_25": 1,
+        "measurable": 15
+      }
+    },
+    "published_samples": [
+      {
+        "camera": "perception_typhoon_h480_4",
+        "track": "5",
+        "stamp": 1975.644,
+        "error": 78.88062795649702,
+        "speed": 0.2215404265482855,
+        "span": 3.2999999999999545,
+        "displacement": 1.803015184412146,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1980.34,
+        "error": 82.20542621707034,
+        "speed": 0.21816195322823384,
+        "span": 3.4079999999999018,
+        "displacement": 0.4335858028897883,
+        "count": 4
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1981.0,
+        "error": 82.65722939768142,
+        "speed": 1.067511630997488,
+        "span": 1.2560000000000855,
+        "displacement": 1.7124956696936573,
+        "count": 5
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1983.204,
+        "error": 84.89890865505605,
+        "speed": 0.12663535352648297,
+        "span": 3.4600000000000364,
+        "displacement": 0.5402746794153256,
+        "count": 6
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1983.6,
+        "error": 85.49478026010446,
+        "speed": 0.02677809388146808,
+        "span": 3.8559999999999945,
+        "displacement": 1.52444655764272,
+        "count": 7
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1984.588,
+        "error": 85.94570081014545,
+        "speed": 0.02484466104185489,
+        "span": 3.88799999999992,
+        "displacement": 0.10306231807375632,
+        "count": 7
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1984.952,
+        "error": 85.86481524504313,
+        "speed": 0.12724031324690835,
+        "span": 3.951999999999998,
+        "displacement": 0.25327206884423603,
+        "count": 7
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1986.592,
+        "error": 87.36857409424209,
+        "speed": 0.1722356947135691,
+        "span": 3.3880000000001473,
+        "displacement": 1.0444496153270426,
+        "count": 7
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1988.128,
+        "error": 89.28790968501684,
+        "speed": 0.15207050160011373,
+        "span": 3.8999999999998636,
+        "displacement": 0.6381763046924743,
+        "count": 9
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1988.416,
+        "error": 89.84692090938927,
+        "speed": 0.12830063296993938,
+        "span": 3.8279999999999745,
+        "displacement": 0.305373320087536,
+        "count": 9
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1991.588,
+        "error": 91.0300974923942,
+        "speed": 0.18768226290462772,
+        "span": 3.7480000000000473,
+        "displacement": 0.5317809996749435,
+        "count": 6
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1992.32,
+        "error": 91.38700315189251,
+        "speed": 0.22807415550397953,
+        "span": 3.9039999999999964,
+        "displacement": 0.7776652282465949,
+        "count": 5
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1993.772,
+        "error": 91.31189442382181,
+        "speed": 0.27933871026407564,
+        "span": 2.183999999999969,
+        "displacement": 0.5699691826540466,
+        "count": 3
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1995.312,
+        "error": 90.92020910154409,
+        "speed": 0.11787658309226381,
+        "span": 3.7239999999999327,
+        "displacement": 0.6090995043029067,
+        "count": 4
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1995.868,
+        "error": 90.47945510211272,
+        "speed": 0.03163409367759119,
+        "span": 3.548000000000002,
+        "displacement": 0.43924293872866055,
+        "count": 4
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1996.62,
+        "error": 89.11939407032217,
+        "speed": 0.17967332794705662,
+        "span": 2.8479999999999563,
+        "displacement": 0.2715665029706401,
+        "count": 6
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1997.16,
+        "error": 88.163845407522,
+        "speed": 0.16255347026880088,
+        "span": 3.3880000000001473,
+        "displacement": 0.3433594896057326,
+        "count": 8
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 1998.568,
+        "error": 86.84455432186917,
+        "speed": 0.1858822051165033,
+        "span": 3.2560000000000855,
+        "displacement": 1.5697613319259591,
+        "count": 9
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 2003.344,
+        "error": 82.73353453526306,
+        "speed": 0.43687622498999196,
+        "span": 1.8840000000000146,
+        "displacement": 0.9397007455790533,
+        "count": 4
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 2004.116,
+        "error": 82.6579998525349,
+        "speed": 0.4841849364888293,
+        "span": 2.655999999999949,
+        "displacement": 1.4818921236570572,
+        "count": 5
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 2004.36,
+        "error": 82.5088850527932,
+        "speed": 0.3651241380332918,
+        "span": 2.8999999999998636,
+        "displacement": 0.9151755680039066,
+        "count": 6
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 2007.648,
+        "error": 79.31569908565133,
+        "speed": 0.2025116627219517,
+        "span": 3.5319999999999254,
+        "displacement": 0.9476203729287855,
+        "count": 3
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "3",
+        "stamp": 2009.832,
+        "error": 76.97267706543282,
+        "speed": 0.2825735361629282,
+        "span": 2.1840000000001965,
+        "displacement": 0.6171406029798912,
+        "count": 2
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "8",
+        "stamp": 2062.212,
+        "error": 82.25751853714674,
+        "speed": 0.47728985350473113,
+        "span": 3.711999999999989,
+        "displacement": 1.9848427232456773,
+        "count": 7
+      },
+      {
+        "camera": "perception_typhoon_h480_2",
+        "track": "8",
+        "stamp": 2064.124,
+        "error": 81.5758886075309,
+        "speed": 0.11814751292319826,
+        "span": 3.7679999999995744,
+        "displacement": 0.3437049708526338,
+        "count": 6
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2066.224,
+        "error": 0.42665651622317874,
+        "speed": 0.9122032445738999,
+        "span": 3.632000000000062,
+        "displacement": 3.422767384603159,
+        "count": 4
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2066.604,
+        "error": 0.344034694970338,
+        "speed": 0.9173127914256121,
+        "span": 2.480000000000018,
+        "displacement": 2.266101845392476,
+        "count": 4
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2066.98,
+        "error": 0.4996864895426231,
+        "speed": 0.9746898769148116,
+        "span": 2.856000000000222,
+        "displacement": 2.872984289922459,
+        "count": 5
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2067.348,
+        "error": 0.7818758236926998,
+        "speed": 1.0333162865596446,
+        "span": 3.22400000000016,
+        "displacement": 3.39543038228826,
+        "count": 6
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2067.752,
+        "error": 0.9027351527081505,
+        "speed": 1.0321903505744676,
+        "span": 3.6280000000001564,
+        "displacement": 3.589441586988891,
+        "count": 7
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2068.148,
+        "error": 0.8942625149518266,
+        "speed": 1.141001042173673,
+        "span": 2.2600000000002183,
+        "displacement": 2.5799797609669484,
+        "count": 7
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2068.476,
+        "error": 0.8789727821540243,
+        "speed": 1.1033075560135923,
+        "span": 2.588000000000193,
+        "displacement": 2.911712526090271,
+        "count": 8
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2068.844,
+        "error": 0.677330490726998,
+        "speed": 1.0305496416642652,
+        "span": 2.956000000000131,
+        "displacement": 3.007179925351832,
+        "count": 9
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2069.156,
+        "error": 0.6418235533221048,
+        "speed": 1.0438952238105648,
+        "span": 3.268000000000029,
+        "displacement": 3.6811776260714963,
+        "count": 10
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2069.484,
+        "error": 0.5836967127619251,
+        "speed": 1.0044902962448177,
+        "span": 3.5960000000000036,
+        "displacement": 3.6181361616333514,
+        "count": 11
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2069.844,
+        "error": 0.3643650762052161,
+        "speed": 0.9843295945432972,
+        "span": 3.956000000000131,
+        "displacement": 4.000729973065293,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2070.196,
+        "error": 0.17575528181003253,
+        "speed": 0.9404068104156132,
+        "span": 3.9719999999997526,
+        "displacement": 3.786436520294937,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2070.564,
+        "error": 0.33341923274069823,
+        "speed": 0.8898601588706226,
+        "span": 3.9600000000000364,
+        "displacement": 3.528120028228578,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2070.896,
+        "error": 0.4521472507673041,
+        "speed": 0.8062303436262279,
+        "span": 3.9160000000001673,
+        "displacement": 2.9592404792650897,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2071.22,
+        "error": 0.4421073541137115,
+        "speed": 0.7298932475644255,
+        "span": 3.8719999999998436,
+        "displacement": 2.518206171834772,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2071.552,
+        "error": 0.3877687864608618,
+        "speed": 0.6491892453464091,
+        "span": 3.800000000000182,
+        "displacement": 2.288522117859855,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2071.904,
+        "error": 0.3747215062464099,
+        "speed": 0.5405138457650848,
+        "span": 3.755999999999858,
+        "displacement": 1.9200163161809585,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2072.192,
+        "error": 0.44137043459211056,
+        "speed": 0.39091836704695154,
+        "span": 3.7159999999998945,
+        "displacement": 1.2669767406962607,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2073.116,
+        "error": 0.45771911501685003,
+        "speed": 0.1645461807255077,
+        "span": 3.9600000000000364,
+        "displacement": 0.806385644497159,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2073.384,
+        "error": 0.38046353570340036,
+        "speed": 0.3822301027403198,
+        "span": 3.900000000000091,
+        "displacement": 1.675062021894567,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2073.66,
+        "error": 0.47884338351328815,
+        "speed": 0.541195906957684,
+        "span": 3.8159999999998035,
+        "displacement": 1.6136096120164862,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2073.948,
+        "error": 0.34575763018469,
+        "speed": 0.6869692739469768,
+        "span": 3.7519999999999527,
+        "displacement": 2.1400929077658506,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2074.252,
+        "error": 0.23395756287762218,
+        "speed": 0.7980508439330591,
+        "span": 3.688000000000102,
+        "displacement": 2.6086011001549476,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2074.564,
+        "error": 0.2139607393893503,
+        "speed": 0.8198125046535406,
+        "span": 4.0,
+        "displacement": 2.9256498429223123,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2074.892,
+        "error": 0.22229764854843181,
+        "speed": 0.9002996806736788,
+        "span": 3.99599999999964,
+        "displacement": 3.2016166754977236,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2075.212,
+        "error": 0.19418883080149293,
+        "speed": 0.9689702929724545,
+        "span": 3.992000000000189,
+        "displacement": 3.5836754218334432,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2075.488,
+        "error": 0.23200214974914415,
+        "speed": 1.010580855732149,
+        "span": 3.9359999999996944,
+        "displacement": 3.844241710598837,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2075.752,
+        "error": 0.24770737760734685,
+        "speed": 1.020300788411393,
+        "span": 3.8479999999999563,
+        "displacement": 4.09384342854749,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2076.072,
+        "error": 0.16878997851645058,
+        "speed": 0.9796506462859319,
+        "span": 3.880000000000109,
+        "displacement": 3.7843671208887715,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2076.356,
+        "error": 0.17402565458764294,
+        "speed": 0.9730509831545507,
+        "span": 3.8600000000001273,
+        "displacement": 3.952903079586216,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2076.612,
+        "error": 0.1793092342307288,
+        "speed": 0.9574976155918834,
+        "span": 3.7760000000002947,
+        "displacement": 3.7785880355554076,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2076.9,
+        "error": 0.1794940481995287,
+        "speed": 0.9455626595250505,
+        "span": 3.7840000000001055,
+        "displacement": 3.549711220070691,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2077.176,
+        "error": 0.16767496118126596,
+        "speed": 0.9529413457553171,
+        "span": 3.7919999999999163,
+        "displacement": 3.423402846810084,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2077.424,
+        "error": 0.30953764968993047,
+        "speed": 0.9704186405816699,
+        "span": 3.7640000000001237,
+        "displacement": 3.558881083652703,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2077.684,
+        "error": 0.4534617658917568,
+        "speed": 0.9747117147728463,
+        "span": 3.736000000000331,
+        "displacement": 3.73542159690241,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2077.976,
+        "error": 0.5135358487455136,
+        "speed": 0.9659512184702755,
+        "span": 3.72400000000016,
+        "displacement": 3.67955324234804,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2078.256,
+        "error": 0.5738631607674707,
+        "speed": 0.9663458807859447,
+        "span": 3.6920000000000073,
+        "displacement": 3.5758730554553253,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2078.512,
+        "error": 0.6030517423620042,
+        "speed": 0.9720498001401071,
+        "span": 3.94800000000032,
+        "displacement": 3.86663270307848,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2078.788,
+        "error": 0.5376171904926479,
+        "speed": 0.9811409914874086,
+        "span": 3.8960000000001855,
+        "displacement": 3.892727910625568,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2079.072,
+        "error": 0.6714773066763068,
+        "speed": 0.9862575982049532,
+        "span": 3.8600000000001273,
+        "displacement": 3.824436544332059,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2079.336,
+        "error": 0.783899528726615,
+        "speed": 1.0018939550682358,
+        "span": 3.8479999999999563,
+        "displacement": 3.8911646396550865,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2079.608,
+        "error": 0.6268323334440875,
+        "speed": 1.0092933340289585,
+        "span": 3.856000000000222,
+        "displacement": 3.8357159681887456,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2079.912,
+        "error": 0.5829430487664549,
+        "speed": 1.0360594741227156,
+        "span": 3.8399999999996908,
+        "displacement": 4.123454461866115,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2080.188,
+        "error": 0.5997697634185605,
+        "speed": 1.042316943414015,
+        "span": 3.83199999999988,
+        "displacement": 3.954038046716337,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2080.436,
+        "error": 0.5319907303105339,
+        "speed": 1.0513306350061442,
+        "span": 3.824000000000069,
+        "displacement": 3.9127166399045525,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2080.688,
+        "error": 0.498018112184713,
+        "speed": 1.0664178883102955,
+        "span": 3.788000000000011,
+        "displacement": 3.972793605261166,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2080.928,
+        "error": 0.5084498381683162,
+        "speed": 1.0832644978976234,
+        "span": 3.7519999999999527,
+        "displacement": 4.037356516950497,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2081.152,
+        "error": 0.47970673104510275,
+        "speed": 1.0728905768177326,
+        "span": 3.9760000000001128,
+        "displacement": 4.109310610842962,
+        "count": 16
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2081.396,
+        "error": 0.4805766216876073,
+        "speed": 1.0806381327779095,
+        "span": 3.9720000000002074,
+        "displacement": 4.309176715420941,
+        "count": 16
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2081.704,
+        "error": 0.45766464704731286,
+        "speed": 1.0729203885601544,
+        "span": 3.7280000000000655,
+        "displacement": 3.9020708029636353,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2082.008,
+        "error": 0.3801744679916568,
+        "speed": 1.0754112175640556,
+        "span": 3.7519999999999527,
+        "displacement": 4.033836022345171,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2082.308,
+        "error": 0.40283684728389324,
+        "speed": 1.0693567918732834,
+        "span": 3.7959999999998217,
+        "displacement": 4.044282622268505,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2082.608,
+        "error": 0.44936025930290086,
+        "speed": 1.0707907115269113,
+        "span": 3.8200000000001637,
+        "displacement": 4.0898488055945,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2082.96,
+        "error": 0.4142980930916105,
+        "speed": 1.0712340462123644,
+        "span": 3.88799999999992,
+        "displacement": 4.339895007546392,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2083.324,
+        "error": 0.41347738925815813,
+        "speed": 1.0456741781206758,
+        "span": 3.9880000000002838,
+        "displacement": 4.156686690918633,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2083.684,
+        "error": 0.41062077040173744,
+        "speed": 1.0374746631235885,
+        "span": 3.7720000000003893,
+        "displacement": 3.8853459546561204,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2084.12,
+        "error": 0.4096071520923867,
+        "speed": 1.0490808272100225,
+        "span": 3.931999999999789,
+        "displacement": 4.141623955394593,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2084.464,
+        "error": 0.504308130013586,
+        "speed": 1.0508462212394625,
+        "span": 3.77599999999984,
+        "displacement": 3.942924005372181,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2084.788,
+        "error": 0.5167240783260494,
+        "speed": 1.0540632917277817,
+        "span": 3.8600000000001273,
+        "displacement": 3.9867797144590633,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2085.076,
+        "error": 0.5652368392967272,
+        "speed": 1.0694155413471147,
+        "span": 3.923999999999978,
+        "displacement": 4.292362961054118,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2085.332,
+        "error": 0.6107090698680868,
+        "speed": 1.0565818657063804,
+        "span": 3.9359999999996944,
+        "displacement": 4.07406594219266,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2085.624,
+        "error": 0.5407357596531818,
+        "speed": 1.0540043634708423,
+        "span": 3.919999999999618,
+        "displacement": 4.118055003863412,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2085.952,
+        "error": 0.47092516948031293,
+        "speed": 1.0329248518984089,
+        "span": 3.9440000000004147,
+        "displacement": 3.9779976172901303,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2086.276,
+        "error": 0.3794777888742607,
+        "speed": 1.0135530219069988,
+        "span": 3.967999999999847,
+        "displacement": 3.961122746308226,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2086.548,
+        "error": 0.4460743378479715,
+        "speed": 1.016722611537495,
+        "span": 3.9399999999996,
+        "displacement": 4.0901452576668476,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2086.86,
+        "error": 0.47850579637523116,
+        "speed": 1.0120837299502699,
+        "span": 3.900000000000091,
+        "displacement": 3.9522153876090167,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2087.18,
+        "error": 0.45878798894135375,
+        "speed": 1.0062279698508292,
+        "span": 3.855999999999767,
+        "displacement": 3.9650474700804885,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2087.432,
+        "error": 0.4892530000283438,
+        "speed": 0.9895428882677876,
+        "span": 3.7479999999995925,
+        "displacement": 3.740006508881561,
+        "count": 13
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2087.64,
+        "error": 0.5364102938963292,
+        "speed": 1.0027929216454303,
+        "span": 3.955999999999676,
+        "displacement": 4.139542250153796,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2087.84,
+        "error": 0.5822557714067137,
+        "speed": 0.9978021963030372,
+        "span": 3.7200000000002547,
+        "displacement": 3.7199282520161794,
+        "count": 14
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2088.056,
+        "error": 0.5398644174578388,
+        "speed": 0.992288972791524,
+        "span": 3.936000000000149,
+        "displacement": 3.840988497932977,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2088.252,
+        "error": 0.5610037053673645,
+        "speed": 1.0032710173653934,
+        "span": 3.788000000000011,
+        "displacement": 3.8908164796381164,
+        "count": 15
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2088.448,
+        "error": 0.5463130095888451,
+        "speed": 0.9936082279528534,
+        "span": 3.9839999999999236,
+        "displacement": 3.862429844683223,
+        "count": 16
+      },
+      {
+        "camera": "perception_typhoon_h480_3",
+        "track": "9",
+        "stamp": 2088.632,
+        "error": null,
+        "speed": 0.9932324949862793,
+        "span": 3.844000000000051,
+        "displacement": 3.8193279252690844,
+        "count": 16
+      },
+      {
+        "camera": "perception_typhoon_h480_0",
+        "track": "7",
+        "stamp": 2103.94,
+        "error": null,
+        "speed": 0.6449731043686958,
+        "span": 1.2280000000000655,
+        "displacement": 0.815663773611376,
+        "count": 3
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "12",
+        "stamp": 2265.248,
+        "error": null,
+        "speed": 0.33962047190971467,
+        "span": 2.1480000000001382,
+        "displacement": 1.0834349782962078,
+        "count": 4
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2267.344,
+        "error": null,
+        "speed": 0.016988134969669527,
+        "span": 1.1640000000002146,
+        "displacement": 0.04563229386071724,
+        "count": 4
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2267.72,
+        "error": null,
+        "speed": 0.12067217124625099,
+        "span": 1.5399999999999636,
+        "displacement": 0.24544926165497877,
+        "count": 5
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2268.132,
+        "error": null,
+        "speed": 0.3375265415313649,
+        "span": 1.9520000000002256,
+        "displacement": 0.785997936420656,
+        "count": 6
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2268.54,
+        "error": null,
+        "speed": 0.19013848549020465,
+        "span": 2.3600000000001273,
+        "displacement": 0.1286241225398748,
+        "count": 7
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2268.888,
+        "error": null,
+        "speed": 0.2003701065909162,
+        "span": 2.7080000000000837,
+        "displacement": 0.5191556551799837,
+        "count": 8
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2269.236,
+        "error": null,
+        "speed": 0.27101723026503827,
+        "span": 3.05600000000004,
+        "displacement": 0.9749752817139916,
+        "count": 9
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2269.608,
+        "error": null,
+        "speed": 0.2933525845579225,
+        "span": 3.4280000000003383,
+        "displacement": 0.970535077006966,
+        "count": 10
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2269.944,
+        "error": null,
+        "speed": 0.2852237882645315,
+        "span": 3.7640000000001237,
+        "displacement": 0.8936843928499806,
+        "count": 11
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2270.284,
+        "error": null,
+        "speed": 0.2905947063497523,
+        "span": 3.6920000000000073,
+        "displacement": 0.8396075787714314,
+        "count": 11
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2270.588,
+        "error": null,
+        "speed": 0.23433136899732665,
+        "span": 3.9960000000000946,
+        "displacement": 0.4716208605826854,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2271.888,
+        "error": null,
+        "speed": 0.12926811343160177,
+        "span": 3.755999999999858,
+        "displacement": 0.6473557963388311,
+        "count": 12
+      },
+      {
+        "camera": "perception_typhoon_h480_1",
+        "track": "13",
+        "stamp": 2273.572,
+        "error": null,
+        "speed": 0.09913744370718722,
+        "span": 3.963999999999942,
+        "displacement": 0.20780438582882288,
+        "count": 9
+      }
+    ]
+  }
+]
