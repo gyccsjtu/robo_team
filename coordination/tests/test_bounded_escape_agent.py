@@ -43,6 +43,7 @@ class EscapeAgentTests(unittest.TestCase):
             '_route_grant_cb','_request_plan','_pick_local_goal','_online_velocity_clear',
             '_route_guard_velocity','_route_velocity_clear','_grid_guard_velocity',
             '_send_vel','_publish_command','_authorized_cb'}
+        names.add('_body_proof_diagnostic')
         methods = [n for c in tree.body if isinstance(c,ast.ClassDef)
                    for n in c.body if isinstance(n,ast.FunctionDef) and n.name in names]
         exec(compile(ast.fix_missing_locations(ast.Module(body=methods,type_ignores=[])),
@@ -227,6 +228,22 @@ class EscapeAgentTests(unittest.TestCase):
     def test_missing_last_command_cannot_claim_measured_rest(self):
         self.a._last_flight_v = None
         self.assertFalse(self.a._update_escape_rest(11.))
+
+    def test_diagnostic_records_both_actual_proofs_without_mutating_clearance(self):
+        self.commit()
+        a = self.a
+        normal = set(a._online_planner.body_proof)
+        recovery = set(a._escape_active['planner'].body_proof)
+        output = a._body_proof_diagnostic()
+        self.assertEqual(set(output['normal']['indices']),normal)
+        self.assertEqual(set(output['escape']['indices']),recovery)
+        self.assertEqual(output['normal']['radius_m'],1.2)
+        self.assertEqual(output['escape']['radius_m'],.9)
+        json.dumps(output,allow_nan=False)
+        output['normal']['indices'].clear()
+        output['escape']['indices'].append(1599)
+        self.assertEqual(a._online_planner.body_proof,normal)
+        self.assertEqual(a._escape_active['planner'].body_proof,recovery)
 
 
 if __name__ == '__main__':

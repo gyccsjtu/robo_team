@@ -10,6 +10,8 @@ STOP、任务/路线到期、新代次、定位/变换/地图epoch异常及执�
 
 通用默认关闭，city入口默认开启，可用CITY_BOUNDED_ESCAPE=0回退；六agent统一含bounded_escape.py、online_radar_planner.py、position_brake.py的新快照。旧manager线格式兼容，旧agent没有退出行为。导航schema1新增可选bounded_escape诊断，含代次、offer、开始/扫描时刻、包络、限速、实测运动距离和保持高度；不是新增授权来源。实体效果尚未验证，不能称建筑接触或全部卡点已解决。
 
+导航可选online_body_proof分别记录正常/退出planner实际保留的机体证据索引、包络、出生点、epoch及样本时刻，只锁内复制供诊断，不能作为新任务/路线授权或直接修改净空的输入。旧解析器可忽略此可选诊断字段。
+
 ## 2026-10-06兼容修订v1.3：盘旋规划长度与方向
 
 线格式继续schema_version=1，授权、STOP、到期、退役及保留占用语义沿用v1.2。新增本地配置`SWARM_ORBIT_PLAN_CHORD_M`，有限且在0..16米，通用默认0表示原0.2弧度步长；city入口设置9米。8米观察环与4米执行引导不变。长规划终点只进入现有在线规划/offer/grant链，不授予直飞环上点的权限；路径被未知空间截短或遇转角时仍减速。

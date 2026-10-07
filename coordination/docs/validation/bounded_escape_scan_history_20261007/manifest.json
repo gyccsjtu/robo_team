@@ -1,0 +1,13 @@
+{
+  "source": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/bounded_escape_scan_history_replay.json",
+  "source_sha256": "dbf3da293c617ce316183a48738d9d8b89a0e4d4a1da54ba2803568e506895fa",
+  "base_commit": "2bf5ca1",
+  "tests": 702,
+  "scope": "Observed-ray and recorded-position reconstruction, not full actual callback or physical replay",
+  "limits": [
+    "No original retained body-proof snapshots or every control/planner callback",
+    "Peer exclusion omitted for geometry diagnosis only; no authorization or execution claim",
+    "Original callback arrival time unavailable; replay feeds each accepted scan at its own stamp"
+  ],
+  "max_recorded_scan_gap_s": 7.503999999999905
+}

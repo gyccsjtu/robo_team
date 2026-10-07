@@ -1,0 +1,447 @@
+{
+  "scope": "Observed-ray and recorded-position reconstruction, not full actual callback or physical replay",
+  "limitations": [
+    "No original retained body-proof snapshots or every control/planner callback",
+    "Peer exclusion omitted for geometry diagnosis only; no authorization or execution claim",
+    "Original callback arrival time unavailable; replay feeds each accepted scan at its own stamp"
+  ],
+  "flight": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight",
+  "uid": "uav_2",
+  "startup_seed": [
+    3.0,
+    -3.0
+  ],
+  "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+  "navigation_sha256": "83bd296f5de63253149966641f6ed506bc0413c6bc0779e8b8244e7eaefdac8b",
+  "recorded_first_scan_s": 1931.096,
+  "recorded_last_scan_s": 2285.588,
+  "maximum_recorded_scan_gap_s": 7.503999999999905,
+  "recorded_scan_gaps_over_055_s": [
+    [
+      1931.596,
+      1939.1
+    ],
+    [
+      1941.604,
+      1944.604
+    ],
+    [
+      1982.212,
+      1988.716
+    ],
+    [
+      2021.252,
+      2022.252
+    ],
+    [
+      2024.756,
+      2028.26
+    ],
+    [
+      2032.268,
+      2033.768
+    ],
+    [
+      2039.272,
+      2042.776
+    ],
+    [
+      2047.78,
+      2051.292
+    ],
+    [
+      2054.796,
+      2058.8
+    ],
+    [
+      2062.8,
+      2065.3
+    ],
+    [
+      2071.8,
+      2075.308
+    ],
+    [
+      2086.812,
+      2090.336
+    ],
+    [
+      2095.344,
+      2096.852
+    ],
+    [
+      2101.352,
+      2104.86
+    ],
+    [
+      2115.368,
+      2118.872
+    ],
+    [
+      2137.916,
+      2140.416
+    ],
+    [
+      2143.932,
+      2144.932
+    ],
+    [
+      2158.94,
+      2161.94
+    ],
+    [
+      2165.44,
+      2167.944
+    ],
+    [
+      2173.944,
+      2175.948
+    ],
+    [
+      2186.96,
+      2189.46
+    ],
+    [
+      2195.46,
+      2197.472
+    ],
+    [
+      2201.984,
+      2204.492
+    ],
+    [
+      2210.508,
+      2211.508
+    ],
+    [
+      2215.016,
+      2217.016
+    ],
+    [
+      2222.54,
+      2226.044
+    ],
+    [
+      2245.556,
+      2249.056
+    ],
+    [
+      2260.06,
+      2263.56
+    ]
+  ],
+  "results": [
+    {
+      "requested_s": 2025.12,
+      "record_s": 2025.12,
+      "record_sha256": "22ab53513ed97962ef629c5db8e8401a9b94ea2ca8f4dca509bf3d8cbb82f1cd",
+      "original_reason": "REQUESTED_STOP",
+      "generation": 3,
+      "position_xy": [
+        51.26370810670778,
+        -22.73278293106705
+      ],
+      "last_scan_s": 2024.756,
+      "reconstructed_scan_count": 156,
+      "normal_footprint": {
+        "occupied": [
+          {
+            "cell": [
+              408,
+              153
+            ],
+            "xy": [
+              52.0,
+              -21.75
+            ],
+            "stamp": 2024.756
+          }
+        ],
+        "unknown": [],
+        "known_free": 84,
+        "retained_body_unknown": 4
+      },
+      "recovery_footprint": {
+        "occupied": [],
+        "unknown": [],
+        "known_free": 45,
+        "retained_body_unknown": 4
+      },
+      "geometry_exit": [
+        [
+          51.26370810670778,
+          -22.73278293106705
+        ],
+        [
+          51.0,
+          -22.75
+        ]
+      ],
+      "motion_evidence": {
+        "velocity_candidates": [
+          [
+            -0.10005220770835876,
+            -0.059729766100645065
+          ],
+          [
+            -0.009678422870789995,
+            -0.015091122745266422
+          ]
+        ],
+        "selected_xy": [
+          -0.10005220770835876,
+          -0.059729766100645065
+        ],
+        "selected_source": "velocity_local",
+        "sample_s": 2025.111710451,
+        "speed_mps": 0.11864236004274603,
+        "speed_xy": 0.116525058359798,
+        "velocity_local_sample": [
+          -0.10005220770835876,
+          -0.059729766100645065,
+          -0.022314129397273064,
+          2025.111710451
+        ],
+        "pose_rate_sample": [
+          -0.009678422870789995,
+          -0.015091122745266422,
+          0.01435815297059774,
+          2025.111710451
+        ],
+        "pose_window_s": [
+          2024.815707922,
+          2025.111710451
+        ]
+      }
+    },
+    {
+      "requested_s": 2050.0,
+      "record_s": 2054.12,
+      "record_sha256": "153ae7b0e08464cec3daf5619226e76eceb80d751c0f76044ff1c8a08b44a89d",
+      "original_reason": "AUTHORITY_STOP",
+      "generation": 6,
+      "position_xy": [
+        51.21246527833864,
+        -22.785549730993807
+      ],
+      "last_scan_s": 2053.796,
+      "reconstructed_scan_count": 194,
+      "normal_footprint": {
+        "occupied": [
+          {
+            "cell": [
+              408,
+              153
+            ],
+            "xy": [
+              52.0,
+              -21.75
+            ],
+            "stamp": 2053.796
+          }
+        ],
+        "unknown": [],
+        "known_free": 82,
+        "retained_body_unknown": 6
+      },
+      "recovery_footprint": {
+        "occupied": [],
+        "unknown": [],
+        "known_free": 43,
+        "retained_body_unknown": 6
+      },
+      "geometry_exit": [
+        [
+          51.21246527833864,
+          -22.785549730993807
+        ],
+        [
+          51.0,
+          -22.75
+        ]
+      ],
+      "motion_evidence": {
+        "velocity_candidates": [
+          [
+            -0.04214230924844742,
+            -0.013905690051615238
+          ],
+          [
+            -0.00711309972350716,
+            -0.007692971983575678
+          ]
+        ],
+        "selected_xy": [
+          -0.04214230924844742,
+          -0.013905690051615238
+        ],
+        "selected_source": "velocity_local",
+        "sample_s": 2054.111453749,
+        "speed_mps": 0.045339996855514195,
+        "speed_xy": 0.044377273965436045,
+        "velocity_local_sample": [
+          -0.04214230924844742,
+          -0.013905690051615238,
+          0.009293700568377972,
+          2054.111453749
+        ],
+        "pose_rate_sample": [
+          -0.00711309972350716,
+          -0.007692971983575678,
+          -0.0022961330742435363,
+          2054.111453749
+        ],
+        "pose_window_s": [
+          2053.815420659,
+          2054.111453749
+        ]
+      }
+    },
+    {
+      "requested_s": 2200.0,
+      "record_s": 2200.22,
+      "record_sha256": "95327df4e7de0afd03ad59e96f7f1e36d485ad23c49a47a4f1c5265b3a477c81",
+      "original_reason": "AUTHORITY_STOP",
+      "generation": 26,
+      "position_xy": [
+        51.23248480958864,
+        -22.817923159338534
+      ],
+      "last_scan_s": 2199.98,
+      "reconstructed_scan_count": 425,
+      "normal_footprint": {
+        "occupied": [
+          {
+            "cell": [
+              408,
+              153
+            ],
+            "xy": [
+              52.0,
+              -21.75
+            ],
+            "stamp": 2199.98
+          }
+        ],
+        "unknown": [],
+        "known_free": 82,
+        "retained_body_unknown": 6
+      },
+      "recovery_footprint": {
+        "occupied": [],
+        "unknown": [],
+        "known_free": 43,
+        "retained_body_unknown": 6
+      },
+      "geometry_exit": [
+        [
+          51.23248480958864,
+          -22.817923159338534
+        ],
+        [
+          51.0,
+          -22.75
+        ]
+      ],
+      "motion_evidence": {
+        "velocity_candidates": [
+          [
+            -0.02846359834074974,
+            -0.006431663408875465
+          ],
+          [
+            -0.024099989742816415,
+            -0.027682768966614788
+          ]
+        ],
+        "selected_xy": [
+          -0.024099989742816415,
+          -0.027682768966614788
+        ],
+        "selected_source": "pose_rate",
+        "sample_s": 2200.207527776,
+        "speed_mps": 0.09071372304722215,
+        "speed_xy": 0.036703476719008886,
+        "velocity_local_sample": [
+          -0.02846359834074974,
+          -0.006431663408875465,
+          0.08589200675487518,
+          2200.207527776
+        ],
+        "pose_rate_sample": [
+          -0.024099989742816415,
+          -0.027682768966614788,
+          -0.021923580241309398,
+          2200.207527776
+        ],
+        "pose_window_s": [
+          2199.911532468,
+          2200.207527776
+        ]
+      }
+    },
+    {
+      "requested_s": 2283.676,
+      "record_s": 2283.676,
+      "record_sha256": "9207a65d220a609fdf98acb10cce4f2cc6dd6d6706aba5e15cc143cb2243202f",
+      "original_reason": "MOVING",
+      "generation": 38,
+      "position_xy": [
+        51.19159888429567,
+        -22.944769472815096
+      ],
+      "last_scan_s": 2283.588,
+      "reconstructed_scan_count": 566,
+      "normal_footprint": {
+        "occupied": [],
+        "unknown": [],
+        "known_free": 86,
+        "retained_body_unknown": 3
+      },
+      "recovery_footprint": {
+        "occupied": [],
+        "unknown": [],
+        "known_free": 46,
+        "retained_body_unknown": 3
+      },
+      "geometry_exit": null,
+      "motion_evidence": {
+        "velocity_candidates": [
+          [
+            0.4841562509536743,
+            -0.2504023015499115
+          ],
+          [
+            0.4038611395398917,
+            -0.21525387699274676
+          ]
+        ],
+        "selected_xy": [
+          0.4841562509536743,
+          -0.2504023015499115
+        ],
+        "selected_source": "velocity_local",
+        "sample_s": 2283.639030776,
+        "speed_mps": 0.5452179817798878,
+        "speed_xy": 0.5450766808064808,
+        "velocity_local_sample": [
+          0.4841562509536743,
+          -0.2504023015499115,
+          -0.01241207867860794,
+          2283.639030776
+        ],
+        "pose_rate_sample": [
+          0.4038611395398917,
+          -0.21525387699274676,
+          0.008206268169749818,
+          2283.639030776
+        ],
+        "pose_window_s": [
+          2283.342978384,
+          2283.639030776
+        ]
+      }
+    }
+  ],
+  "unanswered_requested_s": null
+}

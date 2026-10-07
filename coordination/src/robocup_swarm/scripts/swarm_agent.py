@@ -1672,6 +1672,19 @@ class SwarmAgent(object):
             self._send_vel(*self._apply_friend_avoidance(vx,vy))
         return True
 
+    def _body_proof_diagnostic(self):
+        def snapshot(planner):
+            if planner is None:
+                return None
+            with planner._body_lock:
+                return dict(radius_m=planner.radius,seed_xy=list(planner.seed_xy),
+                    epoch=planner.epoch,scan_s=planner._body_sample_s,
+                    indices=sorted(planner.body_proof))
+        escape = getattr(self,'_escape_active',None)
+        return dict(map_epoch_s=getattr(self,'_online_map_epoch_s',None),
+            normal=snapshot(getattr(self,'_online_planner',None)),
+            escape=snapshot(escape['planner']) if escape is not None else None)
+
     def _online_velocity_clear(self, vx, vy):
         planner = getattr(self, '_online_planner', None)
         if planner is None or abs(vx)+abs(vy) < 1e-9:
@@ -2033,6 +2046,7 @@ class SwarmAgent(object):
                 world_xy=self.world_xy,local_z=self.local_z,
                 measured=[v if math.isfinite(v) else None for v in self._velocity_sample] if self._velocity_sample else None,
                 motion_evidence=self._measured_motion(rospy.Time.now().to_sec()),
+                online_body_proof=self._body_proof_diagnostic(),
                 bounded_escape=(dict(generation=self._escape_active['generation'],
                     offer_id=self._escape_active['ticket'],started_s=self._escape_active['started_s'],
                     scan_s=self._escape_active['scan_s'],radius_m=.9,speed_limit_mps=.3,
