@@ -7,6 +7,10 @@ def actor_slot_remaining(actor_id, remaining):
 
 
 class RedObservations:
+    # A retained slot must remain eligible for a geometrically plausible new
+    # image throughout its retention window, or one person creates two tasks.
+    RETENTION_S = 6.
+
     def __init__(self):
         self.slots = {}
 
@@ -17,13 +21,13 @@ class RedObservations:
         for tag,(previous,point) in self.slots.items():
             age=stamp-previous
             distance=math.dist(point,xy)
-            if 0 <= age <= 3. and distance <= min(8.,1.+3.*age):
+            if 0 <= age <= self.RETENTION_S and distance <= min(8.,1.+3.*age):
                 candidates.append((distance,tag))
         if candidates:
             tag=min(candidates)[1]
         else:
             available=[tag for tag in ('red1','red2')
-                       if tag not in self.slots or stamp-self.slots[tag][0]>6.]
+                       if tag not in self.slots or stamp-self.slots[tag][0]>self.RETENTION_S]
             if not available:
                 return None
             tag=available[0]

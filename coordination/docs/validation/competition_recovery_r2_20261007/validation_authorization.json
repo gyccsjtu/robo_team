@@ -1,0 +1,11 @@
+{
+  "reason": "new offline-verified handoff repair under active user goal",
+  "executed_head": "e06c20d",
+  "sim_limit_s": 600,
+  "seed": 8159,
+  "questions": [
+    "STOP observation with actual fresh images",
+    "stale pending cancellation",
+    "companion tracking and judge progress"
+  ]
+}

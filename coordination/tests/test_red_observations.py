@@ -22,6 +22,20 @@ exec(compile(ast.fix_missing_locations(ast.Module(body=callbacks, type_ignores=[
 
 
 class RedObservationTests(unittest.TestCase):
+    def test_retained_red_uses_same_slot_after_real_3060ms_camera_gap(self):
+        r = RedObservations()
+        self.assertEqual(r.observe(2490.616, (123.55,13.65)), 'red1')
+        self.assertEqual(r.observe(2493.676, (117.25,12.57)), 'red1')
+        self.assertEqual(set(r.slots), {'red1'})
+        self.assertEqual(r.slots['red1'][0], 2493.676)
+
+    def test_second_person_and_unreachable_jump_still_need_other_slot(self):
+        r = RedObservations()
+        r.observe(10., (0.,0.))
+        self.assertEqual(r.observe(13.1, (20.,0.)), 'red2')
+        self.assertEqual(r.observe(13.2, (6.,0.)), 'red1')
+        self.assertIsNone(r.observe(13.3, (50.,0.)))
+
     def test_cameras_observing_same_red_person_share_one_geometric_slot(self):
         r=RedObservations()
         self.assertEqual(r.observe(10.,(0.,0.)),'red1')

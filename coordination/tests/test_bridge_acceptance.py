@@ -9,9 +9,29 @@ from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src/robocup_swarm/scripts'))
 import yolo_target_bridge as module
 from visual_observation import VisualEvidence
+from red_observations import RedObservations
 
 
 class BridgeAcceptanceTests(unittest.TestCase):
+    def test_actual_bridge_reacquisition_keeps_retained_red_task_identity(self):
+        b=self.bridge()
+        b._red_observations=RedObservations()
+        samples=[(2489.9,125.2),(2490.2,124.6),(2490.616,123.55),
+                 (2493.676,117.25),(2493.9,116.8),(2494.2,116.2)]
+        with patch.object(module,'_msg_string_cls',return_value=NS):
+            for seq,(stamp,x) in enumerate(samples,1):
+                b._now=lambda stamp=stamp:stamp+.1
+                image=self.image('uav_1',seq,stamp,x)
+                payload=json.loads(image.data)
+                payload['target_id']='red1'
+                image.data=json.dumps(payload)
+                b._visual_cb(image)
+        self.assertEqual([v.target_id for v in b.detected], ['t5','t5'])
+        confirmed=[json.loads(v.data) for v in b.confirmed]
+        self.assertEqual([v['sample_s'] for v in confirmed], [2490.616,2494.2])
+        self.assertEqual(confirmed[-1]['xyz'], [116.2,0.,1.25])
+        self.assertEqual(b.core.tracks['red2'].t_obs, -1e18)
+
     def bridge(self):
         b=module.YoloTargetBridge.__new__(module.YoloTargetBridge)
         b.core=module.TargetBridgeCore()

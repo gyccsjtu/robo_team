@@ -1,0 +1,61 @@
+{
+  "executed_commit": "e06c20d",
+  "candidate_commit": "9aef0d9",
+  "stop_reason": "CONFIGURED_600_SIM_SECONDS_REACHED",
+  "simulated_seconds": 600.1199999999999,
+  "trajectory_first_s": 1930.732,
+  "trajectory_last_s": 2530.688,
+  "trajectory_span_s": 599.9560000000001,
+  "official_eliminated": 0,
+  "left_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "maximum_true_altitude_m": 3.2105008599809297,
+  "travelled_3d_m": {
+    "uav_1": 402.928656469525,
+    "uav_2": 384.06862136357125,
+    "uav_3": 461.9151916653597,
+    "uav_4": 405.6633465959766,
+    "uav_5": 362.2311688223546,
+    "uav_6": 426.6014254727951
+  },
+  "contact_observer": {
+    "kind": "CONTACT_OBSERVER_STOPPED",
+    "frames": 150357,
+    "first_sample_s": 1929.532,
+    "last_sample_s": 2530.956,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 508427,
+    "body_pairs": 50988
+  },
+  "non_ground_contacts": [],
+  "contacts_cover_trajectory": true,
+  "source_files_checked": 150,
+  "source_mismatches": [],
+  "owned_pids_present": {
+    "971792": false,
+    "971795": false,
+    "971855": false,
+    "973985": false,
+    "973986": false,
+    "973988": false,
+    "973990": false,
+    "973991": false,
+    "974000": false
+  },
+  "tcp_ports_open": {
+    "11375": false,
+    "11376": false,
+    "19731": false
+  },
+  "formal_competition_pass": false,
+  "limitations": [
+    "No official judge terminal summary: harness stopped ROS at its configured 600s deadline. Raw judge log and result remain unchanged.",
+    "No new candidate executed in this round."
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "ros_master_uri": "http://127.0.0.1:11375",
+  "processes": [
+    {
+      "pid": 973985,
+      "cmd": [
+        "bash",
+        "-c",
+        "source /opt/ros/noetic/setup.bash; source /root/robo_team_build/codex_authority_v2/devel/setup.bash; exec python3 -u \"$@\"",
+        "city-observer",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers/scripts/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "green",
+        "--wall-seconds",
+        "7200"
+      ],
+      "source_sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+    },
+    {
+      "pid": 973986,
+      "cmd": [
+        "bash",
+        "-c",
+        "source /opt/ros/noetic/setup.bash; source /root/robo_team_build/codex_authority_v2/devel/setup.bash; exec python3 -u \"$@\"",
+        "city-observer",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers/scripts/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "blue",
+        "--wall-seconds",
+        "7200"
+      ],
+      "source_sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+    },
+    {
+      "pid": 973988,
+      "cmd": [
+        "bash",
+        "-c",
+        "source /opt/ros/noetic/setup.bash; source /root/robo_team_build/codex_authority_v2/devel/setup.bash; exec python3 -u \"$@\"",
+        "city-observer",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers/scripts/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "brown",
+        "--wall-seconds",
+        "7200"
+      ],
+      "source_sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+    },
+    {
+      "pid": 973990,
+      "cmd": [
+        "bash",
+        "-c",
+        "source /opt/ros/noetic/setup.bash; source /root/robo_team_build/codex_authority_v2/devel/setup.bash; exec python3 -u \"$@\"",
+        "city-observer",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers/scripts/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "white",
+        "--wall-seconds",
+        "7200"
+      ],
+      "source_sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+    },
+    {
+      "pid": 973991,
+      "cmd": [
+        "bash",
+        "-c",
+        "source /opt/ros/noetic/setup.bash; source /root/robo_team_build/codex_authority_v2/devel/setup.bash; exec python3 -u \"$@\"",
+        "city-observer",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers/scripts/observe_visual_accuracy.py",
+        "--run",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers",
+        "--result-file",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/flight/result.json",
+        "--tag",
+        "red",
+        "--wall-seconds",
+        "7200"
+      ],
+      "source_sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+    },
+    {
+      "pid": 974000,
+      "cmd": [
+        "bash",
+        "-c",
+        "source /opt/ros/noetic/setup.bash; source /root/robo_team_build/codex_authority_v2/devel/setup.bash; exec python3 -u \"$@\"",
+        "city-observer",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers/scripts/capture_visual_frames.py",
+        "--output",
+        "/root/robocup_runs/competition_recovery_r2_20261007/round_1_seed_8159/observers/frames",
+        "--wall-seconds",
+        "7200",
+        "--loss-color",
+        "white"
+      ],
+      "source_sha256": "6d7b2d9c5377d58fcb82a688771b29fa56e6b26707f6219d36d9bb35ae1a0bb0"
+    }
+  ]
+}

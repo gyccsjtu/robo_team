@@ -114,6 +114,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         control_truth_input=False, own_camera_pose_source='DEVELOPMENT_GAZEBO_LINK_POSE',
         clearance_configuration_revision='v1.2',route_clearance_m=2.5,fleet_separation_m=2.5,
         search_priority_revision='no_implicit_actor_spawn_prior',priority_corner=flight_env['PRIORITY_CORNER'],
+        red_geometry_revision='association_matches_6s_retention_without_timestamp_refresh',
         brown_fusion_revision='v1.39_source_aligned_original_time',
         white_reacquisition_revision='v1.39_own_image_once_per_generation_3s',
         orbit_planning_revision='v1.38_braking_length_ring_chord',
