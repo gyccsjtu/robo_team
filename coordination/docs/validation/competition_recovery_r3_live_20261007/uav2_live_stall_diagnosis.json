@@ -1,0 +1,30 @@
+{
+  "status": "LIVE_NOT_FINAL",
+  "uav_id": "uav_2",
+  "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+  "trajectory_near_last_position_radius_m": 0.5,
+  "window_s": [
+    2017.572,
+    2050.908
+  ],
+  "duration_s": 33.33600000000001,
+  "last_position": [
+    51.087116549158814,
+    -22.66407113006316,
+    2.3876914275926673
+  ],
+  "diagnostic_event_counts": {
+    "ONLINE_SPACE_UNKNOWN": 2,
+    "MOVING": 1,
+    "RADAR_BRAKING_REQUIRED": 1,
+    "AUTHORITY_STOP": 4,
+    "REQUESTED_STOP": 5,
+    "RADAR_STALE_SCAN": 1
+  },
+  "notes": [
+    "Diagnostic logs are not periodic; counts are not time percentages",
+    "START_CLEARANCE_UNKNOWN also names an occupied inflated start, not exclusively unknown cells",
+    "Radar and planner both radius1.2; suspected difference is discrete footprint and retained hits, not a verified different numeric radius",
+    "No replay yet of full observed map or movement callbacks; do not claim cause proven"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "scope": "Live partial diagnostics, not final round archive",
+  "executed_commit": "e83839b6c39888312e51490a960a0ea7f204ea0d",
+  "run_id": "ef4aec66-25d1-4bf6-9491-72ea2ee5ca49",
+  "source_path": "/root/robocup_runs/competition_recovery_r3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_2.jsonl",
+  "source_snapshot_sha256": "6e9aa21bc0abf022e88e5ce255f097b5a0a49e7b8613fa9082c15725ec1e5a32",
+  "source_is_still_growing": true,
+  "selected_decompressed_sha256": "0d72e1b344020367aa7d1ff5499e59f8fabe7fe86120772fcb96a02d3e3344aa",
+  "selected_records": 3,
+  "snapshot_method": "Byte-for-byte selected JSONL records with original LF; gzip deterministic",
+  "limitations": [
+    "Scan-window subset cannot replay prior complete map/body-proof or actual callback timing",
+    "Current occupied footprint cannot be made free by unknown body proof",
+    "Truth used only offline diagnosis; not sent to control"
+  ],
+  "files": {
+    "blue_live_original_alignment.json": "c9114bc4df180e4817a26bf96649636220bbbe08e2aeffab38b654589253a513",
+    "selected_navigation_uav_2.jsonl.gz": "430c99a9ff37e0e9ebe06f83e11f26516ee39388112adfde0300fac05fbf1105",
+    "uav2_live_stall_diagnosis.json": "a62c9bb978a8d6a191528953baa793e52f1884aeadd2df2f5c0b4b4433f6a9bc",
+    "uav2_recorded_footprint_replay.json": "1ce8af2d82fde54d418a4334d0d1b67a7688d3229bf7727f40594234df4f8f45",
+    "uav2_before_stop_motion.json": "a5d23a8ad869279335a45a0422814515e0852104df492cb8de6bdbb592a293fa"
+  },
+  "executed_replay_module_sha256": {
+    "online_radar_planner.py": "e195d1622094251d2bea6b359eefd69bb583df903834d83c1a893e6387c29ab2",
+    "radar_observed_map.py": "da7380910024d5825c8e40e1cc533720c06fe8504aa376a7b1dce9eb9770cabe"
+  },
+  "grid_metadata": {
+    "width": 720,
+    "height": 480,
+    "resolution_m": 0.25,
+    "origin": [
+      -50.125,
+      -60.125
+    ],
+    "frame_id": "map",
+    "encoding": "rle_pairs",
+    "data": [
+      [
+        0,
+        345600
+      ]
+    ]
+  },
+  "replay_method": "For each navigation scan_window restore recorded nonfinite kinds, feed actual ObservedMap with original scan and pose timestamps. Query original grid inflation offsets radius1.2 + resolution/2 and report recent100 cells, plus actual local_command_clear at zero velocity. No previous body proof, full-map history or movement callback replay."
+}

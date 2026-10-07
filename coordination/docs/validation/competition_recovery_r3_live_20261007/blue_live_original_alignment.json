@@ -1,0 +1,292 @@
+{
+  "status": "LIVE_DIAGNOSTIC_NOT_JUDGE_RESULT",
+  "blue": [
+    {
+      "source": "perception_typhoon_h480_0.csv",
+      "independent_raw_samples": {
+        "far": 7
+      },
+      "accurate_samples": []
+    },
+    {
+      "source": "perception_typhoon_h480_1.csv",
+      "independent_raw_samples": {
+        "far": 12,
+        "within1m": 14
+      },
+      "accurate_samples": [
+        {
+          "s": 1965.272,
+          "track": "2",
+          "reason": "verdict_hits",
+          "error": 0.073,
+          "qualified": "False",
+          "range_m": "39.27",
+          "hits": "3",
+          "height_m": "1.96",
+          "attached": "False",
+          "score_ema": "0.3763945049567732",
+          "motion_span_s": "1.55600000000004",
+          "motion_samples": "3",
+          "original_s": "1965.272"
+        },
+        {
+          "s": 1965.856,
+          "track": "2",
+          "reason": "verdict_range",
+          "error": 0.993,
+          "qualified": "False",
+          "range_m": "40.53",
+          "hits": "5",
+          "height_m": "2.1",
+          "attached": "False",
+          "score_ema": "0.4769588386199547",
+          "motion_span_s": "2.1400000000001",
+          "motion_samples": "5",
+          "original_s": "1965.856"
+        },
+        {
+          "s": 1966.096,
+          "track": "2",
+          "reason": "verdict_range",
+          "error": 0.099,
+          "qualified": "False",
+          "range_m": "39.6",
+          "hits": "6",
+          "height_m": "2.12",
+          "attached": "False",
+          "score_ema": "0.4819527442413008",
+          "motion_span_s": "2.380000000000109",
+          "motion_samples": "6",
+          "original_s": "1966.096"
+        },
+        {
+          "s": 1966.336,
+          "track": "2",
+          "reason": "verdict_range",
+          "error": 0.587,
+          "qualified": "False",
+          "range_m": "40.03",
+          "hits": "7",
+          "height_m": "2.12",
+          "attached": "False",
+          "score_ema": "0.49604163438420495",
+          "motion_span_s": "2.6200000000001182",
+          "motion_samples": "7",
+          "original_s": "1966.336"
+        },
+        {
+          "s": 1966.824,
+          "track": "2",
+          "reason": "verdict_self",
+          "error": 0.946,
+          "qualified": "False",
+          "range_m": "38.42",
+          "hits": "8",
+          "height_m": "2.05",
+          "attached": "True",
+          "score_ema": "0.4987876926762162",
+          "motion_span_s": "3.1080000000001746",
+          "motion_samples": "8",
+          "original_s": "1966.824"
+        },
+        {
+          "s": 1967.084,
+          "track": "2",
+          "reason": "verdict_range",
+          "error": 0.584,
+          "qualified": "False",
+          "range_m": "40.05",
+          "hits": "9",
+          "height_m": "2.01",
+          "attached": "False",
+          "score_ema": "0.5233336181911297",
+          "motion_span_s": "3.3680000000001655",
+          "motion_samples": "9",
+          "original_s": "1967.084"
+        },
+        {
+          "s": 1972.188,
+          "track": "3",
+          "reason": "verdict_hits",
+          "error": 0.433,
+          "qualified": "False",
+          "range_m": "40.16",
+          "hits": "3",
+          "height_m": "2.01",
+          "attached": "False",
+          "score_ema": "0.2915010513542319",
+          "motion_span_s": "0.540000000000191",
+          "motion_samples": "2",
+          "original_s": "1972.188"
+        },
+        {
+          "s": 1972.48,
+          "track": "3",
+          "reason": "verdict_hits",
+          "error": 0.849,
+          "qualified": "False",
+          "range_m": "39.01",
+          "hits": "4",
+          "height_m": "2.03",
+          "attached": "False",
+          "score_ema": "0.33770395575656076",
+          "motion_span_s": "0.8320000000001073",
+          "motion_samples": "3",
+          "original_s": "1972.48"
+        },
+        {
+          "s": 1972.788,
+          "track": "3",
+          "reason": "verdict_range",
+          "error": 0.404,
+          "qualified": "False",
+          "range_m": "39.35",
+          "hits": "5",
+          "height_m": "1.98",
+          "attached": "False",
+          "score_ema": "0.3844432478311539",
+          "motion_span_s": "1.1400000000001",
+          "motion_samples": "4",
+          "original_s": "1972.788"
+        },
+        {
+          "s": 1973.084,
+          "track": "3",
+          "reason": "verdict_range",
+          "error": 0.408,
+          "qualified": "False",
+          "range_m": "40.09",
+          "hits": "6",
+          "height_m": "1.99",
+          "attached": "False",
+          "score_ema": "0.40568157443278163",
+          "motion_span_s": "1.4360000000001492",
+          "motion_samples": "5",
+          "original_s": "1973.084"
+        },
+        {
+          "s": 1973.356,
+          "track": "3",
+          "reason": "verdict_range",
+          "error": 0.503,
+          "qualified": "False",
+          "range_m": "40.18",
+          "hits": "7",
+          "height_m": "1.95",
+          "attached": "False",
+          "score_ema": "0.41304265278546803",
+          "motion_span_s": "1.7080000000000837",
+          "motion_samples": "6",
+          "original_s": "1973.356"
+        },
+        {
+          "s": 1973.604,
+          "track": "3",
+          "reason": "verdict_range",
+          "error": 0.768,
+          "qualified": "False",
+          "range_m": "38.89",
+          "hits": "8",
+          "height_m": "2.16",
+          "attached": "False",
+          "score_ema": "0.3803028271129936",
+          "motion_span_s": "1.956000000000131",
+          "motion_samples": "7",
+          "original_s": "1973.604"
+        },
+        {
+          "s": 1975.34,
+          "track": "8",
+          "reason": "verdict_hits",
+          "error": 0.612,
+          "qualified": "False",
+          "range_m": "38.19",
+          "hits": "2",
+          "height_m": "2.05",
+          "attached": "False",
+          "score_ema": "0.2587935987399535",
+          "motion_span_s": "0.5960000000000036",
+          "motion_samples": "2",
+          "original_s": "1975.34"
+        },
+        {
+          "s": 1975.64,
+          "track": "8",
+          "reason": "verdict_hits",
+          "error": 0.925,
+          "qualified": "False",
+          "range_m": "37.93",
+          "hits": "3",
+          "height_m": "2.01",
+          "attached": "False",
+          "score_ema": "0.30189472582424837",
+          "motion_span_s": "0.8960000000001855",
+          "motion_samples": "3",
+          "original_s": "1975.64"
+        }
+      ]
+    },
+    {
+      "source": "perception_typhoon_h480_2.csv",
+      "independent_raw_samples": {
+        "far": 25
+      },
+      "accurate_samples": []
+    },
+    {
+      "source": "perception_typhoon_h480_3.csv",
+      "independent_raw_samples": {
+        "far": 1,
+        "within1m": 1
+      },
+      "accurate_samples": [
+        {
+          "s": 1971.376,
+          "track": "4",
+          "reason": "verdict_hits",
+          "error": 0.43,
+          "qualified": "False",
+          "range_m": "33.49",
+          "hits": "3",
+          "height_m": "2.02",
+          "attached": "False",
+          "score_ema": "0.255019583490135",
+          "motion_span_s": "2.963999999999942",
+          "motion_samples": "3",
+          "original_s": "1971.376"
+        }
+      ]
+    },
+    {
+      "source": "perception_typhoon_h480_4.csv",
+      "independent_raw_samples": {
+        "far": 40
+      },
+      "accurate_samples": []
+    },
+    {
+      "source": "perception_typhoon_h480_5.csv",
+      "independent_raw_samples": {
+        "within1m": 1
+      },
+      "accurate_samples": [
+        {
+          "s": 1951.732,
+          "track": "1",
+          "reason": "verdict_hits",
+          "error": 0.5,
+          "qualified": "False",
+          "range_m": "36.06",
+          "hits": "2",
+          "height_m": "1.96",
+          "attached": "False",
+          "score_ema": "0.21442735444134553",
+          "motion_span_s": "0.2439999999999145",
+          "motion_samples": "2",
+          "original_s": "1951.732"
+        }
+      ]
+    }
+  ]
+}
