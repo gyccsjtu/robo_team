@@ -28,6 +28,7 @@ import math
 import os
 import re
 import threading
+import time
 from pathlib import Path
 from visual_observation import VisualEvidence, TAG_TO_TID
 from report_readiness import ReportReadiness
@@ -99,6 +100,33 @@ def _vel_ema(v_old, raw):
     """单轴速度 EMA + 限幅。"""
     v = VEL_ALPHA * raw + (1.0 - VEL_ALPHA) * v_old
     return max(-VEL_MAX, min(VEL_MAX, v))
+
+
+def emit_gate_reason(tag, actor_pub_tags, ev, track, now,
+                     approach_reporting=False, readiness_ok=True):
+    """Why the official ActorInfo publish is allowed or skipped (pure).
+
+    Returns None when the publish is allowed, otherwise a short reason string.
+    This mirrors the inline condition in _emit() exactly, and exists because a
+    whole round once published zero official messages while leaving NO trace of
+    why: the success path wrote a trace row, the failure path wrote nothing, so
+    "the timer never ran" and "every event was gate-skipped" were
+    indistinguishable. Keep this the single source of truth for that decision;
+    _emit(), the heartbeat and the offline tests all read it.
+
+    Reasons: no_slot | eliminated | state_elim | stale | not_ready
+    """
+    if tag is None or tag not in actor_pub_tags:
+        return 'no_slot'
+    if ev["eliminated"]:
+        return 'eliminated'
+    if ev.get("state", 0) == 3:
+        return 'state_elim'
+    if not (0 <= now - track.t_obs <= COAST_TIME):
+        return 'stale'
+    if approach_reporting and not readiness_ok:
+        return 'not_ready'
+    return None
 
 
 class _Track(object):
@@ -413,6 +441,14 @@ class YoloTargetBridge(object):
         self._report_readiness = ReportReadiness()
         self._lock = threading.RLock()
         self._trace = None
+        # Publish-path diagnostics (observability only; changes no decision).
+        # Before this, a round could publish zero official messages and leave no
+        # evidence of why: the success path wrote a trace row, the failure path
+        # wrote nothing, and a stopped timer looked identical to a gate skip.
+        self._emit_stats = dict(ticks=0, events=0, published=0, skipped={})
+        self._skip_trace_t = {}
+        self._heartbeat_s = float(os.environ.get("BRIDGE_HEARTBEAT_S", "5"))
+        self._last_heartbeat_mono = time.monotonic()
         trace_path = os.environ.get('BRIDGE_TRACE_JSONL')
         if trace_path:
             path = Path(trace_path)
@@ -440,7 +476,10 @@ class YoloTargetBridge(object):
         self._timer = rospy.Timer(rospy.Duration(1.0 / max(1.0, pub_hz)),
                                   self._tick)
         rospy.loginfo("yolo_target_bridge 启动：visual_observation v2/v3 → /swarm/target_states"
-                      "（%d 个固定目标槽）", len(TAG_TO_TID))
+                      "（%d 个固定目标槽）; publish timer %.3f s (%.1f Hz), heartbeat every %.0f s"
+                      " - a missing heartbeat means the timer stopped firing",
+                      len(TAG_TO_TID), 1.0 / max(1.0, pub_hz), max(1.0, pub_hz),
+                      self._heartbeat_s)
 
     def _now(self):
         return self._rospy.Time.now().to_sec()
@@ -540,32 +579,75 @@ class YoloTargetBridge(object):
         # 向官方话题发布 ActorInfo（用融合坐标，10Hz 连续上报）。
         # 仅对存活且有位置的目标发布；eliminated 的目标官方已不再判定。
         tag = TID_TO_TAG.get(ev["tid"])
-        if (tag is not None and tag in self._actor_pubs
-                and not ev["eliminated"]
-                and ev.get("state", 0) != 3 and 0 <= self._now()-track.t_obs <= COAST_TIME
-                and (not getattr(self,'_approach_reporting',False)
-                     or self._report_readiness.allowed(tag,self._now(),track.t_obs))):
+        approach = bool(getattr(self, '_approach_reporting', False))
+        now = self._now()
+        readiness_ok = True
+        if approach and tag is not None:
+            # Preserve the original short-circuit: readiness is only consulted
+            # when approach reporting is enabled.
+            readiness_ok = self._report_readiness.allowed(tag, now, track.t_obs)
+        reason = emit_gate_reason(tag, self._actor_pubs, ev, track, now,
+                                  approach_reporting=approach,
+                                  readiness_ok=readiness_ok)
+        if reason is None:
             am = self._ActorInfo()
             am.cls = 'red' if tag in ('red1', 'red2') else tag
             am.x = round(ev["x"], 3)
             am.y = round(ev["y"], 3)
             self._actor_pubs[tag].publish(am)
+            self._emit_stats['published'] = self._emit_stats.get('published', 0) + 1
             if getattr(self,'_trace',None) is not None:
-                self._trace_record(dict(kind='upload', receipt_s=self._now(), tag=tag,
+                self._trace_record(dict(kind='upload', receipt_s=now, tag=tag,
                     prediction_s=getattr(self,'_last_prediction_s',None),
                     requested_xy=[am.x,am.y], fused_xy=[track.x,track.y],
                     velocity=[track.vx,track.vy], original_s=track.t_obs,
                     position_s=track.position_s, window=track.obs))
             if tag == 'brown' and track.alignment is not None:
                 self._rospy.loginfo_throttle(.5, 'BROWN_ALIGNMENT %s', json.dumps(dict(
-                    track.alignment, original_s=track.t_obs, prediction_s=self._now(),
+                    track.alignment, original_s=track.t_obs, prediction_s=now,
                     uploaded_xy=[am.x, am.y], extrapolation_xy=[ev['x']-track.x, ev['y']-track.y])))
+        else:
+            # A skipped publish used to leave no evidence anywhere. Record the
+            # reason (throttled to <=1 row/s per reason, trace only).
+            skipped = self._emit_stats.setdefault('skipped', {})
+            skipped[reason] = skipped.get(reason, 0) + 1
+            last = self._skip_trace_t.get(reason, -1e18)
+            if getattr(self,'_trace',None) is not None and now - last >= 1.0:
+                self._skip_trace_t[reason] = now
+                self._trace_record(dict(kind='skip', receipt_s=now, tag=tag,
+                    reason=reason, state=ev.get("state"),
+                    original_s=track.t_obs, age_s=now - track.t_obs,
+                    fused_xy=[track.x, track.y]))
+
+    def _heartbeat(self):
+        """Periodic proof-of-life for the publish timer.
+
+        Called from the timer callback only, so an absent heartbeat is itself
+        the evidence that the timer stopped firing - the exact ambiguity that
+        cost a whole round of diagnosis. Interval is measured on the monotonic
+        wall clock, so a frozen /clock cannot silence it.
+        """
+        period = self._heartbeat_s
+        if period <= 0:
+            return
+        mono = time.monotonic()
+        if mono - self._last_heartbeat_mono < period:
+            return
+        self._last_heartbeat_mono = mono
+        st = self._emit_stats
+        self._rospy.loginfo(
+            "[bridge] heartbeat ros=%.1f wall=%.1f tick=%d events=%d published=%d skipped=%s",
+            self._now(), time.time(), st.get('ticks', 0), st.get('events', 0),
+            st.get('published', 0), json.dumps(st.get('skipped', {}), sort_keys=True))
 
     def _tick(self, _evt):
         with self._lock:
+            self._emit_stats['ticks'] = self._emit_stats.get('ticks', 0) + 1
             self._last_prediction_s = self._now()
             for ev in self.core.tick(self._last_prediction_s):
+                self._emit_stats['events'] = self._emit_stats.get('events', 0) + 1
                 self._emit(ev)
+            self._heartbeat()
 
 
 def _msg_string_cls():
@@ -612,9 +694,18 @@ def _self_test():
     assert len(c.tick(2.5)) == 1                # gap 0.7s 仍保持
     assert len(c.tick(6.0)) == 1                # 6s 窗口内仍保持
     assert c.tick(8.0) == []                    # gap>6s 停发
-    c.report(8.5, "green", 4.0, 0.0, 0.9)      # 重新出现 → 复活
-    assert len(c.tick(8.5)) == 1
-    print("3) coast/drop/复活 OK")
+    # Reacquisition must re-earn activation: report() resets _high_conf_count on
+    # a gap > COAST_TIME ("Do not ... reuse its old activation count as fresh
+    # three-frame evidence"), so one frame is not enough. This assertion used to
+    # expect an immediate revival, which stopped matching the code once
+    # NEW_TRACK_FRAMES multi-frame activation landed - and because that made the
+    # whole self-test fail, it went unnoticed.
+    c.report(8.5, "green", 4.0, 0.0, 0.9)
+    assert c.tick(8.5) == []                    # 1/3 frames: not re-activated yet
+    c.report(8.7, "green", 4.4, 0.0, 0.9)
+    c.report(8.9, "green", 4.8, 0.0, 0.9)
+    assert len(c.tick(8.9)) == 1                # 3/3 frames: alive again
+    print("3) coast/drop/复活（重新满三帧激活）OK")
 
     # 4) 官方消除：补发 eliminated 一次，鬼影不复活
     c.set_left(8.6, "[1, 2, 3, 4, 5]")          # green(0) 不在
