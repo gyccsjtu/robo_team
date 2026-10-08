@@ -1,0 +1,601 @@
+{
+  "control_input": false,
+  "meaning": "Original search frame camera metadata projects independently observed green actor vertical line; animation offsets not included",
+  "cases": [
+    {
+      "uav_id": "uav_5",
+      "image_s": 2451.248,
+      "camera": [
+        59.670047533875,
+        27.66534064315755,
+        2.1606248993124573
+      ],
+      "true_actor_xy": [
+        101.28071714438512,
+        12.965764968851019
+      ],
+      "detected_xy": [
+        65.21134670623954,
+        43.13325606377999
+      ],
+      "actual_custom_box": [
+        328.08,
+        195.3,
+        337.46,
+        213.72
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": -3.552260104945962,
+          "uv": null
+        },
+        {
+          "z": 1.0,
+          "optical_depth": -3.534393069791309,
+          "uv": null
+        },
+        {
+          "z": 2.0,
+          "optical_depth": -3.5165260346366556,
+          "uv": null
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        65.21134670623954,
+        43.13325606377999
+      ],
+      "reconstruction_error_m": 0.0
+    },
+    {
+      "uav_id": "uav_5",
+      "image_s": 2456.28,
+      "camera": [
+        60.00635958334801,
+        27.950382498401325,
+        2.1715054104341944
+      ],
+      "true_actor_xy": [
+        101.448831623618,
+        12.967085089933262
+      ],
+      "detected_xy": [
+        65.6710269699044,
+        44.31564654771007
+      ],
+      "actual_custom_box": [
+        144.22000000000003,
+        195.93,
+        152.75,
+        214.42
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": 27.752190383861283,
+          "uv": [
+            573.6701793152325,
+            200.38480934947196
+          ]
+        },
+        {
+          "z": 1.0,
+          "optical_depth": 27.76058882472091,
+          "uv": [
+            573.6544136628913,
+            192.97781756704518
+          ]
+        },
+        {
+          "z": 2.0,
+          "optical_depth": 27.768987265580535,
+          "uv": [
+            573.6386575468648,
+            185.57530611959336
+          ]
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        65.6710269699044,
+        44.31564654771007
+      ],
+      "reconstruction_error_m": 0.0
+    },
+    {
+      "uav_id": "uav_1",
+      "image_s": 2310.376,
+      "camera": [
+        -37.88430651202815,
+        -21.63867971382432,
+        2.2391048986068807
+      ],
+      "true_actor_xy": [
+        104.42072225198731,
+        14.833759424276835
+      ],
+      "detected_xy": [
+        -35.20795413165492,
+        -3.156777321883542
+      ],
+      "actual_custom_box": [
+        332.67,
+        189.54,
+        341.71,
+        205.76
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": 45.207081799832636,
+          "uv": [
+            955.6972890965336,
+            195.45341820254924
+          ]
+        },
+        {
+          "z": 1.0,
+          "optical_depth": 45.209126117809724,
+          "uv": [
+            955.6997340587178,
+            190.90798759510912
+          ]
+        },
+        {
+          "z": 2.0,
+          "optical_depth": 45.211170435786805,
+          "uv": [
+            955.7021787997941,
+            186.36296805004204
+          ]
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        -35.20795413165492,
+        -3.156777321883542
+      ],
+      "reconstruction_error_m": 0.0
+    },
+    {
+      "uav_id": "uav_1",
+      "image_s": 2320.048,
+      "camera": [
+        -36.93981267798184,
+        -22.563643214765055,
+        2.200352652162512
+      ],
+      "true_actor_xy": [
+        104.41405156735863,
+        14.385890717812858
+      ],
+      "detected_xy": [
+        -35.3279320617136,
+        -0.9036007545868152
+      ],
+      "actual_custom_box": [
+        17.979999999999997,
+        208.3,
+        33.62,
+        232.87
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": 140.5098065137589,
+          "uv": [
+            379.0585325168352,
+            183.57099466167864
+          ]
+        },
+        {
+          "z": 1.0,
+          "optical_depth": 140.5218810717024,
+          "uv": [
+            378.98780810419214,
+            182.1101243075971
+          ]
+        },
+        {
+          "z": 2.0,
+          "optical_depth": 140.53395562964593,
+          "uv": [
+            378.91709584471187,
+            180.64950498699224
+          ]
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        -35.3279320617136,
+        -0.9036007545868117
+      ],
+      "reconstruction_error_m": 3.552713678800501e-15
+    },
+    {
+      "uav_id": "uav_1",
+      "image_s": 2320.048,
+      "camera": [
+        -36.93981267798184,
+        -22.563643214765055,
+        2.200352652162512
+      ],
+      "true_actor_xy": [
+        104.41405156735863,
+        14.385890717812858
+      ],
+      "detected_xy": [
+        -34.96205298558446,
+        -1.282795612079564
+      ],
+      "actual_custom_box": [
+        29.429999999999996,
+        212.5,
+        44.83,
+        232.0
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": 140.5098065137589,
+          "uv": [
+            379.0585325168352,
+            183.57099466167864
+          ]
+        },
+        {
+          "z": 1.0,
+          "optical_depth": 140.5218810717024,
+          "uv": [
+            378.98780810419214,
+            182.1101243075971
+          ]
+        },
+        {
+          "z": 2.0,
+          "optical_depth": 140.53395562964593,
+          "uv": [
+            378.91709584471187,
+            180.64950498699224
+          ]
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        -34.96205298558446,
+        -1.2827956120795676
+      ],
+      "reconstruction_error_m": 3.552713678800501e-15
+    },
+    {
+      "uav_id": "uav_1",
+      "image_s": 2360.408,
+      "camera": [
+        -38.478902406263344,
+        -22.244448038160442,
+        2.5502780786107175
+      ],
+      "true_actor_xy": [
+        102.70874395479363,
+        12.98963896221302
+      ],
+      "detected_xy": [
+        -35.229316854329234,
+        -2.2027560758982005
+      ],
+      "actual_custom_box": [
+        510.5899999999999,
+        184.61,
+        519.47,
+        203.85
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": -49.31412405143051,
+          "uv": null
+        },
+        {
+          "z": 1.0,
+          "optical_depth": -49.30087668726942,
+          "uv": null
+        },
+        {
+          "z": 2.0,
+          "optical_depth": -49.28762932310833,
+          "uv": null
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        -35.229316854329234,
+        -2.202756075898204
+      ],
+      "reconstruction_error_m": 3.552713678800501e-15
+    },
+    {
+      "uav_id": "uav_1",
+      "image_s": 2402.152,
+      "camera": [
+        -37.89912662967325,
+        -21.591430373319152,
+        2.2673874826989886
+      ],
+      "true_actor_xy": [
+        101.48742097764351,
+        12.929293216987139
+      ],
+      "detected_xy": [
+        -35.19339120238544,
+        -2.5637468962572356
+      ],
+      "actual_custom_box": [
+        351.13,
+        187.43,
+        360.5400000000001,
+        204.09
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": 30.852338577180824,
+          "uv": [
+            1254.5806086337084,
+            172.300218892852
+          ]
+        },
+        {
+          "z": 1.0,
+          "optical_depth": 30.85173823504742,
+          "uv": [
+            1254.4335550800383,
+            165.64220577435017
+          ]
+        },
+        {
+          "z": 2.0,
+          "optical_depth": 30.851137892914018,
+          "uv": [
+            1254.2864958032446,
+            158.98393353504616
+          ]
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        -35.19339120238544,
+        -2.5637468962572356
+      ],
+      "reconstruction_error_m": 0.0
+    },
+    {
+      "uav_id": "uav_1",
+      "image_s": 2413.34,
+      "camera": [
+        -38.07118063482999,
+        -21.504601727935544,
+        2.446383522069308
+      ],
+      "true_actor_xy": [
+        101.19071972289454,
+        12.914751595723649
+      ],
+      "detected_xy": [
+        -35.39365204295312,
+        -2.213172073339198
+      ],
+      "actual_custom_box": [
+        446.78,
+        201.58,
+        456.8399999999999,
+        220.57
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": -27.1668844031636,
+          "uv": null
+        },
+        {
+          "z": 1.0,
+          "optical_depth": -27.13982026324602,
+          "uv": null
+        },
+        {
+          "z": 2.0,
+          "optical_depth": -27.11275612332844,
+          "uv": null
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        -35.39365204295312,
+        -2.213172073339198
+      ],
+      "reconstruction_error_m": 0.0
+    },
+    {
+      "uav_id": "uav_1",
+      "image_s": 2414.068,
+      "camera": [
+        -38.23925786773882,
+        -21.81723204154086,
+        2.38949131594521
+      ],
+      "true_actor_xy": [
+        101.30520363673105,
+        12.915474793793328
+      ],
+      "detected_xy": [
+        -35.12497071151508,
+        -1.7355921665107132
+      ],
+      "actual_custom_box": [
+        544.08,
+        196.87,
+        550.57,
+        215.64
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": -60.293842017383625,
+          "uv": null
+        },
+        {
+          "z": 1.0,
+          "optical_depth": -60.26845408168704,
+          "uv": null
+        },
+        {
+          "z": 2.0,
+          "optical_depth": -60.24306614599046,
+          "uv": null
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        -35.12497071151508,
+        -1.7355921665107132
+      ],
+      "reconstruction_error_m": 0.0
+    },
+    {
+      "uav_id": "uav_1",
+      "image_s": 2445.576,
+      "camera": [
+        -36.907185307905536,
+        -19.45092178566726,
+        2.149625985518195
+      ],
+      "true_actor_xy": [
+        100.9743212245567,
+        12.966213793006022
+      ],
+      "detected_xy": [
+        -35.16168332090787,
+        -1.6650151139985425
+      ],
+      "actual_custom_box": [
+        105.29,
+        192.43,
+        114.21,
+        212.96
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": 127.93445437080406,
+          "uv": [
+            418.1573033156622,
+            182.90291452065176
+          ]
+        },
+        {
+          "z": 1.0,
+          "optical_depth": 127.92648663056768,
+          "uv": [
+            418.17304842976716,
+            181.29699024241566
+          ]
+        },
+        {
+          "z": 2.0,
+          "optical_depth": 127.9185188903313,
+          "uv": [
+            418.18879550532347,
+            179.69086590577362
+          ]
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        -35.16168332090787,
+        -1.6650151139985425
+      ],
+      "reconstruction_error_m": 0.0
+    },
+    {
+      "uav_id": "uav_2",
+      "image_s": 1997.964,
+      "camera": [
+        38.17947084611662,
+        -12.359220313243931,
+        2.2891596377625607
+      ],
+      "true_actor_xy": [
+        118.28315838380409,
+        -1.9859066009521729
+      ],
+      "detected_xy": [
+        42.99272531817408,
+        -21.29207435749531
+      ],
+      "actual_custom_box": [
+        253.64000000000001,
+        210.04,
+        268.58000000000004,
+        234.84
+      ],
+      "true_green_projection_approx_vertical": [
+        {
+          "z": 0.0,
+          "optical_depth": 7.203334974861581,
+          "uv": [
+            -1974.9675765402317,
+            214.82719421924597
+          ]
+        },
+        {
+          "z": 1.0,
+          "optical_depth": 7.236019849320051,
+          "uv": [
+            -1964.1325652649398,
+            186.29575007294375
+          ]
+        },
+        {
+          "z": 2.0,
+          "optical_depth": 7.268704723778523,
+          "uv": [
+            -1953.394996655638,
+            158.0208981822026
+          ]
+        }
+      ],
+      "foot_ray_reconstructed_xy": [
+        42.99272531817408,
+        -21.29207435749531
+      ],
+      "reconstruction_error_m": 0.0
+    }
+  ],
+  "input_provenance": [
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/algorithm/search_camera_frames.jsonl",
+      "sha256": "12c31b850793cf5e29df7ca090ef629f439ffc97e45e4e3df697249125ce8f78"
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/independent_visual_accuracy.jsonl",
+      "sha256": "00ed0c8bb119b8d7164534abfb38107fe785c0f48182955966dafc32ee38b0f5"
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_4.csv",
+      "sha256": "6a15452c74869ca962c591837e78d0823c0e55a51330244957b384074b65b5e9"
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_2.csv",
+      "sha256": "4eac68606580b2196e4499f624d9c4147f1a06473c0e20a047d89113bffbf122"
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv",
+      "sha256": "1a9a8fb7e105d0f8a95be82f5a04c3d19e2d5e8d6164d7f7906fc37583dff125"
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_5.csv",
+      "sha256": "0ec8ec3555e5737a63a831d7aff084022effcb4032ad7b4072aa22ef32c5e689"
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_0.csv",
+      "sha256": "ba766eb07a9f3a3aec934208c71b13a136ce86edd94c9e935d28b50644cb11a6"
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_1.csv",
+      "sha256": "130c90b03ed6bbef4a40661e622dda25069107eb2cb148a2f11b59e6d487d5a8"
+    }
+  ],
+  "executed_head": "143f8b1ccf0a4c6e0ee2190e9fb77bad4838ca27",
+  "scope": "11 of 13 near-green raw records have matching original camera-frame metadata; no failure raw images added, no truth enters control",
+  "limits": "Uses existing camera calibration and pose metadata; projects vertical actor centerline z=0,1,2 only, not animated silhouette; does not identify which background object caused each false box or explain all historical official uploads"
+}
