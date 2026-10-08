@@ -10,7 +10,7 @@ from camera_geometry import image_time_position
 
 
 class PerceptionDiscoveryTests(unittest.TestCase):
-    def publish(self, observed_s=9.8, miss=0, camera_s=None, color='green', original_colors=''):
+    def publish(self, observed_s=9.8, miss=0, camera_s=None, color='green', original_colors='', candidate=False):
         source = Path(__file__).parents[2] / 'perception/perception_real.py'
         tree = ast.parse(source.read_text(encoding='utf-8'))
         block = next(n for n in ast.walk(tree) if isinstance(n, ast.If)
@@ -25,7 +25,7 @@ class PerceptionDiscoveryTests(unittest.TestCase):
                              camera_xyz=[-3.,2.,2.5],
                              person_support=SimpleNamespace(current_verified=True))
         env = dict(COORD_ON=True, COORD_HZ=2., now=10., _coord_t=0., _obs_seq=0,
-            _published_visual_samples={},
+            _published_visual_samples={}, navigation_candidates={color:tk} if candidate else {},
             pub_list=[], visual_pub_list=[(color, 0, tk)], pubs={color: [None]},
             coord=SimpleNamespace(publish=legacy.append),
             visual_coord=SimpleNamespace(publish=visual.append),
@@ -53,6 +53,13 @@ class PerceptionDiscoveryTests(unittest.TestCase):
         self.assertEqual(self.publish(miss=1)[0], [])
         self.assertEqual(self.publish(observed_s=8.8)[0], [])
         self.assertEqual(self.publish(camera_s=9.9)[0], [])
+
+    def test_candidate_is_explicit_and_uses_original_coordinate(self):
+        visual,legacy=self.publish(candidate=True)
+        self.assertEqual(legacy,[])
+        self.assertEqual(visual[0]['schema_version'],4)
+        self.assertEqual(visual[0]['evidence_kind'],'navigation_candidate')
+        self.assertEqual(visual[0]['xyz'],[3.,4.,0.])
 
     def test_original_blue_position_keeps_same_image_time_and_proof(self):
         visual,_=self.publish(color='blue',original_colors='blue')

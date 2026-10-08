@@ -51,6 +51,7 @@ from orbit_geometry import orbit_goal
 from white_reacquisition import WhiteReacquisition
 from tracking_navigation import TrackingNavigation, StoppedObservation
 from companion_tracking import companion_guidance
+from legacy_pursuit import LegacyPursuit
 from publisher_authority import PublisherAuthority
 from fcu_configuration import configure as configure_fcu_parameters
 from fleet_motion_guard import MotionCache, protect as protect_fleet_motion
@@ -480,6 +481,7 @@ class SwarmAgent(object):
         self._tracking_navigation_phase = None
         self._stopped_observation = StoppedObservation(self.uav_id, navigation_s) if navigation_s > 0 else None
         self._companion_tracking_enabled = os.environ.get('SWARM_COMPANION_TRACKING','0') == '1'
+        self._legacy_pursuit = LegacyPursuit()
         self._white_reacquire_enabled = os.environ.get('SWARM_WHITE_REACQUIRE', '0') == '1'
         self._white_reacquire_phase = None
         self._t_seen = {}          # tid -> 最后一次收到位置的时刻（判定目标是否已消失）
@@ -1267,6 +1269,13 @@ class SwarmAgent(object):
                     observation['sample_s'],target.x,target.y)
                 if motion is None:
                     return
+                pursuit = getattr(self,'_legacy_pursuit',None)
+                if (pursuit is not None and self._gate.task is not None
+                        and self._gate.task['task_type'] == 1
+                        and self._gate.task['target_id'] == tid
+                        and self._gate.can_move(rospy.Time.now().to_sec())):
+                    pursuit.expired(self._gate.generation,tid,rospy.Time.now().to_sec())
+                    pursuit.observe(observation)
                 target.vx,target.vy,fleeing = motion
                 target.state = 1 if fleeing else 0
                 self._target_cb(target)
@@ -2327,6 +2336,11 @@ class SwarmAgent(object):
                 position_xy=list(position),reason=reason),allow_nan=False)))
 
     def _fly_companion(self, now, target_id):
+        pursuit = getattr(self,'_legacy_pursuit',None)
+        if pursuit is not None and pursuit.expired(self._gate.generation,target_id,now):
+            self._send_vel(0.,0.)
+            self._report_blocked_plan('TARGET_VISUAL_LOST',now)
+            return
         record = self.targets.get(target_id)
         stamp = self._t_seen.get(target_id)
         if record is None or stamp is None or not self._gate.can_move(now):

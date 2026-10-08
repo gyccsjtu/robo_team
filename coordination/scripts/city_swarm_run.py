@@ -92,6 +92,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         BRIDGE_BLUE_ALIGNED=env.get('CITY_BLUE_ALIGNED','1'),
         PR_ORIGINAL_REPORT_COLORS=env.get('CITY_ORIGINAL_REPORT_COLORS','blue'),
         PR_WHITE_FAILURE_EVIDENCE='1',
+        PR_DISTANT_CANDIDATES='1',
+        SWARM_CONTINUOUS_TRACK_TASK='1',
         SWARM_TARGET_HOLD_S='8',SWARM_TRACK_NAVIGATION_S='8',
         SWARM_COMPANION_TRACKING='1',
         SWARM_BOUNDED_ESCAPE=env.get('CITY_BOUNDED_ESCAPE','1'),

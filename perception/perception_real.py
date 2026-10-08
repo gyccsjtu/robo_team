@@ -846,7 +846,7 @@ class Track(object):
         self.sp = sp
         return MOTION_FLOOR + (1.0 - MOTION_FLOOR) * min(sp / MOTION_REF, 1.0)
 
-    def verdict(self, now=None, max_coast=None, attach_check=True, stationary_person=False, verified_person=False):
+    def verdict(self, now=None, max_coast=None, attach_check=True, stationary_person=False, verified_person=False, range_limit=None):
         """「是不是人」判决 —— 只用于「要不要画这个框 / 要不要发这个坐标」。
 
         attach_check=False：跳过「长在机身上」视差判据。盘旋确认时必须关闭 —
@@ -874,7 +874,7 @@ class Track(object):
             return False, "self"
         if not (VERDICT_H_MIN <= self.h <= VERDICT_H_MAX):
             return False, "height"
-        if self.rng > VERDICT_RANGE_MAX:
+        if self.rng > (VERDICT_RANGE_MAX if range_limit is None else range_limit):
             return False, "range"
         self.motion_factor(now)                 # 刷新 self.sp
         # 当前在动，或者生命期内动过 —— 见 VERDICT_DISP 的注释（治 actor 卡死）
@@ -1607,6 +1607,7 @@ def main():
         # 单流类：每类选"最像人"的 1 个 track。
         # red（双流）：走槽位持久绑定，两条流各锁一个红衣人（理由见 TOPIC_OF 注释）。
         best_of = {}
+        navigation_candidates = {}
         red_cands = []
         with arb_lock:
             _cur_tid_for_verdict = camera_task.target(rospy.Time.now().to_sec()) if camera_task is not None else arb["tid"]
@@ -1638,6 +1639,18 @@ def main():
                     verified_person=_fresh_person,
                     stationary_person=_stationary)
                 if not _person_ok:
+                    # Port the legacy approach-before-broadcast chain without
+                    # relaxing official evidence. Recheck ALL other gates.
+                    if (_reject_reason == 'range' and tk.cls != 'red'
+                            and os.environ.get('PR_DISTANT_CANDIDATES','0') == '1'
+                            and tk.miss == 0 and tk.person_support.current_verified):
+                        _candidate_ok, _ = tk.verdict(now, max_coast=0,
+                            attach_check=not _skip_attach, verified_person=_fresh_person,
+                            stationary_person=_stationary, range_limit=45.)
+                        if _candidate_ok:
+                            old = navigation_candidates.get(tk.cls)
+                            if old is None or tk.score_ema > old.score_ema:
+                                navigation_candidates[tk.cls] = tk
                     # Record every input of the seven gates. RecentMotion.speed and
                     # FreshPerson.allowed are side-effect free, so an offline replay
                     # can re-decide this exact rejection under another setting.
@@ -1742,7 +1755,8 @@ def main():
                    [("red", si, tk) for si, tk in bound]
         # Discovery precedes assignment; retain every person check above.
         # The manager needs these observations before it can assign a tracker.
-        visual_pub_list = tuple(pub_list)
+        visual_pub_list = tuple(pub_list) + tuple((cls,0,tk)
+            for cls,tk in navigation_candidates.items() if cls not in best_of)
 
         # ---- 官方话题闸门：指派仲裁 + 近距离 + 空间身份一致 ----
         # 未过闸不发布 ActorInfo（在进入内部调试快照链路前剔除）。
@@ -1889,14 +1903,18 @@ def main():
                     # The bridge compensates from the original image time.
                     # Do not label a lagging prefiltered point as a raw sample.
                     _original_colors = os.environ.get('PR_ORIGINAL_REPORT_COLORS', '').split(',')
-                    _original_xy = image_time_position(_cls, _tk.raw_xy, (_tk.x, _tk.y), _original_colors)
-                    visual_coord.publish(String(data=json.dumps(dict(schema_version=3,
+                    _navigation_only = _tk is navigation_candidates.get(_cls)
+                    _original_xy = image_time_position(_cls, _tk.raw_xy, (_tk.x, _tk.y),
+                        (_cls,) if _navigation_only else _original_colors)
+                    _message = dict(schema_version=4 if _navigation_only else 3,
                         run_id=_visual_run, uav_id=_logical_uid, seq=_obs_seq, sample_s=_tk.observed_s,
                         target_id=_tag, frame_id='world_enu', xyz=[round(_original_xy[0], 2), round(_original_xy[1], 2), TARGET_Z],
                         confidence=float(_tk.conf), camera_xyz=list(_tk.camera_xyz),
                         person_frame_verified=bool(_tk.person_support.current_verified),
-                        observation_id='%s:%s:%d' % (_visual_run, _logical_uid, _obs_seq)),
-                        allow_nan=False)))
+                        observation_id='%s:%s:%d' % (_visual_run, _logical_uid, _obs_seq))
+                    if _navigation_only:
+                        _message['evidence_kind'] = 'navigation_candidate'
+                    visual_coord.publish(String(data=json.dumps(_message, allow_nan=False)))
                     _published_visual_samples[_tag] = _tk.observed_s
                 # === 仿真环境日志：YOLO 检测输出 + ROS 时间戳 ===
                 # 排查感知延迟/位置滞后：同时打检测框(uv)、世界坐标(xyz)、置信度、时间戳

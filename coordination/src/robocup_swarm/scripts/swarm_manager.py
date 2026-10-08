@@ -1578,7 +1578,10 @@ class SwarmManager(object):
                             fresh_tracking = tid is not None and any(owner == uid and TAG_TO_TID.get(tag) == tid
                                 and 0 <= now.to_sec()-stamp <= 1.
                                 for (owner,tag),stamp in tuple(self._visual_evidence.stamps.items()))
-                            if uid in self._routes.current and refresh_due(active,now.to_sec(),fresh_tracking):
+                            continuous_track = (tid is not None and fresh_tracking
+                                and os.environ.get('SWARM_CONTINUOUS_TRACK_TASK','0') == '1')
+                            if (not continuous_track and uid in self._routes.current
+                                    and refresh_due(active,now.to_sec(),fresh_tracking)):
                                 self._emit_authority(self._authority.refresh(uid, rospy.Time.now().to_sec()))
                                 break
                     self._emit_authority(self._authority.tick(rospy.Time.now().to_sec()))

@@ -407,6 +407,8 @@ class YoloTargetBridge(object):
             red_motion_limits=os.environ.get('BRIDGE_RED_MOTION_LIMITS', '0') == '1',
             brown_activation=os.environ.get('BRIDGE_BROWN_ACTIVATION', '0') == '1')
         self._red_observations = RedObservations()
+        # Candidates never enter the official fusion or readiness state.
+        self._candidate_core = TargetBridgeCore(brown_activation=True)
         self._approach_reporting = os.environ.get('BRIDGE_APPROACH_REPORTING','0') == '1'
         self._report_readiness = ReportReadiness()
         self._lock = threading.RLock()
@@ -458,6 +460,22 @@ class YoloTargetBridge(object):
                     return
                 tag, stamp = observation['target_id'], observation['sample_s']
                 x, y, _ = observation['xyz']
+                if observation.get('evidence_kind') == 'navigation_candidate':
+                    if tag in self.core.eliminated or tag in ('red1','red2'):
+                        return
+                    camera = observation['camera_xyz']
+                    if (not observation['person_frame_verified']
+                            or not 22. < math.hypot(x-camera[0],y-camera[1]) <= 45.):
+                        return
+                    candidate_core = self._candidate_core
+                    accepted = candidate_core.report(stamp,tag,x,y,observation['confidence'],
+                        observation['uav_id'],observation['observation_id'])
+                    track = candidate_core.tracks[tag]
+                    self._trace_record(dict(kind='navigation_candidate',receipt_s=self._now(),
+                        observation=observation,accepted=accepted,alive=track.alive))
+                    if accepted and track.alive and track.t_obs == stamp:
+                        self._confirmed_pub.publish(_msg_string_cls()(data=json.dumps(observation,allow_nan=False)))
+                    return
                 if tag in ('red1','red2'):
                     tag = self._red_observations.observe(stamp,(x,y))
                     if tag is None:

@@ -29,7 +29,7 @@ class VisualReportFrameDedupTests(unittest.TestCase):
                                 camera_s=10., camera_xyz=[0.,0.,2.5],
                                 person_support=SimpleNamespace(current_verified=True))
         scope = dict(COORD_ON=True, COORD_HZ=10., now=10., _coord_t=0., _obs_seq=0,
-            image_time_position=image_time_position,
+            image_time_position=image_time_position, navigation_candidates={},
             visual_pub_list=[('white', 0, track)], pub_list=[], pubs={'white': [None]},
             _published_visual_samples={}, json=json, TARGET_Z=1.25, UAV='model',
             os=SimpleNamespace(environ={'ROBOCUP_RUN_ID':'run', 'PR_LOGICAL_UAV_ID':'uav_1'}),
