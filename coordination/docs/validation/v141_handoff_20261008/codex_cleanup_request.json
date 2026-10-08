@@ -1,0 +1,6 @@
+[
+  {
+    "pid": 4766,
+    "command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/frames --wall-seconds 5400 --loss-color white "
+  }
+]

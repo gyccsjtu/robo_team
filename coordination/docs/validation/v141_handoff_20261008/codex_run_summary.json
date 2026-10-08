@@ -1,0 +1,46 @@
+{
+  "run_id": "6c0597be-b49c-4a84-822f-30e338ae4bc9",
+  "executed_start_head": "11decf5",
+  "observer_later_head": "22137ae",
+  "configured_seconds": 600,
+  "actual_trajectory_start": 1931.244,
+  "actual_trajectory_end": 2100.588,
+  "actual_trajectory_span": 169.34400000000028,
+  "max_true_height": 3.3881443993353892,
+  "max_displacement": {
+    "uav_1": 58.64898501637715,
+    "uav_2": 52.81344282222416,
+    "uav_3": 53.6911363626421,
+    "uav_4": 86.34492893836389,
+    "uav_5": 60.928662011526605,
+    "uav_6": 63.20887149616913
+  },
+  "last_left": {
+    "kind": "left_actors",
+    "sample_s": 2100.656,
+    "value": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "non_ground_contacts": [],
+  "contact_frame_count": 42756,
+  "contact_bounds": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 42756,
+    "first_sample_s": 1929.812,
+    "last_sample_s": 2100.832,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 130116,
+    "body_pairs": 50304
+  },
+  "stop_reason": "USER_REDIRECTED_VERIFICATION_TO_WORKBUDDY",
+  "complete": false,
+  "white_early_invalid_projection_pngs": 48,
+  "white_actual_truth_pngs": 0,
+  "ports_snapshot": ""
+}

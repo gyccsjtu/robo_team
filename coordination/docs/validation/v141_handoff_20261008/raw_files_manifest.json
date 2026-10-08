@@ -1,0 +1,37 @@
+[
+  {
+    "original": "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/codex_run_summary.json",
+    "name": "codex_run_summary.json",
+    "sha256": "48436b92d9548a453044a633a26db3d8d703879694080a1176591aa597916f6c"
+  },
+  {
+    "original": "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/source_manifest.json",
+    "name": "source_manifest.json",
+    "sha256": "9503bbe5128d078828f1f5b51a07f03f8ce627c1ca23c8bc7df84e315dabea61"
+  },
+  {
+    "original": "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/agent_early_stop_decision.json",
+    "name": "agent_early_stop_decision.json",
+    "sha256": "ab84ffdc5405974453f2d52ad15849430f31d8cd8accbd341881199b0237eb99"
+  },
+  {
+    "original": "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/early_stop.json",
+    "name": "early_stop.json",
+    "sha256": "5f27af09bdb5bbd180e52ca55b7f5ce69e052f037bf4caf1744595b436f561ef"
+  },
+  {
+    "original": "/root/robocup_runs/codex_v141_white_observer_20261008/budget.json",
+    "name": "budget.json",
+    "sha256": "c68985f13e3c31ce6ca0e44a384f6cf2124fa6c3a195a9e8d022886f997268bc"
+  },
+  {
+    "original": "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/codex_observers_manifest.json",
+    "name": "codex_observers_manifest.json",
+    "sha256": "8fdd4f69cb987d6242732165c636fcd22dbe509b65b38553a18815b44c324d09"
+  },
+  {
+    "original": "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/codex_cleanup_request.json",
+    "name": "codex_cleanup_request.json",
+    "sha256": "59aed2532b3be163198e8d45e40d51c08ebe0f531520b650f0713b43ee3554a3"
+  }
+]

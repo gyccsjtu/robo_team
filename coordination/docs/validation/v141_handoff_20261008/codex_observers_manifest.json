@@ -1,0 +1,205 @@
+[
+  {
+    "name": "green",
+    "pid": 4736,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "green",
+      "--wall-seconds",
+      "5400"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json --tag green --wall-seconds 5400",
+    "script_sha": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "name": "blue",
+    "pid": 4741,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "blue",
+      "--wall-seconds",
+      "5400"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json --tag blue --wall-seconds 5400",
+    "script_sha": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "name": "brown",
+    "pid": 4747,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "brown",
+      "--wall-seconds",
+      "5400"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json --tag brown --wall-seconds 5400",
+    "script_sha": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "name": "white",
+    "pid": 4754,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "white",
+      "--wall-seconds",
+      "5400"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json --tag white --wall-seconds 5400",
+    "script_sha": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "name": "red",
+    "pid": 4758,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "red",
+      "--wall-seconds",
+      "5400"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/result.json --tag red --wall-seconds 5400",
+    "script_sha": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "name": "frames",
+    "pid": 4766,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py",
+      "--output",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/frames",
+      "--wall-seconds",
+      "5400",
+      "--loss-color",
+      "white"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/frames --wall-seconds 5400 --loss-color white",
+    "script_sha": "ed97b5789228bc58c4ab51b37bb6b87c6dece3580c1381aacf5bc2c3d50bee0d"
+  },
+  {
+    "name": "white_dev",
+    "pid": 4772,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py",
+      "--enable",
+      "--wiring",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json",
+      "--out-dir",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev",
+      "--result-file",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/budget.json",
+      "--total-cap",
+      "120"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py --enable --wiring /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json --out-dir /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev --result-file /root/robocup_runs/codex_v141_white_observer_20261008/budget.json --total-cap 120",
+    "script_sha": "69ac31de38715d2b6647860bf71948e52153d52747ce70818e044077774d0611",
+    "stop_reason": "tighten diagnostic sampling to preserve budget for near images",
+    "verified_command_at_stop": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py --enable --wiring /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json --out-dir /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev --result-file /root/robocup_runs/codex_v141_white_observer_20261008/budget.json --total-cap 120 "
+  },
+  {
+    "name": "white_dev_near",
+    "pid": 9654,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py",
+      "--enable",
+      "--wiring",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json",
+      "--out-dir",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev_near",
+      "--result-file",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/budget.json",
+      "--total-cap",
+      "120",
+      "--min-expected-px",
+      "16",
+      "--max-range-m",
+      "22"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py --enable --wiring /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json --out-dir /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev_near --result-file /root/robocup_runs/codex_v141_white_observer_20261008/budget.json --total-cap 120 --min-expected-px 16 --max-range-m 22",
+    "script_sha": "69ac31de38715d2b6647860bf71948e52153d52747ce70818e044077774d0611",
+    "sampling_only": true,
+    "stop_reason": "share global 120 image budget: early saved 48, near remaining 72",
+    "verified_command_at_stop": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py --enable --wiring /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json --out-dir /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev_near --result-file /root/robocup_runs/codex_v141_white_observer_20261008/budget.json --total-cap 120 --min-expected-px 16 --max-range-m 22 "
+  },
+  {
+    "name": "white_dev_near72",
+    "pid": 36860,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py",
+      "--enable",
+      "--wiring",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json",
+      "--out-dir",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev_near",
+      "--result-file",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/budget.json",
+      "--total-cap",
+      "72",
+      "--min-expected-px",
+      "16",
+      "--max-range-m",
+      "22"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py --enable --wiring /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json --out-dir /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev_near --result-file /root/robocup_runs/codex_v141_white_observer_20261008/budget.json --total-cap 72 --min-expected-px 16 --max-range-m 22",
+    "script_sha": "69ac31de38715d2b6647860bf71948e52153d52747ce70818e044077774d0611",
+    "remaining_global_budget": 72,
+    "stop_reason": "model_states actor pose differs from actual get_model_state truth; reject projection provenance",
+    "verified_command_at_stop": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py --enable --wiring /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json --out-dir /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev_near --result-file /root/robocup_runs/codex_v141_white_observer_20261008/budget.json --total-cap 72 --min-expected-px 16 --max-range-m 22 "
+  },
+  {
+    "name": "white_dev_actual_truth",
+    "pid": 66351,
+    "args": [
+      "python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py",
+      "--enable",
+      "--wiring",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json",
+      "--out-dir",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev_actual_truth",
+      "--result-file",
+      "/root/robocup_runs/codex_v141_white_observer_20261008/budget.json",
+      "--total-cap",
+      "72",
+      "--min-expected-px",
+      "16",
+      "--max-range-m",
+      "22"
+    ],
+    "command": "source /root/robo_team_build/codex_authority_v2/devel/setup.bash; export ROS_MASTER_URI=http://127.0.0.1:11375 ROS_IP=127.0.0.1; exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/white_evidence_observer.py --enable --wiring /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/flight/wiring.json --out-dir /root/robocup_runs/codex_v141_white_observer_20261008/round_1_seed_8159/observers/white_dev_actual_truth --result-file /root/robocup_runs/codex_v141_white_observer_20261008/budget.json --total-cap 72 --min-expected-px 16 --max-range-m 22",
+    "script_sha": "44c29271586cc04dcc70a76e26aee5cd02d3b20ebf07821e7969bf9ae78c59f1",
+    "remaining_global_budget": 72
+  }
+]
