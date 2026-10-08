@@ -75,6 +75,7 @@ class ApproachTests(unittest.TestCase):
 
     def test_actual_bridge_keeps_internal_state_while_official_output_is_gated(self):
         b=YoloTargetBridge.__new__(YoloTargetBridge)
+        b._emit_stats={};b._skip_trace_t={}
         b.core=TargetBridgeCore();b._approach_reporting=True;b._report_readiness=ReportReadiness()
         b._now=lambda:10.6;b._rospy=NS(Time=NS(from_sec=lambda t:t))
         b._TargetState=lambda:NS(header=NS());b._ActorInfo=NS

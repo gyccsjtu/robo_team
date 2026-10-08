@@ -3,12 +3,15 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 import unittest
+import sys
+sys.path.insert(0,str(Path(__file__).parents[1]/'src/robocup_swarm/scripts'))
+from yolo_target_bridge import emit_gate_reason
 
 SOURCE=Path(__file__).parents[1]/'src/robocup_swarm/scripts/yolo_target_bridge.py'
 tree=ast.parse(SOURCE.read_text(encoding='utf-8'))
-method=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='_emit')
-scope=dict(COAST_TIME=1.5,TID_TO_TAG={'t5':'red1'})
-exec(compile(ast.Module(body=[method],type_ignores=[]),str(SOURCE),'exec'),scope)
+methods=[n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name in ('_emit','_emit_actor')]
+scope=dict(COAST_TIME=1.5,TID_TO_TAG={'t5':'red1'}, emit_gate_reason=emit_gate_reason)
+exec(compile(ast.Module(body=methods,type_ignores=[]),str(SOURCE),'exec'),scope)
 
 
 class OfficialReportCoastTests(unittest.TestCase):
@@ -18,6 +21,9 @@ class OfficialReportCoastTests(unittest.TestCase):
             _TargetState=lambda:SimpleNamespace(header=SimpleNamespace()),
             _ActorInfo=SimpleNamespace,_rospy=SimpleNamespace(Time=SimpleNamespace(from_sec=lambda t:t)),
             _now=lambda:10.+age,pub=Mock(),_actor_pubs={'red1':publisher})
+        bridge._emit_stats = {}
+        bridge._skip_trace_t = {}
+        bridge._emit_actor = lambda ev, tr: scope['_emit_actor'](bridge, ev, tr)
         scope['_emit'](bridge,dict(tag='red1',tid='t5',x=3.2,y=4.1,vx=1.,vy=0.,
                                    state=state,eliminated=eliminated))
         return bridge,publisher

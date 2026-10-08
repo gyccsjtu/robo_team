@@ -131,6 +131,7 @@ class VisualTests(unittest.TestCase):
 
     def test_actual_bridge_output_uses_red_class_and_preserves_sample_time(self):
         bridge = YoloTargetBridge.__new__(YoloTargetBridge)
+        bridge._emit_stats={};bridge._skip_trace_t={}
         bridge.core = TargetBridgeCore()
         bridge.core.tracks['red1'].t_obs = 10.
         bridge._now = lambda: 10.5

@@ -41,6 +41,7 @@ class OfficialTransportTests(unittest.TestCase):
 
     def test_actual_emit_sends_each_red_slot_once_with_red_payload(self):
         b=bridge.YoloTargetBridge.__new__(bridge.YoloTargetBridge)
+        b._emit_stats={};b._skip_trace_t={}
         b.core=bridge.TargetBridgeCore(); b._actor_pubs=self.publishers()._actor_pubs
         b._now=lambda:100.; b._ActorInfo=NS
         b._TargetState=lambda:NS(header=NS())

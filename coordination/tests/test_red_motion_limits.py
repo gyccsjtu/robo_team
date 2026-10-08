@@ -38,6 +38,7 @@ class RedMotionLimitsTests(unittest.TestCase):
         from unittest.mock import Mock
         import yolo_target_bridge as module
         b=module.YoloTargetBridge.__new__(module.YoloTargetBridge)
+        b._emit_stats={};b._skip_trace_t={}
         b.core,tr=self.track('red1',True)
         b._now=lambda:tr.t_obs+COAST_TIME+.01
         b._ActorInfo=lambda:NS()

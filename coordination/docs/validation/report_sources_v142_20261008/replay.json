@@ -1,0 +1,42 @@
+{
+  "input_sha256": "9da708d6e654ff551e18cdf7dfa72cd2fab8b8125260b34abc07283a17c5ec6c",
+  "scope": "accepted flags from archive; finite method replay, not ROS or physical proof",
+  "inputs": 280,
+  "sampled_not_ready": 75,
+  "restored": [
+    {
+      "receipt_s": 2019.892,
+      "tag": "green",
+      "source_uid": "uav_4",
+      "original_s": 2018.92,
+      "xy": [
+        37.619052230592686,
+        1.7863943168430312
+      ],
+      "age_s": 0.97199999999998
+    },
+    {
+      "receipt_s": 2025.092,
+      "tag": "green",
+      "source_uid": "uav_4",
+      "original_s": 2024.112,
+      "xy": [
+        42.3390127524762,
+        5.574388973507276
+      ],
+      "age_s": 0.9800000000000182
+    },
+    {
+      "receipt_s": 2027.892,
+      "tag": "green",
+      "source_uid": "uav_4",
+      "original_s": 2027.076,
+      "xy": [
+        47.22804166110747,
+        8.090443205075134
+      ],
+      "age_s": 0.8160000000000309
+    }
+  ],
+  "still_blocked": 72
+}

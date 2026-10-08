@@ -227,7 +227,7 @@ class DiagnosticsPresent(unittest.TestCase):
     def test_gate_decision_exists_only_once(self):
         """_emit must not keep a second copy of the condition."""
         src = self._src()
-        emit = src[src.index("def _emit(self, ev)"):]
+        emit = src[src.index("def _emit_actor(self, ev, track, source_uid=None)"):]
         emit = emit[:emit.index("def ", 10)]
         self.assertEqual(1, emit.count("emit_gate_reason("))
         self.assertNotIn("COAST_TIME", emit,

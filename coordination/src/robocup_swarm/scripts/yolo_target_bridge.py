@@ -32,6 +32,7 @@ import time
 from pathlib import Path
 from visual_observation import VisualEvidence, TAG_TO_TID
 from report_readiness import ReportReadiness
+from official_report_sources import OfficialReportSources
 from search_completion import parse_actor_list
 from red_observations import RedObservations, actor_slot_remaining
 from source_aligned_fusion import SourceAlignedFusion
@@ -439,6 +440,13 @@ class YoloTargetBridge(object):
         self._candidate_core = TargetBridgeCore(brown_activation=True)
         self._approach_reporting = os.environ.get('BRIDGE_APPROACH_REPORTING','0') == '1'
         self._report_readiness = ReportReadiness()
+        self._official_sources = None
+        if self._approach_reporting and os.environ.get('BRIDGE_SOURCE_REPORTING','0') == '1':
+            self._official_sources = OfficialReportSources(
+                lambda: TargetBridgeCore(brown_alignment=self.core.brown_alignment,
+                    blue_alignment=self.core.blue_alignment,
+                    red_motion_limits=self.core.red_motion_limits,
+                    brown_activation=self.core.brown_activation), self._report_readiness)
         self._lock = threading.RLock()
         self._trace = None
         # Publish-path diagnostics (observability only; changes no decision).
@@ -526,6 +534,8 @@ class YoloTargetBridge(object):
                 track = self.core.tracks[tag]
                 if getattr(self,'_approach_reporting',False):
                     self._report_readiness.observe(observation,self._now(),accepted)
+                if getattr(self,'_official_sources',None) is not None:
+                    self._official_sources.observe(observation, accepted)
                 if getattr(self,'_trace',None) is not None:
                     self._trace_record(dict(kind='input', receipt_s=self._now(),
                         observation=observation, accepted=accepted, alive=track.alive,
@@ -556,6 +566,9 @@ class YoloTargetBridge(object):
     def _left_cb(self, msg):
         with self._lock:
             newly = self.core.set_left(self._now(), msg.data)
+            if getattr(self,'_official_sources',None) is not None:
+                for tag in set(newly) | self.core.eliminated:
+                    self._official_sources.eliminate(tag)
         for tag in newly:
             if getattr(self,'_approach_reporting',False):
                 self._report_readiness.clear(tag)
@@ -576,7 +589,13 @@ class YoloTargetBridge(object):
         m.eliminated = ev["eliminated"]
         self.pub.publish(m)
 
-        # 向官方话题发布 ActorInfo（用融合坐标，10Hz 连续上报）。
+        if getattr(self,'_official_sources',None) is not None:
+            return  # Internal navigation state never supplies official coordinates.
+        self._emit_actor(ev, track)
+
+    def _emit_actor(self, ev, track, source_uid=None):
+
+        # Official coordinates use the selected source, or legacy fusion when disabled.
         # 仅对存活且有位置的目标发布；eliminated 的目标官方已不再判定。
         tag = TID_TO_TAG.get(ev["tid"])
         approach = bool(getattr(self, '_approach_reporting', False))
@@ -585,7 +604,10 @@ class YoloTargetBridge(object):
         if approach and tag is not None:
             # Preserve the original short-circuit: readiness is only consulted
             # when approach reporting is enabled.
-            readiness_ok = self._report_readiness.allowed(tag, now, track.t_obs)
+            if source_uid is not None:
+                readiness_ok = self._official_sources.allowed(tag, source_uid, track.t_obs, now)
+            else:
+                readiness_ok = self._report_readiness.allowed(tag, now, track.t_obs)
         reason = emit_gate_reason(tag, self._actor_pubs, ev, track, now,
                                   approach_reporting=approach,
                                   readiness_ok=readiness_ok)
@@ -601,7 +623,9 @@ class YoloTargetBridge(object):
                     prediction_s=getattr(self,'_last_prediction_s',None),
                     requested_xy=[am.x,am.y], fused_xy=[track.x,track.y],
                     velocity=[track.vx,track.vy], original_s=track.t_obs,
-                    position_s=track.position_s, window=track.obs))
+                    position_s=track.position_s, window=track.obs,
+                    report_source_uid=source_uid,
+                    report_fusion_scope='single_ready_source' if source_uid else 'legacy_global'))
             if tag == 'brown' and track.alignment is not None:
                 self._rospy.loginfo_throttle(.5, 'BROWN_ALIGNMENT %s', json.dumps(dict(
                     track.alignment, original_s=track.t_obs, prediction_s=now,
@@ -647,6 +671,9 @@ class YoloTargetBridge(object):
             for ev in self.core.tick(self._last_prediction_s):
                 self._emit_stats['events'] = self._emit_stats.get('events', 0) + 1
                 self._emit(ev)
+            if getattr(self,'_official_sources',None) is not None:
+                for uid, event, track in self._official_sources.tick(self._last_prediction_s):
+                    self._emit_actor(event, track, uid)
             self._heartbeat()
 
 
