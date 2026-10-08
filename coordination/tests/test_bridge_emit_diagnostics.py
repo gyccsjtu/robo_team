@@ -29,6 +29,7 @@ SCRIPTS = os.path.join(REPO, "coordination", "src", "robocup_swarm", "scripts")
 sys.path.insert(0, SCRIPTS)
 
 import yolo_target_bridge as B  # noqa: E402
+from report_readiness import ReportReadiness  # noqa: E402
 
 FIXTURE = os.path.join(HERE, "bridge_trace_round1_20261008.jsonl")
 
@@ -103,9 +104,13 @@ class GateAgreesWithOriginal(unittest.TestCase):
 class RoundReplay(unittest.TestCase):
     """The aborted round's real inputs must NOT be explained by the gate."""
 
-    def _replay(self):
+    def _replay(self, approach_reporting=False):
         core = B.TargetBridgeCore()
         red = B.RedObservations()
+        # BRIDGE_APPROACH_REPORTING defaults to 1 in city_swarm_run.py:102, so the
+        # realistic regime is ON; OFF is kept to show the gate is what differs.
+        approach = bool(approach_reporting)
+        readiness = ReportReadiness()
         with open(FIXTURE, encoding="utf-8") as fh:
             rows = [json.loads(l) for l in fh if l.strip()]
         todo = [(float(r["receipt_s"]), 0, r) for r in rows]
@@ -128,10 +133,13 @@ class RoundReplay(unittest.TestCase):
                     tag = red.observe(float(o["sample_s"]), (o["xyz"][0], o["xyz"][1]))
                     if tag is None:
                         continue
-                if core.report(float(o["sample_s"]), tag, o["xyz"][0], o["xyz"][1],
-                               float(o["confidence"]), o["uav_id"],
-                               o.get("observation_id")):
+                ok = core.report(float(o["sample_s"]), tag, o["xyz"][0], o["xyz"][1],
+                                 float(o["confidence"]), o["uav_id"],
+                                 o.get("observation_id"))
+                if ok:
                     accepted += 1
+                if approach:
+                    readiness.observe(o, when, ok)
                 if core.tracks[tag].alive:
                     alive_seen += 1
                 continue
@@ -139,7 +147,12 @@ class RoundReplay(unittest.TestCase):
                 events += 1
                 tr = core.tracks[ev["tag"]]
                 tag = B.TID_TO_TAG.get(ev["tid"])
-                reason = B.emit_gate_reason(tag, core.tracks, ev, tr, when)
+                readiness_ok = True
+                if approach and tag is not None:
+                    readiness_ok = readiness.allowed(tag, when, tr.t_obs)
+                reason = B.emit_gate_reason(tag, core.tracks, ev, tr, when,
+                                            approach_reporting=approach,
+                                            readiness_ok=readiness_ok)
                 if reason is None:
                     passed += 1
                 else:
@@ -150,16 +163,43 @@ class RoundReplay(unittest.TestCase):
         accepted, _, _, _, _, total = self._replay()
         self.assertEqual(total, accepted)
 
-    def test_gate_would_have_published_not_zero(self):
-        _, events, passed, reasons, alive_seen, _ = self._replay()
+    def test_without_approach_gate_everything_passes(self):
+        """Control: the events themselves are publishable (flag OFF)."""
+        _, events, passed, reasons, alive_seen, _ = self._replay(approach_reporting=False)
         self.assertGreater(alive_seen, 0, "track never became alive")
         self.assertEqual(68, events, "event count changed")
         self.assertEqual(59, passed, "gate pass count changed")
-        self.assertEqual({"stale": 9}, reasons,
-                         "only tail staleness may be skipped on this timeline")
-        # The finding this pins: a live round published 0 while the same inputs
-        # pass the gate 59 times -> the defect is in the runtime publish path.
-        self.assertGreater(passed, 0)
+        self.assertEqual({"stale": 9}, reasons)
+
+    def test_approach_gate_blocks_every_publish_this_round(self):
+        """THE finding, in the runner's real regime.
+
+        BRIDGE_APPROACH_REPORTING defaults to 1. The round's red1 observations sit
+        at 15.6-20.4 m from the camera, never inside ReportReadiness' 12 m
+        first-time threshold, so readiness is never 'ready' and every one of the
+        59 would-be publishes is skipped as not_ready. That is why the judge saw
+        zero official reports and its 15 s timer never started (0/6).
+        """
+        _, events, passed, reasons, _, _ = self._replay(approach_reporting=True)
+        self.assertEqual(68, events)
+        self.assertEqual(0, passed, "if this changes, the approach gate stopped blocking")
+        self.assertEqual({"not_ready": 59, "stale": 9}, reasons)
+
+    def test_observed_distance_never_reached_the_12m_gate(self):
+        import math
+        closest = None
+        with open(FIXTURE, encoding="utf-8") as fh:
+            for line in fh:
+                if not line.strip():
+                    continue
+                o = json.loads(line)["observation"]
+                cam = o["camera_xyz"]
+                d = math.hypot(o["xyz"][0] - cam[0], o["xyz"][1] - cam[1])
+                closest = d if closest is None else min(closest, d)
+        self.assertIsNotNone(closest)
+        self.assertGreater(closest, 12.0,
+                           "fixture no longer documents the miss; closest=%.2f m" % closest)
+        self.assertLess(closest, 16.0, "closest approach was ~15.6 m")
 
 
 class DiagnosticsPresent(unittest.TestCase):
