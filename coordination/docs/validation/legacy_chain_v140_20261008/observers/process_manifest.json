@@ -1,0 +1,96 @@
+[
+  {
+    "pid": 6982,
+    "cmdline": [
+      "/usr/bin/python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "green",
+      "--wall-seconds",
+      "5400"
+    ],
+    "sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "pid": 6983,
+    "cmdline": [
+      "/usr/bin/python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "blue",
+      "--wall-seconds",
+      "5400"
+    ],
+    "sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "pid": 6984,
+    "cmdline": [
+      "/usr/bin/python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "brown",
+      "--wall-seconds",
+      "5400"
+    ],
+    "sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "pid": 6986,
+    "cmdline": [
+      "/usr/bin/python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "white",
+      "--wall-seconds",
+      "5400"
+    ],
+    "sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "pid": 6988,
+    "cmdline": [
+      "/usr/bin/python3",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py",
+      "--run",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers",
+      "--result-file",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/result.json",
+      "--tag",
+      "red",
+      "--wall-seconds",
+      "5400"
+    ],
+    "sha256": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629"
+  },
+  {
+    "pid": 6989,
+    "cmdline": [
+      "/root/robo_team_build/vision_env/bin/python",
+      "/mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py",
+      "--output",
+      "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames",
+      "--wall-seconds",
+      "5400",
+      "--loss-color",
+      "white"
+    ],
+    "sha256": "ed97b5789228bc58c4ab51b37bb6b87c6dece3580c1381aacf5bc2c3d50bee0d"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "pid": 6982,
+    "command": "",
+    "existed": false
+  },
+  {
+    "pid": 6983,
+    "command": "",
+    "existed": false
+  },
+  {
+    "pid": 6984,
+    "command": "",
+    "existed": false
+  },
+  {
+    "pid": 6986,
+    "command": "",
+    "existed": false
+  },
+  {
+    "pid": 6988,
+    "command": "",
+    "existed": false
+  },
+  {
+    "pid": 6989,
+    "command": "/root/robo_team_build/vision_env/bin/python /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames --wall-seconds 5400 --loss-color white ",
+    "existed": true
+  }
+]

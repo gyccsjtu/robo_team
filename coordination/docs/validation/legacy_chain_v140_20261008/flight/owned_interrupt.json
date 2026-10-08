@@ -1,0 +1,9 @@
+[
+  {
+    "signal_number": 2,
+    "signal_name": "SIGINT",
+    "owned_watchdog_fired": false,
+    "wall_elapsed_s": 906.0310893058777,
+    "monotonic_elapsed_s": 906.031089958
+  }
+]

@@ -16,13 +16,17 @@ class VisualEvidence:
                     'target_id', 'frame_id', 'xyz', 'confidence', 'observation_id'}
         try:
             version = message['schema_version']
-            if type(version) is not int or version not in (2,3,4):
+            if type(version) is not int or version not in (2,3,4,5):
                 return None
-            if version == 4:
+            if version in (4,5):
                 required |= {'evidence_kind'}
                 if message.get('evidence_kind') != 'navigation_candidate':
                     return None
-            if version in (3,4):
+            if version == 5:
+                required |= {'motion_identity_verified'}
+                if type(message.get('motion_identity_verified')) is not bool:
+                    return None
+            if version in (3,4,5):
                 required |= {'camera_xyz', 'person_frame_verified'}
                 camera = message.get('camera_xyz')
                 if (not isinstance(camera,list) or len(camera) != 3

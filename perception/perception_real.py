@@ -1643,7 +1643,9 @@ def main():
                     # relaxing official evidence. Recheck ALL other gates.
                     if (_reject_reason == 'range' and tk.cls != 'red'
                             and os.environ.get('PR_DISTANT_CANDIDATES','0') == '1'
-                            and tk.miss == 0 and tk.person_support.current_verified):
+                            and tk.miss == 0 and (tk.person_support.current_verified
+                                or (tk.cls == 'blue' and tk.blue_identity is not None
+                                    and tk.blue_identity.allowed(now)))):
                         _candidate_ok, _ = tk.verdict(now, max_coast=0,
                             attach_check=not _skip_attach, verified_person=_fresh_person,
                             stationary_person=_stationary, range_limit=45.)
@@ -1906,7 +1908,7 @@ def main():
                     _navigation_only = _tk is navigation_candidates.get(_cls)
                     _original_xy = image_time_position(_cls, _tk.raw_xy, (_tk.x, _tk.y),
                         (_cls,) if _navigation_only else _original_colors)
-                    _message = dict(schema_version=4 if _navigation_only else 3,
+                    _message = dict(schema_version=5 if _navigation_only else 3,
                         run_id=_visual_run, uav_id=_logical_uid, seq=_obs_seq, sample_s=_tk.observed_s,
                         target_id=_tag, frame_id='world_enu', xyz=[round(_original_xy[0], 2), round(_original_xy[1], 2), TARGET_Z],
                         confidence=float(_tk.conf), camera_xyz=list(_tk.camera_xyz),
@@ -1914,6 +1916,8 @@ def main():
                         observation_id='%s:%s:%d' % (_visual_run, _logical_uid, _obs_seq))
                     if _navigation_only:
                         _message['evidence_kind'] = 'navigation_candidate'
+                        _message['motion_identity_verified'] = bool(_cls == 'blue'
+                            and _tk.blue_identity is not None and _tk.blue_identity.allowed(now))
                     visual_coord.publish(String(data=json.dumps(_message, allow_nan=False)))
                     _published_visual_samples[_tag] = _tk.observed_s
                 # === 仿真环境日志：YOLO 检测输出 + ROS 时间戳 ===

@@ -1,0 +1,39 @@
+{
+  "actor": [
+    "actor_4",
+    "actor_5"
+  ],
+  "tag": "red",
+  "matching_rule": "either remaining red truth",
+  "actor_truth_samples": 4298,
+  "truth_service_failures": 1,
+  "truth_time_bounds": {
+    "4": [
+      1936.6100000000001,
+      2069.272
+    ],
+    "5": [
+      1936.5459999999998,
+      2069.178
+    ]
+  },
+  "original_image_coordinates": {
+    "total": 26,
+    "aligned": 26,
+    "missing": 0,
+    "maximum_error_m": 0.7099083266137658,
+    "mean_error_m": 0.3323825296189294,
+    "fraction_strictly_below_1m": 1.0
+  },
+  "official_report_coordinates": {
+    "total": 0,
+    "aligned": 0,
+    "missing": 0,
+    "maximum_error_m": null,
+    "mean_error_m": null,
+    "fraction_strictly_below_1m": null
+  },
+  "control_input": false,
+  "official_judge_executed": false,
+  "formal_competition_pass": false
+}

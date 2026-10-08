@@ -141,6 +141,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         blue_identity_revision='motion_identity_not_exempted_by_person_proof',
         image_time_reporting_revision='blue_raw_projection_v3_compat_3p1',
         image_time_reporting_colors=flight_env['PR_ORIGINAL_REPORT_COLORS'],
+        navigation_candidate_revision='v1.41_schema5_blue_motion_only_navigation_22_to_45m',
         blue_source_alignment_enabled=flight_env['BRIDGE_BLUE_ALIGNED'],
         blue_person_enabled=flight_env['PR_FAST_BLUE_PERSON'],
         brown_fusion_revision='v1.39_source_aligned_original_time',

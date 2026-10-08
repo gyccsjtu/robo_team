@@ -1,0 +1,61 @@
+{
+  "executed_commit": "462fa8e",
+  "raw_simulated_seconds": 138.04800000000023,
+  "trajectory_start_s": 1931.136,
+  "trajectory_end_s": 2069.104,
+  "official_targets_eliminated": 0,
+  "maximum_true_height_m": 3.190551127242495,
+  "maximum_displacements_m": {
+    "uav_1": 58.608519641814375,
+    "uav_2": 40.070902582897574,
+    "uav_3": 53.91551868961894,
+    "uav_4": 71.52752318334602,
+    "uav_5": 44.596476245951834,
+    "uav_6": 64.33640520387536
+  },
+  "native_contacts": {
+    "kind": "CONTACT_OBSERVER_STOPPED",
+    "frames": 34897,
+    "first_sample_s": 1929.704,
+    "last_sample_s": 2069.288,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 111444,
+    "body_pairs": 50567
+  },
+  "non_ground_body_contacts": [],
+  "trace_counts": {
+    "navigation_candidate": 10,
+    "input": 52
+  },
+  "actual_target_grants": [
+    {
+      "schema_version": 2,
+      "run_id": "e2052eb7-090c-4327-adbd-02fca4fb0eb2",
+      "sim_s": 2011.548,
+      "event": "TASK_GRANTED",
+      "uav_id": "uav_2",
+      "details": {
+        "generation": 5,
+        "key": [
+          "target",
+          "t1"
+        ]
+      }
+    },
+    {
+      "schema_version": 2,
+      "run_id": "e2052eb7-090c-4327-adbd-02fca4fb0eb2",
+      "sim_s": 2032.968,
+      "event": "TASK_GRANTED",
+      "uav_id": "uav_3",
+      "details": {
+        "generation": 4,
+        "key": [
+          "target",
+          "t5"
+        ]
+      }
+    }
+  ],
+  "formal_competition_pass": false
+}

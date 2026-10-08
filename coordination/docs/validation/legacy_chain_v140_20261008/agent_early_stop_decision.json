@@ -1,0 +1,23 @@
+{
+  "reason": "CONFIRMED_DISTANT_PERSON_PROOF_LOSS_BEFORE_REPORTING",
+  "decision_utc": "2026-10-08T08:45:40.945596+00:00",
+  "pid": 579,
+  "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/six_radar_connectivity.py --output /root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight --city-scene /root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/scene --flight-seconds 600 ",
+  "executed_commit": "462fa8e",
+  "completed": false,
+  "evidence": {
+    "target_grant_s": 2011.548,
+    "last_forwarded_original_s": 2011.968,
+    "actual_raw_blue_images_after_that": [
+      2012.252,
+      2012.544,
+      2012.848,
+      2013.212,
+      2014.044
+    ],
+    "person_current_verified": false,
+    "blue_identity_allowed": true,
+    "tracking_failed_s": 2019.996
+  },
+  "note": "Agent early stop to repair demonstrated cue gap; not a completed 600-second round."
+}

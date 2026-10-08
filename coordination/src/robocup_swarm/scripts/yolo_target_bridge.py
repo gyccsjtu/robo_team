@@ -464,7 +464,8 @@ class YoloTargetBridge(object):
                     if tag in self.core.eliminated or tag in ('red1','red2'):
                         return
                     camera = observation['camera_xyz']
-                    if (not observation['person_frame_verified']
+                    if (not (observation['person_frame_verified']
+                                or tag == 'blue' and observation.get('motion_identity_verified') is True)
                             or not 22. < math.hypot(x-camera[0],y-camera[1]) <= 45.):
                         return
                     candidate_core = self._candidate_core

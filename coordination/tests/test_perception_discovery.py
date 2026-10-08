@@ -24,6 +24,7 @@ class PerceptionDiscoveryTests(unittest.TestCase):
                              camera_s=observed_s if camera_s is None else camera_s,
                              camera_xyz=[-3.,2.,2.5],
                              person_support=SimpleNamespace(current_verified=True))
+        tk.blue_identity=None
         env = dict(COORD_ON=True, COORD_HZ=2., now=10., _coord_t=0., _obs_seq=0,
             _published_visual_samples={}, navigation_candidates={color:tk} if candidate else {},
             pub_list=[], visual_pub_list=[(color, 0, tk)], pubs={color: [None]},
@@ -57,7 +58,7 @@ class PerceptionDiscoveryTests(unittest.TestCase):
     def test_candidate_is_explicit_and_uses_original_coordinate(self):
         visual,legacy=self.publish(candidate=True)
         self.assertEqual(legacy,[])
-        self.assertEqual(visual[0]['schema_version'],4)
+        self.assertEqual(visual[0]['schema_version'],5)
         self.assertEqual(visual[0]['evidence_kind'],'navigation_candidate')
         self.assertEqual(visual[0]['xyz'],[3.,4.,0.])
 
