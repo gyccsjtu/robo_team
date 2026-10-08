@@ -566,8 +566,12 @@ class SwarmManager(object):
     def _tracker_rank(self, tid, uid, distance):
         observations = [(owner, stamp) for (owner, tag), stamp in
                         tuple(self._visual_evidence.stamps.items()) if TAG_TO_TID[tag] == tid]
+        approach = [(owner, stamp) for (owner, tag), stamp in
+                    tuple(getattr(self, '_approach_observers', {}).items())
+                    if TAG_TO_TID[tag] == tid
+                    and self._visual_evidence.stamps.get((owner, tag)) == stamp]
         return tracker_rank(uid, distance, observations, rospy.Time.now().to_sec(),
-                            DETECT_RADIUS)
+                            DETECT_RADIUS, approach)
 
     def _consider_camera_takeover(self, tid, now):
         owner = self._tracking.get(tid)
@@ -938,6 +942,12 @@ class SwarmManager(object):
                 if observation is None:
                     return
                 tid = TAG_TO_TID[observation['target_id']]
+                approach = self.__dict__.setdefault('_approach_observers', {})
+                source = (observation['uav_id'], observation['target_id'])
+                if observation.get('schema_version') in (6, 7):
+                    approach[source] = observation['sample_s']
+                else:
+                    approach.pop(source, None)
                 if observation['sample_s'] < self._last_detect.get(tid, -1.):
                     # Per-camera coverage remains valid even when another camera
                     # supplied a newer global point. Never regress that point.

@@ -207,7 +207,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         pending_camera_reacquisition_revision='disabled',
         stop_command_revision='v1.28_zero_request_bypasses_slew',
         tracking_refresh_maximum_deferral_s=20.,
-        maximum_speed_mps=3.,visual_fusion_revision='v2.15_v124_behavior_metadata2',tracker_selection_revision='v1.20_camera_takeover',
+        maximum_speed_mps=3.,visual_fusion_revision='v2.15_v124_behavior_metadata2',tracker_selection_revision='v1.47_fresh_far_candidate_observer_ranking',
         guide_lookahead_m=4.,guide_lookahead_revision='v1.37_city_4m_existing_speed_caps',
         measured_route_envelope_revision='v1.37_current_and_fresh_owned_same_generation_retained',
         retained_route_snapshot_maximum_receipt_age_s=1.5,

@@ -32,6 +32,15 @@ class TrackerSelectionTests(unittest.TestCase):
         self.assertLess(tracker_rank('near',5.,[('far',9.8)],10.,15.),
                         tracker_rank('far',20.,[('far',9.8)],10.,15.))
 
+    def test_fresh_distant_candidate_keeps_its_camera_for_approach(self):
+        seen=[('camera',9.8)]
+        self.assertLess(tracker_rank('camera',37.5,seen,10.,20.,seen),
+                        tracker_rank('blind',42.5,seen,10.,20.,seen))
+        for stamp,distance in [(8.9,37.5),(10.1,37.5),(9.8,45.1)]:
+            self.assertEqual(tracker_rank('camera',distance,[('camera',stamp)],10.,20.,
+                            [('camera',stamp)])[0],1)
+        self.assertEqual(tracker_rank('camera',37.5,[],10.,20.,seen)[0],1)
+
     def test_hold_is_off_by_default_and_returns_nothing_then(self):
         # hold_s<=0 must reproduce the original behaviour: no held position at all.
         for hold in (0.0, -1.0):

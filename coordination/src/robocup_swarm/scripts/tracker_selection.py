@@ -1,12 +1,15 @@
-"""Prefer a camera that currently sees the target, within dispatch range."""
+"""Prefer fresh observers, including explicitly accepted distant approach cues."""
 import math
 
 
-def tracker_rank(uid, distance, observations, now, limit):
-    # Outside-range observers cannot displace an eligible nearby aircraft.
+def tracker_rank(uid, distance, observations, now, limit, approach_observations=()):
+    # Ordinary observations retain the sensing-range rule. Accepted approach
+    # candidates may keep their real observer out to the existing 45m bound.
     fresh = any(owner == uid and math.isfinite(stamp) and 0 <= now-stamp <= 1.
                 for owner, stamp in observations)
-    eligible_observer = fresh and distance < limit
+    approach = any(owner == uid and math.isfinite(stamp) and 0 <= now-stamp <= 1.
+                   for owner, stamp in approach_observations)
+    eligible_observer = fresh and (distance < limit or approach and distance <= 45.)
     return (0 if eligible_observer else 1, distance, uid)
 
 

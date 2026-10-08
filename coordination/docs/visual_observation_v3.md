@@ -1,5 +1,7 @@
 # 视觉观测v3（2026-10-07冻结）
 
+v1.47诊断增补（2026-10-08）：桥在原navigation_candidate记录之外增加kind=navigation_candidate_dispatch行，含observation_id、target_id、forwarded、original_s、reason（FORWARDED/REJECTED/WAIT_ACTIVATION/ORIGINAL_TIME_MISMATCH）。forwarded=true只在实际调用confirmed publisher后记录，不等于manager收件或任务授予；须核对manager日志和schema2 TASK_GRANTED.details.key。原candidate.alive只是独立融合轨迹激活状态，不能推断v6/v7是否转发。原观测字段及schema不变。
+
 ## 兼容修订3.5 / v1.46蓝色内部候选v7（2026-10-08冻结）
 
 正式观测仍为v3。新增schema_version=7只允许blue及evidence_kind=navigation_candidate。字段为v5全部字段，额外candidate_reason=blue_approach_motion、person_hits、track_hits（严格int且≥2）、approach_motion_verified=true；person_frame_verified必须true，motion_identity_verified仍记录完整身份验证的真实bool，不把短运动伪装为完整身份。

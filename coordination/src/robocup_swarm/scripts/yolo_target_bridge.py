@@ -536,8 +536,15 @@ class YoloTargetBridge(object):
                     track = candidate_core.tracks[tag]
                     self._trace_record(dict(kind='navigation_candidate',receipt_s=self._now(),
                         observation=observation,accepted=accepted,alive=track.alive))
-                    if accepted and (early_white or early_blue or track.alive) and track.t_obs == stamp:
+                    forwarded = accepted and (early_white or early_blue or track.alive) and track.t_obs == stamp
+                    if forwarded:
                         self._confirmed_pub.publish(_msg_string_cls()(data=json.dumps(observation,allow_nan=False)))
+                    self._trace_record(dict(kind='navigation_candidate_dispatch',receipt_s=self._now(),
+                        observation_id=observation['observation_id'],target_id=tag,
+                        forwarded=forwarded,original_s=track.t_obs,
+                        reason='FORWARDED' if forwarded else 'REJECTED' if not accepted
+                            else 'WAIT_ACTIVATION' if not (early_white or early_blue or track.alive)
+                            else 'ORIGINAL_TIME_MISMATCH'))
                     return
                 if tag in ('red1','red2'):
                     tag = self._red_observations.observe(stamp,(x,y))

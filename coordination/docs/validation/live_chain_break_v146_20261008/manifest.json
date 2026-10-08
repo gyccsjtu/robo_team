@@ -1,0 +1,34 @@
+{
+  "run_live_at_capture": true,
+  "inputs": [
+    {
+      "source": "/root/robocup_runs/wb_v146_20261008T142000Z/round_1_seed_8159/flight/algorithm/bridge_trace.jsonl",
+      "captured_source_bytes": 3462,
+      "captured_prefix_sha256": "cdd893c365943f56c5e493217f5039ce4d9b6e46049ff69acd52fc9b7e58ce15",
+      "excerpt": "bridge_trace.jsonl",
+      "excerpt_sha256": "cdd893c365943f56c5e493217f5039ce4d9b6e46049ff69acd52fc9b7e58ce15"
+    },
+    {
+      "source": "/root/robocup_runs/wb_v146_20261008T142000Z/round_1_seed_8159/flight/algorithm/authority_events.jsonl",
+      "captured_source_bytes": 101963,
+      "captured_prefix_sha256": "277b7e80bf6877614139747b3255cf587ff28e9f57db353fa2083340c73a2dd5",
+      "excerpt": "authority_events.jsonl",
+      "excerpt_sha256": "6795efa294d143b65f1c7041ab81ab7397549ef7b36d6edc294d21906fce4804"
+    },
+    {
+      "source": "/root/robocup_runs/wb_v146_20261008T142000Z/round_1_seed_8159/flight/swarm_manager.log",
+      "captured_source_bytes": 12389,
+      "captured_prefix_sha256": "0b2364aa478a9da02b0ef263fd866443da23631499b4eaa1c50e912da8fc4ed5",
+      "excerpt": "swarm_manager.log",
+      "excerpt_sha256": "f0666cebde75d14c97c531a5c6ba29d640edf44dd64f9e5c3195ad1929e0ef37"
+    },
+    {
+      "source": "/root/robocup_runs/wb_v146_20261008T142000Z/round_1_seed_8159/flight/agent_uav_6.log",
+      "captured_source_bytes": 50507,
+      "captured_prefix_sha256": "143fc1c8e73cbd8da2196878c005540fa9bfe277db0678e50f33137d4761b61e",
+      "excerpt": "agent_uav_6.log",
+      "excerpt_sha256": "97d8709ef8c3e64e7896932a129ecf0b18619457e087b4e03db86d03df55e24b"
+    }
+  ],
+  "statement": "Source SHA refers to captured append-only prefix, not eventual completed run."
+}
