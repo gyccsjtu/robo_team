@@ -331,18 +331,20 @@ class SignedExit(unittest.TestCase):
                           "param/set", "arducopter"):
             self.assertNotIn(forbidden, src, forbidden)
 
-    def test_observer_calls_exactly_one_readonly_gazebo_service(self):
-        """The pose pull mirrors perception_real.py's own GetLinkState call.
+    def test_observer_calls_only_readonly_gazebo_services(self):
+        """Camera service and actual actor service are both read-only.
 
         Control-plane service clients stay forbidden; only the one read-only
-        Gazebo link-state query may appear, and it must be the only one.
+        Gazebo link-state and model-state queries may appear.
         """
         path = os.path.join(REPO, "coordination", "scripts",
                             "white_evidence_observer.py")
         with open(path, encoding="utf-8") as fh:
             src = fh.read()
-        self.assertEqual(1, src.count("rospy.ServiceProxy("))
+        self.assertEqual(2, src.count("rospy.ServiceProxy("))
         self.assertIn('rospy.ServiceProxy("/gazebo/get_link_state"', src)
+        self.assertIn('rospy.ServiceProxy("/gazebo/get_model_state"', src)
+        self.assertNotIn('rospy.Subscriber("/gazebo/model_states"', src)
         self.assertIn("GetLinkState", src)
         # same link and offset the production node uses
         self.assertIn("::cgo3_camera_link", src)
@@ -430,7 +432,7 @@ class ObserverIntegrationReview(unittest.TestCase):
         import white_evidence_observer as O
         src = inspect.getsource(O.main)
         self.assertIn("wall = rospy.Time.now().to_sec()", src)
-        self.assertIn('state["truth_wall"] = rospy.Time.now().to_sec()', src)
+        self.assertIn('state["truth_wall"] = (before+after)/2.', src)
         self.assertIn("from geometry_msgs.msg import PoseStamped", src)
         self.assertNotIn("from nav_msgs.msg import PoseStamped", src)
 

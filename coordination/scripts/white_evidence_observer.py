@@ -392,8 +392,7 @@ def main(argv=None):
 
     import rospy
     from cv_bridge import CvBridge
-    from gazebo_msgs.msg import ModelStates
-    from gazebo_msgs.srv import GetLinkState
+    from gazebo_msgs.srv import GetLinkState, GetModelState
     from sensor_msgs.msg import CameraInfo, Image
 
     stopping = {"flag": False}
@@ -408,15 +407,7 @@ def main(argv=None):
     state = {"truth": None, "truth_wall": None, "image": {}, "intr": {}}
     off_bl = np.array([float(v) for v in args.cam_off_bl.split(",")])
     gls = rospy.ServiceProxy("/gazebo/get_link_state", GetLinkState)
-
-    def models_cb(msg):
-        try:
-            i = msg.name.index(args.truth_model)
-        except ValueError:
-            return
-        p = msg.pose[i].position
-        state["truth"] = (float(p.x), float(p.y), float(p.z))
-        state["truth_wall"] = rospy.Time.now().to_sec()
+    gms = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
     def make_image_cb(uav):
         bridge = CvBridge()
@@ -450,8 +441,7 @@ def main(argv=None):
         xyz = [p.x + off[0], p.y + off[1], p.z + off[2]]
         return dict(xyz=xyz, rotation=R.flatten().tolist())
 
-    subs = [rospy.Subscriber("/gazebo/model_states", ModelStates, models_cb,
-                             queue_size=1)]
+    subs = []
     if args.pose_source == "topic":
         from geometry_msgs.msg import PoseStamped
 
@@ -483,6 +473,21 @@ def main(argv=None):
         if result_finished(args.result_file):
             print("[white_dev] result file reports a terminal state; exiting", flush=True)
             break
+        if cap.saved < cap.total_cap:
+            before = rospy.Time.now().to_sec()
+            try:
+                response = gms(args.truth_model, "world")
+                after = rospy.Time.now().to_sec()
+                if response.success and 0 <= after-before <= .05:
+                    p = response.pose.position
+                    state["truth"] = (float(p.x), float(p.y), float(p.z))
+                    state["truth_wall"] = (before+after)/2.
+                else:
+                    state["truth"] = None
+                    cap._skip("truth_query_unavailable")
+            except Exception:
+                state["truth"] = None
+                cap._skip("truth_query_failed")
         for uav, msg in list(state["image"].items()):
             if uav not in state["intr"]:
                 continue
@@ -515,6 +520,8 @@ def main(argv=None):
                 uav, img_t, pose, pose_time, state["truth"], intr, size, wall,
                 truth_age_s=truth_age, pose_pull_delay_s=pull_delay)
             if ok:
+                payload["truth_source"] = "/gazebo/get_model_state"
+                payload["truth_sample_s"] = state["truth_wall"]
                 try:
                     img = CvBridge().imgmsg_to_cv2(msg, "bgr8")
                 except Exception:
