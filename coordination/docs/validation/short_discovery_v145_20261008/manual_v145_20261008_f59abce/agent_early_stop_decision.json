@@ -1,0 +1,17 @@
+{
+  "reason": "USER_REQUESTED_FIVE_WALL_MINUTES",
+  "user_limit_wall_seconds": 300,
+  "original_budget_sim_limit_s": 600,
+  "recorded_wall_seconds": 384.6,
+  "runner_pid": 522,
+  "verified_cmdline": [
+    "/root/robo_team_build/vision_env/bin/python",
+    "/mnt/d/a/.robocup/robo_team/coordination/scripts/validate_fast_city.py",
+    "--root",
+    "/root/robocup_runs/manual_v145_20261008_f59abce",
+    "--single-seed",
+    "8159"
+  ],
+  "utc": "2026-10-08T13:33:55Z",
+  "note": "Request arrived after launch; accumulated runtime exceeds requested limit. SIGINT now; preserve raw budget/result."
+}

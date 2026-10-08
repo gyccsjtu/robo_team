@@ -25,7 +25,8 @@ class PerceptionDiscoveryTests(unittest.TestCase):
                              camera_xyz=[-3.,2.,2.5],
                              person_support=SimpleNamespace(current_verified=True,hits=2),
                              hits=2,navigation_provisional=provisional)
-        tk.blue_identity=None
+        tk.blue_identity=(SimpleNamespace(allowed=lambda now:False,approach_allowed=lambda now:True)
+                          if color=='blue' and provisional else None)
         env = dict(COORD_ON=True, COORD_HZ=2., now=10., _coord_t=0., _obs_seq=0,
             _published_visual_samples={}, navigation_candidates={color:tk} if candidate else {},
             pub_list=[], visual_pub_list=[(color, 0, tk)], pubs={color: [None]},
@@ -79,3 +80,14 @@ class PerceptionDiscoveryTests(unittest.TestCase):
         self.assertIs(visual[0]['person_frame_verified'],True)
         self.assertEqual(self.publish(color='white',original_colors='blue')[0][0]['xyz'],[1.,2.,0.])
         self.assertEqual(self.publish(color='blue',original_colors='blue',miss=1)[0],[])
+
+    def test_short_blue_motion_publishes_navigation_only_original(self):
+        visual,legacy=self.publish(color='blue',candidate=True,provisional=True)
+        self.assertEqual(legacy,[])
+        m=visual[0]
+        self.assertEqual(m['schema_version'],7)
+        self.assertEqual(m['candidate_reason'],'blue_approach_motion')
+        self.assertIs(m['motion_identity_verified'],False)
+        self.assertIs(m['approach_motion_verified'],True)
+        self.assertEqual(m['xyz'],[3.,4.,0.])
+        self.assertEqual(m['sample_s'],9.8)

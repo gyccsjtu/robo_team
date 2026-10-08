@@ -523,10 +523,12 @@ class YoloTargetBridge(object):
                         return
                     camera = observation['camera_xyz']
                     early_white = observation.get('schema_version') == 6
+                    early_blue = observation.get('schema_version') == 7
                     distance = math.hypot(x-camera[0],y-camera[1])
                     if (not (observation['person_frame_verified']
                                 or tag == 'blue' and observation.get('motion_identity_verified') is True)
-                            or not (0 < distance <= 22. if early_white else 22. < distance <= 45.)):
+                            or not (0 < distance <= 22. if early_white else
+                                    0 < distance <= 45. if early_blue else 22. < distance <= 45.)):
                         return
                     candidate_core = self._candidate_core
                     accepted = candidate_core.report(stamp,tag,x,y,observation['confidence'],
@@ -534,7 +536,7 @@ class YoloTargetBridge(object):
                     track = candidate_core.tracks[tag]
                     self._trace_record(dict(kind='navigation_candidate',receipt_s=self._now(),
                         observation=observation,accepted=accepted,alive=track.alive))
-                    if accepted and (early_white or track.alive) and track.t_obs == stamp:
+                    if accepted and (early_white or early_blue or track.alive) and track.t_obs == stamp:
                         self._confirmed_pub.publish(_msg_string_cls()(data=json.dumps(observation,allow_nan=False)))
                     return
                 if tag in ('red1','red2'):

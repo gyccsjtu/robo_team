@@ -1,0 +1,1276 @@
+{
+  "control_input": false,
+  "scope": "closed raw detections and rejection records, not an image identity certificate",
+  "summary": {
+    "blue_boxes": 73,
+    "person_proved_boxes": 39,
+    "truth_aligned_proved_boxes": 37,
+    "blue_originals": 69,
+    "person_proved_originals": 36,
+    "proved_under_1m_originals": 4,
+    "proved_boxes_under_1m": 6,
+    "proved_boxes_under_3m": 12,
+    "proved_minimum_blue_error_m": 0.15748803862752048,
+    "proved_maximum_blue_error_m": 88.95719293722307
+  },
+  "details": [
+    {
+      "uid": "uav_5",
+      "image_s": 1954.352,
+      "raw_xy": [
+        44.20314083618695,
+        13.323905954070883
+      ],
+      "range_m": 43.30591425687644,
+      "person_verified": true,
+      "person_iou": "0.7044013142585754",
+      "blue_truth_error_m": 1.1866180069211874,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.1866180069211874,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1957.124,
+      "raw_xy": [
+        -26.666046677315634,
+        13.42226789517879
+      ],
+      "range_m": 20.885874900827588,
+      "person_verified": true,
+      "person_iou": "0.8329492807388306",
+      "blue_truth_error_m": 72.49504545469549,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 57.36366001798977,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1958.016,
+      "raw_xy": [
+        -25.995463136498522,
+        13.175278939184974
+      ],
+      "range_m": 19.34890935217903,
+      "person_verified": true,
+      "person_iou": "0.7736300230026245",
+      "blue_truth_error_m": 72.71706135493301,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 56.05909460254682,
+      "matched_rejection_rows": {
+        "verdict_hits": 34
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1961.324,
+      "raw_xy": [
+        -26.49964485815054,
+        13.362748340295466
+      ],
+      "range_m": 18.78570775987121,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 76.52742648412253,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 53.59621759943864,
+      "matched_rejection_rows": {
+        "verdict_hits": 18
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1963.112,
+      "raw_xy": [
+        -26.696347711660078,
+        13.411207628691507
+      ],
+      "range_m": 18.289114299747503,
+      "person_verified": true,
+      "person_iou": "0.762283205986023",
+      "blue_truth_error_m": 78.51119896481555,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 52.23016362929469,
+      "matched_rejection_rows": {
+        "verdict_hits": 10
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1964.116,
+      "raw_xy": [
+        -27.083493853237865,
+        13.604340610669748
+      ],
+      "range_m": 17.70226601657123,
+      "person_verified": true,
+      "person_iou": "0.864715576171875",
+      "blue_truth_error_m": 79.90553196377198,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 51.64595618138894,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 6
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1964.804,
+      "raw_xy": [
+        -26.549363680443314,
+        13.354400126658351
+      ],
+      "range_m": 16.270931214765454,
+      "person_verified": true,
+      "person_iou": "0.7740756869316101",
+      "blue_truth_error_m": 80.05793003724006,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 50.69753687584393,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1965.136,
+      "raw_xy": [
+        -26.674778148012898,
+        13.354801885929712
+      ],
+      "range_m": 16.158013609135605,
+      "person_verified": true,
+      "person_iou": "0.6431068778038025",
+      "blue_truth_error_m": 80.5153420025031,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 50.53253046071358,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 2
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1965.484,
+      "raw_xy": [
+        -27.077676394376766,
+        13.662864495080072
+      ],
+      "range_m": 16.260038591651664,
+      "person_verified": true,
+      "person_iou": "0.8803173303604126",
+      "blue_truth_error_m": 81.26812694073806,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 50.45829752113503,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1965.812,
+      "raw_xy": [
+        -26.79799395557745,
+        13.470568825898916
+      ],
+      "range_m": 15.467170646419026,
+      "person_verified": true,
+      "person_iou": "0.8511154651641846",
+      "blue_truth_error_m": 81.31512479745092,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 50.025663092405665,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 22
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1967.98,
+      "raw_xy": [
+        -26.677681894413418,
+        13.405485469290262
+      ],
+      "range_m": 13.182205550225493,
+      "person_verified": true,
+      "person_iou": "0.8019741177558899",
+      "blue_truth_error_m": 83.36044591796465,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 48.43495616540606,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1968.332,
+      "raw_xy": [
+        -26.97796766048829,
+        13.548518242420094
+      ],
+      "range_m": 13.068282050782116,
+      "person_verified": true,
+      "person_iou": "0.6233512163162231",
+      "blue_truth_error_m": 84.01352061330637,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 48.63236717215875,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1968.668,
+      "raw_xy": [
+        -26.90584315291855,
+        13.548897499178185
+      ],
+      "range_m": 12.806850965016489,
+      "person_verified": true,
+      "person_iou": "0.8550302982330322",
+      "blue_truth_error_m": 84.27813384088368,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 48.56849832086419,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1969.024,
+      "raw_xy": [
+        -26.761502587049883,
+        13.376998438590634
+      ],
+      "range_m": 12.283144034205202,
+      "person_verified": true,
+      "person_iou": "0.7150442600250244",
+      "blue_truth_error_m": 84.49025858227702,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 48.522270683940654,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1969.448,
+      "raw_xy": [
+        -26.844221608854106,
+        13.4878202966531
+      ],
+      "range_m": 12.001167356767272,
+      "person_verified": true,
+      "person_iou": "0.7583562135696411",
+      "blue_truth_error_m": 85.00039109775526,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 48.54284166836351,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1969.916,
+      "raw_xy": [
+        -26.82887910786685,
+        13.470060005217523
+      ],
+      "range_m": 11.884420153180335,
+      "person_verified": true,
+      "person_iou": "0.6200639009475708",
+      "blue_truth_error_m": 85.45194387137323,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 48.73886710125885,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1970.368,
+      "raw_xy": [
+        -26.7535642521885,
+        13.427838869471906
+      ],
+      "range_m": 11.550267813805167,
+      "person_verified": true,
+      "person_iou": "0.6896573305130005",
+      "blue_truth_error_m": 85.82640732131112,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 49.09324064439697,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1970.8,
+      "raw_xy": [
+        -26.822823513284153,
+        13.5831383786586
+      ],
+      "range_m": 11.194990967335627,
+      "person_verified": true,
+      "person_iou": "0.8036965131759644",
+      "blue_truth_error_m": 86.32855324533587,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 49.465946130715935,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1971.192,
+      "raw_xy": [
+        -26.745164680800286,
+        13.501992402481237
+      ],
+      "range_m": 10.635991130572316,
+      "person_verified": true,
+      "person_iou": "0.9228459000587463",
+      "blue_truth_error_m": 86.64201770925034,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 49.78181595960992,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 4
+      }
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1971.192,
+      "raw_xy": [
+        -28.53137249413405,
+        14.81644725206807
+      ],
+      "range_m": 12.789950173687599,
+      "person_verified": true,
+      "person_iou": "0.6979915499687195",
+      "blue_truth_error_m": 88.44528850975895,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 50.804209146234946,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_3",
+      "image_s": 1971.56,
+      "raw_xy": [
+        -28.7110739015731,
+        14.805092852194512
+      ],
+      "range_m": 12.519963061835618,
+      "person_verified": true,
+      "person_iou": "0.5787295699119568",
+      "blue_truth_error_m": 88.95719293722307,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 51.30668596662664,
+      "matched_rejection_rows": {
+        "verdict_blue_identity": 3
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1965.136,
+      "raw_xy": [
+        54.468517046171655,
+        13.20423462732695
+      ],
+      "range_m": 35.80037082269655,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.658217403710242,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.658217403710242,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1965.484,
+      "raw_xy": [
+        54.438941180412115,
+        13.14945864948033
+      ],
+      "range_m": 35.1542044816449,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.28757718272471766,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.28757718272471766,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1965.812,
+      "raw_xy": [
+        59.2628370182088,
+        14.824322328032823
+      ],
+      "range_m": 39.89122759337616,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 5.082164451343347,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 5.082164451343347,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1966.092,
+      "raw_xy": [
+        56.12154078168489,
+        13.572767632929013
+      ],
+      "range_m": 36.42279137078942,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 1.4386480064690599,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.4386480064690599,
+      "matched_rejection_rows": {
+        "verdict_hits": 4
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1966.396,
+      "raw_xy": [
+        57.086054904027364,
+        13.805072268994838
+      ],
+      "range_m": 37.21322885764401,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 2.13970734771321,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 2.13970734771321,
+      "matched_rejection_rows": {
+        "verdict_hits": 4
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1966.732,
+      "raw_xy": [
+        56.84151829324262,
+        13.649053125703295
+      ],
+      "range_m": 36.51832692382013,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 1.5427290845762052,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.5427290845762052,
+      "matched_rejection_rows": {
+        "verdict_hits": 2
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1967.068,
+      "raw_xy": [
+        55.91134878903799,
+        13.11655935104578
+      ],
+      "range_m": 34.9816018463668,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.17450687624882602,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.17450687624882602,
+      "matched_rejection_rows": {
+        "verdict_range": 4
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1967.364,
+      "raw_xy": [
+        57.72650582192329,
+        13.662228673202655
+      ],
+      "range_m": 36.471123265574555,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 1.7825014913603474,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.7825014913603474,
+      "matched_rejection_rows": {
+        "verdict_range": 6
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1967.664,
+      "raw_xy": [
+        53.37406766386292,
+        11.767311195198236
+      ],
+      "range_m": 31.286445631763723,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 3.2396988282362837,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 3.2396988282362837,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1967.98,
+      "raw_xy": [
+        56.91996134745878,
+        13.218174173661033
+      ],
+      "range_m": 34.87030082574794,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.31675227333773076,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.31675227333773076,
+      "matched_rejection_rows": {
+        "verdict_range": 4
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1968.332,
+      "raw_xy": [
+        57.20889017073002,
+        13.172290040994312
+      ],
+      "range_m": 34.82692923375056,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.23918476360715563,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.23918476360715563,
+      "matched_rejection_rows": {
+        "verdict_range": 2
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1968.668,
+      "raw_xy": [
+        58.39252226695741,
+        13.477811311199032
+      ],
+      "range_m": 35.88255168840464,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 1.124227885509256,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.124227885509256,
+      "matched_rejection_rows": {
+        "verdict_range": 4
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1969.024,
+      "raw_xy": [
+        56.12542773850521,
+        12.430047899758575
+      ],
+      "range_m": 33.079602686904074,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 1.704009279085701,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.704009279085701,
+      "matched_rejection_rows": {
+        "verdict_range": 6
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1969.448,
+      "raw_xy": [
+        57.47406290371891,
+        12.705094040112423
+      ],
+      "range_m": 34.00481149576474,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.745643670361489,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.745643670361489,
+      "matched_rejection_rows": {
+        "verdict_range": 8
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1969.916,
+      "raw_xy": [
+        61.13588584697812,
+        14.088664930081423
+      ],
+      "range_m": 37.81643955040197,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 2.7359658474538175,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 2.7359658474538175,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1970.368,
+      "raw_xy": [
+        59.898268589835524,
+        13.421462514821185
+      ],
+      "range_m": 36.24783937965952,
+      "person_verified": true,
+      "person_iou": "0.7861806154251099",
+      "blue_truth_error_m": 0.9235140007207332,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.9235140007207332,
+      "matched_rejection_rows": {
+        "verdict_range": 4
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1970.8,
+      "raw_xy": [
+        60.52611905977804,
+        13.443909969512731
+      ],
+      "range_m": 36.68618776671987,
+      "person_verified": true,
+      "person_iou": "0.805544912815094",
+      "blue_truth_error_m": 1.110838588876303,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.110838588876303,
+      "matched_rejection_rows": {
+        "verdict_range": 4
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1971.192,
+      "raw_xy": [
+        59.06946624043957,
+        12.726954957568935
+      ],
+      "range_m": 34.981576024172654,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.8729148635824107,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.8729148635824107,
+      "matched_rejection_rows": {
+        "verdict_range": 4
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1971.56,
+      "raw_xy": [
+        60.549583685085025,
+        13.335363277642761
+      ],
+      "range_m": 36.53474071177271,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.3812010664645687,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.3812010664645687,
+      "matched_rejection_rows": {
+        "verdict_range": 3
+      }
+    },
+    {
+      "uid": "uav_4",
+      "image_s": 1971.56,
+      "raw_xy": [
+        39.224349446925444,
+        -4.554953671172578
+      ],
+      "range_m": 13.267315427050569,
+      "person_verified": false,
+      "person_iou": "0.6117732524871826",
+      "blue_truth_error_m": 27.45733414213942,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 27.45733414213942,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_6",
+      "image_s": 1954.644,
+      "raw_xy": [
+        44.422762953564465,
+        13.269112195001544
+      ],
+      "range_m": 38.00331675701107,
+      "person_verified": true,
+      "person_iou": "0.7503833174705505",
+      "blue_truth_error_m": 1.105611557754375,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.105611557754375,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_6",
+      "image_s": 1954.904,
+      "raw_xy": [
+        45.162638057006056,
+        13.411950842103323
+      ],
+      "range_m": 38.69826297916018,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 1.6061028342422488,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.6061028342422488,
+      "matched_rejection_rows": {
+        "verdict_hits": 36
+      }
+    },
+    {
+      "uid": "uav_6",
+      "image_s": 1970.8,
+      "raw_xy": [
+        46.064885603092804,
+        10.8955910560896
+      ],
+      "range_m": 20.653429772796656,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 13.604148600565871,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 13.604148600565871,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_6",
+      "image_s": 1971.192,
+      "raw_xy": [
+        48.49942094083394,
+        30.725512476980327
+      ],
+      "range_m": 32.058109622917065,
+      "person_verified": false,
+      "person_iou": "0.8188968896865845",
+      "blue_truth_error_m": 21.06497484595643,
+      "nearest_actor": 4,
+      "nearest_actor_error_m": 0.22524687782079927,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_1",
+      "image_s": 1959.648,
+      "raw_xy": [
+        -26.87412468477177,
+        13.657734790570121
+      ],
+      "range_m": 31.908374663291937,
+      "person_verified": true,
+      "person_iou": "0.5914904475212097",
+      "blue_truth_error_m": 75.23074174412152,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 55.262929058807465,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_1",
+      "image_s": 1960.248,
+      "raw_xy": [
+        -26.513064483056986,
+        13.212546486982918
+      ],
+      "range_m": 31.010296605327813,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 75.46516075917131,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 54.59194754225345,
+      "matched_rejection_rows": {
+        "verdict_hits": 14
+      }
+    },
+    {
+      "uid": "uav_1",
+      "image_s": 1961.744,
+      "raw_xy": [
+        -26.941177135553648,
+        13.603710205526859
+      ],
+      "range_m": 30.37788903453763,
+      "person_verified": true,
+      "person_iou": "0.6370295882225037",
+      "blue_truth_error_m": 77.39313417669058,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 53.53596287766731,
+      "matched_rejection_rows": {
+        "verdict_hits": 4
+      }
+    },
+    {
+      "uid": "uav_1",
+      "image_s": 1962.092,
+      "raw_xy": [
+        -28.537169325670988,
+        15.10810243196286
+      ],
+      "range_m": 32.247209335855075,
+      "person_verified": true,
+      "person_iou": "0.7022308111190796",
+      "blue_truth_error_m": 79.3621772981687,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 54.10492004196021,
+      "matched_rejection_rows": {
+        "verdict_hits": 2
+      }
+    },
+    {
+      "uid": "uav_1",
+      "image_s": 1962.44,
+      "raw_xy": [
+        -27.475558169869817,
+        14.120422388237833
+      ],
+      "range_m": 30.534389642710103,
+      "person_verified": true,
+      "person_iou": "0.7204364538192749",
+      "blue_truth_error_m": 78.63348126427374,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 53.21701837732181,
+      "matched_rejection_rows": {
+        "verdict_range": 4
+      }
+    },
+    {
+      "uid": "uav_1",
+      "image_s": 1962.788,
+      "raw_xy": [
+        -26.986839770917662,
+        13.688664503439469
+      ],
+      "range_m": 29.79025494802821,
+      "person_verified": true,
+      "person_iou": "0.8750894069671631",
+      "blue_truth_error_m": 78.48306933391541,
+      "nearest_actor": 5,
+      "nearest_actor_error_m": 52.65268013160976,
+      "matched_rejection_rows": {
+        "verdict_range": 36
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1951.584,
+      "raw_xy": [
+        40.01601822221149,
+        11.986539836768145
+      ],
+      "range_m": 35.972582707977494,
+      "person_verified": true,
+      "person_iou": "0.6467188000679016",
+      "blue_truth_error_m": null,
+      "nearest_actor": null,
+      "nearest_actor_error_m": null,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1952.004,
+      "raw_xy": [
+        41.77452996576107,
+        13.013752346765
+      ],
+      "range_m": 37.83413323633909,
+      "person_verified": true,
+      "person_iou": "0.7850342392921448",
+      "blue_truth_error_m": null,
+      "nearest_actor": null,
+      "nearest_actor_error_m": null,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1964.452,
+      "raw_xy": [
+        53.34642977841071,
+        13.297376371537045
+      ],
+      "range_m": 41.831121851855,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.3448432545074833,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.3448432545074833,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1964.804,
+      "raw_xy": [
+        52.698234457049054,
+        12.521386119636247
+      ],
+      "range_m": 40.715666545329405,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.9452555557869933,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.9452555557869933,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1965.136,
+      "raw_xy": [
+        53.52243787208558,
+        12.942415808098307
+      ],
+      "range_m": 41.37463421406843,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.32435882311280706,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.32435882311280706,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1965.484,
+      "raw_xy": [
+        54.289008648764394,
+        13.133714269387808
+      ],
+      "range_m": 41.78142183128375,
+      "person_verified": true,
+      "person_iou": "0.7901299595832825",
+      "blue_truth_error_m": 0.16035482040538168,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.16035482040538168,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1965.484,
+      "raw_xy": [
+        54.55768014153408,
+        13.437154334957269
+      ],
+      "range_m": 42.164543249474896,
+      "person_verified": true,
+      "person_iou": "0.5845175981521606",
+      "blue_truth_error_m": 0.5655445715598353,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.5655445715598353,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1965.812,
+      "raw_xy": [
+        53.46524010786798,
+        12.474341548937364
+      ],
+      "range_m": 40.584795776768395,
+      "person_verified": true,
+      "person_iou": "0.7079874277114868",
+      "blue_truth_error_m": 1.1789489957022565,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.1789489957022565,
+      "matched_rejection_rows": {
+        "verdict_hits": 2
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1966.092,
+      "raw_xy": [
+        54.22018948433538,
+        12.700760910421302
+      ],
+      "range_m": 41.13899299602265,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.6548785911502376,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.6548785911502376,
+      "matched_rejection_rows": {
+        "verdict_hits": 4
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1966.396,
+      "raw_xy": [
+        54.96667126409079,
+        12.925213180599691
+      ],
+      "range_m": 41.61414721408042,
+      "person_verified": true,
+      "person_iou": "0.6212998032569885",
+      "blue_truth_error_m": 0.15748803862752048,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.15748803862752048,
+      "matched_rejection_rows": {
+        "verdict_hits": 10
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1966.396,
+      "raw_xy": [
+        55.764177534854355,
+        13.577046722781628
+      ],
+      "range_m": 42.628539294360465,
+      "person_verified": true,
+      "person_iou": "0.5995498895645142",
+      "blue_truth_error_m": 0.8738914142711428,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.8738914142711428,
+      "matched_rejection_rows": {
+        "verdict_hits": 40
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1967.068,
+      "raw_xy": [
+        62.89327280837303,
+        16.965977867141266
+      ],
+      "range_m": 50.10662638129606,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 8.145164954886079,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 8.145164954886079,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1967.364,
+      "raw_xy": [
+        57.09242621122663,
+        13.772670659126677
+      ],
+      "range_m": 43.384550435367764,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 1.2776507458156336,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.2776507458156336,
+      "matched_rejection_rows": {
+        "verdict_range": 2
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1967.664,
+      "raw_xy": [
+        55.57268703466849,
+        12.586485242102459
+      ],
+      "range_m": 41.20835304849897,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.8991696370145007,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.8991696370145007,
+      "matched_rejection_rows": {
+        "verdict_range": 8
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1967.98,
+      "raw_xy": [
+        53.00295787097431,
+        10.850995885501408
+      ],
+      "range_m": 37.661927784191725,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 4.265253728019462,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 4.265253728019462,
+      "matched_rejection_rows": {}
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1968.332,
+      "raw_xy": [
+        56.93717692486413,
+        13.090550878656222
+      ],
+      "range_m": 41.941774089517914,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.126252044572321,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.126252044572321,
+      "matched_rejection_rows": {
+        "verdict_range": 4
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1968.668,
+      "raw_xy": [
+        55.648009439867195,
+        12.002745858878226
+      ],
+      "range_m": 40.00191589555656,
+      "person_verified": true,
+      "person_iou": "0.47399187088012695",
+      "blue_truth_error_m": 1.9950875760635007,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.9950875760635007,
+      "matched_rejection_rows": {
+        "verdict_self": 4
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1969.024,
+      "raw_xy": [
+        56.435393521907756,
+        12.184074754322538
+      ],
+      "range_m": 40.43195636749233,
+      "person_verified": true,
+      "person_iou": "0.6311227083206177",
+      "blue_truth_error_m": 1.5335383639539597,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 1.5335383639539597,
+      "matched_rejection_rows": {
+        "verdict_range": 16
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1969.448,
+      "raw_xy": [
+        52.529485554385786,
+        9.555581309294254
+      ],
+      "range_m": 35.3529049114086,
+      "person_verified": true,
+      "person_iou": "0.8032830357551575",
+      "blue_truth_error_m": 6.600961816627845,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 6.600961816627845,
+      "matched_rejection_rows": {
+        "verdict_hits": 23
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1970.8,
+      "raw_xy": [
+        58.98859424430709,
+        12.744950911474657
+      ],
+      "range_m": 42.05811045500815,
+      "person_verified": true,
+      "person_iou": "0.7640713453292847",
+      "blue_truth_error_m": 0.5790931794673049,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.5790931794673049,
+      "matched_rejection_rows": {
+        "verdict_range": 4
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1971.192,
+      "raw_xy": [
+        59.71112096924155,
+        13.05224852210594
+      ],
+      "range_m": 42.44434304771422,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 0.18926506898272716,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 0.18926506898272716,
+      "matched_rejection_rows": {
+        "verdict_self": 7
+      }
+    },
+    {
+      "uid": "uav_2",
+      "image_s": 1971.56,
+      "raw_xy": [
+        69.29404300937594,
+        18.774162384389747
+      ],
+      "range_m": 53.12736762185747,
+      "person_verified": false,
+      "person_iou": "0.0",
+      "blue_truth_error_m": 10.678984930332748,
+      "nearest_actor": 1,
+      "nearest_actor_error_m": 10.678984930332748,
+      "matched_rejection_rows": {}
+    }
+  ],
+  "approach_replay": {
+    "candidates": [
+      {
+        "uid": "uav_4",
+        "image_s": 1970.8,
+        "track_id": "2",
+        "reason": "verdict_range",
+        "raw_xy": [
+          60.53,
+          13.44
+        ],
+        "range_m": 36.69,
+        "blue_truth_error_m": 1.1128922501794334
+      }
+    ],
+    "caveat": "reconstructs tracked rejection originals only; missing pre-rejection originals, not complete association replay"
+  },
+  "inputs": [
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/observers/independent_visual_accuracy.jsonl",
+      "sha256": "51591c9bac6cab8814cc1c7f5ee899d0c030db59179269a58a5439527e203c59"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/observers/independent_visual_accuracy_blue.jsonl",
+      "sha256": "87dba9d2f01b239f8aff08093cd267fe499d82adf5228c6090cd4d608502e445"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/observers/independent_visual_accuracy_brown.jsonl",
+      "sha256": "d1ce5446fdbe4df9d45cc1e40cef6d33b2912f993c7fd6d907ea196e764e2213"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/observers/independent_visual_accuracy_white.jsonl",
+      "sha256": "8763a6f84d6a64bb59f043de09d20f739ab4fa6b138528764b5808dcfa28b498"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/observers/independent_visual_accuracy_red.jsonl",
+      "sha256": "41dea55427d1691fcee0df16e26afa9eb4fbdb592fd245fb102a3284f6b11049"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_4.csv",
+      "sha256": "5719f593e4c1e1ef0e5cfa906f5a1380bf4dec73587fb3f03b2478d53ff77984"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_2.csv",
+      "sha256": "1c6cfba7002cece087de9045f7c7b82541323b9d75283729699c3211ccc8db17"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv",
+      "sha256": "bf42435f86ebc52f55646eee4dadebaa6383558c9eb56e72cce63986d38d7680"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_5.csv",
+      "sha256": "0c059f7d7fead84fc10e9b8412a2cd108f7b35f3d4ce970620d7df0fbe5178d5"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_0.csv",
+      "sha256": "cd744d2c9b5a855a853e95526b63b7555cfdc964834036fa702333af4e1e5edf"
+    },
+    {
+      "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_1.csv",
+      "sha256": "58be04601e525b5899cef039b3bf06994ac78e76955dec001ac9c5a6a482addc"
+    }
+  ]
+}

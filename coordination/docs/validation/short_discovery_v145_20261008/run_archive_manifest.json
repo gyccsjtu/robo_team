@@ -1,0 +1,62 @@
+[
+  {
+    "root": "/root/robocup_runs/manual_v145_20261008_f59abce/round_1_seed_8159",
+    "inputs": [
+      {
+        "path": "/root/robocup_runs/manual_v145_20261008_f59abce/budget.json",
+        "sha256": "03b3caa8b0ba7b4ca138dfd12887b362ae220b6a9b2c936e7b0482b177b16f67"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_20261008_f59abce/round_1_seed_8159/source_manifest.json",
+        "sha256": "53384dbf06f2f28a3d065f5fd33e230f41957cb6f2c1fcd506e64d261ec96c2c"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_20261008_f59abce/round_1_seed_8159/early_stop.json",
+        "sha256": "e784ccd0b7fac79155f085d6e00b1738568f89c6b6732fc7b9396716622b8332"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_20261008_f59abce/round_1_seed_8159/agent_early_stop_decision.json",
+        "sha256": "5ce35b47ff141f58f91eaceb54e9658cf8e071f22ee8a447f08570edb5f30ebd"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_20261008_f59abce/round_1_seed_8159/flight/result.json",
+        "sha256": "7a900501f358305e8826a0fccbd2d9d71a96667d7aa6ab8c22d9955dc4523f7b"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_20261008_f59abce/round_1_seed_8159/flight/city_trajectory.jsonl",
+        "sha256": "29cfcb30059a1fbb8b2abebb3b983849328411fe33c3d6b53fb65ed4629f8055",
+        "bytes": 125793
+      }
+    ]
+  },
+  {
+    "root": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159",
+    "inputs": [
+      {
+        "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/budget.json",
+        "sha256": "b6b1f58be932343b9de77ef3275342b5b2a1761211dd7df139ef19f534fd434c"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/source_manifest.json",
+        "sha256": "da72fc9b38f9a260f2f2c455bddbafac54312f67819266ce21160efbdd9745c1"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/early_stop.json",
+        "sha256": "4933641e85e4ebe01b6417a5ccea0756d18fac43f8911e1d8f14b9d150517c88"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/requested_validation_limit.json",
+        "sha256": "d4821f5a726948f9f3bb386dbd35576e00c560728af892a15f67fe99bacf5a31"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/flight/result.json",
+        "sha256": "3c71cb4c7161e002b6e9e5e5fdab812bae6d99db939ccedd6b5022e9ed0fe5e4"
+      },
+      {
+        "path": "/root/robocup_runs/manual_v145_retry_20261008_wall300/round_1_seed_8159/flight/city_trajectory.jsonl",
+        "sha256": "ad246e61d4e8e91fa074be73c86b7e37e31302aff6471c4d1727007e9cd84259",
+        "bytes": 95485
+      }
+    ]
+  }
+]

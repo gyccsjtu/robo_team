@@ -16,13 +16,13 @@ class VisualEvidence:
                     'target_id', 'frame_id', 'xyz', 'confidence', 'observation_id'}
         try:
             version = message['schema_version']
-            if type(version) is not int or version not in (2,3,4,5,6):
+            if type(version) is not int or version not in (2,3,4,5,6,7):
                 return None
-            if version in (4,5,6):
+            if version in (4,5,6,7):
                 required |= {'evidence_kind'}
                 if message.get('evidence_kind') != 'navigation_candidate':
                     return None
-            if version in (5,6):
+            if version in (5,6,7):
                 required |= {'motion_identity_verified'}
                 if type(message.get('motion_identity_verified')) is not bool:
                     return None
@@ -35,7 +35,15 @@ class VisualEvidence:
                         or any(type(message.get(k)) is not int or message[k] < 2
                                for k in ('person_hits','track_hits'))):
                     return None
-            if version in (3,4,5,6):
+            if version == 7:
+                required |= {'candidate_reason','person_hits','track_hits','approach_motion_verified'}
+                if (message.get('target_id')!='blue'
+                        or message.get('candidate_reason')!='blue_approach_motion'
+                        or message.get('person_frame_verified') is not True
+                        or message.get('approach_motion_verified') is not True
+                        or any(type(message.get(k)) is not int or message[k]<2
+                               for k in ('person_hits','track_hits'))):return None
+            if version in (3,4,5,6,7):
                 required |= {'camera_xyz', 'person_frame_verified'}
                 camera = message.get('camera_xyz')
                 if (not isinstance(camera,list) or len(camera) != 3

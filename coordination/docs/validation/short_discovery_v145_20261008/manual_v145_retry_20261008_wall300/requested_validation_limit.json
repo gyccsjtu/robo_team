@@ -1,0 +1,6 @@
+{
+  "reason": "USER_CHANGED_MAXIMUM_TO_120_SIM_SECONDS",
+  "maximum_sim_seconds": 120,
+  "existing_wall_cap_seconds": 300,
+  "policy": "stop at the earlier cap; no restart or third round; keep original budget/result"
+}

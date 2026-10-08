@@ -1,5 +1,15 @@
 # 视觉观测v3（2026-10-07冻结）
 
+## 兼容修订3.5 / v1.46蓝色内部候选v7（2026-10-08冻结）
+
+正式观测仍为v3。新增schema_version=7只允许blue及evidence_kind=navigation_candidate。字段为v5全部字段，额外candidate_reason=blue_approach_motion、person_hits、track_hits（严格int且≥2）、approach_motion_verified=true；person_frame_verified必须true，motion_identity_verified仍记录完整身份验证的真实bool，不把短运动伪装为完整身份。
+
+仅当前命中、不同原图连续人体支持≥2、既有身高和打分、原图年龄≤1秒、距离≤45米合格时生成。短运动使用本机同轨迹原始坐标：最近原图之前1.5秒内≥3图、跨度≥0.5秒、首尾位移≥0.75米、至少两段≥0.15米且沿总位移正向；拟合速度0.5–3米/秒、残差RMS≤0.6米。窗口按原图时间裁剪，另检查最新原图相对当前时间新鲜性，处理延迟不改变运动窗口。重复、倒序、断口及跳变沿用MotionIdentity既有拒绝/重置。只补hits/static/self/range/blue_identity的内部接近缺口，完整MotionIdentity.qualified及官方策略不变。
+
+桥检查0<水平距离≤45米，独立candidate_core接受后立即转发原v7到confirmed_visual，不进入正式core、ReportReadiness、OfficialReportSources或官方TargetDetection。manager登记内部目标供分配，agent仍走任务/路线授权；LegacyPursuit原30秒上限不被候选刷新。接近后必须重新取得合格v3及既有12米/三图/0.6秒官方许可。
+
+旧VisualEvidence拒绝v7。perception、motion_identity.py、white_discovery.py、bridge、visual_observation.py、manager及六agent必须统一快照；共享模型协议不变。PR_BLUE_EARLY_DISCOVERY通用默认0，city的CITY_BLUE_EARLY_DISCOVERY默认1，置0关闭此通道。该候选只获离线回放/检查支持，尚无实体锁定或消除证明。
+
 ## 兼容修订3.4 / v1.45白色内部候选v6（2026-10-08冻结）
 
 正式观测仍为v3，原候选v4/v5保持接收。新增schema_version=6只允许white、evidence_kind=navigation_candidate；完整字段为v5全部字段，额外candidate_reason=white_early_proof、person_hits和track_hits（严格int且≥2），person_frame_verified必须true，motion_identity_verified必须false。其余运行、序号、原图、相机位置、有限数和1秒新鲜性规则不变。两次人体支持必须来自FreshPerson接受的不同原图，前后间隔≤1秒；只在当前实际命中、既有1.3–2.4米身高/打分、量程≤22米合格时生成。只对旧判决hits/static/self的早期输出缺口使用，不绕过score/height等失败。

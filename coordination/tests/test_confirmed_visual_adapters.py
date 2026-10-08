@@ -48,6 +48,15 @@ class ConfirmedVisualAdaptersTests(unittest.TestCase):
                 message=received[0]
                 self.assertEqual((message.header.stamp,message.target_id,message.x,message.y),(10.5,'t5',2.,3.))
 
+    def test_manager_receives_schema7_for_internal_dispatch(self):
+        callback,received=self.adapter('swarm_manager.py')
+        callback(self.observation(schema_version=7,target_id='blue',camera_xyz=[0.,0.,2.5],
+            xyz=[40.,0.,1.25],person_frame_verified=True,evidence_kind='navigation_candidate',
+            motion_identity_verified=False,candidate_reason='blue_approach_motion',
+            approach_motion_verified=True,person_hits=2,track_hits=3))
+        self.assertEqual(len(received),1)
+        self.assertEqual((received[0].target_id,received[0].x,received[0].header.stamp),('t1',40.,10.5))
+
     def test_old_run_replay_same_frame_and_stale_data_never_reach_tracking(self):
         for file in ('swarm_manager.py','swarm_agent.py'):
             with self.subTest(file=file):
