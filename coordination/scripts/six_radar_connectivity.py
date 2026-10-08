@@ -221,6 +221,11 @@ def main():
         if args.camera_actor_probe and env.get('RENDER_OBSERVER_PLUGIN'):
             server += ['-s', env['RENDER_OBSERVER_PLUGIN']]
             env['RENDER_OBSERVER_OUTPUT'] = str(out/'render_observer.log')
+        # Separate opt-in observer: camera_actor_probe commands an actor and
+        # must not be enabled to obtain read-only evidence in a competition run.
+        if env.get('RENDER_BINDING_PLUGIN'):
+            server += ['-s', env['RENDER_BINDING_PLUGIN']]
+            env['RENDER_BINDING_OUTPUT'] = str(out/'render_binding.jsonl')
         spawn(server + [str(world)], 'gzserver')
         rospy.wait_for_service('/gazebo/spawn_sdf_model', timeout=90)
         # API registration precedes completion of large city-world loading.
