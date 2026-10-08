@@ -1,0 +1,7 @@
+{
+  "source_sha256": "e6306c665edec4eeb737873aa3ff61810285608632d80ca46dc02f0a5eee9b3c",
+  "binary_sha256": "a39fa7cc78fb24a5a641bd68e36f323bf8a0e7d527f85ccad3f4bdb2d2ad606d",
+  "schema_version": 2,
+  "hook": "NewImageFrame",
+  "control_input": false
+}

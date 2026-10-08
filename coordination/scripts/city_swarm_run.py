@@ -173,6 +173,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         task_elimination_revision='v1.33_official_target_fence',
         search_intent_revision='v1.33_cancel_unexecuted_claim_only',
         search_observation_revision='v1.34_inferred_frames_bounded_views',
+        search_progress_revision='v1.3_bounded_20s_4m_0p5_progress_6s_rest',
         search_feedback_schema=1,processed_camera_frame_schema=1,
         search_revisit_sim_s=30.,search_observe_min_s=2.5,search_observe_timeout_s=3.,
         search_max_views=3,search_min_distinct_inferred_images=3,

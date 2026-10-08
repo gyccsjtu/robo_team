@@ -1,5 +1,5 @@
 """Camera-backed bounded search; ROS-free. Contract: search_observation_v1.md."""
-from collections import OrderedDict, Counter
+from collections import OrderedDict, Counter, deque
 import copy
 import math
 
@@ -286,6 +286,9 @@ class SearchSweep:
         self.finished, self.report = False, None
         self.pending_view, self.sent_sequences, self.report_ack = None, set(), False
         self.report_started_s = None
+        self._progress_window = deque()
+        self._bounded_stop_s = None
+        self._bounded_rest = None
 
     @property
     def goal(self):
@@ -330,6 +333,8 @@ class SearchSweep:
         self.report = None
         self.pending_view, self.sent_sequences, self.report_ack = None, set(), False
         self.report_started_s = None
+        self._progress_window.clear()
+        self._bounded_stop_s, self._bounded_rest = None, None
 
     def blocked_reason(self, now, position, speed, has_route, stop_reason):
         if self.phase != 'GO_TO_VIEW':
@@ -343,6 +348,57 @@ class SearchSweep:
         if stop_reason not in ('CLEAR', 'MOVING', 'REQUESTED_STOP'):
             return 'EXECUTION_GATE_BLOCKED'
         return 'NO_ACTUAL_PROGRESS'
+
+    def bounded_stall(self, now, position, fresh=True):
+        """A small oscillation is not progress toward the current search view.
+
+        Only accepted, fresh own-position samples may enter this method.
+        Large detours and slow but genuine approach remain eligible to fly.
+        A latched request does not itself prove that the aircraft has stopped.
+        """
+        if self.phase != 'GO_TO_VIEW':
+            return False
+        if self._bounded_stop_s is not None:
+            return True
+        window = self._progress_window
+        if not fresh:
+            window.clear()
+            return False
+        if window and now < window[-1][0]:
+            window.clear()
+        elif window and now == window[-1][0]:
+            return False
+        if window and now-window[-1][0] > 1.:
+            window.clear()
+        window.append((now, tuple(position), math.dist(position, self.goal)))
+        while len(window) > 1 and window[1][0] <= now-20.:
+            window.popleft()
+        if now-window[0][0] < 20. or window[-1][2] <= .8:
+            return False
+        # The diagonal of the enclosing box is a conservative diameter bound.
+        span = math.hypot(max(p[1][0] for p in window)-min(p[1][0] for p in window),
+                          max(p[1][1] for p in window)-min(p[1][1] for p in window))
+        improvement = window[0][2]-min(p[2] for p in window)
+        if span <= 4. and improvement < .5:
+            self._bounded_stop_s = now
+            self.progress_s = now  # Feedback belongs to this active generation.
+            return True
+        return False
+
+    def bounded_rest_ready(self, now, position, speed, fresh):
+        if (not fresh or not math.isfinite(speed) or speed > .15):
+            self._bounded_rest = None
+            if self._bounded_stop_s is None:
+                self._progress_window.clear()
+            return False
+        if self._bounded_stop_s is None:
+            return False
+        if (self._bounded_rest is None or math.dist(position, self._bounded_rest[1]) > .5
+                or not 0 <= now-self._bounded_rest[2] <= .5):
+            self._bounded_rest = (now, tuple(position), now)
+        else:
+            self._bounded_rest = (self._bounded_rest[0], self._bounded_rest[1], now)
+        return now-self._bounded_rest[0] >= 6.
 
     def yaw(self, now):
         return self.yaw_start+min(3., max(0., now-self.window_s))*.65

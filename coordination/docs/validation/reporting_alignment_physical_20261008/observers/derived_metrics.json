@@ -1,0 +1,46 @@
+{
+  "executed_commit": "8cef0be",
+  "judge_eliminated": 0,
+  "trajectory_span_s": 263.86400000000003,
+  "trajectory_interval": [
+    1931.172,
+    2195.036
+  ],
+  "maximum_actual_height_m": 3.3210307493554674,
+  "maximum_displacement_xy_m": {
+    "uav_1": 58.6534630609267,
+    "uav_2": 54.33099597793914,
+    "uav_3": 53.740712274973724,
+    "uav_4": 78.80502256622509,
+    "uav_5": 9.103656277004598,
+    "uav_6": 64.28292804704598
+  },
+  "all_six_moved": true,
+  "native_contact_summary": {
+    "kind": "CONTACT_OBSERVER_STOPPED",
+    "frames": 66400,
+    "first_sample_s": 1929.824,
+    "last_sample_s": 2195.42,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 201385,
+    "body_pairs": 49983
+  },
+  "contact_coverage": true,
+  "non_ground_contact_rows": 0,
+  "ports": [
+    {
+      "port": 11375,
+      "connect_status": 111
+    },
+    {
+      "port": 11376,
+      "connect_status": 111
+    },
+    {
+      "port": 19731,
+      "connect_status": 111
+    }
+  ],
+  "original_result_preserved": true,
+  "actual_stop_reason": "Codex主动结束：已确认有界搜索往返阻塞；非完整600秒，非服务自主崩溃"
+}

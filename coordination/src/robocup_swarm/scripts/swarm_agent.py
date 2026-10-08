@@ -1041,6 +1041,12 @@ class SwarmAgent(object):
             self._send_vel(0., 0.)
             return True
         record = self._route_gate.record
+        if sweep.bounded_stall(now, self.world_xy, fresh):
+            self._look_at = None
+            self._send_vel(0., 0.)
+            if sweep.bounded_rest_ready(now, self.world_xy, speed, fresh):
+                self._finish_search_view(sweep, now, 'NO_ACTUAL_PROGRESS')
+            return True
         has_route = record is not None and record['generation'] == sweep.generation and now < record['expires_s']
         reason = (sweep.blocked_reason(now, self.world_xy, speed, has_route, self._final_stop_reason)
                   if fresh else None)

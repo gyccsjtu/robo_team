@@ -24,10 +24,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run', required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--include-white-fail', action='store_true',
+                        help='Also associate diagnostic white proof failures; these are not observations.')
     args = parser.parse_args()
     root = Path(args.run)
     candidates, wanted = [], set()
-    for index in sorted((root/'flight/algorithm').glob('evidence*_pass/index.jsonl')):
+    indices = set((root/'flight/algorithm').glob('evidence*_pass/index.jsonl'))
+    if args.include_white_fail:
+        indices.update((root/'flight/algorithm').glob('evidence*_white_fail/index.jsonl'))
+    for index in sorted(indices):
         for line in index.read_text().splitlines():
             row = json.loads(line)
             image = cv2.imread(str(index.parent/row['png']))
@@ -72,6 +77,8 @@ def main():
                                     float(fy*optical[1]/optical[2]+cy)]
                                    if optical[2] > 0 else None)))
                 item['comparisons'].append(dict(render_seq=rendered['seq'],
+                    render_schema_version=rendered.get('schema_version'),
+                    render_hook=rendered.get('hook'),
                     camera=rendered['camera'], scene_s=rendered['scene_s'],
                     translation_delta_m=float(np.linalg.norm(render_xyz-original_xyz)),
                     rotation_delta_rad=float(np.arccos(np.clip(

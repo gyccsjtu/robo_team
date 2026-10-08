@@ -1,0 +1,32 @@
+[
+  {
+    "pid": 2739,
+    "actual": null,
+    "action": "already_exited"
+  },
+  {
+    "pid": 2744,
+    "actual": null,
+    "action": "already_exited"
+  },
+  {
+    "pid": 2756,
+    "actual": null,
+    "action": "already_exited"
+  },
+  {
+    "pid": 2777,
+    "actual": null,
+    "action": "already_exited"
+  },
+  {
+    "pid": 2799,
+    "actual": null,
+    "action": "already_exited"
+  },
+  {
+    "pid": 7717,
+    "actual": "/usr/bin/python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/observers/visual_frames --wall-seconds 4300 --limit-per-tag 24 --loss-color white ",
+    "action": "SIGINT_verified_own"
+  }
+]

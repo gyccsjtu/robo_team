@@ -1,0 +1,34 @@
+{
+  "control_input": false,
+  "processes": [
+    {
+      "pid": 2739,
+      "cmdline": "/usr/bin/python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/flight/result.json --tag blue --wall-seconds 4300 "
+    },
+    {
+      "pid": 2744,
+      "cmdline": "/usr/bin/python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/flight/result.json --tag green --wall-seconds 4300 "
+    },
+    {
+      "pid": 2756,
+      "cmdline": "/usr/bin/python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/flight/result.json --tag red --wall-seconds 4300 "
+    },
+    {
+      "pid": 2777,
+      "cmdline": "/usr/bin/python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/flight/result.json --tag brown --wall-seconds 4300 "
+    },
+    {
+      "pid": 2799,
+      "cmdline": "/usr/bin/python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/flight/result.json --tag white --wall-seconds 4300 "
+    },
+    {
+      "pid": 7717,
+      "cmdline": "/usr/bin/python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/observers/visual_frames --wall-seconds 4300 --limit-per-tag 24 --loss-color white "
+    }
+  ],
+  "source_sha": {
+    "observe_visual_accuracy.py": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629",
+    "capture_visual_frames.py": "ed97b5789228bc58c4ab51b37bb6b87c6dece3580c1381aacf5bc2c3d50bee0d",
+    "render_binding_observer.cc": "e6306c665edec4eeb737873aa3ff61810285608632d80ca46dc02f0a5eee9b3c"
+  }
+}

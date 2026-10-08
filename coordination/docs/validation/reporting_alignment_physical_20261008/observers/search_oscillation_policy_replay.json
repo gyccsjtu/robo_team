@@ -1,0 +1,47 @@
+{
+  "control_input": false,
+  "meaning": "actual control CSV own-position windows and reconstructed cell-centre view; not exact chosen alternate view, full ROS callbacks, physical stopping or route replay",
+  "window_seconds": 20,
+  "maximum_span_m": 4,
+  "minimum_goal_improvement_m": 0.5,
+  "triggers": [
+    {
+      "sample_s": 2107.012,
+      "generation": 8,
+      "key": [
+        18,
+        10
+      ],
+      "goal": [
+        79.5,
+        13.5
+      ],
+      "position": [
+        64.14038265589625,
+        17.263086829334497
+      ],
+      "started_s": 2083.012
+    },
+    {
+      "sample_s": 2188.48,
+      "generation": 11,
+      "key": [
+        18,
+        12
+      ],
+      "goal": [
+        79.5,
+        27.5
+      ],
+      "position": [
+        63.626432307995856,
+        20.57596543803811
+      ],
+      "started_s": 2161.196
+    }
+  ],
+  "inputs_sha": {
+    "/root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/flight/algorithm/control_uav_6.csv": "a6fb08d2e2b88fea64b44070839065e71b7b05dcd2f68f95a28abeb8bffb05fc",
+    "/root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/flight/algorithm/authority_events.jsonl": "2a925c2ec132e3263387c7edb42a8e387c3c0638246da637dd81fef8bb652e28"
+  }
+}

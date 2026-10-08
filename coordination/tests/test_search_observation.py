@@ -295,6 +295,30 @@ class ActualCallbackTests(unittest.TestCase):
         for name, f in functions.items(): setattr(a, name, MethodType(f, a))
         return a, clock, messages, commands
 
+    def test_actual_agent_stops_bounded_oscillation_before_reporting_failure(self):
+        a, clock, messages, commands = self.agent()
+        a._search_sweep = SearchSweep(1, (0, 0), (30., 0.), 100.5)
+        a._gate.generation = 1
+        a._route_gate.record = dict(generation=1, expires_s=200.)
+        for i in range(231):
+            clock.now = 100.5+i*.1
+            a.world_xy = (1.-math.cos(i*.1*math.pi), 0.)
+            a._pose_sample_s = clock.now
+            a._velocity_sample = (1., 0., clock.now)
+            a._control_search_view(clock.now)
+        self.assertEqual(commands[-1], (0., 0.))
+        self.assertEqual(messages, [])
+        for i in range(61):
+            clock.now = 125.+i*.1
+            a.world_xy = (0., 0.)
+            a._pose_sample_s = clock.now
+            a._velocity_sample = (0., 0., clock.now)
+            a._control_search_view(clock.now)
+        self.assertEqual(messages[-1]['outcome'], 'NO_ACTUAL_PROGRESS')
+        self.assertEqual(messages[-1]['frames'], [])
+        self.assertTrue(messages[-1]['finished'])
+        self.assertFalse(a._search_ledger.complete((0, 0), clock.now))
+
     def test_actual_agent_changes_view_only_after_current_receipt(self):
         a, clock, messages, commands = self.agent()
         self.assertTrue(a._control_search_view(clock.now))

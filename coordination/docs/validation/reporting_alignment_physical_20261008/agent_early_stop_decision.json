@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "reason": "CONFIRMED_BOUNDED_SEARCH_OSCILLATION_WITHOUT_VIEW_PROGRESS",
+  "stop_by": "Codex SIGINT to verified owned launcher",
+  "utc": "2026-10-08T07:48:33.996589+00:00",
+  "executed_commit": "8cef0be",
+  "not_full_600_seconds": true,
+  "evidence": "uav6 recent90s remains around64..66/16..18; SearchSweep.blocked_reason resets clock on any0.5m displacement, including oscillation; bridge_trace has no accepted inputs/uploads",
+  "pid": 608,
+  "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/six_radar_connectivity.py --output /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/flight --city-scene /root/robocup_runs/codex_reporting_alignment_20261008/round_1_seed_8159/scene --flight-seconds 600 "
+}
