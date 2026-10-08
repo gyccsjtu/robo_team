@@ -3,6 +3,14 @@
 No ROS, torch or CUDA import on the normal shared-client path. Original boxes,
 classes, confidences and coordinates are retained; the second model only vetoes
 selected classes without an overlapping person detection in this exact image.
+
+2026-10-08 (N12, WorkBuddy): evidence enrichment only, judgement unchanged.
+- verified_boxes entries gain support fields (which person box, its conf, the
+  actual IoU, per-frame person count). `frame_verified` still keys on
+  (cls, xyxy) only, so v2 consumers keep working on the richer dicts.
+- New `evidence` list: every colour box that entered the verifier path, with a
+  reject_reason when it failed proof. New `rejected_boxes` is the failed
+  proof-class subset. Neither list feeds any filtering decision.
 """
 import math
 
@@ -33,6 +41,26 @@ def overlap(first, second):
     return intersection/union if union>0 else 0.
 
 
+# Classes whose shirt colour is actually checked inside this module (red=0,
+# blue=2). For green(1)/white(3) the torso check happens in perception_real,
+# so `shirt_verified=True` here only means "not vetoed here", never "proved".
+SHIRT_CHECKED_HERE = (0, 2)
+
+
+def _reject_reason(color_check, is_proof_class, matched, shirt_verified):
+    if not color_check:
+        # The proof channel is off entirely; a proof-class box that is not
+        # "verified" was not vetoed, it simply was never checked.
+        return 'proof_disabled' if is_proof_class else 'not_proof_class'
+    if not is_proof_class:
+        return 'not_proof_class'
+    if not matched:
+        return 'no_person_overlap'
+    if not shirt_verified:
+        return 'shirt_unsupported'
+    return None
+
+
 class PersonVerifier:
     def __init__(self, weights='', device='cpu', confidence=.1, minimum_overlap=.25, classes=(1,), color_check=False, proof_classes=None):
         self.weights=weights
@@ -42,6 +70,8 @@ class PersonVerifier:
         self.classes=set(classes)
         self.proof_classes=set(classes if proof_classes is None else proof_classes)
         self.verified_boxes=[]
+        self.evidence=[]          # N12: full per-box record for the current frame
+        self.rejected_boxes=[]    # N12: failed proof-class entries of `evidence`
         self.color_check=bool(color_check)
         self.model=None
 
@@ -64,30 +94,93 @@ class PersonVerifier:
 
     def filter_boxes(self, image, boxes):
         self.verified_boxes=[]
+        self.evidence=[]
+        self.rejected_boxes=[]
         boxes=list(boxes)
         if self.color_check:
             from jersey_color import filter_boxes
             boxes=filter_boxes(image,boxes)
-        if not self.weights or not any(int(b.cls) in self.classes | self.proof_classes for b in boxes):return boxes
+        if not self.weights or not any(int(b.cls) in self.classes | self.proof_classes for b in boxes):
+            # N12: the verifier path is not entered for this frame (no box of a
+            # proof/forced class). Record that fact so brown/white boxes are not
+            # invisible to offline attribution. Judgement unchanged.
+            for box in boxes:
+                cid=int(box.cls)
+                if cid not in self.classes and cid not in self.proof_classes:
+                    self.evidence.append(dict(
+                        cls=cid, xyxy=[float(v) for v in box.xyxy[0]],
+                        color_conf=float(box.conf), n_person_boxes=None,
+                        best_person_iou=None, best_person_conf=None,
+                        best_person_xyxy=None, in_classes_filter=False,
+                        is_proof_class=False, matched=None, shirt_verified=None,
+                        shirt_checked_here=False, shirt_fractions=None,
+                        verified=False, reject_reason='verifier_path_not_entered'))
+            return boxes
         self.load()
         result=self.model(image,classes=[0],conf=self.confidence,device=self.device,verbose=False)[0]
-        people=[b.xyxy[0] for b in result.boxes if int(b.cls)==0]
+        # N12: keep (xyxy, conf) pairs; the matched semantics below use the
+        # same overlap values as the original generator expression.
+        people=[(b.xyxy[0], float(b.conf)) for b in result.boxes if int(b.cls)==0]
         retained=[]
         for box in boxes:
             cid=int(box.cls)
-            matched=any(overlap(box.xyxy[0],person)>=self.minimum_overlap for person in people)
+            ious=[overlap(box.xyxy[0],person_xyxy) for person_xyxy,_ in people]
+            matched=any(iou>=self.minimum_overlap for iou in ious)
             if cid not in self.classes or matched:
                 retained.append(box)
             shirt_verified=True
+            shirt_fractions=None
+            shirt_checked_here=cid in SHIRT_CHECKED_HERE
             if self.color_check and cid == 0 and cid in self.proof_classes:
                 from jersey_color import torso_fractions,supported
                 fractions=torso_fractions(image,box.xyxy[0])
+                shirt_fractions=fractions
                 shirt_verified=fractions is not None and supported('red',fractions)
             if self.color_check and cid == 2 and cid in self.proof_classes:
                 from jersey_color import torso_fractions,supported
                 fractions=torso_fractions(image,box.xyxy[0])
+                shirt_fractions=fractions
                 shirt_verified=fractions is not None and supported('blue',fractions)
-            if self.color_check and matched and cid in self.proof_classes and shirt_verified:
+            is_proof_class=cid in self.proof_classes
+            passed=self.color_check and matched and is_proof_class and shirt_verified
+            best_idx=ious.index(max(ious)) if ious and max(ious)>0 else -1
+            best_iou=ious[best_idx] if best_idx>=0 else 0.0
+            if passed:
                 key=detection_key(cid,box.xyxy[0])
-                if key is not None:self.verified_boxes.append(dict(cls=key[0],xyxy=list(key[1])))
+                if key is not None:
+                    self.verified_boxes.append(dict(
+                        cls=key[0], xyxy=list(key[1]),
+                        person_xyxy=(list(people[best_idx][0]) if best_idx>=0 else None),
+                        person_conf=(people[best_idx][1] if best_idx>=0 else None),
+                        person_iou=best_iou,
+                        n_person_boxes=len(people),
+                        shirt_fractions=shirt_fractions,
+                        shirt_checked_here=shirt_checked_here,
+                        reject_reason=None))
+            evidence=dict(
+                cls=cid,
+                xyxy=[float(v) for v in box.xyxy[0]],
+                color_conf=float(box.conf),
+                n_person_boxes=len(people),
+                best_person_iou=best_iou,
+                best_person_conf=(people[best_idx][1] if best_idx>=0 else None),
+                best_person_xyxy=(list(people[best_idx][0]) if best_idx>=0 else None),
+                in_classes_filter=(cid in self.classes),
+                is_proof_class=is_proof_class,
+                matched=matched,
+                shirt_verified=shirt_verified,
+                shirt_checked_here=shirt_checked_here,
+                shirt_fractions=shirt_fractions,
+                verified=passed,
+                reject_reason=_reject_reason(self.color_check, is_proof_class,
+                                             matched, shirt_verified))
+            self.evidence.append(evidence)
+            if self.color_check and is_proof_class and not passed:
+                self.rejected_boxes.append(dict(
+                    cls=evidence['cls'], xyxy=evidence['xyxy'],
+                    color_conf=evidence['color_conf'],
+                    n_person_boxes=evidence['n_person_boxes'],
+                    best_person_iou=evidence['best_person_iou'],
+                    best_person_conf=evidence['best_person_conf'],
+                    reject_reason=evidence['reject_reason']))
         return retained

@@ -132,13 +132,19 @@ class SharedInferenceClient:
         self.ok_calls += 1
         boxes = [Box(d["cls"], d["conf"], d["xyxy"]) for d in reply.get("dets", [])]
         version=reply.get('verification_version')
-        proof_supported=type(version) is int and version in (1,2)
-        colors=('green','white','red') if version == 2 else ('green','white')
+        # N12: v3 adds per-box support detail inside verified_person_boxes and
+        # a separate verified_person_rejected list. v1/v2 replies stay valid.
+        proof_supported=type(version) is int and version in (1,2,3)
+        colors=('green','white','red') if version in (2,3) else ('green','white')
         return boxes, dict(shared=True, infer_s=reply.get("infer_s"),
                            queue_s=reply.get("queue_s"),
+                           verification_version=(version if proof_supported else None),
                            verified_person_boxes=reply.get('verified_person_boxes',[])
                                if proof_supported
                                and isinstance(reply.get('verified_person_boxes'),list) else [],
+                           verified_person_rejected=reply.get('verified_person_rejected',[])
+                               if proof_supported and version == 3
+                               and isinstance(reply.get('verified_person_rejected'),list) else [],
                            verified_person_colors=[c for c in reply.get('verified_person_colors',[])
                                if c in colors] if proof_supported
                                and isinstance(reply.get('verified_person_colors'),list) else [],

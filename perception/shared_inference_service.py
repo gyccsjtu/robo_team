@@ -168,12 +168,17 @@ class Handler(socketserver.StreamRequestHandler):
                     # Proof belongs to this image, copied before another client
                     # can replace the verifier's per-frame state.
                     proof_boxes=list(_PERSON_VERIFIER.verified_boxes) if _PERSON_VERIFIER is not None else []
+                    # N12 (v3): per-box support detail rides inside proof_boxes
+                    # (extra dict keys; v2 consumers ignore them), and failed
+                    # proof-class boxes are reported separately.
+                    proof_rejected=list(_PERSON_VERIFIER.rejected_boxes) if _PERSON_VERIFIER is not None else []
                     infer_s = time.time() - t_lock
                 self.server.record(self.client_address[1], infer_s, t_queue)
                 self._reply(dict(ok=True, dets=dets, infer_s=round(infer_s, 4),
                                  queue_s=round(t_lock - t_queue, 4),
-                                 verification_version=2,
+                                 verification_version=3,
                                  verified_person_boxes=proof_boxes,
+                                 verified_person_rejected=proof_rejected,
                                  verified_green_person=bool(_PERSON_VERIFIER is not None
                                      and _PERSON_VERIFIER.green_proof_enabled()),
                                  verified_person_colors=_PERSON_VERIFIER.verified_colors()

@@ -85,6 +85,7 @@ if _CSV_HELPER not in sys.path:
     sys.path.insert(0, _CSV_HELPER)
 from csv_logger import logger
 from frame_probe import FIELDS as FRAME_FIELDS, frame_row, summarize_raw_boxes
+from evidence_capture import EvidenceCapture
 
 # ---------------- 参数 ----------------
 # 权重查找顺序（本仓库自包含优先，找不到才退回部署位置）：
@@ -463,12 +464,50 @@ _CSV = logger("perception_%s" % UAV, [
     "recent_speed", "sp", "max_disp", "score_ema", "attached", "confirm_hits",
     "verdict_score", "verdict_sp", "verdict_disp", "stationary_person",
     "person_gate_allowed", "green_frame_proof", "motion_samples", "motion_span_s",
-    "original_s", "raw_target_x", "raw_target_y", "blue_identity_qualified", "blue_identity_allowed"])
+    "original_s", "raw_target_x", "raw_target_y", "blue_identity_qualified", "blue_identity_allowed",
+    # N12 (2026-10-08): same-frame person support detail on yolo_detection rows.
+    # csv_logger ignores undeclared keys and rotates on header change, so old
+    # archives keep their own headers and stay readable.
+    "person_iou", "person_conf", "n_person_boxes", "reject_reason"])
 # 逐帧分母（N7，2026-10-07）：上面那份 CSV 只在"有检出/有拒发/有上报"时才写行，
 # 于是"15s 判据被检出间隙打断"没法归因到"模型没出框"还是"被我们自己的门限丢了"。
 # 这一份每处理一帧写一条，只记录、不参与控制。文件名刻意不叫 perception*.csv ——
 # audit_fast_city.py / replay_image_motion.py 用 perception*.csv 通配读事件流。
 _FRAMES = logger("frame_probe_%s" % UAV, FRAME_FIELDS)
+
+
+_EVIDENCE = EvidenceCapture(UAV)
+
+
+def _person_detail(details, cid, xyxy):
+    """N12: find the verifier evidence entry for this exact colour box.
+
+    Matches by same-box overlap (>=0.9), tolerant of float rounding between
+    the verifier's stored xyxy and the consumer loop's unpacked values.
+    Accepts both evidence rows (best_person_*) and verified rows (person_*).
+    Returns a normalised dict or None. Pure lookup; no control impact.
+    """
+    from person_verifier import overlap as _pv_overlap
+    best = None
+    best_iou = 0.0
+    for d in details or []:
+        try:
+            if int(d.get('cls', -1)) != int(cid):
+                continue
+            iou = _pv_overlap(d.get('xyxy') or [], xyxy)
+        except Exception:
+            continue
+        if iou > best_iou:
+            best_iou = iou
+            best = d
+    if best is None or best_iou < 0.9:
+        return None
+    return dict(person_iou=best.get('person_iou', best.get('best_person_iou')),
+                person_conf=best.get('person_conf', best.get('best_person_conf')),
+                n_person_boxes=best.get('n_person_boxes'),
+                reject_reason=best.get('reject_reason'),
+                matched=best.get('matched'),
+                shirt_fractions=best.get('shirt_fractions'))
 # 调试快照**另开一条话题**：它原来和契约挤在同一条 topic 上，形状完全不同。
 # 调试通道与契约通道必须分开，否则要么队友解析不了、要么我自己的复盘脚本全废。
 DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
@@ -1215,6 +1254,14 @@ def main():
                         else (_shared_meta or {}).get('verified_person_colors',[]))
                     _person_boxes = (person_verifier.verified_boxes if _local_inference
                         else (_shared_meta or {}).get('verified_person_boxes',[]))
+                    # N12: full same-frame support detail for the CSV/evidence log.
+                    # Local path: verifier.evidence covers every relevant box.
+                    # Shared path: verified boxes (v3: with support keys) plus the
+                    # separate rejected list reconstruct the same coverage.
+                    _frame_person_details = (list(person_verifier.evidence)
+                        if _local_inference else
+                        list((_shared_meta or {}).get('verified_person_boxes', []))
+                        + list((_shared_meta or {}).get('verified_person_rejected', [])))
                     if not device_reported:
                         print('[pr] inference_device=%s first_inference_s=%.4f' %
                               ((res.device if hasattr(res, 'device') else
@@ -1325,6 +1372,12 @@ def main():
                         _person_shirt = torso_fractions(img,[x1,y1,x2,y2]) if _color in _person_colors else None
                         _person_proof = bool(_person_shirt is not None and supported(_color,_person_shirt)
                             and frame_verified(_person_boxes,cid,[x1,y1,x2,y2]))
+                        # N12: same-frame support detail for this exact box.
+                        try:
+                            _pd = _person_detail(_frame_person_details, cid,
+                                                 [x1, y1, x2, y2])
+                        except Exception:
+                            _pd = None
                         dets.append({"cls": CLASSES[cid] if cid < len(CLASSES) else "?",
                                      "green_frame_proof": _green_proof,
                                      "person_frame_proof": _person_proof,
@@ -1345,7 +1398,29 @@ def main():
                             target_z=TARGET_Z, range_m=rng, height_m=impl_h,
                             strict=strict, image_stamp=frame_stamp,
                             image_age_s=frame_age, inference_s=inference_s,
-                            source="yolo_raw",person_frame_verified=_person_proof)
+                            source="yolo_raw",person_frame_verified=_person_proof,
+                            person_iou=(_pd or {}).get('person_iou'),
+                            person_conf=(_pd or {}).get('person_conf'),
+                            n_person_boxes=(_pd or {}).get('n_person_boxes'),
+                            reject_reason=(_pd or {}).get('reject_reason'))
+                        # N12: bounded capture of suspicious candidates — passed
+                        # the colour gate close-in but failed person proof.
+                        try:
+                            if (not _person_proof) and rng <= 22.0 and conf >= 0.40:
+                                _EVIDENCE.capture(img, dict(
+                                    cls=_color, color_conf=round(float(conf), 3),
+                                    color_xyxy=[round(float(v), 1) for v in (x1, y1, x2, y2)],
+                                    person_iou=(_pd or {}).get('person_iou'),
+                                    person_conf=(_pd or {}).get('person_conf'),
+                                    n_person_boxes=(_pd or {}).get('n_person_boxes'),
+                                    reject_reason=(_pd or {}).get('reject_reason'),
+                                    shirt_fractions=(_pd or {}).get('shirt_fractions'),
+                                    range_m=round(float(rng), 2),
+                                    xyz=[round(wx, 2), round(wy, 2)],
+                                    image_stamp=frame_stamp,
+                                    path=('shared' if not _local_inference else 'local')))
+                        except Exception as _ev_err:
+                            print("[pr] evidence capture error: %s" % _ev_err, flush=True)
 
                     # ---- 逐帧分母（N7）：这一帧模型到底出没出框 ----
                     # 放在几何门限之后、关联之前：此刻 res.boxes 是模型的原始输出，
