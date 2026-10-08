@@ -6,12 +6,14 @@
 #include <cstdlib>
 #include <cstdint>
 #include <map>
+#include <mutex>
 
 namespace gazebo {
 class RenderBindingObserver : public SystemPlugin {
   event::ConnectionPtr connection;
-  std::map<std::string, double> lastCamera;
+  std::map<std::string, event::ConnectionPtr> imageConnections;
   uint64_t seq = 0;
+  std::mutex writeMutex;
   static void Pose(std::ostream &out, const ignition::math::Pose3d &p) {
     out << "{\"xyz\":[" << p.Pos().X() << ',' << p.Pos().Y() << ',' << p.Pos().Z()
         << "],\"quaternion_xyzw\":[" << p.Rot().X() << ',' << p.Rot().Y() << ','
@@ -22,30 +24,40 @@ class RenderBindingObserver : public SystemPlugin {
     connection = event::Events::ConnectPostRender([this]() { Observe(); });
   }
   void Observe() {
-    const char *path = std::getenv("RENDER_BINDING_OUTPUT");
-    if (!path) return;
+    if (!std::getenv("RENDER_BINDING_OUTPUT")) return;
     auto scene = rendering::get_scene("default");
     if (!scene) return;
-    try {
-      for (uint32_t i=0; i<scene->CameraCount(); ++i) {
+    for (uint32_t i=0; i<scene->CameraCount(); ++i) {
         auto cam = scene->GetCamera(i);
         if (!cam || cam->ScopedName().find("cgo3_camera") == std::string::npos) continue;
+        if (imageConnections.count(cam->ScopedName())) continue;
+        imageConnections[cam->ScopedName()] = cam->ConnectNewImageFrame(
+          [this, cam](const unsigned char *image, unsigned w, unsigned h,
+                      unsigned depth, const std::string &format) {
+            WriteFrame(cam, image, w, h, depth, format);
+          });
+    }
+  }
+  void WriteFrame(rendering::CameraPtr cam, const unsigned char *image,
+                  unsigned w, unsigned h, unsigned depth, const std::string &format) {
+    const char *path = std::getenv("RENDER_BINDING_OUTPUT");
+    auto scene = cam->GetScene();
+    if (!path || !scene || !image || !w || !h || depth != 3) return;
+    std::lock_guard<std::mutex> guard(writeMutex);
+    try {
         const double wall = cam->LastRenderWallTime().Double();
-        if (wall <= 0 || lastCamera[cam->ScopedName()] == wall) continue;
-        auto image = cam->ImageData();
-        if (!image || !cam->ImageMemorySize()) continue;
+        const unsigned bytes = w*h*depth;
         uint64_t hash = 14695981039346656037ULL;
-        for (unsigned k=0; k<cam->ImageMemorySize(); ++k) {
+        for (unsigned k=0; k<bytes; ++k) {
           hash ^= image[k]; hash *= 1099511628211ULL;
         }
-        lastCamera[cam->ScopedName()] = wall;
         std::ofstream out(path, std::ios::app);
-        out << std::setprecision(17) << "{\"schema_version\":1,\"control_input\":false,\"seq\":"
+        out << std::setprecision(17) << "{\"schema_version\":2,\"hook\":\"NewImageFrame\",\"control_input\":false,\"seq\":"
             << ++seq << ",\"scene_s\":" << scene->SimTime().Double()
             << ",\"render_wall_s\":" << wall << ",\"camera\":" << std::quoted(cam->ScopedName())
-            << ",\"format\":" << std::quoted(cam->ImageFormat())
-            << ",\"size\":[" << cam->ImageWidth() << ',' << cam->ImageHeight() << ',' << cam->ImageDepth()
-            << "],\"image_bytes\":" << cam->ImageMemorySize()
+            << ",\"format\":" << std::quoted(format)
+            << ",\"size\":[" << w << ',' << h << ',' << depth
+            << "],\"image_bytes\":" << bytes
             << ",\"fnv1a64\":" << std::quoted(std::to_string(hash)) << ",\"camera_pose\":";
         Pose(out, cam->WorldPose());
         out << ",\"visuals\":[";
@@ -80,7 +92,6 @@ class RenderBindingObserver : public SystemPlugin {
           }
         }
         out << "]}\n";
-      }
     } catch (const std::exception &) {
       // A missing diagnostic must never stop physics or issue flight commands.
     }

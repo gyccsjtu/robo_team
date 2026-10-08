@@ -178,9 +178,11 @@ def parse_left_actors(raw):
 class TargetBridgeCore(object):
     """纯逻辑桥（无 rospy）。"""
 
-    def __init__(self, brown_alignment=False, red_motion_limits=False, brown_activation=False):
+    def __init__(self, brown_alignment=False, red_motion_limits=False, brown_activation=False,
+                 blue_alignment=False):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
         self.brown_alignment = brown_alignment
+        self.blue_alignment = blue_alignment
         self.red_motion_limits = red_motion_limits
         self.brown_activation = brown_activation
         if brown_activation and (not math.isfinite(BROWN_NEW_TRACK_CONF)
@@ -240,7 +242,8 @@ class TargetBridgeCore(object):
                 return False
         # 超过 COAST_TIME：真·重捕获，允许任意位置。
         alignment = None
-        if self.brown_alignment and tag == 'brown' and source_id is not None:
+        if ((self.brown_alignment and tag == 'brown') or
+                (self.blue_alignment and tag == 'blue')) and source_id is not None:
             alignment = tr.source_fusion.observe(source_id, t, (x,y), conf, observation_id)
             if alignment is None:
                 return False
@@ -400,6 +403,7 @@ class YoloTargetBridge(object):
         self._ActorInfo = ActorInfo
         self.core = TargetBridgeCore(
             brown_alignment=os.environ.get('BRIDGE_BROWN_ALIGNED', '0') == '1',
+            blue_alignment=os.environ.get('BRIDGE_BLUE_ALIGNED', '0') == '1',
             red_motion_limits=os.environ.get('BRIDGE_RED_MOTION_LIMITS', '0') == '1',
             brown_activation=os.environ.get('BRIDGE_BROWN_ACTIVATION', '0') == '1')
         self._red_observations = RedObservations()

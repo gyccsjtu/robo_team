@@ -64,7 +64,7 @@ import rospy
 from cv_bridge import CvBridge
 from gazebo_msgs.srv import GetLinkState
 from sensor_msgs.msg import Image, CameraInfo
-from camera_geometry import calibration, aligned_translation, vertical_extent
+from camera_geometry import calibration, aligned_translation, vertical_extent, image_time_position
 from recent_motion import RecentMotion
 from motion_identity import MotionIdentity
 from stationary_person import allowed as stationary_person_allowed
@@ -482,6 +482,8 @@ _FRAMES = logger("frame_probe_%s" % UAV, FRAME_FIELDS)
 # capture them.
 _EVIDENCE_FAIL = EvidenceCapture(UAV)
 _EVIDENCE_PASS = EvidenceCapture(UAV + "_pass", per_minute=2, total=60)
+_EVIDENCE_WHITE_FAIL = EvidenceCapture(UAV + "_white_fail", per_minute=2, total=60,
+    enabled=os.environ.get('PR_WHITE_FAILURE_EVIDENCE', '0') == '1')
 
 
 def _person_detail(details, cid, xyxy):
@@ -1468,6 +1470,8 @@ def main():
                                 **_EVIDENCE_FAIL.params())
                             if (not _person_proof) and rng <= 22.0 and conf >= 0.40:
                                 _EVIDENCE_FAIL.capture(img, _common)
+                                if _color == 'white':
+                                    _EVIDENCE_WHITE_FAIL.capture(img, _common)
                             elif _person_proof and rng <= 22.0:
                                 _EVIDENCE_PASS.capture(img, _common)
                         except Exception as _ev_err:
@@ -1882,9 +1886,13 @@ def main():
                         and _tk.observed_s > _published_visual_samples.get(_tag, 0.)):
                     _logical_uid = os.environ.get('PR_LOGICAL_UAV_ID', UAV)
                     _visual_run = os.environ.get('ROBOCUP_RUN_ID', '')
+                    # The bridge compensates from the original image time.
+                    # Do not label a lagging prefiltered point as a raw sample.
+                    _original_colors = os.environ.get('PR_ORIGINAL_REPORT_COLORS', '').split(',')
+                    _original_xy = image_time_position(_cls, _tk.raw_xy, (_tk.x, _tk.y), _original_colors)
                     visual_coord.publish(String(data=json.dumps(dict(schema_version=3,
                         run_id=_visual_run, uav_id=_logical_uid, seq=_obs_seq, sample_s=_tk.observed_s,
-                        target_id=_tag, frame_id='world_enu', xyz=[round(_tk.x, 2), round(_tk.y, 2), TARGET_Z],
+                        target_id=_tag, frame_id='world_enu', xyz=[round(_original_xy[0], 2), round(_original_xy[1], 2), TARGET_Z],
                         confidence=float(_tk.conf), camera_xyz=list(_tk.camera_xyz),
                         person_frame_verified=bool(_tk.person_support.current_verified),
                         observation_id='%s:%s:%d' % (_visual_run, _logical_uid, _obs_seq)),

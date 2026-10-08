@@ -4,7 +4,10 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
+import sys
 from unittest.mock import Mock
+sys.path.insert(0,str(Path(__file__).parents[2]/'perception'))
+from camera_geometry import image_time_position
 
 source = Path(__file__).parents[2]/'perception/perception_real.py'
 tree = ast.parse(source.read_text(encoding='utf-8'))
@@ -21,10 +24,12 @@ class VisualReportFrameDedupTests(unittest.TestCase):
     def test_fast_publish_checks_cannot_multiply_original_images_or_coast(self):
         emitted = []
         track = SimpleNamespace(miss=0, observed_s=10., x=2., y=3., conf=.6,
+                                raw_xy=(2.,3.),
                                 pub_xy=lambda: (2., 3.), uv=(None, None),
                                 camera_s=10., camera_xyz=[0.,0.,2.5],
                                 person_support=SimpleNamespace(current_verified=True))
         scope = dict(COORD_ON=True, COORD_HZ=10., now=10., _coord_t=0., _obs_seq=0,
+            image_time_position=image_time_position,
             visual_pub_list=[('white', 0, track)], pub_list=[], pubs={'white': [None]},
             _published_visual_samples={}, json=json, TARGET_Z=1.25, UAV='model',
             os=SimpleNamespace(environ={'ROBOCUP_RUN_ID':'run', 'PR_LOGICAL_UAV_ID':'uav_1'}),

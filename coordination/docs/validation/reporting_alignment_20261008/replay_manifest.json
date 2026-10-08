@@ -1,0 +1,44 @@
+{
+  "control_input": false,
+  "inputs": [
+    {
+      "path": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/bridge_trace.jsonl",
+      "sha256": "185017c4f91f161fbd9718161949617254287acb996b7b89fd0e5ec7eb504198"
+    },
+    {
+      "path": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_blue.jsonl",
+      "sha256": "5d305fe639d2b125370bb915f546311f66124e38d5d9645948dfe8147a27062f"
+    },
+    {
+      "path": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_4.csv",
+      "sha256": "2f40ef422aefa082be4f63e668eff419fd535fcc38abf099790dc41327dd9b0c"
+    },
+    {
+      "path": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_2.csv",
+      "sha256": "4b5f00c62e04205f1a6b69edd01aa2d3ff042fb860463b10e995c8ba9694834e"
+    },
+    {
+      "path": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv",
+      "sha256": "7d2cabfca452643959ea0bdafc48dd21a99fcde714efe80cdc023679e2bd9849"
+    },
+    {
+      "path": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_5.csv",
+      "sha256": "6c087596dc8dd214e34d9fc060591cd2627c62a19dd2503d528093c7213bc128"
+    },
+    {
+      "path": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_0.csv",
+      "sha256": "6b376a03b92417c5da97fcde4c6ca5660114ff57fb9a7139214c97ac8b3993a3"
+    },
+    {
+      "path": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_1.csv",
+      "sha256": "bf241bed2f4ad13f57b6f703712e5fc4e7abc6dc41327dbb98dc8fad850f5553"
+    }
+  ],
+  "candidate_sources": {
+    "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py": "122bd69370e62e4d4fc5ef8eef84907980d81ebe64a71133b088c07aa5e1da9a",
+    "perception/perception_real.py": "0563ac4dbb61fb501c406b398c57d419b129aefa1c406b2e181755154754d58c",
+    "coordination/scripts/analyze_reporting_error.py": "66f5b880cbe59bbfea8a8a932630ea5e60ffaf4f57a49c03d72c11d65f473e72"
+  },
+  "actual_executed_commit": "aec3af8",
+  "full_callback_replay": false
+}

@@ -2,6 +2,11 @@
 import math
 
 
+def image_time_position(color, raw_xy, filtered_xy, original_colors=()):
+    """Select an image-time point; compensation belongs to the downstream bridge."""
+    return tuple(raw_xy if color in original_colors else filtered_xy)
+
+
 def vertical_extent(camera_xyz, foot_xy, top_ray_world):
     """Intersect the top pixel ray with the vertical line above the foot.
 
