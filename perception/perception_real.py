@@ -64,7 +64,12 @@ import rospy
 from cv_bridge import CvBridge
 from gazebo_msgs.srv import GetLinkState
 from sensor_msgs.msg import Image
-from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
+# 2026-10-06 fix：score_cal.py 订阅 robocup_swarm/ActorInfo（带 header + float64 + z）。
+#   原 import 的 ros_actor_cmd_pose_plugin_msgs/ActorInfo 无 header + float32 + 无 z，
+#   md5sum 与裁判不匹配，导致 6 个 /actor_<color>_info 全部 inbound connection 被拒，
+#   整场比赛 score_cal 一条消息都收不到、0 击杀。
+#   改用 robocup_swarm.ActorInfo，并在发布处补 header.stamp + z=0.0。
+from robocup_swarm.msg import ActorInfo
 from std_msgs.msg import String
 # 集中指派消息 + 目标融合状态（coordination 工作区）。导入失败时退化为仅距离闸门。
 try:
@@ -898,9 +903,17 @@ def main():
     _model = YOLO(WEIGHTS)
 
     # pubs[类][槽号]：单流类只有 1 个槽，red 有 2 个（red1/red2）
-    pubs = {}
-    for c, topics in TOPIC_OF.items():
-        pubs[c] = [rospy.Publisher(t, ActorInfo, queue_size=1) for t in topics]
+    # 2026-10-06 修：仅 PR_DIRECT_ACTOR_INFO=1 时才创建 /actor_*_info Publisher。
+    # rospy.Publisher 创建即 advertise —— 此前 6 个感知节点即使从不直发（默认 0，
+    # 交给 bridge 融合后统一发布），也被 rostopic info 计成发布者 ⇒ 启动审计
+    # "发布者数量为 7（要求唯一 yolo_target_bridge）" 误判 → 启动中断全场被杀。
+    # 槽位数改用 NSLOTS 供 tag 命名 / 标注逻辑使用（与 pubs 解耦）。
+    NSLOTS = {c: len(topics) for c, topics in TOPIC_OF.items()}
+    if DIRECT_ACTOR_INFO:
+        pubs = {c: [rospy.Publisher(t, ActorInfo, queue_size=1) for t in topics]
+                for c, topics in TOPIC_OF.items()}
+    else:
+        pubs = None
     # 契约通道：一条消息 = 一个目标（形状见文件上方"协同上报"段）
     coord = rospy.Publisher("/coordination/target_report", String, queue_size=50)
     # 调试通道：一帧一条、含全部 dets 的快照，供 rec_snap.py / analyze_snap.py 离线复盘
@@ -1082,6 +1095,14 @@ def main():
                         v_link = M_OPT2LINK @ v_opt
                         v_world = R @ v_link
                         if v_world[2] >= -1e-6:
+                            continue
+                        # 2026-10-06 八轮复盘：俯角护栏。视线接近水平时（俯角小），
+                        # t=-pz/v_world[2] 的地面交点对 pz/姿态误差极度敏感，
+                        # 实测低空（1.9m）跟踪时偏差 ±7-10m。俯角正弦 <0.30
+                        # （俯角 <17.5°，如 4m 高 13m 外 / 1.9m 高 6m 外）一律拒绝：
+                        # 几何不可靠的观测宁可不报，也不给裁判喂错位置。
+                        if (-v_world[2]) / float(np.linalg.norm(v_world)) < 0.30:
+                            _stat["n_pitch_rej"] = _stat.get("n_pitch_rej", 0) + 1
                             continue
                         t = -pz / v_world[2]
                         if t <= 0:
@@ -1366,9 +1387,11 @@ def main():
                         k = PUB_MAX_STEP / _d
                         _sx, _sy = _prev[0] + _dx * k, _prev[1] + _dy * k
                     _pub_smooth[_key] = (_sx, _sy)
-                m = ActorInfo(cls=cls, x=round(_sx, 2), y=round(_sy, 2))
+                # 2026-10-06 fix：补 header.stamp + z=0.0（robocup_swarm/ActorInfo 必填字段）
+                m = ActorInfo(cls=cls, x=round(_sx, 2), y=round(_sy, 2), z=0.0)
+                m.header.stamp = rospy.Time.now()
                 pubs[cls][si].publish(m)
-            tag = ("%s%d" % (cls, si + 1)) if len(pubs[cls]) > 1 else cls
+            tag = ("%s%d" % (cls, si + 1)) if NSLOTS[cls] > 1 else cls
             snap.append({"cls": cls, "slot": si, "tag": tag, "conf": round(tk.conf, 3),
                          "uv": tk.uv, "wh": tk.wh,
                          # xyz = 真正发出去的值；xyz_est = 滤波估计值（未补偿）。
@@ -1452,7 +1475,7 @@ def main():
         if COORD_ON and pub_list and (now - _coord_t) >= 1.0 / max(0.1, COORD_HZ):
             _coord_t = now
             for _cls, _si, _tk in pub_list:
-                _tag = ("%s%d" % (_cls, _si + 1)) if len(pubs[_cls]) > 1 else _cls
+                _tag = ("%s%d" % (_cls, _si + 1)) if NSLOTS[_cls] > 1 else _cls
                 _obs_seq += 1
                 _cx, _cy = _tk.pub_xy()      # 与裁判侧同一套补偿，两边坐标必须一致
                 # 2026-10-03 我方补：水平距离（m）= 本机位置到上报点的水平距离。
@@ -1521,7 +1544,7 @@ def main():
                     keep = []
                     for _c in sorted(set(c[0] for c in cands)):
                         sub = [c for c in cands if c[0] == _c]
-                        if len(pubs[_c]) > 1:
+                        if NSLOTS[_c] > 1:
                             keep += sub
                         else:
                             keep += sorted(sub, key=lambda c: -c[2].score_ema)[:ANNOT_TOP]
@@ -1537,7 +1560,7 @@ def main():
                             x1, x2 = int(u - w / 2.0), int(u + w / 2.0)
                             y1, y2 = int(vb - h), int(vb)
                             col = COLORS.get(_cls, (0, 255, 255))
-                            nm = ("%s%d" % (_cls, _si + 1)) if len(pubs[_cls]) > 1 else _cls
+                            nm = ("%s%d" % (_cls, _si + 1)) if NSLOTS[_cls] > 1 else _cls
                             cv2.rectangle(vis, (x1, y1), (x2, y2), col, 2)
                             txt = "%s %.2f H=%.2fm D=%.1fm v=%.2fm/s" % (
                                 nm, tk.conf, tk.h, tk.rng, tk.sp)

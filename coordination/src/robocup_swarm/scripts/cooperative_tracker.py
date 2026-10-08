@@ -55,6 +55,9 @@ import os
 
 # ---- 官方规则常量 ----
 CONFIRM_TIME = 15.0     # 规则5：连续确认时长 s
+# 团队侧确认满后再多保留的飞行时间，让官方 score_cal 真消除（/left_actors 真的少了这个 actor）
+# 才释放追踪机。比官方 15s 多一倍以容忍上报链路偶发断流。可由 CONFIRM_HOLD_TIMEOUT env 覆盖。
+CONFIRM_HOLD_TIMEOUT = float(os.environ.get("CONFIRM_HOLD_TIMEOUT", "30.0"))
 ERR_TOL = float(os.environ.get("ERR_TOL", "1.0"))   # 规则5：单次上报坐标误差上限 m（允许 env 覆盖）
 GAP_TOL = float(os.environ.get("GAP_TOL", "1.0"))   # 规则5：相邻上报最大间隔 s（5 分钟实测 YOLO 帧丢/摆头会让 1.0s 太严, 改成 2.5）
 # 规则4：首次被裁判正确检测起墙钟跨度 → 瞬移。

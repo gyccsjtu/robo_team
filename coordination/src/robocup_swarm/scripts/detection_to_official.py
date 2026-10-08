@@ -60,8 +60,12 @@ import math
 import random
 
 import rospy
-from robocup_swarm.msg import TargetDetection, TargetState
-from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
+# 2026-10-06：v4 修复 — 与 yolo_bridge 对齐使用 robocup_swarm.msg.ActorInfo (5字段)
+#   历史：曾用 ros_actor_cmd_pose_plugin_msgs.ActorInfo (3字段 string cls+float32 x+float32 y)
+#   仿真 WARN：`topic types do not match: [robocup_swarm/ActorInfo] vs. [ros_actor_cmd_pose_plugin_msgs/ActorInfo]`
+#   因 /score_cal 订阅的是 5 字段版（md5 b19c42c4e8a205a44c00afb2c6f8754e），上游 3 字段版 (md5 d57df6c0…) 被 ROS 拒收
+#   → 改回 robocup_swarm 版本，统一全队 ActorInfo 消息类型
+from robocup_swarm.msg import TargetDetection, TargetState, ActorInfo
 
 # 2026-09-28：协同确认 / 多源融合（见文件尾注释）
 _SCRIPTS_DIR = "/root/team_ws/robocup/src/robocup_swarm/scripts"
@@ -375,9 +379,12 @@ class DetectionToOfficial(object):
 
             p, cls = ent
             m = ActorInfo()
+            # 2026-10-06：5字段版必须带 Header（虽然官方 score_cal 只看 cls/x/y）
+            m.header.stamp = rospy.Time.now()
             m.cls = cls
             m.x = float(est[0])
             m.y = float(est[1])
+            m.z = 0.0
             p.publish(m)
             if tid not in self.reported:
                 self.reported.add(tid)

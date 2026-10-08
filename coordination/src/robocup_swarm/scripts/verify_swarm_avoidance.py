@@ -35,7 +35,7 @@ METADATA_PATH = os.environ.get(
     "ROBOCUP_METADATA",
     os.path.join(os.environ.get("ROBOCUP_WS", "/home/ros/team_ws/robocup"),
                  "src/robocup_training_worlds/worlds/generated/training_city_full_s7.json"))
-INFLATE_M = 0.5      # 与 agent/manager 一致
+INFLATE_M = 1.5      # 与 agent/manager 一致（覆盖桨尖0.37 + 建筑偏大0.45 + 切角/超调0.68）
 SAMPLE_DT = 0.2      # 轨迹采样间隔 s
 LOG_ROOT = os.path.expanduser("~/team_ws/robocup/logs/swarm_search")
 

@@ -19,6 +19,7 @@ import json
 import rospy
 import math
 import time
+import threading
 from swarm_task import LineOfSight
 import re
 import traceback
@@ -31,7 +32,7 @@ from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager,
                         STATE_FREE, STATE_ASSIGNED, STATE_COVERED,
                         W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE, W_DISTANCE, W_ZONE, LEASE_DURATION,
                         CONFIRM_TIME, EVADE_TIME, DETECT_RADIUS, DETECT_RADIUS_MARGIN)
-from cooperative_tracker import CooperativeTracker
+from cooperative_tracker import CooperativeTracker, CONFIRM_HOLD_TIMEOUT
 from csv_logger import logger
 
 # 地图（用于过滤「格中心落在建筑内」的格子，与 agent 的 A* 膨胀判定一致）
@@ -59,7 +60,11 @@ HOT_TARGET_TTL = float(os.environ.get("HOT_TARGET_TTL", "8.0"))
 BACKUP_ENABLE = int(os.environ.get("BACKUP_ENABLE", "1"))   # 0=关闭
 AUTO_LAND = int(os.environ.get("AUTO_LAND", "0"))   # 0=禁止自动降落（默认）
 BACKUP_STALE  = float(os.environ.get("BACKUP_STALE",  "2.0"))  # 断流多少秒后加派（紧迫）
-BACKUP_AFTER  = float(os.environ.get("BACKUP_AFTER",  "3.0"))  # 确认卡住3s即加派，6s过慢
+# === 2026-10-05 国家一等奖修：3.0 → 5.0 ===
+# 原值 3s：实测「确认主追在 LOS 内追踪就触发 backup」→ 抢资源、backup 飞过去
+# 时主追已经确认完，备份白飞且扰乱面覆盖。新值 5s：等主追稳定确认（确认 ~5s 达标）
+# 后再判断是否真正受阻；stall=5s 才是真正需要 backup 的信号。
+BACKUP_AFTER  = float(os.environ.get("BACKUP_AFTER",  "5.0"))  # 确认卡住5s才加派（让主追先打）
 BACKUP_MAX    = int(os.environ.get("BACKUP_MAX",    "2"))    # 全场同时存在的备份机上限
 BACKUP_MAX_DIST = float(os.environ.get("BACKUP_MAX_DIST", "60.0"))  # 距离超过此值就不派
                                                                     # （飞过去的时间比等还久，净亏损）
@@ -81,7 +86,12 @@ METADATA_PATH = os.environ.get(
     "ROBOCUP_METADATA",
     os.path.join(os.environ.get("ROBOCUP_WS", "/home/ros/team_ws/robocup"),
                  "src/robocup_training_worlds/worlds/generated/robocup_base.json"))
-INFLATE_M = 1.5                 # 与 agent 一致：A* 障碍膨胀半径 m（覆盖桨尖+建筑偏大+切角裕度）
+INFLATE_M = float(os.environ.get('INFLATE_M', '2.0'))     # 与 agent 一致：A* 障碍膨胀半径 m（2026-10-05 灯杆排查：0.6m 灯杆半径+0.37m 桨尖+0.68m 切角超调+0.35m 余量，原 1.5 实测贴到 front=0.31m）
+
+# ---- 合规 SLAM 栅格合并（2026-10-07 重构，规则 §2.4/§2.5 无预读）----
+# metadata 障碍恒为空；阻塞格来自各 agent /swarm/occupancy_grid 上报的
+# 雷达 SLAM 占用并集，随建图增长周期性重建。
+SLAM_REBUILD_SEC = float(os.environ.get('SLAM_REBUILD_SEC', '5.0'))  # 阻塞格重建最小间隔 s
 
 # ---- 2026-09-27：楼边修复（建筑内的 actor 藏身区曾是永久搜索黑洞）----
 EDGE_ENABLE   = os.environ.get("EDGE_ENABLE", "1") not in ("0", "false", "False", "")
@@ -99,11 +109,16 @@ CLEARANCE_MAX = float(os.environ.get("CLEARANCE_MAX", "24.0"))  # 距离场最�
 # 与 W_EDGE 的区别：EDGE 是静态的「贴楼加分」（实测成共同吸引子，6 架挤一起）；
 # NBV 是动态的「从这个视点能看见多少久未见的区域」，且派单即承诺 → 次模贪心自动分散。
 VIS_ENABLE = os.environ.get("VIS_ENABLE", "1") not in ("0", "false", "False", "")
-VIS_RADIUS = float(os.environ.get("VIS_RADIUS", "20.0"))   # 与 DETECT_RADIUS 一致
+VIS_RADIUS = float(os.environ.get("VIS_RADIUS", "10.0"))   # 与 DETECT_RADIUS 一致（2026-10-05: 20→10，同步收紧）
 VIS_COMMIT = os.environ.get("VIS_COMMIT", "1") not in ("0", "false", "False", "")
 # 飞机抵达分配格的判定半径：距格代表点 < 此值即认为已搜索该格，
 # 标记可视域覆盖并释放租约。太小会在格边来回振荡不释放，太大则还没飞到就算覆盖。
 COVER_ARRIVE_M = float(os.environ.get("COVER_ARRIVE_M", "4.0"))  # 减小到达判定半径，适应7m格子
+# 2026-10-07 v12: 租约最长连续持有时限（秒）。续租条件原为"3 秒内有上报"，
+# 卡死/打不开爬升闸门的机持续上报 → 无条件续租 → 租约永不到期 → 全场只派
+# 首轮 6 格后死锁（实测 sim 88s 后零新分配，agent1/5 悬停起飞点全程）。
+# 超时不续租 → 租约按 TTL 到期回收 → 格子回候选池重新拍卖，形成调度周转。
+LEASE_MAX_HOLD = float(os.environ.get("LEASE_MAX_HOLD", "90"))
 # 派遣追踪机的距离余量：只有最近机距目标 < DETECT_RADIUS - DISPATCH_MARGIN 才派遣。
 # 贴边派遣后目标一动就出视野跟丢，留余量保证追踪机进入感知纵深。
 DISPATCH_MARGIN = float(os.environ.get("DISPATCH_MARGIN", "2.0"))  # 派阈值放近(2m)，首见即派不拖到近距
@@ -222,6 +237,15 @@ class SwarmManager(object):
         # 每机最近一次上报时间（用于租约续租判定）
         self.last_report = {}     # uav_id -> rospy.Time
         self._active_leases = {}  # uav_id -> cell key currently leased to that UAV
+        self._lease_hold_since = {}  # (uid, key) -> 首次续租时刻，用于 LEASE_MAX_HOLD
+        # === 2026-10-05 国家一等奖修：追踪释放后冷却 ===
+        # 实测问题：「释放追踪机 typhoon_h480_1 (tid=t5, 原因=confirmed)」紧接着
+        # 同一行「分配 typhoon_h480_1 → 格 (2,6)」—— 飞机刚脱离追踪立刻被派回
+        # 同一格（甚至更远），EKF 还在抖 + 当前速度尚未归零，刚发的 assign
+        # 立即被 A* 路径覆盖、飞机在原地晃两拍就 stuck。改为：释放追踪后 N 秒
+        # 内不再进入空闲池，等 EKF 完全收敛再接新任务。
+        self._release_cooldown = {}  # uav_id -> rospy.Time
+        # LEASE_RELEASE_COOLDOWN_S：默认 6.0s（与 EST_HOLD 600ms + 路径重规划 1s + 余量 4s 对齐）
 
         # ---- 纯逻辑模块 ----
         _bx0, _bx1, _by0, _by1 = _search_bounds()
@@ -234,6 +258,16 @@ class SwarmManager(object):
         self.lease = LeaseManager(self.grid, duration=LEASE_DURATION)
 
         # ---- 过滤「格中心落在建筑内」的格子：这些格 agent 的 A* 无法到达 ----
+        # 合规重构（2026-10-07）：不再从 metadata 预读建筑真值；阻塞格来自
+        # 各 agent 雷达 SLAM 占用栅格的并集（_occ_grid_cb），启动时为空
+        # （未知=可通行），随建图增长由主循环周期重建。
+        self._slam_lock = threading.Lock()
+        self._slam_cells = None    # 多机 SLAM 占用并集 bytearray（首帧上报时按尺寸初始化）
+        self._slam_w = self._slam_h = 0
+        self._slam_res = 0.5
+        self._slam_origin = (0.0, 0.0)
+        self._slam_dirty = False
+        self._slam_rebuild_t = 0.0
         self._cell_waypoint = {}   # cell_key -> (wx,wy) 楼边格的可达代表点
         self._cell_edge = {}       # cell_key -> 0~1 临楼度
         self._blocked_cells = self._find_blocked_cells()
@@ -266,10 +300,20 @@ class SwarmManager(object):
         self._eliminated = set()
         # 确认期冗余备份机：tid -> uav_id（见 _dispatch_backup）
         self._backup = {}
+        # v18：confirm 超时黑名单（tid -> 黑名单截止仿真秒），期内不重派追踪机
+        self._confirm_timeout_bl = {}
         # tid -> 最近一次收到 /swarm/detection 的 wall 时刻（断流检测用）
         self._last_detect = {}
         # tid -> 官方 /find_actor_N 首次发布时刻（= 进入 15s 确认期）
         self._confirm_since = {}
+        # tid -> 团队侧已连续确认 15s 的时刻（"规则5 团队侧已确认"）
+        # 区别于 _confirm_since：后者是"官方 find_actor_N 进入 15s 倒计时";
+        # 前者是"我们已经按误差<1m+间隔<1s 持续报满 15s,可向官方申请消除"。
+        # 关键修复（2026-10-05 击毁 0 分 bug）：不在这里立刻调 _release_tracker
+        # 也不再发 "eliminate:%s" 给 target_sim_node，而是等官方 /left_actors 真
+        # 确认后由 _left_cb → _release_finished 统一释放。详见 _update_targets
+        # "confirmed" 分支的注释。
+        self._confirm_done_t = {}
         self._backup_noted = set()  # 已提示过「无近机可派」的 tid（避免刷屏）
         self._tracking = {}       # target_id -> assigned_uav_id 当前追踪任务
         # 2026-10-03 改进 2：actor 移动预测——每目标最近 N 次检测轨迹 (x,y,stamp)
@@ -290,11 +334,19 @@ class SwarmManager(object):
         # ---- 订阅 / 发布 ----
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._status_cb)
         rospy.Subscriber("/swarm/detection", TargetDetection, self._detection_cb)
+        # 合规 SLAM：各 agent 的雷达占用栅格快照（RLE JSON），合并成全局地图
+        rospy.Subscriber("/swarm/occupancy_grid", String, self._occ_grid_cb, queue_size=6)
         self.assign_pub = rospy.Publisher("/swarm/assignment", SearchAssignment, queue_size=10)
         # 消除指令发给 target_sim_node（"eliminate:<target_id>"）
         self.cmd_pub = rospy.Publisher("/swarm/target_command", String, queue_size=10)
         # 任务完成广播
         self.finish_pub = rospy.Publisher("/swarm/finish", String, queue_size=10)
+        # 2026-10-06 国家一等奖: 「团队侧已确认」贴脸模式广播
+        # swarm_agent 收到且匹配自己 _orbit_target == tid 时, 把
+        # ORBIT_RADIUS 从 6m 切到 2m, ORBIT_SPEED 从 0.13 切到 0.05 rad/s,
+        # 让 yolo 误差 < 1m 持续 15s, 触发官方 score_cal.py:122-168 的
+        # err_threshold=1m 判定 → +100 消除分 (官方"未完成计分"公式).
+        self.confirm_pub = rospy.Publisher("/swarm/confirmed", String, queue_size=10)
 
         # 官方裁判的剩余 actor 清单（权威）。
         # 用途：兜住「提前收工」死结 —— manager 的 tracker 只在收到 /swarm/detection 后
@@ -316,24 +368,32 @@ class SwarmManager(object):
         self._mission_finished = False  # 任务完成标志
 
     def _find_blocked_cells(self):
-        """加载地图并膨胀，给每格找一个「可达代表航点」，并算临楼度。
+        """按 SLAM 占用栅格膨胀，给每格找一个「可达代表航点」，并算临楼度。
+
+        合规重构（2026-10-07）：不再从 metadata 预读建筑真值（规则
+        §2.4/§2.5 无预读随机地图）。地图 = 各 agent 雷达 SLAM 占用并集
+        （_merged_grid）；无任何上报时返回空阻塞集（未知=可通行），
+        随建图增长由主循环周期重建。
 
         旧实现只用「10m 格中心」判可达：建筑只要压住格中心，整格就被永久
         标记 STATE_COVERED，_reopen_covered_cells() 也跳过它 —— 场上留下
-        一批永不被搜索的黑洞。实测 actor_4(-32,-27) / actor_5(-35,-28)
-        的出生点正落在 x[-35.4,-31.4] y[-29.4,-13.4] 那栋楼里。
-
-        新做法：中心不可达时按 WAYPOINT_RING 在格内环形找替代可达点，
-        只有整格都找不到可达点才真的判 dead。同时算「临楼度」喂给拍卖。
+        一批永不被搜索的黑洞。做法：中心不可达时按 WAYPOINT_RING 在格内
+        环形找替代可达点，只有整格都找不到可达点才真的判 dead。
         """
         blocked = set()
         waypoint = {}
         edge = {}
         try:
+            g_raw = self._merged_grid()
+            if g_raw is None:
+                rospy.loginfo_throttle(
+                    60, "[manager] SLAM 栅格未就绪（等待 agent 上报），暂不过滤建筑格")
+                self._cell_waypoint = waypoint
+                self._cell_edge = edge
+                return blocked
+            g = inflate_grid(g_raw, INFLATE_M)
+            self._g_infl = g
             if EDGE_ENABLE:
-                md, _ = load_metadata(METADATA_PATH)
-                g = inflate_grid(GridMap.from_metadata(md), INFLATE_M)
-                self._g_infl = g
                 clearance = _ClearanceField(g)
                 for key, c in self.grid.cells.items():
                     ctr = g.world_to_cell((c.cx, c.cy))
@@ -366,15 +426,12 @@ class SwarmManager(object):
                     else:
                         edge[key] = (EDGE_RANGE - d) / (EDGE_RANGE - EDGE_NEAR)
             else:
-                md, _ = load_metadata(METADATA_PATH)
-                g = inflate_grid(GridMap.from_metadata(md), INFLATE_M)
-                self._g_infl = g
                 for key, c in self.grid.cells.items():
                     cell = g.world_to_cell((c.cx, c.cy))
                     if cell is None or not g.is_free(cell):
                         blocked.add(key)
         except Exception as exc:
-            rospy.logwarn("[manager] 加载地图过滤建筑格失败: %s（将不过滤）", exc)
+            rospy.logwarn("[manager] 合并 SLAM 栅格过滤建筑格失败: %s（将不过滤）", exc)
         self._cell_waypoint = waypoint
         self._cell_edge = edge
         n_alt = 0
@@ -382,11 +439,65 @@ class SwarmManager(object):
             _c = self.grid.cell(_k)
             if _c is not None and (abs(_wp[0] - _c.cx) > 1e-6 or abs(_wp[1] - _c.cy) > 1e-6):
                 n_alt += 1
-        rospy.loginfo("[manager] 楼边修复：%d/%d 格完全不可达；%d 格改用替代航点；"
+        rospy.loginfo("[manager] 楼边修复（SLAM 栅格）：%d/%d 格完全不可达；%d 格改用替代航点；"
                       "%d 格临楼(edge>0)",
                       len(blocked), len(self.grid.cells), n_alt,
                       sum(1 for v in edge.values() if v > 0.0))
         return blocked
+
+    # ---------------- SLAM 栅格合并（合规建图 2026-10-07）----------------
+    def _occ_grid_cb(self, msg):
+        """合并 agent 上报的 SLAM 占用栅格（多机并集）→ 触发阻塞格重建。"""
+        try:
+            d = json.loads(msg.data)
+            w, h = int(d["width"]), int(d["height"])
+            res = float(d["resolution"])
+            origin = (float(d["origin"][0]), float(d["origin"][1]))
+            rle = d["rle"]
+        except Exception:
+            return
+        # 先验 RLE 总长再写入：坏帧整帧丢弃，防半帧污染占用并集
+        total = 0
+        for run in rle:
+            try:
+                total += int(run[1])
+            except Exception:
+                return
+        if total != w * h:
+            return
+        with self._slam_lock:
+            if self._slam_cells is None:
+                self._slam_w, self._slam_h = w, h
+                self._slam_res, self._slam_origin = res, origin
+                self._slam_cells = bytearray(w * h)
+            elif w != self._slam_w or h != self._slam_h:
+                return  # 尺寸不一致（异构地图/旧节点），丢弃
+            idx = 0
+            for run in rle:
+                v, c = int(run[0]), int(run[1])
+                if v:
+                    self._slam_cells[idx:idx + c] = b"\x01" * c
+                idx += c
+        self._slam_dirty = True
+
+    def _merged_grid(self):
+        """多机 SLAM 占用并集 → GridMap（无任何上报时返回 None）。"""
+        with self._slam_lock:
+            if self._slam_cells is None:
+                return None
+            return GridMap(self._slam_w, self._slam_h, self._slam_res,
+                           self._slam_origin, bytes(self._slam_cells), "map")
+
+    def _rebuild_blocked_cells(self):
+        """SLAM 栅格更新后重建阻塞格/航点/临楼度（主循环节流调用）。"""
+        try:
+            self._blocked_cells = self._find_blocked_cells()
+            try:
+                self.allocator.cell_edge = self._cell_edge
+            except Exception:
+                pass
+        except Exception as exc:
+            rospy.logwarn("[manager] SLAM 阻塞格重建失败: %s", exc)
 
     # ---------------- 回调 ----------------
     def _status_cb(self, msg):
@@ -437,11 +548,14 @@ class SwarmManager(object):
                 t.eliminated = True
             # 统一释放（pop + cancel msg + hot target 清理）
             self._release_tracker(tid, reason="left_actors=%s" % list(left_ids))
+            # 官方已确认 → 清掉团队侧的"等官方"时间戳,避免超时兜底再次触发
+            self._confirm_done_t.pop(tid, None)
         # 顺带把 tracker 里同样已消除、但当时没派机的目标也标掉
         for tid in list(self.tracker.targets.keys()):
             aid = self._tid_to_actor(tid)
             if aid is not None and aid not in left_ids:
                 self._eliminated.add(tid)
+                self._confirm_done_t.pop(tid, None)
 
     def _left_cb(self, msg):
         """官方裁判发布的剩余 actor：'[]' 或 '[0, 2, 5]'。"""
@@ -597,6 +711,9 @@ class SwarmManager(object):
         for tid in list(self.tracker.targets.keys()):
             if tid in self._eliminated:
                 continue
+            # v18：confirm 超时黑名单期内不重派（等新检测/位置更新再介入）
+            if now < self._confirm_timeout_bl.get(tid, 0.0):
+                continue
             ct = self.tracker.targets.get(tid)
             if ct is None or ct.eliminated:
                 # 目标已消除/不存在 → 释放追踪/备份机
@@ -668,9 +785,21 @@ class SwarmManager(object):
         间接路径），删除时容易遗漏。统一从这一处发布。
         """
         uid = self._tracking.pop(tid, None)
-        self._backup.pop(tid, None)
-        if uid is None:
+        buid = self._backup.pop(tid, None)
+        # v18（2026-10-07）：backup 机也必须收到 cancel + 冷却。旧实现 uid=None
+        # 时直接 return —— backup 被 pop 却收不到 cancel，agent 侧永远停在追踪
+        # assignment（v17 实测 agent_2/agent_5 脱管追 t3 直到比赛结束）。
+        if uid is None and buid is None:
             return
+        # === 2026-10-05 国家一等奖修：设置冷却 ===
+        # 释放追踪后 N 秒内该机不进空闲池，等待 EKF 收敛 + 速度归零 + 路径清空。
+        _cd = float(os.environ.get("LEASE_RELEASE_COOLDOWN_S", "6.0"))
+        for _rid in (uid, buid):
+            if _rid is None:
+                continue
+            self._release_cooldown[_rid] = rospy.Time.now() + rospy.Duration(_cd)
+            rospy.loginfo("[manager] %s 释放追踪冷却 %.1fs (tid=%s, 原因=%s)",
+                          _rid, _cd, tid, reason)
         # 写入清除 hot target（避免飞机继续往这里斜插）
         if HOT_TARGET_ENABLE and hasattr(self.allocator, "clear_hot_target"):
             try:
@@ -681,23 +810,27 @@ class SwarmManager(object):
             except Exception:
                 pass
         # 发布取消（task_type=-1 让 agent 立即转入新分配）
-        try:
-            msg = SearchAssignment()
-            msg.header.stamp = rospy.Time.now()
-            msg.uav_id = uid
-            msg.cell_ix = -1
-            msg.cell_iy = -1
-            msg.target_x = 0.0
-            msg.target_y = 0.0
-            if hasattr(msg, "target_id"):
-                msg.target_id = tid
-            msg.task_type = -1  # 取消
-            self.assign_pub.publish(msg)
-        except Exception:
-            pass
+        # v18：main 和 backup 都要收到 cancel
+        for _rid in (uid, buid):
+            if _rid is None:
+                continue
+            try:
+                msg = SearchAssignment()
+                msg.header.stamp = rospy.Time.now()
+                msg.uav_id = _rid
+                msg.cell_ix = -1
+                msg.cell_iy = -1
+                msg.target_x = 0.0
+                msg.target_y = 0.0
+                if hasattr(msg, "target_id"):
+                    msg.target_id = tid
+                msg.task_type = -1  # 取消
+                self.assign_pub.publish(msg)
+            except Exception:
+                pass
         if reason:
             rospy.loginfo("[manager] 释放追踪机 %s (tid=%s, 原因=%s)",
-                          uid, tid, reason)
+                          [r for r in (uid, buid) if r], tid, reason)
 
     # ---------------- 目标检测与消除（规则4/5） ----------------
     def _detection_cb(self, msg):
@@ -1081,6 +1214,9 @@ class SwarmManager(object):
         for tid, reason in needs:
             if tid in self._backup:
                 continue
+            # v18：confirm 超时黑名单期内不冗余派机
+            if now < self._confirm_timeout_bl.get(tid, 0.0):
+                continue
             aid = self._tid_to_actor(tid)
             if self._left_seen and aid is not None and aid not in self._left_actors:
                 continue
@@ -1198,21 +1334,66 @@ class SwarmManager(object):
             if ev == "confirmed":
                 self._eliminated.add(tid)
                 aid = self._tid_to_actor(tid)
-                if aid is None or (self._left_seen and aid not in self._left_actors):
-                    self.cmd_pub.publish(String(data="eliminate:%s" % tid))
-                else:
-                    rospy.loginfo("[manager] 规则5：%s 团队侧已确认，"
-                                  "但官方仍未消除 → 保留在场继续上报", tid)
-                rospy.loginfo("[manager] 规则5：目标 %s 连续确认 %.0fs → 广播消除",
-                              tid, CONFIRM_TIME)
-                # 国家一等奖：统一走 _release_tracker（含 cancel msg + hot target 清理）
-                self._release_tracker(tid, reason="confirmed")
-                self._truth_cache.pop(tid, None)
-                self._truth_pos.pop(tid, None)
+                # 国家一等奖修复（2026-10-05 击毁积分 0 分 bug）：
+                # 之前这里直接调 `_release_tracker` + `cmd_pub.publish("eliminate:%s" % tid)`，
+                # 这两步会让官方 score_cal 永远拿不到消除信号：
+                #   1) 释放追踪机 ⇒ 所有机离开该目标 ⇒ /coordination/target_report
+                #      停止上报 ⇒ yolo_target_bridge 的 _emit 因 ev["eliminated"]=True
+                #      停发 /actor_<color>_info
+                #   2) 发 eliminate 给 target_sim_node ⇒ 仿真把该 actor 从 Gazebo 删除
+                #      ⇒ score_cal 的 actors_pos[aid] 变成 None ⇒ _reset_detection 清零
+                # 官方 score_cal.py 不订阅任何消除指令,消除唯一入口是「/actor_<color>_info
+                # 持续 15s 误差<1m 且间隔≤1s 的上报」(score_cal.py:122-168)。我们必须
+                # 让飞机继续上报,直到官方真的从 /left_actors 里把它去掉 (→ _left_cb)。
+                # 新策略:
+                #   · 仅把 tid 标 _eliminated、记 confirm_done_t (供超时兜底);
+                #   · **不**调 _release_tracker (飞机继续绕目标 8m 盘旋);
+                #   · **不**给 target_sim_node 发 eliminate (Gazebo 模型留着,
+                #     score_cal 才能用真值做 err_threshold=1m 的判定);
+                #   · 等 _left_cb → _release_finished 触发释放（官方真消除的权威信号）;
+                #   · 超时兜底：CONFIRM_HOLD_TIMEOUT 默认 30s —— 比官方 15s 多一倍，
+                #     防止上报链路偶发断流超 15s 后仍然无消除,我们不能无限占着飞机。
+                self._confirm_done_t[tid] = now
+                # 2026-10-06 国家一等奖: 通知 swarm_agent 切贴脸模式
+                # (只有当前 _orbit_target == tid 的那架 UAV 会响应)
+                try:
+                    self.confirm_pub.publish(String("tid:%s" % tid))
+                except Exception as e:
+                    rospy.logwarn("[manager] confirm_pub.publish 失败: %s", e)
+                rospy.loginfo("[manager] 规则5：目标 %s 团队侧连续确认 %.0fs，"
+                              "保留追踪机继续上报直到官方 /left_actors 确认 (aid=%s)",
+                              tid, CONFIRM_TIME, aid)
+                # 写一行 CSV 方便复盘
+                try:
+                    self._csv.write(
+                        ros_time=now, event="confirm_held", auction_cycle=self._auction_cycle,
+                        target_id=tid,
+                        target_x=_tpos[0] if _tpos is not None and _tpos[0] is not None else None,
+                        target_y=_tpos[1] if _tpos is not None and _tpos[1] is not None else None,
+                        target_z=0.0 if _tpos is not None and _tpos[0] is not None else None,
+                        uav_id=_uid,
+                        uav_x=_st.x if _st is not None else None,
+                        uav_y=_st.y if _st is not None else None,
+                        uav_z=_st.z if _st is not None else None,
+                        distance_m=_dist,
+                        capture_threshold_m=ct.err_tol,
+                        estimation_error_m=ct.last_err,
+                        detect_radius_m=DETECT_RADIUS,
+                        is_captured=True,
+                        assignment="tracking" if _uid else "none",
+                        tracker_event=ev or "none", progress=ct.progress(now),
+                        resets=ct.resets, rejects=ct.rejects, covered=ct.covered(now),
+                        live_observers=ct.n_live(now), gap_s=_gap_s,
+                        error_ok=_error_ok, gap_ok=_gap_ok,
+                        source="cooperative_tracker")
+                except Exception:
+                    pass
                 continue
             if ev == "evade":
                 rospy.loginfo("[manager] 规则4：目标 %s 首次确认后墙钟 %.0fs 未消除 → 瞬移，"
                               "relocate 计时重置", tid, EVADE_TIME)
+                # 瞬移后旧位置/身份的"已确认"无意义 → 清掉等待兜底的戳,避免 30s 后误触发
+                self._confirm_done_t.pop(tid, None)
                 self._cur_targets.pop(tid, None)
                 continue
             if ev == "reset":
@@ -1229,6 +1410,82 @@ class SwarmManager(object):
                     tid, prog * 100, cs_elapsed, ct.resets, ct.rejects,
                     ",".join(sorted(ct.observers)))
 
+        # === 国家一等奖修复（2026-10-05 击毁 0 分 bug）===
+        # 超时兜底：团队侧已确认满 15s 但官方 /left_actors 还没把它去掉（说明上报链路
+        # 出问题了: 误差偶发>1m、间隔>1s、飞机跑出视场等）,超过 CONFIRM_HOLD_TIMEOUT
+        # (默认 30s) 还没消除 → 不能无限占着飞机。
+        # 此时:
+        #   1) ~~给 target_sim_node 发 "eliminate:%s" 让仿真把这个 actor 移走~~ (已废)
+        #      (原设计：官方 score_cal 也只有此时才能从 /left_actors 把它去掉 —— 模型不在了
+        #      get_model_state 返回 success=False,score_cal 内层逻辑会跟着停判)
+        #      国家一等奖 v3 (2026-10-06): 上述"反向污染"路径违反「消除必须裁判系统说了算」
+        #      原则——manager 删 Gazebo 模型 → score_cal 拿不到 actor → 自动从 /left_actors
+        #      移除 → GUI 显示 LEFT TARGET,但这不是裁判判的!真实判定权被 manager 偷走。
+        #      修正: 仅释放追踪机回搜索, Gazebo 模型和 /left_actors 一律保留,等待
+        #      真正的裁判权威信号到达 (_left_cb → _release_finished)。
+        #   2) 释放追踪机回搜索 (保留 — 不让一架飞机永远占着一个团队侧已确认的目标)
+        # 这是次优路径(不指望真打 100 分,只求不为这个目标把全队卡死)。
+        for tid in list(self._confirm_done_t.keys()):
+            done_t = self._confirm_done_t.get(tid)
+            if done_t is None:
+                continue
+            if now - done_t < CONFIRM_HOLD_TIMEOUT:
+                continue
+            aid = self._tid_to_actor(tid)
+            # 如果官方已经确认,只是 manager 这边还没收到(竞争窗口),直接跳过
+            if self._left_seen and aid is not None and aid in self._left_actors:
+                rospy.loginfo_throttle(5,
+                    "[manager] 超时兜底跳过：%s 官方仍在 left_actors (aid=%s),继续保留",
+                    tid, aid)
+                continue
+            rospy.logwarn("[manager] 规则5超时兜底：%s 团队侧确认后 %.0fs 仍未被官方消除,"
+                          "释放追踪机回搜索 + 内部标 eliminated,等 /left_actors 裁判权威 (aid=%s)",
+                          tid, now - done_t, aid)
+            # 国家一等奖 v3 (2026-10-06): 不再发 cmd_pub.publish("eliminate:%s")
+            # —— 让 Gazebo 模型保留, score_cal 才能继续用真值做 15s 误差<1m 的
+            # 判定。manager 只负责内部清理 + 释放飞机:
+            #   · _eliminated.add: 防 _dispatch_pending_targets 重复派机(协同必需)
+            #   · t.eliminated=True: 防 tracker 再累加 confirm_since(协同必需)
+            #   · _release_tracker: 释放飞机回搜索任务
+            #   · 等 _left_cb 裁判权威到达 → _release_finished 真正收尾
+            self._eliminated.add(tid)
+            t = self.tracker.targets.get(tid)
+            if t is not None:
+                t.eliminated = True
+            try:
+                self._release_tracker(tid, reason="confirm_hold_timeout")
+            except Exception:
+                pass
+            # 清理内部状态,避免下一周期重复触发
+            self._confirm_done_t.pop(tid, None)
+            self._truth_cache.pop(tid, None)
+            self._truth_pos.pop(tid, None)
+            self._cur_targets.pop(tid, None)
+
+        # === v18（2026-10-07）confirming 永不收敛超时释放 ===
+        # v17 实测：t3 从 116s、t1 从 186s 进入 confirming，直到 436s 比赛结束
+        # 既未 confirmed 也未释放 —— 追踪机/备份机被永久占用，叠加租约 renew
+        # 循环 bug 后全队 202s 起零分配。用 _first_confirm_t（首次进入确认状态
+        # 时刻，仅瞬移重置，不随 reset 清零）做硬超时：超时未消除 → 释放全部
+        # 追踪机 + 黑名单期内不重派（等新检测再重新介入，避免 90s 空转循环）。
+        _cto = float(os.environ.get("TRACK_CONFIRM_TIMEOUT", "90"))
+        _bl_hold = float(os.environ.get("CONFIRM_TIMEOUT_BLACKLIST", "60"))
+        for tid, ct in list(self.tracker.targets.items()):
+            if ct.eliminated or tid in self._eliminated:
+                continue
+            _fct = getattr(ct, "_first_confirm_t", None)
+            if _fct is None:
+                continue
+            if (now - _fct) < _cto:
+                continue
+            rospy.logwarn("[manager] 目标 %s 首次确认后 %.0fs 仍未消除（超时 %.0fs）"
+                          "→ 释放追踪机 + 黑名单 %.0fs", tid, now - _fct, _cto, _bl_hold)
+            self._confirm_timeout_bl[tid] = now + _bl_hold
+            try:
+                self._release_tracker(tid, reason="confirm_timeout")
+            except Exception:
+                pass
+
         # 清空本周期检测缓存（下一周期重新收集）
         self._cur_targets = {}
         self._last_target_t = rospy.Time.now()
@@ -1241,6 +1498,23 @@ class SwarmManager(object):
                 self._reopen_covered_cells()
             except Exception:
                 pass
+        # 2026-10-05 国家一等奖修复：5 分钟时间墙保护 —— 每 25s 强制重开一次，
+        # 防止"已覆盖格时间戳假阳性"（飞过但没真正看见 LOS 的格被标 COVERED
+        # 后永不重扫）造成 actor 漏检。已覆盖时间 >30s 的格被强制 reopen，
+        # 与 REV_COVER_AGE 一致；同时调用底层 _reopen_covered_cells 走单个格
+        # 独立时间戳判断，比之前「按 mission 时间」更稳。
+        if not hasattr(self, "_last_force_reopen"):
+            self._last_force_reopen = rospy.Time.now().to_sec()
+        _now_s = rospy.Time.now().to_sec()
+        if _now_s - self._last_force_reopen > 25.0:
+            self._last_force_reopen = _now_s
+            try:
+                if hasattr(self.grid, "_reopen_covered_cells"):
+                    n = self.grid._reopen_covered_cells(max_age=30.0)
+                    if n:
+                        rospy.loginfo("[manager] 5 分钟时间墙强制重开 %d 个老格", n)
+            except Exception:
+                pass
 
     # ---------------- 拍卖分配 ----------------
     def _idle_uavs(self):
@@ -1251,8 +1525,23 @@ class SwarmManager(object):
         正在追踪目标的机也不应被分配搜索格。
         """
         idle = []
+        # === 2026-10-05 国家一等奖修：追踪释放后冷却期跳过 ===
+        # LEASE_RELEASE_COOLDOWN_S：刚释放追踪的飞机需冷却 N 秒，等 EKF 收敛、
+        # 当前速度归零、A* 路径清空，才能接新任务。否则会立刻被派到 100m+
+        # 的同一格，飞机在原地 EKF 闸门 + 路径抖动里卡死。
+        _now = rospy.Time.now()
+        _cool = float(os.environ.get("LEASE_RELEASE_COOLDOWN_S", "6.0"))
         for uid in self.uav_ids:
             if uid not in self.status or not self.status[uid].connected:
+                continue
+            # 2026-10-07 五分钟冲刺: 起飞稳定门槛 — z<1.0 说明还在地面 EKF 预热/
+            # 解锁爬升阶段, 此时派 100m+ 远格会让 A* 在 EKF 抖动里反复重规划卡死.
+            # z>1.0 = 已离地稳定爬升, assignment 会缓存到主循环接管.
+            if float(getattr(self.status[uid], 'z', 0.0) or 0.0) < 1.0:
+                continue
+            # 冷却期内（除非其他机都不在，否则这只机先不接任务）
+            _cd_until = self._release_cooldown.get(uid)
+            if _cd_until is not None and _now < _cd_until:
                 continue
             # 如果正在追踪目标，视为不空闲
             if uid in self._tracking.values() or uid in self._backup.values():
@@ -1274,9 +1563,14 @@ class SwarmManager(object):
         expired = self.lease.expire(now.to_sec())
         if expired:
             rospy.loginfo("[manager] 租约到期重分配 %d 格", len(expired))
+            # v13：过期格写入 allocator.failed_visit（utility 60s 内压 novelty 0.2），
+            # 打断「追踪打断搜索→租约过期→同格无限续派」循环（agent_1 同格 32 次）
+            for key in expired:
+                self.allocator.failed_visit[key] = now.to_sec()
             for uid, key in list(self._active_leases.items()):
                 if key in expired:
                     self._active_leases.pop(uid, None)
+                    self._lease_hold_since.pop((uid, key), None)
 
         # 建筑内格中心标记为 STATE_COVERED（agent 无法到达，视为无需搜索）
         for key in self._blocked_cells:
@@ -1294,11 +1588,16 @@ class SwarmManager(object):
         # 用**所有**在飞飞机的实时位置刷新「真正看见过」的区域（不只空闲机）
         if VIS_ENABLE:
             try:
-                _tn = time.time()
+                # 国家一等奖 v3（2026-10-07）：关键修复 —— 不要传 wall clock！
+                # 之前写 _tn = time.time() 会让 mark_seen 写入的 visit_time 与
+                # score_cell 读取用的 _now() = rospy.get_time()（仿真钟）不同源，
+                # novelty = (仿真钟 - 墙钟) / 90s ≈ 极大负数 → clamp 到 0 → 全图
+                # novelty 都被压低 → (1,5) 等 spawn 区格反复被派 32 次。修复：不传
+                # now，让 mark_seen 内部用 _now()（仿真钟），与 score_cell 一致。
                 for _uid, _st in self.status.items():
                     if not getattr(_st, "connected", False):
                         continue
-                    self.allocator.mark_seen(_st.x, _st.y, _tn)
+                    self.allocator.mark_seen(_st.x, _st.y)
             except Exception:
                 pass
 
@@ -1422,10 +1721,40 @@ class SwarmManager(object):
                     # is_covered 会把格 state 置为 STATE_COVERED、owner 清空，
                     # 因此无需再调 lease.release（该方法不存在）。
                     n_cov = self.grid.is_covered(st.x, st.y, VIS_RADIUS)
+                    # v18：把覆盖格同步进 allocator.visit_time —— score_cell 读的是
+                    # TaskAllocator.visit_time（与 CoverageGrid.visit_time 是两个
+                    # 独立对象），不同步则「覆盖即刷新 novelty」永不生效，spawn 区
+                    # 格 reopen 后 novelty 恒 1.0 反复被派（v12 根因之一）。
+                    try:
+                        _t_now = now.to_sec()
+                        for _ck in (n_cov or []):
+                            self.allocator.visit_time[_ck] = _t_now
+                    except Exception:
+                        pass
                     self._active_leases.pop(uid, None)
+                    self._lease_hold_since.pop((uid, key), None)
                     rospy.loginfo("[manager] %s 抵达格 (%s,%s)，覆盖 %s 格，释放租约",
                                   uid, key[0], key[1], len(n_cov))
                     continue
+            # 2026-10-07 v12: 最长持有时限 —— 到达判定只放行"真到了"的机，
+            # 卡死机（爬升闸门没开/建筑线刹停）会持续上报被无条件续租，
+            # 租约永不到期 → 全场只派首轮 6 格后死锁。超时停止续租，
+            # 租约按 TTL 到期回收，格子回候选池重新拍卖（可能换机/换格）。
+            _hk = (uid, key)
+            _since = self._lease_hold_since.setdefault(_hk, now.to_sec())
+            if now.to_sec() - _since > LEASE_MAX_HOLD:
+                self._lease_hold_since.pop(_hk, None)
+                # v18（2026-10-07）：直接强制回收租约。旧逻辑只「停止续租等 TTL
+                # 到期回收」，但 pop 后下一周期 setdefault 重置计时又恢复续租 →
+                # TTL 永远追不上（v17 实测 agent_0 (3,7) 每 91s 循环告警一次、
+                # 全程 0 次「租约到期重分配」、6 架全被 ASSIGNED 格锁死 →
+                # 202s 后 _idle_uavs 恒空、零分配死锁）。
+                if self.lease.force_expire(uid, key):
+                    self._active_leases.pop(uid, None)
+                    self.allocator.failed_visit[key] = now.to_sec()
+                    rospy.logwarn("[manager] %s 持有格 (%s,%s) 超 %.0fs 未抵达 → "
+                                  "强制回收租约重派", uid, key[0], key[1], LEASE_MAX_HOLD)
+                continue
             self.lease.renew(uid, key, now.to_sec())
         self._last_lease_t = now
 
@@ -1506,6 +1835,13 @@ class SwarmManager(object):
                 # 目标确认计时（规则4/5）
                 if (now - self._last_target_t).to_sec() >= TARGET_CHECK_PERIOD:
                     self._update_targets()
+
+                # 合规 SLAM：栅格有更新 → 周期重建阻塞格/航点/临楼度
+                if self._slam_dirty and \
+                        (now.to_sec() - self._slam_rebuild_t) >= SLAM_REBUILD_SEC:
+                    self._slam_rebuild_t = now.to_sec()
+                    self._slam_dirty = False
+                    self._rebuild_blocked_cells()
 
                 # 定期拍卖（有未覆盖格且距上次分配超周期）
                 if (now - self._last_alloc_t).to_sec() >= ALLOC_PERIOD:

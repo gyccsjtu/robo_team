@@ -3,10 +3,12 @@
 # RoboCup 多旋翼集群搜索 —— 全场比赛一键编排脚本（整合层，不含任何业务逻辑改动）
 #
 # 用法:
-#   ./run_match.sh preflight   # 只做赛前体检（不启动任何东西，安全）
-#   ./run_match.sh start       # 按 ①~⑥ 顺序启动全场（默认）
-#   ./run_match.sh status      # 查看各组件与关键话题健康
-#   ./run_match.sh stop        # 停止本次比赛的全部组件
+#   ./run_match.sh preflight          # 只做赛前体检（不启动任何东西，安全）
+#   ./run_match.sh start              # 按 ①~⑥ 顺序启动全场（默认）
+#   ./run_match.sh start --gui        # 同上，强制 GAZEBO_GUI=true（复盘看 actor / 视觉）
+#   ./run_match.sh start --no-gui     # 强制 GAZEBO_GUI=false（默认）
+#   ./run_match.sh status             # 查看各组件与关键话题健康
+#   ./run_match.sh stop               # 停止本次比赛的全部组件
 #
 # 可选环境变量（均有默认值）:
 #   GAZEBO_GUI=false            Gazebo 是否开图形界面
@@ -60,25 +62,28 @@ SWARM_SCRIPTS="$REPO_ROOT/coordination/src/robocup_swarm/scripts"
 BRIDGE_SCRIPT="$SWARM_SCRIPTS/yolo_target_bridge.py"
 # 导航包源码目录：manager/agent 均 import robocup_navigation，必须进 PYTHONPATH
 NAV_SRC="$REPO_ROOT/coordination/src/robocup_navigation/src"
-# 正确地图元数据（官方 black_box.txt 生成的 base 图，bounds -55..135 / -65..65）。
-# 注意：manager/agent 代码内默认值误指向 training_city_full_s7.json（另一张训练图），必须覆盖。
+# 合规地图元数据（2026-10-07 重构，规则 §2.4/§2.5 无预读随机地图）：
+# robocup_base.json 只含规则定值（bounds/frame/spawn）+ 空障碍全自由栅格；
+# 真实占用栅格由各 swarm_agent 用 /scan 运行时 SLAM 构建（slam_grid.py），
+# 经 /swarm/occupancy_grid 汇总给 manager。不再从 black_box.txt 生成任何地图。
 ROBOCUP_METADATA_FILE="${ROBOCUP_METADATA_FILE:-$REPO_ROOT/coordination/src/robocup_training_worlds/worlds/generated/robocup_base.json}"
-# 官方每场随机化（规则 §2.4/§2.5）后下发的建筑矩形真值：map_generator.py 输出，
-# control_actor.py 靠它放 actor。比赛段用它动态生成 robocup_live.json，否则
-# 静态 robocup_base.json 一旦主办方重跑随机化就整体过时（2026-10-01 撞楼复盘：
-# 旧快照与随机化后 black_box.txt 的 43 个矩形只重合 10 个）。
+# 官方每场随机化下发的建筑矩形真值：仅官方 control_actor.py（放 actor 的机制）使用，
+# 协同层任何节点不得读取（合规硬约束）。
 BLACK_BOX_FILE="${BLACK_BOX_FILE:-$HOME/XTDrone/robocup/black_box.txt}"
 BB2MD="$REPO_ROOT/coordination/src/robocup_training_worlds/scripts/black_box_to_metadata.py"
-ROBOCUP_LIVE_METADATA="$REPO_ROOT/coordination/src/robocup_training_worlds/worlds/generated/robocup_live.json"
 # YOLO→swarm 桥开关：target_report → /swarm/target_states，替换真值订阅（规则 §2.5.11）
 YOLO_BRIDGE="${YOLO_BRIDGE:-1}"
 SIM_TARGET_NODE="${SIM_TARGET_NODE:-0}"
 # 比赛墙钟 hard cap：默认 5 分钟（300s），到点自动调 stop_group 全杀。
 # 0=不限时；可被 MATCH_HARD_CAP=360 之类覆盖。
 MATCH_HARD_CAP="${MATCH_HARD_CAP:-300}"
-# 起飞世界坐标（对齐 launch/robocup_lidar.launch 六机 x/y），即各机 MAVROS→世界 offset
-TAKEOFF_X=(0 3 0 3 0 3)
-TAKEOFF_Y=(-3 -3 0 0 3 3)
+# 起飞世界坐标（对齐 launch/robocup_with_laser.launch 六机 x/y），即各机 MAVROS→世界 offset
+# 2026-10-07 合规重构：spawn 改为队自定固定位置 —— 城外西侧 x=-50 一线（队自定起飞点，
+# 不依赖任何随机化结果）。避开固定灯柱（x>=-45 一带）；房屋每局随机化，不预读、不规避，
+# 由运行时 SLAM 建图 + 雷达守卫兜底。MAP_GUARD 软带为界内 8m（x<-47），x=-50 仅在
+# 向西越界时被软减速，向东起飞不受影响。最小机间距 10m（>= FRIEND_SAFE_DIST 3.5）。
+TAKEOFF_X=(-50 -50 -50 -50 -50 -50)
+TAKEOFF_Y=(-25 -15 -5 5 15 25)
 
 # 6 架飞机（官方 robocup.launch 的命名空间）
 UAVS=(typhoon_h480_0 typhoon_h480_1 typhoon_h480_2
@@ -159,6 +164,7 @@ ensure_colon_path GAZEBO_PLUGIN_PATH "$PX4_ROOT/build/px4_sitl_default/build_gaz
 #   便于赛后复盘；/tmp 重启清空导致历史无法追溯。
 #   调试 / CI 环境可用 RUN_DIR=/tmp/robocup_match 覆盖。
 RUN_DIR="${RUN_DIR:-$REPO_ROOT/logs}"
+MIN_FREE_DISK_MB="${MIN_FREE_DISK_MB:-2048}"
 REG="$RUN_DIR/components.tsv"
 STAMP="$(date '+%Y%m%d_%H%M%S')"
 LOGDIR="$RUN_DIR/logs_$STAMP"
@@ -329,6 +335,22 @@ preflight(){
     check_hard "XTDrone 控制脚本"        "[ -f '$ROBO_DIR/control_actors.sh' ]"
     check_hard "官方裁判 score_cal.py"   "[ -f '$ROBO_DIR/score_cal.py' ]"
     check_hard "官方 control_actor.py"   "[ -f '$ROBO_DIR/control_actor.py' ]"
+    if [ -f "$ROBO_DIR/score_cal.py" ] && grep -Eq 'from[[:space:]]+robocup_swarm\.msg[[:space:]]+import[[:space:]]+ActorInfo' "$ROBO_DIR/score_cal.py"; then
+        ok "裁判 ActorInfo 类型契约：robocup_swarm/ActorInfo"
+    else
+        err "裁判 ActorInfo 类型与当前感知发布端不一致；停止启动，先统一 score_cal.py 与 ActorInfo.msg"
+        hard_miss=$((hard_miss+1))
+    fi
+
+    # 赛前磁盘保护：裁判和 Gazebo 日志持续写盘；磁盘满曾导致 score_cal.py 直接崩溃。
+    # 只检查 RUN_DIR 所在文件系统，不清理用户文件，低于阈值直接阻止启动。
+    _free_mb="$(df -Pm "$RUN_DIR" 2>/dev/null | awk 'NR==2 {print $4}')"
+    if [ -n "$_free_mb" ] && [ "$_free_mb" -ge "$MIN_FREE_DISK_MB" ]; then
+        ok "日志文件系统可用空间 ${_free_mb}MB（门槛 ${MIN_FREE_DISK_MB}MB）"
+    else
+        err "日志文件系统可用空间不足：${_free_mb:-未知}MB（门槛 ${MIN_FREE_DISK_MB}MB）"
+        hard_miss=$((hard_miss+1))
+    fi
     check_hard "障碍真值 black_box.txt"  "[ -f '$ROBO_DIR/black_box.txt' ]"
     check_hard "障碍真值 obstacle.txt"   "[ -f '$OBSTACLE_TXT' ]"
     check_hard "actor 模型目录"          "[ -d '$ACTOR_MODEL_DIR' ]"
@@ -512,6 +534,13 @@ do_start(){
     preflight >/tmp/robocup_match/preflight.out 2>&1 || { cat /tmp/robocup_match/preflight.out; exit 2; }
     cat /tmp/robocup_match/preflight.out | grep -E '^\[!\]|^----|无法' || true
     ros_env
+    # ros_env 才加载 robocup_swarm 的生成消息；此处用运行时实际导入的类核对类型名和 MD5。
+    if ! python3 -c 'from robocup_swarm.msg import ActorInfo; print("%s %s" % (ActorInfo._type, ActorInfo._md5sum))' \
+        >"$RUN_DIR/actorinfo_contract.txt" 2>&1; then
+        err "无法导入运行时 robocup_swarm/ActorInfo；检查 COORD_WS_SETUP 和 catkin 编译"
+        exit 2
+    fi
+    info "ActorInfo 运行时契约：$(tr '\n' ' ' < "$RUN_DIR/actorinfo_contract.txt")"
 
     # 启动中途失败：清理已起组件
     partial_fail(){
@@ -610,19 +639,30 @@ do_start(){
 
     # ---- ④b YOLO→swarm 桥：合法检测 → /swarm/target_states ----
     if [ "$YOLO_BRIDGE" = "1" ]; then
-        # 国家一等奖优化（2026-10-04 复盘）：桥门槛压低 + 误差收紧
-        #   NEW_TRACK_CONF=0.55     真目标 conf 抖动 0.5~0.8，0.7 经常挡掉真实检测
-        #   NEW_TRACK_FRAMES=2      2Hz 单节点下 1s 即可激活（保持）
-        #   EXTRAP_DELAY=0.25       时延补偿减半（更接近真实感知滞后）
-        #   EXTRAP_MAX_D=0.8        距离限幅收紧到 0.8m，逼近裁判 1m 误差上限
-        #   DROP_TIME=10            给快速移动 actor 更长接力窗口（防短遮挡死链）
+        # 国家一等奖优化（2026-10-06 第四轮复盘：0 消除根因修复）
+        #   根因1: EXTRAP_MAX_D=0.8 把 1.93m 合法外推砍到 0.8m → msg 恒定滞后
+        #          true 1.0~1.2m ≥ err_threshold=1.0 → 每次广播必 reset → 0 消除
+        #   根因2: DROP_TIME=10 观测断 10s 仍发布 → msg 冻结（5.3→7.8m 恶化）
+        #          与瞬移后 114m 鬼影
+        #   修复:  MAX_D=2.5（覆盖 2m/s×1.45s=2.9m 的绝大部分）、DELAY=0.9（补偿
+        #          感知滞后 ~1s）、DROP_TIME=2.0（断流 2s 立即停发，宁断不假）
+        #   NEW_TRACK_CONF=0.55 / FRAMES=2 保持（激活门槛已被验证合理）
         start_group yolo_bridge "$LOGDIR/04b_yolo_bridge.log" bash -c \
             "cd '$SWARM_SCRIPTS' && \
-             BRIDGE_DROP_TIME=10 BRIDGE_NEW_TRACK_CONF=0.55 BRIDGE_NEW_TRACK_FRAMES=2 \
-             BRIDGE_EXTRAP_DELAY=0.25 BRIDGE_EXTRAP_MAX_D=0.8 \
+             BRIDGE_DROP_TIME=4.0 BRIDGE_NEW_TRACK_CONF=0.55 BRIDGE_NEW_TRACK_FRAMES=2 \
+             BRIDGE_EXTRAP_DELAY=0.6 BRIDGE_EXTRAP_MAX_D=1.6 \
              python3 -u yolo_target_bridge.py"
-        sleep 4
-        if topic_publisher_match /swarm/target_states yolo_target_bridge; then
+        # 2026-10-07 v12: 高负载下桥注册可能 >4s（Gazebo+6 PX4+YOLO 同启），
+        # 单次检查误杀整局（实测 logs_20261007_120809 启动中断）。改轮询最多 ~34s。
+        _bridge_ok=0
+        for _i in $(seq 1 15); do
+            if topic_publisher_match /swarm/target_states yolo_target_bridge; then
+                _bridge_ok=1
+                break
+            fi
+            sleep 2
+        done
+        if [ "$_bridge_ok" = "1" ]; then
             ok "yolo_target_bridge 已注册发布 /swarm/target_states"
         else
             partial_fail "yolo_target_bridge 未注册发布，看 $LOGDIR/04b_yolo_bridge.log"
@@ -755,6 +795,9 @@ do_start(){
         if [ "$RADAR_GUARD" = "1" ]; then
             ok "6 路 /scan 已验证；由 swarm_agent 内置雷达安全层消费，不启动第二个控制器"
         else
+            # 遗留实验分支（RADAR_GUARD=0）：radar_avoid.py 用 --black-box 预读
+            # 建筑真值生成航点 —— 违反规则 §2.4/§2.5 无预读，仅限离线调试，
+            # 比赛严禁使用。默认 RADAR_GUARD=1 走 swarm_agent 内置雷达层 + SLAM（合规）。
             for u in "${RADAR_UAVS[@]}"; do
                 wp="$RADAR_WP_DIR/$u.txt"
                 start_group "radar_$u" "$LOGDIR/05_radar_$u.log" bash -c "
@@ -803,23 +846,19 @@ do_start(){
 
         export ROBOCUP_WS="$REPO_ROOT/coordination"
         export PYTHONPATH="$SWARM_SCRIPTS:$NAV_SRC:${PYTHONPATH:-}"
-        # 动态地图（2026-10-01 撞楼复盘）：官方每场随机化建筑位置，静态
-        # robocup_base.json 会过时。这里从本场 black_box.txt 现场生成
-        # robocup_live.json——任意随机图都能对上 Gazebo 世界。
+        # 合规地图（2026-10-07 重构，规则 §2.4/§2.5 无预读随机地图）：
+        # 不再从 black_box.txt 生成任何地图。metadata = 静态合规空图
+        # （robocup_base.json，障碍恒空），占用栅格由各 swarm_agent 用
+        # /scan 运行时 SLAM 构建（slam_grid.py → /swarm/occupancy_grid）。
         # ROBOCUP_METADATA 已被外部显式指定时尊重之（调试用途）。
         if [ -z "${ROBOCUP_METADATA:-}" ]; then
-            check_hard "官方随机化产物 black_box.txt 存在" "[ -f '$BLACK_BOX_FILE' ]"
-            if python3 "$BB2MD" --black-box "$BLACK_BOX_FILE" \
-                    --template "$ROBOCUP_METADATA_FILE" \
-                    --output "$ROBOCUP_LIVE_METADATA" >>"$LOGDIR/06_map_gen.log" 2>&1; then
-                ok "动态地图已生成：black_box.txt → robocup_live.json（摘要见 $LOGDIR/06_map_gen.log）"
-                export ROBOCUP_METADATA="$ROBOCUP_LIVE_METADATA"
-            else
-                partial_fail "动态地图生成失败（看 $LOGDIR/06_map_gen.log），回退静态 robocup_base.json——若主办方重跑过随机化，静态图已过时！"
-                export ROBOCUP_METADATA="$ROBOCUP_METADATA_FILE"
-            fi
+            export ROBOCUP_METADATA="$ROBOCUP_METADATA_FILE"
+        fi
+        # 比赛段硬检：metadata 含障碍即疑似预读真值，判失败拒绝起飞
+        if python3 "$BB2MD" --verify "$ROBOCUP_METADATA" >>"$LOGDIR/06_map_gen.log" 2>&1; then
+            ok "合规空图校验通过（0 障碍，运行时雷达 SLAM 建图）：$ROBOCUP_METADATA"
         else
-            warn "ROBOCUP_METADATA 已外部指定（$ROBOCUP_METADATA），跳过动态生成"
+            partial_fail "metadata 非合规（疑似含预读障碍），看 $LOGDIR/06_map_gen.log —— 拒绝带违规地图起飞"
         fi
         # 协同层不得真值播种：目标只能由 YOLO 链路（经桥）获知（规则 §2.5.11）
         export SEED_TRUTH=0
@@ -838,8 +877,9 @@ do_start(){
         export ALLOC_PERIOD=1.0         # 默认1.5 → 1.0：拍卖更密集，6 架少空转
         export HOT_TARGET_TTL=10.0      # 默认8 → 10：热目标留住更久，飞过别处也知道
         export DISPATCH_MARGIN=0.0      # 默认2 → 0：首见即派，不再等最近机贴到 18m 内
-        export DETECT_RADIUS_MARGIN=5.0 # 默认3 → 5：跟踪中放宽到 25m（飞机看见就该派）
+        export DETECT_RADIUS_MARGIN=3.0 # 默认5 → 3（2026-10-05）：配合 DETECT_RADIUS 20→10，派遣上限回到 13m
         export LEASE_DURATION=22.0      # 默认20 → 22：飞行+扫描+衔接余量
+        export DWELL_LOOKAHEAD=1        # 默认1（开）：搜索飞行+到点 dwell 机头持续对准下一引导点（2026-10-05 修单相机视野丢点）
 
         # 国家一等奖 v2（2026-10-05）——「5 分钟内消灭全部目标」×「无预读随机地图」
         # 0 行代码改动，仅环境变量；不触犯任何比赛硬规则
@@ -887,52 +927,14 @@ do_start(){
         export EKF_JUMP_MIN_M=3.0
 
         # ---- ⑤ 单机 DWA 避障（规则 §2.5(7) 碰撞扣30/次） ----
-        # 2026-10-03 修复：route_planner.py 不是 ROS 节点（纯函数库，无 init_node），
-        # 之前启动即退出导致 partial_fail 把整个流程拉黑。删掉它，只起
-        # dwa_avoidance.py（每个进程通过 ~namespace_id 多终端共享）。
-        # A* 路线规划本来就在 swarm_agent.py 内的 _planner_loop 里做了，
-        # route_planner.py 是给别的核心层调用的库。
-        # 启动 dwa_avoidance 时需要把 $ROBOCUP_WS/coordination/src/robocup_navigation/src
-        # 加到 PYTHONPATH（它 `from robocup_navigation.astar import` 走绝对导入）。
-        if [ "${ENABLE_AVOID:-1}" = "1" ]; then
-            _nav_src="$ROBOCUP_WS/coordination/src/robocup_navigation/src"
-            if [ ! -d "$_nav_src" ]; then
-                _nav_src="/home/gycc/桌面/RoboCup_Team/coordination/src/robocup_navigation/src"
-            fi
-            # 2026-10-03 修复：之前 `PYTHONPATH='$_nav_src'` 把 ROS 路径覆盖掉，
-            # 子 bash 看不到 /opt/ros/noetic/lib/python3/dist-packages，
-            # import rospy 直接 ModuleNotFoundError → dwa_avoidance 启动即退出。
-            # 改 prepend：保留 ROS 路径，nav_src 加在最前。
-            export PYTHONPATH="$_nav_src:${PYTHONPATH:-}"
-            # 2026-10-03 扩展：dwa_avoidance.py 是单架节点（默认扫描 iris_2d_lidar_0/scan、
-            # 发布 /mavros/setpoint_velocity/cmd_vel），要接管 6 架必须为每架起一个
-            # 影子节点，传 _scan_topic / _vel_topic 覆盖默认。
-            _dwa_running=0
-            i=0
-            for u in "${UAVS[@]}"; do
-                start_group "dwa_$i" "$LOGDIR/05b_dwa_${i}.log" bash -c \
-                    "cd '$SWARM_SCRIPTS' && PYTHONPATH='$_nav_src:${PYTHONPATH:-}' ROBOCUP_METADATA='$ROBOCUP_METADATA_FILE' python3 -u dwa_avoidance.py __name:=dwa_${i} _airframe:=${u} _scan_topic:=/${u}/scan _vel_topic:=/${u}/mavros/setpoint_velocity/cmd_vel _state_topic:=/${u}/mavros/state _pose_topic:=/${u}/mavros/local_position/pose _odom_topic:=/${u}/mavros/local_position/odom _altitude_m:=5.4 _metadata:=$ROBOCUP_METADATA_FILE 2>&1"
-                sleep 0.3
-                _dwa_running=$((_dwa_running + 1))
-                i=$((i+1))
-            done
-            # 2026-10-03 改进：dwa init_node 后等 mavros 服务最坏 60s（同步阻塞），
-            # 1s / 5s 数节点都过早（启动竞态）。改成重试到 30s，最少 6 个 /dwa_ 节点。
-            _dwa_deadline=$((SECONDS + 30))
-            _dwa_present=0
-            while [ "$SECONDS" -lt "$_dwa_deadline" ]; do
-                _dwa_present=$(rosnode list 2>/dev/null | grep -c "^/dwa_")
-                if [ "$_dwa_present" -ge 6 ]; then break; fi
-                sleep 1
-            done
-            if [ "$_dwa_present" -ge 6 ]; then
-                ok "dwa_avoidance 6 个影子已注册（速度级避障已覆盖全队，规则 §2.5(7)）"
-            else
-                # 2026-10-03：partial_fail 会触发中断清理；此处仅 warn，让其他 5 个影子工作。
-                warn "dwa_avoidance 仅 $_dwa_present/6 注册（最后 1 个 mavros 等起竞争晚到；其他 5 个影子工作），看 $LOGDIR/05b_dwa_*.log"
-            fi
+        # 2026-10-05 国家一等奖修复：DWA 6 个影子 601 次 set_mode 失败后退场，
+        # 全场 0 个避障节点生效；swarm_agent.py 已自带 _grid_guard/_map_guard/
+        # _radar_guard 三层边界守卫（OOB_RECOVER_SPEED=5.0 / MAP_GUARD_SOFT=6.0
+        # / RADAR_WARN_R=5.5），覆盖规则 §2.5(7) 的安全要求 ⇒ 直接关闭启动。
+        if [ "${ENABLE_AVOID:-0}" = "1" ]; then
+            warn "ENABLE_AVOID=1 已弃用（DWA 启动块 10-03 后 601 次失败），忽略。设 0 关闭提示。"
         else
-            warn "ENABLE_AVOID=0：关闭全局 DWA 避障（仅靠 swarm_agent 雷达安全层）"
+            ok "DWA 避障已关闭：全队仅靠 swarm_agent 雷达安全层（_grid_guard/_map_guard/_radar_guard）"
         fi
 
         # 集中式管理器
@@ -1019,6 +1021,44 @@ do_start(){
     # ---- 旧的"启时统一暂停、最后统一 unpause"已上移到 Gazebo 服务就绪之后
     # （不放在这里的原因：MAVROS 等 SITL heartbeat 但 SITL 在 paused 状态下不会推 sensor —— 启期死锁。）
 
+    # ---- 裁判输入链路审计：类型一致、存在唯一发布者、裁判确实订阅 ----
+    if [ "$D2O_ENABLE" != "1" ]; then
+        _judge_bad=0
+        for _tag in green blue brown white red1 red2; do
+            _topic="/actor_${_tag}_info"
+            _topic_info="$(timeout 8 rostopic info "$_topic" 2>/dev/null || true)"
+            if ! printf '%s\n' "$_topic_info" | grep -q 'Type: robocup_swarm/ActorInfo'; then
+                err "裁判输入 $_topic 类型缺失或不匹配"
+                _judge_bad=1
+                continue
+            fi
+            # 2026-10-06 修：rostopic info 的发布者行格式是 " * /node (http://...)"，
+            # 旧模式 '^[[:space:]]+/' 要求空白后紧跟斜杠，永远匹配不上 ⇒ 恒报
+            # "发布者数量为 0" ⇒ partial_fail 把 v8/v8b/v9 三轮启动末尾全杀。
+            _pub_count="$(printf '%s\n' "$_topic_info" | awk '/Publishers:/{f=1;next}/Subscribers:/{f=0}f' | grep -cE '^[[:space:]]*\*[[:space:]]+/')"
+            if [ "$_pub_count" -ne 1 ]; then
+                err "裁判输入 $_topic 发布者数量为 $_pub_count（要求唯一仲裁发布者 yolo_target_bridge）"
+                _judge_bad=1
+            elif ! printf '%s\n' "$_topic_info" | awk '/Publishers:/{f=1;next}/Subscribers:/{f=0}f' | grep -q yolo_target_bridge; then
+                err "裁判输入 $_topic 唯一发布者不是 yolo_target_bridge"
+                _judge_bad=1
+            fi
+            if ! printf '%s\n' "$_topic_info" | awk '/Subscribers:/{f=1;next}f' | grep -q score_cal; then
+                err "裁判未订阅 $_topic"
+                _judge_bad=1
+            fi
+            # 2026-10-06 修：启动期 UAV 还没 <8m 接近任何 actor，播报闸门未开
+            # 属预期 ⇒ 此处必然"无消息"，按 err 计入会经 partial_fail 杀全场。
+            # 降级为 warn；消息流验证交给 hard_cap 前的晚审计 + 赛后
+            # tools/verify_judge_criteria.py。
+            if ! timeout 8 rostopic echo -n1 "$_topic" >/dev/null 2>&1; then
+                warn "裁判输入 $_topic 启动期暂无消息（预期：播报闸门需 <8m 接近后开启）"
+            fi
+        done
+        [ "$_judge_bad" = 0 ] && ok "六路裁判输入类型、唯一发布者和 score_cal 订阅审计通过" \
+            || partial_fail "裁判 ActorInfo 输入链路未通过审计"
+    fi
+
     # ============================ 完成横幅 ==================================
     echo
     echo "${C_G}==============================================================${C_0}"
@@ -1030,33 +1070,62 @@ do_start(){
     echo "${C_G}==============================================================${C_0}"
 
     # ---- 比赛墙钟 hard cap：MATCH_HARD_CAP 秒后自动调 stop_group 全杀 ----
+    # 关键：必须放独立 session（setsid -f），主控 Ctrl-C 不会向子 shell 的 sleep 传 SIGINT，
+    # 否则 5min 未到时主控若 Ctrl-C，watcher 跟着死 → 6 机残跑 + 拿不到 [FINAL]。
     if [ "${MATCH_HARD_CAP:-0}" -gt 0 ]; then
-        (
-            sleep "$MATCH_HARD_CAP"
-            echo "[$(date +%H:%M:%S)] [hard_cap] 比赛已运行 ${MATCH_HARD_CAP}s，触发自动 stop"
-            # 把全部业务节点 TERM，3s 后再 KILL
+        setsid -f bash -c '
+            trap "" INT TERM HUP
+            sleep "$1"
+            echo "[$(date +%H:%M:%S)] [hard_cap] 比赛已运行 ${1}s，触发自动 stop"
+            # 把全部业务节点 TERM，3s 后再 KILL（与原 stop_group 路径一致）
+            REG="$2"
             if [ -s "$REG" ]; then
-                while IFS=$'\t' read -r name pgid logf; do
+                while IFS=$'\''\t'\'' read -r name pgid logf; do
                     if [ -n "$pgid" ] && kill -0 -- -"$pgid" 2>/dev/null; then
                         kill -TERM -"$pgid" 2>/dev/null || true
                     fi
                 done < "$REG"
                 sleep 1
-                while IFS=$'\t' read -r name pgid logf; do
+                while IFS=$'\''\t'\'' read -r name pgid logf; do
                     if [ -n "$pgid" ] && kill -0 -- -"$pgid" 2>/dev/null; then
                         kill -KILL -"$pgid" 2>/dev/null || true
                     fi
                 done < "$REG"
             fi
-            pkill -9 -f '[r]adar_avoid.py' 2>/dev/null || true
-            pkill -9 -f '[p]erception_real.py' 2>/dev/null || true
-            pkill -9 -f '[m]ultirotor_communication.py' 2>/dev/null || true
-            pkill -9 -f '[c]ontrol_actor.py' 2>/dev/null || true
-            pkill -9 -f '[s]warm_agent.py' 2>/dev/null || true
-            pkill -9 -f '[s]warm_manager.py' 2>/dev/null || true
-        ) &
-        disown
-        ok "hard_cap=${MATCH_HARD_CAP}s 已启动后台 watcher（脚本退出不会影响）"
+            pkill -9 -f '\''[r]adar_avoid.py'\'' 2>/dev/null || true
+            pkill -9 -f '\''[p]erception_real.py'\'' 2>/dev/null || true
+            pkill -9 -f '\''[m]ultirotor_communication.py'\'' 2>/dev/null || true
+            pkill -9 -f '\''[c]ontrol_actor.py'\'' 2>/dev/null || true
+            pkill -9 -f '\''[s]warm_agent.py'\'' 2>/dev/null || true
+            pkill -9 -f '\''[s]warm_manager.py'\'' 2>/dev/null || true
+        ' _ "$MATCH_HARD_CAP" "$REG"
+        ok "hard_cap=${MATCH_HARD_CAP}s 已启动独立 session watcher（主控 Ctrl-C 不影响）"
+    fi
+
+    # ---- 裁判输入消息流晚审计（2026-10-06 新增）----
+    # 启动审计只验证链路（类型/发布者/订阅）；消息流在 UAV 首次 <8m 接近前
+    # 必然为空，不能作为启动失败依据。这里在 hard_cap 前 30s 补查一次消息流，
+    # 结果落 start.log，供 tools/verify_judge_criteria.py 汇总。
+    # 同样放独立 session（Ctrl-C 不杀审计）。
+    if [ "${MATCH_HARD_CAP:-0}" -gt 0 ] && [ "$D2O_ENABLE" != "1" ]; then
+        setsid -f bash -c '
+            trap "" INT TERM HUP
+            sleep "$1"
+            LOGDIR="$2"
+            _late_none=0
+            {
+              echo "==================== 比赛尾段消息流晚审计 ===================="
+              for _tag in green blue brown white red1 red2; do
+                if timeout 4 rostopic echo -n1 "/actor_${_tag}_info" >/dev/null 2>&1; then
+                    echo "[OK] [晚审计] /actor_${_tag}_info 比赛尾段有消息流"
+                else
+                    echo "[WARN] [晚审计] /actor_${_tag}_info 比赛尾段仍无消息（全程未触发 <8m 播报）"
+                    _late_none=$((_late_none+1))
+                fi
+              done
+              echo "[*] [晚审计] 完成：${_late_none}/6 路无消息"
+            } >> "$LOGDIR/start.log" 2>&1
+        ' _ "$(( MATCH_HARD_CAP > 90 ? MATCH_HARD_CAP - 30 : MATCH_HARD_CAP / 2 ))" "$LOGDIR"
     fi
 }
 
@@ -1133,10 +1202,24 @@ do_stop(){
 }
 
 # ============================ 入口 ==========================================
-case "${1:-start}" in
+# CLI 参数解析：--gui / --no-gui 控制 GAZEBO_GUI；env 仍可覆盖（优先级 CLI > env > 默认）
+_subcmd="${1:-start}"
+shift 2>/dev/null || true
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --gui)    export GAZEBO_GUI=true ;;
+        --no-gui) export GAZEBO_GUI=false ;;
+        -h|--help)
+            sed -n '5,11p' "$0"; exit 0 ;;
+        *) err "未知参数: $1（仅支持 --gui/--no-gui/-h）"; exit 2 ;;
+    esac
+    shift
+done
+
+case "$_subcmd" in
     preflight) preflight ;;
     start)    do_start ;;
     status)   do_status ;;
     stop)     do_stop ;;
-    *) err "未知子命令: $1（支持 preflight | start | status | stop）"; exit 2 ;;
+    *) err "未知子命令: $_subcmd（支持 preflight | start | status | stop）"; exit 2 ;;
 esac

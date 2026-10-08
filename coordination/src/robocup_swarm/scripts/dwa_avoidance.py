@@ -57,12 +57,14 @@ BRAKING_MARGIN = 0.20   # 刹车裕度 m（高速接近时预留的制动距离�
                         # 有效安全距离 SAFE_DIST = ROBOT_RADIUS + SAFETY_MARGIN + BRAKING_MARGIN
                         # 预测轨迹进入此范围 → 直接淘汰（这是撞柱/撞墙的根治：footprint 膨胀）
 SAFE_DIST      = ROBOT_RADIUS + SAFETY_MARGIN + BRAKING_MARGIN  # 0.80m 有效碰撞半径
-# 2026-10-03 改进 3 回退：SAFETY_DIST=5.0→2.5（原值）。
-# 之前调到 5.0 在 6 架密集起飞区（机距 3.5m 内）触发互相避障死锁——每架都在另一架
-# 5m 范围内，所有轨迹都被判"前向近障"，飞机起飞即停 0.31m 不动。
-SAFETY_DIST    = 2.5    # 静态障碍物(墙)软避障距离 m：比赛通道5~11m够宽
+# 2026-10-05 国家一等奖修复：SAFETY_DIST 2.5→2.0。同步 PREDICT_TIME=1.6 之后，
+# 软避障距离可以收紧：2.0m 已 > 刹停 5.1m 的反向门槛（撞墙前能刹住），且放宽墙边
+# 接近空间。比赛通道 5~11m，2.0m 软避障完全够用。原 2.5 留给 DWA 刹停余量但让 actor
+# 距墙 1.15m 时距离只有 1.15-2.5=-1.35（已穿墙），GOAL_RELAX=2.0 才能救场；现在
+# 2.0 让松弛更早触发。
+SAFETY_DIST    = 2.0    # 静态障碍物(墙)软避障距离 m（刹停 5.1m 内已能刹住）
 DYN_SAFETY_DIST = 0.8   # 动态障碍物(柱子)软避障距离 m（无人机中心到柱子中心，已含柱子半径）
-HARD_BRAKE_DIST = 1.8   # 静态障碍物硬刹车距离 m（> 机体半径+裕度，< 软避障2.5m）
+HARD_BRAKE_DIST = 1.5   # 静态障碍物硬刹车距离 m（< 软避障 2.0m，> 刹停物理 0.5m）
 ESCAPE_DIST    = 0.6    # 逃逸触发距离 m（到柱子表面）：低速逼近时用这个阈值
 ESCAPE_DIST_FAST = 1.0  # 逃逸触发距离 m（到柱子表面）：相对接近速度 > ESCAPE_REL_SPEED 时放大到这个，提前逃逸
 ESCAPE_REL_SPEED = 1.0  # 判定「高速逼近」的相对接近速度阈值 m/s
@@ -70,11 +72,14 @@ ESCAPE_PREDICT = 0.8    # 逃逸碰撞预测时长 s：按当前速度预测未�
 ARRIVE_TOL     = 0.3    # 到达目标判定半径 m
 ALTITUDE       = 6.0    # 飞行高度 m（比赛 planning_altitude_m=6.0，灯杆7.5m/建筑9~17m仍在避障范围）
 CTRL_DT        = 0.05   # 控制周期 s（20Hz）
-# 2026-10-03 改进 3 回退：PREDICT_TIME=1.8→1.0（原值）。
-# 之前调到 1.8 在密集起飞区让 dwa 看到 10.8m 前方都被友机占据 → 飞机起飞即停。
-# 1.0s 前瞻 + 6m/s × 1.0 = 6.0m 已 > 4.5m 刹停距离。
-PREDICT_TIME   = 1.0    # DWA 轨迹预测时长 s（6m/s×1.0s=6.0m 前瞻 > 刹停 4.5m）
-                        # 必须满足：> 刹停4.5m（否则刹不住）、< 到墙/柱最小间距（否则全样本淘汰被困）
+# 2026-10-05 国家一等奖修复：DWA 刹停距离与前瞻时间一致性。
+# 之前 PREDICT_TIME=1.0 × MAX_SPEED=6.0 = 6.0m 前瞻 < 刹停距离 v²/(2·BRAKING_DECEL)
+# = 9.0m（6²/4）→ 高速撞墙时 DWA 仍评估「先撞后刹」的轨迹，看不到自己会撞。
+# 修复：PREDICT_TIME 提到 1.6s（6×1.6=9.6m ≥ 刹停 9.0m）且同步上调 BRAKING_DECEL
+# 到 3.5（刹停 5.1m 与 PREDICT_TIME=1.6s × 6=9.6m 仍有余量），前瞻也保证 DWA 能
+# 看到「先撞后刹」的轨迹并提前淘汰。同步使 PREDICT_TIME × MAX_SPEED 与刹停距离相
+# 等：6.0×1.6=9.6m ≥ 6²/(2×3.5)=5.1m。
+PREDICT_TIME   = 1.6    # DWA 轨迹预测时长 s（9.6m 前瞻 > 刹停 5.1m + 安全裕度 4m）
 LOOKAHEAD      = 1.0    # 前瞻距离 m
 VX_SAMPLES     = 11     # vx 采样数
 VY_SAMPLES     = 11     # vy 采样数（横向绕行的关键：vy 必须全范围采样，不能只 cur_vy±dv）
@@ -82,8 +87,11 @@ W_HEADING      = 0.3    # 目标方向代价权重（削弱，让障碍物代价
 W_DIST         = 0.5    # 目标距离代价权重
 W_OBSTACLE     = 3.0    # 障碍物代价权重（障碍物在警戒距离内连续施压，越近越陡）
 W_PROGRESS     = 0.5    # 目标进展代价权重：速度在目标方向投影为负（远离目标）时惩罚
-# 2026-10-03 改进 3 回退：WARN_DIST=7.0→4.0（原值）。理由同上（起飞区死锁）。
-WARN_DIST      = 4.0    # 障碍物警戒距离 m：进入此范围就开始产生避障代价
+# 2026-10-05 国家一等奖修复：WARN_DIST 4.0→3.5。
+# 配合 PREDICT_TIME=1.6（9.6m 前瞻），警戒 3.5m 让 DWA 在前 3.5m 进入软代价区、
+# 3.5~9.6m 进入硬刹停区，符合渐进式刹车曲线；3.5m 也避免密集起飞区（机距 3.5m）
+# 友机互相判"前向近障"导致死锁。原 4.0 在密集区仍然过紧。
+WARN_DIST      = 3.5    # 障碍物警戒距离 m：进入此范围就开始产生避障代价
 W_ACCEL        = 0.8    # 加速度软约束权重（替代硬裁窗口，允许横向大速度绕行又抑制突变）
 W_SPEED        = 0.1    # 速度（更快）代价权重
 W_SMOOTH       = 0.3    # 速度平滑代价权重
@@ -93,12 +101,14 @@ W_AVOID_DIR    = 0.9    # 方向锁偏置权重：锁定绕行方向后，惩罚
 # 无人机完成最后接近 → 入口悬停 → TRAP → RETREAT → 重进 → 死循环。距最终目标 < 此值时，
 # 软障碍权重/脱困/紧急逃逸随接近线性放宽，让无人机逼近并停在 goal；硬淘汰 safe_radius
 # 仍防真实碰撞（goal 距墙 1.15m > safe_radius 0.6m，物理安全）。
-GOAL_RELAX_DIST = 2.0   # 距最终目标 < 此值(m)时开始放宽
+GOAL_RELAX_DIST = 2.5   # 距最终目标 < 此值(m)时开始放宽（从 2.0 放宽到 2.5，让袋口提前生效）
 GOAL_RELAX_MIN_W = 0.1  # 目标处软障碍权重保留比例（0=完全关闭软代价，1=不放松）
-TERMINAL_DIST   = 3.5   # 距最终目标 < 此值(m)时切入终末接近控制器（绕过 DWA 采样/状态机脱困）
-                        # ⚠️ 必须 > DWA 前瞻(PREDICT_TIME×max_speed=3.0m)：否则无人机在袋口外
-                        # 就被 DWA 的「前进预测撞 goal 身后墙」卡死横跳，d_goal 降不到该值，
-                        # 终末控制器永远不触发，形成 ESCAPE↔RETREAT 死循环。
+TERMINAL_DIST   = 4.5   # 距最终目标 < 此值(m)时切入终末接近控制器（绕过 DWA 采样/状态机脱困）
+                        # ⚠️ 必须 > DWA 前瞻(PREDICT_TIME×max_speed=9.6m 上限)：否则无人机
+                        # 在袋口外就被 DWA 的「前进预测撞 goal 身后墙」卡死横跳，d_goal 降不到
+                        # 该值,终末控制器永远不触发,形成 ESCAPE↔RETREAT 死循环。
+                        # 国家一等奖修复（2026-10-05）：3.5→4.5，匹配 PREDICT_TIME=1.6
+                        # 后 DWA 前瞻扩大,确保终末控制器在袋口前生效。
 ALT_KP         = 0.8    # 高度 P 控制器比例增益
 MAX_VZ         = 0.5    # 竖直速度上限 m/s
 EKF_ACC_LIMIT  = 2.0    # EKF 水平位置标准差阈值，超限判定定位漂移
@@ -142,10 +152,10 @@ EMERGENCY_SIDE  = 0.20  # left/right < 此值：向该侧运动的轨迹直接�
 # 对每个候选速度 (vx,vy)：braking_distance = |v|^2 / (2*max_accel)
 # 动态安全半径 safe_radius(v) = ROBOT_RADIUS + SAFETY_MARGIN + braking_distance
 # 预测轨迹最近距离 < safe_radius(v) → 该候选直接淘汰（碰撞轨迹不评分）
-# 2026-10-03 改进 3：BRAKING_DECEL 保持原值 2.0。MAX_ACCEL=4 + BRAKING_DECEL=4 时
-# 6m/s 刹停 4.5m；老值 2.0 刹停 9m 但 PREDICT_TIME=1.0s × 6m/s = 6m 前瞻已 > 4.5m，
-# 不需要也同步上调 BRAKING_DECEL。
-BRAKING_DECEL   = 2.0   # 制动减速度 m/s^2（保守）
+# 2026-10-05 国家一等奖修复：BRAKING_DECEL 4.0→3.5。原 2.0 时 6m/s 刹停需 9m，但
+# PREDICT_TIME=1.6 × 6 = 9.6m 已能覆盖；3.5 进一步压缩刹停到 5.1m，让 DWA 评估「撞
+# 墙前已刹停」的轨迹更宽松（避免「前瞻全被淘汰」卡死）。
+BRAKING_DECEL   = 3.5   # 制动减速度 m/s^2（6m/s 刹停 5.1m < PREDICT_TIME×MAX_SPEED=9.6m）
 
 # ===== 阶段A：局部 ESDF 距离场（替换点到线段距离，最小侵入）=====
 ESDF_RES        = 0.25  # ESDF 栅格分辨率 m

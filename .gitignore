@@ -18,3 +18,6 @@ logs/
 core
 *.swp
 .DS_Store
+
+# IDE / 助手数据
+.codebuddy/

@@ -19,23 +19,6 @@
 import math
 import os
 import time
-import rospy
-
-
-def _now():
-    """仿真钟:与全栈驻留计时口径一致,避免 RTF 偏低(RTF=0.15)时业务判定失真。
-
-    仿真钟 vs 墙钟:
-      - 墙钟 `time.time()`: 真实时间,仿真下走得快(慢)
-      - 仿真钟 `rospy.get_time()`: Gazebo 内部时间,与代码逻辑秒数(8/45/90/300 等)一一对应
-
-    /use_sim_time=true 时 rospy.get_time() 返回仿真钟,否则返回墙钟,等价安全。
-    2026-10-05 修复:所有驻留计时统一改用 _now(),消除 RTF 偏差带来的:
-      - _hot_target_ttl=8s 几乎瞬间过期(目标接力失效)
-      - novelty_horizon=90s / _PRIORITY_DECAY=300s 阈值偏移
-      - visit_time 写入/读取时钟不同源导致新颖性永久=1.0
-    """
-    return rospy.get_time()
 
 # ============================ 参数 ============================
 GRID_SIZE_M   = float(os.environ.get("GRID_SIZE_M", "7.0"))   # 搜索格边长 m（batch10 实测 7.0 优于 10.0：中位 157.5s vs 286.1s）
@@ -46,7 +29,7 @@ NUM_ZONES     = 6      # 搜索分区数量（与飞机数一致）
 W_GAIN        = float(os.environ.get("W_GAIN", "1.6"))      # 提升未搜索收益权重（防盖过其他项）
 W_FLIGHT      = float(os.environ.get("W_FLIGHT", "0.025"))  # 飞行时间权重（小幅下调，鼓励远距离搜索）
 FLIGHT_CAP    = float(os.environ.get("FLIGHT_CAP", "45.0"))  # 飞行时间惩罚上限 s（远距格不被一票否决）
-W_NOVELTY     = float(os.environ.get("W_NOVELTY", "0.8"))    # 「最久未访问」优先权重（2026-10-07 五分钟冲刺: 1.5→0.8, 原值压过 zone/spread 导致 6 机一线起飞后各自原地打转找"最久未访问"格; 降权后 spread 主导快速散开）
+W_NOVELTY     = float(os.environ.get("W_NOVELTY", "1.5"))    # 「最久未访问」优先权重（面覆盖的主排序键）
 NOVELTY_HORIZON = float(os.environ.get("NOVELTY_HORIZON", "90.0"))  # 新颖性饱和时间 s（缩短，逼迫轮转）
 W_OVERLAP     = float(os.environ.get("W_OVERLAP", "2.0"))    # 与他机重复率权重（提升，避免扎堆）
 W_RISK        = float(os.environ.get("W_RISK", "0.5"))      # 路径风险权重
@@ -72,19 +55,13 @@ PREDICT_LEAD_TIME   = float(os.environ.get("PREDICT_LEAD_TIME", "3.5"))  # 派�
 PREDICT_MAX_SPEED   = float(os.environ.get("PREDICT_MAX_SPEED", "2.5"))  # actor 速度上限（官方2m/s+余量）
 PREDICT_MIN_SPEED   = float(os.environ.get("PREDICT_MIN_SPEED", "0.3"))  # 最小启动速度（避免抖动噪声放大）
 # 目标检测（规则3：几何判定，比赛主判定方式）
-# 国家一等奖（2026-10-05 修复）：原 DETECT_RADIUS=20m → 触发「被感知」过早；
-# 官方规则是「感知→目标 2m/s 逃跑 + 向同伴广播」+「30s 未消除则瞬移」——
-# 在 20m 处开报等于「提前启动 30s 倒计时」「在位置误差最大处开报」「把全城惊动」。
-# 比赛视频实测：t=18.6s 首次 find → t≈24s 首个消除，只隔 5s（先贴上去再报），
-# 印证原半径过宽。这里收紧到 10m（用户给定的 8~10m 区间上沿，保留测量噪声余量）。
-# 注意：盘旋确认仍需看清 ID，所以 10m 不再设得过小；配合 LOS 遮挡判定，误报可压制。
-DETECT_RADIUS     = float(os.environ.get("DETECT_RADIUS", "10.0"))  # 几何检测半径 m（2026-10-05: 20→10，比赛实测过早触发）
+DETECT_RADIUS     = 20.0   # 无人机感知目标的水平半径 m（与激光量程一致）
 DETECT_RADIUS_MARGIN = float(os.environ.get("DETECT_RADIUS_MARGIN", "3.0"))  # 派遣半径余量（贴边派遣后防跟丢）
 # ---- LOS 感知 next-best-view（2026-09-28）----
 VIS_ENABLE     = os.environ.get("VIS_ENABLE", "1") not in ("0", "false", "False", "")
 W_VIS          = float(os.environ.get("W_VIS", "1.5"))       # 可见增益权重（0=关闭）
 VIS_STALE      = float(os.environ.get("VIS_STALE", "60.0"))  # 陈旧饱和时间 s
-VIS_RADIUS     = float(os.environ.get("VIS_RADIUS", "10.0")) # 视点可见半径 m（2026-10-05: 20→10，与 DETECT_RADIUS 对齐，避免评分偏差）
+VIS_RADIUS     = float(os.environ.get("VIS_RADIUS", "20.0")) # 视点可见半径 m（=DETECT_RADIUS）
 VIS_COMMIT     = os.environ.get("VIS_COMMIT", "1") not in ("0", "false", "False", "")
 VIS_GAIN_SAT   = float(os.environ.get("VIS_GAIN_SAT", "12.0"))  # 增益饱和格数：看得再多也不超过 1.0（中位可见 10 格）
 TARGET_WALK_SPEED = 1.0    # 规则2：未感知无人机时的随机走动速度 m/s
@@ -132,13 +109,6 @@ class CoverageGrid(object):
         # ---- 区域分割：把地图分成 num_uavs 个区域 ----
         self.zone_cells = self._compute_zones()
 
-        # v18（2026-10-07）：is_covered 会写 visit_time（覆盖即刷新 novelty），
-        # 但本类从未初始化该属性（只有 TaskAllocator 有）→ 首次有飞机抵达任意格
-        # 即 AttributeError，manager 主循环被连杀（v17 实测 81.1~89.7s 共 12 次，
-        # 每次崩溃跳过整个主循环迭代含 _allocate），且 v3「覆盖即刷新 novelty」
-        # 从未生效 → spawn 区格 reopen 后 novelty 恒 1.0 反复被派。
-        self.visit_time = {}
-
     # ---- 坐标 ↔ 格索引 ----
     def world_to_cell(self, x, y):
         ix = int(math.floor((x - self.x_min) / self.cell_m))
@@ -169,7 +139,7 @@ class CoverageGrid(object):
                 out.append(key)
         return out
 
-    def _reopen_covered_cells(self, max_age=None):
+    def _reopen_covered_cells(self, max_age=60.0):
         """国家一等奖标准改进（2026-10-03）：超时 COVERED 强制回 FREE。
 
         原实现使用「绝对 mission 时间戳 (now - self._start_time) > 60s」
@@ -177,12 +147,7 @@ class CoverageGrid(object):
         所有在 60s 后被扫的格子全部不重置 → 任务后期没有可拍格子，
         飞机空闲。修复：用每个格子独立的 covered_t 时间戳（is_covered
         时写入），过 60s 自动重置回 FREE → 飞机重新巡查。
-
-        国家一等奖 v2（2026-10-05）：max_age 接受环境变量 REV_COVER_AGE，
-        5 分钟场地默认改 30s（让接力机返回时有未覆盖格可拍）。
         """
-        if max_age is None:
-            max_age = float(os.environ.get("REV_COVER_AGE", "60.0"))
         import time as _t
         now = _t.time()
         n = 0
@@ -293,15 +258,10 @@ class CoverageGrid(object):
             return 0
 
     def is_covered(self, x, y, radius_m):
-        """(x,y) 处观测半径 radius_m 覆盖到的所有格标记为已覆盖，返回覆盖的格列表。
-
-        国家一等奖 v3（2026-10-07）：同时刷新 visit_time。
-        之前只更新 covered_t，visit_time 仍为 0 → score_cell 里 novelty = 1.0（从未访问过）
-        → spawn 区格 (1,5) 被派 32 次仍派同一个。现在覆盖时一并写入，让 spawn 区 cell
-        在 reopen 后 novelty 立刻衰减（被访问过），强制分散到远端。
-        """
+        """(x,y) 处观测半径 radius_m 覆盖到的所有格标记为已覆盖，返回覆盖的格列表。"""
         covered = []
-        now = _now()
+        import time as _t
+        now = _t.time()
         for key, c in self.cells.items():
             d = math.hypot(c.cx - x, c.cy - y)
             if d <= radius_m and c.state != STATE_COVERED:
@@ -310,7 +270,6 @@ class CoverageGrid(object):
                 c.owner = None
                 c.lease_until = 0.0
                 c.covered_t = now
-                self.visit_time[key] = now  # 关键：覆盖即刷新 visit_time，spawn 区不再 1.0 novelty
                 covered.append(key)
         return covered
 
@@ -338,25 +297,11 @@ def _envf(name, default):
 
 _PRIORITY_ON = os.environ.get('PRIORITY_CORNER', '1') not in ('0', 'false', 'False', '')
 _PRIORITY_DECAY = _envf('PRIORITY_DECAY', 300.0)
-# 2026-10-05 国家一等奖修复：_PRIORITY_RADIUS 30→22.0。原 30m 在 (-35,-28) 单点偏置
-# 下,优先级区是 x[-65,-5]×y[-58,2] 200×60=12000 m²,actor 聚集区
-# (x[8,35]×y[-8,2] ≈ 27×10=270 m²) 完全被排斥在外 → 6 架机初始搜索格全在西
-# 半部,t4 (8.4,-5.6) 这种东侧 actor 在 5 分钟内首次被发现的概率近 0。
-# 半径 22m 让偏置集中在 (-35,-28) 附近 1500 m²,actor 区域也能被正常的
-# Voronoi zone / utility() 主导。
-_PRIORITY_RADIUS = _envf('PRIORITY_RADIUS', 22.0)
-# 2026-10-05 国家一等奖修复：_PRIORITY_BONUS 60→40。原 60 的偏置太重压过 Voronoi
-# zone + flight distance,所有 6 架机都被吸到同一个角落 → t4 类 actor 漏掉。
-# 40 让 priority 与 zone/flight 大致同级,既有「早期优先」效果,又不破坏队形。
-_PRIORITY_BONUS = _envf('PRIORITY_BONUS', 40.0)
+_PRIORITY_RADIUS = _envf('PRIORITY_RADIUS', 30.0)
+_PRIORITY_BONUS = _envf('PRIORITY_BONUS', 60.0)
 _PRIORITY_MAX_UAV = int(_envf('PRIORITY_MAX_UAV', 2.0))   # 每轮最多几架被引到优先区
 _PRIORITY_POINTS = []
-# 2026-10-05 国家一等奖修复：默认优先级点由 (-35,-28) 改为 (-35,-22)。
-# 原 (-35,-28) 在地图最西角;实测 actor 初始分布横跨 x[-50,40]、y[-30,10],
-# 优先级点 -28y 偏离 actor 中心区导致优先级区也偏离 6m。
-# -22 与 actor 主体区 (y[-8,2]) 距离 ≤20m,让优先覆盖既覆盖 actor 概率高的
-# 西侧角落,又不排斥东侧 actor 的 Voronoi zone 主导。
-for _tok in os.environ.get('PRIORITY_POINTS', '-35,-22').split(';'):
+for _tok in os.environ.get('PRIORITY_POINTS', '-35,-28').split(';'):
     try:
         _a, _b = _tok.split(',')
         _PRIORITY_POINTS.append((float(_a), float(_b)))
@@ -391,28 +336,11 @@ class TaskAllocator(object):
         self.flight_cap = flight_cap
         self.task_count = {}  # 跟踪每架飞机的任务数
         self.visit_time = {}  # cell_key -> 上次被派位的时刻（wall），用于「最久未访问优先」
-        # v13（2026-10-07）：派了但没飞到的格子（租约过期释放）记录——
-        # agent_1 派 (1,5) 32 次 / agent_3 派 22 次的根因：追踪任务反复打断搜索，
-        # 格子租约 90s 过期回 FREE，novelty 又涨满 → 同格无限续派。
-        # expire() 写入此表，utility() 对 60s 内失败格把 novelty 压到 0.2 倍。
-        self.failed_visit = {}  # cell_key -> 失败时刻（wall）
-        self.failed_novelty_ttl = float(os.environ.get("FAILED_NOVELTY_TTL", "60.0"))
-        # v13：近距离惩罚——飞机刚覆盖完脚下，脚下格（ft 很小）不该再拿高分。
-        # 破「72% 派格 x=-44.5 / y 全 ≤-5.5」的 spawn 区锁死。
-        self.min_flight_s = float(os.environ.get("MIN_FLIGHT_S", "8.0"))
-        self.near_penalty = float(os.environ.get("NEAR_PENALTY", "1.0"))
         # 2026-09-27：临楼度 {cell_key: 0~1}，由 manager 在建PlanningGrid 时填充。
         # actor 出生点几乎全贴着建筑（实测 0~11m），给这类格一点正向偏置，
         # 搜索队形才会主动沿楼边铺开而不是在开阔地重复扫。
         self.cell_edge = {}
         self.w_edge = float(os.environ.get("W_EDGE", "0.6"))
-        # 国家一等奖 v3（2026-10-07）：任务起始时刻（仿真钟），用于「早期近距离偏向」
-        # 修复 visit_time 时钟 bug 后，远端格 novelty 立即有效 → 6 架机过早分散，
-        # spawn 区 actor_4/5 蹲守不足 → find_finish 反而下降 (v12c 3→v12d 1)。
-        # 解决方案：任务前 90s 给近距离格加 ~0.8/ft 的额外偏向，6 架机先在 spawn 区
-        # 充分搜索找到 actor_4/5，90s 后再分散到远端 (actor_1/2/3 在 (70,22)/(18,-18)/(72,32))。
-        self.mission_start = None
-        self.early_phase_sec = float(os.environ.get("EARLY_PHASE_SEC", "90.0"))
         # ---- NBV ----
         self.vis_enable = VIS_ENABLE
         # ---- 国家一等奖标准：目标预瞄 ----
@@ -421,12 +349,6 @@ class TaskAllocator(object):
         # 超过 8s 自动失效（actor 移动 / 死亡）。
         self._hot_targets = {}
         self._hot_target_ttl = float(os.environ.get("HOT_TARGET_TTL", "8.0"))
-        # 国家一等奖 v2（2026-10-05）：本轮已分配的「被 hot target 吸引」机数计数，
-        # 配合 HOT_TARGET_MAX_UAV 防止 6 架全被同一目标吸过去导致搜索/接力队形坍塌。
-        self._hot_used = 0
-        self._hot_max = int(float(os.environ.get("HOT_TARGET_MAX_UAV", "2")))
-        # 国家一等奖 v3（2026-10-07）：任务起始时刻（仿真钟），用于早期近距离偏向
-        self.mission_start = _now() if rospy is not None and not rospy.is_shutdown() else time.time()
         self.w_vis = W_VIS
         self.vis_stale = max(1.0, VIS_STALE)
         self.vis_radius = VIS_RADIUS
@@ -455,7 +377,7 @@ class TaskAllocator(object):
         避免同一目标高频抖动把整张表重写。
         """
         if now is None:
-            now = _now()
+            now = time.time()
         # 清理过期项
         stale = [k for k, t in self._hot_targets.items() if now - t > self._hot_target_ttl]
         for k in stale:
@@ -472,7 +394,7 @@ class TaskAllocator(object):
         if not self.vis_enable or self._los is None:
             return 0
         if now is None:
-            now = _now()
+            now = time.time()
         n = 0
         for k, c in self.grid.cells.items():
             if math.hypot(c.cx - x, c.cy - y) > self.vis_radius:
@@ -492,7 +414,7 @@ class TaskAllocator(object):
         if not self.vis_enable or not self.vis_commit:
             return 0
         if now is None:
-            now = _now()
+            now = time.time()
         keys = self.visible_set.get(cell_key)
         if not keys:
             return 0
@@ -513,7 +435,7 @@ class TaskAllocator(object):
         if not keys:
             return 0.0
         if now is None:
-            now = _now()
+            now = time.time()
         raw = 0.0
         for k in keys:
             t = self.last_seen.get(k, 0.0)
@@ -627,34 +549,19 @@ class TaskAllocator(object):
         if _last <= 0.0:
             novelty = 1.0
         else:
-            novelty = (_now() - _last) / self.novelty_horizon
+            novelty = (time.time() - _last) / self.novelty_horizon
             if novelty > 1.0:
                 novelty = 1.0
             elif novelty < 0.0:
                 novelty = 0.0
-        # v13：复查格（REVIEW）novelty 打折——复查价值远低于首搜，
-        # 否则近处复查格靠 novelty+spread 全额奖励反复刷屏（agent_1 同格 32 次）
-        if gain < 1.0:
-            novelty *= 0.3
-        # v13：租约过期（派了没飞到）的格子 60s 内 novelty 压到 0.2 倍，
-        # 打断「追踪打断搜索→租约过期→同格续派」死循环
-        _fv = self.failed_visit.get(cell_key)
-        if _fv is not None:
-            if _now() - _fv < self.failed_novelty_ttl:
-                novelty *= 0.2
-            else:
-                del self.failed_visit[cell_key]
 
         # === 国家一等奖标准：目标预瞄奖励 ===
         # 当 manager 已知 actor 位置时（通过 dispatch_target 写入），
         # 邻近 actor 的格子大幅加分，使飞机主动「斜插」去追踪接力区域，
         # 而不是纯面覆盖。但只对**离 actor 在 60m 内**的格子加分，
         # 避免把全队吸到单一目标。
-        # 国家一等奖 v2（2026-10-05）：HOT_TARGET_MAX_UAV 上限 —— 当本轮已被吸引的
-        # 机数 >= 上限, 后续飞机不再拿 target_bonus, 避免 6 架全被吸到一处。
         target_bonus = 0.0
-        if hasattr(self, "_hot_targets") and self._hot_targets \
-                and getattr(self, "_hot_used", 0) < getattr(self, "_hot_max", 2):
+        if hasattr(self, "_hot_targets") and self._hot_targets:
             for (tx, ty), _age in list(self._hot_targets.items()):
                 d = math.hypot(cell.cx - tx, cell.cy - ty)
                 if d <= 60.0:
@@ -670,27 +577,6 @@ class TaskAllocator(object):
         # 与 edge_bonus 的区别：它是**动态**的，看过的/别机承诺要看的会立刻贬值。
         vis_term = self.w_vis * self.vis_gain(cell_key)
 
-        # 国家一等奖 v3（2026-10-07）：早期近距离偏向 —— 任务前 90s 给近距离格加权。
-        # 修复 visit_time 时钟 bug 后，远端格 novelty 立即有效 → 6 架机过早分散。
-        # 用 1/ft 形式的距离反比项，让 6 架机先蹲守 spawn 区（actor_4/5 在 -32,-27 / -35,-28），
-        # 之后再随时间衰减 → 远端 actor_1/2/3 (70,22)/(18,-18)/(72,32) 自然被覆盖。
-        # 早期权重 1.0/ft ≈ 0.07~0.33（15~60m），足以压过 spawn 区 - 0.025*ft 的飞行代价。
-        early_close_bonus = 0.0
-        if self.mission_start is not None:
-            _mt = _now() - self.mission_start
-            if _mt < self.early_phase_sec:
-                _decay = 1.0 - _mt / self.early_phase_sec
-                # v13：封顶 0.35——旧式 1/max(ft,0.5) 在 ft=0.5s 时 bonus=2.0，
-                # 直接翻倍近格效用，是 spawn 区锁死的主因之一。
-                # 封顶后近格最多 +0.35，远格（ft=30s）+0.03，梯度保留但不翻转排序。
-                early_close_bonus = _decay * min(1.0 / max(ft, 0.5), 0.35)
-
-        # v13：近距离惩罚——ft < 8s（12m）的格子减分，推飞机向外铺开。
-        # 起飞阶段最近未搜格通常 >12m 不受影响；覆盖完脚下后不再原地续派。
-        near_pen = 0.0
-        if ft < self.min_flight_s:
-            near_pen = self.near_penalty * (1.0 - ft / self.min_flight_s)
-
         return (self.w_gain * gain
                 + self.w_novelty * novelty
                 - self.w_flight * ft
@@ -702,9 +588,7 @@ class TaskAllocator(object):
                 + edge_bonus
                 + self.w_spread * spread
                 + vis_term
-                + target_bonus
-                + early_close_bonus
-                - near_pen)
+                + target_bonus)
 
     def _in_priority(self, key):
         c = self.grid.cell(key)
@@ -739,9 +623,9 @@ class TaskAllocator(object):
         if c is None:
             return 0.0
         if not hasattr(self, '_t0'):
-            self._t0 = _now()
+            self._t0 = time.time()
         if now is None:
-            now = _now()
+            now = time.time()
         age = now - self._t0
         if age >= _PRIORITY_DECAY:
             return 0.0
@@ -770,9 +654,6 @@ class TaskAllocator(object):
         assigned = {}          # uav_id -> cell_key
         assigned_positions = []  # [(cx,cy)] 已分配格中心，供重复率计算
         self.last_allocation = []
-        # 国家一等奖 v2（2026-10-05）：每轮拍卖重置 hot target 配额, 由 utility()
-        # 内部检查 _hot_used >= _hot_max 时主动放弃该偏置, 防止 6 架全被吸到一处。
-        self._hot_used = 0
 
         # 预先获取所有飞机的位置，用于计算机间距离惩罚
         all_uavs = dict(uavs)
@@ -800,7 +681,7 @@ class TaskAllocator(object):
                     best_key = key
             if best_key is not None:
                 assigned[uav_id] = best_key
-                self.visit_time[best_key] = _now()
+                self.visit_time[best_key] = time.time()
                 self.commit_visible(best_key)
                 c = self.grid.cell(best_key)
                 c.state = STATE_ASSIGNED
@@ -810,18 +691,6 @@ class TaskAllocator(object):
                 task_counts[uav_id] += 1  # 更新任务计数
                 if self._in_priority(best_key):
                     n_prio += 1
-                # 国家一等奖 v2（2026-10-05）：被 hot target 吸引过的飞机
-                # 在本轮内计入 _hot_used, 超过 HOT_TARGET_MAX_UAV 后 utility()
-                # 不再给该机加 target_bonus, 防止 6 架全被吸到一处。
-                # best_u 已被 +self._priority_bonus 干扰, 这里用几何判定更稳：
-                # best_key 是否在 hot target 60m 范围内？
-                if self._hot_targets:
-                    _bc = self.grid.cell(best_key)
-                    if _bc is not None:
-                        for (tx, ty), _age in self._hot_targets.items():
-                            if math.hypot(_bc.cx - tx, _bc.cy - ty) <= 60.0:
-                                self._hot_used += 1
-                                break
                 cell = self.grid.cell(best_key)
                 self.last_allocation.append({
                     "uav_id": uav_id,
@@ -890,26 +759,7 @@ class LeaseManager(object):
                 c.owner = None
                 c.lease_until = 0.0
                 expired.append(key)
-                # v13：调用方（manager）负责把过期格写入 allocator.failed_visit
-                # （LeaseManager 与 TaskAllocator 是独立对象，此处无引用）
         return expired
-
-    def force_expire(self, uav_id, cell_key):
-        """v18（2026-10-07）：立即回收指定租约（不等 TTL 自然到期）。
-
-        背景：manager._renew_leases 的 LEASE_MAX_HOLD 超时分支旧逻辑只「停止
-        续租等 TTL 到期」，但它 pop 掉 _lease_hold_since 后下一周期 setdefault
-        重置计时又恢复续租 → TTL 永远追不上（v17 实测 agent_0 (3,7) 每 91s
-        循环告警一次、全程 0 次「租约到期重分配」、6 架全被 ASSIGNED 格锁死
-        → 202s 后零分配死锁）。超时分支必须主动强制回收。
-        """
-        c = self.grid.cell(cell_key)
-        if c is not None and c.state == STATE_ASSIGNED and c.owner == uav_id:
-            c.state = STATE_FREE
-            c.owner = None
-            c.lease_until = 0.0
-            return True
-        return False
 
 
 class LineOfSight(object):

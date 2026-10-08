@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<!-- ============================================================================
+  RoboCup 6 机场景 — 内置 CPU 射线 2D 激光（2026-10-03）
+
+  目标：让 dwa_avoidance.py / swarm_agent.py 真正吃到 2D 激光雷达数据，
+  并彻底取代 robocup_lidar_v2.launch 里基于 hokuyo_lidar (gpu_ray) 的方案。
+
+  选型依据：
+    gpu_ray 在 gzserver 启动 OGRE 离屏渲染线程；
+    robocup.world 里 6 个 actor 走 ActorCollisionsPlugin，每帧做骨骼动画；
+    物理线程读 actor 碰撞位姿 ↔ OGRE 线程渲染 actor → 同一 dxSpace 上数据
+    竞争，触发 libgazebo_ode 段错误（之前定位最多的是 Xcode 启动 16~30s
+    段错误；gdb ptrace 改时序会表现成"卡死"）。
+
+  替代方案：
+    本 launch 使用新模型 typhoon_h480_laser：在 PX4 原生 typhoon_h480.sdf
+    （含双目相机，兼容感知链路）的基础上，把 2D 激光换为 libgazebo_ros_laser
+    （CPU ray，无 OGRE 依赖），270° 水平 FOV、720 samples、20Hz、最大 12m，
+    话题 /<airframe>/scan 由 <group ns="typhoon_h480_N"> 自动派生。
+
+  兼容链：
+    dwa_avoidance 影子（_scan_topic:=/${u}/scan）→ /typhoon_h480_N/scan ✓
+    swarm_agent._radar_guard_velocity 雷达安全层（/<uav>/scan）        ✓
+    A* 路径规划 + DWA 局部避障：均使用 /<u>/scan 作为实时感知源          ✓
+============================================================================ -->
+<launch>
+    <arg name="est" default="ekf2"/>
+    <arg name="world" default="$(find mavlink_sitl_gazebo)/worlds/robocup.world"/>
+    <arg name="gui" default="true"/>
+    <arg name="debug" default="false"/>
+    <arg name="verbose" default="false"/>
+    <arg name="paused" default="false"/>
+
+    <!-- Gazebo sim -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="world_name" value="$(arg world)"/>
+        <arg name="debug" value="$(arg debug)"/>
+        <arg name="verbose" value="$(arg verbose)"/>
+        <arg name="paused" value="$(arg paused)"/>
+    </include>
+
+    <!-- typhoon_h480_0 -->
+    <group ns="typhoon_h480_0">
+        <arg name="ID" value="0"/>
+        <arg name="ID_in_group" value="0"/>
+        <arg name="fcu_url" default="udp://:24540@localhost:34580"/>
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="-50.0"/>
+            <arg name="y" value="-25.0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_laser"/>
+            <arg name="spawn_delay" value="0"/>
+            <arg name="mavlink_udp_port" value="18570"/>
+            <arg name="mavlink_tcp_port" value="4560"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+
+    <!-- typhoon_h480_1 -->
+    <group ns="typhoon_h480_1">
+        <arg name="ID" value="1"/>
+        <arg name="ID_in_group" value="1"/>
+        <arg name="fcu_url" default="udp://:24541@localhost:34581"/>
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="-50.0"/>
+            <arg name="y" value="-15.0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_laser"/>
+            <arg name="spawn_delay" value="5"/>
+            <arg name="mavlink_udp_port" value="18571"/>
+            <arg name="mavlink_tcp_port" value="4561"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+
+    <!-- typhoon_h480_2 -->
+    <group ns="typhoon_h480_2">
+        <arg name="ID" value="2"/>
+        <arg name="ID_in_group" value="2"/>
+        <arg name="fcu_url" default="udp://:24542@localhost:34582"/>
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="-50.0"/>
+            <arg name="y" value="-5.0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_laser"/>
+            <arg name="spawn_delay" value="10"/>
+            <arg name="mavlink_udp_port" value="18572"/>
+            <arg name="mavlink_tcp_port" value="4562"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+
+    <!-- typhoon_h480_3 -->
+    <group ns="typhoon_h480_3">
+        <arg name="ID" value="3"/>
+        <arg name="ID_in_group" value="3"/>
+        <arg name="fcu_url" default="udp://:24543@localhost:34583"/>
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="-50.0"/>
+            <arg name="y" value="5.0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_laser"/>
+            <arg name="spawn_delay" value="15"/>
+            <arg name="mavlink_udp_port" value="18573"/>
+            <arg name="mavlink_tcp_port" value="4563"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+
+    <!-- typhoon_h480_4 -->
+    <group ns="typhoon_h480_4">
+        <arg name="ID" value="4"/>
+        <arg name="ID_in_group" value="4"/>
+        <arg name="fcu_url" default="udp://:24544@localhost:34584"/>
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="-50.0"/>
+            <arg name="y" value="15.0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_laser"/>
+            <arg name="spawn_delay" value="20"/>
+            <arg name="mavlink_udp_port" value="18574"/>
+            <arg name="mavlink_tcp_port" value="4564"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+
+    <!-- typhoon_h480_5 -->
+    <group ns="typhoon_h480_5">
+        <arg name="ID" value="5"/>
+        <arg name="ID_in_group" value="5"/>
+        <arg name="fcu_url" default="udp://:24545@localhost:34585"/>
+        <include file="$(find robocup_team_launch)/single_vehicle_spawn_serial.launch">
+            <arg name="x" value="-50.0"/>
+            <arg name="y" value="25.0"/>
+            <arg name="z" value="0"/>
+            <arg name="R" value="0"/>
+            <arg name="P" value="0"/>
+            <arg name="Y" value="0"/>
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="sdf" value="typhoon_h480_laser"/>
+            <arg name="spawn_delay" value="25"/>
+            <arg name="mavlink_udp_port" value="18575"/>
+            <arg name="mavlink_tcp_port" value="4565"/>
+            <arg name="ID" value="$(arg ID)"/>
+            <arg name="ID_in_group" value="$(arg ID_in_group)"/>
+        </include>
+        <include file="$(find mavros)/launch/px4.launch">
+            <arg name="fcu_url" value="$(arg fcu_url)"/>
+            <arg name="gcs_url" value=""/>
+            <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
+            <arg name="tgt_component" value="1"/>
+        </include>
+    </group>
+</launch>

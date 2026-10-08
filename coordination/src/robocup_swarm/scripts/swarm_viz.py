@@ -41,7 +41,10 @@ NUM_UAV = int(os.environ.get("NUM_UAV", "6"))
 VIZ_HZ = float(os.environ.get("VIZ_HZ", "10"))
 TRAIL_MAX = int(os.environ.get("TRAIL_MAX", "300"))
 TRAIL_STEP = float(os.environ.get("TRAIL_STEP", "0.4"))
-SHOW_BUILDINGS = os.environ.get("SHOW_BUILDINGS", "1") not in ("0", "false")
+# 合规（2026-10-07，规则 §2.4/§2.5 无预读）：black_box.txt 建筑真值叠加默认关闭，
+# 仅离线复盘时显式 ROBOCUP_VIZ_TRUTH=1 打开（可视化用途，不进任何规划链路）。
+SHOW_BUILDINGS = (os.environ.get("ROBOCUP_VIZ_TRUTH", "0") in ("1", "true")
+                  and os.environ.get("SHOW_BUILDINGS", "1") not in ("0", "false"))
 SHOW_TRAIL = os.environ.get("SHOW_TRAIL", "1") not in ("0", "false")
 ACTOR_FROM_GZ = os.environ.get("ACTOR_FROM_GZ", "0") not in ("0", "false")
 DET_HOLD = float(os.environ.get("DET_HOLD", "2.5"))
@@ -163,7 +166,8 @@ class SwarmViz(object):
             rospy.logwarn("[swarm_viz] 无法订阅 target_states: %s", exc)
 
         try:
-            from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
+            # 2026-10-06：v4 修复 — 与 detection_to_official.py / yolo_bridge 对齐使用 robocup_swarm.msg.ActorInfo (5字段)
+            from robocup_swarm.msg import ActorInfo
             # 官方映射，注意红的两个序号是反的
             m = {"green": 0, "blue": 1, "brown": 2, "white": 3, "red2": 4, "red1": 5}
             if ok:

@@ -48,6 +48,27 @@ find_actor_pub = []
 mission_finished = False
 uav_loss_count = 0
 uav_loss_penalty = DEFAULT_UAV_LOSS_PENALTY
+# 2026-10-05 复盘统计：score_cal reset 触发与 streak 长度分布（聚合写 stderr）
+_STATS = {
+    "last_t": 0.0,
+    "cb_calls": 0,
+    "reset_total": 0,
+    "reset_by_distance": 0,
+    "reset_by_discontinuous": 0,
+    "reset_by_no_pos": 0,
+    "streak_samples": 0,
+    "streak_len_sum": 0.0,
+    "streak_len_max": 0.0,
+    "streak_lt1": 0, "streak_1to5": 0, "streak_5to10": 0,
+    "streak_10to15": 0, "streak_ge15": 0,
+    # 2026-10-06: 裁判误差判据（<1m）直方图 —— 上报坐标 vs Gazebo 真值距离。
+    # ge1 是"越界即清零"的直接计数，dist_max 是全程最远误差。
+    "dist_n": 0, "dist_max": 0.0,
+    "dist_lt03": 0, "dist_03to05": 0, "dist_05to08": 0,
+    "dist_08to1": 0, "dist_ge1": 0,
+    "streak_last_start": None,
+    "_last_reset_cause": None,
+}
 sensor_cost = 0.0
 target_finish = 0
 find_finish = 0
@@ -81,15 +102,59 @@ def _progress_score():
 
 
 
+def _emit_final(reason):
+    """2026-10-06: [FINAL] 单行汇总（_finish 与 ROS shutdown 异常路径共用）。
+    dist 字段是裁判误差判据（<1m）的直接证据：n=样本数 max=最远 ge1=越界次数。"""
+    _ss = _STATS
+    print(
+        "[FINAL] score={} find_finish={} uav_loss={} "
+        "cb={} reset={} (dist/disc/no_pos={}/{}/{}) "
+        "buckets(lt1/1-5/5-10/10-15/ge15)={}/{}/{}/{}/{} "
+        "dist(n/max/ge1)={}/{:.2f}m/{} "
+        "streak_max={:.1f}s reason={}".format(
+            score,
+            find_finish,
+            uav_loss_count,
+            _ss.get("cb_calls", 0),
+            _ss.get("reset_total", 0),
+            _ss.get("reset_by_distance", 0),
+            _ss.get("reset_by_discontinuous", 0),
+            _ss.get("reset_by_no_pos", 0),
+            _ss.get("streak_lt1", 0),
+            _ss.get("streak_1to5", 0),
+            _ss.get("streak_5to10", 0),
+            _ss.get("streak_10to15", 0),
+            _ss.get("streak_ge15", 0),
+            _ss.get("dist_n", 0),
+            _ss.get("dist_max", 0.0),
+            _ss.get("dist_ge1", 0),
+            _ss.get("streak_len_max", 0.0),
+            reason,
+        )
+    )
+
+
 def _finish(reason, final_score=None):
     global score, mission_finished
     if mission_finished:
         return
     mission_finished = True
+    # 2026-10-05 复盘：进程退出前强制打出最后一段聚合
+    try:
+        _stats_dump(_now(), force=True)
+    except Exception:
+        pass
     if final_score is not None:
         score = final_score
     print(reason)
     print('score:', score)
+    # 2026-10-06: Ctrl-C / SIGTERM 时也保证能从 03_judge.log 末尾 grep 到最终值
+    try:
+        _stats_dump(_now(), force=True)
+        _emit_final(reason)
+        sys.stdout.flush()
+    except Exception:
+        pass
     _publish_score()
     signal_shutdown = getattr(rospy, 'signal_shutdown', None)
     if signal_shutdown:
@@ -100,6 +165,55 @@ def _reset_detection(actor_id):
     count_flag[actor_id] = False
     find_time[actor_id] = 0.0
     topic_arrive_time[actor_id] = 0.0
+    # 2026-10-05 复盘统计：reset 触发频率（按原因拆分）—— 判断 EMA 双轨制是否生效
+    _STATS["reset_total"] += 1
+    if _STATS.get("_last_reset_cause"):
+        _STATS["reset_by_" + _STATS["_last_reset_cause"]] += 1
+    _STATS["streak_samples"] += 1
+    cur = _STATS["streak_last_start"]
+    if cur is not None:
+        dur = _now() - cur
+        _STATS["streak_len_sum"] += dur
+        if dur > _STATS["streak_len_max"]:
+            _STATS["streak_len_max"] = dur
+        # 桶：<1s / 1-5 / 5-10 / 10-15 / >=15
+        if   dur < 1.0:  _STATS["streak_lt1"]   += 1
+        elif dur < 5.0:  _STATS["streak_1to5"]  += 1
+        elif dur < 10.0: _STATS["streak_5to10"] += 1
+        elif dur < 15.0: _STATS["streak_10to15"] += 1
+        else:            _STATS["streak_ge15"]  += 1
+    _STATS["streak_last_start"] = -1.0  # 表示本轮未在 streak
+
+
+def _stats_dump(now, force=False):
+    """2026-10-05 复盘统计：score_cal 的 reset/streak 聚合一览"""
+    if not force and (now - _STATS["last_t"] < 10.0 or _STATS["last_t"] == 0.0):
+        if _STATS["last_t"] == 0.0:
+            _STATS["last_t"] = now
+        return
+    s = _STATS["streak_samples"]
+    avg = (_STATS["streak_len_sum"] / s) if s > 0 else 0.0
+    sys.stderr.write(
+        "[SCORE_STATS] win=%.0fs cb=%d reset=%d far_dist=%d discontinuous=%d "
+        "streak_avg=%.2fs max=%.2fs buckets(lt1/1-5/5-10/10-15/ge15)=%d/%d/%d/%d/%d "
+        "dist(n/max/ge1)=%d/%.2fm/%d\n" % (
+            now - _STATS["last_t"],
+            _STATS["cb_calls"], _STATS["reset_total"],
+            _STATS["reset_by_distance"], _STATS["reset_by_discontinuous"],
+            avg, _STATS["streak_len_max"],
+            _STATS["streak_lt1"], _STATS["streak_1to5"], _STATS["streak_5to10"],
+            _STATS["streak_10to15"], _STATS["streak_ge15"],
+            _STATS["dist_n"], _STATS["dist_max"], _STATS["dist_ge1"]))
+    sys.stderr.flush()
+    _STATS.update({"cb_calls": 0, "reset_total": 0,
+                   "reset_by_distance": 0, "reset_by_discontinuous": 0,
+                   "streak_samples": 0, "streak_len_sum": 0.0, "streak_len_max": 0.0,
+                   "streak_lt1": 0, "streak_1to5": 0, "streak_5to10": 0,
+                   "streak_10to15": 0, "streak_ge15": 0,
+                   "dist_n": 0, "dist_max": 0.0,
+                   "dist_lt03": 0, "dist_03to05": 0, "dist_05to08": 0,
+                   "dist_08to1": 0, "dist_ge1": 0,
+                   "last_t": now, "streak_last_start": None})
 
 
 def _delete_actor(actor_id):
@@ -124,6 +238,8 @@ def _process_actor_detection(msg, actor_ids):
     if mission_finished or not getattr(msg, 'cls', None):
         return
     now = _now()
+    _STATS["cb_calls"] += 1
+    _STATS["_last_reset_cause"] = None
     for actor_id in actor_ids:
         if actor_id not in left_actors:
             continue
@@ -131,13 +247,39 @@ def _process_actor_detection(msg, actor_ids):
         previous = topic_arrive_time[actor_id]
         topic_arrive_time[actor_id] = now
         if position is None:
+            _STATS["_last_reset_cause"] = "no_pos"
             _reset_detection(actor_id)
             continue
         distance_sq = ((msg.x - position.x) ** 2 + (msg.y - position.y) ** 2)
         continuous = previous == 0.0 or now - previous <= DETECTION_INTERVAL
+        # 2026-10-06: 裁判误差判据（<1m）直方图 —— 上报坐标 vs Gazebo 真值，
+        # 含被 reset 的样本（越界样本正是"计时清零"的直接原因，必须统计）
+        _dist = distance_sq ** 0.5
+        _STATS["dist_n"] += 1
+        if _dist > _STATS["dist_max"]:
+            _STATS["dist_max"] = _dist
+        if   _dist < 0.3:  _STATS["dist_lt03"]   += 1
+        elif _dist < 0.5:  _STATS["dist_03to05"] += 1
+        elif _dist < 0.8:  _STATS["dist_05to08"] += 1
+        elif _dist < 1.0:  _STATS["dist_08to1"]  += 1
+        else:              _STATS["dist_ge1"]    += 1
         if distance_sq >= err_threshold ** 2 or not continuous:
+            # 拆分 reset 原因：distance vs discontinuous（用于判断 EMA 双轨制是否生效）
+            # 2026-10-06 修：旧三元式 "discontinuous" if continuous else "distance"
+            # 标签写反 —— 走到此处且 continuous=True 时失败原因必是 distance。
+            _STATS["_last_reset_cause"] = ("distance" if distance_sq >= err_threshold ** 2
+                                           else "discontinuous")
+            # 2026-10-06 B 项诊断打印：每帧距离误差值（判断外推补偿是过冲还是欠补）
+            # （v10 复盘：此打印此前只在 XTDrone/robocup 版有，coordination 版漏合并）
+            if continuous:
+                sys.stderr.write(
+                    "[RESET_DBG] actor=%s dist=%.2fm msg=(%.2f,%.2f) true=(%.2f,%.2f) t=%.2fs\n"
+                    % (actor_id, distance_sq**0.5, msg.x, msg.y, position.x, position.y, now))
             _reset_detection(actor_id)
             continue
+        # 通过校验：开始或继续累积 streak
+        if _STATS["streak_last_start"] is None:
+            _STATS["streak_last_start"] = now
         if not count_flag[actor_id]:
             count_flag[actor_id] = True
             find_time[actor_id] = now
@@ -166,6 +308,8 @@ def _process_actor_detection(msg, actor_ids):
         else:
             print('score:', score)
             _publish_score()
+    # 2026-10-05 复盘：每回调聚合一次 _STATS（10s 窗口）
+    _stats_dump(now)
 
 
 def actor_info_callback(msg):
@@ -342,8 +486,11 @@ if __name__ == "__main__":
                 if not getattr(response, 'success', True):
                     continue
                 actors_pos_tmp = response.pose.position
-                if actors_pos_tmp.x ** 2 + actors_pos_tmp.y ** 2 != 0:
-                    actors_pos[i] = actors_pos_tmp
+                # 2026-10-05 国家一等奖修：旧版要求 x^2+y^2 != 0 ⇒ 原点附近 spawn
+                # 的 actor 永远进不了 actors_pos ⇒ 永远 position is None ⇒
+                # _process_actor_detection 直接 _reset_detection 清零，无法 delete。
+                # 修复：只要返回成功（x,y 是任意值）就记录，包括原点 actor。
+                actors_pos[i] = actors_pos_tmp
             except Exception:
                 continue
         # 更新本轮时间
@@ -372,4 +519,15 @@ if __name__ == "__main__":
                     cv2.waitKey(1)
             except Exception:
                 pass
-        rate.sleep()
+        # 2026-10-06: hard_cap SIGINT 场景下 rate.sleep 抛 ROSInterruptException，
+        # 旧版直接裸奔退出 ⇒ 03_judge.log 只剩 traceback、复盘统计全丢（v9 即如此）。
+        try:
+            rate.sleep()
+        except rospy.ROSInterruptException:
+            try:
+                _stats_dump(_now(), force=True)
+                _emit_final('ros_shutdown')
+                sys.stdout.flush()
+            except Exception:
+                pass
+            raise

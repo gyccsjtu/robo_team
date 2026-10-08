@@ -82,7 +82,7 @@ OBS_SPREAD_M = 5.0      # 窗内新观测与已有观测的最大允许距离 m�
 # 超过 COAST_TIME 才允许任意位置（真·重捕获）。
 SPREAD_FAR_M = float(os.environ.get("BRIDGE_SPREAD_FAR", "10.0"))
 VEL_DT_MIN = 0.10       # 最小差分间隔，避免高频小 dt 放大噪声
-VEL_ALPHA = 0.35        # 速度 EMA 增益
+VEL_ALPHA = 0.6         # 速度 EMA 增益（2026-10-06 五轮复盘：0.35 转向收敛太慢，方向误差 23° 导致外推横向偏差）
 VEL_MAX = 4.0           # 速度限幅，防 YOLO 跳变拉飞（与 cooperative_tracker 一致）
 COAST_TIME = 1.5        # 短暂遮挡：保持最后位置 s
 # === 2026-10-03 我方新增：官方播报距离闸门（带滞回）+ 播报保持器 ===
@@ -91,7 +91,7 @@ COAST_TIME = 1.5        # 短暂遮挡：保持最后位置 s
 # 在 **25s 后瞬移**（control_actor.py:112-127）⇒ 净余量只有 10s，断一次就归零。
 # 单目测距误差随距离放大，远处播报会把计时清零。默认 12m —— 实测 7m 内误差
 # 0.26~0.69m（达标），15.98m 时系统报 17.09m（误差 1.1m，刚好越界）。
-ACTOR_PUB_MAX_RANGE_M = float(os.environ.get("BRIDGE_PUB_MAX_RANGE", "12.0"))
+ACTOR_PUB_MAX_RANGE_M = float(os.environ.get("BRIDGE_PUB_MAX_RANGE", "8.0"))
 # ⛔ 原来这里有一个 GATE_RETRY_S 和 self._gate_hold，注释写"避免抖动导致话题断续"，
 #    但 **GATE_RETRY_S 从未被任何代码引用、_gate_hold 只写不读** —— 滞回其实
 #    根本没实现，闸门是纯瞬时的：range_m 一过 12m 立刻停发。目标在 12m 边界
@@ -103,11 +103,21 @@ ACTOR_PUB_HOLD_RANGE_M = float(os.environ.get("BRIDGE_PUB_HOLD_RANGE", "15.0"))
 # 官方那条 "间隔 ≤1s" 立刻失败。这里按最低频率用「最后融合位置 + 速度外推」
 # 补齐，把静默压在 1s 以内。外推超过 KEEPALIVE_MAX_T 就不再硬撑（宁可断，
 # 也不报一个必然 >1m 的假位置 —— 误差超 1m 同样清零）。
-ACTOR_KEEPALIVE_DT = float(os.environ.get("BRIDGE_KEEPALIVE_DT", "0.35"))
-ACTOR_KEEPALIVE_MAX_T = float(os.environ.get("BRIDGE_KEEPALIVE_MAX_T", "0.9"))
+ACTOR_KEEPALIVE_DT = float(os.environ.get("BRIDGE_KEEPALIVE_DT", "0.75"))
+ACTOR_KEEPALIVE_MAX_T = float(os.environ.get("BRIDGE_KEEPALIVE_MAX_T", "1.3"))
+# 2026-10-06 六轮复盘核心修复：官方判据「相邻广播间隔 <=1.0s」（score_cal DETECTION_INTERVAL）
+# 只约束不超 1s，不要求高频。广播 3Hz 时 15s streak 需 45 次连乘全过（单次失败率 20% ->
+# 成功率 0.8^45≈8e-6，必然 0 消除）；节流到 0.75s 一次后 15s 只需 20 次连乘（0.8^20=1.2%），
+# 若误差压缩使失败率 <=10% 则成功率 12%/窗口 —— 这是把「数学上不可能」变成「大概率全消除」的
+# 最大杠杆。PUB_MIN_INTERVAL=0.75 留 0.25s 余量防 tick 抖动导致间隔 >1.0s 触发 discontinuous。
+PUB_MIN_INTERVAL = float(os.environ.get("BRIDGE_PUB_MIN_INTERVAL", "0.75"))
 # 协同层需要给备用机完成接力的窗口。agent 自己还有 TARGET_STALE 门槛，
 # 因此这里不能在 3s 时立刻撤掉目标状态，否则短遮挡会直接清空盘旋任务。
-DROP_TIME = float(os.environ.get("BRIDGE_DROP_TIME", "6.0"))
+# v13（2026-10-07）：2.0→4.0 —— v12c actor_5 贴脸 3.07m 后 YOLO 间歇丢 2.5s，
+# 2.0s 停发 → 官方「间隔>1s」reset 27 次。贴脸跟随态 actor 相对静止，
+# coast 期外推封顶（te≤1.15s + EXTRAP_MAX_D 限幅）位置不漂，撑过间歇丢失
+# 15s streak 不断；actor 快速逃跑时误差 reset 早晚问题，无净损失。
+DROP_TIME = float(os.environ.get("BRIDGE_DROP_TIME", "4.0"))
 # 新轨激活门槛：未激活轨只有融合窗内最高置信度 >= 该值才允许 alive。
 # 2026-10-01 复盘：3 条 0.43~0.61 的 red1 误检（真身为 green 演员）建出鬼影轨
 # t4，全队盘旋假目标并广播假消除。已激活轨不受此限（延续观测允许低置信度）。
@@ -125,18 +135,40 @@ FLEE_SPEED = 2.0        # state 粗估：超过即给 FLEE（下游不依赖该�
 # ---- 上报时延补偿（误差压制）----
 # 裁判判定要求上报坐标与 actor 真值误差 <1m 连续 15s。感知链路固有滞后：
 # 图像采集+YOLO 推理+传输 (~0.35s) + 感知端内部 EMA + 桥接 0.6s 融合窗加权
-# ≈ 0.65s。演员 1.3m/s 跑动时滞后 ≈0.85m，叠加投影噪声即超 1m → 裁判计数
-# 反复归零（03_judge.log 大量重复 find actor_N）。上报前按估计速度外推：
+# ≈ 0.65s。官方规则 actor 逃跑 2 m/s（±20% 即 2.4），滞后 ≈1.3m，叠加 12m 处测距噪声 ~0.9m
+# 总误差可超 1m → 裁判计数
+# 反复归零（03_judge.log 大量重复 find actor_N）。上报前按估计速度外推（DELAY 补满全链路滞后）：
 #   te = min(gap, EXTRAP_MAX_T) + EXTRAP_DELAY
 # 距离限幅 EXTRAP_MAX_D 防速度估计被 YOLO 跳变污染时外推飞掉。
-EXTRAP_DELAY  = float(os.environ.get("BRIDGE_EXTRAP_DELAY", "0.35"))
-EXTRAP_MAX_T  = float(os.environ.get("BRIDGE_EXTRAP_MAX_T", "1.2"))
-EXTRAP_MAX_D  = float(os.environ.get("BRIDGE_EXTRAP_MAX_D", "1.5"))
+EXTRAP_DELAY  = float(os.environ.get("BRIDGE_EXTRAP_DELAY", "0.65"))
+EXTRAP_MAX_T  = float(os.environ.get("BRIDGE_EXTRAP_MAX_T", "0.5"))
+EXTRAP_MAX_D  = float(os.environ.get("BRIDGE_EXTRAP_MAX_D", "3.0"))
 
 # ---- 国家一等奖标准改进：自适应外推 ----
 # 自适应外推：根据速度估计质量动态调整外推参数
 EXTRAP_VEL_THRESHOLD = float(os.environ.get("BRIDGE_EXTRAP_VEL_THRESHOLD", "0.5"))  # 低速阈值
 EXTRAP_ADAPTIVE = os.environ.get("BRIDGE_EXTRAP_ADAPTIVE", "1") == "1"
+# 2026-10-06 B 项诊断：节流字典（key=actor_tag, value=last_print_time）
+_BRIDGE_DBG_LAST = {}
+
+
+def _core_log(fmt, *args):
+    """core 诊断出口（2026-10-06 修）：TargetBridgeCore 是"纯逻辑（无 rospy）"，
+    但 EXTRAP_DBG 等诊断打印需要出口。真实节点里 __main__ 已 import rospy
+    （在 sys.modules 里）→ 走 rosout；离线自测（--selftest）没有 rospy →
+    落 stdout。修复了自测在 core.tick 里 NameError 崩溃的问题。"""
+    _mod = sys.modules.get("rospy")
+    if _mod is not None and hasattr(_mod, "loginfo"):
+        try:
+            _mod.loginfo(fmt, *args)
+            return
+        except Exception:
+            pass
+    try:
+        sys.stdout.write("[bridge-core] " + (fmt % args) + "\n")
+        sys.stdout.flush()
+    except Exception:
+        pass
 
 
 def _vel_ema(v_old, raw):
@@ -292,6 +324,13 @@ class TargetBridgeCore(object):
             if dt >= VEL_DT_MIN:
                 tr.vx = _vel_ema(tr.vx, (fx - tr._last_fx) / dt)
                 tr.vy = _vel_ema(tr.vy, (fy - tr._last_fy) / dt)
+                # 速度硬限幅：actor 规则上限 2m/s（逃跑）。YOLO bbox 跳变会把差分速度
+                # 拉到 5+ m/s（六轮日志 ed=6.22m @ te=1.1s 反推 v=5.7），外推直接飞掉。
+                vmag2 = tr.vx * tr.vx + tr.vy * tr.vy
+                if vmag2 > 6.25:  # 2.5^2
+                    scale = 2.5 / (vmag2 ** 0.5)
+                    tr.vx *= scale
+                    tr.vy *= scale
         tr._last_fx, tr._last_fy, tr._last_ft = fx, fy, t
 
         tr.x, tr.y = fx, fy
@@ -399,6 +438,15 @@ class TargetBridgeCore(object):
             te = (min(gap, EXTRAP_MAX_T) + EXTRAP_DELAY) * extrap_factor
             ex, ey = tr.vx * te, tr.vy * te
             ed = math.hypot(ex, ey)
+            # 2026-10-06 B 项诊断打印：每 actor 每 1s 一次（节流），便于判断外推过冲/欠补
+            _dbg_t = _BRIDGE_DBG_LAST.get(tr.tag, 0.0)
+            if ed > 0.05 and (t - _dbg_t) > 1.0:
+                _BRIDGE_DBG_LAST[tr.tag] = t
+                _core_log(
+                    "[EXTRAP_DBG] tag=%s te=%.3fs v=(%.2f,%.2f) m/s ex=%.2fm ey=%.2fm ed=%.2fm "
+                    "raw=(%.2f,%.2f) out=(%.2f,%.2f) gap=%.2fs vmag=%.2f", (
+                        tr.tag, te, tr.vx, tr.vy, ex, ey, ed,
+                        tr.x, tr.y, tr.x + ex, tr.y + ey, gap, vel_mag))
             # 自适应距离限幅
             max_d = EXTRAP_MAX_D * (1.0 if vel_mag >= EXTRAP_VEL_THRESHOLD else 0.7)
             if ed > max_d and ed > 0.0:
@@ -428,7 +476,11 @@ class YoloTargetBridge(object):
     def __init__(self):
         import rospy
         from robocup_swarm.msg import TargetState
-        from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
+        # 国家一等奖 v3 (2026-10-06): 改用 robocup_swarm.ActorInfo (5字段 Header+cls+x+y+z)
+        # 原 ros_actor_cmd_pose_plugin_msgs.ActorInfo (3字段 cls+x+y, float32) 与
+        # score_cal.py 的订阅端 `from robocup_swarm.msg import ActorInfo` md5 不匹配
+        # -> ROS 拒绝连接 -> /actor_*_info 永远收不到 -> /left_actors 永远是 [0..5]
+        from robocup_swarm.msg import ActorInfo
         self._rospy = rospy
         self._TargetState = TargetState
         self._ActorInfo = ActorInfo
@@ -443,6 +495,10 @@ class YoloTargetBridge(object):
         self._gate_live = {}
         # 2026-10-03 我方补：每个 target 话题最后一次发布的时刻（播报保持器用）。
         self._pub_last = {}
+        # 2026-10-06 播报遥测：tag → {n, last, max_gap, sum}（PUB_DBG 数据源，
+        # 验证官方「相邻播报间隔 ≤1s」判据的桥端证据）
+        self._pub_stats = {}
+        self._pub_dbg_last = 0.0
         # 2026-10-03 我方补：红球双流焦点（见 RED_DUAL 注释）
         self._red_focus = None        # 当前正在盯的红球 tag（'red1'/'red2'）
         self._red_consumed = set()    # 已被官方消除的红球 tag，不再选为焦点
@@ -570,6 +626,18 @@ class YoloTargetBridge(object):
             return True
         return False
 
+    def _note_pub(self, tag, now):
+        """2026-10-06 播报遥测：记录每次 ActorInfo 实际发布的间隔（PUB_DBG 数据源）。"""
+        st = self._pub_stats.setdefault(
+            tag, {"n": 0, "last": 0.0, "max_gap": 0.0, "sum": 0.0})
+        st["n"] += 1
+        if st["last"] > 0.0:
+            gap = now - st["last"]
+            st["sum"] += gap
+            if gap > st["max_gap"]:
+                st["max_gap"] = gap
+        st["last"] = now
+
     def _publish_actor(self, tag, x, y):
         """向官方话题发布一条 ActorInfo（唯一的播报出口，供 _emit 与保持器共用）。
 
@@ -580,9 +648,20 @@ class YoloTargetBridge(object):
             return
         am = self._ActorInfo()
         am.cls = OFFICIAL_CLS_OF_TAG.get(tag, tag)
-        am.x = round(x, 3)
-        am.y = round(y, 3)
+        am.x = round(float(x), 3)
+        am.y = round(float(y), 3)
+        am.z = 0.0
+        am.header.stamp = self._rospy.Time.now()
+        am.header.frame_id = "world_enu"
         now = self._now()
+        # 官方 streak 判据下的节流闸门：距上次发布 <0.75s 直接跳过。
+        # 间隔落在 [0.75, ~0.95] 区间，既满足官方 <=1.0s 的连续性判据，
+        # 又把 15s 窗口内的连乘次数从 ~45 次压到 ~20 次。
+        # 2026-10-06 修：哨兵从 0.0 改为 None —— 用 0.0 兜底会把"仿真时间
+        # 恰好为 0（离线自测的冻结时钟）"的首帧发布也拦掉。
+        _last_pub = self._pub_last.get(tag)
+        if _last_pub is not None and now - _last_pub < PUB_MIN_INTERVAL:
+            return
         if RED_DUAL and tag in RED_TAGS:
             # 双流同发：只发"当前焦点"那个球，避免两个球的坐标交替刷同一条流
             # （交替 ⇒ 每条流都被对方的坐标不断 _reset_detection，永远累不满 15s）。
@@ -591,9 +670,11 @@ class YoloTargetBridge(object):
             for t in RED_TAGS:
                 self._actor_pubs[t].publish(am)
                 self._pub_last[t] = now
+                self._note_pub(t, now)
             return
         self._actor_pubs[tag].publish(am)
         self._pub_last[tag] = now
+        self._note_pub(tag, now)
 
     def _emit(self, ev):
         m = self._TargetState()
@@ -611,9 +692,26 @@ class YoloTargetBridge(object):
         # 向官方话题发布 ActorInfo（用融合坐标，10Hz 连续上报）。
         # 仅对存活且有位置的目标发布；eliminated 的目标官方已不再判定。
         tag = TID_TO_TAG.get(ev["tid"])
-        if (tag is None or tag not in self._actor_pubs
-                or ev["eliminated"] or ev.get("state", 0) == 3
-                or not self._pub_gate_ok(tag)):
+        if tag is None or tag not in self._actor_pubs or ev["eliminated"]:
+            return
+        if ev.get("state", 0) == 3:
+            return
+        if not self._pub_gate_ok(tag):
+            # 2026-10-06 闸门拦截遥测：v9 三轮"裁判零输入"时这里完全静默，
+            # 无法区分"没检测到"和"检测到了但距离太远被闸"。
+            tr = self.core.tracks.get(tag)
+            rng = getattr(tr, "range_m", None) if tr is not None else None
+            _gn = self._now()
+            _gt = _BRIDGE_DBG_LAST.get("gate_" + tag, 0.0)
+            if (_gn - _gt) > 1.0:
+                _BRIDGE_DBG_LAST["gate_" + tag] = _gn
+                self._rospy.loginfo(
+                    "[GATE_DBG] tag=%s range=%s gate_live=%s enter<=%.1fm exit>%.1fm"
+                    " → 拦截播报",
+                    tag,
+                    ("%.1fm" % rng) if rng is not None else "None",
+                    bool(self._gate_live.get(tag, False)),
+                    ACTOR_PUB_MAX_RANGE_M, ACTOR_PUB_HOLD_RANGE_M)
             return
         self._publish_actor(tag, ev["x"], ev["y"])
 
@@ -656,6 +754,17 @@ class YoloTargetBridge(object):
         for ev in self.core.tick(now):
             self._emit(ev)
         self._keepalive(now)
+        # 2026-10-06 播报连续性遥测：每 5s 汇总一次实际发布间隔。
+        # 官方判据「相邻播报间隔 ≤1s」—— max_gap>1.0 即存在断流窗口。
+        if now - self._pub_dbg_last >= 5.0:
+            self._pub_dbg_last = now
+            for _ptag in sorted(self._pub_stats):
+                _st = self._pub_stats[_ptag]
+                if _st["n"] > 1:
+                    self._rospy.loginfo(
+                        "[PUB_DBG] tag=%s n=%d max_gap=%.2fs avg_gap=%.2fs",
+                        _ptag, _st["n"], _st["max_gap"],
+                        _st["sum"] / (_st["n"] - 1))
 
 
 def _msg_string_cls():
@@ -712,11 +821,15 @@ def _self_test():
     c3.report(0.0, "green", 0.0, 0.0, 0.8)
     c3.report(0.1, "green", 0.1, 0.0, 0.85)     # 2 帧达 NEW_TRACK_FRAMES 激活
     assert c3.tracks['green'].alive
-    assert len(c3.tick(0.7)) == 1               # gap 0.7s 仍保持（<DROP_TIME=6）
-    assert len(c3.tick(5.5)) == 1               # gap 5.5s 仍保持
-    assert c3.tick(8.0) == []                   # gap 8s >DROP_TIME 停发
-    c3.report(8.5, "green", 4.0, 0.0, 0.9)     # 重新出现 → 复活
-    assert len(c3.tick(8.5)) == 1
+    # 2026-10-06 修：断言原本写死 DROP_TIME=6 的时序（0.7/5.5/8.0/8.5），
+    # DROP_TIME 默认改为 2.0 后 5.5s 处早已停发 ⇒ 自测必挂（被此前 rospy
+    # NameError 掩盖）。改为按 DROP_TIME 参数化，语义不变：
+    # 半窗保持 / 超窗停发 / 重现复活。
+    _t_last = 0.1                               # 最后观测时刻
+    assert len(c3.tick(_t_last + 0.5 * DROP_TIME)) == 1     # 半窗内 coast 保持
+    assert c3.tick(_t_last + DROP_TIME + 0.5) == []         # 超窗停发
+    c3.report(_t_last + DROP_TIME + 1.0, "green", 4.0, 0.0, 0.9)  # 重新出现 → 复活
+    assert len(c3.tick(_t_last + DROP_TIME + 1.0)) == 1
     print("3) coast/drop/复活 OK")
 
     # 4) 官方消除：补发 eliminated 一次，鬼影不复活
@@ -791,10 +904,17 @@ def _mk_bridge():
     b._actor_pubs = dict((t, _FakePub()) for t in TAG_TO_TID)
     b._gate_live = {}
     b._pub_last = {}
+    # 2026-10-06 播报遥测属性（__init__ 被绕过，手工补齐）
+    b._pub_stats = {}
+    b._pub_dbg_last = 0.0
     b._red_focus = None
     b._red_consumed = set()
     b._red_prev_ids = None
-    b._now = lambda: 0.0
+    # 2026-10-06 修：可推进的假时钟 —— PUB_MIN_INTERVAL 节流需要时间前进
+    # 才能连续发布（_advance 由自测在每次期望发布前调用）。
+    _clock = {"t": 0.0}
+    b._now = lambda: _clock["t"]
+    b._advance = lambda dt: _clock.__setitem__("t", _clock["t"] + dt)
     return b
 
 
@@ -814,12 +934,15 @@ def _red_dual_selftest():
     print("7) 身份映射/官方 cls OK（red1→actor_5，cls 统一为 'red'）")
 
     b = _mk_bridge()
-    # red1 近(8m)、red2 稍远(10m，仍过 12m 闸门但非最近) ⇒ 焦点 = red1
+    # 2026-10-06 修：闸门默认已从 12m 收紧到 8m（ACTOR_PUB_MAX_RANGE_M），
+    # red2@10m 会被闸死、测不到"非焦点静默"路径 ⇒ 改为 red2 同距 8m 压线
+    # 过闸（字母序 red1 优先成为焦点）。
     _activate(b, "red1", 10.0, 0.0, 8.0)
-    _activate(b, "red2", 40.0, 0.0, 10.0)
+    _activate(b, "red2", 40.0, 0.0, 8.0)
     assert b._pick_red_focus() == "red1", b._red_focus
 
     # 焦点球（red1 / t5）⇒ 两条 red 流同发，且 cls 都是 'red'
+    b._advance(1.0)                             # 推进假时钟，越过节流窗
     b._emit(dict(tag="red1", tid="t5", x=10.0, y=0.0, vx=0.0, vy=0.0,
                  state=0, eliminated=False))
     assert len(b._actor_pubs["red1"].msgs) == 1
@@ -844,6 +967,7 @@ def _red_dual_selftest():
     b._note_red_left({0, 1, 2, 3, 4})
     assert b._red_focus is None and b._red_consumed == {"red1"}, (b._red_focus, b._red_consumed)
     assert b._pick_red_focus() == "red2", b._red_focus
+    b._advance(1.0)                             # 推进假时钟，越过节流窗
     b._emit(dict(tag="red2", tid="t4", x=40.0, y=0.0, vx=0.0, vy=0.0,
                  state=0, eliminated=False))
     assert b._actor_pubs["red1"].msgs[-1].x == 40.0
