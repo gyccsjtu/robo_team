@@ -1,0 +1,3853 @@
+{
+ "note": "truth used only for a diagnosis marker; not a perception, reporting or control input",
+ "model_sha": {
+  "color": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+  "person": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1"
+ },
+ "rows": [
+  {
+   "uav": "uav_2",
+   "t_image": 1949.512,
+   "image_s": 1949.512,
+   "sample_s": 1950.204,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000001_1791448396643.png",
+   "truth_time": 1949.488,
+   "truth_dt": 0.024,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.6843,
+     "xyxy": [
+      359.2,
+      203.1,
+      371.2,
+      230.0
+     ]
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.4776,
+     "xyxy": [
+      349.7,
+      186.3,
+      357.1,
+      203.6
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.44,
+     "xyxy": [
+      75.1,
+      198.6,
+      85.2,
+      214.2
+     ],
+     "h_px": 15.6
+    }
+   ],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.6843,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.7727272727272727,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.015151515151515152
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.4776,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.03571428571428571,
+      "green": 0.0,
+      "blue": 0.32142857142857145,
+      "white": 0.0,
+      "brown": 0.17857142857142858
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 49.144,
+   "proj_uv_0875": [
+    479.0,
+    186.4
+   ],
+   "expected_h_px_0875": 7.32,
+   "depth_100": 49.147,
+   "proj_uv_100": [
+    479.0,
+    185.8
+   ],
+   "expected_h_px_100": 7.32,
+   "white_frac_at_proj": 0.10101010101010101,
+   "horiz_m": 62.07,
+   "annotated": "annot_uav_2_1949_5_949.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1951.7,
+   "image_s": 1951.7,
+   "sample_s": 1952.212,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000002_1791448409184.png",
+   "truth_time": 1951.726,
+   "truth_dt": -0.026,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.563,
+     "xyxy": [
+      274.8,
+      190.3,
+      284.1,
+      208.8
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.5376,
+     "xyxy": [
+      274.9,
+      189.8,
+      283.6,
+      208.1
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3628,
+     "xyxy": [
+      67.5,
+      189.2,
+      74.1,
+      202.9
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2868,
+     "xyxy": [
+      385.6,
+      204.0,
+      394.9,
+      225.8
+     ]
+    }
+   ],
+   "person_boxes": [],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.563,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.7142857142857143,
+      "white": 0.0,
+      "brown": 0.14285714285714285
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.5376,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.6428571428571429,
+      "white": 0.0,
+      "brown": 0.21428571428571427
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3628,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2868,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.35555555555555557,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.13333333333333333
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 60.472,
+   "proj_uv_0875": [
+    366.1,
+    191.1
+   ],
+   "expected_h_px_0875": 5.95,
+   "depth_100": 60.475,
+   "proj_uv_100": [
+    366.1,
+    190.7
+   ],
+   "expected_h_px_100": 5.95,
+   "white_frac_at_proj": 0.08641975308641975,
+   "horiz_m": 62.0,
+   "annotated": "annot_uav_2_1951_7_951.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1952.104,
+   "image_s": 1952.104,
+   "sample_s": 1952.6,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000001_1791448411633.png",
+   "truth_time": 1952.078,
+   "truth_dt": 0.026,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.6838,
+     "xyxy": [
+      242.9,
+      177.5,
+      252.9,
+      197.7
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.561,
+     "xyxy": [
+      243.3,
+      177.3,
+      253.3,
+      197.0
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3763,
+     "xyxy": [
+      352.4,
+      192.2,
+      361.4,
+      212.7
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.315,
+     "xyxy": [
+      244.4,
+      179.6,
+      251.5,
+      195.8
+     ],
+     "h_px": 16.3
+    },
+    {
+     "conf": 0.1977,
+     "xyxy": [
+      243.0,
+      177.9,
+      250.8,
+      196.4
+     ],
+     "h_px": 18.5
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.6838,
+     "best_person_iou": 0.7144,
+     "best_person_conf": 0.1977,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.65,
+      "white": 0.0,
+      "brown": 0.2
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.561,
+     "best_person_iou": 0.685,
+     "best_person_conf": 0.1977,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.65,
+      "white": 0.0,
+      "brown": 0.2
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3763,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.425,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.075
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 61.822,
+   "proj_uv_0875": [
+    333.6,
+    179.5
+   ],
+   "expected_h_px_0875": 5.82,
+   "depth_100": 61.819,
+   "proj_uv_100": [
+    333.6,
+    179.0
+   ],
+   "expected_h_px_100": 5.82,
+   "white_frac_at_proj": 0.1111111111111111,
+   "horiz_m": 61.93,
+   "annotated": "annot_uav_2_1952_1_952.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1952.528,
+   "image_s": 1952.528,
+   "sample_s": 1953.204,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000002_1791448415401.png",
+   "truth_time": 1952.546,
+   "truth_dt": -0.018,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8191,
+     "xyxy": [
+      207.0,
+      184.9,
+      217.2,
+      205.4
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3472,
+     "xyxy": [
+      359.6,
+      205.4,
+      366.0,
+      218.1
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.5737,
+     "xyxy": [
+      207.4,
+      186.8,
+      216.3,
+      204.7
+     ],
+     "h_px": 17.9
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8191,
+     "best_person_iou": 0.7619,
+     "best_person_conf": 0.5737,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.025,
+      "green": 0.075,
+      "blue": 0.675,
+      "white": 0.0,
+      "brown": 0.125
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3472,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.7777777777777778,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 61.883,
+   "proj_uv_0875": [
+    299.3,
+    184.2
+   ],
+   "expected_h_px_0875": 5.81,
+   "depth_100": 61.882,
+   "proj_uv_100": [
+    299.3,
+    183.8
+   ],
+   "expected_h_px_100": 5.81,
+   "white_frac_at_proj": 0.08641975308641975,
+   "horiz_m": 62.2,
+   "annotated": "annot_uav_2_1952_5_952.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1956.624,
+   "image_s": 1956.624,
+   "sample_s": 1957.004,
+   "original_sha256": "6641a1968aee623a028934d72688c3d45d286ddebbfea0c73f1a299eae12eb23",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_003.png",
+   "truth_time": 1956.602,
+   "truth_dt": 0.022,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "index.uav_id",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.681,
+     "xyxy": [
+      416.1,
+      189.9,
+      426.0,
+      210.5
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.5313,
+     "xyxy": [
+      357.2,
+      186.4,
+      364.3,
+      199.5
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4543,
+     "xyxy": [
+      415.8,
+      189.5,
+      425.9,
+      210.0
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.5584,
+     "xyxy": [
+      416.1,
+      191.5,
+      424.5,
+      211.2
+     ],
+     "h_px": 19.7
+    },
+    {
+     "conf": 0.3239,
+     "xyxy": [
+      80.1,
+      190.5,
+      86.7,
+      203.0
+     ],
+     "h_px": 12.4
+    },
+    {
+     "conf": 0.2717,
+     "xyxy": [
+      307.2,
+      184.9,
+      315.9,
+      203.8
+     ],
+     "h_px": 18.9
+    },
+    {
+     "conf": 0.2554,
+     "xyxy": [
+      576.4,
+      185.5,
+      582.6,
+      193.9
+     ],
+     "h_px": 8.5
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.681,
+     "best_person_iou": 0.7607,
+     "best_person_conf": 0.5584,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.9,
+      "white": 0.0,
+      "brown": 0.025
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.5313,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4543,
+     "best_person_iou": 0.7157,
+     "best_person_conf": 0.5584,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.825,
+      "white": 0.0,
+      "brown": 0.025
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 47.955,
+   "proj_uv_0875": [
+    487.3,
+    189.9
+   ],
+   "expected_h_px_0875": 7.5,
+   "depth_100": 47.957,
+   "proj_uv_100": [
+    487.3,
+    189.4
+   ],
+   "expected_h_px_100": 7.5,
+   "white_frac_at_proj": 0.05128205128205128,
+   "horiz_m": 61.78,
+   "annotated": "annot_uav_2_1956_6_956.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1958.692,
+   "image_s": 1958.692,
+   "sample_s": 1959.224,
+   "original_sha256": "04bef32622a9e17a57197c9d73382b9dab57041b8f090bb5a7464a0c581ea375",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_004.png",
+   "truth_time": 1958.67,
+   "truth_dt": 0.022,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "index.uav_id",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5808,
+     "xyxy": [
+      59.8,
+      189.5,
+      73.9,
+      219.7
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.467,
+     "xyxy": [
+      237.8,
+      206.6,
+      250.8,
+      246.7
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.254,
+     "xyxy": [
+      59.9,
+      190.7,
+      73.1,
+      220.1
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.6908,
+     "xyxy": [
+      59.5,
+      188.2,
+      72.5,
+      220.6
+     ],
+     "h_px": 32.4
+    },
+    {
+     "conf": 0.152,
+     "xyxy": [
+      202.4,
+      180.3,
+      207.6,
+      186.8
+     ],
+     "h_px": 6.5
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5808,
+     "best_person_iou": 0.8275,
+     "best_person_conf": 0.6908,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.9166666666666666,
+      "white": 0.0,
+      "brown": 0.047619047619047616
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.467,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.46875,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.07291666666666667
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.254,
+     "best_person_iou": 0.8441,
+     "best_person_conf": 0.6908,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 1.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 45.416,
+   "proj_uv_0875": [
+    127.5,
+    186.3
+   ],
+   "expected_h_px_0875": 7.92,
+   "depth_100": 45.415,
+   "proj_uv_100": [
+    127.5,
+    185.7
+   ],
+   "expected_h_px_100": 7.92,
+   "white_frac_at_proj": 0.02564102564102564,
+   "horiz_m": 62.31,
+   "annotated": "annot_uav_2_1958_7_958.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1960.836,
+   "image_s": 1960.836,
+   "sample_s": 1961.404,
+   "original_sha256": "c520ea47dadcf0a74bf5e1dddac82468e8ea516f4e9bab4e7bdeabc7ddac3014",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_005.png",
+   "truth_time": 1960.85,
+   "truth_dt": -0.014,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "index.uav_id",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7861,
+     "xyxy": [
+      185.9,
+      179.1,
+      196.7,
+      201.7
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.2649,
+     "xyxy": [
+      186.8,
+      180.8,
+      195.5,
+      201.2
+     ],
+     "h_px": 20.4
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7861,
+     "best_person_iou": 0.7271,
+     "best_person_conf": 0.2649,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.018518518518518517,
+      "blue": 0.7222222222222222,
+      "white": 0.0,
+      "brown": 0.05555555555555555
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 57.208,
+   "proj_uv_0875": [
+    226.0,
+    179.3
+   ],
+   "expected_h_px_0875": 6.29,
+   "depth_100": 57.208,
+   "proj_uv_100": [
+    226.0,
+    178.8
+   ],
+   "expected_h_px_100": 6.29,
+   "white_frac_at_proj": 0.030303030303030304,
+   "horiz_m": 62.95,
+   "annotated": "annot_uav_2_1960_8_960.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1961.604,
+   "image_s": 1961.604,
+   "sample_s": 1962.212,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000003_1791448471726.png",
+   "truth_time": 1961.594,
+   "truth_dt": 0.01,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.6379,
+     "xyxy": [
+      365.0,
+      192.4,
+      376.0,
+      211.7
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.5852,
+     "xyxy": [
+      77.0,
+      212.3,
+      88.1,
+      230.2
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.438,
+     "xyxy": [
+      366.4,
+      193.7,
+      374.0,
+      209.2
+     ],
+     "h_px": 15.5
+    },
+    {
+     "conf": 0.165,
+     "xyxy": [
+      450.8,
+      181.7,
+      455.4,
+      187.6
+     ],
+     "h_px": 5.9
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.6379,
+     "best_person_iou": 0.5549,
+     "best_person_conf": 0.438,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.047619047619047616,
+      "blue": 0.5952380952380952,
+      "white": 0.0,
+      "brown": 0.09523809523809523
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.5852,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.10416666666666667,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0625
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 59.934,
+   "proj_uv_0875": [
+    387.8,
+    189.1
+   ],
+   "expected_h_px_0875": 6.0,
+   "depth_100": 59.939,
+   "proj_uv_100": [
+    387.7,
+    188.6
+   ],
+   "expected_h_px_100": 6.0,
+   "white_frac_at_proj": 0.024691358024691357,
+   "horiz_m": 63.09,
+   "annotated": "annot_uav_2_1961_6_961.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2008.848,
+   "image_s": 2008.848,
+   "sample_s": 2009.2,
+   "original_sha256": "af5d601f4150fdc2ffc1170c76ea0344f7a7bf53bdb2b9e04d650497bb1edab9",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_007.png",
+   "truth_time": 2008.844,
+   "truth_dt": 0.004,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "index.uav_id",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8033,
+     "xyxy": [
+      502.6,
+      189.0,
+      512.9,
+      210.4
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2998,
+     "xyxy": [
+      388.0,
+      191.5,
+      397.1,
+      210.2
+     ]
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.276,
+     "xyxy": [
+      184.4,
+      197.0,
+      192.6,
+      212.9
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.3535,
+     "xyxy": [
+      504.6,
+      192.1,
+      512.2,
+      210.2
+     ],
+     "h_px": 18.1
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8033,
+     "best_person_iou": 0.6241,
+     "best_person_conf": 0.3535,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.875,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2998,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.21428571428571427,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.03571428571428571
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.276,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.625,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 87.632,
+   "proj_uv_0875": [
+    393.0,
+    186.4
+   ],
+   "expected_h_px_0875": 4.1,
+   "depth_100": 87.633,
+   "proj_uv_100": [
+    393.0,
+    186.1
+   ],
+   "expected_h_px_100": 4.1,
+   "white_frac_at_proj": 0.1111111111111111,
+   "horiz_m": 92.94,
+   "annotated": "annot_uav_2_2008_8_008.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2024.456,
+   "image_s": 2024.456,
+   "sample_s": 2025.012,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000004_1791448864522.png",
+   "truth_time": 2024.456,
+   "truth_dt": 0.0,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.7446,
+     "xyxy": [
+      41.9,
+      189.1,
+      58.7,
+      223.9
+     ]
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5467,
+     "xyxy": [
+      234.2,
+      186.1,
+      245.1,
+      210.7
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4388,
+     "xyxy": [
+      234.3,
+      186.0,
+      245.7,
+      212.5
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.3245,
+     "xyxy": [
+      384.2,
+      184.3,
+      390.0,
+      193.7
+     ],
+     "h_px": 9.4
+    }
+   ],
+   "association": [
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.7446,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5467,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.037037037037037035,
+      "blue": 0.46296296296296297,
+      "white": 0.0,
+      "brown": 0.09259259259259259
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4388,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.02,
+      "blue": 0.52,
+      "white": 0.0,
+      "brown": 0.04
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 92.366,
+   "proj_uv_0875": [
+    215.6,
+    186.5
+   ],
+   "expected_h_px_0875": 3.89,
+   "depth_100": 92.368,
+   "proj_uv_100": [
+    215.6,
+    186.2
+   ],
+   "expected_h_px_100": 3.89,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 103.73,
+   "annotated": "annot_uav_2_2024_5_024.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2025.684,
+   "image_s": 2025.684,
+   "sample_s": 2026.224,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000005_1791448872136.png",
+   "truth_time": 2025.678,
+   "truth_dt": 0.006,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7111,
+     "xyxy": [
+      387.4,
+      188.9,
+      394.2,
+      205.8
+     ]
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.4152,
+     "xyxy": [
+      108.2,
+      214.0,
+      119.4,
+      236.3
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2842,
+     "xyxy": [
+      402.1,
+      196.6,
+      414.1,
+      216.3
+     ]
+    }
+   ],
+   "person_boxes": [],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7111,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.8095238095238095,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.4152,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.5777777777777777,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2842,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 100.483,
+   "proj_uv_0875": [
+    377.4,
+    187.6
+   ],
+   "expected_h_px_0875": 3.58,
+   "depth_100": 100.486,
+   "proj_uv_100": [
+    377.4,
+    187.3
+   ],
+   "expected_h_px_100": 3.58,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 104.31,
+   "annotated": "annot_uav_2_2025_7_025.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2026.152,
+   "image_s": 2026.152,
+   "sample_s": 2027.008,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000006_1791448877198.png",
+   "truth_time": 2026.14,
+   "truth_dt": 0.012,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7362,
+     "xyxy": [
+      410.2,
+      214.6,
+      420.0,
+      234.4
+     ]
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.6783,
+     "xyxy": [
+      127.8,
+      231.2,
+      139.5,
+      252.9
+     ]
+    }
+   ],
+   "person_boxes": [],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7362,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.05,
+      "blue": 0.55,
+      "white": 0.0,
+      "brown": 0.15
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.6783,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.5740740740740741,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 95.816,
+   "proj_uv_0875": [
+    401.4,
+    212.2
+   ],
+   "expected_h_px_0875": 3.75,
+   "depth_100": 95.833,
+   "proj_uv_100": [
+    401.4,
+    212.0
+   ],
+   "expected_h_px_100": 3.75,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 104.03,
+   "annotated": "annot_uav_2_2026_2_026.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2026.856,
+   "image_s": 2026.856,
+   "sample_s": 2027.42,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000008_1791448879805.png",
+   "truth_time": 2026.844,
+   "truth_dt": 0.012,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8143,
+     "xyxy": [
+      412.2,
+      183.5,
+      421.1,
+      203.9
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3802,
+     "xyxy": [
+      286.3,
+      179.2,
+      298.2,
+      210.0
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3426,
+     "xyxy": [
+      445.6,
+      194.0,
+      462.8,
+      216.3
+     ]
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.3337,
+     "xyxy": [
+      140.2,
+      200.1,
+      151.7,
+      220.6
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.1545,
+     "xyxy": [
+      172.7,
+      185.7,
+      181.7,
+      195.1
+     ],
+     "h_px": 9.4
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8143,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.4375,
+      "white": 0.0,
+      "brown": 0.40625
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3802,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3426,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.08641975308641975,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.3337,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.575,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 95.448,
+   "proj_uv_0875": [
+    408.7,
+    182.2
+   ],
+   "expected_h_px_0875": 3.77,
+   "depth_100": 95.448,
+   "proj_uv_100": [
+    408.7,
+    182.0
+   ],
+   "expected_h_px_100": 3.77,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 103.86,
+   "annotated": "annot_uav_2_2026_9_026.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2027.356,
+   "image_s": 2027.356,
+   "sample_s": 2028.008,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000009_1791448883518.png",
+   "truth_time": 2027.356,
+   "truth_dt": 0.0,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8196,
+     "xyxy": [
+      410.7,
+      191.4,
+      420.4,
+      211.5
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2863,
+     "xyxy": [
+      286.3,
+      184.8,
+      297.3,
+      212.1
+     ]
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.2604,
+     "xyxy": [
+      169.1,
+      187.9,
+      177.0,
+      200.8
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.1482,
+     "xyxy": [
+      169.1,
+      190.8,
+      178.2,
+      202.1
+     ],
+     "h_px": 11.3
+    },
+    {
+     "conf": 0.1209,
+     "xyxy": [
+      46.1,
+      189.5,
+      59.4,
+      211.8
+     ],
+     "h_px": 22.2
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8196,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.6875,
+      "white": 0.0,
+      "brown": 0.03125
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2863,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.2604,
+     "best_person_iou": 0.6283,
+     "best_person_conf": 0.1482,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.6,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 94.799,
+   "proj_uv_0875": [
+    409.5,
+    189.3
+   ],
+   "expected_h_px_0875": 3.79,
+   "depth_100": 94.802,
+   "proj_uv_100": [
+    409.5,
+    189.0
+   ],
+   "expected_h_px_100": 3.79,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 103.38,
+   "annotated": "annot_uav_2_2027_4_027.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2027.936,
+   "image_s": 2027.936,
+   "sample_s": 2028.632,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000005_1791448887473.png",
+   "truth_time": 2027.93,
+   "truth_dt": 0.006,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8393,
+     "xyxy": [
+      408.6,
+      184.3,
+      418.6,
+      205.7
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.6654,
+     "xyxy": [
+      305.2,
+      184.1,
+      318.2,
+      209.3
+     ]
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.3505,
+     "xyxy": [
+      126.9,
+      202.2,
+      138.8,
+      224.3
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3105,
+     "xyxy": [
+      287.9,
+      180.2,
+      298.0,
+      209.0
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.4121,
+     "xyxy": [
+      409.7,
+      185.9,
+      418.8,
+      204.3
+     ],
+     "h_px": 18.4
+    },
+    {
+     "conf": 0.2879,
+     "xyxy": [
+      165.8,
+      186.2,
+      173.8,
+      196.5
+     ],
+     "h_px": 10.3
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8393,
+     "best_person_iou": 0.7523,
+     "best_person_conf": 0.4121,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.022222222222222223,
+      "green": 0.0,
+      "blue": 0.7111111111111111,
+      "white": 0.0,
+      "brown": 0.022222222222222223
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.6654,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.03333333333333333,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.3505,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.6111111111111112,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3105,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 94.21,
+   "proj_uv_0875": [
+    410.6,
+    183.3
+   ],
+   "expected_h_px_0875": 3.82,
+   "depth_100": 94.21,
+   "proj_uv_100": [
+    410.6,
+    183.0
+   ],
+   "expected_h_px_100": 3.82,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 102.86,
+   "annotated": "annot_uav_2_2027_9_027.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2028.424,
+   "image_s": 2028.424,
+   "sample_s": 2029.02,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000006_1791448889930.png",
+   "truth_time": 2028.452,
+   "truth_dt": -0.028,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8372,
+     "xyxy": [
+      407.6,
+      186.8,
+      418.2,
+      207.1
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4345,
+     "xyxy": [
+      292.7,
+      196.3,
+      301.4,
+      213.2
+     ]
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.3954,
+     "xyxy": [
+      135.0,
+      203.0,
+      146.9,
+      224.8
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.2865,
+     "xyxy": [
+      409.2,
+      188.5,
+      416.9,
+      206.3
+     ],
+     "h_px": 17.8
+    },
+    {
+     "conf": 0.2671,
+     "xyxy": [
+      172.4,
+      187.3,
+      180.9,
+      197.7
+     ],
+     "h_px": 10.4
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8372,
+     "best_person_iou": 0.637,
+     "best_person_conf": 0.2865,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.575,
+      "white": 0.0,
+      "brown": 0.025
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4345,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.05714285714285714
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.3954,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.5740740740740741,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.018518518518518517
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 93.384,
+   "proj_uv_0875": [
+    414.9,
+    185.3
+   ],
+   "expected_h_px_0875": 3.85,
+   "depth_100": 93.385,
+   "proj_uv_100": [
+    414.9,
+    185.0
+   ],
+   "expected_h_px_100": 3.85,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 102.79,
+   "annotated": "annot_uav_2_2028_4_028.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2028.9,
+   "image_s": 2028.9,
+   "sample_s": 2029.408,
+   "original_sha256": "c9f16c20a0c7e91161b5145bf56bff6c410fd8784f1810e4d066b4ace367f11a",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_009.png",
+   "truth_time": 2028.914,
+   "truth_dt": -0.014,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "index.uav_id",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8485,
+     "xyxy": [
+      441.8,
+      187.7,
+      454.5,
+      209.7
+     ]
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.3954,
+     "xyxy": [
+      188.7,
+      199.6,
+      198.6,
+      220.2
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.4989,
+     "xyxy": [
+      443.3,
+      188.2,
+      453.0,
+      208.3
+     ],
+     "h_px": 20.1
+    },
+    {
+     "conf": 0.4442,
+     "xyxy": [
+      219.0,
+      186.6,
+      224.8,
+      195.5
+     ],
+     "h_px": 8.9
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.8485,
+     "best_person_iou": 0.6978,
+     "best_person_conf": 0.4989,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.625,
+      "white": 0.0,
+      "brown": 0.05357142857142857
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.3954,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.6,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 85.647,
+   "proj_uv_0875": [
+    456.7,
+    186.3
+   ],
+   "expected_h_px_0875": 4.2,
+   "depth_100": 85.649,
+   "proj_uv_100": [
+    456.7,
+    186.0
+   ],
+   "expected_h_px_100": 4.2,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 102.78,
+   "annotated": "annot_uav_2_2028_9_028.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2047.564,
+   "image_s": 2047.564,
+   "sample_s": 2048.004,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000010_1791449008759.png",
+   "truth_time": 2047.536,
+   "truth_dt": 0.028,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5255,
+     "xyxy": [
+      154.2,
+      204.8,
+      163.4,
+      223.6
+     ]
+    }
+   ],
+   "person_boxes": [],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5255,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.7,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 101.802,
+   "proj_uv_0875": [
+    345.7,
+    191.7
+   ],
+   "expected_h_px_0875": 3.53,
+   "depth_100": 101.807,
+   "proj_uv_100": [
+    345.7,
+    191.4
+   ],
+   "expected_h_px_100": 3.53,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 102.7,
+   "annotated": "annot_uav_2_2047_6_047.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2048.212,
+   "image_s": 2048.212,
+   "sample_s": 2048.616,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000011_1791449012557.png",
+   "truth_time": 2048.216,
+   "truth_dt": -0.004,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.691,
+     "xyxy": [
+      140.0,
+      199.7,
+      149.6,
+      220.2
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.5811,
+     "xyxy": [
+      20.6,
+      194.6,
+      30.1,
+      213.4
+     ]
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5699,
+     "xyxy": [
+      257.4,
+      181.3,
+      264.7,
+      196.8
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3067,
+     "xyxy": [
+      289.1,
+      183.2,
+      298.6,
+      204.2
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.1218,
+     "xyxy": [
+      23.0,
+      195.6,
+      36.7,
+      211.8
+     ],
+     "h_px": 16.3
+    }
+   ],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.691,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.6,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.5811,
+     "best_person_iou": 0.4028,
+     "best_person_conf": 0.1218,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.45714285714285713,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.05714285714285714
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5699,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.5555555555555556,
+      "white": 0.0,
+      "brown": 0.05555555555555555
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3067,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.025,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 101.617,
+   "proj_uv_0875": [
+    339.6,
+    180.3
+   ],
+   "expected_h_px_0875": 3.54,
+   "depth_100": 101.615,
+   "proj_uv_100": [
+    339.6,
+    180.1
+   ],
+   "expected_h_px_100": 3.54,
+   "white_frac_at_proj": 0.012345679012345678,
+   "horiz_m": 102.05,
+   "annotated": "annot_uav_2_2048_2_048.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2048.564,
+   "image_s": 2048.564,
+   "sample_s": 2049.012,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000012_1791449015040.png",
+   "truth_time": 2048.568,
+   "truth_dt": -0.004,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.7453,
+     "xyxy": [
+      97.7,
+      203.2,
+      109.2,
+      224.6
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4901,
+     "xyxy": [
+      269.4,
+      189.9,
+      280.7,
+      211.6
+     ]
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.4093,
+     "xyxy": [
+      238.5,
+      184.7,
+      245.4,
+      201.2
+     ]
+    }
+   ],
+   "person_boxes": [],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.7453,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.6111111111111112,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4901,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.025,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.4093,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.6111111111111112,
+      "white": 0.0,
+      "brown": 0.16666666666666666
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 101.649,
+   "proj_uv_0875": [
+    322.0,
+    188.6
+   ],
+   "expected_h_px_0875": 3.54,
+   "depth_100": 101.652,
+   "proj_uv_100": [
+    322.0,
+    188.4
+   ],
+   "expected_h_px_100": 3.54,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 101.72,
+   "annotated": "annot_uav_2_2048_6_048.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2048.936,
+   "image_s": 2048.936,
+   "sample_s": 2049.4,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000013_1791449017472.png",
+   "truth_time": 2048.918,
+   "truth_dt": 0.018,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.6487,
+     "xyxy": [
+      64.1,
+      206.7,
+      77.0,
+      230.4
+     ]
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5589,
+     "xyxy": [
+      225.2,
+      184.7,
+      233.1,
+      200.9
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2959,
+     "xyxy": [
+      255.7,
+      188.0,
+      268.6,
+      212.1
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2569,
+     "xyxy": [
+      238.9,
+      196.8,
+      247.9,
+      214.1
+     ]
+    }
+   ],
+   "person_boxes": [],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.6487,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.46296296296296297,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5589,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.5,
+      "white": 0.0,
+      "brown": 0.21428571428571427
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2959,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.014285714285714285,
+      "green": 0.014285714285714285,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2569,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.03571428571428571,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.07142857142857142
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 101.161,
+   "proj_uv_0875": [
+    310.7,
+    187.6
+   ],
+   "expected_h_px_0875": 3.55,
+   "depth_100": 101.163,
+   "proj_uv_100": [
+    310.7,
+    187.3
+   ],
+   "expected_h_px_100": 3.55,
+   "white_frac_at_proj": 0.024691358024691357,
+   "horiz_m": 101.33,
+   "annotated": "annot_uav_2_2048_9_048.png"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2049.26,
+   "image_s": 2049.26,
+   "sample_s": 2049.608,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000014_1791449018772.png",
+   "truth_time": 2049.26,
+   "truth_dt": 0.0,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7265,
+     "xyxy": [
+      217.4,
+      185.8,
+      225.3,
+      201.8
+     ]
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.645,
+     "xyxy": [
+      36.8,
+      210.0,
+      51.2,
+      234.7
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.3008,
+     "xyxy": [
+      217.6,
+      185.9,
+      224.1,
+      201.8
+     ],
+     "h_px": 15.9
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7265,
+     "best_person_iou": 0.8176,
+     "best_person_conf": 0.3008,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.5,
+      "white": 0.0,
+      "brown": 0.125
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.645,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.5714285714285714,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 100.504,
+   "proj_uv_0875": [
+    304.0,
+    188.4
+   ],
+   "expected_h_px_0875": 3.58,
+   "depth_100": 100.507,
+   "proj_uv_100": [
+    304.0,
+    188.1
+   ],
+   "expected_h_px_100": 3.58,
+   "white_frac_at_proj": 0.037037037037037035,
+   "horiz_m": 100.89,
+   "annotated": "annot_uav_2_2049_3_049.png"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2047.232,
+   "image_s": 2047.232,
+   "sample_s": 2047.68,
+   "original_sha256": "1aa5c0fcb4c1fcad205bda61d4ef77452405f70dd05a6ef5fe746abee3280c58",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_009.png",
+   "truth_time": 2047.244,
+   "truth_dt": -0.012,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "index.uav_id",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.4937,
+     "xyxy": [
+      180.9,
+      189.5,
+      193.1,
+      210.7
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.665,
+     "xyxy": [
+      183.1,
+      192.0,
+      191.5,
+      211.0
+     ],
+     "h_px": 18.9
+    }
+   ],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.4937,
+     "best_person_iou": 0.6015,
+     "best_person_conf": 0.665,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.6507936507936508,
+      "green": 0.015873015873015872,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.3492063492063492
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 164.667,
+   "proj_uv_0875": [
+    403.9,
+    178.9
+   ],
+   "expected_h_px_0875": 2.18,
+   "depth_100": 164.667,
+   "proj_uv_100": [
+    403.9,
+    178.8
+   ],
+   "expected_h_px_100": 2.18,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 177.71,
+   "annotated": "annot_uav_3_2047_2_047.png"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1951.7,
+   "image_s": 1951.7,
+   "sample_s": 1952.2,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3_pass/frame_000001_1791448409133.png",
+   "truth_time": 1951.726,
+   "truth_dt": -0.026,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.6486,
+     "xyxy": [
+      390.7,
+      189.4,
+      400.1,
+      208.2
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4634,
+     "xyxy": [
+      230.0,
+      184.6,
+      236.7,
+      199.7
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3647,
+     "xyxy": [
+      390.1,
+      189.7,
+      399.3,
+      207.9
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3265,
+     "xyxy": [
+      360.1,
+      185.0,
+      370.7,
+      199.0
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.4701,
+     "xyxy": [
+      77.1,
+      191.0,
+      86.0,
+      206.8
+     ],
+     "h_px": 15.8
+    },
+    {
+     "conf": 0.4015,
+     "xyxy": [
+      392.8,
+      192.5,
+      399.2,
+      207.2
+     ],
+     "h_px": 14.7
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.6486,
+     "best_person_iou": 0.5324,
+     "best_person_conf": 0.4015,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.6785714285714286,
+      "white": 0.0,
+      "brown": 0.17857142857142858
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4634,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3647,
+     "best_person_iou": 0.5619,
+     "best_person_conf": 0.4015,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.5428571428571428,
+      "white": 0.0,
+      "brown": 0.2857142857142857
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.3265,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 50.309,
+   "proj_uv_0875": [
+    480.3,
+    190.8
+   ],
+   "expected_h_px_0875": 7.15,
+   "depth_100": 50.312,
+   "proj_uv_100": [
+    480.3,
+    190.3
+   ],
+   "expected_h_px_100": 7.15,
+   "white_frac_at_proj": 0.09090909090909091,
+   "horiz_m": 63.77,
+   "annotated": "annot_uav_4_1951_7_951.png"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1952.104,
+   "image_s": 1952.104,
+   "sample_s": 1952.612,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3_pass/frame_000002_1791448411684.png",
+   "truth_time": 1952.078,
+   "truth_dt": 0.026,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4996,
+     "xyxy": [
+      233.0,
+      188.3,
+      239.1,
+      199.0
+     ]
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.4921,
+     "xyxy": [
+      401.3,
+      188.2,
+      410.7,
+      207.4
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.486,
+     "xyxy": [
+      401.3,
+      188.5,
+      410.6,
+      206.6
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.4386,
+     "xyxy": [
+      402.6,
+      190.0,
+      410.6,
+      205.8
+     ],
+     "h_px": 15.8
+    },
+    {
+     "conf": 0.3025,
+     "xyxy": [
+      82.3,
+      190.9,
+      90.3,
+      205.1
+     ],
+     "h_px": 14.2
+    }
+   ],
+   "association": [
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.4996,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": false
+    },
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.4921,
+     "best_person_iou": 0.7004,
+     "best_person_conf": 0.4386,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.8,
+      "white": 0.0,
+      "brown": 0.02857142857142857
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.486,
+     "best_person_iou": 0.7509,
+     "best_person_conf": 0.4386,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.8,
+      "white": 0.0,
+      "brown": 0.02857142857142857
+     },
+     "shirt_supported": false
+    }
+   ],
+   "depth_0875": 49.371,
+   "proj_uv_0875": [
+    487.3,
+    189.9
+   ],
+   "expected_h_px_0875": 7.28,
+   "depth_100": 49.373,
+   "proj_uv_100": [
+    487.3,
+    189.3
+   ],
+   "expected_h_px_100": 7.28,
+   "white_frac_at_proj": 0.0707070707070707,
+   "horiz_m": 63.62,
+   "annotated": "annot_uav_4_1952_1_952.png"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1952.528,
+   "image_s": 1952.528,
+   "sample_s": 1953.212,
+   "original_sha256": "50b5e24684c80933aa224b775ba8e9ff99b57500bc912a86159fd3b448d2e0d2",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_4_blue_001.png",
+   "truth_time": 1952.546,
+   "truth_dt": -0.018,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "index.uav_id",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.6207,
+     "xyxy": [
+      411.4,
+      183.7,
+      421.1,
+      203.0
+     ]
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2785,
+     "xyxy": [
+      629.0,
+      191.4,
+      640.0,
+      234.0
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.5942,
+     "xyxy": [
+      88.4,
+      184.5,
+      96.2,
+      200.8
+     ],
+     "h_px": 16.3
+    },
+    {
+     "conf": 0.3227,
+     "xyxy": [
+      412.9,
+      185.3,
+      420.8,
+      202.3
+     ],
+     "h_px": 17.0
+    },
+    {
+     "conf": 0.1594,
+     "xyxy": [
+      563.6,
+      179.1,
+      571.2,
+      188.5
+     ],
+     "h_px": 9.4
+    },
+    {
+     "conf": 0.1285,
+     "xyxy": [
+      436.8,
+      179.4,
+      454.0,
+      193.9
+     ],
+     "h_px": 14.5
+    },
+    {
+     "conf": 0.1241,
+     "xyxy": [
+      565.0,
+      179.8,
+      571.3,
+      189.6
+     ],
+     "h_px": 9.8
+    },
+    {
+     "conf": 0.1081,
+     "xyxy": [
+      338.4,
+      184.6,
+      344.4,
+      195.3
+     ],
+     "h_px": 10.7
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.6207,
+     "best_person_iou": 0.7174,
+     "best_person_conf": 0.3227,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.725,
+      "white": 0.0,
+      "brown": 0.15
+     },
+     "shirt_supported": true
+    },
+    {
+     "cls": 1,
+     "name": "green",
+     "conf": 0.2785,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.4215686274509804,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.029411764705882353
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 48.624,
+   "proj_uv_0875": [
+    493.6,
+    186.3
+   ],
+   "expected_h_px_0875": 7.39,
+   "depth_100": 48.624,
+   "proj_uv_100": [
+    493.6,
+    185.8
+   ],
+   "expected_h_px_100": 7.39,
+   "white_frac_at_proj": 0.12121212121212122,
+   "horiz_m": 63.58,
+   "annotated": "annot_uav_4_1952_5_952.png"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1984.58,
+   "image_s": 1984.58,
+   "sample_s": 1985.204,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000002_1791448615472.png",
+   "truth_time": 1984.562,
+   "truth_dt": 0.018,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.445,
+     "xyxy": [
+      482.0,
+      225.7,
+      497.3,
+      250.3
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.147,
+     "xyxy": [
+      483.8,
+      227.4,
+      496.2,
+      250.7
+     ],
+     "h_px": 23.3
+    }
+   ],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.445,
+     "best_person_iou": 0.7446,
+     "best_person_conf": 0.147,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.55,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.025
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 40.048,
+   "proj_uv_0875": [
+    635.3,
+    206.4
+   ],
+   "expected_h_px_0875": 8.98,
+   "depth_100": 40.057,
+   "proj_uv_100": [
+    635.2,
+    205.7
+   ],
+   "expected_h_px_100": 8.98,
+   "white_frac_at_proj": 0.05185185185185185,
+   "horiz_m": 73.43,
+   "annotated": "annot_uav_4_1984_6_984.png"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1985.396,
+   "image_s": 1985.396,
+   "sample_s": 1986.008,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000003_1791448620499.png",
+   "truth_time": 1985.422,
+   "truth_dt": -0.026,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5781,
+     "xyxy": [
+      417.2,
+      209.6,
+      429.5,
+      232.2
+     ]
+    }
+   ],
+   "person_boxes": [],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5781,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.5555555555555556,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.018518518518518517
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 54.728,
+   "proj_uv_0875": [
+    505.8,
+    190.4
+   ],
+   "expected_h_px_0875": 6.57,
+   "depth_100": 54.729,
+   "proj_uv_100": [
+    505.8,
+    189.9
+   ],
+   "expected_h_px_100": 6.57,
+   "white_frac_at_proj": 0.030303030303030304,
+   "horiz_m": 73.72,
+   "annotated": "annot_uav_4_1985_4_985.png"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1987.048,
+   "image_s": 1987.048,
+   "sample_s": 1987.612,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000004_1791448630525.png",
+   "truth_time": 1987.046,
+   "truth_dt": 0.002,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5592,
+     "xyxy": [
+      374.7,
+      242.2,
+      390.3,
+      272.2
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.4312,
+     "xyxy": [
+      377.3,
+      244.3,
+      388.2,
+      272.0
+     ],
+     "h_px": 27.7
+    }
+   ],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5592,
+     "best_person_iou": 0.6451,
+     "best_person_conf": 0.4312,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.6145833333333334,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.020833333333333332
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 64.892,
+   "proj_uv_0875": [
+    419.4,
+    213.8
+   ],
+   "expected_h_px_0875": 5.54,
+   "depth_100": 64.907,
+   "proj_uv_100": [
+    419.3,
+    213.4
+   ],
+   "expected_h_px_100": 5.54,
+   "white_frac_at_proj": 0.024691358024691357,
+   "horiz_m": 72.76,
+   "annotated": "annot_uav_4_1987_0_987.png"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1987.444,
+   "image_s": 1987.444,
+   "sample_s": 1988.004,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000005_1791448632996.png",
+   "truth_time": 1987.454,
+   "truth_dt": -0.01,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5231,
+     "xyxy": [
+      356.0,
+      205.2,
+      371.3,
+      234.2
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.1312,
+     "xyxy": [
+      358.2,
+      207.8,
+      369.7,
+      233.6
+     ],
+     "h_px": 25.8
+    }
+   ],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5231,
+     "best_person_iou": 0.6687,
+     "best_person_conf": 0.1312,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.5681818181818182,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.022727272727272728
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 68.446,
+   "proj_uv_0875": [
+    394.8,
+    180.3
+   ],
+   "expected_h_px_0875": 5.25,
+   "depth_100": 68.444,
+   "proj_uv_100": [
+    394.8,
+    180.0
+   ],
+   "expected_h_px_100": 5.25,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 72.77,
+   "annotated": "annot_uav_4_1987_4_987.png"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1988.168,
+   "image_s": 1988.168,
+   "sample_s": 1988.604,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000006_1791448636745.png",
+   "truth_time": 1988.196,
+   "truth_dt": -0.028,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5313,
+     "xyxy": [
+      338.6,
+      212.8,
+      354.7,
+      244.2
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.2063,
+     "xyxy": [
+      340.2,
+      215.0,
+      353.5,
+      243.9
+     ],
+     "h_px": 29.0
+    }
+   ],
+   "association": [
+    {
+     "cls": 0,
+     "name": "red",
+     "conf": 0.5313,
+     "best_person_iou": 0.7603,
+     "best_person_conf": 0.2063,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.6458333333333334,
+      "green": 0.0,
+      "blue": 0.0,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 70.126,
+   "proj_uv_0875": [
+    374.1,
+    184.7
+   ],
+   "expected_h_px_0875": 5.13,
+   "depth_100": 70.125,
+   "proj_uv_100": [
+    374.1,
+    184.4
+   ],
+   "expected_h_px_100": 5.13,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 72.47,
+   "annotated": "annot_uav_4_1988_2_988.png"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 2004.54,
+   "image_s": 2004.54,
+   "sample_s": 2005.008,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000007_1791448739440.png",
+   "truth_time": 2004.524,
+   "truth_dt": 0.016,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.878,
+     "xyxy": [
+      593.7,
+      181.9,
+      608.0,
+      206.4
+     ]
+    },
+    {
+     "cls": 4,
+     "name": "brown",
+     "conf": 0.4113,
+     "xyxy": [
+      418.1,
+      220.2,
+      435.0,
+      252.4
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.6483,
+     "xyxy": [
+      593.8,
+      183.1,
+      607.0,
+      205.4
+     ],
+     "h_px": 22.3
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.878,
+     "best_person_iou": 0.8402,
+     "best_person_conf": 0.6483,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.014285714285714285,
+      "blue": 0.7714285714285715,
+      "white": 0.0,
+      "brown": 0.11428571428571428
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 74.934,
+   "proj_uv_0875": [
+    277.8,
+    183.3
+   ],
+   "expected_h_px_0875": 4.8,
+   "depth_100": 74.933,
+   "proj_uv_100": [
+    277.8,
+    182.9
+   ],
+   "expected_h_px_100": 4.8,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 76.53,
+   "annotated": "annot_uav_4_2004_5_004.png"
+  },
+  {
+   "uav": "uav_5",
+   "t_image": 1998.152,
+   "image_s": 1998.152,
+   "sample_s": 1998.572,
+   "original_sha256": "",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/frame_000001_1791448699194.png",
+   "truth_time": 1998.166,
+   "truth_dt": -0.014,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "binding.image_topic",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5483,
+     "xyxy": [
+      78.7,
+      202.8,
+      87.0,
+      230.0
+     ]
+    }
+   ],
+   "person_boxes": [],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.5483,
+     "best_person_iou": 0.0,
+     "best_person_conf": null,
+     "matched": false,
+     "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.29545454545454547,
+      "white": 0.0,
+      "brown": 0.0
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 70.034,
+   "proj_uv_0875": [
+    603.1,
+    180.7
+   ],
+   "expected_h_px_0875": 5.13,
+   "depth_100": 70.033,
+   "proj_uv_100": [
+    603.1,
+    180.3
+   ],
+   "expected_h_px_100": 5.13,
+   "white_frac_at_proj": 0.0,
+   "horiz_m": 119.07,
+   "annotated": "annot_uav_5_1998_2_998.png"
+  },
+  {
+   "uav": "uav_6",
+   "t_image": 1954.608,
+   "image_s": 1954.608,
+   "sample_s": 1955.196,
+   "original_sha256": "f07dd5a0a6e075e8eb21327e6d9988c1cd7a87229b78ef7e676cb2dde02c1192",
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_6_blue_002.png",
+   "truth_time": 1954.584,
+   "truth_dt": 0.024,
+   "assumptions": {
+    "ground_z": 0.0,
+    "person_m": 1.75,
+    "projection_point": "z=0.875 (midpoint) and z=1.0"
+   },
+   "id_source": "index.uav_id",
+   "colour_boxes": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7168,
+     "xyxy": [
+      460.8,
+      187.4,
+      469.3,
+      205.9
+     ]
+    }
+   ],
+   "person_boxes": [
+    {
+     "conf": 0.4357,
+     "xyxy": [
+      163.3,
+      184.5,
+      172.0,
+      201.0
+     ],
+     "h_px": 16.5
+    },
+    {
+     "conf": 0.3346,
+     "xyxy": [
+      460.9,
+      188.4,
+      469.4,
+      205.1
+     ],
+     "h_px": 16.7
+    },
+    {
+     "conf": 0.1873,
+     "xyxy": [
+      591.7,
+      184.8,
+      597.5,
+      193.0
+     ],
+     "h_px": 8.2
+    }
+   ],
+   "association": [
+    {
+     "cls": 2,
+     "name": "blue",
+     "conf": 0.7168,
+     "best_person_iou": 0.8827,
+     "best_person_conf": 0.3346,
+     "matched": true,
+     "shirt_fractions": {
+      "red": 0.02857142857142857,
+      "green": 0.0,
+      "blue": 0.8285714285714286,
+      "white": 0.0,
+      "brown": 0.02857142857142857
+     },
+     "shirt_supported": true
+    }
+   ],
+   "depth_0875": 50.712,
+   "proj_uv_0875": [
+    509.7,
+    189.6
+   ],
+   "expected_h_px_0875": 7.09,
+   "depth_100": 50.713,
+   "proj_uv_100": [
+    509.6,
+    189.1
+   ],
+   "expected_h_px_100": 7.09,
+   "white_frac_at_proj": 0.06060606060606061,
+   "horiz_m": 68.95,
+   "annotated": "annot_uav_6_1954_6_954.png"
+  }
+ ]
+}

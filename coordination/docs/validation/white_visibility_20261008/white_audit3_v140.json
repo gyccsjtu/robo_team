@@ -1,0 +1,2342 @@
+{
+ "version": 3,
+ "fixes": "evidence aircraft id via camera_binding.image_topic with directory cross-check; actor_truth only, sample[3]==3; assumptions: ground z=0 and 1.75 m reference height; image time = image_s",
+ "assumptions": {
+  "ground_z": 0.0,
+  "person_m": 1.75
+ },
+ "counts": {
+  "truth_rows": 2303,
+  "truth_dropped": 0,
+  "search_records": 1827,
+  "search_unique": 1827,
+  "original_records": 94,
+  "original_files": 94,
+  "original_unique": 85,
+  "rejected": 0,
+  "in_search": 69,
+  "in_fov_0875": 34,
+  "in_fov_100": 34,
+  "both": 34,
+  "only_0875": 0,
+  "only_100": 0
+ },
+ "rejected": [],
+ "frames": [
+  {
+   "uav": "uav_1",
+   "t_image": 1987.824,
+   "t_sample": 1988.216,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_0/frame_000001_1791448634311.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1987.8519999999999,
+   "truth_dt": -0.028,
+   "truth_xy": [
+    89.8418994469954,
+    -44.704837799073054
+   ],
+   "horiz_m": 105.21338370535493,
+   "in_fov_0875": false,
+   "depth_0875": -98.865,
+   "uv_0875": [
+    395.1,
+    187.3
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -98.86,
+   "uv_100": [
+    395.1,
+    187.6
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_1",
+   "t_image": 1988.496,
+   "t_sample": 1989.016,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_0/frame_000002_1791448639296.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1988.482,
+   "truth_dt": 0.014,
+   "truth_xy": [
+    90.46989944699617,
+    -44.704837799073054
+   ],
+   "horiz_m": 106.90147277154047,
+   "in_fov_0875": false,
+   "depth_0875": -102.441,
+   "uv_0875": [
+    381.9,
+    180.5
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -102.439,
+   "uv_100": [
+    381.9,
+    180.7
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_1",
+   "t_image": 1989.516,
+   "t_sample": 1990.02,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_0/frame_000003_1791448645583.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1989.538,
+   "truth_dt": -0.022,
+   "truth_xy": [
+    91.52589944699746,
+    -44.704837799073054
+   ],
+   "horiz_m": 109.29784817078983,
+   "in_fov_0875": false,
+   "depth_0875": -104.322,
+   "uv_0875": [
+    383.6,
+    168.4
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -104.328,
+   "uv_100": [
+    383.6,
+    168.6
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_1",
+   "t_image": 1989.868,
+   "t_sample": 1990.216,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_0/frame_000004_1791448646824.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1989.88,
+   "truth_dt": -0.012,
+   "truth_xy": [
+    91.86989944699788,
+    -44.704837799073054
+   ],
+   "horiz_m": 109.7673470208231,
+   "in_fov_0875": false,
+   "depth_0875": -102.714,
+   "uv_0875": [
+    397.6,
+    172.8
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -102.717,
+   "uv_100": [
+    397.6,
+    173.0
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1949.512,
+   "t_sample": 1950.204,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000001_1791448396643.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1949.4879999999998,
+   "truth_dt": 0.024,
+   "truth_xy": [
+    53.655599628474754,
+    -42.02237066405328
+   ],
+   "horiz_m": 62.07017904014779,
+   "in_fov_0875": true,
+   "depth_0875": 49.144,
+   "uv_0875": [
+    479.0,
+    186.4
+   ],
+   "exp_h_px_0875": 7.32,
+   "in_fov_100": true,
+   "depth_100": 49.147,
+   "uv_100": [
+    479.0,
+    185.8
+   ],
+   "exp_h_px_100": 7.32,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1951.7,
+   "t_sample": 1952.212,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000002_1791448409184.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1951.726,
+   "truth_dt": -0.026,
+   "truth_xy": [
+    55.83573662699615,
+    -42.51905836036714
+   ],
+   "horiz_m": 62.00413946987768,
+   "in_fov_0875": true,
+   "depth_0875": 60.472,
+   "uv_0875": [
+    366.1,
+    191.1
+   ],
+   "exp_h_px_0875": 5.95,
+   "in_fov_100": true,
+   "depth_100": 60.475,
+   "uv_100": [
+    366.1,
+    190.7
+   ],
+   "exp_h_px_100": 5.95,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1952.104,
+   "t_sample": 1952.6,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000001_1791448411633.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1952.078,
+   "truth_dt": 0.026,
+   "truth_xy": [
+    56.182842517637305,
+    -42.59813743902892
+   ],
+   "horiz_m": 61.92948045400737,
+   "in_fov_0875": true,
+   "depth_0875": 61.822,
+   "uv_0875": [
+    333.6,
+    179.5
+   ],
+   "exp_h_px_0875": 5.82,
+   "in_fov_100": true,
+   "depth_100": 61.819,
+   "uv_100": [
+    333.6,
+    179.0
+   ],
+   "exp_h_px_100": 5.82,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1952.528,
+   "t_sample": 1953.204,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000002_1791448415401.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1952.546,
+   "truth_dt": -0.018,
+   "truth_xy": [
+    56.6352501953269,
+    -42.70120679998134
+   ],
+   "horiz_m": 62.203550286382765,
+   "in_fov_0875": true,
+   "depth_0875": 61.883,
+   "uv_0875": [
+    299.3,
+    184.2
+   ],
+   "exp_h_px_0875": 5.81,
+   "in_fov_100": true,
+   "depth_100": 61.882,
+   "uv_100": [
+    299.3,
+    183.8
+   ],
+   "exp_h_px_100": 5.81,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1956.624,
+   "t_sample": 1957.004,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_003.png",
+   "sha": "6641a1968aee623a028934d72688c3d45d286ddebbfea0c73f1a299eae12eb23",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 1956.6019999999999,
+   "truth_dt": 0.022,
+   "truth_xy": [
+    60.58991730892385,
+    -43.60217517934137
+   ],
+   "horiz_m": 61.78483620725409,
+   "in_fov_0875": true,
+   "depth_0875": 47.955,
+   "uv_0875": [
+    487.3,
+    189.9
+   ],
+   "exp_h_px_0875": 7.5,
+   "in_fov_100": true,
+   "depth_100": 47.957,
+   "uv_100": [
+    487.3,
+    189.4
+   ],
+   "exp_h_px_100": 7.5,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1958.692,
+   "t_sample": 1959.224,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_004.png",
+   "sha": "04bef32622a9e17a57197c9d73382b9dab57041b8f090bb5a7464a0c581ea375",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 1958.67,
+   "truth_dt": 0.022,
+   "truth_xy": [
+    62.60625152759212,
+    -44.06154465875866
+   ],
+   "horiz_m": 62.30786523850343,
+   "in_fov_0875": true,
+   "depth_0875": 45.416,
+   "uv_0875": [
+    127.5,
+    186.3
+   ],
+   "exp_h_px_0875": 7.92,
+   "in_fov_100": true,
+   "depth_100": 45.415,
+   "uv_100": [
+    127.5,
+    185.7
+   ],
+   "exp_h_px_100": 7.92,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1960.836,
+   "t_sample": 1961.404,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_005.png",
+   "sha": "c520ea47dadcf0a74bf5e1dddac82468e8ea516f4e9bab4e7bdeabc7ddac3014",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 1960.85,
+   "truth_dt": -0.014,
+   "truth_xy": [
+    64.73178759949714,
+    -44.54579294944064
+   ],
+   "horiz_m": 62.94557627128716,
+   "in_fov_0875": true,
+   "depth_0875": 57.208,
+   "uv_0875": [
+    226.0,
+    179.3
+   ],
+   "exp_h_px_0875": 6.29,
+   "in_fov_100": true,
+   "depth_100": 57.208,
+   "uv_100": [
+    226.0,
+    178.8
+   ],
+   "exp_h_px_100": 6.29,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1961.604,
+   "t_sample": 1962.212,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000003_1791448471726.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1961.594,
+   "truth_dt": 0.01,
+   "truth_xy": [
+    65.4298994469677,
+    -44.70483963573821
+   ],
+   "horiz_m": 63.08874663303992,
+   "in_fov_0875": true,
+   "depth_0875": 59.934,
+   "uv_0875": [
+    387.8,
+    189.1
+   ],
+   "exp_h_px_0875": 6.0,
+   "in_fov_100": true,
+   "depth_100": 59.939,
+   "uv_100": [
+    387.7,
+    188.6
+   ],
+   "exp_h_px_100": 6.0,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1962.396,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000004_1791448476713.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 1963.184,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_006.png",
+   "sha": "de063ab6fc66040f0a4ed72aceffe7773a273fa156dc7b8003c3818e9445cff5",
+   "id_source": "index.uav_id",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2008.848,
+   "t_sample": 2009.2,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_007.png",
+   "sha": "af5d601f4150fdc2ffc1170c76ea0344f7a7bf53bdb2b9e04d650497bb1edab9",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 2008.844,
+   "truth_dt": 0.004,
+   "truth_xy": [
+    110.83789944702106,
+    -44.704837799073054
+   ],
+   "horiz_m": 92.94444008271316,
+   "in_fov_0875": true,
+   "depth_0875": 87.632,
+   "uv_0875": [
+    393.0,
+    186.4
+   ],
+   "exp_h_px_0875": 4.1,
+   "in_fov_100": true,
+   "depth_100": 87.633,
+   "uv_100": [
+    393.0,
+    186.1
+   ],
+   "exp_h_px_100": 4.1,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2011.048,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_008.png",
+   "sha": "dbc355109f79137d978f5a35e12d27df72618db52c869f20ffefbc2c384648f3",
+   "id_source": "index.uav_id",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2024.456,
+   "t_sample": 2025.012,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000004_1791448864522.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2024.4560000000001,
+   "truth_dt": -0.0,
+   "truth_xy": [
+    126.44189944704013,
+    -44.704837799073054
+   ],
+   "horiz_m": 103.72517399169665,
+   "in_fov_0875": true,
+   "depth_0875": 92.366,
+   "uv_0875": [
+    215.6,
+    186.5
+   ],
+   "exp_h_px_0875": 3.89,
+   "in_fov_100": true,
+   "depth_100": 92.368,
+   "uv_100": [
+    215.6,
+    186.2
+   ],
+   "exp_h_px_100": 3.89,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2025.684,
+   "t_sample": 2026.224,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000005_1791448872136.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2025.6779999999999,
+   "truth_dt": 0.006,
+   "truth_xy": [
+    127.66589944704162,
+    -44.704837799073054
+   ],
+   "horiz_m": 104.31198741765515,
+   "in_fov_0875": true,
+   "depth_0875": 100.483,
+   "uv_0875": [
+    377.4,
+    187.6
+   ],
+   "exp_h_px_0875": 3.58,
+   "in_fov_100": true,
+   "depth_100": 100.486,
+   "uv_100": [
+    377.4,
+    187.3
+   ],
+   "exp_h_px_100": 3.58,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2026.152,
+   "t_sample": 2027.008,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000006_1791448877198.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2026.1399999999999,
+   "truth_dt": 0.012,
+   "truth_xy": [
+    128.1264919748877,
+    -44.678955690109284
+   ],
+   "horiz_m": 104.02880287877338,
+   "in_fov_0875": true,
+   "depth_0875": 95.816,
+   "uv_0875": [
+    401.4,
+    212.2
+   ],
+   "exp_h_px_0875": 3.75,
+   "in_fov_100": true,
+   "depth_100": 95.833,
+   "uv_100": [
+    401.4,
+    212.0
+   ],
+   "exp_h_px_100": 3.75,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2026.856,
+   "t_sample": 2027.42,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000008_1791448879805.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2026.844,
+   "truth_dt": 0.012,
+   "truth_xy": [
+    128.55590021730936,
+    -44.138138450990816
+   ],
+   "horiz_m": 103.86183746517838,
+   "in_fov_0875": true,
+   "depth_0875": 95.448,
+   "uv_0875": [
+    408.7,
+    182.2
+   ],
+   "exp_h_px_0875": 3.77,
+   "in_fov_100": true,
+   "depth_100": 95.448,
+   "uv_100": [
+    408.7,
+    182.0
+   ],
+   "exp_h_px_100": 3.77,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2027.356,
+   "t_sample": 2028.008,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000009_1791448883518.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2027.356,
+   "truth_dt": 0.0,
+   "truth_xy": [
+    128.68841513379084,
+    -43.64358431148128
+   ],
+   "horiz_m": 103.37930401568524,
+   "in_fov_0875": true,
+   "depth_0875": 94.799,
+   "uv_0875": [
+    409.5,
+    189.3
+   ],
+   "exp_h_px_0875": 3.79,
+   "in_fov_100": true,
+   "depth_100": 94.802,
+   "uv_100": [
+    409.5,
+    189.0
+   ],
+   "exp_h_px_100": 3.79,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2027.936,
+   "t_sample": 2028.632,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000005_1791448887473.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2027.93,
+   "truth_dt": 0.006,
+   "truth_xy": [
+    128.78469560394444,
+    -43.084260010238
+   ],
+   "horiz_m": 102.86265597941984,
+   "in_fov_0875": true,
+   "depth_0875": 94.21,
+   "uv_0875": [
+    410.6,
+    183.3
+   ],
+   "exp_h_px_0875": 3.82,
+   "in_fov_100": true,
+   "depth_100": 94.21,
+   "uv_100": [
+    410.6,
+    183.0
+   ],
+   "exp_h_px_100": 3.82,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2028.424,
+   "t_sample": 2029.02,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000006_1791448889930.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2028.452,
+   "truth_dt": -0.028,
+   "truth_xy": [
+    128.839565617446,
+    -42.56748347364302
+   ],
+   "horiz_m": 102.78982697668891,
+   "in_fov_0875": true,
+   "depth_0875": 93.384,
+   "uv_0875": [
+    414.9,
+    185.3
+   ],
+   "exp_h_px_0875": 3.85,
+   "in_fov_100": true,
+   "depth_100": 93.385,
+   "uv_100": [
+    414.9,
+    185.0
+   ],
+   "exp_h_px_100": 3.85,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2028.9,
+   "t_sample": 2029.408,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_2_blue_009.png",
+   "sha": "c9f16c20a0c7e91161b5145bf56bff6c410fd8784f1810e4d066b4ace367f11a",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 2028.914,
+   "truth_dt": -0.014,
+   "truth_xy": [
+    128.8395669625799,
+    -42.10348347364515
+   ],
+   "horiz_m": 102.78343194982044,
+   "in_fov_0875": true,
+   "depth_0875": 85.647,
+   "uv_0875": [
+    456.7,
+    186.3
+   ],
+   "exp_h_px_0875": 4.2,
+   "in_fov_100": true,
+   "depth_100": 85.649,
+   "uv_100": [
+    456.7,
+    186.0
+   ],
+   "exp_h_px_100": 4.2,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2047.564,
+   "t_sample": 2048.004,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000010_1791449008759.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2047.536,
+   "truth_dt": 0.028,
+   "truth_xy": [
+    128.89123535156565,
+    -23.494298437287032
+   ],
+   "horiz_m": 102.70247276998502,
+   "in_fov_0875": true,
+   "depth_0875": 101.802,
+   "uv_0875": [
+    345.7,
+    191.7
+   ],
+   "exp_h_px_0875": 3.53,
+   "in_fov_100": true,
+   "depth_100": 101.807,
+   "uv_100": [
+    345.7,
+    191.4
+   ],
+   "exp_h_px_100": 3.53,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2048.212,
+   "t_sample": 2048.616,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000011_1791449012557.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2048.216,
+   "truth_dt": -0.004,
+   "truth_xy": [
+    128.89123535156565,
+    -22.810298437286804
+   ],
+   "horiz_m": 102.04833178021748,
+   "in_fov_0875": true,
+   "depth_0875": 101.617,
+   "uv_0875": [
+    339.6,
+    180.3
+   ],
+   "exp_h_px_0875": 3.54,
+   "in_fov_100": true,
+   "depth_100": 101.615,
+   "uv_100": [
+    339.6,
+    180.1
+   ],
+   "exp_h_px_100": 3.54,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2048.564,
+   "t_sample": 2049.012,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000012_1791449015040.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2048.568,
+   "truth_dt": -0.004,
+   "truth_xy": [
+    128.89123535156565,
+    -22.454298437286685
+   ],
+   "horiz_m": 101.72136166686204,
+   "in_fov_0875": true,
+   "depth_0875": 101.649,
+   "uv_0875": [
+    322.0,
+    188.6
+   ],
+   "exp_h_px_0875": 3.54,
+   "in_fov_100": true,
+   "depth_100": 101.652,
+   "uv_100": [
+    322.0,
+    188.4
+   ],
+   "exp_h_px_100": 3.54,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2048.936,
+   "t_sample": 2049.4,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000013_1791449017472.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2048.918,
+   "truth_dt": 0.018,
+   "truth_xy": [
+    128.89123535156565,
+    -22.11029843728657
+   ],
+   "horiz_m": 101.32696121774012,
+   "in_fov_0875": true,
+   "depth_0875": 101.161,
+   "uv_0875": [
+    310.7,
+    187.6
+   ],
+   "exp_h_px_0875": 3.55,
+   "in_fov_100": true,
+   "depth_100": 101.163,
+   "uv_100": [
+    310.7,
+    187.3
+   ],
+   "exp_h_px_100": 3.55,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_2",
+   "t_image": 2049.26,
+   "t_sample": 2049.608,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/frame_000014_1791449018772.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2049.26,
+   "truth_dt": 0.0,
+   "truth_xy": [
+    128.89123535156565,
+    -21.766298437286455
+   ],
+   "horiz_m": 100.89131751555503,
+   "in_fov_0875": true,
+   "depth_0875": 100.504,
+   "uv_0875": [
+    304.0,
+    188.4
+   ],
+   "exp_h_px_0875": 3.58,
+   "in_fov_100": true,
+   "depth_100": 100.507,
+   "uv_100": [
+    304.0,
+    188.1
+   ],
+   "exp_h_px_100": 3.58,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1954.608,
+   "t_sample": 1955.076,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000001_1791448427111.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1954.5839999999998,
+   "truth_dt": 0.024,
+   "truth_xy": [
+    58.62428395068631,
+    -43.15435657658254
+   ],
+   "horiz_m": 79.35698131041497,
+   "in_fov_0875": false,
+   "depth_0875": -70.884,
+   "uv_0875": [
+    424.0,
+    176.9
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -70.881,
+   "uv_100": [
+    424.0,
+    177.2
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1954.972,
+   "t_sample": 1955.48,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000002_1791448429631.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1954.944,
+   "truth_dt": 0.028,
+   "truth_xy": [
+    58.975289907514444,
+    -43.234324184218046
+   ],
+   "horiz_m": 80.19875773793689,
+   "in_fov_0875": false,
+   "depth_0875": -68.097,
+   "uv_0875": [
+    448.4,
+    178.1
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -68.095,
+   "uv_100": [
+    448.4,
+    178.5
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1955.332,
+   "t_sample": 1955.876,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000003_1791448432112.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1955.342,
+   "truth_dt": -0.01,
+   "truth_xy": [
+    59.36139646002539,
+    -43.3222885526171
+   ],
+   "horiz_m": 81.10312992503839,
+   "in_fov_0875": false,
+   "depth_0875": -67.505,
+   "uv_0875": [
+    457.4,
+    178.8
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -67.503,
+   "uv_100": [
+    457.4,
+    179.2
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1956.332,
+   "t_sample": 1956.676,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000004_1791448437119.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1956.3139999999999,
+   "truth_dt": 0.018,
+   "truth_xy": [
+    60.309112543461346,
+    -43.53820109323297
+   ],
+   "horiz_m": 83.04485666986254,
+   "in_fov_0875": false,
+   "depth_0875": -70.698,
+   "uv_0875": [
+    447.0,
+    172.7
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -70.7,
+   "uv_100": [
+    447.0,
+    173.0
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1956.624,
+   "t_sample": 1957.084,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000005_1791448439656.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1956.6019999999999,
+   "truth_dt": 0.022,
+   "truth_xy": [
+    60.58991730892385,
+    -43.60217517934137
+   ],
+   "horiz_m": 83.52661767445707,
+   "in_fov_0875": false,
+   "depth_0875": -72.242,
+   "uv_0875": [
+    439.8,
+    182.7
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -72.238,
+   "uv_100": [
+    439.8,
+    183.1
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1959.396,
+   "t_sample": 1959.88,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/frame_000001_1791448457183.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1959.368,
+   "truth_dt": 0.028,
+   "truth_xy": [
+    63.28876311031349,
+    -44.217037229161036
+   ],
+   "horiz_m": 87.19520485446094,
+   "in_fov_0875": false,
+   "depth_0875": -65.506,
+   "uv_0875": [
+    140.2,
+    170.4
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -65.505,
+   "uv_100": [
+    140.2,
+    170.8
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1960.836,
+   "t_sample": 1961.28,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000006_1791448465919.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1960.85,
+   "truth_dt": -0.014,
+   "truth_xy": [
+    64.73178759949714,
+    -44.54579294944064
+   ],
+   "horiz_m": 89.58235511924835,
+   "in_fov_0875": false,
+   "depth_0875": -78.974,
+   "uv_0875": [
+    430.6,
+    178.7
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -78.97,
+   "uv_100": [
+    430.6,
+    179.0
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1965.708,
+   "t_sample": 1966.288,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/frame_000002_1791448497223.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1965.736,
+   "truth_dt": -0.028,
+   "truth_xy": [
+    67.72189944696837,
+    -44.70483796309652
+   ],
+   "horiz_m": 97.77641309082647,
+   "in_fov_0875": false,
+   "depth_0875": -97.385,
+   "uv_0875": [
+    302.3,
+    185.4
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -97.38,
+   "uv_100": [
+    302.3,
+    185.7
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1969.056,
+   "t_sample": 1969.484,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/frame_000003_1791448517195.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1969.08,
+   "truth_dt": -0.024,
+   "truth_xy": [
+    71.07389944697246,
+    -44.70483780386935
+   ],
+   "horiz_m": 103.14938154548175,
+   "in_fov_0875": false,
+   "depth_0875": -88.294,
+   "uv_0875": [
+    444.7,
+    180.6
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -88.291,
+   "uv_100": [
+    444.7,
+    180.9
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1973.268,
+   "t_sample": 1973.888,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000007_1791448544724.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1973.254,
+   "truth_dt": 0.014,
+   "truth_xy": [
+    75.24189944697756,
+    -44.70483779913128
+   ],
+   "horiz_m": 111.01955920527242,
+   "in_fov_0875": false,
+   "depth_0875": -108.537,
+   "uv_0875": [
+    364.4,
+    186.9
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -108.531,
+   "uv_100": [
+    364.4,
+    187.1
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1974.748,
+   "t_sample": 1975.284,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000008_1791448553466.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1974.7640000000001,
+   "truth_dt": -0.016,
+   "truth_xy": [
+    76.7498994469794,
+    -44.70483779908414
+   ],
+   "horiz_m": 112.30094598405198,
+   "in_fov_0875": false,
+   "depth_0875": 13.353,
+   "uv_0875": [
+    -1362.9,
+    513.7
+   ],
+   "exp_h_px_0875": 26.93,
+   "in_fov_100": false,
+   "depth_100": 13.368,
+   "uv_100": [
+    -1361.3,
+    511.4
+   ],
+   "exp_h_px_100": 26.9,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1975.104,
+   "t_sample": 1975.476,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000009_1791448554674.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1975.1100000000001,
+   "truth_dt": -0.006,
+   "truth_xy": [
+    77.09389944697982,
+    -44.70483779908045
+   ],
+   "horiz_m": 112.43653470694647,
+   "in_fov_0875": false,
+   "depth_0875": 40.827,
+   "uv_0875": [
+    -206.6,
+    165.6
+   ],
+   "exp_h_px_0875": 8.81,
+   "in_fov_100": false,
+   "depth_100": 40.823,
+   "uv_100": [
+    -206.6,
+    164.9
+   ],
+   "exp_h_px_100": 8.81,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1975.412,
+   "t_sample": 1975.884,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000010_1791448557217.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1975.386,
+   "truth_dt": 0.026,
+   "truth_xy": [
+    77.37389944698016,
+    -44.704837799078405
+   ],
+   "horiz_m": 112.4937994671021,
+   "in_fov_0875": false,
+   "depth_0875": 46.544,
+   "uv_0875": [
+    -128.0,
+    238.0
+   ],
+   "exp_h_px_0875": 7.73,
+   "in_fov_100": false,
+   "depth_100": 46.56,
+   "uv_100": [
+    -127.9,
+    237.5
+   ],
+   "exp_h_px_100": 7.72,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1975.752,
+   "t_sample": 1976.284,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000011_1791448559705.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1975.728,
+   "truth_dt": 0.024,
+   "truth_xy": [
+    77.71389944698058,
+    -44.70483779907649
+   ],
+   "horiz_m": 112.67902196604545,
+   "in_fov_0875": false,
+   "depth_0875": 15.498,
+   "uv_0875": [
+    -1158.5,
+    129.9
+   ],
+   "exp_h_px_0875": 23.2,
+   "in_fov_100": false,
+   "depth_100": 15.5,
+   "uv_100": [
+    -1158.3,
+    128.2
+   ],
+   "exp_h_px_100": 23.2,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1979.524,
+   "t_sample": 1980.088,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/frame_000004_1791448583495.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1979.5279999999998,
+   "truth_dt": -0.004,
+   "truth_xy": [
+    81.51789944698523,
+    -44.704837799073054
+   ],
+   "horiz_m": 117.5262179844213,
+   "in_fov_0875": false,
+   "depth_0875": -116.625,
+   "uv_0875": [
+    345.6,
+    174.4
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -116.627,
+   "uv_100": [
+    345.6,
+    174.6
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1986.256,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/frame_000005_1791448625985.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1989.192,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/frame_000006_1791448643520.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 1999.208,
+   "t_sample": 1999.68,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000012_1791448706136.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1999.204,
+   "truth_dt": 0.004,
+   "truth_xy": [
+    101.18989944700927,
+    -44.704837799073054
+   ],
+   "horiz_m": 149.63589911781565,
+   "in_fov_0875": false,
+   "depth_0875": -61.919,
+   "uv_0875": [
+    -131.5,
+    173.9
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -61.917,
+   "uv_100": [
+    -131.5,
+    174.4
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2019.716,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000013_1791448833696.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2020.244,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000014_1791448837459.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2021.052,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000015_1791448842452.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2023.696,
+   "t_sample": 2024.088,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_001.png",
+   "sha": "be4025b626cc517a65f7760b8a253390eeac5e518519bacea20456a553e015b7",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 2023.714,
+   "truth_dt": -0.018,
+   "truth_xy": [
+    125.70189944703922,
+    -44.704837799073054
+   ],
+   "horiz_m": 186.14563461209715,
+   "in_fov_0875": false,
+   "depth_0875": -32.776,
+   "uv_0875": [
+    -828.2,
+    174.6
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -32.778,
+   "uv_100": [
+    -828.1,
+    175.4
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2025.252,
+   "t_sample": 2025.892,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000017_1791448870011.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2025.2620000000002,
+   "truth_dt": -0.01,
+   "truth_xy": [
+    127.25389944704112,
+    -44.704837799073054
+   ],
+   "horiz_m": 187.66981319014405,
+   "in_fov_0875": false,
+   "depth_0875": -3.557,
+   "uv_0875": [
+    -10518.0,
+    107.9
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -3.558,
+   "uv_100": [
+    -10514.8,
+    115.1
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2026.152,
+   "t_sample": 2026.884,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_002.png",
+   "sha": "c699517fb6175f257dd6f2c24bde7e9b25e1a767db44a21425c814a7aeba80a0",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 2026.1399999999999,
+   "truth_dt": 0.012,
+   "truth_xy": [
+    128.1264919748877,
+    -44.678955690109284
+   ],
+   "horiz_m": 188.54989586444796,
+   "in_fov_0875": false,
+   "depth_0875": -13.325,
+   "uv_0875": [
+    -2579.6,
+    161.0
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -13.328,
+   "uv_100": [
+    -2579.0,
+    162.9
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2028.424,
+   "t_sample": 2029.084,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_003.png",
+   "sha": "5962507495b8153e595db22661f987fceae56801e4660b26c29f4b3dc74dfb2b",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 2028.452,
+   "truth_dt": -0.028,
+   "truth_xy": [
+    128.839565617446,
+    -42.56748347364302
+   ],
+   "horiz_m": 188.73506213742382,
+   "in_fov_0875": false,
+   "depth_0875": -3.378,
+   "uv_0875": [
+    -11157.6,
+    102.0
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -3.375,
+   "uv_100": [
+    -11168.0,
+    109.6
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2029.348,
+   "t_sample": 2029.892,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000019_1791448895382.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2029.324,
+   "truth_dt": 0.024,
+   "truth_xy": [
+    128.86742881699644,
+    -41.69916359515386
+   ],
+   "horiz_m": 188.49184421731673,
+   "in_fov_0875": false,
+   "depth_0875": -0.458,
+   "uv_0875": [
+    -84163.7,
+    -420.9
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -0.457,
+   "uv_100": [
+    -84427.0,
+    -366.6
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2029.74,
+   "t_sample": 2030.288,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000020_1791448897840.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2029.746,
+   "truth_dt": -0.006,
+   "truth_xy": [
+    128.8674298360164,
+    -41.27516359515505
+   ],
+   "horiz_m": 188.34101342297112,
+   "in_fov_0875": false,
+   "depth_0875": -20.893,
+   "uv_0875": [
+    -1520.3,
+    164.3
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -20.891,
+   "uv_100": [
+    -1520.4,
+    165.5
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2030.736,
+   "t_sample": 2031.08,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_004.png",
+   "sha": "7e8f72159ce4f61a63047822243b4fdb43b4d1f1fb7f81f8d145ced651b34872",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 2030.714,
+   "truth_dt": 0.022,
+   "truth_xy": [
+    128.8674309840886,
+    -40.31516359515574
+   ],
+   "horiz_m": 187.99589418813318,
+   "in_fov_0875": false,
+   "depth_0875": -119.701,
+   "uv_0875": [
+    71.7,
+    181.1
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -119.699,
+   "uv_100": [
+    71.7,
+    181.4
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2032.804,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_005.png",
+   "sha": "25c0857460e51773b1a48f6bdd4ed45f8d26beed09ffd63fd51e83193de1d5cc",
+   "id_source": "index.uav_id",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2034.14,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000022_1791448924055.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2037.872,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_006.png",
+   "sha": "e9cf9eb9cb4ab94ac42002010740681529c3933be637663bf3728f88b65eff5d",
+   "id_source": "index.uav_id",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2039.344,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000024_1791448957892.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2040.284,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_007.png",
+   "sha": "862f01f7e41239be2b4077365df1828a27e213e5a168b4ddf8ea178fbd0c57e0",
+   "id_source": "index.uav_id",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2042.112,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000026_1791448974164.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2043.324,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_008.png",
+   "sha": "ddb47fc2fbd8a59b88ad28bf0d4d97a67951a054808d73b14ff5e4354f8c35dc",
+   "id_source": "index.uav_id",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2044.688,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/frame_000028_1791448990472.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": false,
+   "in_fov_0875": null,
+   "in_fov_100": null,
+   "reason": "not_in_search_index"
+  },
+  {
+   "uav": "uav_3",
+   "t_image": 2047.232,
+   "t_sample": 2047.68,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_3_red1_009.png",
+   "sha": "1aa5c0fcb4c1fcad205bda61d4ef77452405f70dd05a6ef5fe746abee3280c58",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 2047.2440000000001,
+   "truth_dt": -0.012,
+   "truth_xy": [
+    128.89123535156565,
+    -23.782298437287128
+   ],
+   "horiz_m": 177.71473331305958,
+   "in_fov_0875": true,
+   "depth_0875": 164.667,
+   "uv_0875": [
+    403.9,
+    178.9
+   ],
+   "exp_h_px_0875": 2.18,
+   "in_fov_100": true,
+   "depth_100": 164.667,
+   "uv_100": [
+    403.9,
+    178.8
+   ],
+   "exp_h_px_100": 2.18,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1951.7,
+   "t_sample": 1952.2,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3_pass/frame_000001_1791448409133.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1951.726,
+   "truth_dt": -0.026,
+   "truth_xy": [
+    55.83573662699615,
+    -42.51905836036714
+   ],
+   "horiz_m": 63.77499202986387,
+   "in_fov_0875": true,
+   "depth_0875": 50.309,
+   "uv_0875": [
+    480.3,
+    190.8
+   ],
+   "exp_h_px_0875": 7.15,
+   "in_fov_100": true,
+   "depth_100": 50.312,
+   "uv_100": [
+    480.3,
+    190.3
+   ],
+   "exp_h_px_100": 7.15,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1952.104,
+   "t_sample": 1952.612,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3_pass/frame_000002_1791448411684.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1952.078,
+   "truth_dt": 0.026,
+   "truth_xy": [
+    56.182842517637305,
+    -42.59813743902892
+   ],
+   "horiz_m": 63.61824800973858,
+   "in_fov_0875": true,
+   "depth_0875": 49.371,
+   "uv_0875": [
+    487.3,
+    189.9
+   ],
+   "exp_h_px_0875": 7.28,
+   "in_fov_100": true,
+   "depth_100": 49.373,
+   "uv_100": [
+    487.3,
+    189.3
+   ],
+   "exp_h_px_100": 7.28,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1952.528,
+   "t_sample": 1953.212,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_4_blue_001.png",
+   "sha": "50b5e24684c80933aa224b775ba8e9ff99b57500bc912a86159fd3b448d2e0d2",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 1952.546,
+   "truth_dt": -0.018,
+   "truth_xy": [
+    56.6352501953269,
+    -42.70120679998134
+   ],
+   "horiz_m": 63.58164803730896,
+   "in_fov_0875": true,
+   "depth_0875": 48.624,
+   "uv_0875": [
+    493.6,
+    186.3
+   ],
+   "exp_h_px_0875": 7.39,
+   "in_fov_100": true,
+   "depth_100": 48.624,
+   "uv_100": [
+    493.6,
+    185.8
+   ],
+   "exp_h_px_100": 7.39,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1983.688,
+   "t_sample": 1984.4,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000001_1791448610448.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1983.664,
+   "truth_dt": 0.024,
+   "truth_xy": [
+    85.64989944699028,
+    -44.704837799073054
+   ],
+   "horiz_m": 73.26052931502498,
+   "in_fov_0875": false,
+   "depth_0875": 31.594,
+   "uv_0875": [
+    750.3,
+    192.7
+   ],
+   "exp_h_px_0875": 11.38,
+   "in_fov_100": false,
+   "depth_100": 31.596,
+   "uv_100": [
+    750.3,
+    191.9
+   ],
+   "exp_h_px_100": 11.38,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1984.58,
+   "t_sample": 1985.204,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000002_1791448615472.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1984.562,
+   "truth_dt": 0.018,
+   "truth_xy": [
+    86.54989944699138,
+    -44.704837799073054
+   ],
+   "horiz_m": 73.42748657514542,
+   "in_fov_0875": true,
+   "depth_0875": 40.048,
+   "uv_0875": [
+    635.3,
+    206.4
+   ],
+   "exp_h_px_0875": 8.98,
+   "in_fov_100": true,
+   "depth_100": 40.057,
+   "uv_100": [
+    635.2,
+    205.7
+   ],
+   "exp_h_px_100": 8.98,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1985.396,
+   "t_sample": 1986.008,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000003_1791448620499.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1985.422,
+   "truth_dt": -0.026,
+   "truth_xy": [
+    87.40989944699243,
+    -44.704837799073054
+   ],
+   "horiz_m": 73.71979464583866,
+   "in_fov_0875": true,
+   "depth_0875": 54.728,
+   "uv_0875": [
+    505.8,
+    190.4
+   ],
+   "exp_h_px_0875": 6.57,
+   "in_fov_100": true,
+   "depth_100": 54.729,
+   "uv_100": [
+    505.8,
+    189.9
+   ],
+   "exp_h_px_100": 6.57,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1987.048,
+   "t_sample": 1987.612,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000004_1791448630525.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1987.046,
+   "truth_dt": 0.002,
+   "truth_xy": [
+    89.03389944699441,
+    -44.704837799073054
+   ],
+   "horiz_m": 72.7609497760255,
+   "in_fov_0875": true,
+   "depth_0875": 64.892,
+   "uv_0875": [
+    419.4,
+    213.8
+   ],
+   "exp_h_px_0875": 5.54,
+   "in_fov_100": true,
+   "depth_100": 64.907,
+   "uv_100": [
+    419.3,
+    213.4
+   ],
+   "exp_h_px_100": 5.54,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1987.444,
+   "t_sample": 1988.004,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000005_1791448632996.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1987.454,
+   "truth_dt": -0.01,
+   "truth_xy": [
+    89.44189944699491,
+    -44.704837799073054
+   ],
+   "horiz_m": 72.76653300095403,
+   "in_fov_0875": true,
+   "depth_0875": 68.446,
+   "uv_0875": [
+    394.8,
+    180.3
+   ],
+   "exp_h_px_0875": 5.25,
+   "in_fov_100": true,
+   "depth_100": 68.444,
+   "uv_100": [
+    394.8,
+    180.0
+   ],
+   "exp_h_px_100": 5.25,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 1988.168,
+   "t_sample": 1988.604,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000006_1791448636745.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1988.196,
+   "truth_dt": -0.028,
+   "truth_xy": [
+    90.18589944699582,
+    -44.704837799073054
+   ],
+   "horiz_m": 72.47481996186633,
+   "in_fov_0875": true,
+   "depth_0875": 70.126,
+   "uv_0875": [
+    374.1,
+    184.7
+   ],
+   "exp_h_px_0875": 5.13,
+   "in_fov_100": true,
+   "depth_100": 70.125,
+   "uv_100": [
+    374.1,
+    184.4
+   ],
+   "exp_h_px_100": 5.13,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_4",
+   "t_image": 2004.54,
+   "t_sample": 2005.008,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/frame_000007_1791448739440.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2004.524,
+   "truth_dt": 0.016,
+   "truth_xy": [
+    106.51389944701577,
+    -44.704837799073054
+   ],
+   "horiz_m": 76.52770730719986,
+   "in_fov_0875": true,
+   "depth_0875": 74.934,
+   "uv_0875": [
+    277.8,
+    183.3
+   ],
+   "exp_h_px_0875": 4.8,
+   "in_fov_100": true,
+   "depth_100": 74.933,
+   "uv_100": [
+    277.8,
+    182.9
+   ],
+   "exp_h_px_100": 4.8,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_5",
+   "t_image": 1998.152,
+   "t_sample": 1998.572,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/frame_000001_1791448699194.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 1998.166,
+   "truth_dt": -0.014,
+   "truth_xy": [
+    100.153899447008,
+    -44.704837799073054
+   ],
+   "horiz_m": 119.07299006930934,
+   "in_fov_0875": true,
+   "depth_0875": 70.034,
+   "uv_0875": [
+    603.1,
+    180.7
+   ],
+   "exp_h_px_0875": 5.13,
+   "in_fov_100": true,
+   "depth_100": 70.033,
+   "uv_100": [
+    603.1,
+    180.3
+   ],
+   "exp_h_px_100": 5.13,
+   "reason": "in_fov"
+  },
+  {
+   "uav": "uav_5",
+   "t_image": 2001.512,
+   "t_sample": 2001.98,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/frame_000002_1791448720521.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2001.532,
+   "truth_dt": -0.02,
+   "truth_xy": [
+    103.51789944701211,
+    -44.704837799073054
+   ],
+   "horiz_m": 121.02502803712956,
+   "in_fov_0875": false,
+   "depth_0875": -109.065,
+   "uv_0875": [
+    221.6,
+    182.2
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -109.065,
+   "uv_100": [
+    221.7,
+    182.4
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_5",
+   "t_image": 2003.992,
+   "t_sample": 2004.376,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/frame_000003_1791448735486.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2004.008,
+   "truth_dt": -0.016,
+   "truth_xy": [
+    105.99389944701514,
+    -44.704837799073054
+   ],
+   "horiz_m": 125.69841662588044,
+   "in_fov_0875": false,
+   "depth_0875": -110.37,
+   "uv_0875": [
+    208.5,
+    178.4
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -110.368,
+   "uv_100": [
+    208.5,
+    178.7
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_5",
+   "t_image": 2019.44,
+   "t_sample": 2019.776,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/frame_000004_1791448831786.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2019.4299999999998,
+   "truth_dt": 0.01,
+   "truth_xy": [
+    121.421899447034,
+    -44.704837799073054
+   ],
+   "horiz_m": 140.4736011910694,
+   "in_fov_0875": false,
+   "depth_0875": -40.321,
+   "uv_0875": [
+    -365.2,
+    184.9
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -40.31,
+   "uv_100": [
+    -365.4,
+    185.6
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_5",
+   "t_image": 2019.992,
+   "t_sample": 2020.376,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/frame_000005_1791448835540.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2020.0059999999999,
+   "truth_dt": -0.014,
+   "truth_xy": [
+    121.99389944703469,
+    -44.704837799073054
+   ],
+   "horiz_m": 141.0291717678458,
+   "in_fov_0875": false,
+   "depth_0875": -22.388,
+   "uv_0875": [
+    -957.4,
+    165.1
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -22.385,
+   "uv_100": [
+    -957.6,
+    166.3
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_5",
+   "t_image": 2031.508,
+   "t_sample": 2031.776,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/frame_000006_1791448907186.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2031.534,
+   "truth_dt": -0.026,
+   "truth_xy": [
+    128.8912401287107,
+    -39.494298437281024
+   ],
+   "horiz_m": 142.2649749792678,
+   "in_fov_0875": false,
+   "depth_0875": -56.445,
+   "uv_0875": [
+    -154.0,
+    151.3
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -56.443,
+   "uv_100": [
+    -154.0,
+    151.7
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_5",
+   "t_image": 2031.744,
+   "t_sample": 2032.176,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/frame_000007_1791448909678.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2031.758,
+   "truth_dt": -0.014,
+   "truth_xy": [
+    128.8912391269574,
+    -39.270298437283294
+   ],
+   "horiz_m": 142.26157529511667,
+   "in_fov_0875": false,
+   "depth_0875": -88.53,
+   "uv_0875": [
+    62.3,
+    168.6
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -88.53,
+   "uv_100": [
+    62.3,
+    168.9
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_5",
+   "t_image": 2032.536,
+   "t_sample": 2032.976,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/frame_000008_1791448914682.png",
+   "sha": "",
+   "id_source": "binding.image_topic",
+   "in_search_index": true,
+   "truth_time": 2032.5639999999999,
+   "truth_dt": -0.028,
+   "truth_xy": [
+    128.89123696216836,
+    -38.46229843728629
+   ],
+   "horiz_m": 142.81034801331356,
+   "in_fov_0875": false,
+   "depth_0875": -142.287,
+   "uv_0875": [
+    317.0,
+    197.9
+   ],
+   "exp_h_px_0875": null,
+   "in_fov_100": false,
+   "depth_100": -142.276,
+   "uv_100": [
+    317.0,
+    198.1
+   ],
+   "exp_h_px_100": null,
+   "reason": "outside_or_behind"
+  },
+  {
+   "uav": "uav_6",
+   "t_image": 1954.608,
+   "t_sample": 1955.196,
+   "path": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159/observers/frames/uav_6_blue_002.png",
+   "sha": "f07dd5a0a6e075e8eb21327e6d9988c1cd7a87229b78ef7e676cb2dde02c1192",
+   "id_source": "index.uav_id",
+   "in_search_index": true,
+   "truth_time": 1954.5839999999998,
+   "truth_dt": 0.024,
+   "truth_xy": [
+    58.62428395068631,
+    -43.15435657658254
+   ],
+   "horiz_m": 68.94929751982775,
+   "in_fov_0875": true,
+   "depth_0875": 50.712,
+   "uv_0875": [
+    509.7,
+    189.6
+   ],
+   "exp_h_px_0875": 7.09,
+   "in_fov_100": true,
+   "depth_100": 50.713,
+   "uv_100": [
+    509.6,
+    189.1
+   ],
+   "exp_h_px_100": 7.09,
+   "reason": "in_fov"
+  }
+ ]
+}
