@@ -1526,7 +1526,7 @@ def main():
             tx, ty = tk.predict(dt)
             # 已确认 track 用 dt 缩放门限（见 GATE_DYN 注释）：走路的人 0.1 s 挪不了 3 m
             gate = assoc_gate(dt, tk.hits)
-            best, bd = -1, gate
+            best, bd = -1, float('inf')
             best_appear_score = 0.0
             confirmed = tk.hits >= CONFIRM_HITS      # 已确认 -> 宽松档，保链路
             dyn_rej = 0
@@ -1542,7 +1542,7 @@ def main():
                 appear_sim = appearance_similarity(tk.appearance, d.get("appearance"))
                 # 综合评分：距离越近、外观越相似分数越高
                 # 位置门限内的候选才考虑外观
-                if dd < bd:
+                if dd < gate:
                     # 外观特征只在已确认track且有有效特征时起作用
                     if confirmed and appear_sim > 0.3:  # 相似度阈值
                         # 融合位置距离与外观相似度
@@ -1551,7 +1551,8 @@ def main():
                             best, bd = j, combined_score
                             best_appear_score = appear_sim
                     else:
-                        best, bd = j, dd
+                        if dd < bd:
+                            best, bd = j, dd
                 elif confirmed and dd >= gate:
                     dyn_rej += 1                      # 被动态门限拒掉：统计用
             if dyn_rej:
