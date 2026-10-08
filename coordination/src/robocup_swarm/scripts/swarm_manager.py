@@ -939,6 +939,14 @@ class SwarmManager(object):
                     return
                 tid = TAG_TO_TID[observation['target_id']]
                 if observation['sample_s'] < self._last_detect.get(tid, -1.):
+                    # Per-camera coverage remains valid even when another camera
+                    # supplied a newer global point. Never regress that point.
+                    ct = self.tracker.targets.get(tid)
+                    if ct is not None and tid not in self._eliminated:
+                        if observation['uav_id'] not in ct.observers:
+                            self.tracker.assign_observers(tid, list(ct.observers)+[observation['uav_id']])
+                        self.tracker.report(observation['uav_id'], tid, observation['sample_s'],
+                            observation['xyz'][0], observation['xyz'][1], truth=None)
                     return
                 detection = TargetDetection()
                 detection.header.stamp = rospy.Time.from_sec(observation['sample_s'])

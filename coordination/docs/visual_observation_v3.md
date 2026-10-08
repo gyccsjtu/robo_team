@@ -2,6 +2,8 @@
 
 ## 官方出口兼容修订3.2 / 候选v1.42（2026-10-08）
 
+内部接入兼容修订3.3 / v1.44：本机新鲜confirmed原图可用于本机追踪引导，即使已有稍新的其他来源位置；只拟合各相机自己的速度，不跨来源做差分。全局目标位置仍单调，不被较旧图覆盖。manager对这种延迟图只登记该来源观测，不改最新目标点或派发任务。线上字段及schema保持，agent/manager/own_visual_guidance.py必须统一快照。本机缓存只能引导，不能生成观测、上报许可或路线授权；过期退回既有来源处理，已消除清除缓存。
+
 视觉线上字段及schema_version不变。开启BRIDGE_SOURCE_REPORTING=1且BRIDGE_APPROACH_REPORTING=1时，内部融合轨迹继续供发现、接近和导航；官方坐标使用独立的同机来源轨迹。该来源必须自身激活，并取得原12米、三张不同原图、跨度0.6秒的许可。官方轨迹最新原图时间必须等于该来源许可的最新原图时间，两者年龄均不超过1秒；另一个来源的新原图不打断它，也不得借它的许可上传另一来源坐标。选中来源仍有效时保持，失效后才选择另一个已经合格的来源；不跨来源平均坐标，不修改原图时间。
 
 city默认启用（CITY_SOURCE_REPORTING=1），通用默认关闭；CITY_SOURCE_REPORTING=0恢复旧全局融合出口。六机快照必须包含official_report_sources.py与新版bridge、city入口；manager/agent线上接口无需变化。trace增加可选report_source_uid及report_fusion_scope；旧分析器须允许这些附加诊断字段。该候选已有离线检查，尚无实体效果证明。

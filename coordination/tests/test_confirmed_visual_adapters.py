@@ -29,6 +29,7 @@ class ConfirmedVisualAdaptersTests(unittest.TestCase):
         received=[]
         instance=SimpleNamespace(_authority_lock=threading.RLock(),_visual_evidence=VisualEvidence('current',['uav_1']),
             _visual_motion=TargetMotion(),
+            tracker=SimpleNamespace(targets={}),
             _target_cb=received.append,_detection_cb=received.append,_last_detect=previous or {},_t_seen=previous or {})
         return lambda m:scope['_confirmed_visual_cb'](instance,SimpleNamespace(data=json.dumps(m))),received
 

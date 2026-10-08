@@ -8,6 +8,7 @@ import unittest
 SCRIPTS=Path(__file__).resolve().parents[1]/'src/robocup_swarm/scripts'
 sys.path.insert(0,str(SCRIPTS))
 from companion_tracking import companion_guidance
+from own_visual_guidance import tracking_input
 
 
 class CompanionTrackingTests(unittest.TestCase):
@@ -49,7 +50,7 @@ class CompanionTrackingTests(unittest.TestCase):
         source=(SCRIPTS/'swarm_agent.py').read_text(encoding='utf-8')
         node=next(n for n in ast.walk(ast.parse(source)) if isinstance(n,ast.FunctionDef)
                   and n.name=='_fly_companion')
-        scope=dict(companion_guidance=companion_guidance,POS_KP=.8,MAX_SPEED=3.,FLEE_CHASE_SPEED=2.6,math=math)
+        scope=dict(companion_guidance=companion_guidance,tracking_input=tracking_input,POS_KP=.8,MAX_SPEED=3.,FLEE_CHASE_SPEED=2.6,math=math)
         exec(compile(ast.fix_missing_locations(ast.Module(body=[node],type_ignores=[])),
                      'swarm_agent.py','exec'),scope)
         requests,commands,friends=[],[],[]

@@ -83,7 +83,8 @@ class TrackingNavigationTests(unittest.TestCase):
         source = (SCRIPTS/'swarm_agent.py').read_text(encoding='utf-8')
         node = next(n for n in ast.walk(ast.parse(source)) if isinstance(n,ast.FunctionDef)
                     and n.name == '_control_tracking_navigation')
-        scope = dict(TAG_TO_TID={'white':'t3'}, POS_KP=.8, MAX_SPEED=3., FLEE_CHASE_SPEED=2.6,
+        from own_visual_guidance import tracking_input
+        scope = dict(tracking_input=tracking_input,TAG_TO_TID={'white':'t3'}, POS_KP=.8, MAX_SPEED=3., FLEE_CHASE_SPEED=2.6,
                      math=math, rospy=NS(loginfo=lambda *args:None))
         exec(compile(ast.fix_missing_locations(ast.Module(body=[node],type_ignores=[])),
                      'swarm_agent.py','exec'), scope)

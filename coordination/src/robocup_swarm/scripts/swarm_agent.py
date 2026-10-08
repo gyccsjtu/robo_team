@@ -51,6 +51,7 @@ from orbit_geometry import orbit_goal
 from white_reacquisition import WhiteReacquisition
 from tracking_navigation import TrackingNavigation, StoppedObservation
 from companion_tracking import companion_guidance
+from own_visual_guidance import OwnVisualGuidance, tracking_input
 from legacy_pursuit import LegacyPursuit
 from publisher_authority import PublisherAuthority
 from fcu_configuration import configure as configure_fcu_parameters
@@ -481,6 +482,8 @@ class SwarmAgent(object):
         self._tracking_navigation_phase = None
         self._stopped_observation = StoppedObservation(self.uav_id, navigation_s) if navigation_s > 0 else None
         self._companion_tracking_enabled = os.environ.get('SWARM_COMPANION_TRACKING','0') == '1'
+        self._own_visual_guidance = (OwnVisualGuidance(self.uav_id)
+            if os.environ.get('SWARM_OWN_CAMERA_GUIDANCE','0') == '1' else None)
         self._legacy_pursuit = LegacyPursuit()
         self._white_reacquire_enabled = os.environ.get('SWARM_WHITE_REACQUIRE', '0') == '1'
         self._white_reacquire_phase = None
@@ -1258,8 +1261,6 @@ class SwarmAgent(object):
                         and self._gate.task['task_type'] == 1 and self._gate.task['target_id'] == tid):
                     self._white_reacquire.observe(self._gate.generation, observation['sample_s'],
                         observation['xyz'][:2], rospy.Time.now().to_sec())
-                if observation['sample_s'] < self._t_seen.get(tid, -1.):
-                    return
                 target = TargetState()
                 target.header.stamp = rospy.Time.from_sec(observation['sample_s'])
                 target.target_id = tid
@@ -1269,6 +1270,10 @@ class SwarmAgent(object):
                     observation['sample_s'],target.x,target.y)
                 if motion is None:
                     return
+                own = getattr(self, '_own_visual_guidance', None)
+                if own is not None:
+                    own.observe(tid, observation['uav_id'], observation['sample_s'],
+                        observation['xyz'][:2], motion[:2], rospy.Time.now().to_sec())
                 pursuit = getattr(self,'_legacy_pursuit',None)
                 if (pursuit is not None and self._gate.task is not None
                         and self._gate.task['task_type'] == 1
@@ -1276,6 +1281,8 @@ class SwarmAgent(object):
                         and self._gate.can_move(rospy.Time.now().to_sec())):
                     pursuit.expired(self._gate.generation,tid,rospy.Time.now().to_sec())
                     pursuit.observe(observation)
+                if observation['sample_s'] < self._t_seen.get(tid, -1.):
+                    return  # Keep global target monotonic; per-camera evidence above remains valid.
                 target.vx,target.vy,fleeing = motion
                 target.state = 1 if fleeing else 0
                 self._target_cb(target)
@@ -1285,6 +1292,9 @@ class SwarmAgent(object):
     def _target_cb(self, msg):
         """Cache confirmed camera coordinates and update this assigned target."""
         if msg.eliminated:
+            own = getattr(self, '_own_visual_guidance', None)
+            if own is not None:
+                own.clear(msg.target_id)
             stopped_view = getattr(self, '_stopped_observation', None)
             if stopped_view is not None:
                 stopped_view.images.pop(msg.target_id, None)
@@ -2341,8 +2351,7 @@ class SwarmAgent(object):
             self._send_vel(0.,0.)
             self._report_blocked_plan('TARGET_VISUAL_LOST',now)
             return
-        record = self.targets.get(target_id)
-        stamp = self._t_seen.get(target_id)
+        record, stamp = tracking_input(self, target_id, now)
         if record is None or stamp is None or not self._gate.can_move(now):
             self._send_vel(0.,0.)
             return
@@ -2373,12 +2382,12 @@ class SwarmAgent(object):
         navigation = getattr(self, '_tracking_navigation', None)
         if navigation is None or in_cooldown:
             return False
-        record = self.targets.get(target_id)
+        record, stamp = tracking_input(self, target_id, now)
         point = record[:2] if record is not None else None
         white = getattr(self, '_white_reacquire', None)
         allow_scan = not (target_id == TAG_TO_TID['white'] and white is not None and white.used)
         phase, destination = navigation.step(self._gate.generation, target_id, now,
-            self.world_xy, point, self._t_seen.get(target_id),
+            self.world_xy, point, stamp,
             eligible=self._gate.can_move(now), allow_scan=allow_scan)
         if phase != self._tracking_navigation_phase:
             self._blocked_plan = None
@@ -2867,6 +2876,9 @@ class SwarmAgent(object):
             # Red task IDs are geometric camera slots, not official actor IDs.
             # Neither slot is retired while either official red actor remains.
             if not actor_slot_remaining(int(m.group(1)), ids):
+                own = getattr(self, '_own_visual_guidance', None)
+                if own is not None:
+                    own.clear(tid)
                 self.targets.pop(tid, None)
                 self._t_seen.pop(tid, None)
                 self._giveup_until[tid] = float('inf')   # 已消除，永不追
