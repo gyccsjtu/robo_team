@@ -1,0 +1,88 @@
+{
+  "meaning": "Offline replay of 7 retained original images, not failed green frame or accuracy guarantee",
+  "custom_weights_sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+  "person_weights_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+  "custom_names": {
+    "0": "red",
+    "1": "green",
+    "2": "blue",
+    "3": "white",
+    "4": "brown"
+  },
+  "rows": [
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_3.png",
+      "original_png_sha256": "681a486c2f43132ed207a9a6f554dc4f44fea8954d181e0b693905a7cedd1564",
+      "custom": [],
+      "people": []
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_6.png",
+      "original_png_sha256": "953050d84fc803e8e1cf7ac80a44e5375351924ece1549af6b1ec67a57dc7173",
+      "custom": [
+        {
+          "cls": 1,
+          "conf": 0.5892921686172485,
+          "xyxy": [
+            444.9466552734375,
+            188.23602294921875,
+            453.685791015625,
+            206.10809326171875
+          ]
+        }
+      ],
+      "people": []
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_5.png",
+      "original_png_sha256": "f41cd3bd702e1c874588445d9e2fe75a3e188e5564921c8f380ec97d86c575d6",
+      "custom": [],
+      "people": []
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_4.png",
+      "original_png_sha256": "c4d52895cdbb5d9e2c416b64b09f0e4f1e1509666613cf46d3baeff370cfe15f",
+      "custom": [],
+      "people": []
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_1.png",
+      "original_png_sha256": "4c09e50889089f7c26290bdce54dbaf80d84e2977f51344ef3e6f6ef23612f44",
+      "custom": [],
+      "people": [
+        {
+          "conf": 0.1887555569410324,
+          "xyxy": [
+            241.06207275390625,
+            199.26756286621094,
+            245.86456298828125,
+            207.90867614746094
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_2.png",
+      "original_png_sha256": "fa42373da3027e407968f586db881e7116633062b6c1f026f180881777510aa7",
+      "custom": [],
+      "people": []
+    },
+    {
+      "path": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/frames/uav_2_brown_001.png",
+      "original_png_sha256": "4075f3b9074dcd229a2b045a91f85a37756f05213b9b337786f43a8491f0a00c",
+      "custom": [
+        {
+          "cls": 4,
+          "conf": 0.562310516834259,
+          "xyxy": [
+            271.9249572753906,
+            204.00698852539062,
+            283.5479431152344,
+            230.61636352539062
+          ]
+        }
+      ],
+      "people": []
+    }
+  ]
+}
