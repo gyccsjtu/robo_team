@@ -180,11 +180,11 @@ class BoundedCapture(object):
             return False, "disabled", None
         if self.saved >= self.total_cap:
             return False, self._skip("total_cap_reached"), None
+        if image_time is None or float(image_time) <= 0.0:
+            return False, self._skip("no_image_stamp"), None
         key = (uav, round(float(image_time), 3))
         if key in self.seen_keys:
             return False, self._skip("duplicate_image_time"), None
-        if image_time is None or float(image_time) <= 0.0:
-            return False, self._skip("no_image_stamp"), None
         # The gate that actually matters: never save an ancient original.
         age = float(wall_now) - float(image_time)
         if age < -0.5:
@@ -241,7 +241,11 @@ class BoundedCapture(object):
                        depth=round(depth, 3), uv=[round(u, 1), round(v, 1)],
                        expected_h_px=round(exp_h, 2), horiz_m=round(horiz, 2),
                        image_sha256=image_sha, truth_triggered=True,
-                       non_control_use=True)
+                       non_control_use=True,
+                       pose_alignment=("unstamped_current_service_approximation"
+                                       if pose_time is None else "timestamp_matched"),
+                       image_pose_delay_s=(age if pose_time is None else
+                                          float(pose_time)-float(image_time)))
         return True, "capture", payload
 
     def commit(self, image, payload, wall_now=None):
@@ -412,18 +416,18 @@ def main(argv=None):
             return
         p = msg.pose[i].position
         state["truth"] = (float(p.x), float(p.y), float(p.z))
-        state["truth_wall"] = time.time()
+        state["truth_wall"] = rospy.Time.now().to_sec()
 
     def make_image_cb(uav):
         bridge = CvBridge()
 
         def cb(msg):
             try:
-                img = bridge.imgmsg_to_cv2(msg, "bgr8")
+                # Keep only the latest message; decode only a selected frame.
+                state["image"][uav] = msg
             except Exception:
                 cap._skip("cv_bridge_failed")
                 return
-            state["image"][uav] = (msg, img)
         return cb
 
     def make_info_cb(uav):
@@ -449,7 +453,7 @@ def main(argv=None):
     subs = [rospy.Subscriber("/gazebo/model_states", ModelStates, models_cb,
                              queue_size=1)]
     if args.pose_source == "topic":
-        from nav_msgs.msg import PoseStamped
+        from geometry_msgs.msg import PoseStamped
 
         def make_pose_cb(uav):
             def cb(msg):
@@ -475,17 +479,25 @@ def main(argv=None):
           "image_max_age=%.1f s"
           % (args.out_dir, args.total_cap, args.min_expected_px, args.max_range_m,
              args.pose_source, args.image_max_age_s), flush=True)
-    rate = rospy.Rate(1.0 / args.poll_s)
     while not rospy.is_shutdown() and not stopping["flag"]:
         if result_finished(args.result_file):
             print("[white_dev] result file reports a terminal state; exiting", flush=True)
             break
-        for uav, (msg, img) in list(state["image"].items()):
+        for uav, msg in list(state["image"].items()):
             if uav not in state["intr"]:
                 continue
             intr, size = state["intr"][uav]
             img_t = msg.header.stamp.to_sec()
-            wall = time.time()
+            # Image headers use ROS time (/clock in this simulation), not UTC.
+            wall = rospy.Time.now().to_sec()
+            if cap.saved >= cap.total_cap:
+                continue
+            last = cap.last_saved.get(uav)
+            if last is not None and wall-last < 1.0/cap.per_uav_per_sec:
+                continue
+            if wall-img_t > cap.image_max_age_s:
+                cap._skip("image_too_old")
+                continue
             pose, pose_time, pull_delay = None, None, None
             if args.pose_source == "service":
                 t_pull = time.time()
@@ -503,8 +515,14 @@ def main(argv=None):
                 uav, img_t, pose, pose_time, state["truth"], intr, size, wall,
                 truth_age_s=truth_age, pose_pull_delay_s=pull_delay)
             if ok:
+                try:
+                    img = CvBridge().imgmsg_to_cv2(msg, "bgr8")
+                except Exception:
+                    cap._skip("cv_bridge_failed")
+                    continue
                 cap.commit(img, payload, wall)
-        rate.sleep()
+        # Poll termination even if Gazebo dies and /clock stops advancing.
+        time.sleep(args.poll_s)
 
     print("[white_dev] exit; %s" % json.dumps(cap.stats(), ensure_ascii=False), flush=True)
     return 0

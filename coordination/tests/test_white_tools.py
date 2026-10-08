@@ -410,5 +410,29 @@ class Quaternion(unittest.TestCase):
         self.assertTrue(np.allclose(np.diag([-1.0, -1.0, 1.0]), R))
 
 
+class ObserverIntegrationReview(unittest.TestCase):
+    def test_missing_stamp_is_rejected_without_throwing(self):
+        cap = BoundedCapture("", enabled=True)
+        self.assertEqual("no_image_stamp", cap.should_capture(
+            "uav_1", None, None, None, None, None, None, 1900.)[1])
+
+    def test_unstamped_service_pose_is_explicitly_approximate(self):
+        cap = BoundedCapture("", enabled=True)
+        ok, _, payload = cap.should_capture(
+            "uav_1", 1900., dict(xyz=[0.,0.,2.], rotation=[1,0,0,0,1,0,0,0,1]),
+            None, [10.,0.], [205.47,205.47,320.5,180.5], [640,360], 1900.472)
+        self.assertTrue(ok)
+        self.assertEqual("unstamped_current_service_approximation", payload["pose_alignment"])
+        self.assertAlmostEqual(.472, payload["image_pose_delay_s"])
+
+    def test_live_clock_and_message_type(self):
+        import inspect
+        import white_evidence_observer as O
+        src = inspect.getsource(O.main)
+        self.assertIn("wall = rospy.Time.now().to_sec()", src)
+        self.assertIn('state["truth_wall"] = rospy.Time.now().to_sec()', src)
+        self.assertIn("from geometry_msgs.msg import PoseStamped", src)
+        self.assertNotIn("from nav_msgs.msg import PoseStamped", src)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
