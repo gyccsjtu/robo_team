@@ -1,0 +1,7 @@
+[
+  {
+    "pid": 8654,
+    "action": "SIGINT",
+    "verified_cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/observers/visual_frames --wall-seconds 4300 --limit-per-tag 24 --loss-color white "
+  }
+]

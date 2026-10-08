@@ -1,0 +1,45 @@
+{
+  "executed_commit": "5e556c3",
+  "simulated_seconds": 46.680000000000064,
+  "trajectory_range": [
+    1930.864,
+    1977.288
+  ],
+  "maximum_true_height_m": 3.2808321638801097,
+  "maximum_horizontal_displacements_m": {
+    "uav_1": 21.382466364462925,
+    "uav_2": 25.040324223154084,
+    "uav_3": 22.276444351074908,
+    "uav_4": 19.097610612395094,
+    "uav_5": 17.22231659532051,
+    "uav_6": 30.915013779849694
+  },
+  "native_time_range": [
+    1929.664,
+    1977.644
+  ],
+  "non_ground_contacts": {},
+  "left_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "source_audit": {
+    "swarm_source_manifest.json": {
+      "count": 143,
+      "mismatch": []
+    },
+    "execution_sources.json": {
+      "count": 13,
+      "mismatch": []
+    }
+  },
+  "stopped_intentionally": true,
+  "native_contact_log_rows": 720,
+  "native_frames": 11996,
+  "native_maximum_gap_s": 0.00400000000013,
+  "contact_coverage": true
+}

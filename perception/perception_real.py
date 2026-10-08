@@ -878,7 +878,10 @@ class Track(object):
         # 当前在动，或者生命期内动过 —— 见 VERDICT_DISP 的注释（治 actor 卡死）
         recent_speed = self.recent_motion.speed(self.observed_s if now is None else now) if self.recent_motion is not None else None
         blue_qualified = self.blue_identity is not None and self.blue_identity.allowed(self.observed_s if now is None else now)
-        if self.blue_identity is not None and not blue_qualified and not verified_person:
+        # A real, blue-clothed decorative person passes both models. Person
+        # proof establishes appearance, not membership of the moving targets.
+        # Keep the existing original-image movement qualification mandatory.
+        if self.blue_identity is not None and not blue_qualified:
             return False, "blue_identity"
         if not blue_qualified and not stationary_person and not verified_person and ((recent_speed is not None and recent_speed < VERDICT_SP) or (recent_speed is None and self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP)):
             return False, "static"

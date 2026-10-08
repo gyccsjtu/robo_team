@@ -92,21 +92,31 @@ class BlueMotionIdentityTests(unittest.TestCase):
         proof.observe(10.6,False)
         self.assertFalse(proof.allowed('blue',0,10.6,allow_blue=True))
 
-    def test_actual_stationary_blue_verified_person_preserves_geometry_gates(self):
+    def test_stationary_decorative_blue_cannot_bypass_identity_with_person_proof(self):
         tr=actual_track_class(True)('blue',0.,0.,.9,(50.,50.),(15.,30.),10.,1.8,10.)
         for i in range(1,6):tr.update(0.,0.,.2,.9,(50.,50.),(15.,30.),10.,1.8,10.+i*.2)
         self.assertEqual(tr.verdict(11.,attach_check=False),(False,'blue_identity'))
-        self.assertTrue(tr.verdict(11.,verified_person=True)[0])
+        self.assertEqual(tr.verdict(11.,verified_person=True),(False,'blue_identity'))
         tr.rng=100.
         self.assertEqual(tr.verdict(11.,verified_person=True),(False,'range'))
         tr.rng=10.;tr.h=10.
         self.assertEqual(tr.verdict(11.,verified_person=True),(False,'height'))
 
+    def test_verified_moving_blue_keeps_identity_after_stopping(self):
+        tr=actual_track_class(True)('blue',0.,0.,.9,(50.,50.),(15.,30.),10.,1.8,10.)
+        for i in range(1,41):
+            tr.update(i*.1,0.,.1,.9,(50.,50.),(15.,30.),10.,1.8,10.+i*.1)
+        self.assertTrue(tr.verdict(14.,verified_person=True)[0])
+        for i in range(1,31):
+            tr.update(4.,0.,.1,.9,(50.,50.),(15.,30.),10.,1.8,14.+i*.1)
+        self.assertTrue(tr.verdict(17.,verified_person=True)[0])
+        self.assertFalse(tr.verdict(18.1,verified_person=True)[0])
+
     def test_blue_person_proof_needs_person_overlap_and_valid_blue_crop(self):
         rectangle=[10.,20.,30.,60.]
-        box=NS(cls=2,xyxy=[rectangle])
+        box=NS(cls=2,conf=.9,xyxy=[rectangle])
         verifier=PersonVerifier('configured',color_check=True,proof_classes=(2,))
-        people=[NS(cls=0,xyxy=[rectangle])]
+        people=[NS(cls=0,conf=.4,xyxy=[rectangle])]
         verifier.model=lambda *a,**kw:[NS(boxes=people)]
         for fractions,expected in [(None,False),
             (dict(blue=.05,white=.8,green=0.,red=0.,brown=0.),False),

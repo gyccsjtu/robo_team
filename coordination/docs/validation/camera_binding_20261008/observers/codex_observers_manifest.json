@@ -1,0 +1,34 @@
+{
+  "control_input": false,
+  "processes": [
+    {
+      "pid": 5268,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/flight/result.json --tag green --wall-seconds 4300 "
+    },
+    {
+      "pid": 5277,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/flight/result.json --tag brown --wall-seconds 4300 "
+    },
+    {
+      "pid": 5280,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/flight/result.json --tag blue --wall-seconds 4300 "
+    },
+    {
+      "pid": 5286,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/flight/result.json --tag red --wall-seconds 4300 "
+    },
+    {
+      "pid": 5310,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/flight/result.json --tag white --wall-seconds 4300 "
+    },
+    {
+      "pid": 8654,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/observers/visual_frames --wall-seconds 4300 --limit-per-tag 24 --loss-color white "
+    }
+  ],
+  "source_sha": {
+    "observe_visual_accuracy.py": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629",
+    "capture_visual_frames.py": "ed97b5789228bc58c4ab51b37bb6b87c6dece3580c1381aacf5bc2c3d50bee0d",
+    "render_binding_observer.cc": "7b6459312769b8ec7605993c6d201601fa007e9c25e1b9a8fea5548384163b2d"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "meaning": "actual recorded gate inputs at published track rows, not full callback/physical replay",
+  "control_input": false,
+  "results": {
+    "codex_camera_binding_20261008": {
+      "published_rows": 106,
+      "would_reject_existing_false_identity": 106,
+      "allowed_identity_true": 0,
+      "blocked_xy_range": {
+        "raw_target_x": [
+          -26.95,
+          -26.69
+        ],
+        "raw_target_y": [
+          13.33,
+          13.58
+        ]
+      }
+    },
+    "codex_n12_verify_20261008": {
+      "published_rows": 562,
+      "would_reject_existing_false_identity": 218,
+      "allowed_identity_true": 344
+    }
+  }
+}

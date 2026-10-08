@@ -1,0 +1,171 @@
+{
+  "name": "casual_female",
+  "pose": "-26.902 13.6572 0 0 -0 0",
+  "static": "1",
+  "xml": "<model name=\"casual_female\">\n      <static>1</static>\n      <link name=\"link\">\n        <collision name=\"box\">\n          <pose frame=\"\">0 0 0.9 0 -0 0</pose>\n          <geometry>\n            <box>\n              <size>0.76 0.33 1.77</size>\n            </box>\n          </geometry>\n          <max_contacts>10</max_contacts>\n          <surface>\n            <contact>\n              <ode />\n            </contact>\n            <bounce />\n            <friction>\n              <torsional>\n                <ode />\n              </torsional>\n              <ode />\n            </friction>\n          </surface>\n        </collision>\n        <visual name=\"visual\">\n          <pose frame=\"\">0 0 0.02 0.04 -0 0</pose>\n          <geometry>\n            <mesh>\n              <uri>model://casual_female/meshes/casual_female.dae</uri>\n            </mesh>\n          </geometry>\n        </visual>\n        <self_collide>0</self_collide>\n        <enable_wind>0</enable_wind>\n        <kinematic>0</kinematic>\n      </link>\n      <pose frame=\"\">-26.902 13.6572 0 0 -0 0</pose>\n    </model>\n    ",
+  "control_input": false,
+  "candidate": {
+    "schema_version": 1,
+    "uav": "typhoon_h480_2_pass",
+    "seq": 1,
+    "png": "frame_000001_1791441379133.png",
+    "wall_time": 1791441379.1333954,
+    "cls": "blue",
+    "color_conf": 0.497,
+    "color_xyxy": [
+      143.3,
+      185.9,
+      152.5,
+      208.5
+    ],
+    "person_iou": 0.7335406541824341,
+    "person_conf": 0.3051448166370392,
+    "n_person_boxes": 1,
+    "reject_reason": null,
+    "person_xyxy": [
+      143.8279266357422,
+      186.8399658203125,
+      151.06459045410156,
+      208.11929321289062
+    ],
+    "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.6444444444444445,
+      "white": 0.24444444444444444,
+      "brown": 0.022222222222222223
+    },
+    "range_m": 21.38,
+    "xyz": [
+      -27.06,
+      13.74
+    ],
+    "image_stamp": 1957.444,
+    "camera_binding": {
+      "schema_version": 1,
+      "image_header": {
+        "frame_id": "uav_3/cgo3_camera_optical_frame",
+        "seq": 58
+      },
+      "image_topic": "/uav_3/cgo3_camera/image_raw",
+      "configured_link": "typhoon_h480_2::cgo3_camera_link",
+      "camera_info_topic": "/uav_3/cgo3_camera/camera_info",
+      "camera_offset_link": [
+        0.0,
+        0.0,
+        -0.162
+      ],
+      "image_recv_wall": 1791441378.2994514,
+      "image_receive_age_s": 0.36000000000012733,
+      "intrinsics": [
+        205.46963709898583,
+        205.46963709898583,
+        320.5,
+        180.5
+      ],
+      "size": [
+        640,
+        360
+      ],
+      "image_s": 1957.444,
+      "first": {
+        "sample_s": 1957.442,
+        "camera_xyz": [
+          -8.772339552389125,
+          2.911170311021202,
+          2.4143563136010098
+        ],
+        "camera_rotation": [
+          -0.3322555022635365,
+          -0.9431243195316765,
+          -0.011081476594652473,
+          0.9431851459213485,
+          -0.3322664324994542,
+          -0.0008935028878612507,
+          -0.0028393183918176456,
+          -0.01074875536973156,
+          0.9999381993548759
+        ],
+        "service": {
+          "before_s": 1957.44,
+          "after_s": 1957.444,
+          "link_name": "typhoon_h480_2::cgo3_camera_link",
+          "reference_frame": "world",
+          "link_xyz": [
+            -8.774134751597458,
+            2.9110255635533684,
+            2.5763463018965
+          ],
+          "link_quaternion_xyzw": [
+            0.004264120103898048,
+            0.0035661747435562757,
+            -0.8161587060918155,
+            -0.5778010610478068
+          ]
+        }
+      },
+      "second": {
+        "sample_s": 1957.4940000000001,
+        "camera_xyz": [
+          -8.791724622828875,
+          2.975815141304968,
+          2.421375423841486
+        ],
+        "camera_rotation": [
+          -0.32221042370814557,
+          -0.9465980493636986,
+          -0.011514156272100872,
+          0.9466679724841321,
+          -0.32219219557058953,
+          -0.0034552838067950353,
+          -0.00043900637794089953,
+          -0.012013411432394507,
+          0.9999277399988242
+        ],
+        "service": {
+          "before_s": 1957.492,
+          "after_s": 1957.496,
+          "link_name": "typhoon_h480_2::cgo3_camera_link",
+          "reference_frame": "world",
+          "link_xyz": [
+            -8.793589916144956,
+            2.9752553853282673,
+            2.5833637177212956
+          ],
+          "link_quaternion_xyzw": [
+            0.0036753184766719527,
+            0.004756262680187165,
+            -0.8130698554364132,
+            -0.5821351047480493
+          ]
+        }
+      },
+      "rotation_alpha": 0.03846153846052941,
+      "camera_xyz": [
+        -8.773085132021404,
+        2.9136566506474355,
+        2.4146262793794824
+      ],
+      "camera_rotation": [
+        -0.33186982978403196,
+        -0.9432599106489578,
+        -0.011097614231781787,
+        0.9433211906327256,
+        -0.3318797176830586,
+        -0.0009921158548030634,
+        -0.002747249965644183,
+        -0.010797867990167007,
+        0.9999379274057428
+      ]
+    },
+    "effective_conf": 0.4,
+    "path": "shared",
+    "pr_conf": "",
+    "pr_person_verify_conf": ".1",
+    "pr_person_verify_iou": ".25",
+    "color_model_sha": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+    "person_model_sha": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+    "run_id": "aabb126d-41a2-4e73-a235-59063d56fedb"
+  },
+  "candidate_to_static_model_xy_m": 0.17838116492499811
+}

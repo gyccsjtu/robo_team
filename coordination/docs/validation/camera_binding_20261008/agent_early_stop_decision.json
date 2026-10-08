@@ -1,0 +1,8 @@
+{
+  "reason": "EXACT_IMAGE_STATIC_DECORATIVE_PERSON_IDENTIFIED",
+  "pid": 572,
+  "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/six_radar_connectivity.py --output /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/flight --city-scene /root/robocup_runs/codex_camera_binding_20261008/round_1_seed_8159/scene --flight-seconds 600 ",
+  "candidate_to_static_model_xy_m": 0.17838116492499811,
+  "not_full_600_seconds": true,
+  "action": "SIGINT own launcher"
+}

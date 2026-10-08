@@ -1,0 +1,10 @@
+{
+  "control_input": false,
+  "meaning": "original-image raw coordinate error labels; repeated track-publish rows are not independent images",
+  "counts": {
+    "raw_under_1m_blocked": 124,
+    "raw_under_1m_allowed": 336,
+    "raw_over_1m_blocked": 94,
+    "raw_over_1m_allowed": 8
+  }
+}

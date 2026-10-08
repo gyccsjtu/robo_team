@@ -1,0 +1,7 @@
+{
+  "source": "/mnt/d/a/.robocup/robo_team/coordination/scripts/render_binding_observer.cc",
+  "source_sha256": "7b6459312769b8ec7605993c6d201601fa007e9c25e1b9a8fea5548384163b2d",
+  "binary": "/root/robo_team_build/render_binding_20261008/librender_binding_observer.so",
+  "binary_sha256": "368dcd9972a83723758cc40fe1b9b34b43bbe77e143921c621b301acc727690c",
+  "control_input": false
+}
