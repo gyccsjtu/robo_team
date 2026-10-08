@@ -18,7 +18,7 @@ Usage:
   python3 white_visibility_audit.py --round <round_dir> [--json-out <path>]
 
 Round dir must contain observers/independent_visual_accuracy_white.jsonl
-(rows {"kind":"actor_truth","sample":[t,x,y,z]}) and
+(rows {"kind":"actor_truth","sample":[t,x,y,actor_id]}) and
 flight/algorithm/search_camera_frames.jsonl.
 """
 import argparse
@@ -55,8 +55,9 @@ def truth_samples(path):
     for r in load_jsonl(path):
         s = r.get("sample")
         if isinstance(s, (list, tuple)) and len(s) >= 3:
-            rows.append((float(s[0]), float(s[1]), float(s[2]),
-                         float(s[3]) if len(s) > 3 else 0.0))
+            if r.get('kind') == 'actor_truth' and len(s) == 4 and s[3] == 3:
+                # Observer wire sample is [time,x,y,actor_id], NOT world Z.
+                rows.append((float(s[0]), float(s[1]), float(s[2]), 0.0))
     rows.sort(key=lambda r: r[0])
     return rows
 
@@ -111,7 +112,7 @@ def main():
 
     frames = []
     for c in cams:
-        t = float(c.get("sample_s", c.get("image_s", 0.0)))
+        t = float(c["image_s"])
         tr = nearest_truth(truth, t, args.tol)
         fx = fy = DEFAULT_FX
         cx, cy = DEFAULT_CX, DEFAULT_CY
@@ -122,8 +123,8 @@ def main():
         size = c.get("size")
         if isinstance(size, (list, tuple)) and len(size) == 2:
             W, H = int(size[0]), int(size[1])
-        rec = dict(uav=c.get("uav_id"), t_image=float(c.get("image_s", t)),
-                   t_sample=t, has_truth=bool(tr))
+        rec = dict(uav=c.get("uav_id"), t_image=t,
+                   t_sample=c.get('sample_s'), has_truth=bool(tr))
         if tr is None:
             rec.update(in_fov=False, reason="no_truth_within_tol")
             frames.append(rec)
@@ -132,7 +133,7 @@ def main():
         # project the person's mid-height point (1.0 m above ground) and feet
         for label, z in (("foot", 0.0), ("mid", 1.0), ("top", 1.75)):
             rec[label] = project(c.get("camera_xyz"), c.get("camera_rotation"),
-                                 [tx, ty, tz - 3.0 + z], fx, fy, cx, cy)
+                                 [tx, ty, z], fx, fy, cx, cy)
         horiz = math.hypot(tx - float(c["camera_xyz"][0]),
                            ty - float(c["camera_xyz"][1]))
         rec.update(truth_xy=[tx, ty], truth_z=tz, horiz_m=horiz)
@@ -183,6 +184,8 @@ def main():
                                            M_OPT2LINK=M_OPT2LINK.tolist(),
                                            convention="v_opt = M_OPT2LINK.T @ R.T @ (P_world - cam)"),
                            truth_samples=len(truth), camera_frames=len(cams),
+                           scope='search task processed image records only; not all flight camera images',
+                           truth_sample_layout='time,x,y,actor_id; ground_z=0 assumed for projection',
                            in_fov=len(in_fov), forward=len(fwd), behind=len(behind),
                            outside=len(outside), frames=frames),
                       fh, ensure_ascii=False, indent=1)

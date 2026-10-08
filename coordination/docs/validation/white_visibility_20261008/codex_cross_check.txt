@@ -1,0 +1,28 @@
+=== in-FOV expected pixel height distribution ===
+  min  dist=  57.3 m   expected_h=  2.0 px
+  p25  dist=  68.3 m   expected_h=  4.6 px
+  p50  dist=  75.7 m   expected_h=  5.5 px
+  p75  dist=  89.9 m   expected_h=  6.9 px
+  p95  dist= 143.9 m   expected_h=  7.9 px
+  max  dist= 178.1 m   expected_h= 10.4 px
+  frames with expected_h >= 8 px : 28 / 793
+  frames with expected_h >= 12 px: 0 / 793
+  frames within 22 m : 0
+  frames within 12 m : 0
+
+=== the three recorded white detections: visibility at those instants ===
+  t=1970.076 uav_5: behind_camera  dist=89.7 m  depth=-89.7  exp_h=n/a px  uv=(325,178)
+  t=1970.848 uav_5: behind_camera  dist=90.2 m  depth=-89.9  exp_h=n/a px  uv=(336,179)
+  t=1999.208 uav_3: behind_camera  dist=149.6 m  depth=-61.9  exp_h=n/a px  uv=(-132,174)
+
+=== the 45 white CSV rows: which aircraft, exact file -> logical id ===
+  mapping: perception_typhoon_h480_N.csv  ==  uav_(N+1)
+  h480_2 -> uav_3 : 1 white rows
+      t=1999.68 conf=0.5388 w=7.519999999999982 h=11.740000000000009 range=18.848874234368218 height=1.0657110932552856 n_person=0 reason=no_person_overlap
+  h480_4 -> uav_5 : 44 white rows
+      t=1970.576 conf=0.6564 w=8.310000000000002 h=18.310000000000002 range=27.183713604556395 height=2.0969773951581017 n_person=0 reason=no_person_overlap
+      t=1971.372 conf=0.4362 w=8.039999999999992 h=17.400000000000006 range=26.77443161123408 height=2.0266389368264437 n_person=0 reason=no_person_overlap
+
+=== in-FOV frames vs saved original images ===
+  saved original images indexed: 94
+  in-FOV frames with existing same-aircraft original image (+/-0.01 s): 34 / 793

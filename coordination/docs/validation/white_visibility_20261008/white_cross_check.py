@@ -2,7 +2,7 @@ import json, csv, glob, os, math
 
 R = '/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159'
 A = R + '/flight/algorithm'
-V = '/mnt/d/a/.robocup/robo_team/coordination/docs/validation/white_visibility_20261008/white_visibility_v140.json'
+V = '/mnt/d/a/.robocup/robo_team/coordination/docs/validation/white_visibility_20261008/white_visibility_v140_codex.json'
 
 d = json.load(open(V))
 frames = d['frames']
@@ -23,9 +23,9 @@ print('  frames within 12 m : %d' % sum(1 for x in ds if x <= 12))
 print()
 print('=== the three recorded white detections: visibility at those instants ===')
 # 机号映射：perception_typhoon_h480_N.csv 的模型名对应 uav_(N+1)
-want = [(1970.076, 'uav_3'), (1970.848, 'uav_3'), (1999.208, 'uav_3')]
+want = [(1970.076, 'uav_5'), (1970.848, 'uav_5'), (1999.208, 'uav_3')]
 for t, uav in want:
-    cand = [f for f in frames if f['uav'] == uav and abs(f['t_image'] - t) <= 0.5]
+    cand = [f for f in frames if f['uav'] == uav and abs(f['t_image'] - t) <= 0.01]
     for f in cand[:2]:
         if f.get('mid') is None:
             print('  t=%.3f %s: %s' % (t, uav, f.get('reason')))
@@ -57,7 +57,8 @@ print('=== in-FOV frames vs saved original images ===')
 saved = []
 try:
     for f in (json.loads(l) for l in open(R + '/observers/frames/frames.jsonl')):
-        saved.append((float(f['observation']['sample_s']), f['observation']['uav_id']))
+        if os.path.isfile(os.path.join(R,'observers/frames',f.get('image',''))):
+            saved.append((float(f.get('image_sample_s',f['observation']['sample_s'])), f['observation']['uav_id']))
 except Exception as e:
     print('  frames.jsonl read err', e)
 for d2 in glob.glob(A + '/evidence_*'):
@@ -66,9 +67,12 @@ for d2 in glob.glob(A + '/evidence_*'):
         for line in open(idx):
             try:
                 r = json.loads(line)
-                saved.append((float(r.get('image_stamp', -1)), 'h480_' + os.path.basename(d2).split('_')[-1]))
+                topic=r.get('camera_binding',{}).get('image_topic','')
+                uid=topic.split('/')[1] if topic.startswith('/uav_') else None
+                if uid and os.path.isfile(os.path.join(d2,r.get('png',''))):
+                    saved.append((float(r.get('image_stamp', -1)),uid))
             except Exception:
                 pass
 print('  saved original images indexed: %d' % len(saved))
-print('  in-FOV frames whose moment has a saved image (+/-0.3 s): %d / %d' % (
-    sum(1 for f in in_fov if any(abs(f['t_image']-s[0]) <= 0.3 for s in saved)), len(in_fov)))
+print('  in-FOV frames with existing same-aircraft original image (+/-0.01 s): %d / %d' % (
+    sum(1 for f in in_fov if any(f['uav']==s[1] and abs(f['t_image']-s[0]) <= 0.01 for s in saved)), len(in_fov)))

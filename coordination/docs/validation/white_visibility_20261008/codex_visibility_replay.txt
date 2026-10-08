@@ -1,0 +1,808 @@
+truth samples: 2303   camera frames: 1827
+
+=== summary (geometric FOV only; occlusion/rendering NOT proven) ===
+frames total:            1827
+truth matched:           1827
+target in front:         1038
+  of which in image:     793
+  of which outside img:  245
+target behind camera:    789
+in-FOV horizontal distance m: min 57.3  p50 75.7  max 178.1
+in-FOV expected pixel height (1.75 m): min 2.0  p50 5.5  max 10.4
+
+--- in-FOV frames ---
+  uav_5 t=1942.028 dist= 63.5 m exp_h=  7.5 px u= 498.2 v= 179.3 depth=  48.0
+  uav_6 t=1942.028 dist= 61.4 m exp_h=  8.0 px u= 510.5 v= 179.2 depth=  45.0
+  uav_4 t=1942.028 dist= 59.3 m exp_h=  8.0 px u= 496.8 v= 179.1 depth=  45.0
+  uav_2 t=1942.028 dist= 57.3 m exp_h=  8.0 px u= 483.3 v= 179.1 depth=  44.9
+  uav_1 t=1942.028 dist= 59.6 m exp_h=  7.5 px u= 472.6 v= 179.4 depth=  47.9
+  uav_3 t=1942.028 dist= 61.5 m exp_h=  7.5 px u= 485.4 v= 179.3 depth=  48.0
+  uav_6 t=1942.504 dist= 61.7 m exp_h=  7.9 px u= 509.1 v= 179.2 depth=  45.5
+  uav_4 t=1942.504 dist= 59.7 m exp_h=  7.9 px u= 495.5 v= 179.2 depth=  45.4
+  uav_2 t=1942.504 dist= 57.7 m exp_h=  7.9 px u= 482.1 v= 179.6 depth=  45.3
+  uav_1 t=1942.504 dist= 60.0 m exp_h=  7.4 px u= 471.6 v= 179.6 depth=  48.3
+  uav_3 t=1942.504 dist= 61.9 m exp_h=  7.4 px u= 484.3 v= 179.4 depth=  48.4
+  uav_5 t=1942.504 dist= 63.9 m exp_h=  7.4 px u= 496.9 v= 179.5 depth=  48.5
+  uav_3 t=1942.972 dist= 62.3 m exp_h=  7.3 px u= 482.4 v= 179.7 depth=  49.0
+  uav_5 t=1942.972 dist= 64.3 m exp_h=  7.3 px u= 494.9 v= 179.5 depth=  49.1
+  uav_6 t=1942.972 dist= 62.2 m exp_h=  7.8 px u= 507.3 v= 179.4 depth=  46.0
+  uav_4 t=1942.972 dist= 60.1 m exp_h=  7.8 px u= 493.8 v= 179.4 depth=  45.9
+  uav_2 t=1942.972 dist= 58.1 m exp_h=  7.8 px u= 480.1 v= 179.2 depth=  45.9
+  uav_1 t=1942.972 dist= 60.4 m exp_h=  7.4 px u= 469.6 v= 179.5 depth=  48.9
+  uav_5 t=1943.440 dist= 64.7 m exp_h=  7.3 px u= 493.1 v= 179.8 depth=  49.6
+  uav_2 t=1943.440 dist= 58.5 m exp_h=  7.8 px u= 478.9 v= 179.6 depth=  46.3
+  uav_6 t=1943.440 dist= 62.6 m exp_h=  7.7 px u= 505.4 v= 179.3 depth=  46.5
+  uav_4 t=1943.440 dist= 60.5 m exp_h=  7.8 px u= 492.9 v= 179.5 depth=  46.3
+  uav_1 t=1943.440 dist= 60.8 m exp_h=  7.3 px u= 467.0 v= 179.7 depth=  49.5
+  uav_3 t=1943.440 dist= 62.7 m exp_h=  7.2 px u= 478.9 v= 180.2 depth=  49.7
+  uav_3 t=1943.912 dist= 63.2 m exp_h=  7.2 px u= 478.0 v= 180.2 depth=  50.1
+  uav_5 t=1943.912 dist= 65.1 m exp_h=  7.2 px u= 492.4 v= 180.0 depth=  50.0
+  uav_6 t=1943.912 dist= 62.9 m exp_h=  7.7 px u= 505.4 v= 179.3 depth=  46.8
+  uav_4 t=1943.912 dist= 60.9 m exp_h=  7.7 px u= 493.8 v= 179.6 depth=  46.6
+  uav_2 t=1943.912 dist= 58.9 m exp_h=  7.7 px u= 477.9 v= 181.0 depth=  46.8
+  uav_1 t=1943.912 dist= 61.3 m exp_h=  7.2 px u= 466.4 v= 181.3 depth=  50.0
+  uav_5 t=1944.400 dist= 65.6 m exp_h=  7.1 px u= 491.3 v= 181.7 depth=  50.4
+  uav_6 t=1944.400 dist= 63.4 m exp_h=  7.6 px u= 504.0 v= 181.5 depth=  47.3
+  uav_4 t=1944.400 dist= 61.3 m exp_h=  7.6 px u= 492.2 v= 181.4 depth=  47.1
+  uav_2 t=1944.400 dist= 59.4 m exp_h=  7.6 px u= 476.9 v= 182.1 depth=  47.2
+  uav_1 t=1944.400 dist= 61.7 m exp_h=  7.1 px u= 465.8 v= 182.4 depth=  50.4
+  uav_3 t=1944.400 dist= 63.6 m exp_h=  7.1 px u= 477.3 v= 181.6 depth=  50.5
+  uav_6 t=1944.900 dist= 63.8 m exp_h=  7.5 px u= 502.4 v= 182.5 depth=  47.8
+  uav_4 t=1944.900 dist= 61.8 m exp_h=  7.6 px u= 490.6 v= 182.8 depth=  47.6
+  uav_2 t=1944.900 dist= 59.8 m exp_h=  7.5 px u= 475.7 v= 183.7 depth=  47.7
+  uav_1 t=1944.900 dist= 62.2 m exp_h=  7.1 px u= 465.1 v= 184.1 depth=  50.8
+  uav_3 t=1944.900 dist= 64.0 m exp_h=  7.1 px u= 476.5 v= 182.9 depth=  51.0
+  uav_5 t=1944.900 dist= 66.0 m exp_h=  7.1 px u= 490.1 v= 183.0 depth=  50.9
+  uav_3 t=1945.364 dist= 64.5 m exp_h=  7.0 px u= 475.7 v= 184.4 depth=  51.4
+  uav_5 t=1945.364 dist= 66.4 m exp_h=  7.0 px u= 489.1 v= 184.5 depth=  51.3
+  uav_6 t=1945.364 dist= 64.2 m exp_h=  7.5 px u= 501.0 v= 184.0 depth=  48.2
+  uav_4 t=1945.364 dist= 62.2 m exp_h=  7.5 px u= 489.2 v= 184.5 depth=  48.1
+  uav_2 t=1945.364 dist= 60.2 m exp_h=  7.5 px u= 474.7 v= 185.3 depth=  48.2
+  uav_1 t=1945.364 dist= 62.6 m exp_h=  7.0 px u= 464.3 v= 185.5 depth=  51.3
+  uav_6 t=1945.848 dist= 64.6 m exp_h=  7.4 px u= 499.4 v= 185.6 depth=  48.8
+  uav_2 t=1945.848 dist= 60.7 m exp_h=  7.4 px u= 472.3 v= 186.6 depth=  48.8
+  uav_4 t=1945.848 dist= 62.6 m exp_h=  7.4 px u= 487.6 v= 185.8 depth=  48.6
+  uav_1 t=1945.848 dist= 63.1 m exp_h=  6.9 px u= 461.6 v= 186.7 depth=  52.0
+  uav_3 t=1945.848 dist= 64.9 m exp_h=  6.9 px u= 474.7 v= 185.7 depth=  51.9
+  uav_5 t=1945.848 dist= 66.9 m exp_h=  6.9 px u= 487.5 v= 185.8 depth=  51.9
+  uav_5 t=1946.368 dist= 67.3 m exp_h=  6.9 px u= 485.9 v= 187.0 depth=  52.4
+  uav_6 t=1946.368 dist= 65.1 m exp_h=  7.3 px u= 496.4 v= 187.0 depth=  49.4
+  uav_4 t=1946.368 dist= 63.1 m exp_h=  7.3 px u= 486.3 v= 186.9 depth=  49.1
+  uav_2 t=1946.368 dist= 61.1 m exp_h=  7.3 px u= 471.9 v= 187.6 depth=  49.2
+  uav_1 t=1946.368 dist= 63.5 m exp_h=  6.9 px u= 461.3 v= 187.4 depth=  52.4
+  uav_3 t=1946.368 dist= 65.4 m exp_h=  6.9 px u= 473.1 v= 186.8 depth=  52.5
+  uav_3 t=1946.888 dist= 65.8 m exp_h=  6.8 px u= 473.0 v= 187.4 depth=  52.8
+  uav_5 t=1946.888 dist= 67.7 m exp_h=  6.8 px u= 485.4 v= 187.8 depth=  52.8
+  uav_6 t=1946.888 dist= 65.5 m exp_h=  7.2 px u= 495.8 v= 187.9 depth=  49.8
+  uav_4 t=1946.888 dist= 63.5 m exp_h=  7.3 px u= 485.5 v= 187.7 depth=  49.5
+  uav_2 t=1946.888 dist= 61.6 m exp_h=  7.2 px u= 471.2 v= 188.1 depth=  49.6
+  uav_1 t=1946.888 dist= 64.0 m exp_h=  6.8 px u= 461.0 v= 187.8 depth=  52.8
+  uav_6 t=1947.424 dist= 66.0 m exp_h=  7.1 px u= 494.5 v= 187.9 depth=  50.3
+  uav_2 t=1947.424 dist= 62.1 m exp_h=  7.2 px u= 474.9 v= 182.9 depth=  49.6
+  uav_4 t=1947.424 dist= 64.0 m exp_h=  7.2 px u= 485.6 v= 183.3 depth=  49.9
+  uav_1 t=1947.424 dist= 64.5 m exp_h=  5.8 px u= 380.4 v= 185.8 depth=  61.9
+  uav_3 t=1947.424 dist= 66.3 m exp_h=  6.5 px u= 457.1 v= 192.6 depth=  55.2
+  uav_5 t=1947.424 dist= 68.2 m exp_h=  6.8 px u= 485.5 v= 189.5 depth=  53.2
+  uav_3 t=1947.952 dist= 66.9 m exp_h=  5.4 px u= 329.1 v= 187.9 depth=  66.8
+  uav_6 t=1947.952 dist= 66.4 m exp_h=  7.2 px u= 501.0 v= 184.5 depth=  49.9
+  uav_2 t=1947.952 dist= 62.3 m exp_h=  7.3 px u= 480.5 v= 186.2 depth=  49.1
+  uav_4 t=1947.952 dist= 64.3 m exp_h=  7.3 px u= 492.4 v= 185.1 depth=  49.3
+  uav_1 t=1947.952 dist= 65.0 m exp_h=  5.7 px u= 267.5 v= 179.9 depth=  63.0
+  uav_3 t=1948.604 dist= 68.2 m exp_h=  6.4 px u= 177.8 v= 176.6 depth=  56.1
+  uav_6 t=1948.604 dist= 66.5 m exp_h=  7.3 px u= 507.1 v= 191.2 depth=  49.2
+  uav_4 t=1948.604 dist= 64.2 m exp_h=  7.4 px u= 496.0 v= 189.0 depth=  48.8
+  uav_1 t=1948.604 dist= 65.6 m exp_h=  6.1 px u= 223.9 v= 192.5 depth=  59.3
+  uav_2 t=1948.604 dist= 62.3 m exp_h=  7.4 px u= 484.7 v= 178.5 depth=  48.7
+  uav_6 t=1949.012 dist= 66.4 m exp_h=  7.3 px u= 508.6 v= 186.3 depth=  49.0
+  uav_4 t=1949.012 dist= 64.0 m exp_h=  7.4 px u= 497.2 v= 189.3 depth=  48.5
+  uav_2 t=1949.012 dist= 62.3 m exp_h=  7.4 px u= 483.6 v= 191.1 depth=  48.7
+  uav_1 t=1949.012 dist= 66.0 m exp_h=  5.7 px u= 252.2 v= 185.5 depth=  62.6
+  uav_1 t=1949.512 dist= 66.3 m exp_h=  5.6 px u= 274.5 v= 184.5 depth=  64.7
+  uav_6 t=1949.512 dist= 66.3 m exp_h=  7.3 px u= 507.9 v= 191.5 depth=  49.0
+  uav_2 t=1949.512 dist= 62.1 m exp_h=  7.3 px u= 479.0 v= 185.8 depth=  49.1
+  uav_4 t=1949.512 dist= 63.8 m exp_h=  7.4 px u= 497.5 v= 189.2 depth=  48.3
+  uav_6 t=1949.996 dist= 66.4 m exp_h=  7.3 px u= 505.8 v= 175.4 depth=  49.3
+  uav_2 t=1949.996 dist= 61.9 m exp_h=  6.7 px u= 435.8 v= 180.4 depth=  54.0
+  uav_1 t=1949.996 dist= 66.2 m exp_h=  5.5 px u= 286.6 v= 191.2 depth=  65.2
+  uav_4 t=1949.996 dist= 63.8 m exp_h=  7.2 px u= 484.3 v= 170.1 depth=  49.8
+  uav_6 t=1950.496 dist= 66.6 m exp_h=  7.3 px u= 505.2 v= 189.5 depth=  49.5
+  uav_4 t=1950.496 dist= 64.0 m exp_h=  7.0 px u= 475.2 v= 188.6 depth=  51.1
+  uav_2 t=1950.496 dist= 62.1 m exp_h=  6.4 px u= 417.1 v= 187.5 depth=  56.2
+  uav_1 t=1950.496 dist= 65.9 m exp_h=  5.9 px u= 231.9 v= 185.6 depth=  60.5
+  uav_6 t=1950.924 dist= 66.6 m exp_h=  7.3 px u= 507.6 v= 191.5 depth=  49.2
+  uav_2 t=1950.924 dist= 62.1 m exp_h=  6.3 px u= 409.8 v= 190.5 depth=  56.9
+  uav_4 t=1950.924 dist= 63.9 m exp_h=  7.0 px u= 473.8 v= 190.6 depth=  51.2
+  uav_1 t=1950.924 dist= 66.0 m exp_h=  7.5 px u= 126.5 v= 180.9 depth=  48.0
+  uav_5 t=1951.324 dist= 72.0 m exp_h=  8.6 px u= 608.7 v= 192.3 depth=  41.8
+  uav_6 t=1951.324 dist= 66.7 m exp_h=  7.4 px u= 511.6 v= 185.1 depth=  48.8
+  uav_4 t=1951.324 dist= 63.8 m exp_h=  7.1 px u= 475.2 v= 186.2 depth=  51.0
+  uav_2 t=1951.324 dist= 62.0 m exp_h=  6.3 px u= 405.0 v= 184.2 depth=  57.4
+  uav_1 t=1951.324 dist= 66.4 m exp_h=  8.1 px u=  91.8 v= 189.6 depth=  44.3
+  uav_5 t=1951.700 dist= 72.1 m exp_h=  7.8 px u= 567.6 v= 189.3 depth=  46.1
+  uav_6 t=1951.700 dist= 67.0 m exp_h=  7.4 px u= 517.4 v= 194.5 depth=  48.3
+  uav_4 t=1951.700 dist= 63.8 m exp_h=  7.1 px u= 480.3 v= 190.3 depth=  50.3
+  uav_2 t=1951.700 dist= 62.0 m exp_h=  5.9 px u= 366.1 v= 190.7 depth=  60.5
+  uav_5 t=1952.104 dist= 72.0 m exp_h=  8.3 px u= 592.3 v= 190.5 depth=  43.4
+  uav_2 t=1952.104 dist= 61.9 m exp_h=  5.8 px u= 333.6 v= 179.0 depth=  61.8
+  uav_4 t=1952.104 dist= 63.6 m exp_h=  7.3 px u= 487.3 v= 189.3 depth=  49.4
+  uav_6 t=1952.104 dist= 67.2 m exp_h=  7.6 px u= 526.4 v= 192.0 depth=  47.4
+  uav_6 t=1952.528 dist= 67.4 m exp_h=  7.8 px u= 541.7 v= 190.0 depth=  45.9
+  uav_2 t=1952.528 dist= 62.2 m exp_h=  5.8 px u= 299.3 v= 183.8 depth=  61.9
+  uav_4 t=1952.528 dist= 63.6 m exp_h=  7.4 px u= 493.6 v= 185.8 depth=  48.6
+  uav_6 t=1952.976 dist= 67.7 m exp_h=  8.2 px u= 561.0 v= 190.0 depth=  43.9
+  uav_2 t=1952.976 dist= 62.1 m exp_h=  5.9 px u= 276.3 v= 191.0 depth=  60.7
+  uav_4 t=1952.976 dist= 63.5 m exp_h=  7.6 px u= 501.7 v= 190.5 depth=  47.6
+  uav_6 t=1953.460 dist= 68.0 m exp_h=  8.6 px u= 582.1 v= 190.0 depth=  42.0
+  uav_2 t=1953.460 dist= 61.8 m exp_h=  6.0 px u= 283.9 v= 225.0 depth=  59.5
+  uav_4 t=1953.460 dist= 63.3 m exp_h=  7.7 px u= 508.0 v= 189.8 depth=  46.7
+  uav_6 t=1953.840 dist= 68.3 m exp_h=  8.5 px u= 582.4 v= 190.0 depth=  42.2
+  uav_4 t=1953.840 dist= 63.2 m exp_h=  7.9 px u= 520.6 v= 190.4 depth=  45.3
+  uav_2 t=1953.840 dist= 61.9 m exp_h=  5.9 px u= 292.7 v= 174.2 depth=  61.4
+  uav_6 t=1954.228 dist= 68.6 m exp_h=  7.5 px u= 528.6 v= 189.0 depth=  48.2
+  uav_2 t=1954.228 dist= 62.1 m exp_h=  5.8 px u= 299.4 v= 190.7 depth=  61.7
+  uav_4 t=1954.228 dist= 63.1 m exp_h=  8.9 px u= 566.5 v= 186.5 depth=  40.5
+  uav_4 t=1954.608 dist= 63.1 m exp_h=  9.9 px u= 610.9 v= 186.8 depth=  36.4
+  uav_2 t=1954.608 dist= 62.0 m exp_h=  5.8 px u= 336.0 v= 186.4 depth=  61.8
+  uav_6 t=1954.608 dist= 68.9 m exp_h=  7.1 px u= 509.6 v= 189.1 depth=  50.7
+  uav_6 t=1954.972 dist= 69.3 m exp_h=  6.0 px u= 437.6 v= 187.3 depth=  60.2
+  uav_4 t=1954.972 dist= 63.2 m exp_h=  8.8 px u= 561.6 v= 182.3 depth=  41.0
+  uav_2 t=1954.972 dist= 62.0 m exp_h=  6.3 px u= 406.9 v= 184.4 depth=  57.1
+  uav_6 t=1955.332 dist= 69.6 m exp_h=  5.2 px u= 352.8 v= 187.3 depth=  68.7
+  uav_4 t=1955.332 dist= 63.3 m exp_h=  7.9 px u= 519.4 v= 193.2 depth=  45.4
+  uav_2 t=1955.332 dist= 61.8 m exp_h=  7.4 px u= 480.4 v= 215.5 depth=  48.4
+  uav_6 t=1955.664 dist= 69.9 m exp_h=  5.2 px u= 289.1 v= 187.2 depth=  69.1
+  uav_2 t=1955.664 dist= 61.9 m exp_h=  7.4 px u= 481.4 v= 178.2 depth=  48.8
+  uav_4 t=1955.664 dist= 63.3 m exp_h=  7.5 px u= 498.6 v= 185.4 depth=  47.8
+  uav_6 t=1955.980 dist= 70.1 m exp_h=  5.8 px u= 217.2 v= 195.7 depth=  62.5
+  uav_4 t=1955.980 dist= 63.2 m exp_h=  7.4 px u= 488.7 v= 191.5 depth=  48.9
+  uav_2 t=1955.980 dist= 62.0 m exp_h=  7.4 px u= 484.4 v= 187.5 depth=  48.4
+  uav_1 t=1955.980 dist= 72.7 m exp_h=  8.1 px u=  54.8 v= 211.8 depth=  44.3
+  uav_6 t=1956.332 dist= 70.5 m exp_h=  7.9 px u=  76.4 v= 182.3 depth=  45.4
+  uav_2 t=1956.332 dist= 61.9 m exp_h=  7.5 px u= 487.2 v= 190.7 depth=  48.0
+  uav_4 t=1956.332 dist= 63.1 m exp_h=  7.3 px u= 483.0 v= 187.6 depth=  49.5
+  uav_1 t=1956.332 dist= 73.0 m exp_h=  8.4 px u=  34.4 v= 191.1 depth=  42.6
+  uav_2 t=1956.624 dist= 61.8 m exp_h=  7.5 px u= 487.3 v= 189.4 depth=  48.0
+  uav_2 t=1956.888 dist= 61.7 m exp_h=  7.5 px u= 483.9 v= 197.5 depth=  48.2
+  uav_2 t=1957.156 dist= 61.7 m exp_h=  7.0 px u= 460.0 v= 181.5 depth=  51.1
+  uav_6 t=1957.460 dist= 71.9 m exp_h=  8.5 px u=  37.8 v= 186.0 depth=  42.3
+  uav_2 t=1957.460 dist= 61.9 m exp_h=  6.6 px u= 427.7 v= 183.5 depth=  54.9
+  uav_6 t=1957.840 dist= 72.1 m exp_h=  6.1 px u= 175.2 v= 193.0 depth=  58.8
+  uav_2 t=1957.840 dist= 62.0 m exp_h=  5.8 px u= 341.9 v= 185.1 depth=  61.7
+  uav_6 t=1958.240 dist= 72.2 m exp_h=  5.1 px u= 270.7 v= 190.2 depth=  70.1
+  uav_2 t=1958.240 dist= 62.1 m exp_h=  6.2 px u= 242.1 v= 183.7 depth=  58.0
+  uav_6 t=1958.692 dist= 72.4 m exp_h=  5.1 px u= 365.0 v= 190.2 depth=  70.7
+  uav_2 t=1958.692 dist= 62.3 m exp_h=  7.9 px u= 127.5 v= 185.7 depth=  45.4
+  uav_6 t=1959.028 dist= 72.6 m exp_h=  5.9 px u= 454.4 v= 186.4 depth=  60.8
+  uav_2 t=1959.028 dist= 62.4 m exp_h=  9.5 px u=  51.1 v= 185.2 depth=  37.8
+  uav_6 t=1959.396 dist= 72.9 m exp_h=  9.1 px u= 636.4 v= 187.0 depth=  39.7
+  uav_2 t=1959.728 dist= 62.3 m exp_h=  9.0 px u=  75.4 v= 192.6 depth=  40.0
+  uav_2 t=1960.056 dist= 62.3 m exp_h=  6.9 px u= 182.9 v= 191.3 depth=  51.8
+  uav_5 t=1960.424 dist= 83.5 m exp_h=  7.8 px u= 631.1 v= 194.2 depth=  46.0
+  uav_2 t=1960.424 dist= 62.6 m exp_h=  7.0 px u= 180.1 v= 190.0 depth=  51.6
+  uav_5 t=1960.836 dist= 83.3 m exp_h=  5.8 px u= 503.9 v= 197.5 depth=  62.1
+  uav_2 t=1960.836 dist= 62.9 m exp_h=  6.3 px u= 226.0 v= 178.8 depth=  57.2
+  uav_5 t=1961.200 dist= 83.1 m exp_h=  5.4 px u= 477.3 v= 189.9 depth=  66.0
+  uav_2 t=1961.200 dist= 63.1 m exp_h=  5.7 px u= 300.4 v= 184.5 depth=  62.8
+  uav_5 t=1961.604 dist= 82.8 m exp_h=  5.4 px u= 469.5 v= 188.7 depth=  67.0
+  uav_2 t=1961.604 dist= 63.1 m exp_h=  6.0 px u= 387.7 v= 188.6 depth=  59.9
+  uav_1 t=1961.604 dist= 79.7 m exp_h=  5.8 px u= 152.0 v= 194.3 depth=  61.6
+  uav_5 t=1962.028 dist= 82.3 m exp_h=  4.8 px u= 417.0 v= 174.4 depth=  74.5
+  uav_1 t=1962.028 dist= 79.4 m exp_h=  7.8 px u=  34.8 v= 203.8 depth=  46.2
+  uav_5 t=1962.396 dist= 82.2 m exp_h=  4.4 px u= 328.6 v= 190.0 depth=  82.0
+  uav_4 t=1962.396 dist= 67.1 m exp_h=  5.4 px u= 314.5 v= 188.2 depth=  67.1
+  uav_5 t=1962.808 dist= 82.3 m exp_h=  4.8 px u= 223.4 v= 189.2 depth=  74.4
+  uav_4 t=1962.808 dist= 67.1 m exp_h=  5.4 px u= 314.4 v= 188.2 depth=  67.1
+  uav_5 t=1963.184 dist= 82.8 m exp_h=  6.4 px u=  99.9 v= 140.1 depth=  55.9
+  uav_4 t=1963.184 dist= 67.1 m exp_h=  5.4 px u= 314.2 v= 188.1 depth=  67.1
+  uav_4 t=1963.612 dist= 67.2 m exp_h=  5.6 px u= 386.2 v= 185.2 depth=  64.0
+  uav_4 t=1964.036 dist= 67.3 m exp_h=  6.4 px u= 459.5 v= 182.7 depth=  55.8
+  uav_6 t=1964.036 dist= 75.2 m exp_h=  5.8 px u= 462.0 v= 190.7 depth=  61.9
+  uav_6 t=1964.428 dist= 75.3 m exp_h=  4.9 px u= 359.9 v= 188.9 depth=  73.9
+  uav_4 t=1964.428 dist= 67.1 m exp_h=  7.1 px u= 501.1 v= 189.2 depth=  50.4
+  uav_4 t=1964.856 dist= 67.0 m exp_h=  7.4 px u= 515.9 v= 190.0 depth=  48.5
+  uav_6 t=1964.856 dist= 75.4 m exp_h=  4.8 px u= 329.2 v= 188.5 depth=  75.3
+  uav_6 t=1965.244 dist= 75.4 m exp_h=  4.8 px u= 336.8 v= 187.8 depth=  75.1
+  uav_4 t=1965.244 dist= 66.8 m exp_h=  7.5 px u= 518.9 v= 190.0 depth=  48.0
+  uav_6 t=1965.708 dist= 75.5 m exp_h=  4.9 px u= 366.9 v= 185.2 depth=  73.6
+  uav_4 t=1965.708 dist= 66.6 m exp_h=  7.5 px u= 516.4 v= 200.2 depth=  48.1
+  uav_6 t=1966.088 dist= 75.5 m exp_h=  5.2 px u= 409.0 v= 183.8 depth=  69.4
+  uav_4 t=1966.088 dist= 66.5 m exp_h=  7.2 px u= 504.1 v= 182.5 depth=  49.6
+  uav_6 t=1966.408 dist= 75.4 m exp_h=  5.5 px u= 437.7 v= 190.4 depth=  65.5
+  uav_4 t=1966.408 dist= 66.8 m exp_h=  7.2 px u= 505.7 v= 187.9 depth=  49.6
+  uav_6 t=1966.752 dist= 75.2 m exp_h=  5.8 px u= 462.1 v= 189.2 depth=  61.9
+  uav_4 t=1966.752 dist= 67.2 m exp_h=  7.2 px u= 506.9 v= 188.0 depth=  49.8
+  uav_6 t=1967.072 dist= 75.1 m exp_h=  6.1 px u= 482.2 v= 186.8 depth=  59.0
+  uav_4 t=1967.072 dist= 67.6 m exp_h=  7.2 px u= 507.3 v= 188.7 depth=  50.0
+  uav_6 t=1967.500 dist= 74.8 m exp_h=  6.5 px u= 510.0 v= 187.5 depth=  55.0
+  uav_4 t=1967.500 dist= 68.1 m exp_h=  7.2 px u= 507.9 v= 189.0 depth=  50.3
+  uav_6 t=1967.864 dist= 74.6 m exp_h=  7.3 px u= 549.5 v= 213.1 depth=  49.6
+  uav_4 t=1967.864 dist= 68.4 m exp_h=  7.1 px u= 508.3 v= 189.3 depth=  50.5
+  uav_6 t=1968.296 dist= 74.8 m exp_h=  8.0 px u= 592.5 v= 189.4 depth=  45.1
+  uav_4 t=1968.296 dist= 68.8 m exp_h=  7.1 px u= 509.0 v= 189.7 depth=  50.7
+  uav_4 t=1968.700 dist= 69.1 m exp_h=  7.1 px u= 509.8 v= 190.0 depth=  50.8
+  uav_4 t=1969.056 dist= 69.4 m exp_h=  7.1 px u= 510.6 v= 189.7 depth=  50.9
+  uav_4 t=1969.396 dist= 69.6 m exp_h=  7.0 px u= 511.2 v= 190.1 depth=  51.0
+  uav_4 t=1969.740 dist= 69.8 m exp_h=  7.0 px u= 512.0 v= 190.0 depth=  51.1
+  uav_4 t=1970.076 dist= 70.1 m exp_h=  7.0 px u= 512.1 v= 190.1 depth=  51.2
+  uav_6 t=1970.436 dist= 75.6 m exp_h=  8.8 px u= 638.3 v= 177.4 depth=  41.1
+  uav_4 t=1970.436 dist= 70.3 m exp_h=  7.0 px u= 512.4 v= 190.3 depth=  51.4
+  uav_6 t=1970.848 dist= 75.7 m exp_h=  6.4 px u= 508.2 v= 187.2 depth=  55.9
+  uav_4 t=1970.848 dist= 70.6 m exp_h=  7.0 px u= 512.3 v= 190.1 depth=  51.6
+  uav_6 t=1971.184 dist= 75.9 m exp_h=  6.0 px u= 480.7 v= 182.4 depth=  59.9
+  uav_4 t=1971.184 dist= 70.8 m exp_h=  6.9 px u= 512.0 v= 190.5 depth=  51.8
+  uav_1 t=1971.184 dist= 90.9 m exp_h=  6.0 px u=  84.0 v= 198.4 depth=  59.6
+  uav_6 t=1971.532 dist= 76.0 m exp_h=  6.0 px u= 481.8 v= 186.9 depth=  59.8
+  uav_4 t=1971.532 dist= 71.1 m exp_h=  6.9 px u= 511.7 v= 190.2 depth=  52.0
+  uav_1 t=1971.532 dist= 90.7 m exp_h=  4.5 px u= 215.9 v= 189.6 depth=  80.7
+  uav_6 t=1971.964 dist= 76.0 m exp_h=  6.1 px u= 486.0 v= 190.2 depth=  59.1
+  uav_4 t=1971.964 dist= 71.4 m exp_h=  6.9 px u= 510.8 v= 189.9 depth=  52.4
+  uav_1 t=1971.964 dist= 90.3 m exp_h=  4.0 px u= 314.5 v= 187.2 depth=  90.3
+  uav_6 t=1972.400 dist= 75.8 m exp_h=  6.1 px u= 488.8 v= 189.1 depth=  58.6
+  uav_4 t=1972.400 dist= 71.8 m exp_h=  6.8 px u= 510.0 v= 189.8 depth=  52.7
+  uav_1 t=1972.400 dist= 90.0 m exp_h=  4.0 px u= 335.5 v= 208.0 depth=  88.9
+  uav_6 t=1972.852 dist= 75.5 m exp_h=  6.2 px u= 489.9 v= 189.1 depth=  58.2
+  uav_4 t=1972.852 dist= 72.1 m exp_h=  6.5 px u= 493.7 v= 181.7 depth=  55.1
+  uav_1 t=1972.852 dist= 89.9 m exp_h=  4.0 px u= 329.0 v= 182.8 depth=  89.9
+  uav_6 t=1973.268 dist= 75.2 m exp_h=  6.2 px u= 488.3 v= 190.4 depth=  58.2
+  uav_4 t=1973.268 dist= 72.3 m exp_h=  6.1 px u= 467.0 v= 186.6 depth=  58.9
+  uav_1 t=1973.268 dist= 89.8 m exp_h=  4.1 px u= 275.1 v= 192.1 depth=  87.6
+  uav_6 t=1973.692 dist= 75.0 m exp_h=  6.3 px u= 498.8 v= 183.1 depth=  56.7
+  uav_4 t=1973.692 dist= 72.2 m exp_h=  5.9 px u= 447.3 v= 191.0 depth=  61.4
+  uav_1 t=1973.692 dist= 90.1 m exp_h=  4.8 px u= 182.4 v= 200.3 depth=  74.5
+  uav_1 t=1974.068 dist= 90.5 m exp_h=  7.1 px u=  17.4 v= 200.1 depth=  50.7
+  uav_6 t=1974.068 dist= 75.2 m exp_h=  6.9 px u= 533.8 v= 187.5 depth=  52.1
+  uav_4 t=1974.068 dist= 71.9 m exp_h=  5.6 px u= 424.4 v= 205.9 depth=  63.8
+  uav_6 t=1974.384 dist= 75.3 m exp_h=  7.4 px u= 561.9 v= 190.3 depth=  48.8
+  uav_4 t=1974.384 dist= 71.8 m exp_h=  5.5 px u= 414.3 v= 173.1 depth=  65.3
+  uav_6 t=1974.748 dist= 75.3 m exp_h=  7.8 px u= 586.6 v= 190.2 depth=  46.0
+  uav_4 t=1974.748 dist= 71.8 m exp_h=  5.5 px u= 417.5 v= 189.0 depth=  64.9
+  uav_2 t=1974.748 dist= 71.7 m exp_h=  5.0 px u= 299.6 v= 188.3 depth=  71.3
+  uav_6 t=1975.104 dist= 75.3 m exp_h=  8.0 px u= 597.7 v= 191.7 depth=  44.8
+  uav_4 t=1975.104 dist= 71.7 m exp_h=  5.9 px u= 447.4 v= 187.6 depth=  60.9
+  uav_2 t=1975.104 dist= 72.0 m exp_h=  5.0 px u= 299.2 v= 188.2 depth=  71.6
+  uav_6 t=1975.412 dist= 75.2 m exp_h=  8.6 px u= 627.3 v= 223.6 depth=  41.6
+  uav_2 t=1975.412 dist= 72.2 m exp_h=  5.0 px u= 298.9 v= 188.3 depth=  71.8
+  uav_4 t=1975.412 dist= 71.5 m exp_h=  6.2 px u= 466.7 v= 187.0 depth=  58.2
+  uav_4 t=1975.752 dist= 71.2 m exp_h=  6.5 px u= 482.1 v= 219.7 depth=  55.4
+  uav_2 t=1975.752 dist= 72.5 m exp_h=  5.0 px u= 298.3 v= 188.2 depth=  72.1
+  uav_4 t=1976.076 dist= 71.2 m exp_h=  6.4 px u= 480.8 v= 175.3 depth=  56.1
+  uav_2 t=1976.076 dist= 72.8 m exp_h=  5.0 px u= 297.9 v= 188.2 depth=  72.3
+  uav_4 t=1976.404 dist= 71.2 m exp_h=  6.2 px u= 465.3 v= 188.0 depth=  58.2
+  uav_2 t=1976.404 dist= 73.1 m exp_h=  5.0 px u= 344.7 v= 185.9 depth=  72.6
+  uav_4 t=1976.700 dist= 71.1 m exp_h=  5.9 px u= 446.0 v= 187.0 depth=  60.7
+  uav_2 t=1976.700 dist= 73.3 m exp_h=  5.3 px u= 407.9 v= 185.5 depth=  67.4
+  uav_6 t=1977.008 dist= 76.1 m exp_h=  8.0 px u= 597.2 v= 238.0 depth=  44.8
+  uav_4 t=1977.008 dist= 71.0 m exp_h=  5.8 px u= 430.5 v= 191.8 depth=  62.5
+  uav_2 t=1977.008 dist= 73.5 m exp_h=  6.6 px u= 503.9 v= 180.4 depth=  54.8
+  uav_6 t=1977.328 dist= 76.2 m exp_h=  6.6 px u= 518.9 v= 178.5 depth=  54.8
+  uav_2 t=1977.328 dist= 73.6 m exp_h=  8.3 px u= 602.4 v= 186.7 depth=  43.3
+  uav_4 t=1977.328 dist= 70.7 m exp_h=  5.7 px u= 425.3 v= 208.2 depth=  62.5
+  uav_6 t=1977.684 dist= 76.5 m exp_h=  6.0 px u= 482.0 v= 186.2 depth=  60.1
+  uav_4 t=1977.684 dist= 70.8 m exp_h=  5.7 px u= 421.6 v= 179.9 depth=  63.5
+  uav_4 t=1978.076 dist= 70.8 m exp_h=  5.6 px u= 420.0 v= 191.4 depth=  63.7
+  uav_6 t=1978.076 dist= 76.6 m exp_h=  5.8 px u= 469.9 v= 187.4 depth=  62.0
+  uav_4 t=1978.500 dist= 70.7 m exp_h=  5.6 px u= 413.2 v= 189.4 depth=  64.4
+  uav_6 t=1978.500 dist= 76.6 m exp_h=  5.9 px u= 477.1 v= 194.3 depth=  60.8
+  uav_6 t=1978.872 dist= 76.4 m exp_h=  5.9 px u= 478.4 v= 197.5 depth=  60.5
+  uav_4 t=1978.872 dist= 70.8 m exp_h=  5.2 px u= 372.4 v= 172.5 depth=  68.6
+  uav_6 t=1979.168 dist= 76.4 m exp_h=  5.0 px u= 396.0 v= 183.1 depth=  71.8
+  uav_4 t=1979.168 dist= 70.9 m exp_h=  5.1 px u= 324.7 v= 187.0 depth=  70.9
+  uav_6 t=1979.524 dist= 76.6 m exp_h=  4.8 px u= 365.6 v= 190.7 depth=  74.7
+  uav_4 t=1979.524 dist= 70.9 m exp_h=  5.1 px u= 284.3 v= 188.1 depth=  69.8
+  uav_5 t=1979.944 dist=101.0 m exp_h=  4.9 px u= 517.7 v= 189.1 depth=  72.9
+  uav_6 t=1979.944 dist= 76.9 m exp_h=  4.8 px u= 359.5 v= 187.7 depth=  75.5
+  uav_4 t=1979.944 dist= 71.0 m exp_h=  5.3 px u= 263.4 v= 188.3 depth=  68.3
+  uav_5 t=1980.404 dist=100.9 m exp_h=  3.7 px u= 378.5 v= 186.9 depth=  97.1
+  uav_6 t=1980.404 dist= 77.3 m exp_h=  4.7 px u= 352.9 v= 187.9 depth=  76.3
+  uav_4 t=1980.404 dist= 71.1 m exp_h=  5.2 px u= 266.9 v= 188.3 depth=  68.8
+  uav_5 t=1980.852 dist=100.8 m exp_h=  3.7 px u= 260.9 v= 185.2 depth=  96.8
+  uav_6 t=1980.852 dist= 77.7 m exp_h=  5.0 px u= 399.8 v= 186.4 depth=  72.5
+  uav_4 t=1980.852 dist= 71.3 m exp_h=  5.0 px u= 317.2 v= 187.7 depth=  71.3
+  uav_5 t=1981.316 dist=100.8 m exp_h=  3.8 px u= 249.4 v= 187.5 depth=  95.2
+  uav_6 t=1981.316 dist= 77.9 m exp_h=  6.0 px u= 492.9 v= 185.3 depth=  59.7
+  uav_4 t=1981.316 dist= 71.6 m exp_h=  5.5 px u= 416.4 v= 188.1 depth=  64.8
+  uav_5 t=1981.828 dist=101.1 m exp_h=  3.7 px u= 271.4 v= 189.0 depth=  98.3
+  uav_6 t=1981.828 dist= 77.9 m exp_h=  7.2 px u= 560.5 v= 220.2 depth=  50.3
+  uav_4 t=1981.828 dist= 72.0 m exp_h=  9.0 px u= 629.1 v= 190.2 depth=  39.9
+  uav_6 t=1982.300 dist= 78.0 m exp_h=  7.6 px u= 592.7 v= 185.0 depth=  47.0
+  uav_5 t=1982.300 dist=101.5 m exp_h=  3.6 px u= 281.2 v= 189.3 depth=  99.6
+  uav_5 t=1982.752 dist=102.0 m exp_h=  3.6 px u= 365.7 v= 183.9 depth=  99.6
+  uav_6 t=1982.752 dist= 78.0 m exp_h=  7.9 px u= 604.0 v= 192.5 depth=  45.8
+  uav_5 t=1983.212 dist=102.7 m exp_h=  4.3 px u= 465.1 v= 186.4 depth=  84.0
+  uav_6 t=1983.212 dist= 77.9 m exp_h=  8.0 px u= 608.4 v= 194.5 depth=  45.2
+  uav_6 t=1983.688 dist= 77.8 m exp_h=  8.0 px u= 610.6 v= 186.3 depth=  44.9
+  uav_6 t=1984.184 dist= 77.7 m exp_h=  8.4 px u= 633.5 v= 195.3 depth=  42.6
+  uav_4 t=1984.580 dist= 73.4 m exp_h=  9.0 px u= 635.2 v= 205.7 depth=  40.1
+  uav_4 t=1984.996 dist= 73.6 m exp_h=  7.5 px u= 558.0 v= 175.8 depth=  48.2
+  uav_4 t=1985.396 dist= 73.7 m exp_h=  6.6 px u= 505.8 v= 189.9 depth=  54.7
+  uav_4 t=1985.796 dist= 73.5 m exp_h=  6.2 px u= 480.9 v= 191.1 depth=  57.9
+  uav_4 t=1986.256 dist= 73.3 m exp_h=  6.1 px u= 469.6 v= 188.7 depth=  59.3
+  uav_4 t=1986.680 dist= 73.1 m exp_h=  5.8 px u= 451.4 v= 187.9 depth=  61.6
+  uav_4 t=1987.048 dist= 72.8 m exp_h=  5.5 px u= 419.3 v= 213.4 depth=  64.9
+  uav_4 t=1987.444 dist= 72.8 m exp_h=  5.3 px u= 394.8 v= 180.0 depth=  68.4
+  uav_4 t=1987.824 dist= 72.7 m exp_h=  5.1 px u= 375.5 v= 191.5 depth=  70.1
+  uav_4 t=1988.168 dist= 72.5 m exp_h=  5.1 px u= 374.1 v= 184.4 depth=  70.1
+  uav_4 t=1988.496 dist= 72.3 m exp_h=  5.2 px u= 382.0 v= 186.8 depth=  69.2
+  uav_4 t=1988.844 dist= 72.0 m exp_h=  5.3 px u= 389.2 v= 189.0 depth=  68.3
+  uav_6 t=1989.192 dist= 79.3 m exp_h=  7.9 px u= 616.0 v= 181.0 depth=  45.3
+  uav_4 t=1989.192 dist= 71.8 m exp_h=  5.3 px u= 394.4 v= 186.9 depth=  67.6
+  uav_6 t=1989.516 dist= 79.3 m exp_h=  6.7 px u= 542.9 v= 191.6 depth=  53.8
+  uav_4 t=1989.516 dist= 72.0 m exp_h=  5.3 px u= 398.1 v= 177.6 depth=  67.4
+  uav_6 t=1989.868 dist= 79.1 m exp_h=  6.1 px u= 503.8 v= 195.0 depth=  58.9
+  uav_4 t=1989.868 dist= 72.1 m exp_h=  5.4 px u= 405.6 v= 185.9 depth=  66.6
+  uav_6 t=1990.160 dist= 78.9 m exp_h=  5.9 px u= 492.3 v= 191.7 depth=  60.5
+  uav_2 t=1990.160 dist= 83.8 m exp_h=  7.4 px u=  30.6 v= 190.0 depth=  48.4
+  uav_4 t=1990.160 dist= 72.1 m exp_h=  5.5 px u= 412.0 v= 201.5 depth=  65.6
+  uav_6 t=1990.452 dist= 78.8 m exp_h=  6.0 px u= 497.9 v= 191.3 depth=  59.6
+  uav_2 t=1990.452 dist= 83.9 m exp_h=  7.3 px u=  39.4 v= 191.7 depth=  49.5
+  uav_4 t=1990.452 dist= 72.2 m exp_h=  5.1 px u= 368.6 v= 176.2 depth=  70.3
+  uav_6 t=1990.724 dist= 78.6 m exp_h=  6.1 px u= 505.0 v= 183.2 depth=  58.5
+  uav_4 t=1990.724 dist= 72.3 m exp_h=  5.0 px u= 337.0 v= 193.4 depth=  71.9
+  uav_2 t=1990.724 dist= 84.0 m exp_h=  7.3 px u=  37.5 v= 187.1 depth=  49.4
+  uav_6 t=1991.016 dist= 78.7 m exp_h=  6.0 px u= 494.3 v= 180.6 depth=  60.1
+  uav_4 t=1991.016 dist= 72.4 m exp_h=  5.0 px u= 317.1 v= 179.4 depth=  72.4
+  uav_2 t=1991.016 dist= 84.2 m exp_h=  7.2 px u=  44.5 v= 182.3 depth=  50.3
+  uav_6 t=1991.308 dist= 78.7 m exp_h=  5.9 px u= 488.3 v= 191.2 depth=  60.9
+  uav_4 t=1991.308 dist= 72.4 m exp_h=  5.0 px u= 301.9 v= 189.8 depth=  72.0
+  uav_2 t=1991.308 dist= 84.3 m exp_h=  5.3 px u= 172.1 v= 192.4 depth=  68.3
+  uav_6 t=1991.648 dist= 78.6 m exp_h=  5.9 px u= 484.7 v= 189.0 depth=  61.4
+  uav_4 t=1991.648 dist= 72.2 m exp_h=  5.1 px u= 287.4 v= 193.8 depth=  71.2
+  uav_2 t=1991.648 dist= 84.5 m exp_h=  4.5 px u= 244.3 v= 179.8 depth=  79.2
+  uav_6 t=1992.032 dist= 78.6 m exp_h=  6.0 px u= 492.2 v= 190.6 depth=  60.3
+  uav_4 t=1992.032 dist= 72.1 m exp_h=  5.1 px u= 358.6 v= 197.8 depth=  70.7
+  uav_2 t=1992.032 dist= 84.5 m exp_h=  4.3 px u= 285.0 v= 190.6 depth=  83.2
+  uav_6 t=1992.352 dist= 78.5 m exp_h=  6.3 px u= 512.5 v= 187.2 depth=  57.4
+  uav_2 t=1992.352 dist= 84.3 m exp_h=  4.3 px u= 300.8 v= 189.6 depth=  83.9
+  uav_4 t=1992.352 dist= 72.1 m exp_h=  5.6 px u= 425.0 v= 178.5 depth=  64.3
+  uav_4 t=1992.672 dist= 72.4 m exp_h=  6.1 px u= 470.0 v= 182.9 depth=  58.5
+  uav_2 t=1992.672 dist= 84.2 m exp_h=  4.3 px u= 306.0 v= 211.5 depth=  83.1
+  uav_4 t=1992.976 dist= 72.5 m exp_h=  6.6 px u= 499.1 v= 182.3 depth=  54.7
+  uav_2 t=1992.976 dist= 84.2 m exp_h=  4.3 px u= 309.3 v= 174.7 depth=  84.1
+  uav_2 t=1993.304 dist= 84.4 m exp_h=  4.3 px u= 294.4 v= 186.8 depth=  83.7
+  uav_4 t=1993.304 dist= 72.5 m exp_h=  6.9 px u= 519.7 v= 189.5 depth=  52.0
+  uav_2 t=1993.628 dist= 84.5 m exp_h=  4.6 px u= 232.2 v= 186.7 depth=  77.6
+  uav_4 t=1993.628 dist= 72.3 m exp_h=  7.0 px u= 526.7 v= 188.7 depth=  51.0
+  uav_2 t=1993.968 dist= 84.5 m exp_h=  5.5 px u= 153.0 v= 179.5 depth=  65.5
+  uav_4 t=1993.968 dist= 72.2 m exp_h=  7.0 px u= 525.8 v= 190.2 depth=  51.0
+  uav_2 t=1994.268 dist= 84.6 m exp_h=  6.5 px u=  85.3 v= 191.0 depth=  55.7
+  uav_4 t=1994.268 dist= 72.1 m exp_h=  7.1 px u= 527.1 v= 194.2 depth=  50.8
+  uav_4 t=1994.524 dist= 72.0 m exp_h=  7.3 px u= 536.7 v= 186.0 depth=  49.6
+  uav_4 t=1994.800 dist= 71.9 m exp_h=  7.3 px u= 539.2 v= 189.1 depth=  49.2
+  uav_4 t=1995.056 dist= 71.8 m exp_h=  7.2 px u= 534.7 v= 192.0 depth=  49.7
+  uav_4 t=1995.332 dist= 71.7 m exp_h=  5.9 px u= 448.8 v= 198.8 depth=  60.7
+  uav_4 t=1995.588 dist= 71.8 m exp_h=  5.3 px u= 391.5 v= 174.7 depth=  67.9
+  uav_4 t=1995.888 dist= 72.0 m exp_h=  5.0 px u= 321.7 v= 192.3 depth=  71.8
+  uav_4 t=1996.200 dist= 72.1 m exp_h=  5.3 px u= 252.2 v= 185.2 depth=  68.4
+  uav_5 t=1998.152 dist=119.1 m exp_h=  5.1 px u= 603.1 v= 180.3 depth=  70.0
+  uav_5 t=1998.512 dist=119.1 m exp_h=  4.1 px u= 511.7 v= 191.0 depth=  87.2
+  uav_6 t=1998.512 dist= 82.6 m exp_h=  6.6 px u= 551.4 v= 189.7 depth=  54.9
+  uav_5 t=1998.844 dist=119.1 m exp_h=  4.0 px u= 497.4 v= 190.7 depth=  90.2
+  uav_6 t=1998.844 dist= 82.5 m exp_h=  5.9 px u= 507.3 v= 195.4 depth=  61.0
+  uav_5 t=1999.208 dist=119.0 m exp_h=  4.6 px u= 556.4 v= 183.9 depth=  78.2
+  uav_6 t=1999.208 dist= 82.3 m exp_h=  5.7 px u= 489.6 v= 188.9 depth=  63.5
+  uav_6 t=1999.660 dist= 82.1 m exp_h=  5.6 px u= 481.5 v= 188.2 depth=  64.6
+  uav_6 t=2000.008 dist= 81.9 m exp_h=  6.0 px u= 509.6 v= 204.9 depth=  60.0
+  uav_2 t=2001.512 dist= 91.9 m exp_h=  4.3 px u= 225.6 v= 186.7 depth=  83.4
+  uav_2 t=2001.816 dist= 92.2 m exp_h=  4.2 px u= 232.0 v= 186.7 depth=  84.6
+  uav_2 t=2002.136 dist= 92.5 m exp_h=  4.1 px u= 257.1 v= 180.5 depth=  88.4
+  uav_2 t=2002.448 dist= 92.7 m exp_h=  3.9 px u= 320.9 v= 181.4 depth=  92.7
+  uav_4 t=2002.692 dist= 77.1 m exp_h=  7.2 px u=  77.1 v= 179.1 depth=  49.7
+  uav_2 t=2002.692 dist= 92.8 m exp_h=  3.9 px u= 353.6 v= 182.3 depth=  91.7
+  uav_4 t=2002.952 dist= 76.9 m exp_h=  5.7 px u= 178.0 v= 197.4 depth=  63.1
+  uav_2 t=2002.952 dist= 92.7 m exp_h=  4.1 px u= 380.3 v= 219.7 depth=  87.6
+  uav_2 t=2003.212 dist= 92.7 m exp_h=  4.1 px u= 389.6 v= 172.8 depth=  87.8
+  uav_4 t=2003.212 dist= 76.8 m exp_h=  5.0 px u= 249.2 v= 188.8 depth=  72.5
+  uav_2 t=2003.496 dist= 92.7 m exp_h=  4.1 px u= 397.6 v= 182.0 depth=  86.8
+  uav_4 t=2003.496 dist= 76.6 m exp_h=  4.7 px u= 321.7 v= 193.4 depth=  76.5
+  uav_2 t=2003.748 dist= 92.7 m exp_h=  4.2 px u= 401.1 v= 187.7 depth=  86.2
+  uav_4 t=2003.748 dist= 76.6 m exp_h=  4.8 px u= 373.8 v= 181.0 depth=  74.2
+  uav_2 t=2003.992 dist= 92.6 m exp_h=  4.2 px u= 402.3 v= 188.5 depth=  86.0
+  uav_4 t=2003.992 dist= 76.6 m exp_h=  4.8 px u= 373.1 v= 187.1 depth=  74.2
+  uav_2 t=2004.244 dist= 92.4 m exp_h=  4.2 px u= 402.4 v= 191.2 depth=  85.7
+  uav_4 t=2004.244 dist= 76.6 m exp_h=  4.7 px u= 331.4 v= 187.5 depth=  76.4
+  uav_1 t=2004.244 dist=129.9 m exp_h=  4.9 px u=  20.5 v= 178.6 depth=  73.4
+  uav_2 t=2004.540 dist= 92.2 m exp_h=  4.2 px u= 391.6 v= 208.4 depth=  86.4
+  uav_4 t=2004.540 dist= 76.5 m exp_h=  4.8 px u= 277.8 v= 182.9 depth=  74.9
+  uav_1 t=2004.540 dist=130.2 m exp_h=  3.5 px u= 160.9 v= 173.5 depth= 102.8
+  uav_2 t=2004.892 dist= 92.2 m exp_h=  4.0 px u= 377.5 v= 173.9 depth=  88.8
+  uav_4 t=2004.892 dist= 76.4 m exp_h=  5.5 px u= 196.1 v= 198.0 depth=  65.2
+  uav_1 t=2004.892 dist=130.3 m exp_h=  2.9 px u= 261.3 v= 181.9 depth= 125.2
+  uav_4 t=2005.252 dist= 76.4 m exp_h=  6.3 px u= 137.1 v= 176.0 depth=  57.0
+  uav_2 t=2005.252 dist= 92.3 m exp_h=  4.0 px u= 368.6 v= 188.0 depth=  89.8
+  uav_1 t=2005.252 dist=130.1 m exp_h=  2.8 px u= 332.8 v= 187.3 depth= 129.8
+  uav_2 t=2005.608 dist= 92.2 m exp_h=  4.0 px u= 362.6 v= 188.6 depth=  90.2
+  uav_4 t=2005.608 dist= 76.5 m exp_h=  7.2 px u=  80.8 v= 184.6 depth=  49.8
+  uav_1 t=2005.608 dist=129.9 m exp_h=  2.8 px u= 365.4 v= 185.5 depth= 126.9
+  uav_2 t=2005.956 dist= 92.1 m exp_h=  4.0 px u= 359.8 v= 187.7 depth=  90.5
+  uav_4 t=2005.956 dist= 76.5 m exp_h=  6.5 px u= 126.7 v= 186.1 depth=  55.7
+  uav_1 t=2005.956 dist=129.7 m exp_h=  2.9 px u= 376.9 v= 185.8 depth= 125.0
+  uav_1 t=2006.332 dist=129.3 m exp_h=  2.9 px u= 370.8 v= 200.9 depth= 125.0
+  uav_2 t=2006.332 dist= 92.0 m exp_h=  4.0 px u= 358.9 v= 188.1 depth=  90.4
+  uav_4 t=2006.332 dist= 76.6 m exp_h=  5.1 px u= 231.0 v= 185.2 depth=  70.2
+  uav_6 t=2006.792 dist= 87.7 m exp_h=  5.5 px u= 505.5 v= 207.6 depth=  64.9
+  uav_2 t=2006.792 dist= 91.9 m exp_h=  4.0 px u= 359.2 v= 198.5 depth=  90.0
+  uav_4 t=2006.792 dist= 76.7 m exp_h=  4.7 px u= 336.5 v= 184.2 depth=  76.4
+  uav_1 t=2006.792 dist=129.1 m exp_h=  2.8 px u= 288.2 v= 184.6 depth= 127.5
+  uav_5 t=2007.216 dist=127.8 m exp_h=  3.8 px u= 133.2 v= 167.2 depth=  94.3
+  uav_6 t=2007.216 dist= 87.4 m exp_h=  5.3 px u= 483.7 v= 186.7 depth=  68.4
+  uav_4 t=2007.216 dist= 77.0 m exp_h=  5.1 px u= 406.6 v= 181.9 depth=  71.0
+  uav_2 t=2007.216 dist= 92.1 m exp_h=  4.0 px u= 362.0 v= 189.0 depth=  90.2
+  uav_1 t=2007.216 dist=129.2 m exp_h=  3.3 px u= 194.7 v= 183.6 depth= 110.2
+  uav_5 t=2007.672 dist=127.8 m exp_h=  2.8 px u= 288.5 v= 182.1 depth= 126.3
+  uav_6 t=2007.672 dist= 87.1 m exp_h=  5.3 px u= 483.6 v= 187.5 depth=  68.2
+  uav_2 t=2007.672 dist= 92.3 m exp_h=  4.0 px u= 373.9 v= 184.0 depth=  89.3
+  uav_4 t=2007.672 dist= 77.1 m exp_h=  5.4 px u= 443.2 v= 184.7 depth=  66.2
+  uav_5 t=2008.052 dist=127.8 m exp_h=  3.0 px u= 397.4 v= 189.4 depth= 119.6
+  uav_6 t=2008.052 dist= 86.9 m exp_h=  5.4 px u= 489.2 v= 177.6 depth=  67.2
+  uav_2 t=2008.052 dist= 92.3 m exp_h=  4.1 px u= 386.2 v= 196.9 depth=  87.7
+  uav_4 t=2008.052 dist= 77.3 m exp_h=  5.5 px u= 451.8 v= 181.6 depth=  65.1
+  uav_5 t=2008.436 dist=128.1 m exp_h=  4.3 px u= 556.2 v= 189.5 depth=  84.1
+  uav_6 t=2008.436 dist= 87.1 m exp_h=  5.8 px u= 524.6 v= 187.4 depth=  61.8
+  uav_4 t=2008.436 dist= 77.2 m exp_h=  5.6 px u= 454.2 v= 193.1 depth=  64.7
+  uav_2 t=2008.436 dist= 92.5 m exp_h=  4.1 px u= 387.7 v= 184.5 depth=  87.9
+  uav_2 t=2008.848 dist= 92.9 m exp_h=  4.1 px u= 393.0 v= 186.1 depth=  87.6
+  uav_4 t=2008.848 dist= 77.0 m exp_h=  5.5 px u= 452.2 v= 188.2 depth=  64.8
+  uav_6 t=2008.848 dist= 87.1 m exp_h=  6.4 px u= 566.3 v= 185.8 depth=  55.9
+  uav_4 t=2009.152 dist= 76.8 m exp_h=  5.6 px u= 452.9 v= 190.1 depth=  64.5
+  uav_2 t=2009.152 dist= 93.3 m exp_h=  4.3 px u= 416.1 v= 186.6 depth=  84.6
+  uav_6 t=2009.152 dist= 87.1 m exp_h=  7.0 px u= 600.8 v= 190.6 depth=  51.5
+  uav_2 t=2009.472 dist= 93.7 m exp_h=  4.6 px u= 460.0 v= 187.2 depth=  77.5
+  uav_4 t=2009.472 dist= 76.6 m exp_h=  5.7 px u= 458.6 v= 188.8 depth=  63.5
+  uav_6 t=2009.472 dist= 87.1 m exp_h=  7.6 px u= 635.7 v= 188.2 depth=  47.6
+  uav_4 t=2009.796 dist= 76.4 m exp_h=  5.7 px u= 461.1 v= 179.1 depth=  63.1
+  uav_4 t=2010.100 dist= 76.6 m exp_h=  5.6 px u= 457.5 v= 179.5 depth=  63.8
+  uav_4 t=2010.420 dist= 76.7 m exp_h=  5.3 px u= 428.4 v= 183.7 depth=  67.9
+  uav_4 t=2010.756 dist= 76.6 m exp_h=  5.1 px u= 404.1 v= 191.7 depth=  70.9
+  uav_4 t=2011.048 dist= 76.5 m exp_h=  5.0 px u= 391.5 v= 189.4 depth=  72.3
+  uav_6 t=2011.048 dist= 87.5 m exp_h=  7.4 px u= 627.6 v= 204.7 depth=  48.6
+  uav_4 t=2011.336 dist= 76.4 m exp_h=  4.9 px u= 382.7 v= 186.8 depth=  73.1
+  uav_6 t=2011.336 dist= 87.6 m exp_h=  6.2 px u= 553.3 v= 177.2 depth=  58.0
+  uav_4 t=2011.628 dist= 76.4 m exp_h=  4.8 px u= 363.8 v= 186.4 depth=  74.7
+  uav_6 t=2011.628 dist= 87.7 m exp_h=  5.7 px u= 520.8 v= 185.9 depth=  62.8
+  uav_6 t=2011.968 dist= 87.6 m exp_h=  5.5 px u= 501.2 v= 193.0 depth=  65.7
+  uav_4 t=2011.968 dist= 76.5 m exp_h=  4.8 px u= 351.0 v= 180.7 depth=  75.7
+  uav_6 t=2012.252 dist= 87.4 m exp_h=  5.4 px u= 494.6 v= 189.7 depth=  66.7
+  uav_4 t=2012.252 dist= 76.5 m exp_h=  4.7 px u= 333.4 v= 188.1 depth=  76.3
+  uav_6 t=2012.544 dist= 87.2 m exp_h=  5.4 px u= 493.7 v= 188.6 depth=  66.7
+  uav_4 t=2012.544 dist= 76.4 m exp_h=  4.8 px u= 287.6 v= 203.9 depth=  75.0
+  uav_6 t=2012.848 dist= 87.0 m exp_h=  5.4 px u= 495.6 v= 188.0 depth=  66.2
+  uav_4 t=2012.848 dist= 76.4 m exp_h=  5.0 px u= 250.5 v= 178.3 depth=  72.4
+  uav_5 t=2013.212 dist=133.9 m exp_h=  4.6 px u= 607.0 v= 164.1 depth=  77.9
+  uav_6 t=2013.212 dist= 86.8 m exp_h=  5.5 px u= 499.0 v= 188.0 depth=  65.5
+  uav_4 t=2013.212 dist= 76.5 m exp_h=  5.3 px u= 209.9 v= 190.4 depth=  67.3
+  uav_5 t=2013.640 dist=133.9 m exp_h=  3.4 px u= 484.8 v= 197.4 depth= 104.3
+  uav_6 t=2013.640 dist= 86.6 m exp_h=  5.6 px u= 505.3 v= 204.5 depth=  64.1
+  uav_4 t=2013.640 dist= 76.5 m exp_h=  4.8 px u= 283.7 v= 179.9 depth=  75.3
+  uav_5 t=2014.044 dist=133.8 m exp_h=  3.2 px u= 451.2 v= 185.4 depth= 112.9
+  uav_4 t=2014.044 dist= 76.4 m exp_h=  4.9 px u= 373.2 v= 184.7 depth=  74.0
+  uav_6 t=2014.044 dist= 86.5 m exp_h=  5.7 px u= 511.9 v= 173.9 depth=  63.3
+  uav_5 t=2014.440 dist=134.1 m exp_h=  4.0 px u= 549.6 v= 200.5 depth=  89.3
+  uav_6 t=2014.440 dist= 86.6 m exp_h=  6.2 px u= 547.5 v= 184.5 depth=  58.1
+  uav_4 t=2014.440 dist= 76.7 m exp_h=  5.2 px u= 422.3 v= 182.0 depth=  68.7
+  uav_6 t=2014.844 dist= 86.7 m exp_h=  6.6 px u= 574.2 v= 189.8 depth=  54.5
+  uav_4 t=2014.844 dist= 76.9 m exp_h=  5.5 px u= 444.0 v= 183.1 depth=  65.9
+  uav_6 t=2015.212 dist= 86.6 m exp_h=  6.8 px u= 588.6 v= 189.3 depth=  52.7
+  uav_4 t=2015.212 dist= 76.7 m exp_h=  5.6 px u= 453.0 v= 188.6 depth=  64.4
+  uav_6 t=2015.552 dist= 86.6 m exp_h=  7.0 px u= 598.6 v= 191.8 depth=  51.4
+  uav_4 t=2015.552 dist= 76.5 m exp_h=  5.5 px u= 446.8 v= 189.1 depth=  65.2
+  uav_6 t=2015.860 dist= 86.6 m exp_h=  7.0 px u= 601.2 v= 189.5 depth=  51.1
+  uav_4 t=2015.860 dist= 76.3 m exp_h=  5.5 px u= 443.2 v= 184.2 depth=  65.5
+  uav_6 t=2016.168 dist= 86.6 m exp_h=  7.0 px u= 598.3 v= 192.9 depth=  51.4
+  uav_4 t=2016.168 dist= 76.4 m exp_h=  5.4 px u= 440.0 v= 179.2 depth=  66.0
+  uav_6 t=2016.468 dist= 86.8 m exp_h=  6.9 px u= 595.2 v= 180.8 depth=  52.0
+  uav_4 t=2016.468 dist= 76.4 m exp_h=  5.4 px u= 438.9 v= 198.0 depth=  66.0
+  uav_6 t=2016.796 dist= 86.9 m exp_h=  6.8 px u= 585.7 v= 184.2 depth=  53.2
+  uav_4 t=2016.796 dist= 76.3 m exp_h=  5.4 px u= 435.0 v= 173.5 depth=  66.6
+  uav_6 t=2017.092 dist= 86.9 m exp_h=  6.1 px u= 541.8 v= 182.9 depth=  59.1
+  uav_4 t=2017.092 dist= 76.3 m exp_h=  5.2 px u= 419.7 v= 184.9 depth=  68.7
+  uav_6 t=2017.380 dist= 86.8 m exp_h=  5.7 px u= 517.3 v= 193.6 depth=  62.6
+  uav_4 t=2017.380 dist= 76.3 m exp_h=  5.2 px u= 404.2 v= 217.9 depth=  69.7
+  uav_6 t=2017.684 dist= 86.7 m exp_h=  5.5 px u= 502.8 v= 191.3 depth=  64.8
+  uav_4 t=2017.684 dist= 76.3 m exp_h=  5.0 px u= 387.7 v= 173.8 depth=  72.5
+  uav_6 t=2017.976 dist= 86.5 m exp_h=  5.6 px u= 505.3 v= 185.2 depth=  64.3
+  uav_4 t=2017.976 dist= 76.3 m exp_h=  4.9 px u= 371.8 v= 185.0 depth=  74.1
+  uav_6 t=2018.248 dist= 86.4 m exp_h=  5.4 px u= 492.6 v= 190.0 depth=  66.2
+  uav_4 t=2018.248 dist= 76.3 m exp_h=  4.8 px u= 361.6 v= 191.1 depth=  74.7
+  uav_6 t=2018.536 dist= 86.3 m exp_h=  5.1 px u= 466.3 v= 187.8 depth=  70.3
+  uav_4 t=2018.536 dist= 76.2 m exp_h=  4.8 px u= 350.1 v= 188.6 depth=  75.3
+  uav_6 t=2018.824 dist= 86.4 m exp_h=  5.1 px u= 466.9 v= 181.3 depth=  70.4
+  uav_4 t=2018.824 dist= 76.0 m exp_h=  4.8 px u= 342.1 v= 188.6 depth=  75.6
+  uav_6 t=2019.140 dist= 86.5 m exp_h=  5.4 px u= 487.2 v= 184.6 depth=  67.1
+  uav_4 t=2019.140 dist= 75.9 m exp_h=  4.8 px u= 337.3 v= 188.0 depth=  75.6
+  uav_6 t=2019.440 dist= 86.4 m exp_h=  5.5 px u= 499.9 v= 188.8 depth=  65.1
+  uav_4 t=2019.440 dist= 75.8 m exp_h=  4.8 px u= 353.7 v= 185.2 depth=  74.8
+  uav_6 t=2019.716 dist= 86.3 m exp_h=  5.6 px u= 506.7 v= 187.0 depth=  64.0
+  uav_4 t=2019.716 dist= 75.7 m exp_h=  4.9 px u= 367.3 v= 188.2 depth=  73.8
+  uav_6 t=2019.992 dist= 86.2 m exp_h=  5.5 px u= 498.1 v= 186.9 depth=  65.2
+  uav_4 t=2019.992 dist= 75.6 m exp_h=  5.0 px u= 377.7 v= 205.5 depth=  72.3
+  uav_6 t=2020.244 dist= 86.0 m exp_h=  5.3 px u= 478.7 v= 210.1 depth=  67.7
+  uav_4 t=2020.244 dist= 75.5 m exp_h=  5.0 px u= 384.1 v= 175.5 depth=  72.1
+  uav_6 t=2020.516 dist= 86.1 m exp_h=  5.2 px u= 469.3 v= 174.4 depth=  69.8
+  uav_4 t=2020.516 dist= 75.6 m exp_h=  5.0 px u= 388.7 v= 181.6 depth=  71.8
+  uav_6 t=2020.780 dist= 86.2 m exp_h=  5.3 px u= 478.5 v= 187.1 depth=  68.3
+  uav_4 t=2020.780 dist= 75.5 m exp_h=  5.0 px u= 391.6 v= 189.2 depth=  71.3
+  uav_6 t=2021.052 dist= 86.2 m exp_h=  5.4 px u= 492.8 v= 189.5 depth=  66.0
+  uav_4 t=2021.052 dist= 75.5 m exp_h=  5.1 px u= 394.6 v= 188.8 depth=  70.9
+  uav_6 t=2021.340 dist= 86.2 m exp_h=  5.6 px u= 502.9 v= 188.0 depth=  64.5
+  uav_4 t=2021.340 dist= 75.3 m exp_h=  5.4 px u= 428.4 v= 191.2 depth=  66.6
+  uav_6 t=2021.644 dist= 86.2 m exp_h=  5.7 px u= 513.2 v= 190.9 depth=  62.8
+  uav_4 t=2021.644 dist= 75.1 m exp_h=  6.2 px u= 490.0 v= 204.1 depth=  57.7
+  uav_6 t=2021.936 dist= 86.2 m exp_h=  7.6 px u= 632.8 v= 204.0 depth=  47.3
+  uav_4 t=2021.936 dist= 75.2 m exp_h=  6.6 px u= 515.7 v= 176.3 depth=  54.5
+  uav_5 t=2022.264 dist=142.8 m exp_h=  3.4 px u= 506.1 v= 171.3 depth= 105.9
+  uav_4 t=2022.264 dist= 75.3 m exp_h=  6.5 px u= 508.8 v= 175.9 depth=  55.5
+  uav_5 t=2022.628 dist=142.7 m exp_h=  2.7 px u= 390.3 v= 188.4 depth= 135.1
+  uav_4 t=2022.628 dist= 75.2 m exp_h=  5.9 px u= 470.4 v= 193.0 depth=  60.7
+  uav_4 t=2022.980 dist= 75.0 m exp_h=  5.7 px u= 450.0 v= 192.1 depth=  63.4
+  uav_2 t=2022.980 dist=102.4 m exp_h=  3.9 px u= 217.6 v= 186.3 depth=  91.5
+  uav_2 t=2023.344 dist=102.7 m exp_h=  3.9 px u= 216.8 v= 186.0 depth=  91.7
+  uav_4 t=2023.344 dist= 74.8 m exp_h=  5.7 px u= 449.9 v= 187.8 depth=  63.3
+  uav_4 t=2023.696 dist= 74.6 m exp_h=  5.6 px u= 444.0 v= 192.2 depth=  63.8
+  uav_2 t=2023.696 dist=103.1 m exp_h=  3.9 px u= 216.3 v= 186.2 depth=  91.9
+  uav_4 t=2024.040 dist= 74.8 m exp_h=  5.4 px u= 429.0 v= 178.8 depth=  66.1
+  uav_2 t=2024.040 dist=103.4 m exp_h=  3.9 px u= 215.9 v= 186.1 depth=  92.1
+  uav_4 t=2024.456 dist= 74.8 m exp_h=  5.3 px u= 413.3 v= 189.8 depth=  68.1
+  uav_2 t=2024.456 dist=103.7 m exp_h=  3.9 px u= 215.6 v= 186.2 depth=  92.4
+  uav_2 t=2024.848 dist=104.1 m exp_h=  3.7 px u= 239.0 v= 178.7 depth=  96.8
+  uav_4 t=2024.848 dist= 74.6 m exp_h=  5.2 px u= 405.5 v= 204.9 depth=  68.6
+  uav_6 t=2025.252 dist= 87.9 m exp_h=  6.2 px u= 556.6 v= 194.8 depth=  57.7
+  uav_4 t=2025.252 dist= 74.7 m exp_h=  5.1 px u= 397.0 v= 176.5 depth=  70.0
+  uav_2 t=2025.252 dist=104.4 m exp_h=  3.4 px u= 320.8 v= 181.2 depth= 104.4
+  uav_6 t=2025.684 dist= 88.0 m exp_h=  5.4 px u= 497.4 v= 202.4 depth=  66.5
+  uav_4 t=2025.684 dist= 74.6 m exp_h=  5.0 px u= 382.0 v= 190.7 depth=  71.4
+  uav_2 t=2025.684 dist=104.3 m exp_h=  3.6 px u= 377.4 v= 187.3 depth= 100.5
+  uav_2 t=2026.152 dist=104.0 m exp_h=  3.8 px u= 401.4 v= 212.0 depth=  95.8
+  uav_4 t=2026.152 dist= 74.4 m exp_h=  5.0 px u= 372.2 v= 189.4 depth=  72.1
+  uav_1 t=2026.152 dist=150.8 m exp_h=  4.0 px u=  42.0 v= 169.0 depth=  89.5
+  uav_4 t=2026.856 dist= 73.7 m exp_h=  5.4 px u= 415.5 v= 173.3 depth=  66.9
+  uav_2 t=2026.856 dist=103.9 m exp_h=  3.8 px u= 408.7 v= 182.0 depth=  95.4
+  uav_1 t=2026.856 dist=150.7 m exp_h=  2.4 px u= 273.8 v= 181.5 depth= 146.9
+  uav_5 t=2027.356 dist=145.1 m exp_h=  2.9 px u= 189.0 v= 185.7 depth= 122.2
+  uav_2 t=2027.356 dist=103.4 m exp_h=  3.8 px u= 409.5 v= 189.0 depth=  94.8
+  uav_4 t=2027.356 dist= 73.3 m exp_h=  5.5 px u= 427.0 v= 189.1 depth=  65.1
+  uav_1 t=2027.356 dist=150.7 m exp_h=  2.7 px u= 206.6 v= 184.7 depth= 131.8
+  uav_5 t=2027.936 dist=144.9 m exp_h=  3.0 px u= 179.4 v= 185.6 depth= 119.4
+  uav_4 t=2027.936 dist= 72.6 m exp_h=  5.6 px u= 431.7 v= 183.2 depth=  63.8
+  uav_2 t=2027.936 dist=102.9 m exp_h=  3.8 px u= 410.6 v= 183.0 depth=  94.2
+  uav_1 t=2027.936 dist=150.5 m exp_h=  3.7 px u=  81.5 v= 174.9 depth=  98.1
+  uav_5 t=2028.424 dist=144.6 m exp_h=  2.6 px u= 251.8 v= 179.4 depth= 137.2
+  uav_4 t=2028.424 dist= 71.7 m exp_h=  5.7 px u= 431.0 v= 198.9 depth=  63.0
+  uav_2 t=2028.424 dist=102.8 m exp_h=  3.9 px u= 414.9 v= 185.0 depth=  93.4
+  uav_6 t=2028.900 dist= 86.9 m exp_h=  5.9 px u= 532.1 v= 188.7 depth=  60.5
+  uav_2 t=2028.900 dist=102.8 m exp_h=  4.2 px u= 456.7 v= 186.0 depth=  85.6
+  uav_4 t=2028.900 dist= 71.1 m exp_h=  5.7 px u= 429.3 v= 176.5 depth=  62.8
+  uav_5 t=2028.900 dist=144.3 m exp_h=  2.5 px u= 348.2 v= 182.7 depth= 143.0
+  uav_5 t=2029.348 dist=143.9 m exp_h=  3.1 px u= 468.3 v= 181.9 depth= 116.8
+  uav_2 t=2029.348 dist=102.8 m exp_h=  5.2 px u= 545.4 v= 186.7 depth=  69.3
+  uav_4 t=2029.348 dist= 70.6 m exp_h=  5.8 px u= 428.9 v= 185.3 depth=  62.4
+  uav_5 t=2029.740 dist=143.5 m exp_h=  4.4 px u= 618.0 v= 191.5 depth=  81.5
+  uav_4 t=2029.740 dist= 69.9 m exp_h=  5.8 px u= 428.9 v= 188.5 depth=  61.8
+  uav_4 t=2030.076 dist= 69.2 m exp_h=  5.9 px u= 428.7 v= 187.8 depth=  61.2
+  uav_4 t=2030.404 dist= 68.5 m exp_h=  5.9 px u= 428.0 v= 188.5 depth=  60.7
+  uav_4 t=2030.736 dist= 67.8 m exp_h=  6.0 px u= 428.0 v= 201.1 depth=  59.9
+  uav_4 t=2031.036 dist= 67.6 m exp_h=  6.0 px u= 424.8 v= 176.7 depth=  60.2
+  uav_4 t=2031.284 dist= 67.3 m exp_h=  6.0 px u= 422.7 v= 184.8 depth=  60.3
+  uav_4 t=2031.508 dist= 67.0 m exp_h=  6.0 px u= 421.4 v= 190.8 depth=  60.1
+  uav_4 t=2031.744 dist= 66.7 m exp_h=  6.0 px u= 419.9 v= 185.4 depth=  60.0
+  uav_4 t=2031.980 dist= 66.3 m exp_h=  6.0 px u= 418.3 v= 190.8 depth=  59.8
+  uav_4 t=2032.248 dist= 65.9 m exp_h=  6.0 px u= 415.9 v= 188.2 depth=  59.8
+  uav_6 t=2033.080 dist= 84.6 m exp_h=  6.8 px u= 577.5 v= 203.6 depth=  52.7
+  uav_6 t=2033.332 dist= 84.3 m exp_h=  6.3 px u= 545.0 v= 185.3 depth=  56.9
+  uav_6 t=2033.604 dist= 84.1 m exp_h=  6.0 px u= 522.8 v= 181.6 depth=  59.9
+  uav_6 t=2033.868 dist= 83.8 m exp_h=  5.8 px u= 506.5 v= 191.3 depth=  62.1
+  uav_6 t=2034.140 dist= 83.5 m exp_h=  5.6 px u= 492.9 v= 189.4 depth=  63.9
+  uav_6 t=2034.412 dist= 83.2 m exp_h=  5.5 px u= 480.8 v= 196.7 depth=  65.5
+  uav_6 t=2034.680 dist= 83.0 m exp_h=  5.3 px u= 468.6 v= 179.6 depth=  67.3
+  uav_6 t=2034.952 dist= 82.8 m exp_h=  5.1 px u= 443.1 v= 186.2 depth=  71.1
+  uav_5 t=2035.252 dist=141.2 m exp_h=  3.3 px u= 495.7 v= 185.4 depth= 107.4
+  uav_6 t=2035.252 dist= 82.5 m exp_h=  4.5 px u= 365.6 v= 187.6 depth=  80.6
+  uav_5 t=2035.588 dist=141.0 m exp_h=  2.7 px u= 389.4 v= 185.4 depth= 133.7
+  uav_6 t=2035.588 dist= 82.3 m exp_h=  4.4 px u= 293.0 v= 192.2 depth=  81.5
+  uav_6 t=2035.976 dist= 82.3 m exp_h=  5.3 px u= 182.6 v= 190.8 depth=  68.3
+  uav_5 t=2035.976 dist=140.8 m exp_h=  2.6 px u= 292.5 v= 191.4 depth= 139.4
+  uav_5 t=2036.360 dist=140.9 m exp_h=  3.1 px u= 176.5 v= 191.2 depth= 115.3
+  uav_6 t=2036.360 dist= 82.5 m exp_h=  8.0 px u=   4.7 v= 176.3 depth=  45.0
+  uav_4 t=2036.360 dist= 63.7 m exp_h=  6.0 px u= 388.7 v= 187.9 depth=  60.4
+  uav_4 t=2036.792 dist= 63.5 m exp_h=  6.0 px u= 387.0 v= 188.0 depth=  60.3
+  uav_5 t=2037.144 dist=141.1 m exp_h=  4.2 px u=  52.3 v= 210.6 depth=  85.5
+  uav_4 t=2037.144 dist= 63.3 m exp_h=  5.9 px u= 384.0 v= 181.2 depth=  60.5
+  uav_5 t=2037.500 dist=141.0 m exp_h=  3.4 px u= 134.9 v= 188.5 depth= 104.6
+  uav_4 t=2037.500 dist= 63.1 m exp_h=  5.9 px u= 380.1 v= 190.9 depth=  60.5
+  uav_4 t=2037.872 dist= 62.7 m exp_h=  6.0 px u= 378.1 v= 186.0 depth=  60.4
+  uav_4 t=2038.208 dist= 62.6 m exp_h=  6.0 px u= 377.2 v= 187.6 depth=  60.3
+  uav_1 t=2038.548 dist=151.8 m exp_h=  4.0 px u=  40.2 v= 187.8 depth=  89.7
+  uav_6 t=2038.548 dist= 82.1 m exp_h=  6.0 px u= 129.3 v= 192.3 depth=  60.0
+  uav_4 t=2038.548 dist= 62.4 m exp_h=  6.1 px u= 392.2 v= 188.0 depth=  58.9
+  uav_6 t=2038.976 dist= 81.5 m exp_h=  4.7 px u= 250.2 v= 203.5 depth=  76.7
+  uav_4 t=2038.976 dist= 62.3 m exp_h=  6.7 px u= 442.8 v= 188.7 depth=  53.5
+  uav_1 t=2038.976 dist=151.7 m exp_h=  3.3 px u= 124.8 v= 186.5 depth= 109.8
+  uav_6 t=2039.344 dist= 81.3 m exp_h=  4.4 px u= 325.8 v= 180.1 depth=  81.2
+  uav_4 t=2039.344 dist= 62.2 m exp_h=  7.9 px u= 513.3 v= 189.7 depth=  45.4
+  uav_1 t=2039.344 dist=151.6 m exp_h=  4.3 px u=   7.5 v= 211.5 depth=  82.9
+  uav_6 t=2039.700 dist= 81.0 m exp_h=  4.7 px u= 394.3 v= 183.9 depth=  76.2
+  uav_4 t=2039.700 dist= 62.1 m exp_h= 10.4 px u= 626.4 v= 191.5 depth=  34.6
+  uav_6 t=2040.024 dist= 80.6 m exp_h=  5.1 px u= 435.9 v= 204.2 depth=  69.9
+  uav_6 t=2040.284 dist= 80.3 m exp_h=  5.3 px u= 449.0 v= 175.5 depth=  68.1
+  uav_6 t=2040.596 dist= 80.1 m exp_h=  5.4 px u= 458.2 v= 189.6 depth=  66.5
+  uav_6 t=2040.876 dist= 79.7 m exp_h=  5.5 px u= 460.3 v= 186.5 depth=  65.9
+  uav_6 t=2041.112 dist= 79.4 m exp_h=  5.5 px u= 460.2 v= 189.7 depth=  65.7
+  uav_6 t=2041.332 dist= 79.1 m exp_h=  5.5 px u= 459.0 v= 200.3 depth=  65.4
+  uav_6 t=2041.604 dist= 78.9 m exp_h=  5.5 px u= 457.4 v= 175.6 depth=  65.6
+  uav_6 t=2041.864 dist= 78.7 m exp_h=  5.5 px u= 456.2 v= 189.0 depth=  65.6
+  uav_6 t=2042.112 dist= 78.4 m exp_h=  5.5 px u= 455.5 v= 189.2 depth=  65.5
+  uav_6 t=2042.348 dist= 78.2 m exp_h=  5.5 px u= 456.2 v= 188.4 depth=  65.2
+  uav_6 t=2042.600 dist= 78.0 m exp_h=  5.5 px u= 454.5 v= 187.0 depth=  65.3
+  uav_6 t=2042.844 dist= 77.8 m exp_h=  4.9 px u= 397.4 v= 187.4 depth=  72.8
+  uav_6 t=2043.080 dist= 77.6 m exp_h=  4.7 px u= 345.7 v= 189.2 depth=  77.0
+  uav_6 t=2043.324 dist= 77.4 m exp_h=  4.7 px u= 293.5 v= 186.5 depth=  76.7
+  uav_6 t=2043.600 dist= 77.2 m exp_h=  5.1 px u= 227.2 v= 187.9 depth=  70.3
+  uav_6 t=2043.892 dist= 77.1 m exp_h=  6.4 px u= 128.8 v= 188.1 depth=  56.4
+  uav_4 t=2043.892 dist= 60.6 m exp_h=  8.1 px u= 509.5 v= 185.8 depth=  44.6
+  uav_4 t=2044.156 dist= 60.3 m exp_h=  6.7 px u= 425.2 v= 186.3 depth=  53.8
+  uav_4 t=2044.416 dist= 60.1 m exp_h=  6.1 px u= 358.1 v= 185.9 depth=  59.1
+  uav_4 t=2044.688 dist= 59.9 m exp_h=  6.1 px u= 293.7 v= 185.2 depth=  59.4
+  uav_4 t=2045.008 dist= 59.6 m exp_h=  6.9 px u= 205.9 v= 183.2 depth=  52.1
+  uav_4 t=2045.344 dist= 59.4 m exp_h= 10.0 px u=  50.3 v= 185.4 depth=  35.9
+  uav_2 t=2045.972 dist=105.2 m exp_h=  5.2 px u=  81.2 v= 174.9 depth=  68.5
+  uav_2 t=2046.252 dist=105.0 m exp_h=  4.1 px u= 183.4 v= 182.8 depth=  87.3
+  uav_2 t=2046.540 dist=104.6 m exp_h=  3.6 px u= 261.9 v= 193.1 depth= 100.4
+  uav_3 t=2046.860 dist=178.1 m exp_h=  2.8 px u= 520.1 v= 217.9 depth= 126.6
+  uav_2 t=2046.860 dist=104.0 m exp_h=  3.5 px u= 314.5 v= 185.9 depth= 103.9
+  uav_2 t=2047.232 dist=103.3 m exp_h=  3.5 px u= 336.7 v= 186.1 depth= 103.0
+  uav_3 t=2047.232 dist=177.7 m exp_h=  2.2 px u= 403.9 v= 178.8 depth= 164.7
+  uav_2 t=2047.564 dist=102.7 m exp_h=  3.5 px u= 345.7 v= 191.4 depth= 101.8
+  uav_3 t=2047.564 dist=177.6 m exp_h=  2.0 px u= 334.2 v= 178.9 depth= 177.2
+  uav_3 t=2047.888 dist=177.3 m exp_h=  2.0 px u= 299.5 v= 187.7 depth= 176.3
+  uav_2 t=2047.888 dist=102.2 m exp_h=  3.6 px u= 351.6 v= 170.7 depth= 101.0
+  uav_2 t=2048.212 dist=102.0 m exp_h=  3.5 px u= 339.6 v= 180.1 depth= 101.6
+  uav_3 t=2048.212 dist=176.9 m exp_h=  2.2 px u= 249.1 v= 186.8 depth= 167.1
+  uav_6 t=2048.564 dist= 76.1 m exp_h=  7.5 px u= 570.9 v= 199.2 depth=  48.2
+  uav_2 t=2048.564 dist=101.7 m exp_h=  3.5 px u= 322.0 v= 188.4 depth= 101.7
+  uav_3 t=2048.564 dist=176.5 m exp_h=  2.5 px u= 175.9 v= 171.1 depth= 144.3
+  uav_6 t=2048.936 dist= 75.7 m exp_h=  5.8 px u= 467.8 v= 182.4 depth=  61.5
+  uav_2 t=2048.936 dist=101.3 m exp_h=  3.6 px u= 310.7 v= 187.3 depth= 101.2
+  uav_3 t=2048.936 dist=176.2 m exp_h=  2.8 px u= 126.4 v= 186.4 depth= 128.1
+  uav_6 t=2049.260 dist= 75.4 m exp_h=  5.5 px u= 440.0 v= 185.0 depth=  65.2
+  uav_2 t=2049.260 dist=100.9 m exp_h=  3.6 px u= 304.0 v= 188.1 depth= 100.5
+  uav_3 t=2049.260 dist=175.9 m exp_h=  3.0 px u=  96.4 v= 185.7 depth= 118.9
+  uav_6 t=2049.560 dist= 75.1 m exp_h=  5.5 px u= 433.6 v= 188.6 depth=  65.8
+  uav_2 t=2049.560 dist=100.5 m exp_h=  3.7 px u= 275.2 v= 189.6 depth=  98.1
+  uav_3 t=2049.560 dist=175.7 m exp_h=  3.2 px u=  79.7 v= 201.9 depth= 113.8
+  uav_3 t=2049.876 dist=175.5 m exp_h=  3.3 px u=  56.4 v= 182.5 depth= 107.8
+  uav_6 t=2049.876 dist= 74.8 m exp_h=  5.5 px u= 434.0 v= 189.0 depth=  65.4
+  uav_2 t=2049.876 dist=100.3 m exp_h=  3.8 px u= 252.6 v= 178.6 depth=  95.2
+  uav_6 t=2050.232 dist= 74.4 m exp_h=  5.6 px u= 438.7 v= 188.7 depth=  64.4
+  uav_2 t=2050.232 dist=100.0 m exp_h=  4.0 px u= 220.2 v= 194.6 depth=  89.7
+  uav_3 t=2050.232 dist=175.4 m exp_h=  3.5 px u=  34.2 v= 184.5 depth= 102.3
+  uav_5 t=2050.688 dist=142.4 m exp_h=  3.9 px u= 565.9 v= 185.5 depth=  91.4
+  uav_6 t=2050.688 dist= 74.1 m exp_h=  5.7 px u= 447.1 v= 190.1 depth=  63.0
+  uav_2 t=2050.688 dist= 99.7 m exp_h=  4.3 px u= 182.3 v= 189.3 depth=  82.7
+  uav_3 t=2050.688 dist=175.4 m exp_h=  3.1 px u=  92.0 v= 183.7 depth= 117.3
+  uav_5 t=2051.092 dist=142.1 m exp_h=  3.3 px u= 489.6 v= 178.0 depth= 109.7
+  uav_6 t=2051.092 dist= 73.7 m exp_h=  5.8 px u= 452.6 v= 188.5 depth=  62.0
+  uav_2 t=2051.092 dist= 99.4 m exp_h=  5.5 px u=  87.2 v= 189.2 depth=  65.6
+  uav_3 t=2051.092 dist=175.3 m exp_h=  2.5 px u= 172.8 v= 184.7 depth= 142.4
+  uav_3 t=2051.500 dist=175.3 m exp_h=  2.2 px u= 242.6 v= 184.8 depth= 163.9
+  uav_5 t=2051.500 dist=141.7 m exp_h=  2.9 px u= 435.0 v= 175.4 depth= 123.7
+  uav_6 t=2051.500 dist= 73.4 m exp_h=  5.0 px u= 357.9 v= 190.4 depth=  72.2
+  uav_3 t=2051.856 dist=175.2 m exp_h=  2.1 px u= 295.2 v= 184.8 depth= 173.9
+  uav_5 t=2051.856 dist=141.3 m exp_h=  2.8 px u= 417.1 v= 183.0 depth= 127.9
+  uav_6 t=2051.856 dist= 73.4 m exp_h=  5.0 px u= 272.8 v= 188.7 depth=  71.4
+  uav_5 t=2052.244 dist=140.6 m exp_h=  2.8 px u= 409.0 v= 187.5 depth= 129.1
+  uav_6 t=2052.244 dist= 73.6 m exp_h=  5.0 px u= 273.0 v= 180.4 depth=  71.7
+  uav_5 t=2052.624 dist=139.9 m exp_h=  2.8 px u= 406.9 v= 185.8 depth= 128.9
+  uav_6 t=2052.624 dist= 73.5 m exp_h=  4.9 px u= 334.5 v= 184.5 depth=  73.3
+  uav_6 t=2053.012 dist= 73.1 m exp_h=  5.1 px u= 377.6 v= 186.2 depth=  70.5
+  uav_5 t=2053.012 dist=139.2 m exp_h=  2.8 px u= 406.8 v= 185.7 depth= 128.3
+  uav_5 t=2053.356 dist=138.5 m exp_h=  2.8 px u= 407.3 v= 185.5 depth= 127.5
+  uav_6 t=2053.356 dist= 72.7 m exp_h=  5.1 px u= 377.9 v= 189.0 depth=  70.0
+  uav_5 t=2053.684 dist=137.8 m exp_h=  2.9 px u= 413.8 v= 199.4 depth= 125.0
+  uav_6 t=2053.684 dist= 72.4 m exp_h=  5.1 px u= 375.7 v= 186.2 depth=  69.9
+  uav_3 t=2054.016 dist=174.6 m exp_h=  2.4 px u= 449.5 v= 185.2 depth= 147.8
+  uav_5 t=2054.016 dist=137.5 m exp_h=  3.0 px u= 430.7 v= 179.6 depth= 121.1
+  uav_6 t=2054.016 dist= 72.2 m exp_h=  5.2 px u= 375.4 v= 187.8 depth=  69.7
+  uav_6 t=2054.384 dist= 71.8 m exp_h=  5.2 px u= 374.8 v= 190.6 depth=  69.4
+  uav_3 t=2054.384 dist=174.5 m exp_h=  2.5 px u= 465.6 v= 187.4 depth= 142.5
+  uav_5 t=2054.384 dist=137.1 m exp_h=  3.1 px u= 453.8 v= 186.2 depth= 115.0
+  uav_5 t=2054.768 dist=136.5 m exp_h=  3.2 px u= 468.9 v= 186.4 depth= 110.7
+  uav_6 t=2054.768 dist= 71.7 m exp_h=  5.2 px u= 371.3 v= 186.7 depth=  69.5
+  uav_5 t=2055.116 dist=136.1 m exp_h=  3.3 px u= 474.2 v= 186.4 depth= 108.9
+  uav_6 t=2055.116 dist= 71.5 m exp_h=  5.2 px u= 368.4 v= 187.0 depth=  69.6
+  uav_5 t=2055.428 dist=135.6 m exp_h=  3.3 px u= 475.1 v= 184.3 depth= 108.4
+  uav_6 t=2055.428 dist= 71.4 m exp_h=  5.2 px u= 365.9 v= 186.9 depth=  69.7
+  uav_5 t=2055.680 dist=135.3 m exp_h=  3.7 px u= 522.1 v= 199.4 depth=  96.3
+  uav_6 t=2055.680 dist= 71.3 m exp_h=  5.2 px u= 364.2 v= 187.0 depth=  69.7
+  uav_5 t=2055.932 dist=135.0 m exp_h=  4.8 px u= 626.3 v= 191.1 depth=  75.2
+  uav_6 t=2055.932 dist= 71.2 m exp_h=  5.2 px u= 362.5 v= 186.9 depth=  69.8
+  uav_6 t=2056.256 dist= 71.1 m exp_h=  5.2 px u= 360.2 v= 187.1 depth=  69.8
+  uav_6 t=2056.496 dist= 71.0 m exp_h=  5.2 px u= 358.8 v= 187.1 depth=  69.8
+  uav_6 t=2056.700 dist= 70.9 m exp_h=  5.2 px u= 357.7 v= 187.1 depth=  69.8
+  uav_6 t=2056.924 dist= 70.8 m exp_h=  5.2 px u= 356.4 v= 187.1 depth=  69.7
+  uav_6 t=2057.164 dist= 70.7 m exp_h=  5.2 px u= 354.9 v= 187.1 depth=  69.7
+  uav_6 t=2057.384 dist= 70.6 m exp_h=  5.2 px u= 353.8 v= 187.1 depth=  69.7
+  uav_6 t=2057.596 dist= 70.5 m exp_h=  5.2 px u= 352.7 v= 187.1 depth=  69.6
+  uav_6 t=2057.788 dist= 70.4 m exp_h=  5.2 px u= 351.7 v= 187.1 depth=  69.6
+  uav_6 t=2057.984 dist= 70.4 m exp_h=  5.2 px u= 350.8 v= 187.2 depth=  69.6
+  uav_6 t=2058.192 dist= 70.3 m exp_h=  5.2 px u= 349.9 v= 187.2 depth=  69.5
+  uav_6 t=2058.400 dist= 70.2 m exp_h=  5.2 px u= 348.7 v= 187.3 depth=  69.5
+  uav_6 t=2058.628 dist= 70.1 m exp_h=  5.2 px u= 347.9 v= 187.3 depth=  69.4
+  uav_6 t=2058.872 dist= 69.9 m exp_h=  5.2 px u= 346.7 v= 187.2 depth=  69.4
+  uav_2 t=2058.872 dist= 98.6 m exp_h=  5.6 px u=  78.5 v= 187.9 depth=  63.8
+  uav_6 t=2059.136 dist= 69.8 m exp_h=  5.2 px u= 345.8 v= 187.3 depth=  69.3
+  uav_6 t=2059.384 dist= 69.7 m exp_h=  5.2 px u= 344.9 v= 187.4 depth=  69.2
+  uav_6 t=2059.620 dist= 69.6 m exp_h=  5.2 px u= 343.8 v= 187.4 depth=  69.1
+  uav_6 t=2059.892 dist= 69.5 m exp_h=  5.2 px u= 342.9 v= 187.3 depth=  69.1
+  uav_6 t=2060.136 dist= 69.4 m exp_h=  5.2 px u= 342.0 v= 187.4 depth=  69.0
+  uav_2 t=2060.816 dist= 98.9 m exp_h=  3.7 px u= 271.1 v= 186.4 depth=  96.1
+  uav_5 t=2061.088 dist=132.5 m exp_h=  4.0 px u= 544.2 v= 187.9 depth=  89.6
+  uav_2 t=2061.088 dist= 98.9 m exp_h=  3.7 px u= 275.9 v= 186.4 depth=  96.7
+  uav_5 t=2061.416 dist=131.9 m exp_h=  3.3 px u= 454.9 v= 194.3 depth= 110.2
+  uav_2 t=2061.416 dist= 99.0 m exp_h=  3.7 px u= 282.9 v= 180.6 depth=  97.4
+  uav_5 t=2061.732 dist=131.3 m exp_h=  3.1 px u= 423.0 v= 187.6 depth= 117.4
+  uav_6 t=2061.732 dist= 68.7 m exp_h=  5.3 px u= 336.6 v= 187.7 depth=  68.5
+  uav_2 t=2061.732 dist= 99.0 m exp_h=  3.7 px u= 294.6 v= 182.0 depth=  98.2
+  uav_5 t=2062.040 dist=130.7 m exp_h=  3.0 px u= 409.5 v= 186.3 depth= 119.9
+  uav_6 t=2062.040 dist= 68.6 m exp_h=  5.3 px u= 306.9 v= 193.3 depth=  68.3
+  uav_2 t=2062.040 dist= 98.8 m exp_h=  3.7 px u= 300.5 v= 183.6 depth=  98.4
+  uav_5 t=2062.348 dist=130.0 m exp_h=  3.0 px u= 403.0 v= 186.2 depth= 120.6
+  uav_2 t=2062.348 dist= 98.4 m exp_h=  3.7 px u= 302.9 v= 189.8 depth=  98.0
+  uav_6 t=2062.348 dist= 68.5 m exp_h=  5.7 px u= 238.6 v= 193.9 depth=  63.5
+  uav_2 t=2062.648 dist= 98.0 m exp_h=  3.7 px u= 302.9 v= 186.7 depth=  97.6
+  uav_5 t=2062.648 dist=129.4 m exp_h=  3.0 px u= 399.9 v= 188.6 depth= 120.7
+  uav_6 t=2062.648 dist= 68.6 m exp_h=  6.9 px u= 147.2 v= 190.9 depth=  52.4
+  uav_5 t=2062.976 dist=128.8 m exp_h=  3.0 px u= 401.6 v= 172.5 depth= 119.8
+  uav_6 t=2062.976 dist= 69.0 m exp_h=  7.7 px u= 101.0 v= 141.3 depth=  46.7
+  uav_2 t=2062.976 dist= 97.5 m exp_h=  3.7 px u= 302.0 v= 186.7 depth=  97.1
+  uav_2 t=2063.260 dist= 97.0 m exp_h=  3.7 px u= 301.0 v= 186.3 depth=  96.6
+  uav_5 t=2063.260 dist=128.6 m exp_h=  3.1 px u= 413.0 v= 180.6 depth= 117.3
+  uav_6 t=2063.260 dist= 69.0 m exp_h=  6.4 px u= 175.5 v= 185.0 depth=  56.4
+  uav_5 t=2063.572 dist=128.3 m exp_h=  3.2 px u= 431.9 v= 183.8 depth= 112.8
+  uav_6 t=2063.572 dist= 68.9 m exp_h=  5.5 px u= 249.0 v= 191.4 depth=  65.0
+  uav_2 t=2063.572 dist= 96.5 m exp_h=  3.7 px u= 299.6 v= 186.7 depth=  96.0
+  uav_5 t=2063.900 dist=127.8 m exp_h=  3.3 px u= 446.6 v= 187.3 depth= 108.9
+  uav_6 t=2063.900 dist= 68.6 m exp_h=  5.2 px u= 312.6 v= 189.0 depth=  68.5
+  uav_2 t=2063.900 dist= 95.9 m exp_h=  3.9 px u= 297.4 v= 228.0 depth=  92.9
+  uav_6 t=2064.224 dist= 68.3 m exp_h=  5.3 px u= 350.1 v= 188.5 depth=  67.6
+  uav_2 t=2064.224 dist= 95.7 m exp_h=  3.8 px u= 308.0 v= 165.2 depth=  95.3
+  uav_1 t=2064.224 dist=161.9 m exp_h=  3.9 px u=  21.7 v= 187.9 depth=  91.7
+  uav_5 t=2064.224 dist=127.3 m exp_h=  3.5 px u= 466.5 v= 190.9 depth= 103.7
+  uav_5 t=2064.552 dist=126.9 m exp_h=  3.8 px u= 501.4 v= 173.5 depth=  95.3
+  uav_6 t=2064.552 dist= 67.9 m exp_h=  5.5 px u= 370.5 v= 196.3 depth=  65.8
+  uav_2 t=2064.552 dist= 95.6 m exp_h=  3.8 px u= 324.8 v= 182.1 depth=  95.6
+  uav_5 t=2064.908 dist=126.6 m exp_h=  4.0 px u= 522.9 v= 183.9 depth=  90.2
+  uav_6 t=2064.908 dist= 67.7 m exp_h=  5.5 px u= 377.5 v= 184.3 depth=  65.2
+  uav_2 t=2064.908 dist= 95.3 m exp_h=  3.8 px u= 336.4 v= 189.9 depth=  95.0
+  uav_5 t=2065.252 dist=126.2 m exp_h=  4.0 px u= 520.4 v= 178.5 depth=  90.4
+  uav_6 t=2065.252 dist= 67.5 m exp_h=  5.3 px u= 309.5 v= 193.7 depth=  67.2
+  uav_2 t=2065.252 dist= 95.0 m exp_h=  3.8 px u= 342.0 v= 188.1 depth=  94.4
+  uav_5 t=2065.604 dist=125.7 m exp_h=  3.7 px u= 494.1 v= 191.0 depth=  96.0
+  uav_6 t=2065.604 dist= 67.5 m exp_h=  5.8 px u= 228.2 v= 193.1 depth=  61.5
+  uav_2 t=2065.604 dist= 94.6 m exp_h=  3.8 px u= 344.3 v= 186.9 depth=  93.9
+  uav_3 t=2066.008 dist=170.7 m exp_h=  3.1 px u= 102.9 v= 203.2 depth= 116.9
+  uav_5 t=2066.008 dist=125.2 m exp_h=  3.6 px u= 473.4 v= 183.6 depth= 100.4
+  uav_6 t=2066.008 dist= 67.9 m exp_h=  6.7 px u= 164.2 v= 149.8 depth=  53.6
+  uav_2 t=2066.008 dist= 94.1 m exp_h=  3.9 px u= 348.0 v= 199.1 depth=  92.9
+  uav_1 t=2066.008 dist=162.4 m exp_h=  2.4 px u= 241.2 v= 185.6 depth= 151.4
+  uav_5 t=2066.432 dist=124.9 m exp_h=  3.6 px u= 475.8 v= 182.7 depth=  99.7
+  uav_6 t=2066.432 dist= 68.0 m exp_h=  5.6 px u= 253.0 v= 185.4 depth=  64.6
+  uav_2 t=2066.432 dist= 94.0 m exp_h=  3.8 px u= 324.3 v= 180.4 depth=  94.0
+  uav_1 t=2066.432 dist=162.5 m exp_h=  2.3 px u= 270.2 v= 182.1 depth= 157.8
+  uav_3 t=2066.432 dist=170.1 m exp_h=  2.2 px u= 255.5 v= 170.8 depth= 162.1
+  uav_5 t=2066.904 dist=124.4 m exp_h=  3.7 px u= 480.4 v= 188.9 depth=  98.1
+  uav_6 t=2066.904 dist= 67.7 m exp_h=  5.3 px u= 336.0 v= 188.6 depth=  67.4
+  uav_2 t=2066.904 dist= 93.6 m exp_h=  3.8 px u= 309.9 v= 190.2 depth=  93.4
+  uav_1 t=2066.904 dist=162.6 m exp_h=  2.3 px u= 372.9 v= 181.8 depth= 157.6
+  uav_3 t=2066.904 dist=169.6 m exp_h=  2.2 px u= 364.5 v= 183.5 depth= 165.8
+  uav_3 t=2067.476 dist=168.9 m exp_h=  2.4 px u= 434.8 v= 182.4 depth= 147.6
+  uav_5 t=2067.476 dist=123.6 m exp_h=  4.2 px u= 537.9 v= 190.2 depth=  84.8
+  uav_6 t=2067.476 dist= 67.1 m exp_h=  5.5 px u= 372.1 v= 190.1 depth=  65.0
+  uav_2 t=2067.476 dist= 92.9 m exp_h=  3.9 px u= 318.3 v= 188.3 depth=  92.9
+  uav_1 t=2067.476 dist=162.6 m exp_h=  3.6 px u= 579.4 v= 167.1 depth= 101.0
+  uav_3 t=2067.996 dist=168.2 m exp_h=  2.7 px u= 474.0 v= 176.8 depth= 134.7
+  uav_6 t=2067.996 dist= 66.7 m exp_h=  5.6 px u= 383.1 v= 177.1 depth=  63.8
+  uav_2 t=2067.996 dist= 92.2 m exp_h=  3.9 px u= 346.8 v= 186.9 depth=  91.4
+  uav_3 t=2068.432 dist=167.9 m exp_h=  2.7 px u= 478.2 v= 179.1 depth= 133.2
+  uav_6 t=2068.432 dist= 66.5 m exp_h=  5.7 px u= 388.7 v= 189.3 depth=  63.0
+  uav_2 t=2068.432 dist= 91.7 m exp_h=  4.0 px u= 355.3 v= 185.8 depth=  90.4
+
+wrote /mnt/d/a/.robocup/robo_team/coordination/docs/validation/white_visibility_20261008/white_visibility_v140_codex.json
