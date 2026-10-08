@@ -1,5 +1,7 @@
 # Swarm 任务授权接口 v2（2026-10-03 冻结）
 
+兼容增补v2.8（2026-10-08冻结，待追踪目标重派资格）：manager对已知但尚未追踪且无旧目标授权占用的目标，重派选机须和首次派机一样检查_navigation_eligible及_navigation_task_allowed(uid,('target',tid))。连接/占用/新鲜或有界导航坐标检查保持；所有飞机不合格时保持目标待处理，不写_tracking、不登记新observer、不发任务。已有跟踪与STOP/占用退役规则不变，线上schema2及字段不变。统一新manager，六agent原接口兼容；此修订不修改冷却时长或删除拒绝记录。
+
 兼容增补v2.7（2026-10-08冻结，远距候选观察机排序）：任务线上schema2、目标唯一锁及STOP/占用退役保持。manager实际接受视觉v6/v7后保留该来源的原图时间；仅其时间仍等于VisualEvidence记录的该机该色最新原图、年龄≤1秒且飞机与目标距离≤45米时，该来源与原20米内新鲜观察机同享排序优先级。有效连接、导航资格和任务拒绝条件仍检查；无新鲜证据时保留原排序和空闲机偏好，不制造原图、不续期、不免除交接。后续非候选图清除此来源候选排序标记。这是接近任务选择，不是官方上报许可，也不改旧owner接管条件。manager、tracker_selection.py、visual_observation.py及六agent使用统一快照。
 
 v2.6同时取消已过原图导航窗口的同目标pending意向，调用既有withdraw及TASK_INTENT_CANCELLED/STOP流程；不移除旧搜索格或路线锁，不取消其他目标及搜索pending，不把意向取消当作实测停止。该修订需manager和六agent统一快照。

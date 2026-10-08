@@ -25,6 +25,8 @@ class VisualRendezvousTests(unittest.TestCase):
             _cancel_stale_tracking_intent=Mock(),
             status={'uav_5':SimpleNamespace(connected=True,x=0.,y=0.)},
             _tracker_rank=lambda tid,uid,d:d,
+            _navigation_eligible=lambda uid:True,
+            _navigation_task_allowed=lambda uid,key:True,
             grid=SimpleNamespace(x_min=-50.,x_max=130.,y_min=-60.,y_max=60.),
             _authorized_publish=Mock())
 
@@ -44,3 +46,27 @@ class VisualRendezvousTests(unittest.TestCase):
         manager=self.manager(position=(None,None))
         scope['_dispatch_pending_targets'](manager)
         manager._authorized_publish.assert_not_called()
+
+    def test_pending_target_skips_navigation_blocked_closest_aircraft(self):
+        manager=self.manager()
+        manager.status['uav_4']=SimpleNamespace(connected=True,x=15.,y=0.)
+        manager._navigation_eligible=lambda uid:uid!='uav_4'
+        scope['_dispatch_pending_targets'](manager)
+        self.assertEqual(manager._authorized_publish.call_args.args[0].uav_id,'uav_5')
+
+    def test_pending_target_skips_rejected_target_key(self):
+        manager=self.manager()
+        manager.status['uav_4']=SimpleNamespace(connected=True,x=15.,y=0.)
+        manager._navigation_task_allowed=lambda uid,key:uid!='uav_4' or key!=('target','t1')
+        scope['_dispatch_pending_targets'](manager)
+        self.assertEqual(manager._authorized_publish.call_args.args[0].uav_id,'uav_5')
+
+    def test_all_ineligible_aircraft_leave_target_pending_without_claim(self):
+        for rejected in ('navigation','task'):
+            manager=self.manager()
+            if rejected=='navigation':manager._navigation_eligible=lambda uid:False
+            else:manager._navigation_task_allowed=lambda uid,key:False
+            scope['_dispatch_pending_targets'](manager)
+            manager._authorized_publish.assert_not_called()
+            self.assertEqual(manager._tracking,{})
+            manager.tracker.assign_observers.assert_not_called()

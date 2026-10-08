@@ -902,6 +902,9 @@ class SwarmManager(object):
             for uid, st in self.status.items():
                 if not getattr(st, "connected", False) or uid in busy:
                     continue
+                if (not self._navigation_eligible(uid)
+                        or not self._navigation_task_allowed(uid, ('target', tid))):
+                    continue
                 d = math.hypot(st.x - tx, st.y - ty)
                 if best_d is None or self._tracker_rank(tid, uid, d) < self._tracker_rank(tid, best, best_d):
                     best, best_d = uid, d
