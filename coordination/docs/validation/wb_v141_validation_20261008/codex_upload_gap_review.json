@@ -1,0 +1,83 @@
+{
+  "round": "/root/robocup_runs/wb_v141_validation3_20261008T104200Z/round_1_seed_8159",
+  "upload_spans": [
+    {
+      "tag": "green",
+      "count": 124,
+      "first": 1962.892,
+      "last": 2033.992,
+      "gaps_gt_1s": [
+        {
+          "first": 1963.592,
+          "last": 1988.492,
+          "seconds": 24.899999999999864
+        },
+        {
+          "first": 1988.692,
+          "last": 2019.092,
+          "seconds": 30.40000000000009
+        }
+      ]
+    },
+    {
+      "tag": "red1",
+      "count": 365,
+      "first": 2172.892,
+      "last": 2221.892,
+      "gaps_gt_1s": [
+        {
+          "first": 2219.692,
+          "last": 2221.692,
+          "seconds": 2.0
+        }
+      ]
+    },
+    {
+      "tag": "brown",
+      "count": 20,
+      "first": 2383.092,
+      "last": 2385.692,
+      "gaps_gt_1s": []
+    }
+  ],
+  "between_spans": [
+    {
+      "first": 2033.992,
+      "last": 2172.892,
+      "seconds": 138.89999999999986,
+      "input_count": 22,
+      "input_colors": {
+        "red1": 13,
+        "brown": 9
+      },
+      "alive_inputs": 5,
+      "skip_reasons": {
+        "green:not_ready": 1,
+        "green:stale": 5,
+        "brown:not_ready": 3,
+        "brown:stale": 2
+      },
+      "uploads_in_gap": 0
+    },
+    {
+      "first": 2221.892,
+      "last": 2383.092,
+      "seconds": 161.20000000000027,
+      "input_count": 23,
+      "input_colors": {
+        "red1": 10,
+        "brown": 12,
+        "green": 1
+      },
+      "alive_inputs": 5,
+      "skip_reasons": {
+        "red1:not_ready": 1,
+        "red1:stale": 5,
+        "brown:not_ready": 3,
+        "brown:stale": 5
+      },
+      "uploads_in_gap": 0
+    }
+  ],
+  "meaning": "Publication evidence only; not scheduling causality or exact judge replay"
+}
