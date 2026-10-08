@@ -1,5 +1,14 @@
 # 白色人物识别诊断（WorkBuddy → Codex 复核）
 
+> ## ⚠️ 本报告部分结论已被 `workbuddy_white_visibility_20261008.md` 更正
+> 依据 `workbuddy_white_review_codex_20261008.md` 的复核，本报告以下内容**作废**：
+> 摘要与正文身高数字矛盾（实为 1.065711 / 2.096977 / 2.026639）、"无一落在 1.4–2.1 m 成人带"
+> （其中两条在带内）、"两条独立判据"（实为同源）、"150 m 落差可证明框不是目标"（降级）、
+> "真人从未进入有效观测"（应改为"入画但过远"）、"45 帧模型零输出"（仅 3 条有独立人体字段）、
+> 机号"uav_2/uav_4"（应为 uav_3/uav_5）。**以 `workbuddy_white_visibility_20261008.md` 为准。**
+> 仍然成立：单张留存白图颜色 conf 0.5388、person 模型 conf 0.25→0.01 全 0 框、
+> 白色观察器原图坐标与官方上报均为 0。
+
 > 任务单：`WORKBUDDY_TASK_20261008.md`。**离线只读**，未启动/停止任何仿真进程，
 > 未改 `perception_real.py` / `visual_observation.py` / 桥 / manager / agent / 路线与 STOP 核心。
 > 数据源：WSL `/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159`
