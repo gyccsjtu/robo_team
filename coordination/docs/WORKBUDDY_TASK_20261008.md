@@ -1,5 +1,11 @@
 # WorkBuddy任务单：白色人物识别诊断
 
+## 最新审核与下一项任务
+
+第一项报告已收到，提交e16b491。Codex已复核，见workbuddy_white_review_codex_20261008.md；取证部分接收，整体身份/静止/排除识别的结论需要修正，暂不实施白色运动入口。
+
+下一项：完成复核报告末节的整轮白色几何视野与检测对齐。严格区分3张实际检测和42条同原图拒绝；使用源码已明确的矩阵方向，不猜旋转；几何进画面不等于渲染可见。交付workbuddy_white_visibility_20261008.md和仓库内可重现工具/输出。先离线，不启动仿真，不改生产核心。任务文件已更新，尚未确认WorkBuddy已读取本次更新。
+
 用户授权Codex统筹分工。任务仓库D:\a\.robocup\robo_team，分支codex/radar-coordination-20261003。先读根AGENTS.md、legacy_chain_postrun_v141_20261008.md与predata_comparison_20261008.md。此任务单已准备，尚未证明WorkBuddy已收到/执行。
 
 ## 目标
