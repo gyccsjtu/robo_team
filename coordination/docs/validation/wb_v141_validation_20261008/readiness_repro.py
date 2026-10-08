@@ -32,8 +32,9 @@ def main():
     rr = ReportReadiness()
     ready_ever = False
     print()
-    print("%-9s %-9s %-6s %-8s %-9s %-7s %s"
-          % ("stamp", "receipt", "tag", "dist_m", "age_at_recv", "ready", "note"))
+    print("%-9s %-9s %-6s %-7s %-8s %-9s %-7s %-9s %s"
+          % ("stamp", "receipt", "tag", "uav", "dist_m", "age_at_recv", "ready",
+             "count", "note"))
     for r in rows:
         o = r["observation"]
         cam = o.get("camera_xyz")
@@ -48,9 +49,11 @@ def main():
             note.append("stale at receipt")
         if o.get("schema_version") != 3:
             note.append("schema!=3")
-        print("%-9.3f %-9.3f %-6s %-8.2f %-9.3f %-7s %s"
-              % (float(o["sample_s"]), float(r["receipt_s"]), o["target_id"], dist,
-                 age, ready, ", ".join(note)))
+        key = (o["target_id"], o["uav_id"])
+        src = rr.sources.get(key) or {}
+        print("%-9.3f %-9.3f %-6s %-7s %-8.2f %-9.3f %-7s count=%-3s %s"
+              % (float(o["sample_s"]), float(r["receipt_s"]), o["target_id"],
+                 o["uav_id"], dist, age, ready, src.get("count"), ", ".join(note)))
 
     ready_sources = {k: v for k, v in rr.sources.items() if v.get("ready")}
     print()
