@@ -36,6 +36,7 @@ from official_report_sources import OfficialReportSources
 from search_completion import parse_actor_list
 from red_observations import RedObservations, actor_slot_remaining
 from source_aligned_fusion import SourceAlignedFusion
+from green_source_motion import GreenSourceMotion
 
 # ---- 非红色身份与内部红色几何槽（红色槽不声明actor身份）----
 TAG_TO_TID = {
@@ -134,7 +135,7 @@ class _Track(object):
     __slots__ = ("tag", "obs", "x", "y", "vx", "vy", "conf",
                  "t_obs", "position_s", "alive", "elim_pending",
                  "_last_fx", "_last_fy", "_last_ft",
-                 "_high_conf_count", "_motion_history", "_last_vel_mag", "source_fusion", "alignment",
+                 "_high_conf_count", "_motion_history", "_last_vel_mag", "source_fusion", "alignment", "green_motion",
                  "_brown_source_samples")
 
     def __init__(self, tag):
@@ -156,6 +157,7 @@ class _Track(object):
         self._motion_history = []   # 运动历史，用于一致性校验
         self._last_vel_mag = 0.0   # 上一次速度幅值
         self.source_fusion = SourceAlignedFusion()
+        self.green_motion = GreenSourceMotion()
         self.alignment = None
         self._brown_source_samples = {}
 
@@ -208,10 +210,11 @@ class TargetBridgeCore(object):
     """纯逻辑桥（无 rospy）。"""
 
     def __init__(self, brown_alignment=False, red_motion_limits=False, brown_activation=False,
-                 blue_alignment=False):
+                 blue_alignment=False, green_alignment=False):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
         self.brown_alignment = brown_alignment
         self.blue_alignment = blue_alignment
+        self.green_alignment = green_alignment
         self.red_motion_limits = red_motion_limits
         self.brown_activation = brown_activation
         if brown_activation and (not math.isfinite(BROWN_NEW_TRACK_CONF)
@@ -250,6 +253,7 @@ class TargetBridgeCore(object):
             tr._motion_history = []
             tr._last_vel_mag = 0.
             tr.source_fusion = SourceAlignedFusion()
+            tr.green_motion = GreenSourceMotion()
             tr.alignment = None
             tr.alive = False
         w = conf * conf if conf > 0.0 else 1e-6
@@ -271,6 +275,10 @@ class TargetBridgeCore(object):
                 return False
         # 超过 COAST_TIME：真·重捕获，允许任意位置。
         alignment = None
+        if self.green_alignment and tag == 'green' and source_id is not None:
+            alignment = tr.green_motion.observe(source_id,t,(x,y),conf,observation_id)
+            if alignment is None:
+                return False
         if ((self.brown_alignment and tag == 'brown') or
                 (self.blue_alignment and tag == 'blue')) and source_id is not None:
             alignment = tr.source_fusion.observe(source_id, t, (x,y), conf, observation_id)
@@ -399,6 +407,8 @@ class TargetBridgeCore(object):
                     extrap_factor = 1.0
             else:
                 extrap_factor = 1.0
+            if self.green_alignment and tr.tag == 'green':
+                extrap_factor = 1.0
             
             # 时延补偿外推：见 EXTRAP_* 注释。coast 期 te 封顶，位置不漂移。
             # The fused position belongs to the weighted image time.
@@ -445,6 +455,7 @@ class YoloTargetBridge(object):
             self._official_sources = OfficialReportSources(
                 lambda: TargetBridgeCore(brown_alignment=self.core.brown_alignment,
                     blue_alignment=self.core.blue_alignment,
+                    green_alignment=os.environ.get('BRIDGE_GREEN_ORIGINAL','0') == '1',
                     red_motion_limits=self.core.red_motion_limits,
                     brown_activation=self.core.brown_activation), self._report_readiness)
         self._lock = threading.RLock()
@@ -511,9 +522,11 @@ class YoloTargetBridge(object):
                     if tag in self.core.eliminated or tag in ('red1','red2'):
                         return
                     camera = observation['camera_xyz']
+                    early_white = observation.get('schema_version') == 6
+                    distance = math.hypot(x-camera[0],y-camera[1])
                     if (not (observation['person_frame_verified']
                                 or tag == 'blue' and observation.get('motion_identity_verified') is True)
-                            or not 22. < math.hypot(x-camera[0],y-camera[1]) <= 45.):
+                            or not (0 < distance <= 22. if early_white else 22. < distance <= 45.)):
                         return
                     candidate_core = self._candidate_core
                     accepted = candidate_core.report(stamp,tag,x,y,observation['confidence'],
@@ -521,7 +534,7 @@ class YoloTargetBridge(object):
                     track = candidate_core.tracks[tag]
                     self._trace_record(dict(kind='navigation_candidate',receipt_s=self._now(),
                         observation=observation,accepted=accepted,alive=track.alive))
-                    if accepted and track.alive and track.t_obs == stamp:
+                    if accepted and (early_white or track.alive) and track.t_obs == stamp:
                         self._confirmed_pub.publish(_msg_string_cls()(data=json.dumps(observation,allow_nan=False)))
                     return
                 if tag in ('red1','red2'):

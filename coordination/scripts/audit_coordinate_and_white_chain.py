@@ -8,6 +8,7 @@ import json
 import math
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 
 
 def load(path):
@@ -114,6 +115,7 @@ def audit(root):
                     gates.append({k: row.get(k) for k in ('ros_time','original_s','track_id',
                         'hits','person_hits','fresh_person_allowed','person_current_verified',
                         'source','range_m','raw_target_x','raw_target_y','target_x','target_y')})
+                    gates[-1].update({k:row.get(k) for k in ('height_m','score_ema','verdict_score')})
                     gates[-1]['uid'] = uid
     inputs = [r for r in trace if r.get('kind')=='input' and r['observation']['target_id']=='white']
     input_summary = []
@@ -135,6 +137,7 @@ def audit(root):
     sys.path.insert(0,str(repo/'coordination/src/robocup_swarm/scripts'))
     from fresh_person import FreshPerson
     from report_readiness import ReportReadiness
+    from white_discovery import white_discovery
     proof=FreshPerson(); proof_counts=[]
     for stamp in (1969.844,1970.496,1971.836):
         proof.observe(stamp,True); proof_counts.append(proof.hits)
@@ -143,6 +146,21 @@ def audit(root):
     assert proof_counts == [1,2,1]
     white['production_policy_replay']=dict(person_hits=proof_counts,
         readiness_decisions=decisions,scope='pure policy only; not complete callback or physics replay')
+    discovery={}; incomplete=0
+    for r in gates:
+        if r['source'] not in ('verdict_hits','verdict_self','verdict_static'):continue
+        try:
+            track=SimpleNamespace(cls='white',miss=0,hits=int(r['hits']),observed_s=float(r['original_s']),
+                h=float(r['height_m']),rng=float(r['range_m']),score_ema=float(r['score_ema']),
+                raw_xy=(float(r['raw_target_x']),float(r['raw_target_y'])),
+                person_support=SimpleNamespace(hits=int(r['person_hits']),
+                    current_verified=r['person_current_verified']=='True'))
+            ok=white_discovery(track,float(r['ros_time']),1.3,2.4,float(r['verdict_score']))
+        except (TypeError,ValueError):incomplete+=1;continue
+        if ok:discovery.setdefault((r['uid'],r['original_s']),r)
+    white['early_discovery_candidate_replay']=dict(unique_eligible_originals=len(discovery),
+        rows=list(discovery.values()),incomplete_rows=incomplete,
+        meaning='new pure discovery gate on recorded rejected inputs; not physical approach or official readiness')
     files=[trajectory_path,trace_path]+sorted((root/'observers').glob('independent_visual_accuracy*.jsonl'))+csv_paths
     return dict(control_input=False,scope='closed round read-only labels, no entity simulation',white=white,
         coordinate_stages=coordinate_stages(root,trace,csv_paths),

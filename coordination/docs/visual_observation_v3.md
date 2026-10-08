@@ -1,5 +1,15 @@
 # 视觉观测v3（2026-10-07冻结）
 
+## 兼容修订3.4 / v1.45白色内部候选v6（2026-10-08冻结）
+
+正式观测仍为v3，原候选v4/v5保持接收。新增schema_version=6只允许white、evidence_kind=navigation_candidate；完整字段为v5全部字段，额外candidate_reason=white_early_proof、person_hits和track_hits（严格int且≥2），person_frame_verified必须true，motion_identity_verified必须false。其余运行、序号、原图、相机位置、有限数和1秒新鲜性规则不变。两次人体支持必须来自FreshPerson接受的不同原图，前后间隔≤1秒；只在当前实际命中、既有1.3–2.4米身高/打分、量程≤22米合格时生成。只对旧判决hits/static/self的早期输出缺口使用，不绕过score/height等失败。
+
+桥检查水平距离0<d≤22米，仅用独立candidate_core做一致性检查，接受后即转发原v6到confirmed_visual，不再等待该候选桥三图激活。v5仍要求22<d≤45米并按原方式激活。v6不进入正式融合、ReportReadiness、OfficialReportSources或TargetDetection，不改成v3、不生成官方许可；manager/agent接收它只用于原有30秒有界接近/保持视野，未取得后续合格v3时仍按既有失败/STOP/停稳及占用退役处理。任务和路线授权不变。
+
+旧VisualEvidence会拒绝v6，所以perception、white_discovery.py、bridge、visual_observation.py、manager及六agent必须统一快照。共享服务和客户端仍使用原有同图证明协议，没有增加CUDA模型。PR_WHITE_EARLY_DISCOVERY通用默认0，city通过CITY_WHITE_EARLY_DISCOVERY默认1；置0只关闭新的白色早期通道。
+
+绿色正式观测仍为v3：city启用BRIDGE_GREEN_ORIGINAL时加入raw颜色输出；独立官方同来源core使用最近1秒原始点的置信度平方加权时间回归，跨度至少0.2秒，速度长度封顶3m/s。重复/倒序原图拒绝，长断口重新开始，不做跨相机差分，不修改原图时间。使用原有限时/有限距离外推，取消仅此绿色分支的低速减半；其他颜色旧路径保持。CITY_GREEN_ORIGINAL默认1，但只有官方来源隔离及接近上报两开关均启用才生效；通用BRIDGE_GREEN_ORIGINAL默认0。六机必须统一green_source_motion.py、bridge、perception和city配置。不把这一估计用于裁判真值或修改15秒判据。
+
 ## 官方出口兼容修订3.2 / 候选v1.42（2026-10-08）
 
 内部接入兼容修订3.3 / v1.44：本机新鲜confirmed原图可用于本机追踪引导，即使已有稍新的其他来源位置；只拟合各相机自己的速度，不跨来源做差分。全局目标位置仍单调，不被较旧图覆盖。manager对这种延迟图只登记该来源观测，不改最新目标点或派发任务。线上字段及schema保持，agent/manager/own_visual_guidance.py必须统一快照。本机缓存只能引导，不能生成观测、上报许可或路线授权；过期退回既有来源处理，已消除清除缓存。

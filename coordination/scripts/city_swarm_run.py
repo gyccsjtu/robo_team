@@ -91,6 +91,8 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         SWARM_WHITE_REACQUIRE='1',BRIDGE_BROWN_ALIGNED='1',BRIDGE_RED_MOTION_LIMITS='1',
         BRIDGE_BLUE_ALIGNED=env.get('CITY_BLUE_ALIGNED','1'),
         PR_ORIGINAL_REPORT_COLORS=env.get('CITY_ORIGINAL_REPORT_COLORS','blue'),
+        PR_WHITE_EARLY_DISCOVERY=env.get('CITY_WHITE_EARLY_DISCOVERY','1'),
+        BRIDGE_GREEN_ORIGINAL=env.get('CITY_GREEN_ORIGINAL','1'),
         PR_WHITE_FAILURE_EVIDENCE='1',
         PR_DISTANT_CANDIDATES='1',
         SWARM_CONTINUOUS_TRACK_TASK='1',
@@ -133,6 +135,12 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         PYTHONDONTWRITEBYTECODE='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',
         OPENBLAS_NUM_THREADS='1',NUMEXPR_NUM_THREADS='1')
     flight_env.pop('SWARM_CALIB',None)
+    if (flight_env['BRIDGE_SOURCE_REPORTING'] != '1'
+            or flight_env['BRIDGE_APPROACH_REPORTING'] != '1'):
+        flight_env['BRIDGE_GREEN_ORIGINAL'] = '0'
+    if flight_env['BRIDGE_GREEN_ORIGINAL'] == '1':
+        colors = flight_env['PR_ORIGINAL_REPORT_COLORS'].split(',')
+        flight_env['PR_ORIGINAL_REPORT_COLORS'] = ','.join(dict.fromkeys(colors+['green']))
     flight_env['PYTHONPATH']=str(snapshot/'coordination/src/robocup_navigation/src')+':'+env.get('PYTHONPATH','')
     (out/'city_control_config.json').write_text(json.dumps(dict(run_id=run_id,
         control_truth_input=False, own_camera_pose_source='DEVELOPMENT_GAZEBO_LINK_POSE',
@@ -143,7 +151,9 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
         blue_identity_revision='motion_identity_not_exempted_by_person_proof',
         image_time_reporting_revision='blue_raw_projection_v3_compat_3p1',
         image_time_reporting_colors=flight_env['PR_ORIGINAL_REPORT_COLORS'],
-        navigation_candidate_revision='v1.41_schema5_blue_motion_only_navigation_22_to_45m',
+        navigation_candidate_revision='v1.45_schema6_white_two_proofs_navigation_only_0_to_22m',
+        white_early_discovery_enabled=flight_env['PR_WHITE_EARLY_DISCOVERY'],
+        green_original_motion_enabled=flight_env['BRIDGE_GREEN_ORIGINAL'],
         blue_source_alignment_enabled=flight_env['BRIDGE_BLUE_ALIGNED'],
         blue_person_enabled=flight_env['PR_FAST_BLUE_PERSON'],
         brown_fusion_revision='v1.39_source_aligned_original_time',

@@ -10,7 +10,7 @@ from camera_geometry import image_time_position
 
 
 class PerceptionDiscoveryTests(unittest.TestCase):
-    def publish(self, observed_s=9.8, miss=0, camera_s=None, color='green', original_colors='', candidate=False):
+    def publish(self, observed_s=9.8, miss=0, camera_s=None, color='green', original_colors='', candidate=False, provisional=False):
         source = Path(__file__).parents[2] / 'perception/perception_real.py'
         tree = ast.parse(source.read_text(encoding='utf-8'))
         block = next(n for n in ast.walk(tree) if isinstance(n, ast.If)
@@ -23,7 +23,8 @@ class PerceptionDiscoveryTests(unittest.TestCase):
                              pub_xy=lambda: (99., 99.), uv=(30., 40.),
                              camera_s=observed_s if camera_s is None else camera_s,
                              camera_xyz=[-3.,2.,2.5],
-                             person_support=SimpleNamespace(current_verified=True))
+                             person_support=SimpleNamespace(current_verified=True,hits=2),
+                             hits=2,navigation_provisional=provisional)
         tk.blue_identity=None
         env = dict(COORD_ON=True, COORD_HZ=2., now=10., _coord_t=0., _obs_seq=0,
             _published_visual_samples={}, navigation_candidates={color:tk} if candidate else {},
@@ -60,6 +61,15 @@ class PerceptionDiscoveryTests(unittest.TestCase):
         self.assertEqual(legacy,[])
         self.assertEqual(visual[0]['schema_version'],5)
         self.assertEqual(visual[0]['evidence_kind'],'navigation_candidate')
+        self.assertEqual(visual[0]['xyz'],[3.,4.,0.])
+
+    def test_early_white_publish_stays_candidate_with_original_proof(self):
+        visual,legacy=self.publish(color='white',candidate=True,provisional=True)
+        self.assertEqual(legacy,[])
+        self.assertEqual(visual[0]['schema_version'],6)
+        self.assertEqual(visual[0]['candidate_reason'],'white_early_proof')
+        self.assertEqual(visual[0]['person_hits'],2)
+        self.assertEqual(visual[0]['track_hits'],2)
         self.assertEqual(visual[0]['xyz'],[3.,4.,0.])
 
     def test_original_blue_position_keeps_same_image_time_and_proof(self):

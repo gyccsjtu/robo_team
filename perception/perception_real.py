@@ -65,6 +65,7 @@ from cv_bridge import CvBridge
 from gazebo_msgs.srv import GetLinkState
 from sensor_msgs.msg import Image, CameraInfo
 from camera_geometry import calibration, aligned_translation, vertical_extent, image_time_position
+from white_discovery import white_discovery
 from recent_motion import RecentMotion
 from motion_identity import MotionIdentity
 from stationary_person import allowed as stationary_person_allowed
@@ -1613,6 +1614,7 @@ def main():
         with arb_lock:
             _cur_tid_for_verdict = camera_task.target(rospy.Time.now().to_sec()) if camera_task is not None else arb["tid"]
         for tk in tracks:
+            tk.navigation_provisional = False
             if tk.hits < MIN_HITS:
                 continue
             if tk.miss > MAX_COAST_PUB:   # 跟丢太久，坐标已是纯外推，不让它代表本类发布
@@ -1640,6 +1642,13 @@ def main():
                     verified_person=_fresh_person,
                     stationary_person=_stationary)
                 if not _person_ok:
+                    if (os.environ.get('PR_WHITE_EARLY_DISCOVERY','0') == '1'
+                            and _reject_reason in ('hits','static','self')
+                            and white_discovery(tk,now,VERDICT_H_MIN,VERDICT_H_MAX,VERDICT_SCORE)):
+                        tk.navigation_provisional = True
+                        old = navigation_candidates.get(tk.cls)
+                        if old is None or tk.score_ema > old.score_ema:
+                            navigation_candidates[tk.cls] = tk
                     # Port the legacy approach-before-broadcast chain without
                     # relaxing official evidence. Recheck ALL other gates.
                     if (_reject_reason == 'range' and tk.cls != 'red'
@@ -1909,7 +1918,8 @@ def main():
                     _navigation_only = _tk is navigation_candidates.get(_cls)
                     _original_xy = image_time_position(_cls, _tk.raw_xy, (_tk.x, _tk.y),
                         (_cls,) if _navigation_only else _original_colors)
-                    _message = dict(schema_version=5 if _navigation_only else 3,
+                    _early_white = _navigation_only and getattr(_tk,'navigation_provisional',False)
+                    _message = dict(schema_version=6 if _early_white else 5 if _navigation_only else 3,
                         run_id=_visual_run, uav_id=_logical_uid, seq=_obs_seq, sample_s=_tk.observed_s,
                         target_id=_tag, frame_id='world_enu', xyz=[round(_original_xy[0], 2), round(_original_xy[1], 2), TARGET_Z],
                         confidence=float(_tk.conf), camera_xyz=list(_tk.camera_xyz),
@@ -1919,6 +1929,9 @@ def main():
                         _message['evidence_kind'] = 'navigation_candidate'
                         _message['motion_identity_verified'] = bool(_cls == 'blue'
                             and _tk.blue_identity is not None and _tk.blue_identity.allowed(now))
+                        if _early_white:
+                            _message.update(candidate_reason='white_early_proof',
+                                person_hits=int(_tk.person_support.hits),track_hits=int(_tk.hits))
                     visual_coord.publish(String(data=json.dumps(_message, allow_nan=False)))
                     _published_visual_samples[_tag] = _tk.observed_s
                 # === 仿真环境日志：YOLO 检测输出 + ROS 时间戳 ===
