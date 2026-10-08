@@ -1,0 +1,27 @@
+[
+  {
+    "pid": 6149,
+    "state": "already_exited"
+  },
+  {
+    "pid": 6162,
+    "state": "already_exited"
+  },
+  {
+    "pid": 6179,
+    "state": "already_exited"
+  },
+  {
+    "pid": 6203,
+    "state": "SIGINT_sent",
+    "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/visual_frames --wall-seconds 4300 --limit-per-tag 24 --loss-color white "
+  },
+  {
+    "pid": 6227,
+    "state": "already_exited"
+  },
+  {
+    "pid": 6247,
+    "state": "already_exited"
+  }
+]

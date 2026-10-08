@@ -1,0 +1,34 @@
+{
+  "run_id": "a9779e06-4042-48cc-abe2-d6039de77985",
+  "control_input": false,
+  "processes": [
+    {
+      "pid": 6149,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/result.json --tag brown --wall-seconds 4300 "
+    },
+    {
+      "pid": 6162,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/result.json --tag green --wall-seconds 4300 "
+    },
+    {
+      "pid": 6179,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/result.json --tag blue --wall-seconds 4300 "
+    },
+    {
+      "pid": 6203,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/capture_visual_frames.py --output /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/visual_frames --wall-seconds 4300 --limit-per-tag 24 --loss-color white "
+    },
+    {
+      "pid": 6227,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/result.json --tag red --wall-seconds 4300 "
+    },
+    {
+      "pid": 6247,
+      "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/observe_visual_accuracy.py --run /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers --result-file /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/result.json --tag white --wall-seconds 4300 "
+    }
+  ],
+  "source_sha": {
+    "observe_visual_accuracy.py": "43cfe2baa3856d945ea2f2efddef018780b438be4433b20c22361d9b6765b629",
+    "capture_visual_frames.py": "ed97b5789228bc58c4ab51b37bb6b87c6dece3580c1381aacf5bc2c3d50bee0d"
+  }
+}

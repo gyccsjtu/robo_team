@@ -1,0 +1,481 @@
+{
+  "run_root": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159",
+  "actual_head": "aec3af8",
+  "selected": [
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/budget.json",
+      "archive": "budget.json",
+      "source_sha256": "65fcebb2d07fa67583fbe2e42f10895fcfc1505ad289bcf05c4a14c6b0a06adc",
+      "archive_sha256": "65fcebb2d07fa67583fbe2e42f10895fcfc1505ad289bcf05c4a14c6b0a06adc"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/source_manifest.json",
+      "archive": "source_manifest.json",
+      "source_sha256": "cea3e97ec7c7030c113d5b69cb8e2c9ec0adbf2d122f34b95e7a2b38cc3280e9",
+      "archive_sha256": "cea3e97ec7c7030c113d5b69cb8e2c9ec0adbf2d122f34b95e7a2b38cc3280e9"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/agent_early_stop_decision.json",
+      "archive": "agent_early_stop_decision.json",
+      "source_sha256": "94ef9a673c8f8aedf146b5985727096510986ff84d0d12226bea965093c44520",
+      "archive_sha256": "94ef9a673c8f8aedf146b5985727096510986ff84d0d12226bea965093c44520"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/executed_source_audit.json",
+      "archive": "executed_source_audit.json",
+      "source_sha256": "1680ec52d23ebbd79532053ffff0c9eec927fbfce0aedc8b403c3df4f72dd973",
+      "archive_sha256": "1680ec52d23ebbd79532053ffff0c9eec927fbfce0aedc8b403c3df4f72dd973"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/process_cleanup_request.json",
+      "archive": "observers/process_cleanup_request.json",
+      "source_sha256": "23d0ec0f4479af634dbf01e7a58902ac57d00415a4f71fbc21df5eacab54eb64",
+      "archive_sha256": "23d0ec0f4479af634dbf01e7a58902ac57d00415a4f71fbc21df5eacab54eb64"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_white.json",
+      "archive": "observers/independent_visual_accuracy_white.json",
+      "source_sha256": "35b8da207d46f4d9ab0d0cfee1cf28edeaef0d47612630614ee82818a44fcd8d",
+      "archive_sha256": "35b8da207d46f4d9ab0d0cfee1cf28edeaef0d47612630614ee82818a44fcd8d"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_blue.json",
+      "archive": "observers/independent_visual_accuracy_blue.json",
+      "source_sha256": "145b5ad198bcd9759cbb6ee71c8cb16ccb10105ea44b81e6747f665adb8622fd",
+      "archive_sha256": "145b5ad198bcd9759cbb6ee71c8cb16ccb10105ea44b81e6747f665adb8622fd"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy.json",
+      "archive": "observers/independent_visual_accuracy.json",
+      "source_sha256": "9f19093d6fad0222f9bea35236a8355bd4d12d382dc9a6e1d0ef07f168bf512e",
+      "archive_sha256": "9f19093d6fad0222f9bea35236a8355bd4d12d382dc9a6e1d0ef07f168bf512e"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_brown.json",
+      "archive": "observers/independent_visual_accuracy_brown.json",
+      "source_sha256": "027324b7145ff5f2dd8c1455e277e89351bf3632ebed65d8b4650b767190cd00",
+      "archive_sha256": "027324b7145ff5f2dd8c1455e277e89351bf3632ebed65d8b4650b767190cd00"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_red.json",
+      "archive": "observers/independent_visual_accuracy_red.json",
+      "source_sha256": "b4f3e4f7dcb22acdc545ffec9e349106adf969c1e51f1eb504a179ba8d0b4f0a",
+      "archive_sha256": "b4f3e4f7dcb22acdc545ffec9e349106adf969c1e51f1eb504a179ba8d0b4f0a"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/blue_pass_counterexample.json",
+      "archive": "observers/blue_pass_counterexample.json",
+      "source_sha256": "ac473a98fb13a885e33b26c5629958c160e750287aeb78dd441f96e561319f43",
+      "archive_sha256": "ac473a98fb13a885e33b26c5629958c160e750287aeb78dd441f96e561319f43"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/codex_observers_manifest.json",
+      "archive": "observers/codex_observers_manifest.json",
+      "source_sha256": "81ad2c4ad7a61f00435b2ef6d3affca5acd768761ad74bd1b4f700bb3e4903c7",
+      "archive_sha256": "81ad2c4ad7a61f00435b2ef6d3affca5acd768761ad74bd1b4f700bb3e4903c7"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/actor_body_readonly_probe.json",
+      "archive": "observers/actor_body_readonly_probe.json",
+      "source_sha256": "0dfd7fc5ea58e528573df06a07eeb6718d36d6b75c9442da2e79f6309e171363",
+      "archive_sha256": "0dfd7fc5ea58e528573df06a07eeb6718d36d6b75c9442da2e79f6309e171363"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4_pass/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_4_pass/index.jsonl",
+      "source_sha256": "3fa0a6c682e82f7f098e72eb7bd33b16da357c3f073c2a148ed8d082e1dc07b2",
+      "archive_sha256": "3fa0a6c682e82f7f098e72eb7bd33b16da357c3f073c2a148ed8d082e1dc07b2"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_3/index.jsonl",
+      "source_sha256": "dbe69dfa9772bfc7f7a1a7d4772668688139fdd8cfa608ad7831fc18cb7f066d",
+      "archive_sha256": "dbe69dfa9772bfc7f7a1a7d4772668688139fdd8cfa608ad7831fc18cb7f066d"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_5/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_5/index.jsonl",
+      "source_sha256": "8d779899c1100e25dac909d6dba2f98437e4b6b88898a6a9ed31cb3cb7a29b28",
+      "archive_sha256": "8d779899c1100e25dac909d6dba2f98437e4b6b88898a6a9ed31cb3cb7a29b28"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_4/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_4/index.jsonl",
+      "source_sha256": "8f1c88f4e22e36464505b1b9c1126e4f5e9e5abad2980641293d0d673fec8366",
+      "archive_sha256": "8f1c88f4e22e36464505b1b9c1126e4f5e9e5abad2980641293d0d673fec8366"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_5_pass/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_5_pass/index.jsonl",
+      "source_sha256": "ca86076eeb55be85331f9589ca316cf69e77f7824ce4730a14c81a50b3a8b378",
+      "archive_sha256": "ca86076eeb55be85331f9589ca316cf69e77f7824ce4730a14c81a50b3a8b378"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_0/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_0/index.jsonl",
+      "source_sha256": "303b81639af8f5a4671a4aab625142ab6658c6a769fdf8408a434604a698dcc1",
+      "archive_sha256": "303b81639af8f5a4671a4aab625142ab6658c6a769fdf8408a434604a698dcc1"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3_pass/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_3_pass/index.jsonl",
+      "source_sha256": "4bf9c6557b78a209fc6106e59a88fc7f8006c4c97a10afc6781ecba0b9e09f1f",
+      "archive_sha256": "4bf9c6557b78a209fc6106e59a88fc7f8006c4c97a10afc6781ecba0b9e09f1f"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_2_pass/index.jsonl",
+      "source_sha256": "6a16feba1a633b66340c6219c127068ade44d0ace7753c90ef370604e2758b0b",
+      "archive_sha256": "6a16feba1a633b66340c6219c127068ade44d0ace7753c90ef370604e2758b0b"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_1/index.jsonl",
+      "source_sha256": "a6e6dcb69bdcbb2ecf2f55d7e21c23b060bfdd5997016225beec439e9a554496",
+      "archive_sha256": "a6e6dcb69bdcbb2ecf2f55d7e21c23b060bfdd5997016225beec439e9a554496"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_2/index.jsonl",
+      "source_sha256": "cc7c1e81aadf84923d356d99d744ebca42ad24a3dd6e88b341dacd51861f8431",
+      "archive_sha256": "cc7c1e81aadf84923d356d99d744ebca42ad24a3dd6e88b341dacd51861f8431"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/index.jsonl",
+      "archive": "flight/algorithm/evidence_typhoon_h480_1_pass/index.jsonl",
+      "source_sha256": "ac9983b9b9ae3444e7bf45b7c4b64d8f336f6821b3397c422d3b5f1ebb2a3417",
+      "archive_sha256": "ac9983b9b9ae3444e7bf45b7c4b64d8f336f6821b3397c422d3b5f1ebb2a3417"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/result.json",
+      "archive": "flight/result.json",
+      "source_sha256": "733720dba04aaaf9a67d058245fa9ae4f815db585d544fb36612ad9fba31d1c0",
+      "archive_sha256": "733720dba04aaaf9a67d058245fa9ae4f815db585d544fb36612ad9fba31d1c0"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/result_before_cleanup.json",
+      "archive": "flight/result_before_cleanup.json",
+      "source_sha256": "733720dba04aaaf9a67d058245fa9ae4f815db585d544fb36612ad9fba31d1c0",
+      "archive_sha256": "733720dba04aaaf9a67d058245fa9ae4f815db585d544fb36612ad9fba31d1c0"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/swarm_source_manifest.json",
+      "archive": "flight/swarm_source_manifest.json",
+      "source_sha256": "1935794f668ce77af4478e8a9507dc055714af73dfdac9c497618df150ca210b",
+      "archive_sha256": "1935794f668ce77af4478e8a9507dc055714af73dfdac9c497618df150ca210b"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/execution_sources.json",
+      "archive": "flight/execution_sources.json",
+      "source_sha256": "cf882ec6d1de871b839f1e6fc94a42e84d855a146d1f87acab55fc591f640267",
+      "archive_sha256": "cf882ec6d1de871b839f1e6fc94a42e84d855a146d1f87acab55fc591f640267"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/city_control_config.json",
+      "archive": "flight/city_control_config.json",
+      "source_sha256": "5d2399f0bc3b7ae9fa086ec15e27cd43babef7940fe2e4deb911982950b87e7c",
+      "archive_sha256": "5d2399f0bc3b7ae9fa086ec15e27cd43babef7940fe2e4deb911982950b87e7c"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/shared_inference.json",
+      "archive": "flight/shared_inference.json",
+      "source_sha256": "f0293326d65d490a2a484e09fc74461683af60309ece310d49aeecac6b997dc1",
+      "archive_sha256": "f0293326d65d490a2a484e09fc74461683af60309ece310d49aeecac6b997dc1"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/shared_inference.log",
+      "archive": "flight/shared_inference.log",
+      "source_sha256": "b64f9a0e2f8ed53501541bb5d0a1c8b97ad2b8045ae0c92998098db8103a2505",
+      "archive_sha256": "b64f9a0e2f8ed53501541bb5d0a1c8b97ad2b8045ae0c92998098db8103a2505"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/judge.log",
+      "archive": "flight/judge.log",
+      "source_sha256": "ded595c8e95927364a15bf215ec8dad0681f42a35548ebac0864aba3fac6c132",
+      "archive_sha256": "ded595c8e95927364a15bf215ec8dad0681f42a35548ebac0864aba3fac6c132"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_white.jsonl",
+      "archive": "observers/independent_visual_accuracy_white.jsonl.gz",
+      "source_sha256": "03e428886b4ad42c8b2c233669272699ab480b71da4c249e6ca52a83988a7570",
+      "archive_sha256": "b3866b2b4b820b2a2111d02378d0a9e14d43c92a86fcd56e2095bc590d92715e",
+      "gzip_original_sha256": "03e428886b4ad42c8b2c233669272699ab480b71da4c249e6ca52a83988a7570"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy.jsonl",
+      "archive": "observers/independent_visual_accuracy.jsonl.gz",
+      "source_sha256": "a773a9a1fdcbc8e97aab4ae5213c17a0dd52b217dfebefc58d6eb1aca94158ce",
+      "archive_sha256": "ee97af90f773addd798f046abd0cec4a1265a2feb5f8da48604ccb2f7d8dc3c8",
+      "gzip_original_sha256": "a773a9a1fdcbc8e97aab4ae5213c17a0dd52b217dfebefc58d6eb1aca94158ce"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_red.jsonl",
+      "archive": "observers/independent_visual_accuracy_red.jsonl.gz",
+      "source_sha256": "f3506aaf2fdf5ddfc68c6f35be680590f5dded69246f2a8ca18da5f9c7a0a299",
+      "archive_sha256": "3f817594828d671fc4d197de4483f666d3211420521174a7c0baef14471796a1",
+      "gzip_original_sha256": "f3506aaf2fdf5ddfc68c6f35be680590f5dded69246f2a8ca18da5f9c7a0a299"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_blue.jsonl",
+      "archive": "observers/independent_visual_accuracy_blue.jsonl.gz",
+      "source_sha256": "5d305fe639d2b125370bb915f546311f66124e38d5d9645948dfe8147a27062f",
+      "archive_sha256": "36d971e5d9325453e0a93d761ca259e732df5fa35fc0bcb71ce20b736a2e495e",
+      "gzip_original_sha256": "5d305fe639d2b125370bb915f546311f66124e38d5d9645948dfe8147a27062f"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_brown.jsonl",
+      "archive": "observers/independent_visual_accuracy_brown.jsonl.gz",
+      "source_sha256": "7a25a1623ebe9c917dcbe75dcc57ef4587e36cf1d326a4c439e033b073cedccf",
+      "archive_sha256": "917af17d373c4af3189dfda919dee08e6206398981e5980efcf44feb60d35528",
+      "gzip_original_sha256": "7a25a1623ebe9c917dcbe75dcc57ef4587e36cf1d326a4c439e033b073cedccf"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_4.csv",
+      "archive": "flight/algorithm/perception_typhoon_h480_4.csv.gz",
+      "source_sha256": "2f40ef422aefa082be4f63e668eff419fd535fcc38abf099790dc41327dd9b0c",
+      "archive_sha256": "90c21ee478e512a4b1e883126dbd999fea1fe839964ea485b2c99126f6063ce6",
+      "gzip_original_sha256": "2f40ef422aefa082be4f63e668eff419fd535fcc38abf099790dc41327dd9b0c"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_2.csv",
+      "archive": "flight/algorithm/perception_typhoon_h480_2.csv.gz",
+      "source_sha256": "4b5f00c62e04205f1a6b69edd01aa2d3ff042fb860463b10e995c8ba9694834e",
+      "archive_sha256": "05458c8da67ec1e6f6c3ca052f02baf8983b0d3a5b94f6b6b744581bc46ca429",
+      "gzip_original_sha256": "4b5f00c62e04205f1a6b69edd01aa2d3ff042fb860463b10e995c8ba9694834e"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv",
+      "archive": "flight/algorithm/perception_typhoon_h480_3.csv.gz",
+      "source_sha256": "7d2cabfca452643959ea0bdafc48dd21a99fcde714efe80cdc023679e2bd9849",
+      "archive_sha256": "b5c971292a7790f2321992b9bede535499beb51c83a06a9b64fd329f22af5c30",
+      "gzip_original_sha256": "7d2cabfca452643959ea0bdafc48dd21a99fcde714efe80cdc023679e2bd9849"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_5.csv",
+      "archive": "flight/algorithm/perception_typhoon_h480_5.csv.gz",
+      "source_sha256": "6c087596dc8dd214e34d9fc060591cd2627c62a19dd2503d528093c7213bc128",
+      "archive_sha256": "e36f030dc3e45af26a4717502a19badf8deb74587a9c6c8d794b74ca2e3a78d7",
+      "gzip_original_sha256": "6c087596dc8dd214e34d9fc060591cd2627c62a19dd2503d528093c7213bc128"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_0.csv",
+      "archive": "flight/algorithm/perception_typhoon_h480_0.csv.gz",
+      "source_sha256": "6b376a03b92417c5da97fcde4c6ca5660114ff57fb9a7139214c97ac8b3993a3",
+      "archive_sha256": "6c2e57dd9a7b3351ad212b40eabf803bc48f5fdb36360adf508284e9661dfbda",
+      "gzip_original_sha256": "6b376a03b92417c5da97fcde4c6ca5660114ff57fb9a7139214c97ac8b3993a3"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_1.csv",
+      "archive": "flight/algorithm/perception_typhoon_h480_1.csv.gz",
+      "source_sha256": "bf241bed2f4ad13f57b6f703712e5fc4e7abc6dc41327dbb98dc8fad850f5553",
+      "archive_sha256": "b6143c5b66183befeb9f544ea23e4f51a5cf1c00e6fe73fdb18b3bf954e84d53",
+      "gzip_original_sha256": "bf241bed2f4ad13f57b6f703712e5fc4e7abc6dc41327dbb98dc8fad850f5553"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/city_contacts.log",
+      "archive": "flight/city_contacts.log.gz",
+      "source_sha256": "da6268b49574c83faa409fb56e02eb5e16efc364a9fe557f0a58d7a5ae040f51",
+      "archive_sha256": "b476606d31824b6b122316a04fa172a20b983ee9f14f20b51153520054e2da91",
+      "gzip_original_sha256": "da6268b49574c83faa409fb56e02eb5e16efc364a9fe557f0a58d7a5ae040f51"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/city_trajectory.jsonl",
+      "archive": "flight/city_trajectory.jsonl.gz",
+      "source_sha256": "e5c10217643c66d32fcb8c9c1d04250ae7a9286ff8054ffc84fa430f9809dbe5",
+      "archive_sha256": "2f650bd61d113b6f02984c9c81b66174f510739a871d7369200063a7d823c3ec",
+      "gzip_original_sha256": "e5c10217643c66d32fcb8c9c1d04250ae7a9286ff8054ffc84fa430f9809dbe5"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/city_events.jsonl",
+      "archive": "flight/city_events.jsonl.gz",
+      "source_sha256": "d25bfab59a4978c49390002da9c4dc4910f0e04d963ece9918ec592668783f44",
+      "archive_sha256": "2d7a15d67dca022a3de1975eb9ce52c4aad20575245ef4fdf7539cf1883040c6",
+      "gzip_original_sha256": "d25bfab59a4978c49390002da9c4dc4910f0e04d963ece9918ec592668783f44"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/search_camera_frames.jsonl",
+      "archive": "flight/algorithm/search_camera_frames.jsonl.gz",
+      "source_sha256": "473bf851d6a43de39074eb2f4443633ee88924148c517b1f3763aff42b80d94c",
+      "archive_sha256": "da3d17e0dc060f64b15bc9a4cc389fb5b735587640e41227077e64bd3a3f964c",
+      "gzip_original_sha256": "473bf851d6a43de39074eb2f4443633ee88924148c517b1f3763aff42b80d94c"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/authority_events.jsonl",
+      "archive": "flight/algorithm/authority_events.jsonl.gz",
+      "source_sha256": "273887a4f205091a5a19d8ff96f2c0908ad8568608195a181863809d5d8d12b7",
+      "archive_sha256": "78c2057675f5e688488ea5efdac4cbf28cf37c851be8ff5b5ce6b9bf70372024",
+      "gzip_original_sha256": "273887a4f205091a5a19d8ff96f2c0908ad8568608195a181863809d5d8d12b7"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/frame_000001_1791438439664.png",
+      "archive": "flight/algorithm/evidence_typhoon_h480_2_pass/frame_000001_1791438439664.png",
+      "source_sha256": "73160c7809cb7d8813bd8244192650b49af544d36d12ce7dcf49022369c9ec40",
+      "archive_sha256": "73160c7809cb7d8813bd8244192650b49af544d36d12ce7dcf49022369c9ec40"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_1_pass/frame_000001_1791438403310.png",
+      "archive": "flight/algorithm/evidence_typhoon_h480_1_pass/frame_000001_1791438403310.png",
+      "source_sha256": "db26b17901b6fe0bf2efb4eaa8d6fb518078ed3048d2b3918af2bc2ab03d1934",
+      "archive_sha256": "db26b17901b6fe0bf2efb4eaa8d6fb518078ed3048d2b3918af2bc2ab03d1934"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_3_pass/frame_000001_1791438423003.png",
+      "archive": "flight/algorithm/evidence_typhoon_h480_3_pass/frame_000001_1791438423003.png",
+      "source_sha256": "bd668487255f0752620fa854c7f7169bd993114c02c523de22bdc59c930bf0aa",
+      "archive_sha256": "bd668487255f0752620fa854c7f7169bd993114c02c523de22bdc59c930bf0aa"
+    }
+  ],
+  "large_logs_retained_wsl": [
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/perception_uav_6.log",
+      "bytes": 8523,
+      "sha256": "953b4c2fe70f477dd5d7dfbe27455c816573e06fa98af48bab3b39f1baa34082"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/agent_uav_5.log",
+      "bytes": 22460,
+      "sha256": "012abcfb99bbeeef392ca16034acf90f8681e5ac7466d2a3c5392bd355fd96e2"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/actor_2.log",
+      "bytes": 550,
+      "sha256": "114791f7c083a8918e452ea2b9c6ec329399c381eaec2c16e919ce28d1cbe238"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/yolo_target_bridge.log",
+      "bytes": 142,
+      "sha256": "b5043b1ed010bca8224729b1ddeec6bf91d735c669b0d4913438ab3ea60799c9"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/actor_4.log",
+      "bytes": 802,
+      "sha256": "c3f0929952a45a4e60d55a1a4569790f31207e296abd453fa7c4ad525d5222b5"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/mavros.log",
+      "bytes": 258972,
+      "sha256": "4987b26c803f1c215bd026186c801935ac4d4630284c705e507ca0cd495303fe"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/actor_5.log",
+      "bytes": 969,
+      "sha256": "8400dd9e7f9ed3419edbba0d0cd015afd80b2adc2f55089cbaad066c866195c2"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/px4_uav_2.log",
+      "bytes": 2837,
+      "sha256": "f956029e7a83594f623aad895b67890692c721fe36e3739bf365a8ac6c87a045"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/roscore.log",
+      "bytes": 964,
+      "sha256": "560a43886a92549992d4517e99eac8c9092911678d5c6bce648d843f852b9cce"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/px4_uav_5.log",
+      "bytes": 2837,
+      "sha256": "71ddb59465a30b8509b00bb69baca81fc2a013288722d1f77e199e3538f17d1c"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/perception_uav_3.log",
+      "bytes": 8466,
+      "sha256": "2f0e141a758908f261b8703e17291ac29e001fe3e6e98e96d90eb32cc0aa7d42"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/px4_uav_1.log",
+      "bytes": 3021,
+      "sha256": "3a45c64b7aca68b6410a4601e52b790451d9cac4427d5c8332df7fac13787edc"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/agent_uav_4.log",
+      "bytes": 24094,
+      "sha256": "25ac780373ce18c6dc6106fecb3b157831149b4d2605f9a5425e83fff3a863d5"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/agent_uav_3.log",
+      "bytes": 29035,
+      "sha256": "12a0f1324598e93bff7ac8eace65220e580a9d9db96c9cb5b76cf8e64c9d6925"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/actor_environment_odometry.log",
+      "bytes": 81325,
+      "sha256": "63a14e9bee20a3f27823d8759c3118662c0474a6c8c909d329ee00cd8fbc4600"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/perception_uav_2.log",
+      "bytes": 15795,
+      "sha256": "5308ac73781731b78b6530d5f6ccb620360c450ee5b93431f120e35f7b039e15"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/agent_uav_1.log",
+      "bytes": 26670,
+      "sha256": "ba78da640b915864c6ea0dd0257319e9760e028fb7252b2e02d4ee0e4d3e4c90"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/perception_uav_4.log",
+      "bytes": 6292,
+      "sha256": "5a6c00bcaa33e8113c01c64a60a38ee47d9af9432c33c616381a7e380a116739"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/px4_uav_3.log",
+      "bytes": 2836,
+      "sha256": "c736acf449ebe89b5291570a9faab237dc0074c965508cb7aa183f6035487bd6"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/actor_0.log",
+      "bytes": 550,
+      "sha256": "85dbfc17adb4986ae79061b67751d627138bb0ec5b777e615e802a5d6a9ef609"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/agent_uav_2.log",
+      "bytes": 21156,
+      "sha256": "d4c62e50e1ba7d441423d6d885255650487f1c00d56f88d4e2bc96af9430ad54"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/perception_uav_1.log",
+      "bytes": 3553,
+      "sha256": "946a5877b8370e2c1c17ad243c32f1ccad828dd0775d43e058d6348a6f0e9469"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/gzserver.log",
+      "bytes": 146714089,
+      "sha256": "6e0d06760505a57cf70099ea54699b79a330bbf8c4502c2bc8c7c79fc51a1de1"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/px4_uav_4.log",
+      "bytes": 2836,
+      "sha256": "90ffd136e46685c45ce8d6dc756a580ff3460672857e0c925a394031942d4d6c"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/agent_uav_6.log",
+      "bytes": 22318,
+      "sha256": "30b4dca0bfbfd4741b62ea6c7de3d92b12be15936cf28bb6887a40757f99787b"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/swarm_manager.log",
+      "bytes": 10943,
+      "sha256": "1b786963c621c7362645afdf23708c9ecc152cc0703666feacf55dc1032bfd9e"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/px4_uav_6.log",
+      "bytes": 2836,
+      "sha256": "90c5a59f5d3b3b911a2203f7c4d848ad3cbe1800fffc2e907930880fc5b164f9"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/actor_1.log",
+      "bytes": 726,
+      "sha256": "43d5c55a6092e1104b4e50d7e42592647741e3349ba32810d82f95ff3555f6dc"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/perception_uav_5.log",
+      "bytes": 11414,
+      "sha256": "366163cd132499776450c4489400d8b4018178c10e097d504f12badb8911b443"
+    },
+    {
+      "source": "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/actor_3.log",
+      "bytes": 550,
+      "sha256": "34da8099e6246bf7f36dc9469b2c938d442bf9eb5b4b20463d4846431345ec25"
+    }
+  ],
+  "notes": "Selected raw files copied byte-for-byte; gzip decompress SHA verified. Original budget/result retained; early-stop decision is a separate record."
+}

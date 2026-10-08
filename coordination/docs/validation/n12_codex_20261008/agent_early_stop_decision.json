@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "reason": "CONFIRMED_VISUAL_COORDINATE_BLOCKER",
+  "actual_stop": "Codex requested SIGINT to this owned launcher after collecting nonempty proof/blue official reporting and an exact original-image large-error counterexample",
+  "completed_600s": false,
+  "sample_s_at_decision": 2047.812,
+  "wall_utc": "2026-10-08T05:56:50Z",
+  "pid": 842,
+  "cmdline": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/six_radar_connectivity.py --output /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight --city-scene /root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/scene --flight-seconds 600 ",
+  "counterexample": "observers/blue_pass_counterexample.json",
+  "unchanged_raw_files": [
+    "budget.json",
+    "flight/result.json",
+    "flight/judge.log"
+  ]
+}

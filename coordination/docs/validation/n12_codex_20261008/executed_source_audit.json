@@ -1,0 +1,787 @@
+{
+  "executed_head": "aec3af8",
+  "swarm": [
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/grid_downsampler.py",
+      "expected_sha": "9ca3a1eca32238b1ce0f3db8333ec5cb81450d89aac36695d159db3de643a07f",
+      "actual_sha": "9ca3a1eca32238b1ce0f3db8333ec5cb81450d89aac36695d159db3de643a07f"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/astar.py",
+      "expected_sha": "9842a72009eb94be3b85c5f6d9d604176629eb821dc5f0627b154055cbe4ae10",
+      "actual_sha": "9842a72009eb94be3b85c5f6d9d604176629eb821dc5f0627b154055cbe4ae10"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/team_grid_subscriber.py",
+      "expected_sha": "ea3f3e11a9ed8dee2de069e2e25a56b9acdee665bd0ba316030921a5ecc4d4fc",
+      "actual_sha": "ea3f3e11a9ed8dee2de069e2e25a56b9acdee665bd0ba316030921a5ecc4d4fc"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/__init__.py",
+      "expected_sha": "7aa650fcf99394734f9e7edd522567fcd5a3a8289398c944380c44bc57236dff",
+      "actual_sha": "7aa650fcf99394734f9e7edd522567fcd5a3a8289398c944380c44bc57236dff"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/route_safety.py",
+      "expected_sha": "8c76fe7c8b5b6ee1f04baa07902e5c6172353ceded742090e8de0ed38d8437ef",
+      "actual_sha": "8c76fe7c8b5b6ee1f04baa07902e5c6172353ceded742090e8de0ed38d8437ef"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/local_grid.py",
+      "expected_sha": "6539b8c2d2ea9018e534e76b719aa53458176a31d340e6081597dc071bd20b2f",
+      "actual_sha": "6539b8c2d2ea9018e534e76b719aa53458176a31d340e6081597dc071bd20b2f"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/route_runtime.py",
+      "expected_sha": "cc1ca2192c48b974fb0f956a2592da10aa5ff0bb3f2a18913cf9c91380d06711",
+      "actual_sha": "cc1ca2192c48b974fb0f956a2592da10aa5ff0bb3f2a18913cf9c91380d06711"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/monitor.py",
+      "expected_sha": "4ea55454fd0cef7fec71eab7a4df67f4692b1a96aa05d2244d1268f40cb8220a",
+      "actual_sha": "4ea55454fd0cef7fec71eab7a4df67f4692b1a96aa05d2244d1268f40cb8220a"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/waiting_points.py",
+      "expected_sha": "e90791e5f315f3732bfd97c0da642255c1669ffc7d1b073cf861054e4752c1e9",
+      "actual_sha": "e90791e5f315f3732bfd97c0da642255c1669ffc7d1b073cf861054e4752c1e9"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/map_revision.py",
+      "expected_sha": "9fa6bf4432f7bf3fa220ce4f122dc82ddfb9f40accab107529ea1c3880ff1f59",
+      "actual_sha": "9fa6bf4432f7bf3fa220ce4f122dc82ddfb9f40accab107529ea1c3880ff1f59"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/__init__.py",
+      "expected_sha": "30b535b31dbbee8dda9c0475995bca095a9bcf5b40027c892b87925f4f1b1288",
+      "actual_sha": "30b535b31dbbee8dda9c0475995bca095a9bcf5b40027c892b87925f4f1b1288"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/stop_check.py",
+      "expected_sha": "cdac03435454dd8ec834db9fd82b19b09751706d78a8d5370c4bc66c92d269ee",
+      "actual_sha": "cdac03435454dd8ec834db9fd82b19b09751706d78a8d5370c4bc66c92d269ee"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/bus.py",
+      "expected_sha": "fee0770f1b56a0b9b004ea5e5c61b6fe39b82413864ea359282920e996310815",
+      "actual_sha": "fee0770f1b56a0b9b004ea5e5c61b6fe39b82413864ea359282920e996310815"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/position_cache.py",
+      "expected_sha": "7ae1823e48b65d184d71c7ea9b8bcca128e4e5ae631f64165754a97cc8b6052a",
+      "actual_sha": "7ae1823e48b65d184d71c7ea9b8bcca128e4e5ae631f64165754a97cc8b6052a"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/core.py",
+      "expected_sha": "2114c840c9e90100b1d9c5f8015d56aea17debd246e6080999c05605c0e508d7",
+      "actual_sha": "2114c840c9e90100b1d9c5f8015d56aea17debd246e6080999c05605c0e508d7"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/verdict.py",
+      "expected_sha": "b082548b2b00cf0763c39618bd3d1cdc5bee10586c18e36e1078c04f18ac122f",
+      "actual_sha": "b082548b2b00cf0763c39618bd3d1cdc5bee10586c18e36e1078c04f18ac122f"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/geometry.py",
+      "expected_sha": "6d89077b1ee28e068a8e0f66cecaa6caa22a401be5c246bccbaefda03ec33426",
+      "actual_sha": "6d89077b1ee28e068a8e0f66cecaa6caa22a401be5c246bccbaefda03ec33426"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/protocol.py",
+      "expected_sha": "3140a010c964059f33fb45722bbaf7ff11d754242a35d3c4b66b06c269d2a9f4",
+      "actual_sha": "3140a010c964059f33fb45722bbaf7ff11d754242a35d3c4b66b06c269d2a9f4"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/executor.py",
+      "expected_sha": "ed75a06cd4ffcd009bf00f1ced400613dcc3a8c639935f99769c82875946639d",
+      "actual_sha": "ed75a06cd4ffcd009bf00f1ced400613dcc3a8c639935f99769c82875946639d"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/__init__.py",
+      "expected_sha": "54999699151f3d515968c3c097b0acb642a0e3a09d4a183e5535d6756d4fbb56",
+      "actual_sha": "54999699151f3d515968c3c097b0acb642a0e3a09d4a183e5535d6756d4fbb56"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/route_planner.py",
+      "expected_sha": "269fd79c5a55ceb05e626f5af3f779f3734cf7c449012643b0049ea7870529af",
+      "actual_sha": "269fd79c5a55ceb05e626f5af3f779f3734cf7c449012643b0049ea7870529af"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/bounded_escape.py",
+      "expected_sha": "8c80d452b9ecf65b83207062fe50d4e673c12a00312e6364fa392d17a81de42f",
+      "actual_sha": "8c80d452b9ecf65b83207062fe50d4e673c12a00312e6364fa392d17a81de42f"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/allocation_geometry.py",
+      "expected_sha": "7c2ba66fb781759762a14c6fb75477f499cea21425315cd71e46127287219e4e",
+      "actual_sha": "7c2ba66fb781759762a14c6fb75477f499cea21425315cd71e46127287219e4e"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/search_completion.py",
+      "expected_sha": "49a6b4d32b4a5174cbd6d1cb5cf98f733761dc62205de99820f2e998acf909a2",
+      "actual_sha": "49a6b4d32b4a5174cbd6d1cb5cf98f733761dc62205de99820f2e998acf909a2"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/red_observations.py",
+      "expected_sha": "360537d6825dc3e6c7b742280fc1d6c61488bdad65f13a461e0a8d3fa63d8007",
+      "actual_sha": "360537d6825dc3e6c7b742280fc1d6c61488bdad65f13a461e0a8d3fa63d8007"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/visual_observation.py",
+      "expected_sha": "27c0c8e721d370951af53b625a75d2cbc907f3aad9b9413bad2170edfaef8932",
+      "actual_sha": "27c0c8e721d370951af53b625a75d2cbc907f3aad9b9413bad2170edfaef8932"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/single_uav_avoidance.py",
+      "expected_sha": "2dfaf2a4f63cab65f5100d9cda0f1805f80881984730ddf067feecefc6ebf79e",
+      "actual_sha": "2dfaf2a4f63cab65f5100d9cda0f1805f80881984730ddf067feecefc6ebf79e"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/mission_time.py",
+      "expected_sha": "9f6a4c8763c0161629957df54eafc121d7b6b96a3d00b4c4e048b4d0d208a68b",
+      "actual_sha": "9f6a4c8763c0161629957df54eafc121d7b6b96a3d00b4c4e048b4d0d208a68b"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/fcu_configuration.py",
+      "expected_sha": "3229c340f6490a0455c80f28f67ad2b06c13810ce303e986b5a780a9516492b7",
+      "actual_sha": "3229c340f6490a0455c80f28f67ad2b06c13810ce303e986b5a780a9516492b7"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_task.py",
+      "expected_sha": "ffe2f5b9e40bcfbe7644a3483db6aa8428a455d1934c8a29f2dea133f3b71be6",
+      "actual_sha": "ffe2f5b9e40bcfbe7644a3483db6aa8428a455d1934c8a29f2dea133f3b71be6"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/team_bench.py",
+      "expected_sha": "9b65399dcc0712fbf3117e025e5b2b54467d5d0a5c6e79365e321903e44011f1",
+      "actual_sha": "9b65399dcc0712fbf3117e025e5b2b54467d5d0a5c6e79365e321903e44011f1"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/pose_rate.py",
+      "expected_sha": "8833b70b95650a8049f6e9f97d2f5941f53453201ef55ecbd3724e285d5bf3d4",
+      "actual_sha": "8833b70b95650a8049f6e9f97d2f5941f53453201ef55ecbd3724e285d5bf3d4"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/radar_velocity_guard.py",
+      "expected_sha": "20b68d7210abce6dbbab1288f2bdcdd46a23c9f49b761053ac673818dc128fee",
+      "actual_sha": "20b68d7210abce6dbbab1288f2bdcdd46a23c9f49b761053ac673818dc128fee"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/control_actor.py",
+      "expected_sha": "a500f6f68430c9d9bb77bc571b837eebc623dfd337bf46e2e8448ae87db05eae",
+      "actual_sha": "a500f6f68430c9d9bb77bc571b837eebc623dfd337bf46e2e8448ae87db05eae"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/target_sim_node.py",
+      "expected_sha": "75369af7e9aa3e8c029395d488d8339e484dc5e1845267c59abf6c7a5a63cdc4",
+      "actual_sha": "75369af7e9aa3e8c029395d488d8339e484dc5e1845267c59abf6c7a5a63cdc4"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/detection_to_official.py",
+      "expected_sha": "90dba8bb70d4cdf81cc56bb1382acb7e3119fd8da6349ac8523fd2b4a1d40000",
+      "actual_sha": "90dba8bb70d4cdf81cc56bb1382acb7e3119fd8da6349ac8523fd2b4a1d40000"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/detection_to_actor.py",
+      "expected_sha": "75506452543fc9f49d7150b262d7d8d8d537c0650b9b6b2b6e2766634202e429",
+      "actual_sha": "75506452543fc9f49d7150b262d7d8d8d537c0650b9b6b2b6e2766634202e429"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/position_brake.py",
+      "expected_sha": "4853501fa867bf94619e4d5ff76c23093dc6064299a527634ebcfb0e8da72bd3",
+      "actual_sha": "4853501fa867bf94619e4d5ff76c23093dc6064299a527634ebcfb0e8da72bd3"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/route_endpoint.py",
+      "expected_sha": "73c88d990c0e7dd152a3fdaf7321cb0725bbeb00bb83fdc6e0c65a1c7f61748f",
+      "actual_sha": "73c88d990c0e7dd152a3fdaf7321cb0725bbeb00bb83fdc6e0c65a1c7f61748f"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/cooperative_tracker.py",
+      "expected_sha": "a67bb5e6345230c441cc926fac863db2e7f39be769c259bf689597a0b7159fd0",
+      "actual_sha": "a67bb5e6345230c441cc926fac863db2e7f39be769c259bf689597a0b7159fd0"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/companion_tracking.py",
+      "expected_sha": "f6bd3dbc8a259c626e937bd0cd87b3a86b28588631dc0260a9b13c044ac93231",
+      "actual_sha": "f6bd3dbc8a259c626e937bd0cd87b3a86b28588631dc0260a9b13c044ac93231"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_viz.py",
+      "expected_sha": "ffbda5a5aa4495098d61c8245fb8189f455f6c143dbcd7a31792084bfbdb9d9f",
+      "actual_sha": "ffbda5a5aa4495098d61c8245fb8189f455f6c143dbcd7a31792084bfbdb9d9f"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py",
+      "expected_sha": "9dc1eccd49eef853c30c393acaa4470765dacef430d1d08d96677599fdc6fcf6",
+      "actual_sha": "9dc1eccd49eef853c30c393acaa4470765dacef430d1d08d96677599fdc6fcf6"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_offboard_server.py",
+      "expected_sha": "fd37c26fc435fd3cffbbc0a11604825b0403c784161dd91199deb0d35ff07759",
+      "actual_sha": "fd37c26fc435fd3cffbbc0a11604825b0403c784161dd91199deb0d35ff07759"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/task_authority.py",
+      "expected_sha": "1ec78838dcb6860f273d4e58cebfcf532fdf1a0812ab2377902a1651d3617ce0",
+      "actual_sha": "1ec78838dcb6860f273d4e58cebfcf532fdf1a0812ab2377902a1651d3617ce0"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/run_ablation.py",
+      "expected_sha": "68c720f7b0705e4d8b909627f7b301e3e25ab5be1c3ad684ac5bd419ffec1995",
+      "actual_sha": "68c720f7b0705e4d8b909627f7b301e3e25ab5be1c3ad684ac5bd419ffec1995"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/report_readiness.py",
+      "expected_sha": "1b7b445486d08557858e8115b118d059e9acc7e17ede22a4b92eb1687c8ac51d",
+      "actual_sha": "1b7b445486d08557858e8115b118d059e9acc7e17ede22a4b92eb1687c8ac51d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/navigation_feedback.py",
+      "expected_sha": "3f739f451dd5e0881d470b716596b1f7f2fc7f84da0af9882d77d190e15d6102",
+      "actual_sha": "3f739f451dd5e0881d470b716596b1f7f2fc7f84da0af9882d77d190e15d6102"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/publisher_authority.py",
+      "expected_sha": "1d5c56513e82b03a30a9c457b79ada9dfd198d4fafb98e8c05411565a120787f",
+      "actual_sha": "1d5c56513e82b03a30a9c457b79ada9dfd198d4fafb98e8c05411565a120787f"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/judge_system.py",
+      "expected_sha": "e5f0e154ce29181a223325259d707cbd91ea79831930012ae6d0412e789f177a",
+      "actual_sha": "e5f0e154ce29181a223325259d707cbd91ea79831930012ae6d0412e789f177a"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/strategy_compare.py",
+      "expected_sha": "6a4287b93b0a187c90bda0255785b2e03c8ac8f44eb6f75dde079a40d7c96ad0",
+      "actual_sha": "6a4287b93b0a187c90bda0255785b2e03c8ac8f44eb6f75dde079a40d7c96ad0"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/verify_swarm_avoidance.py",
+      "expected_sha": "96188e8b54d6f339033e434ff12f69b3e43c9a07c8dee59532d8a3b53c65f301",
+      "actual_sha": "96188e8b54d6f339033e434ff12f69b3e43c9a07c8dee59532d8a3b53c65f301"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/run_test.sh",
+      "expected_sha": "ca0a50764bba62e01a948f043738d9277e1d9259a6787a7a3f9fe3b6c5970b0d",
+      "actual_sha": "ca0a50764bba62e01a948f043738d9277e1d9259a6787a7a3f9fe3b6c5970b0d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/orbit_geometry.py",
+      "expected_sha": "07b2f0f75d0d3d546b4aeec7614d6fbda76decc86ca1ebc59c8045248a975573",
+      "actual_sha": "07b2f0f75d0d3d546b4aeec7614d6fbda76decc86ca1ebc59c8045248a975573"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/search_occupancy.py",
+      "expected_sha": "8146a1bd01cba4a3c842121e00b1006a92eaf720ce23abc5bcc3cf804668e8fe",
+      "actual_sha": "8146a1bd01cba4a3c842121e00b1006a92eaf720ce23abc5bcc3cf804668e8fe"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/task_allocator.py",
+      "expected_sha": "f64cbeeda5c5dbb0a8be3ff64de69d232b537e46f4f0cb9ee6ad5eff066f343d",
+      "actual_sha": "f64cbeeda5c5dbb0a8be3ff64de69d232b537e46f4f0cb9ee6ad5eff066f343d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/route_planner.py",
+      "expected_sha": "d234ec7b6e52b6749c63adbba6036b813366bde028f5fa1fe5b17e4acc2ead99",
+      "actual_sha": "d234ec7b6e52b6749c63adbba6036b813366bde028f5fa1fe5b17e4acc2ead99"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/fleet_motion_guard.py",
+      "expected_sha": "0fba3af4e76635162e67c6190958f76b74491c0e9289849a9ae3cdca61c8e507",
+      "actual_sha": "0fba3af4e76635162e67c6190958f76b74491c0e9289849a9ae3cdca61c8e507"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/tracking_navigation.py",
+      "expected_sha": "e5496b7aa93e41f158f616ce55325a519a7b07c31d6f66a09d77597d1f408349",
+      "actual_sha": "e5496b7aa93e41f158f616ce55325a519a7b07c31d6f66a09d77597d1f408349"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/white_reacquisition.py",
+      "expected_sha": "a6e384e62632354ef985d9748c3d3030ecf27997bf3a13c294040b4702ac30ce",
+      "actual_sha": "a6e384e62632354ef985d9748c3d3030ecf27997bf3a13c294040b4702ac30ce"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/persistent_los.py",
+      "expected_sha": "ae53bd7f0319744247cc103957696bd575682e5ca85f10f7be3ce1521aefecd0",
+      "actual_sha": "ae53bd7f0319744247cc103957696bd575682e5ca85f10f7be3ce1521aefecd0"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/route_reservation.py",
+      "expected_sha": "86f8dfcfc3b0c92eba8543983b49fdfbd28391e264ac5412399b60c64a72804d",
+      "actual_sha": "86f8dfcfc3b0c92eba8543983b49fdfbd28391e264ac5412399b60c64a72804d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_manager.py",
+      "expected_sha": "88c7042e769f0f104eb1985632fc5ea8f6b7efaef882b841dcaebbf5c0c0e30d",
+      "actual_sha": "88c7042e769f0f104eb1985632fc5ea8f6b7efaef882b841dcaebbf5c0c0e30d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/pose_quality.py",
+      "expected_sha": "4d1b32dc78095298a03505fe7cd53b580de5f2436e350a50379221cfeb2c1df2",
+      "actual_sha": "4d1b32dc78095298a03505fe7cd53b580de5f2436e350a50379221cfeb2c1df2"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/csv_logger.py",
+      "expected_sha": "0598fcda689c7c0560b238abc18d7e99c69ca2aad33b5444d00df8e6e2bbced0",
+      "actual_sha": "0598fcda689c7c0560b238abc18d7e99c69ca2aad33b5444d00df8e6e2bbced0"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/search_observation.py",
+      "expected_sha": "7dc59184a9628644fb5136d576e9c4a09fb47fd95a7af2198fd6e176c577e1a5",
+      "actual_sha": "7dc59184a9628644fb5136d576e9c4a09fb47fd95a7af2198fd6e176c577e1a5"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/tracker_selection.py",
+      "expected_sha": "a8e5ac7689fe0bd1874d233f9456e292a748ed432cdc9d694242e7c908064745",
+      "actual_sha": "a8e5ac7689fe0bd1874d233f9456e292a748ed432cdc9d694242e7c908064745"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/local_esdf.py",
+      "expected_sha": "2aa85a3126de91946fa680cb7a68334919aeca373204008a09422753f0fc274a",
+      "actual_sha": "2aa85a3126de91946fa680cb7a68334919aeca373204008a09422753f0fc274a"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/track_bench.py",
+      "expected_sha": "971b401ce669cce3644a3a8b4947150e746948f53a60e94a2ad2835b205180ed",
+      "actual_sha": "971b401ce669cce3644a3a8b4947150e746948f53a60e94a2ad2835b205180ed"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/run_multi_uav_3.sh",
+      "expected_sha": "3224d64cb25167785d487767e13eba780dcd05f875b265eb949b573d184962f1",
+      "actual_sha": "3224d64cb25167785d487767e13eba780dcd05f875b265eb949b573d184962f1"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/source_aligned_fusion.py",
+      "expected_sha": "5500b0bd157cb36fc7f78ecbbbfb64846da506f61b692564cd5810bfebb10156",
+      "actual_sha": "5500b0bd157cb36fc7f78ecbbbfb64846da506f61b692564cd5810bfebb10156"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/control_actors.sh",
+      "expected_sha": "928d2c4dc2f971ca6a45f91874e5631fd77cd06a700d3ffb6866002e1ab52272",
+      "actual_sha": "928d2c4dc2f971ca6a45f91874e5631fd77cd06a700d3ffb6866002e1ab52272"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "expected_sha": "e9b57c96f885b37531cbdacf4e9958a5fc2b5743cfb861c9b3f03ae1b40b7abc",
+      "actual_sha": "e9b57c96f885b37531cbdacf4e9958a5fc2b5743cfb861c9b3f03ae1b40b7abc"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/online_radar_planner.py",
+      "expected_sha": "2522aaff3cf5d66092995623644297e97bd6dccbc1da2aa40de061e4e1cc0293",
+      "actual_sha": "2522aaff3cf5d66092995623644297e97bd6dccbc1da2aa40de061e4e1cc0293"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/radar_observed_map.py",
+      "expected_sha": "8548a0e14c385831efc02ea5bdad7ac8a445e2ac35d65af13f88374418bd47e0",
+      "actual_sha": "8548a0e14c385831efc02ea5bdad7ac8a445e2ac35d65af13f88374418bd47e0"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/stop_control_actors.sh",
+      "expected_sha": "75c3bf536da6773f34614b813f810c38b9c5192a1144e9718541f17ed523399d",
+      "actual_sha": "75c3bf536da6773f34614b813f810c38b9c5192a1144e9718541f17ed523399d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/target_motion.py",
+      "expected_sha": "d72f9ca5d9b99c5a3a67be3c53bba721e9e92ea5c54efd9adcb03120cc2ea58b",
+      "actual_sha": "d72f9ca5d9b99c5a3a67be3c53bba721e9e92ea5c54efd9adcb03120cc2ea58b"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_controller.py",
+      "expected_sha": "edec754447850c043b9cbd266c2d524cd01a2e30324f8ea1a48d94b35c468f18",
+      "actual_sha": "edec754447850c043b9cbd266c2d524cd01a2e30324f8ea1a48d94b35c468f18"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/dwa_avoidance.py",
+      "expected_sha": "4d2345cd99366eaee22170aed7e4ce4000440ee4bafe1189e9335ca63bd2bb9a",
+      "actual_sha": "4d2345cd99366eaee22170aed7e4ce4000440ee4bafe1189e9335ca63bd2bb9a"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/score_cal.py",
+      "expected_sha": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+      "actual_sha": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1"
+    },
+    {
+      "path": "perception/.gitignore",
+      "expected_sha": "d51d54c5b8a9a6516c76cae2b6baca13315a53cb6325649e1b792ecb3b5df6b8",
+      "actual_sha": "d51d54c5b8a9a6516c76cae2b6baca13315a53cb6325649e1b792ecb3b5df6b8"
+    },
+    {
+      "path": "perception/shared_inference_client.py",
+      "expected_sha": "3765648568c74343d632a6da96b442c0c5ee3b7fd7c0908942db31b13e9e15c4",
+      "actual_sha": "3765648568c74343d632a6da96b442c0c5ee3b7fd7c0908942db31b13e9e15c4"
+    },
+    {
+      "path": "perception/motion_identity.py",
+      "expected_sha": "7098c5fb3da7382c220f61fc73dfadcf4f144498fb5dcda4d20f267e82b43b08",
+      "actual_sha": "7098c5fb3da7382c220f61fc73dfadcf4f144498fb5dcda4d20f267e82b43b08"
+    },
+    {
+      "path": "perception/perception_real.py",
+      "expected_sha": "604f83f91c45a1aa91882a36bf37da924146c557c12e596bde989640fe673366",
+      "actual_sha": "604f83f91c45a1aa91882a36bf37da924146c557c12e596bde989640fe673366"
+    },
+    {
+      "path": "perception/recent_motion.py",
+      "expected_sha": "cf6375665ef04e877e6439f4681fdc049fd2bcc9e7bb72c9298cc74a38e3efe5",
+      "actual_sha": "cf6375665ef04e877e6439f4681fdc049fd2bcc9e7bb72c9298cc74a38e3efe5"
+    },
+    {
+      "path": "perception/jersey_color.py",
+      "expected_sha": "13d49f153f56cc826288272900e4662ce08d61cc2fad99f7b9a76bb156503365",
+      "actual_sha": "13d49f153f56cc826288272900e4662ce08d61cc2fad99f7b9a76bb156503365"
+    },
+    {
+      "path": "perception/requirements.txt",
+      "expected_sha": "0c62c612281122d827f665c8d6f664278e1d9fd95dce297deff8c664bf0a3c2b",
+      "actual_sha": "0c62c612281122d827f665c8d6f664278e1d9fd95dce297deff8c664bf0a3c2b"
+    },
+    {
+      "path": "perception/stationary_person.py",
+      "expected_sha": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330",
+      "actual_sha": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330"
+    },
+    {
+      "path": "perception/shared_inference_service.py",
+      "expected_sha": "bd0be0daa4b2cd90815fd1ad81e1bec9b4f7de7b0014a0915282cb0b37be6a79",
+      "actual_sha": "bd0be0daa4b2cd90815fd1ad81e1bec9b4f7de7b0014a0915282cb0b37be6a79"
+    },
+    {
+      "path": "perception/.gitattributes",
+      "expected_sha": "e2430fe425e0b805a832523c07dada8b6edcbed939e5b4492a52c524535d6b9a",
+      "actual_sha": "e2430fe425e0b805a832523c07dada8b6edcbed939e5b4492a52c524535d6b9a"
+    },
+    {
+      "path": "perception/camera_task.py",
+      "expected_sha": "a5fd517fc18332c9151098e70a8f6be76a8c85461972b6b333d41e7d3e092e41",
+      "actual_sha": "a5fd517fc18332c9151098e70a8f6be76a8c85461972b6b333d41e7d3e092e41"
+    },
+    {
+      "path": "perception/camera_geometry.py",
+      "expected_sha": "319e32aa93e4bd40aef258775d03c2cd58e3812dd32a6078f23f138530f8e0cc",
+      "actual_sha": "319e32aa93e4bd40aef258775d03c2cd58e3812dd32a6078f23f138530f8e0cc"
+    },
+    {
+      "path": "perception/person_verifier.py",
+      "expected_sha": "8a23bbf244dae4d3530c80332eb8f2648284642cfcaa3e51fa91dd3ad7543ecb",
+      "actual_sha": "8a23bbf244dae4d3530c80332eb8f2648284642cfcaa3e51fa91dd3ad7543ecb"
+    },
+    {
+      "path": "perception/frame_probe.py",
+      "expected_sha": "ec9d262b012832ff04579b77ad7a9b4114ef39eb541a2333a680de4295cc6cd1",
+      "actual_sha": "ec9d262b012832ff04579b77ad7a9b4114ef39eb541a2333a680de4295cc6cd1"
+    },
+    {
+      "path": "perception/README.md",
+      "expected_sha": "f32265146e1a0d5f90124e965669ec0c4b9d4b4b8ce947168d3528a4938ae89b",
+      "actual_sha": "f32265146e1a0d5f90124e965669ec0c4b9d4b4b8ce947168d3528a4938ae89b"
+    },
+    {
+      "path": "perception/enhanced_tracker.py",
+      "expected_sha": "d4eb217325c6496145b575ead792668f427dea4ea3e93a583a09cda0e3bbb6a6",
+      "actual_sha": "d4eb217325c6496145b575ead792668f427dea4ea3e93a583a09cda0e3bbb6a6"
+    },
+    {
+      "path": "perception/evidence_capture.py",
+      "expected_sha": "a666e659c5ca1798987ee72e3d0e09d7aef1e521447033ffc4906d5828038ccb",
+      "actual_sha": "a666e659c5ca1798987ee72e3d0e09d7aef1e521447033ffc4906d5828038ccb"
+    },
+    {
+      "path": "perception/fresh_person.py",
+      "expected_sha": "a1f4f11c28d8c738cf6e2a2306cfce069417e46d9a6c7fb9b51f13d59e163477",
+      "actual_sha": "a1f4f11c28d8c738cf6e2a2306cfce069417e46d9a6c7fb9b51f13d59e163477"
+    },
+    {
+      "path": "perception/patch/add_stereo_camera.py",
+      "expected_sha": "a163d25497e25d389ad824dda212689886c54240f166d58a50e878624110cd07",
+      "actual_sha": "a163d25497e25d389ad824dda212689886c54240f166d58a50e878624110cd07"
+    },
+    {
+      "path": "perception/patch/README.md",
+      "expected_sha": "18121435003938deabf6fb9d94278a90ac98a9fc1a912a72407ceef786a33c04",
+      "actual_sha": "18121435003938deabf6fb9d94278a90ac98a9fc1a912a72407ceef786a33c04"
+    },
+    {
+      "path": "perception/scripts/proc_util.sh",
+      "expected_sha": "986e42f61e018005e53060472c0fcd88236c5876a64b08ac1f7b786983cdde8a",
+      "actual_sha": "986e42f61e018005e53060472c0fcd88236c5876a64b08ac1f7b786983cdde8a"
+    },
+    {
+      "path": "perception/scripts/check_target_report_schema.py",
+      "expected_sha": "836f948b5d617a8a44ebaba7e96bcea17260a78edc86ec6e826bc920b2f4bf19",
+      "actual_sha": "836f948b5d617a8a44ebaba7e96bcea17260a78edc86ec6e826bc920b2f4bf19"
+    },
+    {
+      "path": "perception/scripts/snapshot_cam.py",
+      "expected_sha": "4d36648c90b46a6c0818f3c0220c1b0f6ac30186509882e968da5a5c98bbd4e4",
+      "actual_sha": "4d36648c90b46a6c0818f3c0220c1b0f6ac30186509882e968da5a5c98bbd4e4"
+    },
+    {
+      "path": "perception/scripts/guide_patrol.py",
+      "expected_sha": "d0cc20d63fb2d86740f0baf5ec08ad8a5639773ccd32888912a4894112dc63b4",
+      "actual_sha": "d0cc20d63fb2d86740f0baf5ec08ad8a5639773ccd32888912a4894112dc63b4"
+    },
+    {
+      "path": "perception/scripts/run_actors.sh",
+      "expected_sha": "4c20fd83e9598de64f850ae7cc17f544096d7561c759326539793c289b534fbc",
+      "actual_sha": "4c20fd83e9598de64f850ae7cc17f544096d7561c759326539793c289b534fbc"
+    },
+    {
+      "path": "perception/scripts/analyze_snap.py",
+      "expected_sha": "5ae315e7d0ac7066cb63513295c737413db1be76113b80ea7bcc7d1866da8059",
+      "actual_sha": "5ae315e7d0ac7066cb63513295c737413db1be76113b80ea7bcc7d1866da8059"
+    },
+    {
+      "path": "perception/scripts/guide_actor.py",
+      "expected_sha": "bb7cf785585688448cfd705220574c97d59716de1a5a845b84f63b6e3d266ff5",
+      "actual_sha": "bb7cf785585688448cfd705220574c97d59716de1a5a845b84f63b6e3d266ff5"
+    },
+    {
+      "path": "perception/scripts/rec_snap.py",
+      "expected_sha": "1f3dad3ebc0fcd0f17f35ee1383fc26716b232f63287994121dcbdadb6c69ab9",
+      "actual_sha": "1f3dad3ebc0fcd0f17f35ee1383fc26716b232f63287994121dcbdadb6c69ab9"
+    },
+    {
+      "path": "perception/scripts/verify_official_assets.py",
+      "expected_sha": "dff32f08a47d6ad7b82459fe6965701055c501fd4be81bd488e923c981ccff09",
+      "actual_sha": "dff32f08a47d6ad7b82459fe6965701055c501fd4be81bd488e923c981ccff09"
+    },
+    {
+      "path": "perception/scripts/control_actor_m2.py",
+      "expected_sha": "921e7180f2195893405159a896db982ca8a2da722d3a18125a74566594172b48",
+      "actual_sha": "921e7180f2195893405159a896db982ca8a2da722d3a18125a74566594172b48"
+    },
+    {
+      "path": "perception/scripts/replay_target_report.py",
+      "expected_sha": "7212d60dd8140b4eab12867447769b9d155fa9619e0f702bfd209976111092e9",
+      "actual_sha": "7212d60dd8140b4eab12867447769b9d155fa9619e0f702bfd209976111092e9"
+    },
+    {
+      "path": "perception/scripts/ground_truth_bridge.py",
+      "expected_sha": "9f7c8c613434f6050584758d72670854b2c21434b023cee0b6eeaeb41b28c863",
+      "actual_sha": "9f7c8c613434f6050584758d72670854b2c21434b023cee0b6eeaeb41b28c863"
+    },
+    {
+      "path": "perception/scripts/probe_actor_speed.py",
+      "expected_sha": "78b5e9cfd33eaf32937b9ae64ff9ba5e1dbbcd516f6e81526547caddc79948bb",
+      "actual_sha": "78b5e9cfd33eaf32937b9ae64ff9ba5e1dbbcd516f6e81526547caddc79948bb"
+    },
+    {
+      "path": "perception/scripts/fly_takeoff.py",
+      "expected_sha": "6ca28d5972b438291be772da20c384df51888f1fee9eaad15f3b3bb097b6ea18",
+      "actual_sha": "6ca28d5972b438291be772da20c384df51888f1fee9eaad15f3b3bb097b6ea18"
+    },
+    {
+      "path": "perception/scripts/env_robocup.sh",
+      "expected_sha": "431fba1742dbfb20ee5fdfd5e023fecc49fa093bbf0e9846f854acf442f902cd",
+      "actual_sha": "431fba1742dbfb20ee5fdfd5e023fecc49fa093bbf0e9846f854acf442f902cd"
+    },
+    {
+      "path": "perception/scripts/judge_official_15s.py",
+      "expected_sha": "9b874e149aa16ec72e9b62c7d2dc1f93b3e49921f2d09aceb88f6c4134ed3bba",
+      "actual_sha": "9b874e149aa16ec72e9b62c7d2dc1f93b3e49921f2d09aceb88f6c4134ed3bba"
+    },
+    {
+      "path": "perception/scripts/restart_stack_fly.sh",
+      "expected_sha": "2349ff9c696b77b526f3cca56d9309adad808200fe66d0d18d9af295bc129aec",
+      "actual_sha": "2349ff9c696b77b526f3cca56d9309adad808200fe66d0d18d9af295bc129aec"
+    },
+    {
+      "path": "perception/launch/uav_only.launch",
+      "expected_sha": "5ac9f1150130dfa617a70bd1932b8c548840b1f839462b0504b61281ed4848c4",
+      "actual_sha": "5ac9f1150130dfa617a70bd1932b8c548840b1f839462b0504b61281ed4848c4"
+    },
+    {
+      "path": "perception/launch/world_only.launch",
+      "expected_sha": "d537d6a544fee994011d33c1f199c720a2569f620e630e7a35bcf27660bfef1b",
+      "actual_sha": "d537d6a544fee994011d33c1f199c720a2569f620e630e7a35bcf27660bfef1b"
+    },
+    {
+      "path": "perception/launch/world_min.launch",
+      "expected_sha": "ab34d77b59c036a24f01a70226be745f55d61096238bd820fa4e7baed0daa9e3",
+      "actual_sha": "ab34d77b59c036a24f01a70226be745f55d61096238bd820fa4e7baed0daa9e3"
+    },
+    {
+      "path": "perception/launch/robocup_1uav.launch",
+      "expected_sha": "e0fa180dc286484a6f00a370ad748620bf7e5f585b9759f498e89d3d39134482",
+      "actual_sha": "e0fa180dc286484a6f00a370ad748620bf7e5f585b9759f498e89d3d39134482"
+    },
+    {
+      "path": "perception/worlds/actor_min.world",
+      "expected_sha": "dae08641ca9c733b7ff1383400cb4fc7aee512a6cb9aba963cd96ab0c0fa5938",
+      "actual_sha": "dae08641ca9c733b7ff1383400cb4fc7aee512a6cb9aba963cd96ab0c0fa5938"
+    },
+    {
+      "path": "perception/tests/test_person_verifier_rich.py",
+      "expected_sha": "a82c78e08d1994c4d5ad93699e55a9a1e965ca6558a5a27dc69ce2b4b5f20384",
+      "actual_sha": "a82c78e08d1994c4d5ad93699e55a9a1e965ca6558a5a27dc69ce2b4b5f20384"
+    },
+    {
+      "path": "perception/tests/test_frame_probe.py",
+      "expected_sha": "bce4027c77f1db7f761c1bc7084c23f2256227d61714ceca0485ff598bc4fbd1",
+      "actual_sha": "bce4027c77f1db7f761c1bc7084c23f2256227d61714ceca0485ff598bc4fbd1"
+    },
+    {
+      "path": "perception/tests/test_evidence_capture.py",
+      "expected_sha": "1986cceb7e623c73a87a562dd72555961d9e21ded44472b7c692dafcadff093a",
+      "actual_sha": "1986cceb7e623c73a87a562dd72555961d9e21ded44472b7c692dafcadff093a"
+    },
+    {
+      "path": "perception/tests/test_shared_inference.py",
+      "expected_sha": "22dd1a03337d87d305707f918329691e011c85681df0e597db2729ded6028e48",
+      "actual_sha": "22dd1a03337d87d305707f918329691e011c85681df0e597db2729ded6028e48"
+    },
+    {
+      "path": "perception/tools/calib_selfmask.py",
+      "expected_sha": "a7bd303b90c81b51681a75720dc39f9d6d59dd0657cb923be7dc64c9f1b99f94",
+      "actual_sha": "a7bd303b90c81b51681a75720dc39f9d6d59dd0657cb923be7dc64c9f1b99f94"
+    },
+    {
+      "path": "perception/tools/snap_frame.py",
+      "expected_sha": "b9b50e22a4a912e32d84587184032a7c23d4d9f847b96df136473a047093dfbf",
+      "actual_sha": "b9b50e22a4a912e32d84587184032a7c23d4d9f847b96df136473a047093dfbf"
+    },
+    {
+      "path": "perception/tools/test_red_slots.py",
+      "expected_sha": "8add31f797eb4ea97f405e7ad28133d72eee4918ef9ca54134d286b4229f76ab",
+      "actual_sha": "8add31f797eb4ea97f405e7ad28133d72eee4918ef9ca54134d286b4229f76ab"
+    },
+    {
+      "path": "perception/tools/diag_geom.py",
+      "expected_sha": "6594f8f239901c17b37ccab000beaecbc6cde55fd36c5f0b500c20e31c801208",
+      "actual_sha": "6594f8f239901c17b37ccab000beaecbc6cde55fd36c5f0b500c20e31c801208"
+    },
+    {
+      "path": "perception/tools/m3_verify.py",
+      "expected_sha": "4d94301178fcc3acbdfd0fa149dbe617d87d86eb742dfae163a9a0edb58cf2b6",
+      "actual_sha": "4d94301178fcc3acbdfd0fa149dbe617d87d86eb742dfae163a9a0edb58cf2b6"
+    },
+    {
+      "path": "perception/tools/probe_target_report.py",
+      "expected_sha": "ce32ff969b253ae9b59bbd8ab6d9a80e9005e79e7c769cf836f1f7c5303e83ac",
+      "actual_sha": "ce32ff969b253ae9b59bbd8ab6d9a80e9005e79e7c769cf836f1f7c5303e83ac"
+    },
+    {
+      "path": "perception/tools/hover_teleport.py",
+      "expected_sha": "fb571799cba9cf4c1ef23ff6fae9d6058f643df099a32c74b3fc3b26c28f2ea4",
+      "actual_sha": "fb571799cba9cf4c1ef23ff6fae9d6058f643df099a32c74b3fc3b26c28f2ea4"
+    },
+    {
+      "path": "perception/tools/val_cm.py",
+      "expected_sha": "a2bbc4d041e6e2d251ecaef19da649f6ad7e371a8abefc7fc998259955f91421",
+      "actual_sha": "a2bbc4d041e6e2d251ecaef19da649f6ad7e371a8abefc7fc998259955f91421"
+    },
+    {
+      "path": "perception/tools/test_assoc_gate.py",
+      "expected_sha": "a421a99984c26a87c6e9a9cfd9d34f76bc856f3fe3f416774a42b53d246bddc4",
+      "actual_sha": "a421a99984c26a87c6e9a9cfd9d34f76bc856f3fe3f416774a42b53d246bddc4"
+    },
+    {
+      "path": "perception/tools/m5_dump_analyze.py",
+      "expected_sha": "259bb36f55be570b2f096e6c5b800792461413ad42dbf9a3e20e09a46e9f6c1f",
+      "actual_sha": "259bb36f55be570b2f096e6c5b800792461413ad42dbf9a3e20e09a46e9f6c1f"
+    },
+    {
+      "path": "perception/tools/fly_to_actor.py",
+      "expected_sha": "9eb0bfe0d9b61ff856c8ba3210d2ae7019c3a7451eb95db16b466b02004b248b",
+      "actual_sha": "9eb0bfe0d9b61ff856c8ba3210d2ae7019c3a7451eb95db16b466b02004b248b"
+    },
+    {
+      "path": "perception/tools/audit_brown_red.py",
+      "expected_sha": "f67000198311d17c52e490ed8b2f578052944ee720c2a6d680a6dfff91a5e54d",
+      "actual_sha": "f67000198311d17c52e490ed8b2f578052944ee720c2a6d680a6dfff91a5e54d"
+    },
+    {
+      "path": "perception/tools/README.md",
+      "expected_sha": "b04ce21893ed2931064322535799500bf026cdaa93097ec36c94d0d6cfcbf914",
+      "actual_sha": "b04ce21893ed2931064322535799500bf026cdaa93097ec36c94d0d6cfcbf914"
+    },
+    {
+      "path": "perception/tools/diag_identity.py",
+      "expected_sha": "02c394e5d15421e8ec3b0e9b2823637914823361e8b863d11d3596ad20b4eeee",
+      "actual_sha": "02c394e5d15421e8ec3b0e9b2823637914823361e8b863d11d3596ad20b4eeee"
+    },
+    {
+      "path": "perception/tools/ht_watch.py",
+      "expected_sha": "c179e3b3a82b6b992dcf6bb3f48417a01a5122efd106d20b0bff6f0a26d05413",
+      "actual_sha": "c179e3b3a82b6b992dcf6bb3f48417a01a5122efd106d20b0bff6f0a26d05413"
+    },
+    {
+      "path": "perception/tools/dual_check.py",
+      "expected_sha": "531fe13d72939f1f50d75b7b632041ec1953a6d4631481a85998140e4eed7513",
+      "actual_sha": "531fe13d72939f1f50d75b7b632041ec1953a6d4631481a85998140e4eed7513"
+    },
+    {
+      "path": "perception/docs/\u90e8\u7f72\u68c0\u67e5\u6e05\u5355.md",
+      "expected_sha": "b2cdb2872204137be2f38b0b60cd6591a85a2b976520755ed83842afca7fd221",
+      "actual_sha": "b2cdb2872204137be2f38b0b60cd6591a85a2b976520755ed83842afca7fd221"
+    }
+  ],
+  "auxiliary": [
+    {
+      "path": "six_radar_connectivity.py",
+      "expected_sha": "6fb075f2a7dace90e33d5666967dea3fdba857b3819dd81b55c77edfdeb01659",
+      "actual_sha": "6fb075f2a7dace90e33d5666967dea3fdba857b3819dd81b55c77edfdeb01659"
+    },
+    {
+      "path": "prepare_radar_fleet.py",
+      "expected_sha": "4b2a4a0cf6c079da0bc1b027076e670e53aa02a0da8e11347293dc968a20bd81",
+      "actual_sha": "4b2a4a0cf6c079da0bc1b027076e670e53aa02a0da8e11347293dc968a20bd81"
+    },
+    {
+      "path": "radar_fleet_models.py",
+      "expected_sha": "3129b013345a6e953223b45c1200c3a703e35df7a27484602a52634ccc8bd5a2",
+      "actual_sha": "3129b013345a6e953223b45c1200c3a703e35df7a27484602a52634ccc8bd5a2"
+    },
+    {
+      "path": "six_swarm_probe.py",
+      "expected_sha": "8f1023ad5987685450e2d1440ed0f653a18241cf0c4a8ba744b97ad649db2581",
+      "actual_sha": "8f1023ad5987685450e2d1440ed0f653a18241cf0c4a8ba744b97ad649db2581"
+    },
+    {
+      "path": "fixture_contacts.py",
+      "expected_sha": "184bff8709d1fbe08c828233f4aba36f55ee1dca3ae6a28f4486883e45ec3557",
+      "actual_sha": "184bff8709d1fbe08c828233f4aba36f55ee1dca3ae6a28f4486883e45ec3557"
+    },
+    {
+      "path": "camera_actor_probe.py",
+      "expected_sha": "67c3d756cef3d0f3bdb25092669fef9df2624c4464e485933f8df713c41d7239",
+      "actual_sha": "67c3d756cef3d0f3bdb25092669fef9df2624c4464e485933f8df713c41d7239"
+    },
+    {
+      "path": "flight_actor_probe.py",
+      "expected_sha": "f126d0b6c4d46113e62400f18046b04482dbceba5bde07d3ab28489bfb6512ed",
+      "actual_sha": "f126d0b6c4d46113e62400f18046b04482dbceba5bde07d3ab28489bfb6512ed"
+    },
+    {
+      "path": "evidence_writer.py",
+      "expected_sha": "ac844fb0c1cf930d11a8c81eab7fc6b3980b38988c698da0afb21ba180b3101e",
+      "actual_sha": "ac844fb0c1cf930d11a8c81eab7fc6b3980b38988c698da0afb21ba180b3101e"
+    },
+    {
+      "path": "city_swarm_run.py",
+      "expected_sha": "9d9929c2448580906a2bfc8d1f5caa5ed589952757d3b55690786752fb7352af",
+      "actual_sha": "9d9929c2448580906a2bfc8d1f5caa5ed589952757d3b55690786752fb7352af"
+    },
+    {
+      "path": "start_city_judge.py",
+      "expected_sha": "29cfb4d8c505f02674f1bfb3963aa24f7795ffb258632aeadbdbd361c344f23d",
+      "actual_sha": "29cfb4d8c505f02674f1bfb3963aa24f7795ffb258632aeadbdbd361c344f23d"
+    },
+    {
+      "path": "judge_terminal.py",
+      "expected_sha": "672d08de637ff7e02cb486a093e47441f940918d16e750aeeb74e1b1a21acbe0",
+      "actual_sha": "672d08de637ff7e02cb486a093e47441f940918d16e750aeeb74e1b1a21acbe0"
+    },
+    {
+      "path": "build_namespaced_gimbal_overlay.py",
+      "expected_sha": "d6a3c3fb520a610d51891df0231619d90edb58fc71b192af3277788b204fa7ad",
+      "actual_sha": "d6a3c3fb520a610d51891df0231619d90edb58fc71b192af3277788b204fa7ad"
+    },
+    {
+      "path": "actor_environment_bridge.py",
+      "expected_sha": "d7214b777ebb0ea7cc2ced7733e888defad868600e854d5f70f494a2b4b57595",
+      "actual_sha": "d7214b777ebb0ea7cc2ced7733e888defad868600e854d5f70f494a2b4b57595"
+    }
+  ]
+}

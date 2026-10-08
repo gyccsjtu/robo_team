@@ -1,0 +1,109 @@
+{
+  "meaning": "same original candidate proof passed but blue coordinate disagrees with independent truth; identity/calibration/render association unresolved",
+  "control_input": false,
+  "candidate": {
+    "schema_version": 1,
+    "uav": "typhoon_h480_2_pass",
+    "seq": 1,
+    "png": "frame_000001_1791438439664.png",
+    "wall_time": 1791438439.6647096,
+    "cls": "blue",
+    "color_conf": 0.591,
+    "color_xyxy": [
+      101.6,
+      180.9,
+      111.5,
+      208.3
+    ],
+    "person_iou": 0.8079851269721985,
+    "person_conf": 0.38877904415130615,
+    "n_person_boxes": 1,
+    "reject_reason": null,
+    "person_xyxy": [
+      102.89376831054688,
+      181.22836303710938,
+      111.4918212890625,
+      206.74557495117188
+    ],
+    "shirt_fractions": {
+      "red": 0.0,
+      "green": 0.0,
+      "blue": 0.6,
+      "white": 0.18181818181818182,
+      "brown": 0.0
+    },
+    "range_m": 20.2,
+    "xyz": [
+      -26.49,
+      13.36
+    ],
+    "image_stamp": 1957.704,
+    "path": "shared",
+    "pr_conf": "",
+    "pr_person_verify_conf": ".1",
+    "pr_person_verify_iou": ".25",
+    "color_model_sha": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+    "person_model_sha": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+    "run_id": "a9779e06-4042-48cc-abe2-d6039de77985"
+  },
+  "camera_frame": {
+    "schema_version": 1,
+    "run_id": "a9779e06-4042-48cc-abe2-d6039de77985",
+    "uav_id": "uav_3",
+    "generation": 1,
+    "cell": [
+      0,
+      12
+    ],
+    "seq": 33,
+    "image_s": 1957.704,
+    "sample_s": 1958.2,
+    "inference_complete": true,
+    "size": [
+      640,
+      360
+    ],
+    "intrinsics": [
+      205.46963709898583,
+      205.46963709898583,
+      320.5,
+      180.5
+    ],
+    "camera_xyz": [
+      -8.992883090006035,
+      3.545847377038814,
+      2.3724556575489952
+    ],
+    "camera_rotation": [
+      -0.24807684097727095,
+      -0.9687135970565738,
+      -0.007200545010650178,
+      0.9680352818077189,
+      -0.24817297182125544,
+      0.0363024686881743,
+      -0.036953675678980766,
+      0.0020354201332849486,
+      0.9993149067829877
+    ],
+    "received_s": 1958.204
+  },
+  "nearest_independent_blue_truth": [
+    1957.702,
+    29.91491729453409,
+    -15.697907751597986,
+    1
+  ],
+  "interpolated_error_m": 63.451143146454484,
+  "true_blue_optical_xyz_at_1p25m": [
+    32.91702003363679,
+    2.1004398567261156,
+    -28.23927926542652
+  ],
+  "true_blue_forward_depth": -28.23927926542652,
+  "input_sha": {
+    "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/frame_000001_1791438439664.png": "73160c7809cb7d8813bd8244192650b49af544d36d12ce7dcf49022369c9ec40",
+    "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/evidence_typhoon_h480_2_pass/index.jsonl": "6a16feba1a633b66340c6219c127068ade44d0ace7753c90ef370604e2758b0b",
+    "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/flight/algorithm/search_camera_frames.jsonl": "14090b25ab34698d3da3936de8dce5c8db980193bd1314caa19259d6131b5ac4",
+    "/root/robocup_runs/codex_n12_verify_20261008/round_1_seed_8159/observers/independent_visual_accuracy_blue.jsonl": "3dbd5060aabd288e016b2bf62221299bafce5827c14ec1525dd60b0ea40dd04d"
+  }
+}
