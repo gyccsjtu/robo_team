@@ -130,12 +130,64 @@ class CaptureLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual("pose_image_time_mismatch", reason)
 
-    def test_pose_too_old_rejected(self):
+    def test_old_original_rejected(self):
+        # CONTRACT CHANGE 2026-10-08. The old test asserted pose_too_old for an
+        # image 89 s old; that guard measured wall-vs-pose-stamp and so could not
+        # tell "no pose for this instant" from "the frame is ancient". The real
+        # protection is the ORIGINAL age, checked first.
         cap, _ = self.make(pose_max_age_s=0.5)
         ok, reason, _ = cap.should_capture("uav_1", 10.0, self.POSE, 10.0,
                                            [10.0, 0.0], self.INTR, self.SIZE, 99.0)
         self.assertFalse(ok)
+        self.assertEqual("image_too_old", reason)
+
+    def test_pose_too_old_still_available_for_topic_mode(self):
+        # Only reachable when the image-age gate is deliberately looser; kept so
+        # a dead pose stream cannot be paired silently.
+        cap, _ = self.make(pose_max_age_s=1.0, image_max_age_s=5.0)
+        ok, reason, _ = cap.should_capture("uav_1", 10.0, self.POSE, 10.0,
+                                           [10.0, 0.0], self.INTR, self.SIZE, 12.0)
+        self.assertFalse(ok)
         self.assertEqual("pose_too_old", reason)
+
+    def test_measured_latency_does_not_block_capture(self):
+        """REGRESSION for the defect the offline backtest found.
+
+        Measured image latency in a real round is min 0.216 / p50 0.472 /
+        max 0.884 s. Service-mode poses carry no independent stamp, so the only
+        gate is image age; a 0.5 s old frame MUST still be eligible.
+        """
+        cap, _ = self.make()
+        ok, reason, _ = cap.should_capture("uav_1", 10.0, self.POSE, None,
+                                           [10.0, 0.0], self.INTR, self.SIZE, 10.472)
+        self.assertTrue(ok, reason)
+
+    def test_truth_too_old_rejected(self):
+        cap, _ = self.make()
+        age = cap.should_capture("uav_1", 10.0, self.POSE, None, [10.0, 0.0],
+                                 self.INTR, self.SIZE, 10.1, truth_age_s=9.0)
+        self.assertFalse(age[0])
+        self.assertEqual("truth_too_old", age[1])
+
+    def test_pose_history_picks_nearest_stamp_not_newest(self):
+        cap, _ = self.make(pair_tol_s=0.02)
+        cap.note_pose("uav_1", 10.01, self.POSE["xyz"], self.POSE["rotation"])
+        cap.note_pose("uav_1", 13.00, self.POSE["xyz"], self.POSE["rotation"],
+                      now=13.0)
+        # image at 10.0: nearest is 10.01 (0.01 s), NOT the newest 13.0
+        ok, reason, _ = cap.should_capture("uav_1", 10.0, None, None,
+                                           [10.0, 0.0], self.INTR, self.SIZE, 10.05)
+        self.assertTrue(ok, reason)
+
+    def test_pose_history_without_match_still_rejects(self):
+        # A pose exists, but not for this instant: the honest reason is a
+        # pairing mismatch, not "no pose at all".
+        cap, _ = self.make()
+        cap.note_pose("uav_1", 40.0, self.POSE["xyz"], self.POSE["rotation"])
+        ok, reason, _ = cap.should_capture("uav_1", 10.0, None, None,
+                                           [10.0, 0.0], self.INTR, self.SIZE, 10.1)
+        self.assertFalse(ok)
+        self.assertEqual("pose_image_time_mismatch", reason)
 
     def test_no_truth_rejected(self):
         cap, _ = self.make()
@@ -274,9 +326,34 @@ class SignedExit(unittest.TestCase):
                             "white_evidence_observer.py")
         with open(path, encoding="utf-8") as fh:
             src = fh.read()
-        for forbidden in ("rospy.Publisher", "ServiceProxy", "set_mode",
-                          "command_bool", "setpoint_raw"):
+        for forbidden in ("rospy.Publisher", "set_mode", "command_bool",
+                          "setpoint_raw", "mavros/cmd", "mavros/setpoint",
+                          "param/set", "arducopter"):
             self.assertNotIn(forbidden, src, forbidden)
+
+    def test_observer_calls_exactly_one_readonly_gazebo_service(self):
+        """The pose pull mirrors perception_real.py's own GetLinkState call.
+
+        Control-plane service clients stay forbidden; only the one read-only
+        Gazebo link-state query may appear, and it must be the only one.
+        """
+        path = os.path.join(REPO, "coordination", "scripts",
+                            "white_evidence_observer.py")
+        with open(path, encoding="utf-8") as fh:
+            src = fh.read()
+        self.assertEqual(1, src.count("rospy.ServiceProxy("))
+        self.assertIn('rospy.ServiceProxy("/gazebo/get_link_state"', src)
+        self.assertIn("GetLinkState", src)
+        # same link and offset the production node uses
+        self.assertIn("::cgo3_camera_link", src)
+        self.assertIn("0,0,-0.162", src)
+
+    def test_default_pose_source_mirrors_production(self):
+        import white_evidence_observer as O
+        args = O.build_arg_parser().parse_args([])
+        self.assertEqual("service", args.pose_source)
+        self.assertEqual(1.0, args.image_max_age_s)   # same gate as production
+        self.assertFalse(args.enable)                 # disabled unless asked
 
     def test_perception_real_untouched_by_this_task(self):
         path = os.path.join(REPO, "perception", "perception_real.py")
@@ -285,6 +362,52 @@ class SignedExit(unittest.TestCase):
         # the observer must not have leaked truth logic into perception
         self.assertNotIn("white_evidence_observer", src)
         self.assertNotIn("white_dev_observer", src)
+
+
+class LinkResolution(unittest.TestCase):
+    """uav_id -> gazebo model -> camera link, wiring first, template fallback."""
+
+    def _args(self, **kw):
+        import white_evidence_observer as O
+        a = O.build_arg_parser().parse_args([])
+        for k, v in kw.items():
+            setattr(a, k, v)
+        return a
+
+    def test_wiring_is_authoritative(self):
+        import white_evidence_observer as O
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+            json.dump({"uavs": [{"uav_id": "uav_3", "model_name": "typhoon_h480_2"}]}, fh)
+            p = fh.name
+        try:
+            links, rows = O.resolve_links(self._args(wiring=p, uavs="uav_3"))
+        finally:
+            os.unlink(p)
+        self.assertEqual("typhoon_h480_2::cgo3_camera_link", links["uav_3"][1])
+        self.assertEqual(1, len(rows))
+
+    def test_template_fallback_maps_uav_N_to_h480_Nminus1(self):
+        import white_evidence_observer as O
+        links, rows = O.resolve_links(self._args(uavs="uav_1,uav_6"))
+        self.assertEqual([], rows)
+        self.assertEqual("typhoon_h480_0::cgo3_camera_link", links["uav_1"][1])
+        self.assertEqual("typhoon_h480_5::cgo3_camera_link", links["uav_6"][1])
+
+    def test_missing_wiring_file_does_not_crash(self):
+        import white_evidence_observer as O
+        links, rows = O.resolve_links(self._args(wiring="/nope/none.json",
+                                                 uavs="uav_2"))
+        self.assertEqual("typhoon_h480_1::cgo3_camera_link", links["uav_2"][1])
+
+
+class Quaternion(unittest.TestCase):
+    def test_identity_and_yaw_180(self):
+        import white_evidence_observer as O
+        import numpy as np
+        self.assertTrue(np.allclose(np.eye(3), O.quat_to_R(0, 0, 0, 1)))
+        # 180 deg about z
+        R = O.quat_to_R(0, 0, 1, 0)
+        self.assertTrue(np.allclose(np.diag([-1.0, -1.0, 1.0]), R))
 
 
 if __name__ == "__main__":

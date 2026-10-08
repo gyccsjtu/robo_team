@@ -186,3 +186,57 @@ JSON 可序列化（含 numpy 标量）。另有既有回归：`test_person_veri
 
 > 边界：全部结论来自离线归档与构造测试，不代表实体轮已复现真人漏检；未做人工目视结论；
 > 未启动仿真；补图工具未运行。等待 Codex 复核。
+
+---
+
+## 8. 交付后自纠：补图观察器有一条**致命缺陷**（2026-10-08 晚，离线回测发现）
+
+上面 §5 说观察器"已实现、未实跑"。既然它需要活仿真才能收话题，我改用**离线回测**
+（`validation/white_visibility_20261008/observer_backtest.py`）把 v1.40 的 1827 条搜索相机记录
+喂给观察器**真实的判定函数**，逐条问"这帧会不会被存下来"。结果：
+
+| 契约 | 实存帧数（1827 条记录） | 首条拒绝原因 |
+|---|---|---|
+| **v1（我原来交付的）** | **0** | `pose_image_time_mismatch` × 1827 |
+| **production_mirror（修正后）** | 643 合格，产量帽下实存 **120** | — |
+
+**两个缺陷，都是设计错，不是实现笔误：**
+
+1. **配对契约错**：v1 等 `/uav_N/mavros/local_position/pose`，要求**最新位姿的时间戳**与图像
+   时间戳相差 ≤ `pair_tol_s = 0.02 s`。实测图像延迟 **min 0.216 / p50 0.472 / max 0.884 s**
+   ⇒ 100% 被拒，一张都存不下。
+2. **消息类型错**：v1 把该话题当 `nav_msgs/Odometry` 订阅；栈内实际是 `PoseStamped`
+   （`six_radar_connectivity.py:273`、`coordination_executor.py:188` 均为 PoseStamped）
+   ⇒ 即使改了容差，回调也收不到。
+3. **陈旧判据错**：v1 用 `wall_now - pose_stamp <= pose_max_age_s` 判陈旧，这**无法区分**
+   "这一刻没有位姿" 和 "这张原图太旧"。真正的保护应该是**原图年龄**。
+
+**修法 = 照抄生产节点的既有做法**（`perception_real.py:1221-1234`）：图像到达时调
+`/gazebo/get_link_state(<model>::cgo3_camera_link, "world")` 拉当前相机位姿，加
+`R @ CAM_OFF_BL`（`0,0,-0.162`，与 `city_swarm_run.py:351` 同值），并且**只以原图年龄
+≤ 1.0 s 为闸门**（与生产同值）。位姿拉取时刻晚于成像时刻，其位置误差按行记录为
+`pose_pull_delay_s`。`--pose-source topic` 保留给没有该服务的环境，并改为**按最近时间戳
+在历史里查**（不是"最新位姿"）。
+
+**交叉校验**：修正后回测中 `behind_camera 789 + outside_image 245 = 1034`，
+反推入画帧 1827 − 1034 = **793**，与独立审计工具 `white_audit3.py` 的 793 **完全一致**
+（两个互不依赖的实现互相印证）。
+
+**读-only 边界仍然成立**：观察器仍然零 Publisher、无飞控服务调用；新增的
+`/gazebo/get_link_state` 是**唯一的**服务调用，只读，且**生产感知自己就在用同一个调用**
+（测试 `test_observer_calls_exactly_one_readonly_gazebo_service` 断言全文件服务调用数 = 1）。
+
+**测试**：`coordination/tests/test_white_tools.py` 由 27 → **38 项全过**，
+其中新增的关键回归是 `test_measured_latency_does_not_block_capture`（0.472 s 延迟必须仍可采）
+和 `test_pose_history_picks_nearest_stamp_not_newest`。
+**注意一处契约变更**：原 `test_pose_too_old_rejected` 断言的是被我判定为错误的旧契约，
+已改为 `test_old_original_rejected`（断言 `image_too_old`），`pose_too_old` 单独保留为
+"话题模式 + 图像年龄门放宽"下的次级保护。
+
+**教训**（已写入 `memory/rules/traps.md`）：**纯函数的单测全绿，完全不能证明 I/O 契约成立。**
+27 项测试覆盖了判定函数，却没有任何一项能发现"话题类型错、容差 0.02 s 与现实 0.47 s 不符"。
+**对照真实归档跑一遍判定函数，成本几分钟，能挡住一类本来只在实跑时才会暴露的错。**
+
+**仍未做**：观察器**没有在活仿真里跑过**。要产出近处白色原图，必须先有一轮实体轮；
+我没有启动仿真（本轮任务明确禁止，且 Codex 正在同一台 WSL 上做搜索/接近链）。
+可选的两种跑法见 §7-1。

@@ -1,0 +1,50 @@
+{
+ "round": "/root/robocup_runs/codex_legacy_chain_v140_20261008/round_1_seed_8159",
+ "records": 1827,
+ "latency": {
+  "min": 0.2159999999998945,
+  "p50": 0.47199999999998,
+  "p90": 0.599999999999909,
+  "max": 0.8840000000000146
+ },
+ "results": {
+  "v1_latest_pose/unlimited": {
+   "saved": 0,
+   "cap": 1000000000,
+   "skipped": {
+    "pose_image_time_mismatch": 1827
+   },
+   "unique_keys": 0
+  },
+  "v1_latest_pose/production": {
+   "saved": 0,
+   "cap": 120,
+   "skipped": {
+    "pose_image_time_mismatch": 1827
+   },
+   "unique_keys": 0
+  },
+  "production_mirror/unlimited": {
+   "saved": 643,
+   "cap": 1000000000,
+   "skipped": {
+    "outside_image": 245,
+    "behind_camera": 789,
+    "below_size_and_range_thresholds": 150
+   },
+   "unique_keys": 643
+  },
+  "production_mirror/production": {
+   "saved": 120,
+   "cap": 120,
+   "skipped": {
+    "per_uav_rate_limit": 212,
+    "outside_image": 71,
+    "behind_camera": 246,
+    "below_size_and_range_thresholds": 7,
+    "total_cap_reached": 1171
+   },
+   "unique_keys": 120
+  }
+ }
+}
