@@ -24,10 +24,15 @@ def write(path,value):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--root',required=True)
+    ap.add_argument('--wall-limit-seconds',type=float,
+        help='Optional user wall-time cap, including startup; simulation limit remains unchanged')
     selection=ap.add_mutually_exclusive_group(required=True)
     selection.add_argument('--round',type=int,choices=ROUNDS)
     selection.add_argument('--single-seed',type=int,help='One separately authorized 600-second map, in a new budget')
     args=ap.parse_args();root=Path(args.root);root.mkdir(parents=True,exist_ok=True)
+    if args.wall_limit_seconds is not None and (not math.isfinite(args.wall_limit_seconds)
+            or args.wall_limit_seconds <= 0):
+        ap.error('wall-limit-seconds must be positive and finite')
     single=args.single_seed is not None;maximum=1 if single else 3
     repo=Path(__file__).resolve().parents[2];index=1 if single else args.round
     seed,seconds=(args.single_seed,600) if single else ROUNDS[index]
@@ -52,6 +57,7 @@ def main():
     write(out/'source_manifest.json',source_sha)
     record=dict(index=index,seed=seed,sim_limit_s=seconds,output=str(out),status='RUNNING',started_utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()))
     record['physics_rate_hz']=physics_rate
+    record['requested_wall_limit_seconds']=args.wall_limit_seconds
     if single:record['authorization']='user_requested_one_additional_random_map'
     state['attempts'].append(record);write(budget,state)
     env=dict(os.environ,CITY_SEED=str(seed),CITY_SECONDS=str(seconds),CITY_RUN_ROOT=str(out),
@@ -90,6 +96,8 @@ def main():
                     selected_seed=(scene or {}).get('seed'))
                 write(budget,state)
                 reason=('CONFIRMED_STATIC_BODY_CONTACT' if first_static else 'USER_INTERRUPTED' if interrupted
+                        else 'REQUESTED_WALL_LIMIT' if args.wall_limit_seconds is not None
+                            and time.monotonic()-start >= args.wall_limit_seconds
                         else 'WALL_TIMEOUT' if time.monotonic()-start > seconds*8+600 else None)
                 if reason and stop_started is None:
                     command=Path('/proc/%d/cmdline'%child.pid).read_bytes().replace(b'\0',b' ').decode()
