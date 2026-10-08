@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "decision": "AGENT_EARLY_STOP",
+  "reason": "250HZ_CAMERA_STREAM_ALREADY_STALE_AND_NO_EFFECTIVE_DETECTION",
+  "started_from_user_authorization": true,
+  "wall_utc": "2026-10-08T02:24:27Z",
+  "owned_runner_pid": 571,
+  "command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/validate_fast_city.py --root /root/robocup_runs/original_rate_250_20261008T021930Z --single-seed 8159 ",
+  "signal_name": "SIGINT",
+  "freshness_receive": {
+    "image": {
+      "count": 9,
+      "age_median_s": 1.3919999999998254,
+      "age_max_s": 2.6520000000000437,
+      "above_one_second": 9
+    },
+    "scan": {
+      "count": 1335,
+      "age_median_s": 0.0,
+      "age_max_s": 0.008000000000038199,
+      "above_one_second": 0
+    },
+    "motion": {
+      "count": 1509,
+      "age_median_s": 0.04303745099991829,
+      "age_max_s": 0.15920417200004522,
+      "above_one_second": 0
+    }
+  },
+  "frame_probe_rows": 0,
+  "physical_limit_s": 600,
+  "not_a_full_600_second_run": true
+}

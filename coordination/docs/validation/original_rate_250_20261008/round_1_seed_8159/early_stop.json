@@ -1,0 +1,6 @@
+{
+  "reason": "USER_INTERRUPTED",
+  "pid": 609,
+  "command": "python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/six_radar_connectivity.py --output /root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/flight --city-scene /root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/scene --flight-seconds 600 ",
+  "first_static_contact": null
+}

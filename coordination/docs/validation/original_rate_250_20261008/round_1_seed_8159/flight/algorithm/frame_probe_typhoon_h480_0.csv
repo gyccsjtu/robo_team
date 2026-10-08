@@ -1,0 +1,1 @@
+wall_time,ros_time,image_stamp,image_age_s,inference_s,raw_boxes,raw_cls,raw_in_roi,roi_drop,raw_w_max,raw_h_max,raw_conf_max,geo_pass,geo_reject,cam_x,cam_y,cam_z,cam_yaw,img_w,img_h,shared

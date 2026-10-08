@@ -1,0 +1,145 @@
+{
+  "executed_head": "e8a73f25a31db5b7cc6344aaf403c9e6884cbd9f",
+  "run_id": "9c9e1949-1701-4670-9366-e85dbbac2e2b",
+  "physics": {
+    "update_rate": 250.0,
+    "time_step": 0.004,
+    "sensor_parameters_changed": false,
+    "reason": "City software rendering produced image age 1.3-1.8s at 50Hz"
+  },
+  "simulated_seconds": 97.49200000000019,
+  "official_targets_eliminated": 0,
+  "left_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "actual_stop": "Agent intentionally interrupted own runner after confirmed stale camera stream and zero effective frames",
+  "raw_stop_component_error": "CITY_OWNED_INTERRUPT:OWNED_INTERRUPT_SIGTERM",
+  "interrupt_evidence": [
+    {
+      "signal_number": 15,
+      "signal_name": "SIGTERM",
+      "owned_watchdog_fired": false,
+      "wall_elapsed_s": 295.5768532752991,
+      "monotonic_elapsed_s": 295.576857097
+    }
+  ],
+  "six_armed": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "six_moved_independent_of_raw_error_flag": true,
+  "maximum_altitudes_m": {
+    "uav_1": 3.6610449433501095,
+    "uav_2": 3.7924547817785634,
+    "uav_3": 3.6273535127282175,
+    "uav_4": 3.725119449055759,
+    "uav_5": 3.6372919683898237,
+    "uav_6": 3.650708944995902
+  },
+  "maximum_displacements_m": {
+    "uav_1": 9.084154475902693,
+    "uav_2": 13.030987852859187,
+    "uav_3": 10.207916474714672,
+    "uav_4": 9.851608100304514,
+    "uav_5": 5.149754148774448,
+    "uav_6": 27.60595732006692
+  },
+  "trajectory": {
+    "count": 286,
+    "first_s": 1934.668,
+    "last_s": 2031.524,
+    "span_s": 96.856
+  },
+  "contacts": {
+    "nonground": [],
+    "final_cumulative_heartbeat": {
+      "kind": "CONTACT_OBSERVER_HEARTBEAT",
+      "frames": 25839,
+      "first_sample_s": 1929.04,
+      "last_sample_s": 2032.392,
+      "maximum_sample_gap_s": 0.00400000000013,
+      "sonar_virtual_pairs": 86500,
+      "body_pairs": 68634
+    }
+  },
+  "source_audit": {
+    "swarm_count": 140,
+    "auxiliary_count": 13,
+    "mismatches": []
+  },
+  "performance_window": {
+    "wall_s": 30.038228916999998,
+    "sim_s": 12.67599999999993,
+    "rtf": 0.42199558552621613
+  },
+  "freshness_receive": {
+    "image": {
+      "count": 9,
+      "age_median_s": 1.3919999999998254,
+      "age_max_s": 2.6520000000000437,
+      "above_one_second": 9
+    },
+    "scan": {
+      "count": 1335,
+      "age_median_s": 0.0,
+      "age_max_s": 0.008000000000038199,
+      "above_one_second": 0
+    },
+    "motion": {
+      "count": 1509,
+      "age_median_s": 0.04303745099991829,
+      "age_max_s": 0.15920417200004522,
+      "above_one_second": 0
+    }
+  },
+  "heartbeat_image_age": {
+    "perception_uav_6": {
+      "samples": 19,
+      "min_s": 1.54,
+      "median_s": 2.48,
+      "max_s": 4.02
+    },
+    "perception_uav_3": {
+      "samples": 19,
+      "min_s": 1.44,
+      "median_s": 2.44,
+      "max_s": 3.75
+    },
+    "perception_uav_2": {
+      "samples": 19,
+      "min_s": 1.33,
+      "median_s": 2.42,
+      "max_s": 3.64
+    },
+    "perception_uav_4": {
+      "samples": 19,
+      "min_s": 1.44,
+      "median_s": 2.44,
+      "max_s": 3.75
+    },
+    "perception_uav_1": {
+      "samples": 19,
+      "min_s": 1.58,
+      "median_s": 2.57,
+      "max_s": 4.05
+    },
+    "perception_uav_5": {
+      "samples": 19,
+      "min_s": 1.28,
+      "median_s": 2.47,
+      "max_s": 3.59
+    }
+  },
+  "effective_frame_probe_rows": 0,
+  "accepted_visual_count": 0,
+  "target_grants": 0
+}

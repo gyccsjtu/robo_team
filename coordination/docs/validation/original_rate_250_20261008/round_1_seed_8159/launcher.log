@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "development_scene": true,
+  "formal_competition_pass": false,
+  "source_directory": "/mnt/d/a/.robocup/robo_team/coordination/vendor/official_robocup/20261006",
+  "actor_variant": "upstream",
+  "actor_source_directory": "/mnt/d/a/.robocup/robo_team/coordination/vendor/official_robocup/20261006",
+  "seed": 8159,
+  "attempts": [
+    {
+      "seed": 8159,
+      "clearance_m": [
+        2.725,
+        5.725,
+        4.052853932724445,
+        6.4634066095210185,
+        4.5,
+        4.5
+      ]
+    }
+  ],
+  "positions": {
+    "uav_1": [
+      0.0,
+      -3.0
+    ],
+    "uav_2": [
+      3.0,
+      -3.0
+    ],
+    "uav_3": [
+      0.0,
+      0.0
+    ],
+    "uav_4": [
+      3.0,
+      0.0
+    ],
+    "uav_5": [
+      0.0,
+      3.0
+    ],
+    "uav_6": [
+      3.0,
+      3.0
+    ]
+  },
+  "startup_checks": {
+    "uav_1": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 2.725
+    },
+    "uav_2": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 5.725
+    },
+    "uav_3": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 4.052853932724445
+    },
+    "uav_4": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 6.4634066095210185
+    },
+    "uav_5": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 4.5
+    },
+    "uav_6": {
+      "free_radius_m": 2.0,
+      "rectangle_clearance_m": 4.5
+    }
+  },
+  "actor_ids": [
+    "actor_0",
+    "actor_1",
+    "actor_2",
+    "actor_3",
+    "actor_4",
+    "actor_5"
+  ],
+  "actor_teleportation": "none; upstream removed teleportation 2026-10-05, /find_actor now only arms escape",
+  "actor_edits": {
+    "isolated_black_box_path": true,
+    "python3_actor_range": true,
+    "teleport_deadline_30s_per_rule": false,
+    "transient_service_retry": true,
+    "teleport_wait_yield_guard": false
+  },
+  "actor_source_sha256": {
+    "control_actor.py": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7",
+    "ObstacleAvoid.py": "8226209795345a19086706725bce9c4fa7469960c3c89a244346a9840ee9dae0"
+  },
+  "red_matching_revision": "upstream_20261004",
+  "red_matching_source": "Upstream _process_red_detection; either red truth matches a red report",
+  "adapted_judge_sha256": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+  "source_sha256": {
+    "ObstacleAvoid.py": "8226209795345a19086706725bce9c4fa7469960c3c89a244346a9840ee9dae0",
+    "base1.world": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c",
+    "base2.world": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948",
+    "base3.world": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f",
+    "control_actor.py": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7",
+    "map_generator.py": "f9edec80bf539eba2684a513a43f16ee38dacd1a80f92dae8ae4d9d54315ed93",
+    "rover_static.world": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81",
+    "score_cal.py": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+    "white_background.png": "f2b15c6f0e6464a95b93743a1f998e67cd877baa63d0e445ee8e8e78f6853819"
+  },
+  "adaptations": [
+    "isolated output paths",
+    "seeded map randomness",
+    "reject exhausted random placement; original fallback produced empty world and mismatched obstacle data",
+    "250Hz PX4-compatible physics",
+    "actor reads this scene's black_box.txt instead of the organizer ~/XTDrone copy",
+    "Python3 actor range",
+    "actor transient service retry without Python2 print crash or fictitious pose",
+    "upstream control_actor.py has no teleport code at all (removed upstream 2026-10-05); no teleport guard needed",
+    "red reports match either remaining red actor via the upstream implementation; judge copy left unmodified"
+  ]
+}
+Spawned uav_1
+Spawned uav_2
+Spawned uav_3
+Spawned uav_4
+Spawned uav_5
+Spawned uav_6
+{"status": "SIX_RADAR_CONNECTED", "formal_competition_pass": false, "fixture_only": true, "armed": false, "watchdog_limit_wall_s": 1260.0, "connected_uavs": ["uav_1", "uav_2", "uav_3", "uav_4", "uav_5", "uav_6"], "scan_beams": {"uav_1": 512, "uav_2": 512, "uav_3": 512, "uav_4": 512, "uav_5": 512, "uav_6": 512}, "telemetry": {"uav_1": {"local_pose_frame": "uav_1/map", "local_position": [0.0016711484640836716, 0.003613048233091831, -0.03999045863747597], "scan_frame": "uav_1/laser_2d", "scan_sample_s": 1927.572, "range_min": 0.5, "range_max": 20.0}, "uav_2": {"local_pose_frame": "uav_2/map", "local_position": [-0.005513531621545553, 0.0017263273475691676, -0.018478572368621826], "scan_frame": "uav_2/laser_2d", "scan_sample_s": 1927.564, "range_min": 0.5, "range_max": 20.0}, "uav_3": {"local_pose_frame": "uav_3/map", "local_position": [0.002216890687122941, -0.0016983369132503867, -0.01027852576225996], "scan_frame": "uav_3/laser_2d", "scan_sample_s": 1927.564, "range_min": 0.5, "range_max": 20.0}, "uav_4": {"local_pose_frame": "uav_4/map", "local_position": [0.0051606278866529465, -0.0016747654881328344, -0.004971033427864313], "scan_frame": "uav_4/laser_2d", "scan_sample_s": 1927.568, "range_min": 0.5, "range_max": 20.0}, "uav_5": {"local_pose_frame": "uav_5/map", "local_position": [0.00872403010725975, -0.0005057577509433031, -0.0012040503788739443], "scan_frame": "uav_5/laser_2d", "scan_sample_s": 1927.56, "range_min": 0.5, "range_max": 20.0}, "uav_6": {"local_pose_frame": "uav_6/map", "local_position": [0.007516150828450918, -0.00193379248958081, 0.0011075608199462295], "scan_frame": "uav_6/laser_2d", "scan_sample_s": 1927.56, "range_min": 0.5, "range_max": 20.0}}}
+shared inference service on port 19731 conf=0.40
+{"status": "CITY_MOTION_BLOCKED", "formal_competition_pass": false, "fixture_only": false, "watchdog_limit_wall_s": 1260.0, "connected_uavs": ["uav_1", "uav_2", "uav_3", "uav_4", "uav_5", "uav_6"], "scan_beams": {"uav_1": 512, "uav_2": 512, "uav_3": 512, "uav_4": 512, "uav_5": 512, "uav_6": 512}, "telemetry": {"uav_1": {"local_pose_frame": "uav_1/map", "local_position": [0.0016711484640836716, 0.003613048233091831, -0.03999045863747597], "scan_frame": "uav_1/laser_2d", "scan_sample_s": 1927.572, "range_min": 0.5, "range_max": 20.0}, "uav_2": {"local_pose_frame": "uav_2/map", "local_position": [-0.005513531621545553, 0.0017263273475691676, -0.018478572368621826], "scan_frame": "uav_2/laser_2d", "scan_sample_s": 1927.564, "range_min": 0.5, "range_max": 20.0}, "uav_3": {"local_pose_frame": "uav_3/map", "local_position": [0.002216890687122941, -0.0016983369132503867, -0.01027852576225996], "scan_frame": "uav_3/laser_2d", "scan_sample_s": 1927.564, "range_min": 0.5, "range_max": 20.0}, "uav_4": {"local_pose_frame": "uav_4/map", "local_position": [0.0051606278866529465, -0.0016747654881328344, -0.004971033427864313], "scan_frame": "uav_4/laser_2d", "scan_sample_s": 1927.568, "range_min": 0.5, "range_max": 20.0}, "uav_5": {"local_pose_frame": "uav_5/map", "local_position": [0.00872403010725975, -0.0005057577509433031, -0.0012040503788739443], "scan_frame": "uav_5/laser_2d", "scan_sample_s": 1927.56, "range_min": 0.5, "range_max": 20.0}, "uav_6": {"local_pose_frame": "uav_6/map", "local_position": [0.007516150828450918, -0.00193379248958081, 0.0011075608199462295], "scan_frame": "uav_6/laser_2d", "scan_sample_s": 1927.56, "range_min": 0.5, "range_max": 20.0}}, "connectivity_armed": false, "interrupt_evidence": [{"signal_number": 15, "signal_name": "SIGTERM", "owned_watchdog_fired": false, "wall_elapsed_s": 295.5768532752991, "monotonic_elapsed_s": 295.576857097}], "six_aircraft_motion_observed": false, "official_targets_eliminated": 0, "all_targets_eliminated": false, "maximum_altitudes_m": {"uav_1": 3.6610449433501095, "uav_2": 3.7924547817785634, "uav_3": 3.6273535127282175, "uav_4": 3.725119449055759, "uav_5": 3.6372919683898237, "uav_6": 3.650708944995902}, "maximum_displacements_m": {"uav_1": 9.084154475902693, "uav_2": 13.030987852859187, "uav_3": 10.207916474714672, "uav_4": 9.851608100304514, "uav_5": 5.149754148774448, "uav_6": 27.60595732006692}, "simulated_seconds": 97.49200000000019, "minimum_sampled_separation_m": 2.6632823994810395, "component_error": "CITY_OWNED_INTERRUPT:OWNED_INTERRUPT_SIGTERM", "model_state_retry_count": 0, "evidence_streams_verified": true, "judge_terminal_evidence": null, "left_actors_topic_last": null, "armed_during_run_uavs": ["uav_1", "uav_2", "uav_3", "uav_4", "uav_5", "uav_6"], "left_actors": [0, 1, 2, 3, 4, 5], "score": -5, "visual_count": 0, "target_grants": 0}

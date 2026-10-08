@@ -1,0 +1,34 @@
+[
+  {
+    "pid": 5186,
+    "tag": "green",
+    "state": "exited"
+  },
+  {
+    "pid": 5187,
+    "tag": "blue",
+    "state": "exited"
+  },
+  {
+    "pid": 5188,
+    "tag": "brown",
+    "state": "exited"
+  },
+  {
+    "pid": 5195,
+    "tag": "white",
+    "state": "exited"
+  },
+  {
+    "pid": 5198,
+    "tag": "red",
+    "state": "exited"
+  },
+  {
+    "pid": 5204,
+    "tag": "frames",
+    "state": "SIGINT_SENT",
+    "command": "python3 -u /root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/observers/sources/capture_visual_frames.py --output /root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/observers/frames --wall-seconds 1500 --loss-color white ",
+    "after_SIGINT": "exited"
+  }
+]

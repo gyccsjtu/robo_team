@@ -1,0 +1,32 @@
+[pr] 相机视差判决使用本运行逐机授权；旧assignment只供诊断
+[pr] 空间身份闸门开启：发布坐标须与融合估计一致(<=2.5m, 新鲜<=3s)
+[pr] 加载权重 /mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt
+[pr] v4.0 双目左目适配 | 相机 typhoon_h480_3::cgo3_camera_link <- /uav_4/cgo3_camera/image_raw | 内参 fx=376.0 cx=376.0 cy=240.0 图 752x480
+[pr] 类别顺序 ['red', 'green', 'blue', 'white', 'brown']
+[pr] shared_inference port=19731 ready=True (0=将回退进程内推理)
+[pr] v4.0(双目) 几何+运动+人判决+red双流 | conf=0.40  detect=5Hz  pub=10Hz
+[pr] 人判决: 标注ON 发布ON | H∈[1.30,2.40] 净速度≥0.15m/s 打分≥0.20 画框要求coast≤2
+[pr] 严格档(新建) H∈[1.15,2.10] AR∈[0.55,3.80] | 宽松档(hits>=5) H∈[0.80,3.20] AR∈[0.40,4.50]
+[pr] H_ref=1.75±0.70 H_gate=1.50 | 跟踪 alpha=0.50 beta=0.15 gate=3.0m min_hits=2 timeout=3.0s
+[pr] 帧间跳变门限(已确认 track) ON: gate=min(3.0, 1.5 + 3.0·dt)
+[pr] 心跳 loop=2 img_ts=0.000 img_age=-1.00s n_det=0 z=0.00m pub=0 coord=ON cam=(0.0,0.0,0.0)
+[pr] 心跳 loop=53 img_ts=1937.848 img_age=2.63s n_det=0 z=0.00m pub=0 coord=ON cam=(3.0,0.0,0.0)
+[pr] 心跳 loop=103 img_ts=1942.672 img_age=2.81s n_det=0 z=0.00m pub=0 coord=ON cam=(3.0,0.0,0.1)
+[pr] 心跳 loop=153 img_ts=1947.496 img_age=2.98s n_det=0 z=0.00m pub=0 coord=ON cam=(2.9,-0.1,1.1)
+[pr] 心跳 loop=203 img_ts=1952.264 img_age=3.22s n_det=0 z=0.00m pub=0 coord=ON cam=(2.9,-0.1,2.2)
+[pr] 心跳 loop=253 img_ts=1957.668 img_age=2.81s n_det=0 z=0.00m pub=0 coord=ON cam=(3.0,-0.1,2.4)
+[pr] 心跳 loop=303 img_ts=1963.248 img_age=2.23s n_det=0 z=0.00m pub=0 coord=ON cam=(3.1,0.0,2.8)
+[pr] 心跳 loop=353 img_ts=1966.964 img_age=3.52s n_det=0 z=0.00m pub=0 coord=ON cam=(3.3,0.1,3.0)
+[pr] 心跳 loop=403 img_ts=1972.308 img_age=3.17s n_det=0 z=0.00m pub=0 coord=ON cam=(3.3,0.2,3.4)
+[pr] 心跳 loop=453 img_ts=1977.736 img_age=2.75s n_det=0 z=0.00m pub=0 coord=ON cam=(3.2,0.1,3.5)
+[pr] 心跳 loop=503 img_ts=1983.232 img_age=2.25s n_det=0 z=0.00m pub=0 coord=ON cam=(3.3,-0.0,3.4)
+[pr] 心跳 loop=554 img_ts=1986.828 img_age=3.75s n_det=0 z=0.00m pub=0 coord=ON cam=(4.3,-0.0,2.3)
+[pr] 心跳 loop=604 img_ts=1993.636 img_age=1.94s n_det=0 z=0.00m pub=0 coord=ON cam=(2.7,-0.1,2.1)
+[pr] 心跳 loop=654 img_ts=1999.140 img_age=1.44s n_det=0 z=0.00m pub=0 coord=ON cam=(2.8,0.0,2.2)
+[pr] 心跳 loop=704 img_ts=2003.136 img_age=2.44s n_det=0 z=0.00m pub=0 coord=ON cam=(3.9,0.1,2.4)
+[pr] 心跳 loop=754 img_ts=2008.276 img_age=2.30s n_det=0 z=0.00m pub=0 coord=ON cam=(6.1,0.1,2.4)
+[pr] 心跳 loop=804 img_ts=2013.900 img_age=1.68s n_det=0 z=0.00m pub=0 coord=ON cam=(9.0,0.2,2.4)
+[pr] 心跳 loop=854 img_ts=2018.768 img_age=1.81s n_det=0 z=0.00m pub=0 coord=ON cam=(10.9,-0.2,2.4)
+[pr] 心跳 loop=904 img_ts=2023.156 img_age=2.42s n_det=0 z=0.00m pub=0 coord=ON cam=(12.7,-1.7,2.4)
+[pr] 心跳 loop=954 img_ts=2028.664 img_age=1.92s n_det=0 z=0.00m pub=0 coord=ON cam=(12.5,-0.4,2.3)
+[WARN] [1791426269.591307, 2032.408000]: Camera pose sampler: node shutdown interrupted service call

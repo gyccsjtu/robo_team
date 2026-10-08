@@ -1,0 +1,13 @@
+{
+  "pid": 571,
+  "command": [
+    "bash",
+    "-c",
+    "source /opt/ros/noetic/setup.bash && source /root/robo_team_build/codex_authority_v2/devel/setup.bash && exec python3 /mnt/d/a/.robocup/robo_team/coordination/scripts/validate_fast_city.py --root /root/robocup_runs/original_rate_250_20261008T021930Z --single-seed 8159"
+  ],
+  "started_utc": "2026-10-08T02:19:30Z",
+  "head": "e8a73f25a31db5b7cc6344aaf403c9e6884cbd9f",
+  "physics_rate_hz": 250,
+  "root": "/root/robocup_runs/original_rate_250_20261008T021930Z",
+  "runner_sha256": "807c24303fd94b69dc55344242000b0a65575cab2eec0b1039a6fdf2b1a39638"
+}

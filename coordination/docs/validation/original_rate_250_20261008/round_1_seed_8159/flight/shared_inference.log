@@ -1,0 +1,93 @@
+[shared_infer] same-frame green person verifier ready weights=/mnt/d/a/.robocup/robo_team/weights/yolo11n_person.pt
+[shared_infer] model ready weights=/mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt device=0 conf=0.40
+[shared_infer] listening on 127.0.0.1:19731 device=0 conf=0.40 fmt=png
+----------------------------------------
+Exception happened during processing of request from ('127.0.0.1', 48122)
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.8/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.8/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py", line 128, in handle
+    for raw in self.rfile:
+  File "/usr/lib/python3.8/socket.py", line 669, in readinto
+    return self._sock.recv_into(b)
+socket.timeout: timed out
+----------------------------------------
+----------------------------------------
+Exception happened during processing of request from ('127.0.0.1', 48124)
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.8/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.8/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py", line 128, in handle
+    for raw in self.rfile:
+  File "/usr/lib/python3.8/socket.py", line 669, in readinto
+    return self._sock.recv_into(b)
+socket.timeout: timed out
+----------------------------------------
+----------------------------------------
+Exception happened during processing of request from ('127.0.0.1', 48134)
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.8/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.8/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py", line 128, in handle
+    for raw in self.rfile:
+  File "/usr/lib/python3.8/socket.py", line 669, in readinto
+    return self._sock.recv_into(b)
+socket.timeout: timed out
+----------------------------------------
+----------------------------------------
+Exception happened during processing of request from ('127.0.0.1', 48148)
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.8/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.8/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py", line 128, in handle
+    for raw in self.rfile:
+  File "/usr/lib/python3.8/socket.py", line 669, in readinto
+    return self._sock.recv_into(b)
+socket.timeout: timed out
+----------------------------------------
+----------------------------------------
+Exception happened during processing of request from ('127.0.0.1', 48154)
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.8/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.8/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py", line 128, in handle
+    for raw in self.rfile:
+  File "/usr/lib/python3.8/socket.py", line 669, in readinto
+    return self._sock.recv_into(b)
+socket.timeout: timed out
+----------------------------------------
+----------------------------------------
+Exception happened during processing of request from ('127.0.0.1', 48162)
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/socketserver.py", line 683, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.8/socketserver.py", line 360, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.8/socketserver.py", line 747, in __init__
+    self.handle()
+  File "/root/robocup_runs/original_rate_250_20261008T021930Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py", line 128, in handle
+    for raw in self.rfile:
+  File "/usr/lib/python3.8/socket.py", line 669, in readinto
+    return self._sock.recv_into(b)
+socket.timeout: timed out
+----------------------------------------

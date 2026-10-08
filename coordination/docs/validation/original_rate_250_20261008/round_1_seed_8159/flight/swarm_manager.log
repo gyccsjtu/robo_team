@@ -1,0 +1,81 @@
+[INFO] [1791426016.932788, 0.000000]: swarm_manager 启动，机队: ['uav_1', 'uav_2', 'uav_3', 'uav_4', 'uav_5', 'uav_6']
+[INFO] [1791426016.934459, 0.000000]: [manager] 搜索栅格边界 x[-50,130] y[-60,60]（元数据）
+[INFO] [1791426016.936885, 0.000000]: [manager] Online mode: metadata bounds only, no stored obstacle or LOS prior
+[INFO] [1791426017.005386, 0.000000]: [manager] 集群管理器启动，机队: ['uav_1', 'uav_2', 'uav_3', 'uav_4', 'uav_5', 'uav_6']
+[WARN] [1791426017.744819, 1935.144000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791426019.215744, 1935.720000]: [manager] 官方剩余 actor: [0, 1, 2, 3, 4, 5]
+[WARN] [1791426031.189439, 1940.244000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791426043.472953, 1945.344000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791426047.234833, 1946.964000]: [manager] 分配 uav_1 → 格 (3,0) 飞行距离 59.2m 租约 39.6s
+[INFO] [1791426047.244219, 1946.968000]: [manager] 分配 uav_1 → 格 (3,0) 中心 (-25.5,-56.5)
+[INFO] [1791426047.247370, 1946.968000]: [manager] 分配 uav_2 → 格 (14,3) 飞行距离 58.4m 租约 39.2s
+[INFO] [1791426047.255413, 1946.972000]: [manager] 分配 uav_2 → 格 (14,3) 中心 (51.5,-35.5)
+[INFO] [1791426047.258415, 1946.972000]: [manager] 分配 uav_3 → 格 (0,12) 飞行距离 54.0m 租约 37.0s
+[INFO] [1791426047.264272, 1946.972000]: [manager] 分配 uav_3 → 格 (0,12) 中心 (-46.5,27.5)
+[INFO] [1791426047.267421, 1946.972000]: [manager] 分配 uav_4 → 格 (17,8) 飞行距离 69.5m 租约 44.8s
+[INFO] [1791426047.274803, 1946.980000]: [manager] 分配 uav_4 → 格 (17,8) 中心 (72.5,-0.5)
+[INFO] [1791426047.277763, 1946.980000]: [manager] 分配 uav_5 → 格 (10,17) 飞行距离 61.2m 租约 40.6s
+[INFO] [1791426047.286183, 1946.984000]: [manager] 分配 uav_5 → 格 (10,17) 中心 (23.5,59.5)
+[INFO] [1791426047.289750, 1946.988000]: [manager] 分配 uav_6 → 格 (17,10) 飞行距离 70.3m 租约 45.2s
+[INFO] [1791426047.296136, 1946.988000]: [manager] 分配 uav_6 → 格 (17,10) 中心 (72.5,13.5)
+[WARN] [1791426057.045147, 1950.348000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791426070.603487, 1955.352000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791426077.678912, 1958.352000]: [manager] SEARCH_FEEDBACK_REJECTED
+[INFO] [1791426081.070729, 1959.852000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=1 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[WARN] [1791426082.378446, 1960.448000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791426089.732554, 1963.720000]: [manager] SEARCH_FEEDBACK_REJECTED
+[INFO] [1791426091.004755, 1964.308000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=1 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[WARN] [1791426096.963749, 1966.948000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791426101.101968, 1968.724000]: [manager] SEARCH_FEEDBACK_REJECTED
+[WARN] [1791426101.231515, 1968.768000]: [manager] NAVIGATION_BLOCKED uav_4 NO_REACHABLE_PROGRESS; STOP/occupancy held
+[WARN] [1791426101.906108, 1969.024000]: [manager] NAVIGATION_BLOCKED uav_3 NO_REACHABLE_PROGRESS; STOP/occupancy held
+[INFO] [1791426102.243598, 1969.156000]: [manager] 分配 uav_1 → 格 (7,7) 飞行距离 5.1m 租约 12.5s
+[INFO] [1791426102.253735, 1969.160000]: [manager] 分配 uav_1 → 格 (7,7) 中心 (2.5,-7.5)
+[WARN] [1791426109.683441, 1972.048000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791426113.890471, 1973.928000]: [manager] SEARCH_FEEDBACK_REJECTED
+[INFO] [1791426113.995122, 1973.976000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=1 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[WARN] [1791426114.010487, 1973.980000]: [manager] NAVIGATION_BLOCKED uav_5 NO_REACHABLE_PROGRESS; STOP/occupancy held
+[INFO] [1791426115.809758, 1974.760000]: [manager] 分配 uav_6 → 格 (17,11) 飞行距离 71.4m 租约 45.7s
+[INFO] [1791426115.819460, 1974.764000]: [manager] 分配 uav_6 → 格 (17,11) 中心 (72.5,20.5)
+[INFO] [1791426116.787988, 1975.208000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=2 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791426123.914728, 1978.056000]: [manager] 分配 uav_1 → 格 (6,8) 飞行距离 5.3m 租约 12.6s
+[INFO] [1791426123.925736, 1978.056000]: [manager] 分配 uav_1 → 格 (6,8) 中心 (-4.5,-0.5)
+[INFO] [1791426129.395280, 1980.352000]: [manager] 分配 uav_2 → 格 (9,8) 飞行距离 13.4m 租约 16.7s
+[INFO] [1791426129.404062, 1980.356000]: [manager] 分配 uav_2 → 格 (9,8) 中心 (16.5,-0.5)
+[INFO] [1791426138.221287, 1983.848000]: [manager] 分配 uav_4 → 格 (6,6) 飞行距离 16.5m 租约 18.2s
+[INFO] [1791426138.228832, 1983.852000]: [manager] 分配 uav_4 → 格 (6,6) 中心 (-4.5,-14.5)
+[INFO] [1791426143.202070, 1985.856000]: [manager] 分配 uav_3 → 格 (5,9) 飞行距离 13.4m 租约 16.7s
+[INFO] [1791426143.211046, 1985.864000]: [manager] 分配 uav_3 → 格 (5,9) 中心 (-11.5,6.5)
+[INFO] [1791426151.411048, 1989.068000]: [manager] 分配 uav_5 → 格 (9,10) 飞行距离 19.3m 租约 19.7s
+[INFO] [1791426151.419750, 1989.068000]: [manager] 分配 uav_5 → 格 (9,10) 中心 (16.5,13.5)
+[INFO] [1791426168.291831, 1995.196000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=2 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791426172.093335, 1996.456000]: [manager] 分配 uav_5 → 格 (9,11) 飞行距离 23.8m 租约 21.9s
+[INFO] [1791426172.100992, 1996.460000]: [manager] 分配 uav_5 → 格 (9,11) 中心 (16.5,20.5)
+[INFO] [1791426175.329667, 1997.564000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=3 view=0 outcome=NO_FRESH_FRAMES finished=True mask=0
+[INFO] [1791426175.452480, 1997.592000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=2 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791426179.118244, 1998.760000]: [manager] 分配 uav_1 → 格 (2,1) 飞行距离 56.2m 租约 38.1s
+[INFO] [1791426179.129390, 1998.764000]: [manager] 分配 uav_1 → 格 (2,1) 中心 (-32.5,-49.5)
+[INFO] [1791426179.132563, 1998.768000]: [manager] 分配 uav_3 → 格 (0,14) 飞行距离 61.6m 租约 40.8s
+[INFO] [1791426179.140925, 1998.772000]: [manager] 分配 uav_3 → 格 (0,14) 中心 (-46.5,41.5)
+[INFO] [1791426183.104247, 2000.124000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=2 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791426183.770470, 2000.332000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=2 view=0 outcome=NO_FRESH_FRAMES finished=True mask=0
+[INFO] [1791426186.576427, 2001.248000]: [manager] 分配 uav_4 → 格 (17,5) 飞行距离 73.0m 租约 46.5s
+[INFO] [1791426186.584417, 2001.260000]: [manager] 分配 uav_4 → 格 (17,5) 中心 (72.5,-21.5)
+[INFO] [1791426190.134427, 2002.528000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=3 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791426193.643104, 2003.860000]: [manager] 分配 uav_5 → 格 (10,10) 飞行距离 25.4m 租约 22.7s
+[INFO] [1791426193.649992, 2003.860000]: [manager] 分配 uav_5 → 格 (10,10) 中心 (23.5,13.5)
+[INFO] [1791426196.297534, 2004.876000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=3 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791426199.522757, 2006.160000]: [manager] 分配 uav_3 → 格 (5,10) 飞行距离 17.0m 租约 18.5s
+[INFO] [1791426199.530303, 2006.164000]: [manager] 分配 uav_3 → 格 (5,10) 中心 (-11.5,13.5)
+[INFO] [1791426207.470121, 2009.156000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791426209.441584, 2009.928000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=4 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791426212.749256, 2011.272000]: [manager] 分配 uav_5 → 格 (9,17) 飞行距离 58.7m 租约 39.3s
+[INFO] [1791426212.756454, 2011.276000]: [manager] 分配 uav_5 → 格 (9,17) 中心 (16.5,59.5)
+[INFO] [1791426215.492234, 2012.204000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=4 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[WARN] [1791426218.564550, 2013.352000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[WARN] [1791426224.069482, 2015.452000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[INFO] [1791426224.109779, 2015.460000]: [manager] 分配 uav_3 → 格 (0,9) 飞行距离 46.0m 租约 33.0s
+[INFO] [1791426224.119786, 2015.464000]: [manager] 分配 uav_3 → 格 (0,9) 中心 (-46.5,6.5)
+[INFO] [1791426224.127034, 2015.472000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791426240.372411, 2021.756000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting
+[INFO] [1791426257.478457, 2028.056000]: [manager] No complete allocation; unfinished tasks remain, keep searching/waiting

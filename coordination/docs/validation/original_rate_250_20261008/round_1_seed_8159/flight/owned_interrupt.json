@@ -1,0 +1,9 @@
+[
+  {
+    "signal_number": 15,
+    "signal_name": "SIGTERM",
+    "owned_watchdog_fired": false,
+    "wall_elapsed_s": 295.5768532752991,
+    "monotonic_elapsed_s": 295.576857097
+  }
+]

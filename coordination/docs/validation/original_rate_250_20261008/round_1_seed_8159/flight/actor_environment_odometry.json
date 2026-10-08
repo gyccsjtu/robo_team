@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ready": true,
+  "control_input": false,
+  "source": "/gazebo/model_states",
+  "pose_frame": "world",
+  "twist_frame": "aircraft_body",
+  "stamp_kind": "callback_receipt_ros",
+  "models": {
+    "typhoon_h480_0": "/xtdrone/typhoon_h480_0/ground_truth/odom",
+    "typhoon_h480_1": "/xtdrone/typhoon_h480_1/ground_truth/odom",
+    "typhoon_h480_2": "/xtdrone/typhoon_h480_2/ground_truth/odom",
+    "typhoon_h480_3": "/xtdrone/typhoon_h480_3/ground_truth/odom",
+    "typhoon_h480_4": "/xtdrone/typhoon_h480_4/ground_truth/odom",
+    "typhoon_h480_5": "/xtdrone/typhoon_h480_5/ground_truth/odom"
+  },
+  "run_id": "9c9e1949-1701-4670-9366-e85dbbac2e2b",
+  "first_receipt_s": 1928.784
+}
