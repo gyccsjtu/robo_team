@@ -1,0 +1,60 @@
+{
+  "processes": [
+    {
+      "pid": 612,
+      "state": "absent",
+      "final_state": "absent"
+    },
+    {
+      "pid": 650,
+      "state": "absent",
+      "final_state": "absent"
+    },
+    {
+      "pid": 711,
+      "state": "absent",
+      "final_state": "absent"
+    },
+    {
+      "pid": 6794,
+      "state": "absent",
+      "final_state": "absent"
+    },
+    {
+      "pid": 6795,
+      "state": "absent",
+      "final_state": "absent"
+    },
+    {
+      "pid": 6796,
+      "state": "absent",
+      "final_state": "absent"
+    },
+    {
+      "pid": 6801,
+      "state": "absent",
+      "final_state": "absent"
+    },
+    {
+      "pid": 6804,
+      "state": "absent",
+      "final_state": "absent"
+    },
+    {
+      "pid": 6810,
+      "command": "python3 -u /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/sources/capture_visual_frames.py --output /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/frames --wall-seconds 7200 --loss-color white ",
+      "state": "present",
+      "action": "SIGINT exact-owned observer",
+      "final_state": "absent"
+    }
+  ],
+  "ports_listening": {
+    "11375": false,
+    "11376": false,
+    "19731": false
+  },
+  "windows_power_hold_pid4296": "absent (verified Win32_Process)",
+  "scope": "Only exact-owned observer command lines signaled; no global cleanup",
+  "final_owned_processes": [],
+  "read_only_watcher": "Exited exec session 82530, code 0"
+}

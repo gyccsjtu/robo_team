@@ -1,0 +1,3667 @@
+{
+  "control_input": false,
+  "meaning": "Partial source-image-time alignment of raw detections, not official judge or accepted observations",
+  "summary": {
+    "green": {
+      "raw": 1,
+      "near": 1,
+      "near_aligned": 1,
+      "near_accurate_lt1m": 0,
+      "near_proof": 1
+    },
+    "blue": {
+      "raw": 221,
+      "near": 137,
+      "near_aligned": 137,
+      "near_accurate_lt1m": 0,
+      "near_proof": 0
+    },
+    "brown": {
+      "raw": 16,
+      "near": 9,
+      "near_aligned": 9,
+      "near_accurate_lt1m": 0,
+      "near_proof": 0
+    },
+    "white": {
+      "raw": 8,
+      "near": 2,
+      "near_aligned": 2,
+      "near_accurate_lt1m": 0,
+      "near_proof": 0
+    },
+    "red": {
+      "raw": 56,
+      "near": 44,
+      "near_aligned": 44,
+      "near_accurate_lt1m": 0,
+      "near_proof": 0
+    }
+  },
+  "rows": [
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 1974.968,
+      "range_m": 24.266206731368452,
+      "xy": [
+        2.9681481432031678,
+        34.969811727553484
+      ],
+      "minimum_xy_error_m": 56.654272857528554,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "white",
+      "sample_s": 1982.896,
+      "range_m": 24.847530608887674,
+      "xy": [
+        -25.386062349194145,
+        13.476475232315417
+      ],
+      "minimum_xy_error_m": 123.15652442375078,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "white",
+      "sample_s": 1988.032,
+      "range_m": 18.509287691111595,
+      "xy": [
+        -11.384152217499787,
+        -3.937349425716974
+      ],
+      "minimum_xy_error_m": 107.83275476148219,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "white",
+      "sample_s": 1989.112,
+      "range_m": 24.434009901115903,
+      "xy": [
+        -24.47271725961743,
+        13.314850015394759
+      ],
+      "minimum_xy_error_m": 127.80801247577548,
+      "person_frame_verified": "True"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "white",
+      "sample_s": 2002.292,
+      "range_m": 25.356167586373843,
+      "xy": [
+        -25.754484445742975,
+        13.674627506024148
+      ],
+      "minimum_xy_error_m": 141.0531546202403,
+      "person_frame_verified": "True"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "white",
+      "sample_s": 2004.82,
+      "range_m": 23.81262319603435,
+      "xy": [
+        -24.3371828350812,
+        13.774444743706841
+      ],
+      "minimum_xy_error_m": 142.11037524932655,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "white",
+      "sample_s": 2005.204,
+      "range_m": 24.34111957681699,
+      "xy": [
+        -24.87674730202683,
+        13.73212397857679
+      ],
+      "minimum_xy_error_m": 142.9392543812902,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2015.668,
+      "range_m": 15.37453347267646,
+      "xy": [
+        3.0966131724737895,
+        35.19394808465397
+      ],
+      "minimum_xy_error_m": 87.14574046127439,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2020.076,
+      "range_m": 13.392697987261762,
+      "xy": [
+        3.0673072170144997,
+        34.64477271500262
+      ],
+      "minimum_xy_error_m": 91.57834216305096,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2020.292,
+      "range_m": 12.931947404593226,
+      "xy": [
+        3.075865626708491,
+        34.38628039876861
+      ],
+      "minimum_xy_error_m": 91.7863583702927,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2020.508,
+      "range_m": 13.080865623180085,
+      "xy": [
+        3.10152540321872,
+        34.8059594937581
+      ],
+      "minimum_xy_error_m": 91.97695976864806,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2021.288,
+      "range_m": 12.56107094902438,
+      "xy": [
+        3.020402791860363,
+        35.03518788592352
+      ],
+      "minimum_xy_error_m": 92.83967891845538,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2021.508,
+      "range_m": 11.909063462555746,
+      "xy": [
+        3.0854506562606403,
+        34.64080152020597
+      ],
+      "minimum_xy_error_m": 92.99439931745677,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2021.744,
+      "range_m": 11.904357033024914,
+      "xy": [
+        3.04335309034421,
+        34.827987149298785
+      ],
+      "minimum_xy_error_m": 93.27319531936122,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2021.972,
+      "range_m": 11.636981003361075,
+      "xy": [
+        3.0506398053412402,
+        34.65078774202095
+      ],
+      "minimum_xy_error_m": 93.48949867974457,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2025.836,
+      "range_m": 12.05660903722205,
+      "xy": [
+        5.619541521024297,
+        34.80472260741609
+      ],
+      "minimum_xy_error_m": 94.78520300799286,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2026.928,
+      "range_m": 13.037311510605885,
+      "xy": [
+        5.350600934028644,
+        36.786308377124826
+      ],
+      "minimum_xy_error_m": 96.17441441276411,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2027.72,
+      "range_m": 11.055045619518658,
+      "xy": [
+        3.017597867323399,
+        35.08453675894478
+      ],
+      "minimum_xy_error_m": 99.27403835518304,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2028.1,
+      "range_m": 10.762533370282455,
+      "xy": [
+        3.001155606876653,
+        35.07233456158486
+      ],
+      "minimum_xy_error_m": 99.67171672850611,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2029.456,
+      "range_m": 10.510606133589523,
+      "xy": [
+        2.970728904047794,
+        35.59564769220624
+      ],
+      "minimum_xy_error_m": 101.05772268873928,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2029.76,
+      "range_m": 9.801726683490426,
+      "xy": [
+        3.056029891732446,
+        34.87442801022364
+      ],
+      "minimum_xy_error_m": 101.2772008961466,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2029.76,
+      "range_m": 10.160195591983204,
+      "xy": [
+        3.0643064038124375,
+        35.26049906683697
+      ],
+      "minimum_xy_error_m": 101.27099734576605,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2030.056,
+      "range_m": 10.03506662205856,
+      "xy": [
+        3.0614093040888175,
+        35.10260840507827
+      ],
+      "minimum_xy_error_m": 101.56775920455192,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2030.056,
+      "range_m": 10.421395363935511,
+      "xy": [
+        2.9978821455407854,
+        35.495713994558635
+      ],
+      "minimum_xy_error_m": 101.63428466281705,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2030.34,
+      "range_m": 10.179907350708177,
+      "xy": [
+        3.0289497531986154,
+        35.21023364430665
+      ],
+      "minimum_xy_error_m": 101.88284393318581,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2031.912,
+      "range_m": 10.324299989586915,
+      "xy": [
+        3.081955547881533,
+        35.22491722349751
+      ],
+      "minimum_xy_error_m": 103.4024741066978,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2031.912,
+      "range_m": 9.883178854237489,
+      "xy": [
+        3.1356277346794488,
+        34.770927173859825
+      ],
+      "minimum_xy_error_m": 103.34672005990377,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2032.248,
+      "range_m": 10.42774675000168,
+      "xy": [
+        3.039677719125981,
+        35.31631198334626
+      ],
+      "minimum_xy_error_m": 103.78078035051986,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2032.248,
+      "range_m": 9.646692878303101,
+      "xy": [
+        3.138559258752062,
+        34.51264942466807
+      ],
+      "minimum_xy_error_m": 103.67887277431107,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2032.248,
+      "range_m": 10.129988936604152,
+      "xy": [
+        3.057675076313934,
+        35.00485004161118
+      ],
+      "minimum_xy_error_m": 103.76087185156287,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2032.572,
+      "range_m": 10.759223454164289,
+      "xy": [
+        2.950404632403912,
+        35.63822490140697
+      ],
+      "minimum_xy_error_m": 104.19864250680843,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2032.572,
+      "range_m": 9.69020726823916,
+      "xy": [
+        3.1206879999475414,
+        34.54901454094687
+      ],
+      "minimum_xy_error_m": 104.0224016899252,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2032.888,
+      "range_m": 9.623283467184645,
+      "xy": [
+        3.174329937121864,
+        34.49109365858499
+      ],
+      "minimum_xy_error_m": 104.28889971180861,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2034.332,
+      "range_m": 9.96126543519681,
+      "xy": [
+        2.983428020953254,
+        35.47533435093061
+      ],
+      "minimum_xy_error_m": 105.9246321275589,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2050.368,
+      "range_m": 11.663744413996634,
+      "xy": [
+        7.903255819182982,
+        35.41239123477642
+      ],
+      "minimum_xy_error_m": 105.84116633083751,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2122.296,
+      "range_m": 32.875039451702676,
+      "xy": [
+        12.073648678446467,
+        19.84829929388841
+      ],
+      "minimum_xy_error_m": 89.46746917946682,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2150.456,
+      "range_m": 44.88181015180021,
+      "xy": [
+        101.69218213789651,
+        36.167079644338195
+      ],
+      "minimum_xy_error_m": 0.15581624393239646,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2155.816,
+      "range_m": 46.00761188329336,
+      "xy": [
+        104.14686099839301,
+        35.976674400011966
+      ],
+      "minimum_xy_error_m": 1.8949012462780366,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2156.42,
+      "range_m": 39.47840445948658,
+      "xy": [
+        97.60235705194961,
+        35.99456390491364
+      ],
+      "minimum_xy_error_m": 4.673842591458633,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2157.012,
+      "range_m": 42.243534288310336,
+      "xy": [
+        100.37369046000366,
+        36.09966329017285
+      ],
+      "minimum_xy_error_m": 1.9052959132561096,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2161.46,
+      "range_m": 38.70196457481266,
+      "xy": [
+        98.65234415852996,
+        36.00626493555946
+      ],
+      "minimum_xy_error_m": 4.1136680497693225,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2163.172,
+      "range_m": 35.307016000550554,
+      "xy": [
+        97.2809718078176,
+        36.04988651080006
+      ],
+      "minimum_xy_error_m": 5.6006051466126365,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "white",
+      "sample_s": 2163.628,
+      "range_m": 37.301060234726826,
+      "xy": [
+        99.87406299201511,
+        36.10972323978111
+      ],
+      "minimum_xy_error_m": 30.98703639373161,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2164.108,
+      "range_m": 34.73531210230055,
+      "xy": [
+        97.5279576014913,
+        35.99455257888978
+      ],
+      "minimum_xy_error_m": 5.39687631659496,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2165.152,
+      "range_m": 35.13040629206112,
+      "xy": [
+        98.69511679806861,
+        36.031949266073354
+      ],
+      "minimum_xy_error_m": 4.313369091989726,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2166.288,
+      "range_m": 36.39155865483793,
+      "xy": [
+        100.67983471143552,
+        35.99169012416469
+      ],
+      "minimum_xy_error_m": 2.372344353714098,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2166.68,
+      "range_m": 33.36374348385147,
+      "xy": [
+        97.97275705499334,
+        35.96175038593203
+      ],
+      "minimum_xy_error_m": 5.118488494940515,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2167.704,
+      "range_m": 37.90155635874885,
+      "xy": [
+        103.05714006139328,
+        35.97196542662054
+      ],
+      "minimum_xy_error_m": 0.16276679191224253,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2168.176,
+      "range_m": 37.13730707684304,
+      "xy": [
+        102.37534184345441,
+        36.011383332653175
+      ],
+      "minimum_xy_error_m": 0.9599193889842561,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2169.076,
+      "range_m": 33.385541651235044,
+      "xy": [
+        99.24434598212756,
+        35.99315300345834
+      ],
+      "minimum_xy_error_m": 4.148324948802411,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2169.524,
+      "range_m": 32.255842556681884,
+      "xy": [
+        98.84295061485773,
+        35.915523601543384
+      ],
+      "minimum_xy_error_m": 4.436619992663205,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2170.4,
+      "range_m": 35.852039907670296,
+      "xy": [
+        103.54287145878396,
+        35.769733607696786
+      ],
+      "minimum_xy_error_m": 0.10326886299990384,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2170.868,
+      "range_m": 33.960698001032476,
+      "xy": [
+        101.65383449543393,
+        35.96677029100162
+      ],
+      "minimum_xy_error_m": 1.9301704329389575,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2171.336,
+      "range_m": 33.06174388116384,
+      "xy": [
+        100.72546323647589,
+        35.85241608406802
+      ],
+      "minimum_xy_error_m": 2.8098450283725365,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2171.82,
+      "range_m": 34.45609465135019,
+      "xy": [
+        102.07518794188476,
+        36.044046193995044
+      ],
+      "minimum_xy_error_m": 1.6814617636334948,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2178.084,
+      "range_m": 41.12223845526289,
+      "xy": [
+        105.13247575947877,
+        27.76300130214197
+      ],
+      "minimum_xy_error_m": 8.364587967443589,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2178.084,
+      "range_m": 40.28029377235549,
+      "xy": [
+        105.09286389585348,
+        35.87714294164023
+      ],
+      "minimum_xy_error_m": 2.312600550369638,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2178.084,
+      "range_m": 40.66352048152454,
+      "xy": [
+        104.72709079232534,
+        28.08124806444035
+      ],
+      "minimum_xy_error_m": 8.182314686491868,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2178.556,
+      "range_m": 33.01403751076571,
+      "xy": [
+        97.47869167787832,
+        29.09846930883618
+      ],
+      "minimum_xy_error_m": 12.3730043646965,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "brown",
+      "sample_s": 2178.972,
+      "range_m": 35.6441161461409,
+      "xy": [
+        100.46865446790325,
+        28.492975571051147
+      ],
+      "minimum_xy_error_m": 5.056548157554038,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2179.464,
+      "range_m": 32.63898341131225,
+      "xy": [
+        98.32604821835284,
+        28.92756061616539
+      ],
+      "minimum_xy_error_m": 12.519252772770434,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2179.464,
+      "range_m": 37.607951003750486,
+      "xy": [
+        104.04206346633231,
+        35.734597899819214
+      ],
+      "minimum_xy_error_m": 4.740312970842516,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2180.408,
+      "range_m": 40.1280243567658,
+      "xy": [
+        106.99651569472331,
+        35.79197241928996
+      ],
+      "minimum_xy_error_m": 2.7288098221160952,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "brown",
+      "sample_s": 2180.9,
+      "range_m": 38.056810028543566,
+      "xy": [
+        104.24419889780933,
+        31.609771139044383
+      ],
+      "minimum_xy_error_m": 0.24407007140170697,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2180.9,
+      "range_m": 38.77175090798895,
+      "xy": [
+        104.38354279138991,
+        27.85042816926415
+      ],
+      "minimum_xy_error_m": 9.870924298843695,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2186.924,
+      "range_m": 38.96778164276073,
+      "xy": [
+        103.17119964999347,
+        27.97624022992733
+      ],
+      "minimum_xy_error_m": 15.240353353636765,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2188.092,
+      "range_m": 33.278044012562965,
+      "xy": [
+        98.5186270314725,
+        28.921694138193928
+      ],
+      "minimum_xy_error_m": 20.11180785074087,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "brown",
+      "sample_s": 2188.66,
+      "range_m": 31.751536377503022,
+      "xy": [
+        97.94488715161883,
+        29.016057311955436
+      ],
+      "minimum_xy_error_m": 6.864922688121752,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2188.66,
+      "range_m": 34.00822423246141,
+      "xy": [
+        100.68749445383521,
+        31.836877079647874
+      ],
+      "minimum_xy_error_m": 17.74107331246564,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "brown",
+      "sample_s": 2191.136,
+      "range_m": 34.11197684253895,
+      "xy": [
+        100.41604676735466,
+        28.45693267535515
+      ],
+      "minimum_xy_error_m": 4.801364523249886,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "brown",
+      "sample_s": 2194.492,
+      "range_m": 30.776376005882863,
+      "xy": [
+        97.13481376117817,
+        29.05896243849428
+      ],
+      "minimum_xy_error_m": 7.585722982787209,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2194.492,
+      "range_m": 35.98007161599475,
+      "xy": [
+        102.80792423012778,
+        31.408941072124332
+      ],
+      "minimum_xy_error_m": 21.45814367774945,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2196.012,
+      "range_m": 37.09502662283698,
+      "xy": [
+        103.23425616558218,
+        27.568285664040822
+      ],
+      "minimum_xy_error_m": 23.584383437621636,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2199.292,
+      "range_m": 38.18670251225169,
+      "xy": [
+        103.60115725809247,
+        27.643054041989593
+      ],
+      "minimum_xy_error_m": 26.258244052374046,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "brown",
+      "sample_s": 2199.884,
+      "range_m": 37.77501042323669,
+      "xy": [
+        103.96832964339075,
+        27.553469566913495
+      ],
+      "minimum_xy_error_m": 3.450309136651475,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "brown",
+      "sample_s": 2214.168,
+      "range_m": 35.265531935723885,
+      "xy": [
+        99.8287019521089,
+        31.125835483578214
+      ],
+      "minimum_xy_error_m": 4.630779608944887,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2239.188,
+      "range_m": 38.218109163246964,
+      "xy": [
+        102.42726628178023,
+        32.97808229683667
+      ],
+      "minimum_xy_error_m": 1.5297431004004876,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2239.188,
+      "range_m": 39.62531948145043,
+      "xy": [
+        103.46343239390778,
+        29.601567890941613
+      ],
+      "minimum_xy_error_m": 3.5239374329016657,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2239.592,
+      "range_m": 38.47660023640824,
+      "xy": [
+        102.91919641333635,
+        33.11699591149118
+      ],
+      "minimum_xy_error_m": 1.0266316869643812,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2240.352,
+      "range_m": 35.13317204893004,
+      "xy": [
+        99.99793311097116,
+        33.186899404477515
+      ],
+      "minimum_xy_error_m": 3.935820580842223,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2240.816,
+      "range_m": 35.84184484106395,
+      "xy": [
+        100.86269747854723,
+        33.244461398231266
+      ],
+      "minimum_xy_error_m": 3.1021346742825053,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2241.22,
+      "range_m": 33.956542838840875,
+      "xy": [
+        99.05290726166797,
+        33.470343474838614
+      ],
+      "minimum_xy_error_m": 4.936586673802803,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2241.596,
+      "range_m": 33.8772315758681,
+      "xy": [
+        99.00583407843473,
+        33.41223886477726
+      ],
+      "minimum_xy_error_m": 4.946739608641491,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2245.544,
+      "range_m": 36.604093879703605,
+      "xy": [
+        102.14785723709034,
+        32.77002315806224
+      ],
+      "minimum_xy_error_m": null,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2246.012,
+      "range_m": 34.89564643117754,
+      "xy": [
+        100.41812717278427,
+        32.704711816082764
+      ],
+      "minimum_xy_error_m": null,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2246.964,
+      "range_m": 34.517379910909824,
+      "xy": [
+        100.06540878007382,
+        32.70401215359462
+      ],
+      "minimum_xy_error_m": null,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2247.448,
+      "range_m": 34.780771565277064,
+      "xy": [
+        100.33994727984037,
+        32.549443577009185
+      ],
+      "minimum_xy_error_m": null,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_4.csv",
+      "tag": "blue",
+      "sample_s": 2248.448,
+      "range_m": 33.86185812023827,
+      "xy": [
+        99.45229859676792,
+        32.433851868705986
+      ],
+      "minimum_xy_error_m": null,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1947.136,
+      "range_m": 37.910899569899684,
+      "xy": [
+        32.09180072929453,
+        20.040478153825326
+      ],
+      "minimum_xy_error_m": 2.226122783283913,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "red",
+      "sample_s": 1954.528,
+      "range_m": 15.008980429127229,
+      "xy": [
+        -20.679868297477622,
+        -4.5454455060993695
+      ],
+      "minimum_xy_error_m": 69.95698126700951,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1956.868,
+      "range_m": 21.548069232411184,
+      "xy": [
+        -27.034865429272177,
+        13.70653775956186
+      ],
+      "minimum_xy_error_m": 68.4638052925926,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "white",
+      "sample_s": 1959.38,
+      "range_m": 19.254027277277583,
+      "xy": [
+        -26.79250872236949,
+        13.39719556440033
+      ],
+      "minimum_xy_error_m": 104.80168014778526,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "red",
+      "sample_s": 1959.38,
+      "range_m": 15.464609197842787,
+      "xy": [
+        -21.075545693547067,
+        -5.091010464683961
+      ],
+      "minimum_xy_error_m": 74.71725057765845,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "red",
+      "sample_s": 1959.78,
+      "range_m": 13.585442814689321,
+      "xy": [
+        -20.095517370167684,
+        -4.122344996951292
+      ],
+      "minimum_xy_error_m": 73.72545162422107,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "red",
+      "sample_s": 1960.212,
+      "range_m": 14.298514322164039,
+      "xy": [
+        -20.798891097529562,
+        -4.883007647121307
+      ],
+      "minimum_xy_error_m": 75.08945356343871,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1960.212,
+      "range_m": 18.11309065311115,
+      "xy": [
+        -26.560123461877684,
+        13.363562949191314
+      ],
+      "minimum_xy_error_m": 71.35240417598752,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "red",
+      "sample_s": 1960.672,
+      "range_m": 13.893010568523,
+      "xy": [
+        -20.80948824842666,
+        -4.891218946847852
+      ],
+      "minimum_xy_error_m": 75.50094670782114,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "red",
+      "sample_s": 1961.044,
+      "range_m": 13.474515211364018,
+      "xy": [
+        -20.801602806129885,
+        -4.90680196882648
+      ],
+      "minimum_xy_error_m": 75.82278039253403,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "red",
+      "sample_s": 1961.444,
+      "range_m": 14.522542825654124,
+      "xy": [
+        -21.707832243646124,
+        -6.0323821738933034
+      ],
+      "minimum_xy_error_m": 77.51787576790679,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1961.856,
+      "range_m": 16.455441581848238,
+      "xy": [
+        -26.70550518513896,
+        13.413441900931083
+      ],
+      "minimum_xy_error_m": 73.11718197613612,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1962.32,
+      "range_m": 16.778745622596496,
+      "xy": [
+        -27.265616287294506,
+        13.788200573135857
+      ],
+      "minimum_xy_error_m": 74.07353971319962,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1963.556,
+      "range_m": 15.670386182827347,
+      "xy": [
+        -27.43828633755288,
+        13.881802400469542
+      ],
+      "minimum_xy_error_m": 75.45437401959157,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1964.416,
+      "range_m": 15.351672804118222,
+      "xy": [
+        -27.736612540051194,
+        14.052262143509651
+      ],
+      "minimum_xy_error_m": 76.58082815767195,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1964.872,
+      "range_m": 13.920760285747763,
+      "xy": [
+        -27.079794701928698,
+        13.588336815720544
+      ],
+      "minimum_xy_error_m": 76.44908515353156,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1965.304,
+      "range_m": 13.262692764121832,
+      "xy": [
+        -26.81381077100379,
+        13.533680117016573
+      ],
+      "minimum_xy_error_m": 76.61761866582077,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1965.76,
+      "range_m": 12.817852139601397,
+      "xy": [
+        -26.66415500848578,
+        13.336713232411547
+      ],
+      "minimum_xy_error_m": 76.947548816735,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1966.22,
+      "range_m": 12.119273669835785,
+      "xy": [
+        -26.552772995049203,
+        13.138916926716565
+      ],
+      "minimum_xy_error_m": 77.3233243453125,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1966.688,
+      "range_m": 12.176278946993941,
+      "xy": [
+        -26.768159173300976,
+        13.471589860657472
+      ],
+      "minimum_xy_error_m": 77.95237981016243,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1967.144,
+      "range_m": 11.715504027320621,
+      "xy": [
+        -26.645468817168638,
+        13.440258738858821
+      ],
+      "minimum_xy_error_m": 78.28433981799728,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1967.64,
+      "range_m": 11.327452841518477,
+      "xy": [
+        -26.68524410554369,
+        13.400275881226944
+      ],
+      "minimum_xy_error_m": 78.8219295469265,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1968.092,
+      "range_m": 11.417120451867147,
+      "xy": [
+        -26.874838048169124,
+        13.504628388856531
+      ],
+      "minimum_xy_error_m": 79.44152442073027,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1968.476,
+      "range_m": 11.18576456113983,
+      "xy": [
+        -26.737853054055947,
+        13.39181374098207
+      ],
+      "minimum_xy_error_m": 79.70272804277694,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1968.828,
+      "range_m": 10.990236115132797,
+      "xy": [
+        -26.781759301376272,
+        13.424490744207667
+      ],
+      "minimum_xy_error_m": 80.09044810689839,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1969.144,
+      "range_m": 10.952451586228102,
+      "xy": [
+        -26.84049573052131,
+        13.520489194993136
+      ],
+      "minimum_xy_error_m": 80.45224670451076,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1969.44,
+      "range_m": 10.735705121041184,
+      "xy": [
+        -26.86217850802843,
+        13.509626258808103
+      ],
+      "minimum_xy_error_m": 80.76530736969313,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1969.752,
+      "range_m": 9.650010439572101,
+      "xy": [
+        -26.428077768766645,
+        12.930182519158041
+      ],
+      "minimum_xy_error_m": 80.7274713648103,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1970.08,
+      "range_m": 10.093348456977818,
+      "xy": [
+        -26.862528233891197,
+        13.542471828511477
+      ],
+      "minimum_xy_error_m": 81.39603659804655,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1970.408,
+      "range_m": 9.82648016109902,
+      "xy": [
+        -26.86232324257554,
+        13.502512887500039
+      ],
+      "minimum_xy_error_m": 81.72469944257661,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1970.796,
+      "range_m": 9.415702368837273,
+      "xy": [
+        -26.88316015505344,
+        13.494915616205427
+      ],
+      "minimum_xy_error_m": 82.13091622096931,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1971.132,
+      "range_m": 8.924415430989315,
+      "xy": [
+        -26.82803971581678,
+        13.429278109620792
+      ],
+      "minimum_xy_error_m": 82.41690701627019,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1971.476,
+      "range_m": 8.654998534912691,
+      "xy": [
+        -26.898039497632062,
+        13.585532404409992
+      ],
+      "minimum_xy_error_m": 82.81236166416339,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1971.828,
+      "range_m": 8.429802189489655,
+      "xy": [
+        -27.087233907053793,
+        13.675475171950762
+      ],
+      "minimum_xy_error_m": 83.33228286011908,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1972.148,
+      "range_m": 7.962050005318662,
+      "xy": [
+        -26.883109666384556,
+        13.54840592449569
+      ],
+      "minimum_xy_error_m": 83.46238645328324,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1972.488,
+      "range_m": 7.802958475049132,
+      "xy": [
+        -26.879766863346276,
+        13.511259890345837
+      ],
+      "minimum_xy_error_m": 83.80178554764707,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1972.828,
+      "range_m": 7.422142893060704,
+      "xy": [
+        -26.844731390762856,
+        13.385201959694985
+      ],
+      "minimum_xy_error_m": 84.12016179668692,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1973.18,
+      "range_m": 7.199930682375765,
+      "xy": [
+        -26.959883834887908,
+        13.487068716373855
+      ],
+      "minimum_xy_error_m": 84.57104108512699,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1973.54,
+      "range_m": 6.8994092417191375,
+      "xy": [
+        -26.869725636930475,
+        13.500853346246917
+      ],
+      "minimum_xy_error_m": 84.83713513457775,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1973.896,
+      "range_m": 6.7667639075635,
+      "xy": [
+        -26.880131637635927,
+        13.434461416469944
+      ],
+      "minimum_xy_error_m": 85.20887301026247,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1974.248,
+      "range_m": 6.564108706290403,
+      "xy": [
+        -26.881305465916622,
+        13.444502354887756
+      ],
+      "minimum_xy_error_m": 85.55562223134153,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 1974.616,
+      "range_m": 6.571689986760182,
+      "xy": [
+        -26.9133496373205,
+        13.508591492675322
+      ],
+      "minimum_xy_error_m": 85.94722886074709,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2028.528,
+      "range_m": 20.921987732512395,
+      "xy": [
+        -27.584911218957256,
+        13.92003218860405
+      ],
+      "minimum_xy_error_m": 132.3008095352009,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2028.884,
+      "range_m": 20.909178504481112,
+      "xy": [
+        -27.48144608393634,
+        13.82774788071907
+      ],
+      "minimum_xy_error_m": 132.55905932131674,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2029.164,
+      "range_m": 20.417322604243356,
+      "xy": [
+        -27.772370984867553,
+        13.95210197486286
+      ],
+      "minimum_xy_error_m": 133.10571280131077,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2030.612,
+      "range_m": 20.414172583286017,
+      "xy": [
+        -27.57329927112908,
+        13.939313097477168
+      ],
+      "minimum_xy_error_m": 134.34173262568675,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2030.896,
+      "range_m": 20.794824225187217,
+      "xy": [
+        -27.25001233796293,
+        13.819774012448278
+      ],
+      "minimum_xy_error_m": 134.32457676780132,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2031.212,
+      "range_m": 20.619507549147386,
+      "xy": [
+        -27.4287825196301,
+        13.934827327794284
+      ],
+      "minimum_xy_error_m": 134.7945169825637,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2031.564,
+      "range_m": 20.683004393550785,
+      "xy": [
+        -27.378134846094614,
+        13.940263813038886
+      ],
+      "minimum_xy_error_m": 135.0920773848923,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2032.572,
+      "range_m": 20.853515004546143,
+      "xy": [
+        -27.215773388098835,
+        13.872422604836592
+      ],
+      "minimum_xy_error_m": 135.9366739938737,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2032.888,
+      "range_m": 20.76723052728398,
+      "xy": [
+        -27.307178187963004,
+        13.863798992056854
+      ],
+      "minimum_xy_error_m": 136.34476073621306,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2033.232,
+      "range_m": 21.15935729076523,
+      "xy": [
+        -26.94216890996089,
+        13.704989324822165
+      ],
+      "minimum_xy_error_m": 136.3417958220252,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2033.604,
+      "range_m": 20.52280267381507,
+      "xy": [
+        -27.52429289682046,
+        13.967780181020853
+      ],
+      "minimum_xy_error_m": 137.24644802904066,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2033.964,
+      "range_m": 20.930655503628195,
+      "xy": [
+        -27.147051282760657,
+        13.801046333164628
+      ],
+      "minimum_xy_error_m": 137.2544754055919,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2034.684,
+      "range_m": 20.66293429385317,
+      "xy": [
+        -27.408712490922607,
+        13.904636193309624
+      ],
+      "minimum_xy_error_m": 138.21076656677982,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2035.06,
+      "range_m": 20.469407400160055,
+      "xy": [
+        -27.480431655897597,
+        13.902639085797063
+      ],
+      "minimum_xy_error_m": 138.6524927066917,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2035.472,
+      "range_m": 20.646609327546376,
+      "xy": [
+        -26.97101292054993,
+        13.708579838218355
+      ],
+      "minimum_xy_error_m": 138.5846598970113,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2036.376,
+      "range_m": 19.733355222021988,
+      "xy": [
+        -27.19143863096838,
+        13.842927444122076
+      ],
+      "minimum_xy_error_m": 139.67603761745664,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2037.564,
+      "range_m": 18.29666363639744,
+      "xy": [
+        -26.969108216301166,
+        13.722979396150455
+      ],
+      "minimum_xy_error_m": 140.64977788690237,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2037.948,
+      "range_m": 18.4374327930684,
+      "xy": [
+        -26.37801243409399,
+        13.404945441341408
+      ],
+      "minimum_xy_error_m": 140.49413966694655,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2038.4,
+      "range_m": 17.369686991272463,
+      "xy": [
+        -27.173446769965942,
+        13.796740118890472
+      ],
+      "minimum_xy_error_m": 141.6679496943093,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2038.812,
+      "range_m": 18.00495435893544,
+      "xy": [
+        -26.272234818008485,
+        13.377099605299968
+      ],
+      "minimum_xy_error_m": 141.24623679435535,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2039.18,
+      "range_m": 17.1479949833396,
+      "xy": [
+        -26.959806787979673,
+        13.64100061853568
+      ],
+      "minimum_xy_error_m": 142.25352471366435,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2039.524,
+      "range_m": 16.700013289903136,
+      "xy": [
+        -27.18934965356417,
+        13.79378603272805
+      ],
+      "minimum_xy_error_m": 142.79495260567066,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2039.872,
+      "range_m": 16.399496411608354,
+      "xy": [
+        -27.163682260212582,
+        13.822551298504653
+      ],
+      "minimum_xy_error_m": 143.11244398719975,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2084.268,
+      "range_m": 10.076502169151041,
+      "xy": [
+        -27.288176437200093,
+        13.819121646029021
+      ],
+      "minimum_xy_error_m": 127.61997844028345,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2084.896,
+      "range_m": 10.116559518491494,
+      "xy": [
+        -26.980850955351155,
+        13.774846536660206
+      ],
+      "minimum_xy_error_m": 127.50636940486251,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2085.24,
+      "range_m": 9.797218052157818,
+      "xy": [
+        -27.268565392817482,
+        13.807062567232514
+      ],
+      "minimum_xy_error_m": 127.77574461840432,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2085.968,
+      "range_m": 10.57455419691069,
+      "xy": [
+        -26.78874653627316,
+        13.719437553632487
+      ],
+      "minimum_xy_error_m": 127.68333922778478,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2094.388,
+      "range_m": 10.253452930721663,
+      "xy": [
+        -27.051317329405435,
+        13.712129334010061
+      ],
+      "minimum_xy_error_m": 128.72781499657316,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2095.348,
+      "range_m": 9.873777466700414,
+      "xy": [
+        -27.091068646744965,
+        13.765449471482942
+      ],
+      "minimum_xy_error_m": 128.79534930549252,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2095.816,
+      "range_m": 9.970239039893675,
+      "xy": [
+        -27.00849803534281,
+        13.684772403257949
+      ],
+      "minimum_xy_error_m": 128.94462300000376,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2096.208,
+      "range_m": 9.888795509254797,
+      "xy": [
+        -27.11462569384709,
+        13.73684335489661
+      ],
+      "minimum_xy_error_m": 129.02203377930243,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2097.212,
+      "range_m": 11.174721046315218,
+      "xy": [
+        -26.038770697321358,
+        13.18222395489471
+      ],
+      "minimum_xy_error_m": 128.2574631777751,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2107.02,
+      "range_m": 10.693528578070524,
+      "xy": [
+        -26.86406840540674,
+        13.641876801149138
+      ],
+      "minimum_xy_error_m": 129.27073065157907,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2107.38,
+      "range_m": 10.251592339751607,
+      "xy": [
+        -27.11373911546979,
+        13.747164461767149
+      ],
+      "minimum_xy_error_m": 129.34688546811978,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2107.66,
+      "range_m": 10.23875319258644,
+      "xy": [
+        -27.026336723896456,
+        13.634879392775431
+      ],
+      "minimum_xy_error_m": 129.55627467105967,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2109.576,
+      "range_m": 9.427803420911465,
+      "xy": [
+        -27.0272784737979,
+        13.727088231552345
+      ],
+      "minimum_xy_error_m": 129.20905624172153,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2109.888,
+      "range_m": 9.468849258479112,
+      "xy": [
+        -27.08389352917008,
+        13.741740050291476
+      ],
+      "minimum_xy_error_m": 129.16956610100556,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2110.18,
+      "range_m": 9.458438204388083,
+      "xy": [
+        -27.161455931374494,
+        13.813502204892796
+      ],
+      "minimum_xy_error_m": 129.35086014346652,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2118.996,
+      "range_m": 9.771523143066988,
+      "xy": [
+        -27.028045866503664,
+        13.710413536764097
+      ],
+      "minimum_xy_error_m": 128.95175080569123,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2119.412,
+      "range_m": 9.610873135244416,
+      "xy": [
+        -27.119011692397798,
+        13.761740538552045
+      ],
+      "minimum_xy_error_m": 128.94405246641426,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2119.856,
+      "range_m": 9.759859951849114,
+      "xy": [
+        -27.13786332727041,
+        13.801251467697092
+      ],
+      "minimum_xy_error_m": 129.08386663708313,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2121.852,
+      "range_m": 10.381956202546828,
+      "xy": [
+        -27.142257205047205,
+        13.87690802505819
+      ],
+      "minimum_xy_error_m": 129.1129500132695,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2132.528,
+      "range_m": 10.39807926642699,
+      "xy": [
+        -27.0290893409382,
+        13.677564488414813
+      ],
+      "minimum_xy_error_m": 129.35617279475827,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2132.892,
+      "range_m": 10.424047981074798,
+      "xy": [
+        -26.98714720547411,
+        13.660196235990837
+      ],
+      "minimum_xy_error_m": 129.4043702854538,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2133.268,
+      "range_m": 10.589123847084487,
+      "xy": [
+        -26.941506850577078,
+        13.72713555992167
+      ],
+      "minimum_xy_error_m": 129.49378058023294,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2135.72,
+      "range_m": 10.081756527679781,
+      "xy": [
+        -27.073449429939338,
+        13.722609696100832
+      ],
+      "minimum_xy_error_m": 129.77469883700618,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2136.052,
+      "range_m": 10.197264280396043,
+      "xy": [
+        -27.031473617311494,
+        13.694522748971089
+      ],
+      "minimum_xy_error_m": 129.77643757254958,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2136.456,
+      "range_m": 10.809222657274859,
+      "xy": [
+        -26.620876247457183,
+        13.68780220546745
+      ],
+      "minimum_xy_error_m": 129.37515902993982,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2139.772,
+      "range_m": 10.053150543264454,
+      "xy": [
+        -27.05405708470446,
+        13.81093649117081
+      ],
+      "minimum_xy_error_m": 130.11315569660437,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2140.248,
+      "range_m": 10.075859680897626,
+      "xy": [
+        -26.9434762066126,
+        13.667910046336056
+      ],
+      "minimum_xy_error_m": 130.11561352509545,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2141.7,
+      "range_m": 10.185853195488324,
+      "xy": [
+        -27.016879959633954,
+        13.646855825619946
+      ],
+      "minimum_xy_error_m": 130.56473585967527,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2142.224,
+      "range_m": 10.44515026662715,
+      "xy": [
+        -27.07812123358358,
+        13.721539736704582
+      ],
+      "minimum_xy_error_m": 130.47533827403768,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2145.664,
+      "range_m": 10.055252648952312,
+      "xy": [
+        -27.106869364695285,
+        13.737595024404152
+      ],
+      "minimum_xy_error_m": 130.64956819105063,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2146.312,
+      "range_m": 10.256985226071077,
+      "xy": [
+        -27.168958321515632,
+        13.84329150916961
+      ],
+      "minimum_xy_error_m": 130.66636553479273,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2149.808,
+      "range_m": 9.665485859073994,
+      "xy": [
+        -27.006841882145217,
+        13.670133504579498
+      ],
+      "minimum_xy_error_m": 130.64026087954602,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2150.456,
+      "range_m": 9.286386721563469,
+      "xy": [
+        -27.219033132063636,
+        13.803153315847492
+      ],
+      "minimum_xy_error_m": 130.96528964675215,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_2.csv",
+      "tag": "blue",
+      "sample_s": 2151.128,
+      "range_m": 13.502379972823574,
+      "xy": [
+        -23.405042209854336,
+        12.092707904368352
+      ],
+      "minimum_xy_error_m": 127.4640032894726,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1945.76,
+      "range_m": 37.40327025820905,
+      "xy": [
+        33.95447902115061,
+        20.894169241625928
+      ],
+      "minimum_xy_error_m": 1.1479924059050988,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1951.132,
+      "range_m": 39.462488377753836,
+      "xy": [
+        37.59599795135485,
+        24.631400995822446
+      ],
+      "minimum_xy_error_m": 0.9942880111141656,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1951.628,
+      "range_m": 40.422909817469886,
+      "xy": [
+        38.549330032159816,
+        25.560472160225135
+      ],
+      "minimum_xy_error_m": 2.009490247639044,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1955.196,
+      "range_m": 36.738279406034046,
+      "xy": [
+        39.41328054109789,
+        24.715504950401943
+      ],
+      "minimum_xy_error_m": 0.6572215342196881,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1955.568,
+      "range_m": 37.38612784563105,
+      "xy": [
+        40.202725548750195,
+        25.03311673357866
+      ],
+      "minimum_xy_error_m": 1.179891865842587,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1955.996,
+      "range_m": 36.449114050169314,
+      "xy": [
+        39.9477435077498,
+        24.457432649492546
+      ],
+      "minimum_xy_error_m": 0.2859744976761491,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1955.996,
+      "range_m": 42.39744450925965,
+      "xy": [
+        39.64683716559995,
+        32.87064956622555
+      ],
+      "minimum_xy_error_m": 0.21542944789420312,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1956.868,
+      "range_m": 36.0025947397637,
+      "xy": [
+        40.595687961755736,
+        24.33255960888669
+      ],
+      "minimum_xy_error_m": 0.07301393252449168,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1957.972,
+      "range_m": 35.69900619680507,
+      "xy": [
+        41.89122726262728,
+        24.47548938178993
+      ],
+      "minimum_xy_error_m": 0.27714771712345787,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1958.344,
+      "range_m": 35.97082058880263,
+      "xy": [
+        42.681543247221605,
+        24.78177287483217
+      ],
+      "minimum_xy_error_m": 0.7914129840703148,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1958.72,
+      "range_m": 40.02269346836389,
+      "xy": [
+        41.387163187047825,
+        31.60812541979817
+      ],
+      "minimum_xy_error_m": 1.8089511738917274,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1959.028,
+      "range_m": 40.22625741206734,
+      "xy": [
+        41.75896703006603,
+        31.688971305009634
+      ],
+      "minimum_xy_error_m": 1.7056228131007638,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1959.38,
+      "range_m": 40.668082561115924,
+      "xy": [
+        42.362174981388755,
+        32.05318226841249
+      ],
+      "minimum_xy_error_m": 1.266331187939654,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1959.78,
+      "range_m": 41.77342413717625,
+      "xy": [
+        43.55698759537715,
+        32.96916721255867
+      ],
+      "minimum_xy_error_m": 0.05455985109256233,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1959.78,
+      "range_m": 34.73984793883971,
+      "xy": [
+        43.20562418095612,
+        23.896109089266012
+      ],
+      "minimum_xy_error_m": 0.48667210378577175,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1960.212,
+      "range_m": 37.57809619289628,
+      "xy": [
+        45.64161758671898,
+        26.099756572444694
+      ],
+      "minimum_xy_error_m": 2.4246636726418576,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1960.672,
+      "range_m": 36.588503307129855,
+      "xy": [
+        45.53514715895403,
+        25.60094693202116
+      ],
+      "minimum_xy_error_m": 1.5962873064358718,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1961.856,
+      "range_m": 42.649139205560864,
+      "xy": [
+        46.430973968342485,
+        34.06021493246136
+      ],
+      "minimum_xy_error_m": 1.3003943632678692,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1961.856,
+      "range_m": 35.66570886115258,
+      "xy": [
+        46.12924424584146,
+        25.046928062043595
+      ],
+      "minimum_xy_error_m": 0.7739951002350118,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1962.32,
+      "range_m": 40.368629801509215,
+      "xy": [
+        45.66955602709218,
+        32.34215821934289
+      ],
+      "minimum_xy_error_m": 0.8099130298449342,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1962.32,
+      "range_m": 35.152965003621745,
+      "xy": [
+        46.35803997018256,
+        24.845731754720873
+      ],
+      "minimum_xy_error_m": 0.4655486848957022,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 1962.772,
+      "range_m": 34.84776954988877,
+      "xy": [
+        46.75350298948614,
+        24.73999066945972
+      ],
+      "minimum_xy_error_m": 0.35129017203941515,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1964.872,
+      "range_m": 40.600126700946916,
+      "xy": [
+        48.399955151689085,
+        32.71240097842687
+      ],
+      "minimum_xy_error_m": 0.41130957930223383,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1966.688,
+      "range_m": 41.82528359242956,
+      "xy": [
+        51.08740029366231,
+        33.63370198074379
+      ],
+      "minimum_xy_error_m": 0.8577216667191916,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1967.144,
+      "range_m": 39.31044285584295,
+      "xy": [
+        49.94877343480901,
+        31.7109198779277
+      ],
+      "minimum_xy_error_m": 1.6412840485147149,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1967.64,
+      "range_m": 39.98645890146868,
+      "xy": [
+        50.92388594122701,
+        32.25780120822049
+      ],
+      "minimum_xy_error_m": 0.9167473952852753,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1968.092,
+      "range_m": 40.2378051646878,
+      "xy": [
+        51.63837185986419,
+        32.6034071228686
+      ],
+      "minimum_xy_error_m": 0.48296664669836975,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1968.092,
+      "range_m": 11.391951025545694,
+      "xy": [
+        39.166856256686714,
+        -4.599435438284458
+      ],
+      "minimum_xy_error_m": 39.70147628099329,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1969.44,
+      "range_m": 9.914416807814312,
+      "xy": [
+        39.07891813366439,
+        -4.625896648823833
+      ],
+      "minimum_xy_error_m": 40.210956038532544,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1971.828,
+      "range_m": 8.358626160101824,
+      "xy": [
+        38.820989806579,
+        -4.626823287545708
+      ],
+      "minimum_xy_error_m": 41.218847810221405,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1972.148,
+      "range_m": 7.953775122543045,
+      "xy": [
+        38.79043661983733,
+        -4.617970235739303
+      ],
+      "minimum_xy_error_m": 41.35455625675714,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "red",
+      "sample_s": 1972.488,
+      "range_m": 7.462234080313163,
+      "xy": [
+        38.722166818408326,
+        -4.558697613093231
+      ],
+      "minimum_xy_error_m": 41.474377188063656,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "brown",
+      "sample_s": 2082.896,
+      "range_m": 10.381725638671085,
+      "xy": [
+        81.93614656428812,
+        -33.2425837637771
+      ],
+      "minimum_xy_error_m": 68.9646431357645,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2083.132,
+      "range_m": 5.532980744067325,
+      "xy": [
+        80.07685182327069,
+        -28.665568876080904
+      ],
+      "minimum_xy_error_m": 68.39055161964077,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "brown",
+      "sample_s": 2089.636,
+      "range_m": 8.240883704314156,
+      "xy": [
+        81.95907004535408,
+        -32.296453447338074
+      ],
+      "minimum_xy_error_m": 68.24464444747083,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2114.048,
+      "range_m": 4.2217233153361065,
+      "xy": [
+        79.99495045113274,
+        -28.71341409610283
+      ],
+      "minimum_xy_error_m": 68.33957967707758,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2114.568,
+      "range_m": 4.528038515270434,
+      "xy": [
+        80.05830429990222,
+        -28.899516389713582
+      ],
+      "minimum_xy_error_m": 68.45818699014053,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2126.184,
+      "range_m": 5.740132336964782,
+      "xy": [
+        79.99199435716163,
+        -28.6741006075414
+      ],
+      "minimum_xy_error_m": 68.04894208720609,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2138.148,
+      "range_m": 6.132719036732611,
+      "xy": [
+        80.13909187174262,
+        -29.06613557710605
+      ],
+      "minimum_xy_error_m": 68.56483419183753,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2142.74,
+      "range_m": 5.610443127443379,
+      "xy": [
+        80.04381439251398,
+        -28.819811706331567
+      ],
+      "minimum_xy_error_m": 68.4660749262168,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2156.42,
+      "range_m": 5.718706713865081,
+      "xy": [
+        82.46473861957296,
+        -28.67240049484183
+      ],
+      "minimum_xy_error_m": 67.67094509634376,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "brown",
+      "sample_s": 2178.084,
+      "range_m": 7.912137324104329,
+      "xy": [
+        86.31603230901682,
+        -28.055173877701293
+      ],
+      "minimum_xy_error_m": 62.45403885259968,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2196.012,
+      "range_m": 4.174016405737725,
+      "xy": [
+        79.97433408116169,
+        -28.675569718855417
+      ],
+      "minimum_xy_error_m": 78.84144598975483,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2239.188,
+      "range_m": 9.352577945490811,
+      "xy": [
+        80.23340399663337,
+        -28.582902431339654
+      ],
+      "minimum_xy_error_m": 66.0781717098868,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2240.352,
+      "range_m": 7.445123787121586,
+      "xy": [
+        82.80622390724083,
+        -28.549411144942567
+      ],
+      "minimum_xy_error_m": 65.11415751817317,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2240.352,
+      "range_m": 7.395456498756294,
+      "xy": [
+        82.98418292236167,
+        -28.595008110747145
+      ],
+      "minimum_xy_error_m": 65.09981074544002,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2240.352,
+      "range_m": 8.065702676345492,
+      "xy": [
+        82.71529548928682,
+        -29.254996772001338
+      ],
+      "minimum_xy_error_m": 65.81123309346499,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2241.22,
+      "range_m": 6.158710223975292,
+      "xy": [
+        83.13214106153369,
+        -28.46968248752352
+      ],
+      "minimum_xy_error_m": 64.89471529571486,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2241.22,
+      "range_m": 5.360213842578241,
+      "xy": [
+        85.34369470954135,
+        -28.49790440924458
+      ],
+      "minimum_xy_error_m": 64.24588876925415,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2244.792,
+      "range_m": 3.8195380331029583,
+      "xy": [
+        84.99881548781973,
+        -29.612784098603246
+      ],
+      "minimum_xy_error_m": 65.18308369513605,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2244.792,
+      "range_m": 5.270537863343955,
+      "xy": [
+        81.74319683830429,
+        -29.127251704106207
+      ],
+      "minimum_xy_error_m": 65.7654317362716,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2245.144,
+      "range_m": 6.253454240456031,
+      "xy": [
+        80.26087000993677,
+        -28.563115034585476
+      ],
+      "minimum_xy_error_m": 65.65141070355102,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_3.csv",
+      "tag": "blue",
+      "sample_s": 2245.144,
+      "range_m": 6.244515193811145,
+      "xy": [
+        80.27113569340342,
+        -28.563471256878188
+      ],
+      "minimum_xy_error_m": 65.64799923664968,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "blue",
+      "sample_s": 1944.44,
+      "range_m": 40.920846338439866,
+      "xy": [
+        38.65264268339021,
+        23.01047804517784
+      ],
+      "minimum_xy_error_m": 7.539015464812517,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "blue",
+      "sample_s": 1944.88,
+      "range_m": 35.057962452443,
+      "xy": [
+        33.45590048645507,
+        20.265737743957644
+      ],
+      "minimum_xy_error_m": 1.2453591137632154,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "blue",
+      "sample_s": 1945.324,
+      "range_m": 34.056386593548936,
+      "xy": [
+        32.517504012501256,
+        19.88005661845896
+      ],
+      "minimum_xy_error_m": 0.20971515106259714,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "blue",
+      "sample_s": 1947.136,
+      "range_m": 31.712263150113834,
+      "xy": [
+        30.283993866747124,
+        19.048208912629754
+      ],
+      "minimum_xy_error_m": 4.287461147474003,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "blue",
+      "sample_s": 1947.604,
+      "range_m": 31.343753398247355,
+      "xy": [
+        29.886109789925065,
+        19.004921201497115
+      ],
+      "minimum_xy_error_m": 5.104816997940081,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "blue",
+      "sample_s": 1948.064,
+      "range_m": 34.34248949239881,
+      "xy": [
+        32.46097407243966,
+        20.610269840033293
+      ],
+      "minimum_xy_error_m": 2.513523569247667,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "blue",
+      "sample_s": 1948.592,
+      "range_m": 35.37190603170169,
+      "xy": [
+        33.67161502755167,
+        21.457005202569125
+      ],
+      "minimum_xy_error_m": 1.5523823755745667,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "blue",
+      "sample_s": 2000.744,
+      "range_m": 25.50563390052321,
+      "xy": [
+        40.068701504270834,
+        -5.3778222462090515
+      ],
+      "minimum_xy_error_m": 53.237751152174326,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "red",
+      "sample_s": 2028.1,
+      "range_m": 15.565123911592128,
+      "xy": [
+        38.45204965988645,
+        -5.166284203937309
+      ],
+      "minimum_xy_error_m": 82.81586536390422,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "red",
+      "sample_s": 2033.232,
+      "range_m": 16.432584629711545,
+      "xy": [
+        38.29387556633729,
+        -5.3563159308636195
+      ],
+      "minimum_xy_error_m": 87.58071727748191,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "red",
+      "sample_s": 2033.604,
+      "range_m": 16.437533775015808,
+      "xy": [
+        38.318467436459045,
+        -5.324277670164742
+      ],
+      "minimum_xy_error_m": 87.87778565908542,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "red",
+      "sample_s": 2033.964,
+      "range_m": 16.282060711427157,
+      "xy": [
+        38.35773130502016,
+        -5.148395261680397
+      ],
+      "minimum_xy_error_m": 88.08565027909702,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_5.csv",
+      "tag": "red",
+      "sample_s": 2034.332,
+      "range_m": 16.299265564475405,
+      "xy": [
+        38.36997261366507,
+        -5.166229498276403
+      ],
+      "minimum_xy_error_m": 88.40742546271082,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "blue",
+      "sample_s": 1955.996,
+      "range_m": 30.037873421322065,
+      "xy": [
+        -24.904870251965846,
+        11.736723663393047
+      ],
+      "minimum_xy_error_m": 65.84678246665437,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "blue",
+      "sample_s": 1961.044,
+      "range_m": 53.735331684900174,
+      "xy": [
+        41.463501828179076,
+        22.144824377368444
+      ],
+      "minimum_xy_error_m": 4.056335561274574,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "blue",
+      "sample_s": 1964.872,
+      "range_m": 32.03695468582049,
+      "xy": [
+        -26.34101650136146,
+        12.987319418241125
+      ],
+      "minimum_xy_error_m": 75.80706557933563,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "red",
+      "sample_s": 1971.828,
+      "range_m": 15.997519986584123,
+      "xy": [
+        -20.75776139765862,
+        -4.125054398070079
+      ],
+      "minimum_xy_error_m": 84.94948890876263,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "blue",
+      "sample_s": 1973.54,
+      "range_m": 32.85568491914067,
+      "xy": [
+        -27.013070195595695,
+        13.637692207398059
+      ],
+      "minimum_xy_error_m": 84.96163419972453,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "red",
+      "sample_s": 1973.896,
+      "range_m": 15.446643878330487,
+      "xy": [
+        -20.741435677924606,
+        -4.124915468480577
+      ],
+      "minimum_xy_error_m": 86.79762993132995,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "blue",
+      "sample_s": 1976.432,
+      "range_m": 33.44881710030482,
+      "xy": [
+        -27.156186612039598,
+        13.836432316995
+      ],
+      "minimum_xy_error_m": 87.22144410564673,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "blue",
+      "sample_s": 1984.628,
+      "range_m": 34.61148722980304,
+      "xy": [
+        -27.89643017544376,
+        15.055527942871286
+      ],
+      "minimum_xy_error_m": 89.32640931734267,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "red",
+      "sample_s": 1984.628,
+      "range_m": 15.747373891245994,
+      "xy": [
+        -21.026302173880318,
+        -3.8458739261918353
+      ],
+      "minimum_xy_error_m": 96.63443048986738,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "red",
+      "sample_s": 1984.892,
+      "range_m": 15.317972900961665,
+      "xy": [
+        -20.876718533752673,
+        -3.972743872825781
+      ],
+      "minimum_xy_error_m": 96.79141227373928,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "blue",
+      "sample_s": 1984.892,
+      "range_m": 32.33007537819594,
+      "xy": [
+        -26.76635675681229,
+        13.261696788422837
+      ],
+      "minimum_xy_error_m": 88.79972193277554,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "red",
+      "sample_s": 1985.248,
+      "range_m": 15.04587300051337,
+      "xy": [
+        -21.027040388188954,
+        -3.830373603499563
+      ],
+      "minimum_xy_error_m": 97.19812397556076,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "red",
+      "sample_s": 1985.608,
+      "range_m": 14.489693061424264,
+      "xy": [
+        -20.918016101881747,
+        -3.858651615566469
+      ],
+      "minimum_xy_error_m": 97.44094612343196,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "red",
+      "sample_s": 1985.932,
+      "range_m": 14.064638416787064,
+      "xy": [
+        -20.877758531331594,
+        -3.847540935911855
+      ],
+      "minimum_xy_error_m": 97.70013189709417,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_0.csv",
+      "tag": "red",
+      "sample_s": 1987.376,
+      "range_m": 13.73329049998338,
+      "xy": [
+        -21.303552265985825,
+        -3.401551225000773
+      ],
+      "minimum_xy_error_m": 99.24786311926772,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "blue",
+      "sample_s": 1947.136,
+      "range_m": 38.11029668416131,
+      "xy": [
+        33.008708559460985,
+        20.38631970271992
+      ],
+      "minimum_xy_error_m": 1.274732154211234,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1949.88,
+      "range_m": 10.557169136314219,
+      "xy": [
+        15.998195601524813,
+        -5.516051412307794
+      ],
+      "minimum_xy_error_m": 42.39036560513349,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "blue",
+      "sample_s": 1950.32,
+      "range_m": 38.49707231257045,
+      "xy": [
+        35.19243436715042,
+        22.478560437388005
+      ],
+      "minimum_xy_error_m": 1.4284310646068905,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "blue",
+      "sample_s": 1950.68,
+      "range_m": 39.50350915592773,
+      "xy": [
+        36.02968892188903,
+        23.26191829629262
+      ],
+      "minimum_xy_error_m": 0.6423104567791967,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "blue",
+      "sample_s": 1955.196,
+      "range_m": 42.139628235658904,
+      "xy": [
+        39.35772865463966,
+        24.68900626824852
+      ],
+      "minimum_xy_error_m": 0.5990772131107375,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "blue",
+      "sample_s": 1956.868,
+      "range_m": 39.50247944748037,
+      "xy": [
+        39.660677257906386,
+        23.344891264446915
+      ],
+      "minimum_xy_error_m": 1.3196672448676339,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "blue",
+      "sample_s": 1957.224,
+      "range_m": 40.68042524150403,
+      "xy": [
+        40.80859346074061,
+        24.07444748744496
+      ],
+      "minimum_xy_error_m": 0.24445400672080306,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1966.688,
+      "range_m": 20.53336543833351,
+      "xy": [
+        39.259571298869005,
+        -4.149654967921421
+      ],
+      "minimum_xy_error_m": 38.81565463225584,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1970.08,
+      "range_m": 17.427174665359622,
+      "xy": [
+        39.51923356283566,
+        -4.075243279271046
+      ],
+      "minimum_xy_error_m": 39.7669193957152,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "blue",
+      "sample_s": 1970.408,
+      "range_m": 16.64523574960137,
+      "xy": [
+        38.904602655138305,
+        -4.203156833163514
+      ],
+      "minimum_xy_error_m": 32.501611471044534,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1970.796,
+      "range_m": 16.597689631738277,
+      "xy": [
+        38.962180182905676,
+        -4.216137722524031
+      ],
+      "minimum_xy_error_m": 40.37503812327017,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1971.476,
+      "range_m": 16.339763142293933,
+      "xy": [
+        39.218989242072965,
+        -4.110568147396912
+      ],
+      "minimum_xy_error_m": 40.44414488125418,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1971.828,
+      "range_m": 15.947359947349167,
+      "xy": [
+        39.05752793419319,
+        -4.169752027920789
+      ],
+      "minimum_xy_error_m": 40.705043852960515,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1972.148,
+      "range_m": 15.67878495561502,
+      "xy": [
+        39.130712953274106,
+        -4.119499859411887
+      ],
+      "minimum_xy_error_m": 40.75990780517311,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1972.488,
+      "range_m": 14.989498448357336,
+      "xy": [
+        38.85759795124005,
+        -4.297232812710486
+      ],
+      "minimum_xy_error_m": 41.18015521933244,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1973.54,
+      "range_m": 14.941513280548882,
+      "xy": [
+        39.1072159968136,
+        -4.073400233110614
+      ],
+      "minimum_xy_error_m": 41.325754499305134,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1973.896,
+      "range_m": 14.606162414478494,
+      "xy": [
+        39.051343209074204,
+        -4.093020023813782
+      ],
+      "minimum_xy_error_m": 41.52422844087254,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "brown",
+      "sample_s": 1974.248,
+      "range_m": 17.571133076461148,
+      "xy": [
+        43.6356635126344,
+        -11.454535413680327
+      ],
+      "minimum_xy_error_m": 80.7004916606129,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1974.616,
+      "range_m": 14.11290772930248,
+      "xy": [
+        39.10920963728415,
+        -4.024600247616208
+      ],
+      "minimum_xy_error_m": 41.766292155052916,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1975.348,
+      "range_m": 13.344038031556487,
+      "xy": [
+        38.84428002135621,
+        -4.209680653104238
+      ],
+      "minimum_xy_error_m": 42.67295529262663,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1975.732,
+      "range_m": 13.279236594261057,
+      "xy": [
+        38.9500348012466,
+        -4.095658172682094
+      ],
+      "minimum_xy_error_m": 42.905828753018355,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1976.076,
+      "range_m": 13.110375278558397,
+      "xy": [
+        39.02709550393173,
+        -4.0668374623979835
+      ],
+      "minimum_xy_error_m": 43.18445892706848,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "brown",
+      "sample_s": 1976.432,
+      "range_m": 16.581731613771026,
+      "xy": [
+        44.61584076024239,
+        -10.384635981772181
+      ],
+      "minimum_xy_error_m": 81.13038894412962,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1976.816,
+      "range_m": 12.580283043100605,
+      "xy": [
+        38.98167065820545,
+        -4.025886125474209
+      ],
+      "minimum_xy_error_m": 43.79035392173411,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1977.236,
+      "range_m": 12.26228645921493,
+      "xy": [
+        38.85547737962766,
+        -4.110547523357156
+      ],
+      "minimum_xy_error_m": 44.16354704537913,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1977.668,
+      "range_m": 11.80190988445013,
+      "xy": [
+        38.88208961964302,
+        -4.109396848229011
+      ],
+      "minimum_xy_error_m": 44.36142903112778,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "brown",
+      "sample_s": 1977.668,
+      "range_m": 14.56671354844342,
+      "xy": [
+        43.59188414065471,
+        -11.538145929625015
+      ],
+      "minimum_xy_error_m": 83.65574550481062,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1978.04,
+      "range_m": 11.13582748831569,
+      "xy": [
+        38.845804773572816,
+        -4.098858597390797
+      ],
+      "minimum_xy_error_m": 44.55466107865184,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "brown",
+      "sample_s": 1978.04,
+      "range_m": 14.229125070153524,
+      "xy": [
+        43.98997377332552,
+        -11.530820418388647
+      ],
+      "minimum_xy_error_m": 83.63001357306986,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "red",
+      "sample_s": 1978.412,
+      "range_m": 10.452021738178399,
+      "xy": [
+        38.82713231461608,
+        -4.08747175010409
+      ],
+      "minimum_xy_error_m": 44.741112469105225,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "brown",
+      "sample_s": 1978.412,
+      "range_m": 13.291392904078695,
+      "xy": [
+        43.83033410085501,
+        -11.499466636287156
+      ],
+      "minimum_xy_error_m": 84.06636197556713,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "brown",
+      "sample_s": 1979.18,
+      "range_m": 12.382988229914531,
+      "xy": [
+        43.958040809436156,
+        -11.526407978849274
+      ],
+      "minimum_xy_error_m": 84.62302535446372,
+      "person_frame_verified": "False"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "green",
+      "sample_s": 1997.964,
+      "range_m": 10.402093627527131,
+      "xy": [
+        42.99272531817408,
+        -21.29207435749531
+      ],
+      "minimum_xy_error_m": 77.72629815354581,
+      "person_frame_verified": "True"
+    },
+    {
+      "source_file": "perception_typhoon_h480_1.csv",
+      "tag": "blue",
+      "sample_s": 2054.468,
+      "range_m": 30.510334270032942,
+      "xy": [
+        38.968258590517244,
+        -6.044541430885118
+      ],
+      "minimum_xy_error_m": 81.6770863924403,
+      "person_frame_verified": "False"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "sampled_utc": "2026-10-08T03:11:46Z",
+  "control_input": false,
+  "binary_path": "/root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libros_actor_cmd_pose_plugin.so",
+  "binary_sha256": "389645c3d8de5ad6efede9b8bf94b699da4e18dfedd9403a39b4d53400858ecf",
+  "actor_source_path": "/root/robocup_runtime/stereo_20261002T140417Z/source/actor_pose_notify_20261002T065032Z/source/src/ActorPluginRos.cpp",
+  "actor_source_sha256": "f220d4b5dcde946887eea76b8654f986b6d855b0cef0acc38f9ab95af9a9b486",
+  "actor_source_contract": "cmd_msg->x/y as planar target, cmd_msg->v as speed; no yaw required",
+  "loaded_maps": [
+    "7d2b8809b000-7d2b880c1000 r--p 00000000 08:30 212438                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libros_actor_cmd_pose_plugin.so",
+    "7d2b880c1000-7d2b880ea000 r-xp 00026000 08:30 212438                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libros_actor_cmd_pose_plugin.so",
+    "7d2b880ea000-7d2b880f6000 r--p 0004f000 08:30 212438                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libros_actor_cmd_pose_plugin.so",
+    "7d2b880f6000-7d2b880f9000 r--p 0005a000 08:30 212438                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libros_actor_cmd_pose_plugin.so",
+    "7d2b880f9000-7d2b880fa000 rw-p 0005d000 08:30 212438                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libros_actor_cmd_pose_plugin.so",
+    "7d2b8bfbd000-7d2b8bfd5000 r--p 00000000 08:30 212439                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libActorCollisionsPlugin.so",
+    "7d2b8bfd5000-7d2b8bff4000 r-xp 00018000 08:30 212439                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libActorCollisionsPlugin.so",
+    "7d2b8bff4000-7d2b8bffc000 r--p 00037000 08:30 212439                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libActorCollisionsPlugin.so",
+    "7d2b8bffc000-7d2b8bffe000 r--p 0003e000 08:30 212439                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libActorCollisionsPlugin.so",
+    "7d2b8bffe000-7d2b8bfff000 rw-p 00040000 08:30 212439                     /root/robocup_runtime/stereo_20261002T140417Z/actor_lib/libActorCollisionsPlugin.so"
+  ],
+  "gzserver_log_bytes": 392158031,
+  "conclusion": "No demonstrated x/y/v interface mismatch; plugin competition equivalence remains unverified"
+}

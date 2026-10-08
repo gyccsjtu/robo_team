@@ -1,0 +1,456 @@
+{
+  "selected": 112,
+  "failures": 0,
+  "gzip_originals": 9,
+  "meaning": "Git staged archive byte SHA and decoded original SHA match preserved manifest",
+  "files": [
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/budget.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/owned_runner.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/power_hold.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/final_raw_detection_accuracy.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/actor_environment_odometry.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/actor_environment_wiring.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/agent_uav_1.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/agent_uav_2.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/agent_uav_3.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/agent_uav_4.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/agent_uav_5.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/agent_uav_6.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/algorithm.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/authority_events.jsonl",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/bridge_trace.jsonl",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/control_uav_1.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/control_uav_2.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/control_uav_3.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/control_uav_4.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/control_uav_5.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/control_uav_6.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_0.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_1.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_2.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_3.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_4.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/frame_probe_typhoon_h480_5.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/navigation_uav_1_latest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/navigation_uav_2_latest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/navigation_uav_3_latest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/navigation_uav_4_latest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/navigation_uav_5_latest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/navigation_uav_6_latest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_0.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_1.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_2.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_4.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_5.csv",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/route_events.jsonl",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/algorithm/search_camera_frames.jsonl.gz",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/city_bounds.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/city_commands.jsonl.gz",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/city_contacts.log.gz",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/city_control_config.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/city_events.jsonl",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/city_trajectory.jsonl.gz",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/contact_observer_manifest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/development_physics.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/execution_sources.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/gimbal_runtime_manifest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/judge.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/judge_exit_diagnostic.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/perception_uav_1.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/perception_uav_2.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/perception_uav_3.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/perception_uav_4.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/perception_uav_5.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/perception_uav_6.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/px4_estimator_config.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/result.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/result_before_cleanup.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/shared_inference.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/shared_inference.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/startup_clearance.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/swarm_manager.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/swarm_source_manifest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/wiring.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/world_ready.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/flight/yolo_target_bridge.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/interim_raw_detection_accuracy.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/late_resource_sample.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/launcher.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/live_watch_samples.jsonl",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/blue.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/brown.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/diagnostic_views/manifest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/diagnostic_views/uav_1.png",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/diagnostic_views/uav_2.png",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/diagnostic_views/uav_3.png",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/diagnostic_views/uav_4.png",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/diagnostic_views/uav_5.png",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/diagnostic_views/uav_6.png",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/frames/frames.jsonl",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/frames/uav_2_brown_001.png",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/frames.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/green.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy.jsonl.gz",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy_blue.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy_blue.jsonl.gz",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy_brown.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy_brown.jsonl.gz",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy_red.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy_red.jsonl.gz",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy_white.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/independent_visual_accuracy_white.jsonl.gz",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/process_manifest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/red.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/sources/capture_visual_frames.py",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/sources/current_frame_diagnostic.py.txt",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/sources/observe_visual_accuracy.py",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/observers/white.log",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/postrun_summary.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/process_cleanup_audit.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/read_only_watch_manifest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/runtime_plugin_audit.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/scene/control_actor.py",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/scene/scene_manifest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/scene/score_cal.py",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/round_1_seed_8159/source_manifest.json",
+      "passed": true
+    },
+    {
+      "path": "coordination/docs/validation/previous_rate_40_20261008/runner.log",
+      "passed": true
+    }
+  ]
+}

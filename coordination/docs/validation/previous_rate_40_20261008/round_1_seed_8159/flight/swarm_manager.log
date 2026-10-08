@@ -1,0 +1,174 @@
+[INFO] [1791426957.962135, 0.000000]: swarm_manager 启动，机队: ['uav_1', 'uav_2', 'uav_3', 'uav_4', 'uav_5', 'uav_6']
+[INFO] [1791426957.963752, 0.000000]: [manager] 搜索栅格边界 x[-50,130] y[-60,60]（元数据）
+[INFO] [1791426957.966388, 0.000000]: [manager] Online mode: metadata bounds only, no stored obstacle or LOS prior
+[INFO] [1791426958.034636, 0.000000]: [manager] 集群管理器启动，机队: ['uav_1', 'uav_2', 'uav_3', 'uav_4', 'uav_5', 'uav_6']
+[WARN] [1791426959.127868, 1931.460000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791426959.818159, 1931.576000]: [manager] 官方剩余 actor: [0, 1, 2, 3, 4, 5]
+[WARN] [1791426990.953627, 1936.560000]: [manager] Waiting for the complete fresh fleet before auction
+[WARN] [1791427022.832242, 1941.660000]: [manager] Waiting for the complete fresh fleet before auction
+[INFO] [1791427024.788195, 1941.972000]: [manager] 分配 uav_1 → 格 (3,0) 飞行距离 59.3m 租约 39.6s
+[INFO] [1791427024.796060, 1941.972000]: [manager] 分配 uav_1 → 格 (3,0) 中心 (-25.5,-56.5)
+[INFO] [1791427024.799257, 1941.972000]: [manager] 分配 uav_2 → 格 (14,3) 飞行距离 58.4m 租约 39.2s
+[INFO] [1791427024.807769, 1941.972000]: [manager] 分配 uav_2 → 格 (14,3) 中心 (51.5,-35.5)
+[INFO] [1791427024.812963, 1941.972000]: [manager] 分配 uav_3 → 格 (0,12) 飞行距离 54.0m 租约 37.0s
+[INFO] [1791427024.823929, 1941.976000]: [manager] 分配 uav_3 → 格 (0,12) 中心 (-46.5,27.5)
+[INFO] [1791427024.827266, 1941.976000]: [manager] 分配 uav_4 → 格 (17,8) 飞行距离 69.5m 租约 44.7s
+[INFO] [1791427024.834100, 1941.976000]: [manager] 分配 uav_4 → 格 (17,8) 中心 (72.5,-0.5)
+[INFO] [1791427024.839648, 1941.980000]: [manager] 分配 uav_5 → 格 (10,17) 飞行距离 61.2m 租约 40.6s
+[INFO] [1791427024.848781, 1941.980000]: [manager] 分配 uav_5 → 格 (10,17) 中心 (23.5,59.5)
+[INFO] [1791427024.851767, 1941.980000]: [manager] 分配 uav_6 → 格 (17,10) 飞行距离 70.3m 租约 45.1s
+[INFO] [1791427024.858422, 1941.980000]: [manager] 分配 uav_6 → 格 (17,10) 中心 (72.5,13.5)
+[INFO] [1791427114.829604, 1956.372000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=1 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791427121.656803, 1957.464000]: [manager] 分配 uav_6 → 格 (17,11) 飞行距离 69.2m 租约 44.6s
+[INFO] [1791427121.662570, 1957.464000]: [manager] 分配 uav_6 → 格 (17,11) 中心 (72.5,20.5)
+[INFO] [1791427159.221006, 1963.472000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=2 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791427166.050477, 1964.564000]: [manager] 分配 uav_6 → 格 (17,12) 飞行距离 71.3m 租约 45.7s
+[INFO] [1791427166.058542, 1964.564000]: [manager] 分配 uav_6 → 格 (17,12) 中心 (72.5,27.5)
+[INFO] [1791427191.634157, 1968.656000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=1 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791427198.694508, 1969.784000]: [manager] 分配 uav_5 → 格 (9,10) 飞行距离 17.2m 租约 18.6s
+[INFO] [1791427198.700057, 1969.784000]: [manager] 分配 uav_5 → 格 (9,10) 中心 (16.5,13.5)
+[INFO] [1791427203.660087, 1970.572000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=3 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791427211.705801, 1971.864000]: [manager] 分配 uav_6 → 格 (17,13) 飞行距离 74.0m 租约 47.0s
+[INFO] [1791427211.714825, 1971.868000]: [manager] 分配 uav_6 → 格 (17,13) 中心 (72.5,34.5)
+[INFO] [1791427242.253400, 1976.752000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=2 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791427249.211853, 1977.864000]: [manager] 分配 uav_5 → 格 (9,11) 飞行距离 19.4m 租约 19.7s
+[INFO] [1791427249.217936, 1977.864000]: [manager] 分配 uav_5 → 格 (9,11) 中心 (16.5,20.5)
+[INFO] [1791427350.130640, 1994.004000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=3 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791427357.408016, 1995.168000]: [manager] 分配 uav_5 → 格 (9,12) 飞行距离 23.7m 租约 21.9s
+[INFO] [1791427357.416125, 1995.168000]: [manager] 分配 uav_5 → 格 (9,12) 中心 (16.5,27.5)
+[INFO] [1791427358.418517, 1995.328000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=4 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791427370.518979, 1997.264000]: [manager] 分配 uav_6 → 格 (18,10) 飞行距离 64.5m 租约 42.3s
+[INFO] [1791427370.525834, 1997.264000]: [manager] 分配 uav_6 → 格 (18,10) 中心 (79.5,13.5)
+[INFO] [1791427480.836960, 2014.900000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=2 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791427523.858203, 2021.780000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=2 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791427531.263236, 2022.964000]: [manager] 分配 uav_3 → 格 (0,11) 飞行距离 6.2m 租约 13.1s
+[INFO] [1791427531.268267, 2022.964000]: [manager] 分配 uav_3 → 格 (0,11) 中心 (-46.5,20.5)
+[INFO] [1791427544.388958, 2025.064000]: [manager] 分配 uav_4 → 格 (17,7) 飞行距离 7.1m 租约 13.6s
+[INFO] [1791427544.393743, 2025.064000]: [manager] 分配 uav_4 → 格 (17,7) 中心 (72.5,-7.5)
+[WARN] [1791427574.404835, 2029.864000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[INFO] [1791427590.791654, 2032.484000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=3 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791427598.180175, 2033.668000]: [manager] 分配 uav_3 → 格 (1,12) 飞行距离 9.4m 租约 14.7s
+[INFO] [1791427598.186651, 2033.668000]: [manager] 分配 uav_3 → 格 (1,12) 中心 (-39.5,27.5)
+[INFO] [1791427609.989403, 2035.552000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=3 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791427618.181151, 2036.864000]: [manager] 分配 uav_4 → 格 (18,5) 飞行距离 16.3m 租约 18.2s
+[INFO] [1791427618.187338, 2036.864000]: [manager] 分配 uav_4 → 格 (18,5) 中心 (79.5,-21.5)
+[INFO] [1791427684.974107, 2047.504000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=5 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791427692.066720, 2048.640000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=4 view=0 outcome=OBSERVED finished=False mask=4
+[INFO] [1791427692.224711, 2048.664000]: [manager] 分配 uav_5 → 格 (10,11) 飞行距离 10.3m 租约 15.2s
+[INFO] [1791427692.233956, 2048.668000]: [manager] 分配 uav_5 → 格 (10,11) 中心 (23.5,20.5)
+[WARN] [1791427705.454311, 2050.764000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[INFO] [1791427710.241821, 2051.488000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=3 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791427717.047862, 2052.568000]: [manager] 分配 uav_2 → 格 (14,4) 飞行距离 6.1m 租约 13.1s
+[INFO] [1791427717.052661, 2052.568000]: [manager] 分配 uav_2 → 格 (14,4) 中心 (51.5,-28.5)
+[INFO] [1791427739.652939, 2056.180000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=4 view=1 outcome=OBSERVED finished=False mask=4
+[INFO] [1791427756.734187, 2058.912000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=4 view=0 outcome=NO_CONNECTED_VIEW finished=True mask=0
+[INFO] [1791427763.956258, 2060.064000]: [manager] 分配 uav_1 → 格 (3,1) 飞行距离 6.3m 租约 13.1s
+[INFO] [1791427763.967659, 2060.068000]: [manager] 分配 uav_1 → 格 (3,1) 中心 (-25.5,-49.5)
+[INFO] [1791427784.380901, 2063.332000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=4 view=2 outcome=OBSERVED finished=True mask=4
+[INFO] [1791427788.913827, 2064.060000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=6 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791427791.459751, 2064.464000]: [manager] 分配 uav_3 → 格 (2,11) 飞行距离 10.8m 租约 15.4s
+[INFO] [1791427791.467875, 2064.468000]: [manager] 分配 uav_3 → 格 (2,11) 中心 (-32.5,20.5)
+[INFO] [1791427803.966821, 2066.464000]: [manager] 分配 uav_5 → 格 (12,11) 飞行距离 14.0m 租约 17.0s
+[INFO] [1791427803.975894, 2066.468000]: [manager] 分配 uav_5 → 格 (12,11) 中心 (37.5,20.5)
+[INFO] [1791427815.480022, 2068.308000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=4 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791427822.080307, 2069.364000]: [manager] 分配 uav_2 → 格 (13,4) 飞行距离 4.6m 租约 12.3s
+[INFO] [1791427822.088380, 2069.364000]: [manager] 分配 uav_2 → 格 (13,4) 中心 (44.5,-28.5)
+[INFO] [1791427822.404177, 2069.416000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=5 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791427834.605243, 2071.364000]: [manager] 分配 uav_1 → 格 (4,1) 飞行距离 6.9m 租约 13.4s
+[INFO] [1791427834.611235, 2071.364000]: [manager] 分配 uav_1 → 格 (4,1) 中心 (-18.5,-49.5)
+[INFO] [1791427891.460802, 2080.460000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=6 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791427896.774614, 2081.308000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=5 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791427898.359010, 2081.564000]: [manager] 分配 uav_1 → 格 (4,0) 飞行距离 6.8m 租约 13.4s
+[INFO] [1791427898.364096, 2081.564000]: [manager] 分配 uav_1 → 格 (4,0) 中心 (-18.5,-56.5)
+[INFO] [1791427903.944806, 2082.456000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=7 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791427910.870974, 2083.564000]: [manager] 分配 uav_2 → 格 (13,3) 飞行距离 6.3m 租约 13.2s
+[INFO] [1791427910.876837, 2083.568000]: [manager] 分配 uav_2 → 格 (13,3) 中心 (44.5,-35.5)
+[INFO] [1791427910.880419, 2083.568000]: [manager] 分配 uav_5 → 格 (12,14) 飞行距离 21.0m 租约 20.5s
+[INFO] [1791427910.889010, 2083.568000]: [manager] 分配 uav_5 → 格 (12,14) 中心 (37.5,41.5)
+[INFO] [1791427957.705237, 2091.056000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=7 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791427964.649944, 2092.164000]: [manager] 分配 uav_1 → 格 (2,0) 飞行距离 14.1m 租约 17.0s
+[INFO] [1791427964.659287, 2092.168000]: [manager] 分配 uav_1 → 格 (2,0) 中心 (-32.5,-56.5)
+[INFO] [1791427970.016365, 2093.024000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=7 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791427974.286130, 2093.708000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=6 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791427977.167475, 2094.168000]: [manager] 分配 uav_6 → 格 (18,11) 飞行距离 13.9m 租约 16.9s
+[INFO] [1791427977.184472, 2094.168000]: [manager] 分配 uav_6 → 格 (18,11) 中心 (79.5,20.5)
+[INFO] [1791427990.387824, 2096.268000]: [manager] 分配 uav_2 → 格 (12,3) 飞行距离 7.2m 租约 13.6s
+[INFO] [1791427990.395107, 2096.268000]: [manager] 分配 uav_2 → 格 (12,3) 中心 (37.5,-35.5)
+[INFO] [1791428058.905295, 2107.112000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=7 view=0 outcome=OBSERVED finished=True mask=2
+[INFO] [1791428062.990854, 2107.764000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=8 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791428066.114452, 2108.264000]: [manager] 分配 uav_2 → 格 (14,5) 飞行距离 19.2m 租约 19.6s
+[INFO] [1791428066.121267, 2108.264000]: [manager] 分配 uav_2 → 格 (14,5) 中心 (51.5,-21.5)
+[INFO] [1791428078.612434, 2110.264000]: [manager] 分配 uav_1 → 格 (0,0) 飞行距离 14.8m 租约 17.4s
+[INFO] [1791428078.618458, 2110.264000]: [manager] 分配 uav_1 → 格 (0,0) 中心 (-46.5,-56.5)
+[INFO] [1791428142.991678, 2120.556000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=9 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791428149.919585, 2121.664000]: [manager] 分配 uav_5 → 格 (13,14) 飞行距离 7.0m 租约 13.5s
+[INFO] [1791428149.927154, 2121.664000]: [manager] 分配 uav_5 → 格 (13,14) 中心 (44.5,41.5)
+[INFO] [1791428193.382287, 2128.608000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=9 view=0 outcome=OBSERVED finished=False mask=2
+[INFO] [1791428225.038742, 2133.652000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=10 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791428231.989099, 2134.764000]: [manager] 分配 uav_5 → 格 (15,13) 飞行距离 16.0m 租约 18.0s
+[INFO] [1791428231.997972, 2134.768000]: [manager] 分配 uav_5 → 格 (15,13) 中心 (58.5,34.5)
+[INFO] [1791428241.288964, 2136.252000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=9 view=1 outcome=OBSERVED finished=True mask=2
+[INFO] [1791428254.918976, 2138.272000]: [manager] 分配 uav_1 → 格 (1,4) 飞行距离 28.2m 租约 24.1s
+[INFO] [1791428254.955600, 2138.276000]: [manager] 分配 uav_1 → 格 (1,4) 中心 (-39.5,-28.5)
+[INFO] [1791428362.890687, 2155.428000]: [manager] SEARCH_VIEW_RESULT uav_3 gen=7 view=0 outcome=EXECUTION_GATE_BLOCKED finished=True mask=0
+[INFO] [1791428370.004288, 2156.564000]: [manager] 分配 uav_3 → 格 (2,12) 飞行距离 10.1m 租约 15.0s
+[INFO] [1791428370.015270, 2156.568000]: [manager] 分配 uav_3 → 格 (2,12) 中心 (-32.5,27.5)
+[INFO] [1791428374.006576, 2157.204000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=11 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791428382.553407, 2158.568000]: [manager] 分配 uav_5 → 格 (16,13) 飞行距离 7.2m 租约 13.6s
+[INFO] [1791428382.564214, 2158.568000]: [manager] 分配 uav_5 → 格 (16,13) 中心 (65.5,34.5)
+[INFO] [1791428623.752441, 2196.808000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=11 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791428632.891775, 2198.268000]: [manager] 分配 uav_1 → 格 (0,4) 飞行距离 6.7m 租约 13.3s
+[INFO] [1791428632.904568, 2198.272000]: [manager] 分配 uav_1 → 格 (0,4) 中心 (-46.5,-28.5)
+[INFO] [1791428698.194399, 2208.604000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=12 view=0 outcome=NO_CONNECTED_VIEW finished=True mask=2
+[INFO] [1791428705.458844, 2209.768000]: [manager] 分配 uav_1 → 格 (2,4) 飞行距离 13.2m 租约 16.6s
+[INFO] [1791428705.469014, 2209.768000]: [manager] 分配 uav_1 → 格 (2,4) 中心 (-32.5,-28.5)
+[INFO] [1791428715.765843, 2211.416000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=9 view=0 outcome=EXECUTION_GATE_BLOCKED finished=True mask=0
+[INFO] [1791428722.962068, 2212.568000]: [manager] 分配 uav_4 → 格 (18,4) 飞行距离 5.3m 租约 12.6s
+[INFO] [1791428722.969734, 2212.568000]: [manager] 分配 uav_4 → 格 (18,4) 中心 (79.5,-28.5)
+[INFO] [1791428761.210951, 2218.612000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=10 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791428768.705465, 2219.764000]: [manager] 分配 uav_4 → 格 (19,5) 飞行距离 7.1m 租约 13.6s
+[INFO] [1791428768.714255, 2219.768000]: [manager] 分配 uav_4 → 格 (19,5) 中心 (86.5,-21.5)
+[INFO] [1791428803.832138, 2225.352000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=13 view=0 outcome=OBSERVED finished=False mask=16
+[WARN] [1791428809.744014, 2226.296000]: [manager] SEARCH_LEASE_EXPIRED_HELD 1 格；未证明旧机停止，保留占用
+[INFO] [1791428846.221616, 2232.112000]: [manager] SEARCH_VIEW_RESULT uav_1 gen=13 view=1 outcome=OBSERVED finished=True mask=16
+[INFO] [1791428857.204535, 2233.868000]: [manager] 分配 uav_1 → 格 (2,5) 飞行距离 8.1m 租约 14.1s
+[INFO] [1791428857.211384, 2233.868000]: [manager] 分配 uav_1 → 格 (2,5) 中心 (-32.5,-21.5)
+[INFO] [1791428875.612859, 2236.804000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=11 view=0 outcome=NO_CONNECTED_VIEW finished=True mask=0
+[INFO] [1791428882.899760, 2237.968000]: [manager] 分配 uav_4 → 格 (19,4) 飞行距离 6.3m 租约 13.1s
+[INFO] [1791428882.911952, 2237.968000]: [manager] 分配 uav_4 → 格 (19,4) 中心 (86.5,-28.5)
+[INFO] [1791428948.475065, 2248.404000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=14 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791428955.730599, 2249.564000]: [manager] 分配 uav_5 → 格 (16,14) 飞行距离 6.1m 租约 13.1s
+[INFO] [1791428955.751091, 2249.568000]: [manager] 分配 uav_5 → 格 (16,14) 中心 (65.5,41.5)
+[INFO] [1791428959.228170, 2250.124000]: [manager] SEARCH_VIEW_RESULT uav_6 gen=12 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791428968.307240, 2251.572000]: [manager] 分配 uav_6 → 格 (18,12) 飞行距离 17.1m 租约 18.6s
+[INFO] [1791428968.314975, 2251.572000]: [manager] 分配 uav_6 → 格 (18,12) 中心 (79.5,27.5)
+[INFO] [1791429013.896581, 2258.856000]: [manager] SEARCH_VIEW_RESULT uav_5 gen=15 view=0 outcome=OBSERVED finished=True mask=4
+[INFO] [1791429020.855575, 2259.968000]: [manager] 分配 uav_5 → 格 (16,12) 飞行距离 13.2m 租约 16.6s
+[INFO] [1791429020.863583, 2259.968000]: [manager] 分配 uav_5 → 格 (16,12) 中心 (65.5,27.5)
+[INFO] [1791429154.627167, 2281.312000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=13 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791429161.876515, 2282.468000]: [manager] 分配 uav_2 → 格 (14,6) 飞行距离 7.4m 租约 13.7s
+[INFO] [1791429161.886243, 2282.468000]: [manager] 分配 uav_2 → 格 (14,6) 中心 (51.5,-14.5)
+[INFO] [1791429654.170146, 2361.064000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=16 view=0 outcome=NO_ROUTE_COMMIT finished=True mask=0
+[INFO] [1791429661.068561, 2362.168000]: [manager] 分配 uav_2 → 格 (14,7) 飞行距离 4.6m 租约 12.3s
+[INFO] [1791429661.075729, 2362.168000]: [manager] 分配 uav_2 → 格 (14,7) 中心 (51.5,-7.5)
+[INFO] [1791429734.252595, 2373.864000]: [manager] SEARCH_VIEW_RESULT uav_2 gen=17 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791429741.141276, 2374.968000]: [manager] 分配 uav_2 → 格 (15,6) 飞行距离 9.9m 租约 14.9s
+[INFO] [1791429741.148557, 2374.968000]: [manager] 分配 uav_2 → 格 (15,6) 中心 (58.5,-14.5)
+[INFO] [1791430165.435413, 2442.660000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=18 view=0 outcome=NO_ACTUAL_PROGRESS finished=True mask=0
+[INFO] [1791430172.337249, 2443.764000]: [manager] 分配 uav_4 → 格 (20,4) 飞行距离 7.2m 租约 13.6s
+[INFO] [1791430172.343115, 2443.764000]: [manager] 分配 uav_4 → 格 (20,4) 中心 (93.5,-28.5)
+[INFO] [1791430254.856556, 2456.960000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=19 view=0 outcome=OBSERVED finished=True mask=8
+[INFO] [1791430261.793752, 2458.068000]: [manager] 分配 uav_4 → 格 (20,5) 飞行距离 6.2m 租约 13.1s
+[INFO] [1791430261.798917, 2458.068000]: [manager] 分配 uav_4 → 格 (20,5) 中心 (93.5,-21.5)
+[INFO] [1791430322.052354, 2467.700000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=20 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791430329.364538, 2468.872000]: [manager] 分配 uav_4 → 格 (21,6) 飞行距离 10.5m 租约 15.2s
+[INFO] [1791430329.372984, 2468.872000]: [manager] 分配 uav_4 → 格 (21,6) 中心 (100.5,-14.5)
+[INFO] [1791430446.495402, 2487.504000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=21 view=0 outcome=NO_FRESH_FRAMES finished=True mask=0
+[INFO] [1791430453.740397, 2488.664000]: [manager] 分配 uav_4 → 格 (22,6) 飞行距离 7.2m 租约 13.6s
+[INFO] [1791430453.747042, 2488.664000]: [manager] 分配 uav_4 → 格 (22,6) 中心 (107.5,-14.5)
+[INFO] [1791430517.465903, 2498.852000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=22 view=0 outcome=OBSERVED finished=True mask=16
+[INFO] [1791430524.422580, 2499.964000]: [manager] 分配 uav_4 → 格 (21,7) 飞行距离 9.4m 租约 14.7s
+[INFO] [1791430524.429097, 2499.964000]: [manager] 分配 uav_4 → 格 (21,7) 中心 (100.5,-7.5)
+[INFO] [1791430616.114908, 2514.612000]: [manager] SEARCH_VIEW_RESULT uav_4 gen=23 view=0 outcome=OBSERVED finished=True mask=0
+[INFO] [1791430623.425780, 2515.780000]: [manager] 分配 uav_4 → 格 (23,5) 飞行距离 19.2m 租约 19.6s
+[INFO] [1791430623.435257, 2515.780000]: [manager] 分配 uav_4 → 格 (23,5) 中心 (114.5,-21.5)

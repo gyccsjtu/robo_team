@@ -1,0 +1,179 @@
+{
+  "executed_head": "143f8b1ccf0a4c6e0ee2190e9fb77bad4838ca27",
+  "run_id": "259500a0-7587-458e-b890-7060add2d7dd",
+  "physics": {
+    "update_rate": 40.0,
+    "time_step": 0.004,
+    "sensor_parameters_changed": false,
+    "reason": "City software rendering produced image age 1.3-1.8s at 50Hz"
+  },
+  "actual_stop": "Harness configured 600-second limit reached; runner return code 0. Judge still unfinished before owned cleanup, then ROS shutdown request; no agent interrupt",
+  "simulated_seconds": 600.1440000000002,
+  "official_targets_eliminated": 0,
+  "left_actors": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "raw_status": "CITY_SIX_AIRCRAFT_MOVING",
+  "component_error": null,
+  "interrupt_evidence": null,
+  "armed_uavs": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "maximum_altitudes_m": {
+    "uav_1": 3.524207837620871,
+    "uav_2": 3.8532454282450894,
+    "uav_3": 3.367551691893301,
+    "uav_4": 3.0978485678577092,
+    "uav_5": 2.905830148732014,
+    "uav_6": 2.7751061516172295
+  },
+  "maximum_displacements_m": {
+    "uav_1": 70.32370309909727,
+    "uav_2": 60.16717268480966,
+    "uav_3": 53.915376664037176,
+    "uav_4": 109.84897359298473,
+    "uav_5": 75.62268375971529,
+    "uav_6": 64.4102850762154
+  },
+  "trajectory": {
+    "count": 2936,
+    "first_s": 1931.136,
+    "last_s": 2531.128,
+    "span_s": 599.9920000000002
+  },
+  "contacts": {
+    "nonground": [],
+    "final_cumulative_heartbeat": {
+      "kind": "CONTACT_OBSERVER_HEARTBEAT",
+      "frames": 150345,
+      "first_sample_s": 1929.936,
+      "last_sample_s": 2531.312,
+      "maximum_sample_gap_s": 0.00400000000036,
+      "sonar_virtual_pairs": 594388,
+      "body_pairs": 49808
+    },
+    "covers_trajectory": true
+  },
+  "source_audit": {
+    "swarm_count": 140,
+    "auxiliary_count": 13,
+    "mismatches": []
+  },
+  "performance_window": {
+    "wall_s": 3739.1891140969997,
+    "sim_s": 590.0200000000002,
+    "rtf": 0.1577935702090018,
+    "meaning": "Sparse file watcher trajectory interval, includes scheduling granularity"
+  },
+  "heartbeat_image_age": {
+    "perception_uav_6": {
+      "samples": 119,
+      "min_s": 0.26,
+      "median_s": 0.62,
+      "max_s": 1.29,
+      "greater_than_1s": 3
+    },
+    "perception_uav_3": {
+      "samples": 119,
+      "min_s": 0.34,
+      "median_s": 0.63,
+      "max_s": 1.27,
+      "greater_than_1s": 3
+    },
+    "perception_uav_2": {
+      "samples": 119,
+      "min_s": 0.34,
+      "median_s": 0.6,
+      "max_s": 1.27,
+      "greater_than_1s": 8
+    },
+    "perception_uav_4": {
+      "samples": 119,
+      "min_s": 0.31,
+      "median_s": 0.63,
+      "max_s": 1.25,
+      "greater_than_1s": 8
+    },
+    "perception_uav_1": {
+      "samples": 119,
+      "min_s": 0.32,
+      "median_s": 0.59,
+      "max_s": 1.26,
+      "greater_than_1s": 8
+    },
+    "perception_uav_5": {
+      "samples": 119,
+      "min_s": 0.26,
+      "median_s": 0.62,
+      "max_s": 1.33,
+      "greater_than_1s": 9
+    }
+  },
+  "frame_probe": {
+    "frame_probe_typhoon_h480_0.csv": {
+      "rows": 1512,
+      "unique_originals": 1512,
+      "raw_boxes": 69,
+      "shared_all": true
+    },
+    "frame_probe_typhoon_h480_2.csv": {
+      "rows": 1514,
+      "unique_originals": 1514,
+      "raw_boxes": 119,
+      "shared_all": true
+    },
+    "frame_probe_typhoon_h480_5.csv": {
+      "rows": 1513,
+      "unique_originals": 1513,
+      "raw_boxes": 46,
+      "shared_all": true
+    },
+    "frame_probe_typhoon_h480_3.csv": {
+      "rows": 1514,
+      "unique_originals": 1514,
+      "raw_boxes": 345,
+      "shared_all": true
+    },
+    "frame_probe_typhoon_h480_1.csv": {
+      "rows": 1511,
+      "unique_originals": 1511,
+      "raw_boxes": 78,
+      "shared_all": true
+    },
+    "frame_probe_typhoon_h480_4.csv": {
+      "rows": 1510,
+      "unique_originals": 1510,
+      "raw_boxes": 137,
+      "shared_all": true
+    }
+  },
+  "effective_frame_probe_rows": 9074,
+  "bridge": {
+    "kinds": {
+      "input": 1
+    },
+    "accepted": 1,
+    "alive": 0,
+    "ready": 0
+  },
+  "internal_visual_count": 1,
+  "target_grants": 0,
+  "search_view_outcomes": {
+    "NO_ACTUAL_PROGRESS": 10,
+    "NO_ROUTE_COMMIT": 5,
+    "OBSERVED": 32,
+    "NO_CONNECTED_VIEW": 3,
+    "EXECUTION_GATE_BLOCKED": 2,
+    "NO_FRESH_FRAMES": 1
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "uav_2": {
+    "image": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_2.png",
+    "uav_id": "uav_2",
+    "image_sample_s": 1994.336,
+    "receive_sample_s": 1994.812,
+    "wall_s": 1791427355.2146332,
+    "control_input": false,
+    "meaning": "Diagnostic current frame; not an accepted visual observation"
+  },
+  "uav_1": {
+    "image": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_1.png",
+    "uav_id": "uav_1",
+    "image_sample_s": 1994.336,
+    "receive_sample_s": 1994.816,
+    "wall_s": 1791427355.2436588,
+    "control_input": false,
+    "meaning": "Diagnostic current frame; not an accepted visual observation"
+  },
+  "uav_4": {
+    "image": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_4.png",
+    "uav_id": "uav_4",
+    "image_sample_s": 1994.336,
+    "receive_sample_s": 1994.816,
+    "wall_s": 1791427355.2579699,
+    "control_input": false,
+    "meaning": "Diagnostic current frame; not an accepted visual observation"
+  },
+  "uav_3": {
+    "image": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_3.png",
+    "uav_id": "uav_3",
+    "image_sample_s": 1994.336,
+    "receive_sample_s": 1994.824,
+    "wall_s": 1791427355.275301,
+    "control_input": false,
+    "meaning": "Diagnostic current frame; not an accepted visual observation"
+  },
+  "uav_5": {
+    "image": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_5.png",
+    "uav_id": "uav_5",
+    "image_sample_s": 1994.336,
+    "receive_sample_s": 1994.824,
+    "wall_s": 1791427355.2837434,
+    "control_input": false,
+    "meaning": "Diagnostic current frame; not an accepted visual observation"
+  },
+  "uav_6": {
+    "image": "/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views/uav_6.png",
+    "uav_id": "uav_6",
+    "image_sample_s": 1994.336,
+    "receive_sample_s": 1994.828,
+    "wall_s": 1791427355.2934299,
+    "control_input": false,
+    "meaning": "Diagnostic current frame; not an accepted visual observation"
+  }
+}

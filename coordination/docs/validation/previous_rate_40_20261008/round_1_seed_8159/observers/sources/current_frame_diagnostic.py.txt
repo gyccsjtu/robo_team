@@ -1,0 +1,16 @@
+from pathlib import Path
+import rospy,time,json,threading,cv2
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+out=Path("/root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/observers/diagnostic_views"); out.mkdir()
+rospy.init_node("read_only_current_six_frames",anonymous=True)
+lock=threading.Lock(); saved={}; bridge=CvBridge()
+def cb(m,uid):
+ with lock:
+  if uid in saved: return
+  image=bridge.imgmsg_to_cv2(m,"bgr8"); p=out/(uid+".png")
+  if cv2.imwrite(str(p),image): saved[uid]=dict(image=str(p),uav_id=uid,image_sample_s=m.header.stamp.to_sec(),receive_sample_s=rospy.Time.now().to_sec(),wall_s=time.time(),control_input=False,meaning="Diagnostic current frame; not an accepted visual observation")
+subs=[rospy.Subscriber("/"+uid+"/cgo3_camera/image_raw",Image,cb,callback_args=uid,queue_size=1,buff_size=8*1024*1024) for uid in ("uav_%d"%i for i in range(1,7))]
+deadline=time.monotonic()+20
+while len(saved)<6 and time.monotonic()<deadline and not rospy.is_shutdown(): time.sleep(.1)
+(out/"manifest.json").write_text(json.dumps(saved,indent=2)); print(json.dumps(dict(count=len(saved),frames=saved)))

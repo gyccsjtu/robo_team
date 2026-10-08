@@ -1,0 +1,83 @@
+{
+  "wall_s": 1791429430.6631796,
+  "meminfo": "MemTotal:        7934632 kB\nMemFree:           82064 kB\nMemAvailable:     991468 kB\nBuffers:           64168 kB\nCached:          1031828 kB\nSwapCached:           64 kB\nActive:           437312 kB\nInactive:        6566348 kB\nActive(anon):       6588 kB\nInactive(anon):  5986112 kB\nActive(file):     430724 kB\nInactive(file):   580236 kB\nUnevictable:          64 kB\nMlocked:              64 kB\nSwapTotal:       2097152 kB\nSwapFree:        2096264 kB\nDirty:              5508 kB\nWriteback:             0 kB\nAnonPages:       5908452 kB\nMapped:           312076 kB\nShmem:             84680 kB\nKReclaimable:      76016 kB\nSlab:             264552 kB\nSReclaimable:      76016 kB\nSUnreclaim:       188536 kB\nKernelStack:       35040 kB\nPageTables:        44792 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     6064468 kB\nCommitted_AS:   20251036 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:      160656 kB\nVmallocChunk:          0 kB\nPercpu:            11040 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:       66560 kB\nDirectMap2M:     4978688 kB\nDirectMap1G:    11534336 kB\n",
+  "processes": [
+    {
+      "pid": 711,
+      "command": "gzserver --verbose -s libgazebo_ros_api_plugin.so /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/connectivity.world ",
+      "rss": "3151420 kB",
+      "swap": "0 kB",
+      "threads": "130"
+    },
+    {
+      "pid": 2806,
+      "command": "/root/robo_team_build/vision_cuda_20261003/bin/python -u /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py --port 19731 --device 0 --conf 0.4 ",
+      "rss": "1121928 kB",
+      "swap": "0 kB",
+      "threads": "10"
+    },
+    {
+      "pid": 2844,
+      "command": "/root/robo_team_build/vision_env/bin/python -u /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py ",
+      "rss": "111660 kB",
+      "swap": "0 kB",
+      "threads": "57"
+    },
+    {
+      "pid": 2845,
+      "command": "/root/robo_team_build/vision_env/bin/python -u /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py ",
+      "rss": "113100 kB",
+      "swap": "0 kB",
+      "threads": "57"
+    },
+    {
+      "pid": 2846,
+      "command": "/root/robo_team_build/vision_env/bin/python -u /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py ",
+      "rss": "110208 kB",
+      "swap": "0 kB",
+      "threads": "57"
+    },
+    {
+      "pid": 2847,
+      "command": "/root/robo_team_build/vision_env/bin/python -u /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py ",
+      "rss": "109848 kB",
+      "swap": "0 kB",
+      "threads": "57"
+    },
+    {
+      "pid": 2848,
+      "command": "/root/robo_team_build/vision_env/bin/python -u /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py ",
+      "rss": "111072 kB",
+      "swap": "0 kB",
+      "threads": "57"
+    },
+    {
+      "pid": 2849,
+      "command": "/root/robo_team_build/vision_env/bin/python -u /root/robocup_runs/previous_rate_40_20261008T023515Z/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py ",
+      "rss": "111388 kB",
+      "swap": "0 kB",
+      "threads": "57"
+    }
+  ],
+  "top": [
+    "    PID    PPID %CPU NLWP   RSS COMMAND",
+    "    711     650  378  130 3151420 gzserver",
+    "   2855     650 59.1   74 91068 python3",
+    "   2852     650 58.3   74 78680 python3",
+    "   2851     650 54.7   74 93344 python3",
+    "   2853     650 54.6   74 89500 python3",
+    "   2854     650 54.0   74 99548 python3",
+    "   2784     650 47.5   43 44928 python3",
+    "   2856     650 39.3   74 78596 python3",
+    "   2850     650 18.6   93 56240 python3",
+    "    650     612 13.4   41 53096 python3",
+    "   2860     650 13.3   16 46632 python3",
+    "   2859     650 13.1   16 46324 python3",
+    "   2862     650 13.1   16 46444 python3",
+    "   2858     650 13.0   16 46596 python3",
+    "   2857     650 12.9   16 46388 python3",
+    "   2861     650 12.9   16 46340 python3",
+    "    686     676 10.4   43 48268 rosmaster"
+  ],
+  "gzserver_log_bytes": 448722641
+}

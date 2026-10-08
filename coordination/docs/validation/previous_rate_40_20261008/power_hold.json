@@ -1,0 +1,6 @@
+{
+  "windows_pid": 4296,
+  "script": "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public static class RoboCupRunPowerHold { [DllImport(\"kernel32.dll\")] public static extern uint SetThreadExecutionState(uint flags); }'\n$taskRunResult = '\\\\wsl.localhost\\Ubuntu-20.04\\root\\robocup_runs\\previous_rate_40_20261008T023515Z\\round_1_seed_8159\\flight\\result.json'\n$taskHoldDeadline = [DateTime]::UtcNow.AddHours(2)\ntry {\n    [void][RoboCupRunPowerHold]::SetThreadExecutionState([uint32]2147483649)\n    while ([DateTime]::UtcNow -lt $taskHoldDeadline -and -not (Test-Path -LiteralPath $taskRunResult)) { Start-Sleep -Seconds 20 }\n} finally {\n    [void][RoboCupRunPowerHold]::SetThreadExecutionState([uint32]2147483648)\n}",
+  "result_path": "\\\\wsl.localhost\\Ubuntu-20.04\\root\\robocup_runs\\previous_rate_40_20261008T023515Z\\round_1_seed_8159\\flight\\result.json",
+  "reason": "Prevent host suspend during this owned physical run without changing permanent power settings"
+}
