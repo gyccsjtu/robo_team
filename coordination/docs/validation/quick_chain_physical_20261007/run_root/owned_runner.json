@@ -1,0 +1,14 @@
+{
+  "pid": 614,
+  "command": [
+    "bash",
+    "-c",
+    "source /opt/ros/noetic/setup.bash\nsource /root/robo_team_build/codex_authority_v2/devel/setup.bash\nexec python3 \"$1\" --root \"$2\" --single-seed 8159",
+    "quick-chain",
+    "/mnt/d/a/.robocup/robo_team/coordination/scripts/validate_fast_city.py",
+    "/root/robocup_runs/quick_chain_v3_20261007"
+  ],
+  "started_utc": "2026-10-07T15:32:49Z",
+  "head": "a857f028d66e68d9a49d374c62cf46c34b35d9c6",
+  "runner_sha256": "d6ecfe6d11e2a947a0641db707a28bea18a8c450304f6f762d5771ca5e96067d"
+}

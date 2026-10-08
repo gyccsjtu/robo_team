@@ -16,7 +16,6 @@ import time
 
 from prepare_radar_fleet import derive
 from radar_fleet_models import generate
-from city_swarm_run import OwnedRunInterrupted
 
 
 def owned_process_snapshot(children):
@@ -89,29 +88,16 @@ def main():
     (out / 'execution_sources.json').write_text(json.dumps({name:
         hashlib.sha256((script_directory / name).read_bytes()).hexdigest()
         for name in source_names}, indent=2))
-    watchdog_fired = threading.Event()
-    interrupt_started_wall, interrupt_started_monotonic = time.time(), time.monotonic()
     def interrupted(signum, frame):
-        evidence=dict(signal_number=signum,signal_name=signal.Signals(signum).name,
-            owned_watchdog_fired=watchdog_fired.is_set(),
-            wall_elapsed_s=time.time()-interrupt_started_wall,
-            monotonic_elapsed_s=time.monotonic()-interrupt_started_monotonic)
-        report.setdefault('interrupt_evidence',[]).append(evidence)
-        try:(out/'owned_interrupt.json').write_text(json.dumps(report['interrupt_evidence'],indent=2))
-        except OSError as error:print('OWNED_INTERRUPT_RECORD_FAILED %s'%error,flush=True)
-        raise OwnedRunInterrupted(evidence)
+        raise RuntimeError('CHECK_INTERRUPTED_OR_WALL_TIMEOUT')
     signal.signal(signal.SIGTERM, interrupted)
     signal.signal(signal.SIGINT, interrupted)
     signal.signal(signal.SIGUSR1, interrupted)
     city_rate = float(os.environ.get('CITY_PHYSICS_RATE', '20'))
     if not math.isfinite(city_rate) or not 1 <= city_rate <= 250:
         parser.error('CITY_PHYSICS_RATE must be finite and between 1 and 250')
-    watchdog_limit = args.flight_seconds*250/city_rate*1.5+360 if city else (780 if args.flight_actor_probe else 360)
-    report['watchdog_limit_wall_s'] = watchdog_limit
-    def watchdog_expired():
-        watchdog_fired.set()
-        os.kill(os.getpid(),signal.SIGUSR1)
-    watchdog = threading.Timer(watchdog_limit,watchdog_expired)
+    watchdog = threading.Timer(args.flight_seconds*250/city_rate*1.5+360 if city else (780 if args.flight_actor_probe else 360),
+                               lambda: os.kill(os.getpid(), signal.SIGUSR1))
     watchdog.daemon = True
     watchdog.start()
     try:

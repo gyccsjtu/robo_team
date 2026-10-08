@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import signal
@@ -31,6 +32,9 @@ def main():
     repo=Path(__file__).resolve().parents[2];index=1 if single else args.round
     seed,seconds=(args.single_seed,600) if single else ROUNDS[index]
     if seed < 0:ap.error('seed must be nonnegative')
+    physics_rate=float(os.environ.get('CITY_PHYSICS_RATE','40'))
+    if not math.isfinite(physics_rate) or not 1 <= physics_rate <= 250:
+        ap.error('CITY_PHYSICS_RATE must be finite and between 1 and 250')
     budget=root/'budget.json';state=read(budget) or dict(schema_version=1,maximum_attempts=maximum,attempts=[])
     if state['maximum_attempts'] != maximum:raise RuntimeError('BUDGET_MODE_MISMATCH')
     if len(state['attempts']) >= maximum or any(a['index']==index for a in state['attempts']):
@@ -47,10 +51,11 @@ def main():
         for p in (repo/parent).rglob('*.py') if '__pycache__' not in p.parts}
     write(out/'source_manifest.json',source_sha)
     record=dict(index=index,seed=seed,sim_limit_s=seconds,output=str(out),status='RUNNING',started_utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()))
+    record['physics_rate_hz']=physics_rate
     if single:record['authorization']='user_requested_one_additional_random_map'
     state['attempts'].append(record);write(budget,state)
     env=dict(os.environ,CITY_SEED=str(seed),CITY_SECONDS=str(seconds),CITY_RUN_ROOT=str(out),
-        CITY_PHYSICS_RATE='40',CITY_EXPERIMENTAL_V123='0',PR_SHARED_INFER='1',VISION_DEVICE='0',PR_CLIENT_DEVICE='cpu',
+        CITY_PHYSICS_RATE=str(physics_rate),CITY_EXPERIMENTAL_V123='0',PR_SHARED_INFER='1',VISION_DEVICE='0',PR_CLIENT_DEVICE='cpu',
         VISION_PYTHON='/root/robo_team_build/vision_env/bin/python',SHARED_VISION_PYTHON='/root/robo_team_build/vision_cuda_20261003/bin/python',
         PR_SHARED_PORT='19731',ROBOCUP_GIMBAL_RUNTIME='/root/robocup_runtime/gimbal_namespaced_20261004',PYTHONDONTWRITEBYTECODE='1')
     interrupted=[]

@@ -1,0 +1,912 @@
+[
+  {
+    "uav": "perception_typhoon_h480_0",
+    "image_s": 1960.736,
+    "error": 75.28742931759388,
+    "range_m": 32.190848481827146,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_0",
+    "image_s": 1962.06,
+    "error": 76.11968642509439,
+    "range_m": 30.046375599829943,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_0",
+    "image_s": 1962.464,
+    "error": 78.4367960391636,
+    "range_m": 32.69821548002567,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_0",
+    "image_s": 1966.688,
+    "error": 81.3051776621824,
+    "range_m": 30.037056998507357,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_0",
+    "image_s": 1967.092,
+    "error": 81.58515148415641,
+    "range_m": 29.842597286568996,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_0",
+    "image_s": 1967.524,
+    "error": 82.6648376007596,
+    "range_m": 30.859752023204322,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_0",
+    "image_s": 1973.612,
+    "error": 87.40207572673809,
+    "range_m": 32.05904069970239,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_0",
+    "image_s": 1974.5,
+    "error": 88.73742307309675,
+    "range_m": 33.0708968505718,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_0",
+    "image_s": 1975.384,
+    "error": 86.86778113419186,
+    "range_m": 29.264984778875675,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1952.868,
+    "error": 0.6296831750130815,
+    "range_m": 36.13086922890462,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1953.288,
+    "error": 0.09117505955515717,
+    "range_m": 36.73960335623384,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1966.272,
+    "error": 3.351669301921566,
+    "range_m": 46.28530624220819,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1967.092,
+    "error": 3.1722743763944474,
+    "range_m": 46.024899241204324,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1967.524,
+    "error": 1.1273755582092237,
+    "range_m": 43.965378147716315,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1967.876,
+    "error": 0.3880669430759657,
+    "range_m": 43.165292648629496,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1968.264,
+    "error": 2.460671254566058,
+    "range_m": 45.228435827513835,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1968.72,
+    "error": 0.7741441885170818,
+    "range_m": 42.01587910465288,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1970.004,
+    "error": 0.5081570522853893,
+    "range_m": 42.98443517858221,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1970.476,
+    "error": 1.3188938696860744,
+    "range_m": 42.44325281968993,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1970.944,
+    "error": 3.5061339741407105,
+    "range_m": 40.182474546271315,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1971.396,
+    "error": 1.6535440972164115,
+    "range_m": 42.22976542964338,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1971.824,
+    "error": 2.045694373656239,
+    "range_m": 45.97193334342704,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1972.204,
+    "error": 3.77490168941797,
+    "range_m": 39.93766281320313,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1972.676,
+    "error": 1.642992986444005,
+    "range_m": 41.70006805963532,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1973.132,
+    "error": 1.872238050244811,
+    "range_m": 41.21596177409121,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1973.612,
+    "error": 4.300919851760694,
+    "range_m": 38.9341957572176,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1974.064,
+    "error": 2.80712663282708,
+    "range_m": 40.32733743180641,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1974.5,
+    "error": 2.2322159996940267,
+    "range_m": 40.642195452383845,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1974.964,
+    "error": 0.5539421583268894,
+    "range_m": 42.18599376888948,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1975.384,
+    "error": 0.1665555184229365,
+    "range_m": 43.001936186807804,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1975.816,
+    "error": 0.9160181338185741,
+    "range_m": 41.926743515229084,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1983.468,
+    "error": 0.11405098736241931,
+    "range_m": 44.28895864697493,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 1983.836,
+    "error": 0.5433496583522919,
+    "range_m": 43.8181696244388,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_1",
+    "image_s": 2049.696,
+    "error": 92.57420080802646,
+    "range_m": 10.849886543074165,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1964.832,
+    "error": 78.88131107140153,
+    "range_m": 15.305655580700247,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1967.524,
+    "error": 81.68391362810014,
+    "range_m": 14.081009341352523,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1967.876,
+    "error": 81.88422451953863,
+    "range_m": 13.539080637869345,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1968.264,
+    "error": 82.60000962126969,
+    "range_m": 13.49732363318907,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1968.72,
+    "error": 82.79895505060864,
+    "range_m": 13.037781461473,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1969.152,
+    "error": 83.44510553202514,
+    "range_m": 13.095888998754804,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1973.132,
+    "error": 87.13917417944401,
+    "range_m": 12.299223227148092,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1973.612,
+    "error": 89.3056942224874,
+    "range_m": 15.07181111423304,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1974.064,
+    "error": 87.59688210927037,
+    "range_m": 11.5040715584392,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1974.5,
+    "error": 87.69435733321053,
+    "range_m": 11.14121758287151,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1975.384,
+    "error": 87.73075128598907,
+    "range_m": 10.717210436186308,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1975.816,
+    "error": 87.77756419008276,
+    "range_m": 10.588546991815791,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1976.212,
+    "error": 87.76394479488907,
+    "range_m": 10.054813648205554,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1976.628,
+    "error": 87.73601401067387,
+    "range_m": 9.44139075092028,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1977.052,
+    "error": 87.78230475964676,
+    "range_m": 9.194076377675064,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1977.488,
+    "error": 87.79060857912108,
+    "range_m": 8.788222469943651,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1977.96,
+    "error": 87.82083135976637,
+    "range_m": 8.38079563576226,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1978.424,
+    "error": 87.82223098300733,
+    "range_m": 7.65590124260948,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1978.908,
+    "error": 87.78542457791491,
+    "range_m": 7.230836695472529,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1981.228,
+    "error": 89.37283137677713,
+    "range_m": 8.106382635924918,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1981.228,
+    "error": 88.59160898330232,
+    "range_m": 5.693613627077645,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1986.688,
+    "error": 94.06688654540976,
+    "range_m": 5.856284833998575,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1987.14,
+    "error": 94.51200166510417,
+    "range_m": 5.897241193266916,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1987.512,
+    "error": 94.88950790808205,
+    "range_m": 5.878553599136616,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1987.88,
+    "error": 95.25705120719654,
+    "range_m": 5.886510458818228,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1988.288,
+    "error": 95.61408772189037,
+    "range_m": 5.9827866144967095,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1989.184,
+    "error": 96.55111231333211,
+    "range_m": 5.8745979378394475,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1991.028,
+    "error": 98.40050695077444,
+    "range_m": 5.757755569816691,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1991.436,
+    "error": 98.79330048839574,
+    "range_m": 5.769122960994433,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1991.844,
+    "error": 99.19352827230257,
+    "range_m": 5.7535557292243436,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 1992.208,
+    "error": 99.55322345898628,
+    "range_m": 5.751332661565937,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2004.06,
+    "error": 103.82613221416591,
+    "range_m": 13.388460180210412,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2004.516,
+    "error": 107.60234718968238,
+    "range_m": 8.16188137024256,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2016.408,
+    "error": 111.56107200423624,
+    "range_m": 6.40159369301783,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2017.544,
+    "error": 113.29295710278659,
+    "range_m": 5.176220303605156,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2024.688,
+    "error": 123.00972733549806,
+    "range_m": 3.4446483594178954,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2025.368,
+    "error": 123.60730058592215,
+    "range_m": 3.3661550288619715,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2032.748,
+    "error": 129.91369164013142,
+    "range_m": 4.835748326757799,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2033.18,
+    "error": 130.49791535579982,
+    "range_m": 4.998678456700288,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2033.508,
+    "error": 130.83172815904345,
+    "range_m": 5.015316185285215,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2033.508,
+    "error": 131.39609050838337,
+    "range_m": 7.714642409707843,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2033.82,
+    "error": 131.112807330273,
+    "range_m": 4.918871843325842,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2034.136,
+    "error": 131.44333009714927,
+    "range_m": 5.007363197730722,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2034.432,
+    "error": 131.72241780510006,
+    "range_m": 4.957935476429868,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2034.744,
+    "error": 132.03554598700228,
+    "range_m": 4.9593960323973265,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2035.072,
+    "error": 132.37056789213287,
+    "range_m": 5.038841067759631,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2035.404,
+    "error": 132.7057457702799,
+    "range_m": 5.119408234772885,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2044.196,
+    "error": 141.40500680479357,
+    "range_m": 6.611165386113685,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2044.588,
+    "error": 141.81674833914892,
+    "range_m": 6.400564324123348,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2044.972,
+    "error": 142.19146687398396,
+    "range_m": 6.06112795736761,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2045.336,
+    "error": 142.51927071274227,
+    "range_m": 5.663568431747074,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2045.644,
+    "error": 142.84729403337946,
+    "range_m": 5.679691133029257,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2045.644,
+    "error": 143.06691119659988,
+    "range_m": 7.3249322391860545,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2045.944,
+    "error": 143.11035234936082,
+    "range_m": 5.3588329064142135,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2046.244,
+    "error": 143.44074735388057,
+    "range_m": 5.13410943104107,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2046.62,
+    "error": 143.8240411104336,
+    "range_m": 4.980772874689718,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2047.264,
+    "error": 144.46008208633282,
+    "range_m": 4.450851558073924,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2047.264,
+    "error": 144.74282687228185,
+    "range_m": 4.967257174411491,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_2",
+    "image_s": 2047.264,
+    "error": 145.32402634618225,
+    "range_m": 6.791083984035262,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1964.308,
+    "error": 0.2793293452324412,
+    "range_m": 33.17174048515808,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1965.852,
+    "error": 1.4201143385734978,
+    "range_m": 34.546836239827876,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1966.272,
+    "error": 1.3891674222596406,
+    "range_m": 34.28974494225934,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1966.688,
+    "error": 2.286798218359703,
+    "range_m": 35.41801677800565,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1967.092,
+    "error": 0.21866919341435126,
+    "range_m": 33.35210445486874,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1967.524,
+    "error": 0.8765385938288288,
+    "range_m": 33.83422906329868,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1967.876,
+    "error": 1.8991206302595693,
+    "range_m": 34.636160429879936,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1968.264,
+    "error": 0.09583031235036599,
+    "range_m": 32.394849978438806,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1968.72,
+    "error": 0.9087972500830537,
+    "range_m": 31.725186881354542,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1969.152,
+    "error": 0.7883009167960339,
+    "range_m": 33.45815518066189,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1969.548,
+    "error": 0.09317235961459668,
+    "range_m": 32.59074951096236,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1970.004,
+    "error": 2.4702317387578425,
+    "range_m": 35.05621114954906,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1970.476,
+    "error": 0.30388972907722656,
+    "range_m": 33.17124927220461,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1970.944,
+    "error": 2.4683034046813046,
+    "range_m": 35.22488347364728,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1971.396,
+    "error": 4.076120420629036,
+    "range_m": 28.420943984314967,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1971.824,
+    "error": 0.3103276151024602,
+    "range_m": 32.366427621486686,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1972.204,
+    "error": 0.7450954982652964,
+    "range_m": 32.02852442485496,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1972.676,
+    "error": 2.3491950724265833,
+    "range_m": 34.933574530768716,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1973.132,
+    "error": 2.395661210123518,
+    "range_m": 34.70357101704526,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1973.612,
+    "error": 0.11211108818802806,
+    "range_m": 31.890854307667194,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1974.064,
+    "error": 2.169148188365562,
+    "range_m": 34.064658584376616,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1974.964,
+    "error": 0.6644633184758283,
+    "range_m": 32.17891716213897,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1975.816,
+    "error": 0.19848541886358675,
+    "range_m": 31.47524218542105,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1977.052,
+    "error": 0.23592313742783874,
+    "range_m": 31.656588941274443,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1983.468,
+    "error": 0.3747983329343261,
+    "range_m": 30.42944563747504,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1983.836,
+    "error": 1.408828060519654,
+    "range_m": 31.595330849932946,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1984.256,
+    "error": 0.5850752264777456,
+    "range_m": 30.872796589290335,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1984.68,
+    "error": 0.1919983338425036,
+    "range_m": 30.220974900327324,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1985.12,
+    "error": 0.5871082103549992,
+    "range_m": 29.87503861821405,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1987.512,
+    "error": 6.194964302801847,
+    "range_m": 35.84565513096349,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1987.88,
+    "error": 7.12431319338485,
+    "range_m": 36.77482835187454,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 1988.288,
+    "error": 7.550027421293233,
+    "range_m": 37.17408545592232,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_3",
+    "image_s": 2126.692,
+    "error": 3.4694201929888187,
+    "range_m": 31.76539134745228,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_4",
+    "image_s": 1959.788,
+    "error": 2.8214503256315804,
+    "range_m": 40.02030732086626,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_4",
+    "image_s": 2112.08,
+    "error": 112.74638056904641,
+    "range_m": 30.494792830324133,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_4",
+    "image_s": 2117.756,
+    "error": 113.73886814126206,
+    "range_m": 25.815875648139446,
+    "body": "False"
+  },
+  {
+    "uav": "perception_typhoon_h480_4",
+    "image_s": 2124.424,
+    "error": 113.90252626904085,
+    "range_m": 23.740302738966047,
+    "body": "False"
+  }
+]

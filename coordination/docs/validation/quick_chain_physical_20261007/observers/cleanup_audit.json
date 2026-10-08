@@ -1,0 +1,39 @@
+[
+  {
+    "pid": 2845,
+    "tag": "green",
+    "state": "ALREADY_EXITED",
+    "followup": "EXITED"
+  },
+  {
+    "pid": 2846,
+    "tag": "blue",
+    "state": "ALREADY_EXITED",
+    "followup": "EXITED"
+  },
+  {
+    "pid": 2847,
+    "tag": "brown",
+    "state": "ALREADY_EXITED",
+    "followup": "EXITED"
+  },
+  {
+    "pid": 2848,
+    "tag": "white",
+    "state": "ALREADY_EXITED",
+    "followup": "EXITED"
+  },
+  {
+    "pid": 2851,
+    "tag": "red",
+    "state": "ALREADY_EXITED",
+    "followup": "EXITED"
+  },
+  {
+    "pid": 2856,
+    "tag": "frames",
+    "cmdline": "python3 -u /root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/sources/capture_visual_frames.py --output /root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames --wall-seconds 7200 --loss-color white ",
+    "state": "OWNED_SIGINT",
+    "followup": "EXITED"
+  }
+]

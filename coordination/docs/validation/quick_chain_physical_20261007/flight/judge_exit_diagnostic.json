@@ -1,0 +1,18 @@
+{
+  "exception": "ROSInterruptException",
+  "message": "ROS shutdown request",
+  "sample_s": 2132.196,
+  "ros_shutdown": true,
+  "state": {
+    "mission_finished": false,
+    "left_actors": [
+      0,
+      1,
+      2,
+      3,
+      5
+    ],
+    "target_finish": 1,
+    "score": 144.9
+  }
+}

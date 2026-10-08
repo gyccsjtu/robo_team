@@ -1,0 +1,1539 @@
+{
+  "selected": [
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/budget.json",
+      "source_sha256": "b241c5f6f26698c349f3016aa087328848ebc1076a6ab01c739a55bad7256f48",
+      "source_bytes": 47131,
+      "stored": "run_root/budget.json",
+      "stored_sha256": "b241c5f6f26698c349f3016aa087328848ebc1076a6ab01c739a55bad7256f48"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/owned_runner.json",
+      "source_sha256": "187911f620b119d3a814f74542f6e308673713f36fa357fca7ffc891c60f8850",
+      "source_bytes": 547,
+      "stored": "run_root/owned_runner.json",
+      "stored_sha256": "187911f620b119d3a814f74542f6e308673713f36fa357fca7ffc891c60f8850"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/runner.log",
+      "source_sha256": "aff919980f7f56eb883a8b5a140b6beec58bba8e101a2adcb174618ff794f245",
+      "source_bytes": 30901,
+      "stored": "run_root/runner.log",
+      "stored_sha256": "aff919980f7f56eb883a8b5a140b6beec58bba8e101a2adcb174618ff794f245"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/source_manifest.json",
+      "source_sha256": "1ba05a98d4e9233f05b74b293acc4729720688733b18059435a13c8f225e3ada",
+      "source_bytes": 25553,
+      "stored": "source_manifest.json",
+      "stored_sha256": "1ba05a98d4e9233f05b74b293acc4729720688733b18059435a13c8f225e3ada"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/executed_source_audit.json",
+      "source_sha256": "dc8a42dafa4191cf51d47566bf6d0e9312ee37e02616c207a523354910f71209",
+      "source_bytes": 153,
+      "stored": "executed_source_audit.json",
+      "stored_sha256": "dc8a42dafa4191cf51d47566bf6d0e9312ee37e02616c207a523354910f71209"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/postrun_summary.json",
+      "source_sha256": "20b94e0bf79bc7b6cc7c9cf7e212ca3cb3af87c52b974a7fae00408b2d2f01bc",
+      "source_bytes": 2638,
+      "stored": "postrun_summary.json",
+      "stored_sha256": "20b94e0bf79bc7b6cc7c9cf7e212ca3cb3af87c52b974a7fae00408b2d2f01bc"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/blue_raw_truth_audit.json",
+      "source_sha256": "12ad141ef12f0ffcfa912e4850eff8094d6ba021ff783768636392ba1af3c2e7",
+      "source_bytes": 20887,
+      "stored": "blue_raw_truth_audit.json",
+      "stored_sha256": "12ad141ef12f0ffcfa912e4850eff8094d6ba021ff783768636392ba1af3c2e7"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/launcher.log",
+      "source_sha256": "b0358a16e4578dc2f0379d42e2403c53562e76be0896b879b36477e2cf16affe",
+      "source_bytes": 8211,
+      "stored": "launcher.log",
+      "stored_sha256": "b0358a16e4578dc2f0379d42e2403c53562e76be0896b879b36477e2cf16affe"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/result.json",
+      "source_sha256": "839113a15ce7ef36a331c4693b7db832ca239bde693609d78351ea52464b0287",
+      "source_bytes": 19712,
+      "stored": "flight/result.json",
+      "stored_sha256": "839113a15ce7ef36a331c4693b7db832ca239bde693609d78351ea52464b0287"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/result_before_cleanup.json",
+      "source_sha256": "839113a15ce7ef36a331c4693b7db832ca239bde693609d78351ea52464b0287",
+      "source_bytes": 19712,
+      "stored": "flight/result_before_cleanup.json",
+      "stored_sha256": "839113a15ce7ef36a331c4693b7db832ca239bde693609d78351ea52464b0287"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/judge.log",
+      "source_sha256": "9a3152a1b1360d02294936cf8638885e721266ca8cac9860add7e6bfefd4fa56",
+      "source_bytes": 1539,
+      "stored": "flight/judge.log",
+      "stored_sha256": "9a3152a1b1360d02294936cf8638885e721266ca8cac9860add7e6bfefd4fa56"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/judge_exit_diagnostic.json",
+      "source_sha256": "7c82ce32e62de136e87a4655ba3978e8f27522c4362bed90c927437540fca16d",
+      "source_bytes": 291,
+      "stored": "flight/judge_exit_diagnostic.json",
+      "stored_sha256": "7c82ce32e62de136e87a4655ba3978e8f27522c4362bed90c927437540fca16d"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/city_control_config.json",
+      "source_sha256": "41f806d827e830174300b36c97fb8607d52eb11183b145d0e45f369c8fd33550",
+      "source_bytes": 7605,
+      "stored": "flight/city_control_config.json",
+      "stored_sha256": "41f806d827e830174300b36c97fb8607d52eb11183b145d0e45f369c8fd33550"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/development_physics.json",
+      "source_sha256": "85b9a1943ec79fc1e277526531cc4a34c1f3568c865a7f5c038b588eea5b77f4",
+      "source_bytes": 150,
+      "stored": "flight/development_physics.json",
+      "stored_sha256": "85b9a1943ec79fc1e277526531cc4a34c1f3568c865a7f5c038b588eea5b77f4"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/contact_observer_manifest.json",
+      "source_sha256": "f4c74746b7ef1801cdebf47a229bdd2df790ff8846e6b9e50b49acc088334119",
+      "source_bytes": 450,
+      "stored": "flight/contact_observer_manifest.json",
+      "stored_sha256": "f4c74746b7ef1801cdebf47a229bdd2df790ff8846e6b9e50b49acc088334119"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_source_manifest.json",
+      "source_sha256": "cd4c54415ebd3d8a0d03e98cfec4848d13808125611b35125d0d473c4080e3e8",
+      "source_bytes": 17467,
+      "stored": "flight/swarm_source_manifest.json",
+      "stored_sha256": "cd4c54415ebd3d8a0d03e98cfec4848d13808125611b35125d0d473c4080e3e8"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources.json",
+      "source_sha256": "a3ce72605746157e3ecd4ce8c13e842245682c525886bbc8428412b73a6c279a",
+      "source_bytes": 1243,
+      "stored": "flight/execution_sources.json",
+      "stored_sha256": "a3ce72605746157e3ecd4ce8c13e842245682c525886bbc8428412b73a6c279a"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/city_trajectory.jsonl",
+      "source_sha256": "e2296d969e691548d3431fc6d9e500a0e2aaaf43bfd3eca65d40fc412799fa95",
+      "source_bytes": 450527,
+      "stored": "flight/city_trajectory.jsonl",
+      "stored_sha256": "e2296d969e691548d3431fc6d9e500a0e2aaaf43bfd3eca65d40fc412799fa95"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/city_events.jsonl",
+      "source_sha256": "de1f200447ed404e6805f6cbae82f7a0e019d9ee3f008d2bdf705673683dc3ce",
+      "source_bytes": 181356,
+      "stored": "flight/city_events.jsonl",
+      "stored_sha256": "de1f200447ed404e6805f6cbae82f7a0e019d9ee3f008d2bdf705673683dc3ce"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/city_commands.jsonl",
+      "source_sha256": "11661713285e19e4c010ee962141957452445f763125f33f5b913889f98666d9",
+      "source_bytes": 4722958,
+      "stored": "flight/city_commands.jsonl.gz",
+      "stored_sha256": "3f58e749f5fd329b2cdee6e428ba60d3c33056c5899e003f588db544f31ee782"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/city_contacts.log",
+      "source_sha256": "3d8078e1a8a08b6d1372bb43ed96f78a39ef83c29f44822522f16bed9d42aa67",
+      "source_bytes": 301630,
+      "stored": "flight/city_contacts.log",
+      "stored_sha256": "3d8078e1a8a08b6d1372bb43ed96f78a39ef83c29f44822522f16bed9d42aa67"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/shared_inference.json",
+      "source_sha256": "f0293326d65d490a2a484e09fc74461683af60309ece310d49aeecac6b997dc1",
+      "source_bytes": 192,
+      "stored": "flight/shared_inference.json",
+      "stored_sha256": "f0293326d65d490a2a484e09fc74461683af60309ece310d49aeecac6b997dc1"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/control_uav_1.csv",
+      "source_sha256": "b15525e8915f03f8522241e4a587ca30eab6a945f78e28a88f49d4c3b071111e",
+      "source_bytes": 202218,
+      "stored": "flight/algorithm/control_uav_1.csv",
+      "stored_sha256": "b15525e8915f03f8522241e4a587ca30eab6a945f78e28a88f49d4c3b071111e"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/control_uav_5.csv",
+      "source_sha256": "c31738ea1494827eeb8706d64c26b6cc6547a7c871cc970c15621823a95d65b4",
+      "source_bytes": 195481,
+      "stored": "flight/algorithm/control_uav_5.csv",
+      "stored_sha256": "c31738ea1494827eeb8706d64c26b6cc6547a7c871cc970c15621823a95d65b4"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/control_uav_3.csv",
+      "source_sha256": "3b5f8cda4a3e416b426384596ac9fc4f84e7fc2bbd9a3e6d2f770d8f36bfd8c7",
+      "source_bytes": 196739,
+      "stored": "flight/algorithm/control_uav_3.csv",
+      "stored_sha256": "3b5f8cda4a3e416b426384596ac9fc4f84e7fc2bbd9a3e6d2f770d8f36bfd8c7"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/control_uav_2.csv",
+      "source_sha256": "a48d5a08414344fb36175b5a8f71df220f17b8d03234c62f2801640bc369dd9b",
+      "source_bytes": 199478,
+      "stored": "flight/algorithm/control_uav_2.csv",
+      "stored_sha256": "a48d5a08414344fb36175b5a8f71df220f17b8d03234c62f2801640bc369dd9b"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/control_uav_6.csv",
+      "source_sha256": "2a074216df097fac357c05bc94d0ba30de2df9c9e7b7e7561a2d30a752199cf7",
+      "source_bytes": 195525,
+      "stored": "flight/algorithm/control_uav_6.csv",
+      "stored_sha256": "2a074216df097fac357c05bc94d0ba30de2df9c9e7b7e7561a2d30a752199cf7"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/control_uav_4.csv",
+      "source_sha256": "80624af1738990f2f454eae42eecfba931c0313e7b2eb6a911e57719284151a2",
+      "source_bytes": 199340,
+      "stored": "flight/algorithm/control_uav_4.csv",
+      "stored_sha256": "80624af1738990f2f454eae42eecfba931c0313e7b2eb6a911e57719284151a2"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_4.csv",
+      "source_sha256": "cf07ce6d63668919743dd896c6524c01585dc9d2c8e1c049802641bedd970698",
+      "source_bytes": 195787,
+      "stored": "flight/algorithm/perception_typhoon_h480_4.csv",
+      "stored_sha256": "cf07ce6d63668919743dd896c6524c01585dc9d2c8e1c049802641bedd970698"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_2.csv",
+      "source_sha256": "6d95c0a7fab1078782037158181c6451f09041bdb1ba58b4bcf1f970a13faec0",
+      "source_bytes": 392723,
+      "stored": "flight/algorithm/perception_typhoon_h480_2.csv",
+      "stored_sha256": "6d95c0a7fab1078782037158181c6451f09041bdb1ba58b4bcf1f970a13faec0"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_3.csv",
+      "source_sha256": "c1bd5a7904e38c88f1740434b01b73975c45561c1d9e24f6d599b681d1095308",
+      "source_bytes": 110758,
+      "stored": "flight/algorithm/perception_typhoon_h480_3.csv",
+      "stored_sha256": "c1bd5a7904e38c88f1740434b01b73975c45561c1d9e24f6d599b681d1095308"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_5.csv",
+      "source_sha256": "0721e95b0008f61578e70876e07ac0c23fc26e8d86cec78ff62e5a6c3dcfea86",
+      "source_bytes": 44948,
+      "stored": "flight/algorithm/perception_typhoon_h480_5.csv",
+      "stored_sha256": "0721e95b0008f61578e70876e07ac0c23fc26e8d86cec78ff62e5a6c3dcfea86"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_0.csv",
+      "source_sha256": "81f555fc459fc268dc6fa45eaff5bff76c9a015182cb679c2f6c2190cd736a5e",
+      "source_bytes": 90384,
+      "stored": "flight/algorithm/perception_typhoon_h480_0.csv",
+      "stored_sha256": "81f555fc459fc268dc6fa45eaff5bff76c9a015182cb679c2f6c2190cd736a5e"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/perception_typhoon_h480_1.csv",
+      "source_sha256": "1f2e1ea1d52c1496cb5d01b7006c2ec487eac815e55b2ba491082a172358fa75",
+      "source_bytes": 242373,
+      "stored": "flight/algorithm/perception_typhoon_h480_1.csv",
+      "stored_sha256": "1f2e1ea1d52c1496cb5d01b7006c2ec487eac815e55b2ba491082a172358fa75"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/bridge_trace.jsonl",
+      "source_sha256": "f9ae8c5fb3a9414b685a22635b3618cb3229b5edd6265cbe9638c1e8093f7aa3",
+      "source_bytes": 149285,
+      "stored": "flight/algorithm/bridge_trace.jsonl",
+      "stored_sha256": "f9ae8c5fb3a9414b685a22635b3618cb3229b5edd6265cbe9638c1e8093f7aa3"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_4_latest.json",
+      "source_sha256": "e179cf3817f830a415b33b42fb39053d7a5ec87321618f1ba46762f3112c8ce3",
+      "source_bytes": 107557,
+      "stored": "flight/algorithm/navigation_uav_4_latest.json",
+      "stored_sha256": "e179cf3817f830a415b33b42fb39053d7a5ec87321618f1ba46762f3112c8ce3"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_1_latest.json",
+      "source_sha256": "d7a00a81f97cce34cb3125cff1a7af4b8d33b00c56e6ac8a6418fd143505a55b",
+      "source_bytes": 103964,
+      "stored": "flight/algorithm/navigation_uav_1_latest.json",
+      "stored_sha256": "d7a00a81f97cce34cb3125cff1a7af4b8d33b00c56e6ac8a6418fd143505a55b"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_5_latest.json",
+      "source_sha256": "218797dbca1b2ed5ddf28b9476328c4fe2413bc5a7b82b5f0c1c1b1bba4e17ae",
+      "source_bytes": 101837,
+      "stored": "flight/algorithm/navigation_uav_5_latest.json",
+      "stored_sha256": "218797dbca1b2ed5ddf28b9476328c4fe2413bc5a7b82b5f0c1c1b1bba4e17ae"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_2_latest.json",
+      "source_sha256": "42a6f35e2cd9088f0379904956c9590e32f3571749d4500bd23524003b5e8e22",
+      "source_bytes": 90670,
+      "stored": "flight/algorithm/navigation_uav_2_latest.json",
+      "stored_sha256": "42a6f35e2cd9088f0379904956c9590e32f3571749d4500bd23524003b5e8e22"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_6_latest.json",
+      "source_sha256": "d3ec7826f5cb361be916425f3f42ad82b3133392922f9c7a1869166985833adc",
+      "source_bytes": 108602,
+      "stored": "flight/algorithm/navigation_uav_6_latest.json",
+      "stored_sha256": "d3ec7826f5cb361be916425f3f42ad82b3133392922f9c7a1869166985833adc"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_3_latest.json",
+      "source_sha256": "1a5bc93b3edee8e02391355d644e12ae07e4dd373875ecb56cf96df826f2428e",
+      "source_bytes": 85042,
+      "stored": "flight/algorithm/navigation_uav_3_latest.json",
+      "stored_sha256": "1a5bc93b3edee8e02391355d644e12ae07e4dd373875ecb56cf96df826f2428e"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_white.json",
+      "source_sha256": "92ed52a5d72134bca9de5f56fb89f5cfe10880a2a5e94d0720a898a3893ccb8b",
+      "source_bytes": 702,
+      "stored": "observers/independent_visual_accuracy_white.json",
+      "stored_sha256": "92ed52a5d72134bca9de5f56fb89f5cfe10880a2a5e94d0720a898a3893ccb8b"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/cleanup_audit.json",
+      "source_sha256": "e270fb79b003b8d870a28efeb894ca7b2138772974ecfb6803bcabef988e6aae",
+      "source_bytes": 870,
+      "stored": "observers/cleanup_audit.json",
+      "stored_sha256": "e270fb79b003b8d870a28efeb894ca7b2138772974ecfb6803bcabef988e6aae"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_blue.json",
+      "source_sha256": "8e36e22ac18cf36ee579c832578bcf3d021c0ad500d8699651e6b37d7b7adeb2",
+      "source_bytes": 700,
+      "stored": "observers/independent_visual_accuracy_blue.json",
+      "stored_sha256": "8e36e22ac18cf36ee579c832578bcf3d021c0ad500d8699651e6b37d7b7adeb2"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy.json",
+      "source_sha256": "a3461236626c1098698fef21e67854c997cd82d24e3ab589b79a641503bb752a",
+      "source_bytes": 702,
+      "stored": "observers/independent_visual_accuracy.json",
+      "stored_sha256": "a3461236626c1098698fef21e67854c997cd82d24e3ab589b79a641503bb752a"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_brown.json",
+      "source_sha256": "40e9804b03c869d5cbd51a2e791b6f4bc01c78c3cd758b773684199713306c07",
+      "source_bytes": 702,
+      "stored": "observers/independent_visual_accuracy_brown.json",
+      "stored_sha256": "40e9804b03c869d5cbd51a2e791b6f4bc01c78c3cd758b773684199713306c07"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_red.json",
+      "source_sha256": "acfcc9d607802e6969a1dc21447bde1c9bc718924dbc9bbc3c8aebb8ad4e87ee",
+      "source_bytes": 871,
+      "stored": "observers/independent_visual_accuracy_red.json",
+      "stored_sha256": "acfcc9d607802e6969a1dc21447bde1c9bc718924dbc9bbc3c8aebb8ad4e87ee"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/process_manifest.json",
+      "source_sha256": "0547d22b26c1470432f6ae3b07a2f2fe31233da7c55452dc8250020b51b5be84",
+      "source_bytes": 4850,
+      "stored": "observers/process_manifest.json",
+      "stored_sha256": "0547d22b26c1470432f6ae3b07a2f2fe31233da7c55452dc8250020b51b5be84"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_white.jsonl",
+      "source_sha256": "5916c58bfc5e1ef43bd355e1f96f565f7ad8b327fd72e6ee3d6b9f1536eca179",
+      "source_bytes": 295116,
+      "stored": "observers/independent_visual_accuracy_white.jsonl",
+      "stored_sha256": "5916c58bfc5e1ef43bd355e1f96f565f7ad8b327fd72e6ee3d6b9f1536eca179"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy.jsonl",
+      "source_sha256": "621d470dd0bd2a03146ae346d03dde04a2aa2f5112b272b037cdfc4cbbc24a78",
+      "source_bytes": 313011,
+      "stored": "observers/independent_visual_accuracy.jsonl",
+      "stored_sha256": "621d470dd0bd2a03146ae346d03dde04a2aa2f5112b272b037cdfc4cbbc24a78"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_red.jsonl",
+      "source_sha256": "e2e7f3421f0fdce74cd5090f83aa5723da1f13924f1879dcd2a4930caf14cac7",
+      "source_bytes": 513922,
+      "stored": "observers/independent_visual_accuracy_red.jsonl",
+      "stored_sha256": "e2e7f3421f0fdce74cd5090f83aa5723da1f13924f1879dcd2a4930caf14cac7"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_blue.jsonl",
+      "source_sha256": "c4af9c5795708d2d02358ddfe741cb37c2ed07dd0c3e822eb7020cfdbf5f283d",
+      "source_bytes": 307041,
+      "stored": "observers/independent_visual_accuracy_blue.jsonl",
+      "stored_sha256": "c4af9c5795708d2d02358ddfe741cb37c2ed07dd0c3e822eb7020cfdbf5f283d"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/independent_visual_accuracy_brown.jsonl",
+      "source_sha256": "15134d9228cce842e05b7d308f63135edeeb3822861ebd8c646e24c7043f4a7a",
+      "source_bytes": 310676,
+      "stored": "observers/independent_visual_accuracy_brown.jsonl",
+      "stored_sha256": "15134d9228cce842e05b7d308f63135edeeb3822861ebd8c646e24c7043f4a7a"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/brown.log",
+      "source_sha256": "24c57e26cda342cd285ae4cc051b22a0e42428c35942e37051d9d2cb6cd2dd4b",
+      "source_bytes": 316,
+      "stored": "observers/brown.log",
+      "stored_sha256": "24c57e26cda342cd285ae4cc051b22a0e42428c35942e37051d9d2cb6cd2dd4b"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/white.log",
+      "source_sha256": "1f8168411c709b193824569c68330510bbe6db2dc6c254f49a5e07f3f25e4938",
+      "source_bytes": 316,
+      "stored": "observers/white.log",
+      "stored_sha256": "1f8168411c709b193824569c68330510bbe6db2dc6c254f49a5e07f3f25e4938"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/blue.log",
+      "source_sha256": "3c6e9f777203c61a86361f7b9accc7458cf298a71ceb3999de55684786da4e40",
+      "source_bytes": 316,
+      "stored": "observers/blue.log",
+      "stored_sha256": "3c6e9f777203c61a86361f7b9accc7458cf298a71ceb3999de55684786da4e40"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/green.log",
+      "source_sha256": "99aa45d205260a53ac081ee09b7079e5b42abf0770b1e83831d0d05d11f06d48",
+      "source_bytes": 316,
+      "stored": "observers/green.log",
+      "stored_sha256": "99aa45d205260a53ac081ee09b7079e5b42abf0770b1e83831d0d05d11f06d48"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_bytes": 0,
+      "stored": "observers/frames.log",
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/red.log",
+      "source_sha256": "734901afe5f24ba2e6475be18d7690f62e31a52f5b93cc91ae0caaad5ba80c5a",
+      "source_bytes": 430,
+      "stored": "observers/red.log",
+      "stored_sha256": "734901afe5f24ba2e6475be18d7690f62e31a52f5b93cc91ae0caaad5ba80c5a"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_3_red1_007.png",
+      "source_sha256": "cab203579762bae6220d0a6a28b402f750c29d2e9065dd3c4b70f60050ab0308",
+      "source_bytes": 212523,
+      "stored": "observers/frames/uav_3_red1_007.png",
+      "stored_sha256": "cab203579762bae6220d0a6a28b402f750c29d2e9065dd3c4b70f60050ab0308"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_5_red1_004.png",
+      "source_sha256": "5523066d4e7358e53478896ef706f8c40103606237f61b8aadb99169c9b89bf9",
+      "source_bytes": 193423,
+      "stored": "observers/frames/uav_5_red1_004.png",
+      "stored_sha256": "5523066d4e7358e53478896ef706f8c40103606237f61b8aadb99169c9b89bf9"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_2_red1_010.png",
+      "source_sha256": "fc3a7543986d398ef288178a3ba06d0a5d34901f2859c13245359d4522797f99",
+      "source_bytes": 165252,
+      "stored": "observers/frames/uav_2_red1_010.png",
+      "stored_sha256": "fc3a7543986d398ef288178a3ba06d0a5d34901f2859c13245359d4522797f99"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_5_red1_003.png",
+      "source_sha256": "b35d81e72d59c2a34a606871781932d025dc3f094eaadfcc5d33d32f620b7006",
+      "source_bytes": 164546,
+      "stored": "observers/frames/uav_5_red1_003.png",
+      "stored_sha256": "b35d81e72d59c2a34a606871781932d025dc3f094eaadfcc5d33d32f620b7006"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_2_red1_013.png",
+      "source_sha256": "093c96dd208af47a824966d1a894a4b7794456950b65947ef9e91ddbce261751",
+      "source_bytes": 188480,
+      "stored": "observers/frames/uav_2_red1_013.png",
+      "stored_sha256": "093c96dd208af47a824966d1a894a4b7794456950b65947ef9e91ddbce261751"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_2_red1_015.png",
+      "source_sha256": "9c283c32dbcf5133d00a2b25adc46c6cef2c4681e33ad34eb533448fe074694f",
+      "source_bytes": 201127,
+      "stored": "observers/frames/uav_2_red1_015.png",
+      "stored_sha256": "9c283c32dbcf5133d00a2b25adc46c6cef2c4681e33ad34eb533448fe074694f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_5_red1_001.png",
+      "source_sha256": "f152e4c1fd05225e37897c75e81f31075fc811f6ac0cf56c56e353062020dd8f",
+      "source_bytes": 112339,
+      "stored": "observers/frames/uav_5_red1_001.png",
+      "stored_sha256": "f152e4c1fd05225e37897c75e81f31075fc811f6ac0cf56c56e353062020dd8f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_5_red1_002.png",
+      "source_sha256": "a67a116050d6e72a110c87f7b60d950e23a704725958d80e5b21e040336115eb",
+      "source_bytes": 190261,
+      "stored": "observers/frames/uav_5_red1_002.png",
+      "stored_sha256": "a67a116050d6e72a110c87f7b60d950e23a704725958d80e5b21e040336115eb"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_5_red1_005.png",
+      "source_sha256": "d7f6faa092c216a8841f11dd55e4c384375078f7983d6f507c517e8faedab8d9",
+      "source_bytes": 194542,
+      "stored": "observers/frames/uav_5_red1_005.png",
+      "stored_sha256": "d7f6faa092c216a8841f11dd55e4c384375078f7983d6f507c517e8faedab8d9"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/frames.jsonl",
+      "source_sha256": "5a027f132d75258c45684e72f7e5e49f0de6c1cb2cb15b0ed1f294d8f4fef6d6",
+      "source_bytes": 7895,
+      "stored": "observers/frames/frames.jsonl",
+      "stored_sha256": "5a027f132d75258c45684e72f7e5e49f0de6c1cb2cb15b0ed1f294d8f4fef6d6"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_2_red1_009.png",
+      "source_sha256": "260e444292461386693746f9796de16bfb2a622467f105475f3ab004be864376",
+      "source_bytes": 153841,
+      "stored": "observers/frames/uav_2_red1_009.png",
+      "stored_sha256": "260e444292461386693746f9796de16bfb2a622467f105475f3ab004be864376"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_2_red1_014.png",
+      "source_sha256": "a416dd944709777877777417a3b6b4b8a0a47158e4c295a6b80471ef1d9abb49",
+      "source_bytes": 199222,
+      "stored": "observers/frames/uav_2_red1_014.png",
+      "stored_sha256": "a416dd944709777877777417a3b6b4b8a0a47158e4c295a6b80471ef1d9abb49"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_2_red1_011.png",
+      "source_sha256": "3768d72b6b04c8f35df40d8787a7639861d7559fa4c4395e06b19ea289fed4ab",
+      "source_bytes": 186180,
+      "stored": "observers/frames/uav_2_red1_011.png",
+      "stored_sha256": "3768d72b6b04c8f35df40d8787a7639861d7559fa4c4395e06b19ea289fed4ab"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_5_red1_006.png",
+      "source_sha256": "1ef7161c10b99f033bc79042ff0c13a3def45da028b1fb76d7b032b24bc19244",
+      "source_bytes": 190478,
+      "stored": "observers/frames/uav_5_red1_006.png",
+      "stored_sha256": "1ef7161c10b99f033bc79042ff0c13a3def45da028b1fb76d7b032b24bc19244"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_3_red1_008.png",
+      "source_sha256": "ba786398987fbb41304db015b509ff8709691f27f2f7509de5df5f09b594421c",
+      "source_bytes": 247095,
+      "stored": "observers/frames/uav_3_red1_008.png",
+      "stored_sha256": "ba786398987fbb41304db015b509ff8709691f27f2f7509de5df5f09b594421c"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_2_red1_012.png",
+      "source_sha256": "02ccb3ea131936e5c08192a697b1e6a45489868d7668613d905723ec8e0024d0",
+      "source_bytes": 206099,
+      "stored": "observers/frames/uav_2_red1_012.png",
+      "stored_sha256": "02ccb3ea131936e5c08192a697b1e6a45489868d7668613d905723ec8e0024d0"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/observers/frames/uav_2_red1_016.png",
+      "source_sha256": "75643808e5749ba49bfccf33f6710c7666431bc87b69cc6d69437c9e0b3a941e",
+      "source_bytes": 207907,
+      "stored": "observers/frames/uav_2_red1_016.png",
+      "stored_sha256": "75643808e5749ba49bfccf33f6710c7666431bc87b69cc6d69437c9e0b3a941e"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/grid_downsampler.py",
+      "source_sha256": "9ca3a1eca32238b1ce0f3db8333ec5cb81450d89aac36695d159db3de643a07f",
+      "source_bytes": 8146,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/grid_downsampler.py",
+      "stored_sha256": "9ca3a1eca32238b1ce0f3db8333ec5cb81450d89aac36695d159db3de643a07f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/astar.py",
+      "source_sha256": "9842a72009eb94be3b85c5f6d9d604176629eb821dc5f0627b154055cbe4ae10",
+      "source_bytes": 11575,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/astar.py",
+      "stored_sha256": "9842a72009eb94be3b85c5f6d9d604176629eb821dc5f0627b154055cbe4ae10"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/team_grid_subscriber.py",
+      "source_sha256": "ea3f3e11a9ed8dee2de069e2e25a56b9acdee665bd0ba316030921a5ecc4d4fc",
+      "source_bytes": 6700,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/team_grid_subscriber.py",
+      "stored_sha256": "ea3f3e11a9ed8dee2de069e2e25a56b9acdee665bd0ba316030921a5ecc4d4fc"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/__init__.py",
+      "source_sha256": "7aa650fcf99394734f9e7edd522567fcd5a3a8289398c944380c44bc57236dff",
+      "source_bytes": 67,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/__init__.py",
+      "stored_sha256": "7aa650fcf99394734f9e7edd522567fcd5a3a8289398c944380c44bc57236dff"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_safety.py",
+      "source_sha256": "8c76fe7c8b5b6ee1f04baa07902e5c6172353ceded742090e8de0ed38d8437ef",
+      "source_bytes": 29924,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_safety.py",
+      "stored_sha256": "8c76fe7c8b5b6ee1f04baa07902e5c6172353ceded742090e8de0ed38d8437ef"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/local_grid.py",
+      "source_sha256": "6539b8c2d2ea9018e534e76b719aa53458176a31d340e6081597dc071bd20b2f",
+      "source_bytes": 18456,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/local_grid.py",
+      "stored_sha256": "6539b8c2d2ea9018e534e76b719aa53458176a31d340e6081597dc071bd20b2f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_runtime.py",
+      "source_sha256": "cc1ca2192c48b974fb0f956a2592da10aa5ff0bb3f2a18913cf9c91380d06711",
+      "source_bytes": 51990,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/route_runtime.py",
+      "stored_sha256": "cc1ca2192c48b974fb0f956a2592da10aa5ff0bb3f2a18913cf9c91380d06711"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/monitor.py",
+      "source_sha256": "4ea55454fd0cef7fec71eab7a4df67f4692b1a96aa05d2244d1268f40cb8220a",
+      "source_bytes": 4343,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/monitor.py",
+      "stored_sha256": "4ea55454fd0cef7fec71eab7a4df67f4692b1a96aa05d2244d1268f40cb8220a"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/waiting_points.py",
+      "source_sha256": "e90791e5f315f3732bfd97c0da642255c1669ffc7d1b073cf861054e4752c1e9",
+      "source_bytes": 5444,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/waiting_points.py",
+      "stored_sha256": "e90791e5f315f3732bfd97c0da642255c1669ffc7d1b073cf861054e4752c1e9"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/map_revision.py",
+      "source_sha256": "9fa6bf4432f7bf3fa220ce4f122dc82ddfb9f40accab107529ea1c3880ff1f59",
+      "source_bytes": 4463,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/map_revision.py",
+      "stored_sha256": "9fa6bf4432f7bf3fa220ce4f122dc82ddfb9f40accab107529ea1c3880ff1f59"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/__init__.py",
+      "source_sha256": "30b535b31dbbee8dda9c0475995bca095a9bcf5b40027c892b87925f4f1b1288",
+      "source_bytes": 1371,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/__init__.py",
+      "stored_sha256": "30b535b31dbbee8dda9c0475995bca095a9bcf5b40027c892b87925f4f1b1288"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/stop_check.py",
+      "source_sha256": "cdac03435454dd8ec834db9fd82b19b09751706d78a8d5370c4bc66c92d269ee",
+      "source_bytes": 3282,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/stop_check.py",
+      "stored_sha256": "cdac03435454dd8ec834db9fd82b19b09751706d78a8d5370c4bc66c92d269ee"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/bus.py",
+      "source_sha256": "fee0770f1b56a0b9b004ea5e5c61b6fe39b82413864ea359282920e996310815",
+      "source_bytes": 4957,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/bus.py",
+      "stored_sha256": "fee0770f1b56a0b9b004ea5e5c61b6fe39b82413864ea359282920e996310815"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/position_cache.py",
+      "source_sha256": "7ae1823e48b65d184d71c7ea9b8bcca128e4e5ae631f64165754a97cc8b6052a",
+      "source_bytes": 1494,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/position_cache.py",
+      "stored_sha256": "7ae1823e48b65d184d71c7ea9b8bcca128e4e5ae631f64165754a97cc8b6052a"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/core.py",
+      "source_sha256": "2114c840c9e90100b1d9c5f8015d56aea17debd246e6080999c05605c0e508d7",
+      "source_bytes": 37553,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/core.py",
+      "stored_sha256": "2114c840c9e90100b1d9c5f8015d56aea17debd246e6080999c05605c0e508d7"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/verdict.py",
+      "source_sha256": "b082548b2b00cf0763c39618bd3d1cdc5bee10586c18e36e1078c04f18ac122f",
+      "source_bytes": 9586,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/verdict.py",
+      "stored_sha256": "b082548b2b00cf0763c39618bd3d1cdc5bee10586c18e36e1078c04f18ac122f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/geometry.py",
+      "source_sha256": "6d89077b1ee28e068a8e0f66cecaa6caa22a401be5c246bccbaefda03ec33426",
+      "source_bytes": 4349,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/geometry.py",
+      "stored_sha256": "6d89077b1ee28e068a8e0f66cecaa6caa22a401be5c246bccbaefda03ec33426"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/protocol.py",
+      "source_sha256": "3140a010c964059f33fb45722bbaf7ff11d754242a35d3c4b66b06c269d2a9f4",
+      "source_bytes": 4328,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/protocol.py",
+      "stored_sha256": "3140a010c964059f33fb45722bbaf7ff11d754242a35d3c4b66b06c269d2a9f4"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/executor.py",
+      "source_sha256": "ed75a06cd4ffcd009bf00f1ced400613dcc3a8c639935f99769c82875946639d",
+      "source_bytes": 8111,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/executor.py",
+      "stored_sha256": "ed75a06cd4ffcd009bf00f1ced400613dcc3a8c639935f99769c82875946639d"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/__init__.py",
+      "source_sha256": "54999699151f3d515968c3c097b0acb642a0e3a09d4a183e5535d6756d4fbb56",
+      "source_bytes": 191,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/__init__.py",
+      "stored_sha256": "54999699151f3d515968c3c097b0acb642a0e3a09d4a183e5535d6756d4fbb56"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/route_planner.py",
+      "source_sha256": "269fd79c5a55ceb05e626f5af3f779f3734cf7c449012643b0049ea7870529af",
+      "source_bytes": 8683,
+      "stored": "flight/swarm_sources/coordination/src/robocup_navigation/src/robocup_navigation/coordination/route_planner.py",
+      "stored_sha256": "269fd79c5a55ceb05e626f5af3f779f3734cf7c449012643b0049ea7870529af"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/bounded_escape.py",
+      "source_sha256": "8c80d452b9ecf65b83207062fe50d4e673c12a00312e6364fa392d17a81de42f",
+      "source_bytes": 4044,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/bounded_escape.py",
+      "stored_sha256": "8c80d452b9ecf65b83207062fe50d4e673c12a00312e6364fa392d17a81de42f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/allocation_geometry.py",
+      "source_sha256": "7c2ba66fb781759762a14c6fb75477f499cea21425315cd71e46127287219e4e",
+      "source_bytes": 1557,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/allocation_geometry.py",
+      "stored_sha256": "7c2ba66fb781759762a14c6fb75477f499cea21425315cd71e46127287219e4e"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_completion.py",
+      "source_sha256": "49a6b4d32b4a5174cbd6d1cb5cf98f733761dc62205de99820f2e998acf909a2",
+      "source_bytes": 885,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_completion.py",
+      "stored_sha256": "49a6b4d32b4a5174cbd6d1cb5cf98f733761dc62205de99820f2e998acf909a2"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/red_observations.py",
+      "source_sha256": "360537d6825dc3e6c7b742280fc1d6c61488bdad65f13a461e0a8d3fa63d8007",
+      "source_bytes": 1248,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/red_observations.py",
+      "stored_sha256": "360537d6825dc3e6c7b742280fc1d6c61488bdad65f13a461e0a8d3fa63d8007"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/visual_observation.py",
+      "source_sha256": "27c0c8e721d370951af53b625a75d2cbc907f3aad9b9413bad2170edfaef8932",
+      "source_bytes": 2340,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/visual_observation.py",
+      "stored_sha256": "27c0c8e721d370951af53b625a75d2cbc907f3aad9b9413bad2170edfaef8932"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/single_uav_avoidance.py",
+      "source_sha256": "2dfaf2a4f63cab65f5100d9cda0f1805f80881984730ddf067feecefc6ebf79e",
+      "source_bytes": 11736,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/single_uav_avoidance.py",
+      "stored_sha256": "2dfaf2a4f63cab65f5100d9cda0f1805f80881984730ddf067feecefc6ebf79e"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/mission_time.py",
+      "source_sha256": "9f6a4c8763c0161629957df54eafc121d7b6b96a3d00b4c4e048b4d0d208a68b",
+      "source_bytes": 53564,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/mission_time.py",
+      "stored_sha256": "9f6a4c8763c0161629957df54eafc121d7b6b96a3d00b4c4e048b4d0d208a68b"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/fcu_configuration.py",
+      "source_sha256": "3229c340f6490a0455c80f28f67ad2b06c13810ce303e986b5a780a9516492b7",
+      "source_bytes": 533,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/fcu_configuration.py",
+      "stored_sha256": "3229c340f6490a0455c80f28f67ad2b06c13810ce303e986b5a780a9516492b7"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_task.py",
+      "source_sha256": "ffe2f5b9e40bcfbe7644a3483db6aa8428a455d1934c8a29f2dea133f3b71be6",
+      "source_bytes": 46611,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_task.py",
+      "stored_sha256": "ffe2f5b9e40bcfbe7644a3483db6aa8428a455d1934c8a29f2dea133f3b71be6"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/team_bench.py",
+      "source_sha256": "9b65399dcc0712fbf3117e025e5b2b54467d5d0a5c6e79365e321903e44011f1",
+      "source_bytes": 38664,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/team_bench.py",
+      "stored_sha256": "9b65399dcc0712fbf3117e025e5b2b54467d5d0a5c6e79365e321903e44011f1"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_rate.py",
+      "source_sha256": "8833b70b95650a8049f6e9f97d2f5941f53453201ef55ecbd3724e285d5bf3d4",
+      "source_bytes": 4359,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_rate.py",
+      "stored_sha256": "8833b70b95650a8049f6e9f97d2f5941f53453201ef55ecbd3724e285d5bf3d4"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py",
+      "source_sha256": "20b68d7210abce6dbbab1288f2bdcdd46a23c9f49b761053ac673818dc128fee",
+      "source_bytes": 3663,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_velocity_guard.py",
+      "stored_sha256": "20b68d7210abce6dbbab1288f2bdcdd46a23c9f49b761053ac673818dc128fee"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actor.py",
+      "source_sha256": "a500f6f68430c9d9bb77bc571b837eebc623dfd337bf46e2e8448ae87db05eae",
+      "source_bytes": 25620,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/control_actor.py",
+      "stored_sha256": "a500f6f68430c9d9bb77bc571b837eebc623dfd337bf46e2e8448ae87db05eae"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_sim_node.py",
+      "source_sha256": "75369af7e9aa3e8c029395d488d8339e484dc5e1845267c59abf6c7a5a63cdc4",
+      "source_bytes": 14095,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_sim_node.py",
+      "stored_sha256": "75369af7e9aa3e8c029395d488d8339e484dc5e1845267c59abf6c7a5a63cdc4"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_official.py",
+      "source_sha256": "90dba8bb70d4cdf81cc56bb1382acb7e3119fd8da6349ac8523fd2b4a1d40000",
+      "source_bytes": 20779,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_official.py",
+      "stored_sha256": "90dba8bb70d4cdf81cc56bb1382acb7e3119fd8da6349ac8523fd2b4a1d40000"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_actor.py",
+      "source_sha256": "75506452543fc9f49d7150b262d7d8d8d537c0650b9b6b2b6e2766634202e429",
+      "source_bytes": 2549,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/detection_to_actor.py",
+      "stored_sha256": "75506452543fc9f49d7150b262d7d8d8d537c0650b9b6b2b6e2766634202e429"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/position_brake.py",
+      "source_sha256": "4853501fa867bf94619e4d5ff76c23093dc6064299a527634ebcfb0e8da72bd3",
+      "source_bytes": 2330,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/position_brake.py",
+      "stored_sha256": "4853501fa867bf94619e4d5ff76c23093dc6064299a527634ebcfb0e8da72bd3"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_endpoint.py",
+      "source_sha256": "73c88d990c0e7dd152a3fdaf7321cb0725bbeb00bb83fdc6e0c65a1c7f61748f",
+      "source_bytes": 734,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_endpoint.py",
+      "stored_sha256": "73c88d990c0e7dd152a3fdaf7321cb0725bbeb00bb83fdc6e0c65a1c7f61748f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/cooperative_tracker.py",
+      "source_sha256": "a67bb5e6345230c441cc926fac863db2e7f39be769c259bf689597a0b7159fd0",
+      "source_bytes": 29084,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/cooperative_tracker.py",
+      "stored_sha256": "a67bb5e6345230c441cc926fac863db2e7f39be769c259bf689597a0b7159fd0"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/companion_tracking.py",
+      "source_sha256": "f6bd3dbc8a259c626e937bd0cd87b3a86b28588631dc0260a9b13c044ac93231",
+      "source_bytes": 1437,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/companion_tracking.py",
+      "stored_sha256": "f6bd3dbc8a259c626e937bd0cd87b3a86b28588631dc0260a9b13c044ac93231"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_viz.py",
+      "source_sha256": "ffbda5a5aa4495098d61c8245fb8189f455f6c143dbcd7a31792084bfbdb9d9f",
+      "source_bytes": 21664,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_viz.py",
+      "stored_sha256": "ffbda5a5aa4495098d61c8245fb8189f455f6c143dbcd7a31792084bfbdb9d9f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py",
+      "source_sha256": "9dc1eccd49eef853c30c393acaa4470765dacef430d1d08d96677599fdc6fcf6",
+      "source_bytes": 30590,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/yolo_target_bridge.py",
+      "stored_sha256": "9dc1eccd49eef853c30c393acaa4470765dacef430d1d08d96677599fdc6fcf6"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_offboard_server.py",
+      "source_sha256": "fd37c26fc435fd3cffbbc0a11604825b0403c784161dd91199deb0d35ff07759",
+      "source_bytes": 10397,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_offboard_server.py",
+      "stored_sha256": "fd37c26fc435fd3cffbbc0a11604825b0403c784161dd91199deb0d35ff07759"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_authority.py",
+      "source_sha256": "1ec78838dcb6860f273d4e58cebfcf532fdf1a0812ab2377902a1651d3617ce0",
+      "source_bytes": 15078,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_authority.py",
+      "stored_sha256": "1ec78838dcb6860f273d4e58cebfcf532fdf1a0812ab2377902a1651d3617ce0"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_ablation.py",
+      "source_sha256": "68c720f7b0705e4d8b909627f7b301e3e25ab5be1c3ad684ac5bd419ffec1995",
+      "source_bytes": 13941,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/run_ablation.py",
+      "stored_sha256": "68c720f7b0705e4d8b909627f7b301e3e25ab5be1c3ad684ac5bd419ffec1995"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/report_readiness.py",
+      "source_sha256": "1b7b445486d08557858e8115b118d059e9acc7e17ede22a4b92eb1687c8ac51d",
+      "source_bytes": 2452,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/report_readiness.py",
+      "stored_sha256": "1b7b445486d08557858e8115b118d059e9acc7e17ede22a4b92eb1687c8ac51d"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/navigation_feedback.py",
+      "source_sha256": "3f739f451dd5e0881d470b716596b1f7f2fc7f84da0af9882d77d190e15d6102",
+      "source_bytes": 2708,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/navigation_feedback.py",
+      "stored_sha256": "3f739f451dd5e0881d470b716596b1f7f2fc7f84da0af9882d77d190e15d6102"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/publisher_authority.py",
+      "source_sha256": "1d5c56513e82b03a30a9c457b79ada9dfd198d4fafb98e8c05411565a120787f",
+      "source_bytes": 756,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/publisher_authority.py",
+      "stored_sha256": "1d5c56513e82b03a30a9c457b79ada9dfd198d4fafb98e8c05411565a120787f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/judge_system.py",
+      "source_sha256": "e5f0e154ce29181a223325259d707cbd91ea79831930012ae6d0412e789f177a",
+      "source_bytes": 22625,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/judge_system.py",
+      "stored_sha256": "e5f0e154ce29181a223325259d707cbd91ea79831930012ae6d0412e789f177a"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/strategy_compare.py",
+      "source_sha256": "6a4287b93b0a187c90bda0255785b2e03c8ac8f44eb6f75dde079a40d7c96ad0",
+      "source_bytes": 38316,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/strategy_compare.py",
+      "stored_sha256": "6a4287b93b0a187c90bda0255785b2e03c8ac8f44eb6f75dde079a40d7c96ad0"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/verify_swarm_avoidance.py",
+      "source_sha256": "96188e8b54d6f339033e434ff12f69b3e43c9a07c8dee59532d8a3b53c65f301",
+      "source_bytes": 8661,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/verify_swarm_avoidance.py",
+      "stored_sha256": "96188e8b54d6f339033e434ff12f69b3e43c9a07c8dee59532d8a3b53c65f301"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/orbit_geometry.py",
+      "source_sha256": "07b2f0f75d0d3d546b4aeec7614d6fbda76decc86ca1ebc59c8045248a975573",
+      "source_bytes": 2050,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/orbit_geometry.py",
+      "stored_sha256": "07b2f0f75d0d3d546b4aeec7614d6fbda76decc86ca1ebc59c8045248a975573"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_occupancy.py",
+      "source_sha256": "8146a1bd01cba4a3c842121e00b1006a92eaf720ce23abc5bcc3cf804668e8fe",
+      "source_bytes": 1888,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_occupancy.py",
+      "stored_sha256": "8146a1bd01cba4a3c842121e00b1006a92eaf720ce23abc5bcc3cf804668e8fe"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_allocator.py",
+      "source_sha256": "f64cbeeda5c5dbb0a8be3ff64de69d232b537e46f4f0cb9ee6ad5eff066f343d",
+      "source_bytes": 60580,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/task_allocator.py",
+      "stored_sha256": "f64cbeeda5c5dbb0a8be3ff64de69d232b537e46f4f0cb9ee6ad5eff066f343d"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_planner.py",
+      "source_sha256": "d234ec7b6e52b6749c63adbba6036b813366bde028f5fa1fe5b17e4acc2ead99",
+      "source_bytes": 9472,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_planner.py",
+      "stored_sha256": "d234ec7b6e52b6749c63adbba6036b813366bde028f5fa1fe5b17e4acc2ead99"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/fleet_motion_guard.py",
+      "source_sha256": "0fba3af4e76635162e67c6190958f76b74491c0e9289849a9ae3cdca61c8e507",
+      "source_bytes": 3171,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/fleet_motion_guard.py",
+      "stored_sha256": "0fba3af4e76635162e67c6190958f76b74491c0e9289849a9ae3cdca61c8e507"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracking_navigation.py",
+      "source_sha256": "e5496b7aa93e41f158f616ce55325a519a7b07c31d6f66a09d77597d1f408349",
+      "source_bytes": 4269,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracking_navigation.py",
+      "stored_sha256": "e5496b7aa93e41f158f616ce55325a519a7b07c31d6f66a09d77597d1f408349"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/white_reacquisition.py",
+      "source_sha256": "a6e384e62632354ef985d9748c3d3030ecf27997bf3a13c294040b4702ac30ce",
+      "source_bytes": 2626,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/white_reacquisition.py",
+      "stored_sha256": "a6e384e62632354ef985d9748c3d3030ecf27997bf3a13c294040b4702ac30ce"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/persistent_los.py",
+      "source_sha256": "ae53bd7f0319744247cc103957696bd575682e5ca85f10f7be3ce1521aefecd0",
+      "source_bytes": 7250,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/persistent_los.py",
+      "stored_sha256": "ae53bd7f0319744247cc103957696bd575682e5ca85f10f7be3ce1521aefecd0"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_reservation.py",
+      "source_sha256": "86f8dfcfc3b0c92eba8543983b49fdfbd28391e264ac5412399b60c64a72804d",
+      "source_bytes": 16536,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/route_reservation.py",
+      "stored_sha256": "86f8dfcfc3b0c92eba8543983b49fdfbd28391e264ac5412399b60c64a72804d"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_manager.py",
+      "source_sha256": "88c7042e769f0f104eb1985632fc5ea8f6b7efaef882b841dcaebbf5c0c0e30d",
+      "source_bytes": 86392,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_manager.py",
+      "stored_sha256": "88c7042e769f0f104eb1985632fc5ea8f6b7efaef882b841dcaebbf5c0c0e30d"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_quality.py",
+      "source_sha256": "4d1b32dc78095298a03505fe7cd53b580de5f2436e350a50379221cfeb2c1df2",
+      "source_bytes": 2115,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/pose_quality.py",
+      "stored_sha256": "4d1b32dc78095298a03505fe7cd53b580de5f2436e350a50379221cfeb2c1df2"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/csv_logger.py",
+      "source_sha256": "0598fcda689c7c0560b238abc18d7e99c69ca2aad33b5444d00df8e6e2bbced0",
+      "source_bytes": 1932,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/csv_logger.py",
+      "stored_sha256": "0598fcda689c7c0560b238abc18d7e99c69ca2aad33b5444d00df8e6e2bbced0"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_observation.py",
+      "source_sha256": "7dc59184a9628644fb5136d576e9c4a09fb47fd95a7af2198fd6e176c577e1a5",
+      "source_bytes": 17799,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/search_observation.py",
+      "stored_sha256": "7dc59184a9628644fb5136d576e9c4a09fb47fd95a7af2198fd6e176c577e1a5"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracker_selection.py",
+      "source_sha256": "a8e5ac7689fe0bd1874d233f9456e292a748ed432cdc9d694242e7c908064745",
+      "source_bytes": 2123,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/tracker_selection.py",
+      "stored_sha256": "a8e5ac7689fe0bd1874d233f9456e292a748ed432cdc9d694242e7c908064745"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/local_esdf.py",
+      "source_sha256": "2aa85a3126de91946fa680cb7a68334919aeca373204008a09422753f0fc274a",
+      "source_bytes": 10157,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/local_esdf.py",
+      "stored_sha256": "2aa85a3126de91946fa680cb7a68334919aeca373204008a09422753f0fc274a"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/track_bench.py",
+      "source_sha256": "971b401ce669cce3644a3a8b4947150e746948f53a60e94a2ad2835b205180ed",
+      "source_bytes": 16310,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/track_bench.py",
+      "stored_sha256": "971b401ce669cce3644a3a8b4947150e746948f53a60e94a2ad2835b205180ed"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/source_aligned_fusion.py",
+      "source_sha256": "5500b0bd157cb36fc7f78ecbbbfb64846da506f61b692564cd5810bfebb10156",
+      "source_bytes": 2831,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/source_aligned_fusion.py",
+      "stored_sha256": "5500b0bd157cb36fc7f78ecbbbfb64846da506f61b692564cd5810bfebb10156"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "source_sha256": "e9b57c96f885b37531cbdacf4e9958a5fc2b5743cfb861c9b3f03ae1b40b7abc",
+      "source_bytes": 187479,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "stored_sha256": "e9b57c96f885b37531cbdacf4e9958a5fc2b5743cfb861c9b3f03ae1b40b7abc"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/online_radar_planner.py",
+      "source_sha256": "2522aaff3cf5d66092995623644297e97bd6dccbc1da2aa40de061e4e1cc0293",
+      "source_bytes": 18190,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/online_radar_planner.py",
+      "stored_sha256": "2522aaff3cf5d66092995623644297e97bd6dccbc1da2aa40de061e4e1cc0293"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_observed_map.py",
+      "source_sha256": "8548a0e14c385831efc02ea5bdad7ac8a445e2ac35d65af13f88374418bd47e0",
+      "source_bytes": 3855,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/radar_observed_map.py",
+      "stored_sha256": "8548a0e14c385831efc02ea5bdad7ac8a445e2ac35d65af13f88374418bd47e0"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_motion.py",
+      "source_sha256": "d72f9ca5d9b99c5a3a67be3c53bba721e9e92ea5c54efd9adcb03120cc2ea58b",
+      "source_bytes": 2536,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/target_motion.py",
+      "stored_sha256": "d72f9ca5d9b99c5a3a67be3c53bba721e9e92ea5c54efd9adcb03120cc2ea58b"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_controller.py",
+      "source_sha256": "edec754447850c043b9cbd266c2d524cd01a2e30324f8ea1a48d94b35c468f18",
+      "source_bytes": 2210,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/swarm_controller.py",
+      "stored_sha256": "edec754447850c043b9cbd266c2d524cd01a2e30324f8ea1a48d94b35c468f18"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/dwa_avoidance.py",
+      "source_sha256": "4d2345cd99366eaee22170aed7e4ce4000440ee4bafe1189e9335ca63bd2bb9a",
+      "source_bytes": 95377,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/dwa_avoidance.py",
+      "stored_sha256": "4d2345cd99366eaee22170aed7e4ce4000440ee4bafe1189e9335ca63bd2bb9a"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/coordination/src/robocup_swarm/scripts/score_cal.py",
+      "source_sha256": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+      "source_bytes": 13133,
+      "stored": "flight/swarm_sources/coordination/src/robocup_swarm/scripts/score_cal.py",
+      "stored_sha256": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_client.py",
+      "source_sha256": "0af84e1b911c335c5be768e7776ef184a7f9eaba6112938b2e654cb6b466df1e",
+      "source_bytes": 6089,
+      "stored": "flight/swarm_sources/perception/shared_inference_client.py",
+      "stored_sha256": "0af84e1b911c335c5be768e7776ef184a7f9eaba6112938b2e654cb6b466df1e"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/motion_identity.py",
+      "source_sha256": "7098c5fb3da7382c220f61fc73dfadcf4f144498fb5dcda4d20f267e82b43b08",
+      "source_bytes": 1843,
+      "stored": "flight/swarm_sources/perception/motion_identity.py",
+      "stored_sha256": "7098c5fb3da7382c220f61fc73dfadcf4f144498fb5dcda4d20f267e82b43b08"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/perception_real.py",
+      "source_sha256": "983711391272e14e90901f1be4a35be25664a92ef6d2be5552b1fe7dc8136851",
+      "source_bytes": 109780,
+      "stored": "flight/swarm_sources/perception/perception_real.py",
+      "stored_sha256": "983711391272e14e90901f1be4a35be25664a92ef6d2be5552b1fe7dc8136851"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/recent_motion.py",
+      "source_sha256": "cf6375665ef04e877e6439f4681fdc049fd2bcc9e7bb72c9298cc74a38e3efe5",
+      "source_bytes": 1500,
+      "stored": "flight/swarm_sources/perception/recent_motion.py",
+      "stored_sha256": "cf6375665ef04e877e6439f4681fdc049fd2bcc9e7bb72c9298cc74a38e3efe5"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/jersey_color.py",
+      "source_sha256": "13d49f153f56cc826288272900e4662ce08d61cc2fad99f7b9a76bb156503365",
+      "source_bytes": 1779,
+      "stored": "flight/swarm_sources/perception/jersey_color.py",
+      "stored_sha256": "13d49f153f56cc826288272900e4662ce08d61cc2fad99f7b9a76bb156503365"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/stationary_person.py",
+      "source_sha256": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330",
+      "source_bytes": 368,
+      "stored": "flight/swarm_sources/perception/stationary_person.py",
+      "stored_sha256": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/shared_inference_service.py",
+      "source_sha256": "9242f891c68fdca7949ecee3f1faa4e672b24527cb5d969349800ddb6ae77138",
+      "source_bytes": 10726,
+      "stored": "flight/swarm_sources/perception/shared_inference_service.py",
+      "stored_sha256": "9242f891c68fdca7949ecee3f1faa4e672b24527cb5d969349800ddb6ae77138"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/camera_task.py",
+      "source_sha256": "a5fd517fc18332c9151098e70a8f6be76a8c85461972b6b333d41e7d3e092e41",
+      "source_bytes": 1586,
+      "stored": "flight/swarm_sources/perception/camera_task.py",
+      "stored_sha256": "a5fd517fc18332c9151098e70a8f6be76a8c85461972b6b333d41e7d3e092e41"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/camera_geometry.py",
+      "source_sha256": "319e32aa93e4bd40aef258775d03c2cd58e3812dd32a6078f23f138530f8e0cc",
+      "source_bytes": 2310,
+      "stored": "flight/swarm_sources/perception/camera_geometry.py",
+      "stored_sha256": "319e32aa93e4bd40aef258775d03c2cd58e3812dd32a6078f23f138530f8e0cc"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/person_verifier.py",
+      "source_sha256": "1ec714791edc2d8c0a2171f7e7415b0b0b5dc60565a406e18cf56633686d53a7",
+      "source_bytes": 4184,
+      "stored": "flight/swarm_sources/perception/person_verifier.py",
+      "stored_sha256": "1ec714791edc2d8c0a2171f7e7415b0b0b5dc60565a406e18cf56633686d53a7"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/frame_probe.py",
+      "source_sha256": "ec9d262b012832ff04579b77ad7a9b4114ef39eb541a2333a680de4295cc6cd1",
+      "source_bytes": 4479,
+      "stored": "flight/swarm_sources/perception/frame_probe.py",
+      "stored_sha256": "ec9d262b012832ff04579b77ad7a9b4114ef39eb541a2333a680de4295cc6cd1"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/enhanced_tracker.py",
+      "source_sha256": "d4eb217325c6496145b575ead792668f427dea4ea3e93a583a09cda0e3bbb6a6",
+      "source_bytes": 17504,
+      "stored": "flight/swarm_sources/perception/enhanced_tracker.py",
+      "stored_sha256": "d4eb217325c6496145b575ead792668f427dea4ea3e93a583a09cda0e3bbb6a6"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/fresh_person.py",
+      "source_sha256": "a1f4f11c28d8c738cf6e2a2306cfce069417e46d9a6c7fb9b51f13d59e163477",
+      "source_bytes": 2134,
+      "stored": "flight/swarm_sources/perception/fresh_person.py",
+      "stored_sha256": "a1f4f11c28d8c738cf6e2a2306cfce069417e46d9a6c7fb9b51f13d59e163477"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/patch/add_stereo_camera.py",
+      "source_sha256": "a163d25497e25d389ad824dda212689886c54240f166d58a50e878624110cd07",
+      "source_bytes": 10556,
+      "stored": "flight/swarm_sources/perception/patch/add_stereo_camera.py",
+      "stored_sha256": "a163d25497e25d389ad824dda212689886c54240f166d58a50e878624110cd07"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/check_target_report_schema.py",
+      "source_sha256": "836f948b5d617a8a44ebaba7e96bcea17260a78edc86ec6e826bc920b2f4bf19",
+      "source_bytes": 7646,
+      "stored": "flight/swarm_sources/perception/scripts/check_target_report_schema.py",
+      "stored_sha256": "836f948b5d617a8a44ebaba7e96bcea17260a78edc86ec6e826bc920b2f4bf19"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/snapshot_cam.py",
+      "source_sha256": "4d36648c90b46a6c0818f3c0220c1b0f6ac30186509882e968da5a5c98bbd4e4",
+      "source_bytes": 1099,
+      "stored": "flight/swarm_sources/perception/scripts/snapshot_cam.py",
+      "stored_sha256": "4d36648c90b46a6c0818f3c0220c1b0f6ac30186509882e968da5a5c98bbd4e4"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/guide_patrol.py",
+      "source_sha256": "d0cc20d63fb2d86740f0baf5ec08ad8a5639773ccd32888912a4894112dc63b4",
+      "source_bytes": 2831,
+      "stored": "flight/swarm_sources/perception/scripts/guide_patrol.py",
+      "stored_sha256": "d0cc20d63fb2d86740f0baf5ec08ad8a5639773ccd32888912a4894112dc63b4"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/analyze_snap.py",
+      "source_sha256": "5ae315e7d0ac7066cb63513295c737413db1be76113b80ea7bcc7d1866da8059",
+      "source_bytes": 7829,
+      "stored": "flight/swarm_sources/perception/scripts/analyze_snap.py",
+      "stored_sha256": "5ae315e7d0ac7066cb63513295c737413db1be76113b80ea7bcc7d1866da8059"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/guide_actor.py",
+      "source_sha256": "bb7cf785585688448cfd705220574c97d59716de1a5a845b84f63b6e3d266ff5",
+      "source_bytes": 2153,
+      "stored": "flight/swarm_sources/perception/scripts/guide_actor.py",
+      "stored_sha256": "bb7cf785585688448cfd705220574c97d59716de1a5a845b84f63b6e3d266ff5"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/rec_snap.py",
+      "source_sha256": "1f3dad3ebc0fcd0f17f35ee1383fc26716b232f63287994121dcbdadb6c69ab9",
+      "source_bytes": 3737,
+      "stored": "flight/swarm_sources/perception/scripts/rec_snap.py",
+      "stored_sha256": "1f3dad3ebc0fcd0f17f35ee1383fc26716b232f63287994121dcbdadb6c69ab9"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/verify_official_assets.py",
+      "source_sha256": "dff32f08a47d6ad7b82459fe6965701055c501fd4be81bd488e923c981ccff09",
+      "source_bytes": 14935,
+      "stored": "flight/swarm_sources/perception/scripts/verify_official_assets.py",
+      "stored_sha256": "dff32f08a47d6ad7b82459fe6965701055c501fd4be81bd488e923c981ccff09"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/control_actor_m2.py",
+      "source_sha256": "921e7180f2195893405159a896db982ca8a2da722d3a18125a74566594172b48",
+      "source_bytes": 22062,
+      "stored": "flight/swarm_sources/perception/scripts/control_actor_m2.py",
+      "stored_sha256": "921e7180f2195893405159a896db982ca8a2da722d3a18125a74566594172b48"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/replay_target_report.py",
+      "source_sha256": "7212d60dd8140b4eab12867447769b9d155fa9619e0f702bfd209976111092e9",
+      "source_bytes": 6127,
+      "stored": "flight/swarm_sources/perception/scripts/replay_target_report.py",
+      "stored_sha256": "7212d60dd8140b4eab12867447769b9d155fa9619e0f702bfd209976111092e9"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/ground_truth_bridge.py",
+      "source_sha256": "9f7c8c613434f6050584758d72670854b2c21434b023cee0b6eeaeb41b28c863",
+      "source_bytes": 4962,
+      "stored": "flight/swarm_sources/perception/scripts/ground_truth_bridge.py",
+      "stored_sha256": "9f7c8c613434f6050584758d72670854b2c21434b023cee0b6eeaeb41b28c863"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/probe_actor_speed.py",
+      "source_sha256": "78b5e9cfd33eaf32937b9ae64ff9ba5e1dbbcd516f6e81526547caddc79948bb",
+      "source_bytes": 2160,
+      "stored": "flight/swarm_sources/perception/scripts/probe_actor_speed.py",
+      "stored_sha256": "78b5e9cfd33eaf32937b9ae64ff9ba5e1dbbcd516f6e81526547caddc79948bb"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/fly_takeoff.py",
+      "source_sha256": "6ca28d5972b438291be772da20c384df51888f1fee9eaad15f3b3bb097b6ea18",
+      "source_bytes": 7755,
+      "stored": "flight/swarm_sources/perception/scripts/fly_takeoff.py",
+      "stored_sha256": "6ca28d5972b438291be772da20c384df51888f1fee9eaad15f3b3bb097b6ea18"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/scripts/judge_official_15s.py",
+      "source_sha256": "9b874e149aa16ec72e9b62c7d2dc1f93b3e49921f2d09aceb88f6c4134ed3bba",
+      "source_bytes": 8882,
+      "stored": "flight/swarm_sources/perception/scripts/judge_official_15s.py",
+      "stored_sha256": "9b874e149aa16ec72e9b62c7d2dc1f93b3e49921f2d09aceb88f6c4134ed3bba"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tests/test_frame_probe.py",
+      "source_sha256": "bce4027c77f1db7f761c1bc7084c23f2256227d61714ceca0485ff598bc4fbd1",
+      "source_bytes": 6925,
+      "stored": "flight/swarm_sources/perception/tests/test_frame_probe.py",
+      "stored_sha256": "bce4027c77f1db7f761c1bc7084c23f2256227d61714ceca0485ff598bc4fbd1"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tests/test_shared_inference.py",
+      "source_sha256": "22dd1a03337d87d305707f918329691e011c85681df0e597db2729ded6028e48",
+      "source_bytes": 9144,
+      "stored": "flight/swarm_sources/perception/tests/test_shared_inference.py",
+      "stored_sha256": "22dd1a03337d87d305707f918329691e011c85681df0e597db2729ded6028e48"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/calib_selfmask.py",
+      "source_sha256": "a7bd303b90c81b51681a75720dc39f9d6d59dd0657cb923be7dc64c9f1b99f94",
+      "source_bytes": 12839,
+      "stored": "flight/swarm_sources/perception/tools/calib_selfmask.py",
+      "stored_sha256": "a7bd303b90c81b51681a75720dc39f9d6d59dd0657cb923be7dc64c9f1b99f94"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/snap_frame.py",
+      "source_sha256": "b9b50e22a4a912e32d84587184032a7c23d4d9f847b96df136473a047093dfbf",
+      "source_bytes": 1328,
+      "stored": "flight/swarm_sources/perception/tools/snap_frame.py",
+      "stored_sha256": "b9b50e22a4a912e32d84587184032a7c23d4d9f847b96df136473a047093dfbf"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/test_red_slots.py",
+      "source_sha256": "8add31f797eb4ea97f405e7ad28133d72eee4918ef9ca54134d286b4229f76ab",
+      "source_bytes": 6576,
+      "stored": "flight/swarm_sources/perception/tools/test_red_slots.py",
+      "stored_sha256": "8add31f797eb4ea97f405e7ad28133d72eee4918ef9ca54134d286b4229f76ab"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/diag_geom.py",
+      "source_sha256": "6594f8f239901c17b37ccab000beaecbc6cde55fd36c5f0b500c20e31c801208",
+      "source_bytes": 3670,
+      "stored": "flight/swarm_sources/perception/tools/diag_geom.py",
+      "stored_sha256": "6594f8f239901c17b37ccab000beaecbc6cde55fd36c5f0b500c20e31c801208"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/m3_verify.py",
+      "source_sha256": "4d94301178fcc3acbdfd0fa149dbe617d87d86eb742dfae163a9a0edb58cf2b6",
+      "source_bytes": 14391,
+      "stored": "flight/swarm_sources/perception/tools/m3_verify.py",
+      "stored_sha256": "4d94301178fcc3acbdfd0fa149dbe617d87d86eb742dfae163a9a0edb58cf2b6"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/probe_target_report.py",
+      "source_sha256": "ce32ff969b253ae9b59bbd8ab6d9a80e9005e79e7c769cf836f1f7c5303e83ac",
+      "source_bytes": 6868,
+      "stored": "flight/swarm_sources/perception/tools/probe_target_report.py",
+      "stored_sha256": "ce32ff969b253ae9b59bbd8ab6d9a80e9005e79e7c769cf836f1f7c5303e83ac"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/hover_teleport.py",
+      "source_sha256": "fb571799cba9cf4c1ef23ff6fae9d6058f643df099a32c74b3fc3b26c28f2ea4",
+      "source_bytes": 17749,
+      "stored": "flight/swarm_sources/perception/tools/hover_teleport.py",
+      "stored_sha256": "fb571799cba9cf4c1ef23ff6fae9d6058f643df099a32c74b3fc3b26c28f2ea4"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/val_cm.py",
+      "source_sha256": "a2bbc4d041e6e2d251ecaef19da649f6ad7e371a8abefc7fc998259955f91421",
+      "source_bytes": 1957,
+      "stored": "flight/swarm_sources/perception/tools/val_cm.py",
+      "stored_sha256": "a2bbc4d041e6e2d251ecaef19da649f6ad7e371a8abefc7fc998259955f91421"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/test_assoc_gate.py",
+      "source_sha256": "a421a99984c26a87c6e9a9cfd9d34f76bc856f3fe3f416774a42b53d246bddc4",
+      "source_bytes": 3481,
+      "stored": "flight/swarm_sources/perception/tools/test_assoc_gate.py",
+      "stored_sha256": "a421a99984c26a87c6e9a9cfd9d34f76bc856f3fe3f416774a42b53d246bddc4"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/m5_dump_analyze.py",
+      "source_sha256": "259bb36f55be570b2f096e6c5b800792461413ad42dbf9a3e20e09a46e9f6c1f",
+      "source_bytes": 4468,
+      "stored": "flight/swarm_sources/perception/tools/m5_dump_analyze.py",
+      "stored_sha256": "259bb36f55be570b2f096e6c5b800792461413ad42dbf9a3e20e09a46e9f6c1f"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/fly_to_actor.py",
+      "source_sha256": "9eb0bfe0d9b61ff856c8ba3210d2ae7019c3a7451eb95db16b466b02004b248b",
+      "source_bytes": 19745,
+      "stored": "flight/swarm_sources/perception/tools/fly_to_actor.py",
+      "stored_sha256": "9eb0bfe0d9b61ff856c8ba3210d2ae7019c3a7451eb95db16b466b02004b248b"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/audit_brown_red.py",
+      "source_sha256": "f67000198311d17c52e490ed8b2f578052944ee720c2a6d680a6dfff91a5e54d",
+      "source_bytes": 3977,
+      "stored": "flight/swarm_sources/perception/tools/audit_brown_red.py",
+      "stored_sha256": "f67000198311d17c52e490ed8b2f578052944ee720c2a6d680a6dfff91a5e54d"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/diag_identity.py",
+      "source_sha256": "02c394e5d15421e8ec3b0e9b2823637914823361e8b863d11d3596ad20b4eeee",
+      "source_bytes": 3158,
+      "stored": "flight/swarm_sources/perception/tools/diag_identity.py",
+      "stored_sha256": "02c394e5d15421e8ec3b0e9b2823637914823361e8b863d11d3596ad20b4eeee"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/ht_watch.py",
+      "source_sha256": "c179e3b3a82b6b992dcf6bb3f48417a01a5122efd106d20b0bff6f0a26d05413",
+      "source_bytes": 3900,
+      "stored": "flight/swarm_sources/perception/tools/ht_watch.py",
+      "stored_sha256": "c179e3b3a82b6b992dcf6bb3f48417a01a5122efd106d20b0bff6f0a26d05413"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/swarm_sources/perception/tools/dual_check.py",
+      "source_sha256": "531fe13d72939f1f50d75b7b632041ec1953a6d4631481a85998140e4eed7513",
+      "source_bytes": 12433,
+      "stored": "flight/swarm_sources/perception/tools/dual_check.py",
+      "stored_sha256": "531fe13d72939f1f50d75b7b632041ec1953a6d4631481a85998140e4eed7513"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/actor_environment_bridge.py",
+      "source_sha256": "d7214b777ebb0ea7cc2ced7733e888defad868600e854d5f70f494a2b4b57595",
+      "source_bytes": 5931,
+      "stored": "flight/execution_sources/actor_environment_bridge.py",
+      "stored_sha256": "d7214b777ebb0ea7cc2ced7733e888defad868600e854d5f70f494a2b4b57595"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/prepare_radar_fleet.py",
+      "source_sha256": "4b2a4a0cf6c079da0bc1b027076e670e53aa02a0da8e11347293dc968a20bd81",
+      "source_bytes": 3673,
+      "stored": "flight/execution_sources/prepare_radar_fleet.py",
+      "stored_sha256": "4b2a4a0cf6c079da0bc1b027076e670e53aa02a0da8e11347293dc968a20bd81"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/city_swarm_run.py",
+      "source_sha256": "9d7f61c3e8c18ca140f5be7fbadb4fa832a3fee2eb53bd6f56c03498c0fbc6e9",
+      "source_bytes": 29569,
+      "stored": "flight/execution_sources/city_swarm_run.py",
+      "stored_sha256": "9d7f61c3e8c18ca140f5be7fbadb4fa832a3fee2eb53bd6f56c03498c0fbc6e9"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/judge_terminal.py",
+      "source_sha256": "672d08de637ff7e02cb486a093e47441f940918d16e750aeeb74e1b1a21acbe0",
+      "source_bytes": 1346,
+      "stored": "flight/execution_sources/judge_terminal.py",
+      "stored_sha256": "672d08de637ff7e02cb486a093e47441f940918d16e750aeeb74e1b1a21acbe0"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/radar_fleet_models.py",
+      "source_sha256": "3129b013345a6e953223b45c1200c3a703e35df7a27484602a52634ccc8bd5a2",
+      "source_bytes": 6570,
+      "stored": "flight/execution_sources/radar_fleet_models.py",
+      "stored_sha256": "3129b013345a6e953223b45c1200c3a703e35df7a27484602a52634ccc8bd5a2"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/fixture_contacts.py",
+      "source_sha256": "184bff8709d1fbe08c828233f4aba36f55ee1dca3ae6a28f4486883e45ec3557",
+      "source_bytes": 1300,
+      "stored": "flight/execution_sources/fixture_contacts.py",
+      "stored_sha256": "184bff8709d1fbe08c828233f4aba36f55ee1dca3ae6a28f4486883e45ec3557"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/six_radar_connectivity.py",
+      "source_sha256": "841ac51b5d4f8b8075da9e5f7dd06b3b605684c1dd350d6da29e101e13a1f8e5",
+      "source_bytes": 23891,
+      "stored": "flight/execution_sources/six_radar_connectivity.py",
+      "stored_sha256": "841ac51b5d4f8b8075da9e5f7dd06b3b605684c1dd350d6da29e101e13a1f8e5"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/start_city_judge.py",
+      "source_sha256": "29cfb4d8c505f02674f1bfb3963aa24f7795ffb258632aeadbdbd361c344f23d",
+      "source_bytes": 2634,
+      "stored": "flight/execution_sources/start_city_judge.py",
+      "stored_sha256": "29cfb4d8c505f02674f1bfb3963aa24f7795ffb258632aeadbdbd361c344f23d"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/camera_actor_probe.py",
+      "source_sha256": "67c3d756cef3d0f3bdb25092669fef9df2624c4464e485933f8df713c41d7239",
+      "source_bytes": 9958,
+      "stored": "flight/execution_sources/camera_actor_probe.py",
+      "stored_sha256": "67c3d756cef3d0f3bdb25092669fef9df2624c4464e485933f8df713c41d7239"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/six_swarm_probe.py",
+      "source_sha256": "8f1023ad5987685450e2d1440ed0f653a18241cf0c4a8ba744b97ad649db2581",
+      "source_bytes": 14699,
+      "stored": "flight/execution_sources/six_swarm_probe.py",
+      "stored_sha256": "8f1023ad5987685450e2d1440ed0f653a18241cf0c4a8ba744b97ad649db2581"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/build_namespaced_gimbal_overlay.py",
+      "source_sha256": "d6a3c3fb520a610d51891df0231619d90edb58fc71b192af3277788b204fa7ad",
+      "source_bytes": 5930,
+      "stored": "flight/execution_sources/build_namespaced_gimbal_overlay.py",
+      "stored_sha256": "d6a3c3fb520a610d51891df0231619d90edb58fc71b192af3277788b204fa7ad"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/flight_actor_probe.py",
+      "source_sha256": "f126d0b6c4d46113e62400f18046b04482dbceba5bde07d3ab28489bfb6512ed",
+      "source_bytes": 8595,
+      "stored": "flight/execution_sources/flight_actor_probe.py",
+      "stored_sha256": "f126d0b6c4d46113e62400f18046b04482dbceba5bde07d3ab28489bfb6512ed"
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/execution_sources/evidence_writer.py",
+      "source_sha256": "ac844fb0c1cf930d11a8c81eab7fc6b3980b38988c698da0afb21ba180b3101e",
+      "source_bytes": 1445,
+      "stored": "flight/execution_sources/evidence_writer.py",
+      "stored_sha256": "ac844fb0c1cf930d11a8c81eab7fc6b3980b38988c698da0afb21ba180b3101e"
+    }
+  ],
+  "external_full_logs": [
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/gzserver.log",
+      "sha256": "8d450c0a4f93286708565934f2531e605bb3a9731c86a222fd07a8d874aae179",
+      "bytes": 222618157
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/mavros.log",
+      "sha256": "adb06ffcf9d7d3c9bcd8a09e9b93f8b6d150b374e5fb006b300c6c6e297e07ef",
+      "bytes": 215969
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/px4_uav_2.log",
+      "sha256": "48dce82b55ea2d37710f81e92b9d42c850019c9b71d898d042921ea63fd0eab3",
+      "bytes": 2762
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/px4_uav_5.log",
+      "sha256": "abe04de97e8ae94335f7bc6afce3da4881db538d305cc5d15eac139b71685f2f",
+      "bytes": 2836
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/px4_uav_1.log",
+      "sha256": "d71a4f1a2c48cd7705812e7d7eb8324c8588a6b9fbc9a9d28033277736413fa7",
+      "bytes": 2947
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/px4_uav_3.log",
+      "sha256": "ecee7e62f7de348aef390d5ca0d2b79a28eb4efa82138ea5a4fa3df843688d61",
+      "bytes": 2836
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/px4_uav_4.log",
+      "sha256": "cd2d5960367818df16319e4e3ade14c164f1b7a05786e86e3d85a387e31ba3d0",
+      "bytes": 2836
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/px4_uav_6.log",
+      "sha256": "af640a4b19506aef593d4fcf1ac63b1bc2f6879a35fa8fb214d9255894da33e0",
+      "bytes": 2836
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_5.jsonl",
+      "sha256": "2ec2bf3927b9833e1fe85ff0e4043764c922d177fb34673668b7c67dd14a1466",
+      "bytes": 18165301
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_6.jsonl",
+      "sha256": "af9e5b422c5a28fc1b937dcf38315702fee87f757294775c37a5217ef2e723aa",
+      "bytes": 18695565
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_3.jsonl",
+      "sha256": "b9b75471c0abc004f70758246a4d5f608212fb7e662393fad3c95bfa95e0fa5c",
+      "bytes": 24404770
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_4.jsonl",
+      "sha256": "2270e80b8b96b8f3445839dbadbdbd5aaf59dd294bfa8444ce5566825eb3b50a",
+      "bytes": 16348530
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_2.jsonl",
+      "sha256": "735a3072439abef53042cbf6bf0696a13d8e7315b2148dc6aceb87e9600df92f",
+      "bytes": 23628733
+    },
+    {
+      "source": "/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159/flight/algorithm/navigation_uav_1.jsonl",
+      "sha256": "ca43c1a72fad1e730608b644c58936cfa16eaf4d074b2f89a653f153ff63d2f8",
+      "bytes": 26182744
+    }
+  ]
+}

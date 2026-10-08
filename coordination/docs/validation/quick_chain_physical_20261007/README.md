@@ -1,0 +1,11 @@
+# 接近后上报实体证据
+
+执行a857f02（主链5db5934），8159唯一一轮，199.916仿真秒，裁判1/6，一红已消除，未满600秒。完整来源目录/root/robocup_runs/quick_chain_v3_20261007/round_1_seed_8159。
+
+postrun_summary.json与blue_raw_truth_audit.json为派生诊断；原result、budget、源清单、judge日志保持原字节。当前原始异常实际来自通用信号处理器，具体信号未知，不能当作已证实Gazebo RPC超时。host_resume_event.xml是宿主低功耗恢复的原始Windows事件，与真实信号来源仍须区分。
+
+接触覆盖以city_contacts.log的累计CONTACT_OBSERVER_HEARTBEAT为准：50414帧、1930.52至2132.172；不是只用地面接触行的时间范围。覆盖轨迹、非地面接触0，只说明本段。
+
+archive_manifest.json逐文件记录选存文件和完整WSL大日志路径/字节SHA；gzip选存文件解压后应与source_sha256一致。执行源码快照保留，以swarm_source_manifest、execution_sources及executed_source_audit核对，原清单与派生核验不混用。postrun_tests.txt为收尾后725项检查，候选含中断分类及原速可选配置，未在这轮执行。
+
+observers五色精度、frames的实际红色原图来自只读观察器，不进入控制。临时diagnostic_views为空且捕获超时，不能充作原图证据。final_process_audit.json确认自有进程和端口已退出，不全局清场。

@@ -10,15 +10,6 @@ import queue
 import threading
 
 
-class OwnedRunInterrupted(RuntimeError):
-    """A signal to the owning launcher, distinct from a Gazebo RPC failure."""
-    def __init__(self, evidence):
-        self.evidence = dict(evidence)
-        reason = ('OWNED_WATCHDOG_TIMEOUT' if evidence['signal_name']=='SIGUSR1'
-                  and evidence['owned_watchdog_fired'] else 'OWNED_INTERRUPT_'+evidence['signal_name'])
-        super().__init__(reason)
-
-
 def bounded_query(function, timeout=5.):
     """A dead Gazebo service must not freeze the run's failure detector."""
     result = queue.Queue(maxsize=1)
@@ -449,8 +440,7 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
                     if len(query_retries)>prior_retries:
                         now=rospy.Time.now().to_sec()
                 except Exception as failure:
-                    error=('CITY_OWNED_INTERRUPT:' if isinstance(failure,OwnedRunInterrupted)
-                           else 'CITY_MODEL_STATE_FAILURE:')+str(failure)
+                    error='CITY_MODEL_STATE_FAILURE:'+str(failure)
                     break
                 if len(positions)==6:
                     sample=dict(sample_s=now,positions=positions)
@@ -459,8 +449,6 @@ def run(out, wiring, spawn, env, seconds, city, owned_health_check=None):
             if latest['left_actors']==[]:
                 break
             time.sleep(.05)
-    except OwnedRunInterrupted as failure:
-        error='CITY_OWNED_INTERRUPT:'+str(failure)
     finally:
         for subscription in subscriptions:
             subscription.unregister()

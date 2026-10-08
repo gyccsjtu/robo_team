@@ -1,0 +1,93 @@
+{
+  "executed_head": "a857f028d66e68d9a49d374c62cf46c34b35d9c6",
+  "run_id": "e388783c-653e-4c74-8a49-c43f73a302ac",
+  "official_eliminated": 1,
+  "left_actors": [
+    0,
+    1,
+    2,
+    3,
+    5
+  ],
+  "original_component_error": "CITY_MODEL_STATE_FAILURE:CHECK_INTERRUPTED_OR_WALL_TIMEOUT",
+  "classification": "OWNED_SIGNAL_INTERRUPTION_OR_WATCHDOG; exact signal absent from old handler, not proven RPC timeout",
+  "simulated_seconds": 199.9159999999997,
+  "trajectory_bounds": [
+    1932.112,
+    2131.736
+  ],
+  "trajectory_count": 978,
+  "non_ground_contacts": [],
+  "maximum_altitudes": {
+    "uav_1": 3.4446487142727356,
+    "uav_2": 3.198971246104673,
+    "uav_3": 3.022453082326539,
+    "uav_4": 2.9855424848378274,
+    "uav_5": 3.156730190950364,
+    "uav_6": 2.7304137863220177
+  },
+  "maximum_displacements": {
+    "uav_1": 58.60596201981272,
+    "uav_2": 69.6408349091727,
+    "uav_3": 34.72034561707052,
+    "uav_4": 124.00406010822893,
+    "uav_5": 38.685906618846225,
+    "uav_6": 92.23725874714174
+  },
+  "armed": [
+    "uav_1",
+    "uav_2",
+    "uav_3",
+    "uav_4",
+    "uav_5",
+    "uav_6"
+  ],
+  "original_images": 81,
+  "uploads": 192,
+  "image_colors": {
+    "red1": 81
+  },
+  "detected": {
+    "red": 179,
+    "blue": 130,
+    "white": 3,
+    "green": 7,
+    "brown": 16
+  },
+  "person_verified_raw_detections": {
+    "white": 1,
+    "green": 7
+  },
+  "rejects": {
+    "('red', 'verdict_hits')": 514,
+    "('red', 'verdict_static')": 129,
+    "('red', 'verdict_range')": 96,
+    "('red', 'verdict_height')": 40,
+    "('blue', 'verdict_hits')": 468,
+    "('green', 'verdict_hits')": 32,
+    "('blue', 'verdict_blue_identity')": 394,
+    "('blue', 'verdict_self')": 96,
+    "('blue', 'verdict_height')": 52,
+    "('brown', 'verdict_hits')": 292,
+    "('blue', 'verdict_range')": 302
+  },
+  "continuous_nonzero_command_count": 13110,
+  "continuous_nonzero_command_median": 1.1249568836220454,
+  "limit": "200-second partial run; no 600-second or six-target completion, contact evidence limited to covered trajectory. Rejection rows repeat old originals; counts are not image counts.",
+  "native_contact_coverage": {
+    "kind": "CONTACT_OBSERVER_HEARTBEAT",
+    "frames": 50414,
+    "first_sample_s": 1930.52,
+    "last_sample_s": 2132.172,
+    "maximum_sample_gap_s": 0.00400000000036,
+    "sonar_virtual_pairs": 142988,
+    "body_pairs": 50956
+  },
+  "contact_raw_log_rows": 1684,
+  "blue_raw_truth_audit": {
+    "aligned": 130,
+    "accurate": 28,
+    "accurate_within_22m": 0,
+    "limitation": "Diagnostic raw detections, not accepted visual evidence; no missing body proof or camera fields fabricated."
+  }
+}

@@ -180,3 +180,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s coordination/tests
 构建脚本需要官方ActorInfo消息包，默认路径或 `ACTOR_MSG_SOURCE`见脚本。当前运行依赖完整runtime `/root/robocup_runtime/stereo_20261002T140417Z`、CPU环境 `/root/robo_team_build/vision_env`、CUDA环境 `/root/robo_team_build/vision_cuda_20261003`及官方资源。换机器先核准这些依赖；不要照抄缺失路径或同时启动会全局清场的脚本。
 
 详细修改过程见 [implementation_progress_20261003.md](implementation_progress_20261003.md)；其中“当时正在运行/待验”的历史文字应结合本交接和最终失败归档阅读，不能当最新完成证明。
+# 2026-10-08最新状态
+
+快速主链v3已实现，执行a857f02的8159唯一一轮实际199.916秒、裁判1/6（一红）、六机真实移动、最高真实3.445米；50414帧原生接触覆盖轨迹，非地面接触0。原始通用信号中断被旧代码归成查询失败，具体信号未保存，不能说是已证实Gazebo故障。收尾后新增信号/看门狗分类取证及现有入口CITY_PHYSICS_RATE=250原速可选配置，725项检查通过，未再实体执行。视觉v3、共享metadata2、任务/路线/STOP/旧占用语义保持统一快照；两红仍只上传red。实际600秒6/6未完成。见[完整收尾、问题及计划](quick_chain_postrun_20261008.md)、[验证原件](validation/quick_chain_physical_20261007/README.md)。原budget不改，唯一预算已用完，自有进程退出，不原样重跑。下方此前记录保留为历史。

@@ -1,0 +1,4 @@
+[WARN] [1791424357.990003, 2132.196000]: Independent truth sample unavailable; retrying
+[WARN] [1791424363.054469, 2132.196000]: unable to communicate with ROS Master, registrations are now out of sync
+[WARN] [1791424363.058091, 2132.196000]: unable to communicate with ROS Master, registrations are now out of sync
+[WARN] [1791424363.060241, 2132.196000]: unable to communicate with ROS Master, registrations are now out of sync
