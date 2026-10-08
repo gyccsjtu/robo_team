@@ -7,7 +7,10 @@ selected classes without an overlapping person detection in this exact image.
 2026-10-08 (N12, WorkBuddy): evidence enrichment only, judgement unchanged.
 - verified_boxes entries gain support fields (which person box, its conf, the
   actual IoU, per-frame person count). `frame_verified` still keys on
-  (cls, xyxy) only, so v2 consumers keep working on the richer dicts.
+  (cls, xyxy) only, so in-process v2-style dict consumers keep working.
+  NOTE: this does NOT make the wire protocol backward compatible - a shared
+  client that only accepts verification_version in (1,2) drops v3 replies
+  entirely; service and all six clients must upgrade together.
 - New `evidence` list: every colour box that entered the verifier path, with a
   reject_reason when it failed proof. New `rejected_boxes` is the failed
   proof-class subset. Neither list feeds any filtering decision.
@@ -38,13 +41,26 @@ def overlap(first, second):
     area_b=max(0.,b[2]-b[0])*max(0.,b[3]-b[1])
     intersection=max(0.,min(a[2],b[2])-max(a[0],b[0]))*max(0.,min(a[3],b[3])-max(a[1],b[1]))
     union=area_a+area_b-intersection
-    return intersection/union if union>0 else 0.
+    # float(): torch/numpy element arithmetic above yields 0-d tensors; a bare
+    # return leaked a Tensor into verified_boxes and killed json.dumps in the
+    # shared service reply (codex review #1, live-reproduced 2026-10-08).
+    return float(intersection/union) if union>0 else 0.
 
 
 # Classes whose shirt colour is actually checked inside this module (red=0,
 # blue=2). For green(1)/white(3) the torso check happens in perception_real,
 # so `shirt_verified=True` here only means "not vetoed here", never "proved".
 SHIRT_CHECKED_HERE = (0, 2)
+
+
+def _to_float_list(xyxy):
+    """N12 fix: ultralytics boxes may hold torch Tensors or numpy values;
+    json.dumps on a list(Tensor) raises TypeError inside the shared service
+    reply. Convert element-wise to plain Python floats."""
+    try:
+        return [float(v) for v in xyxy]
+    except (TypeError, ValueError):
+        return None
 
 
 def _reject_reason(color_check, is_proof_class, matched, shirt_verified):
@@ -108,7 +124,7 @@ class PersonVerifier:
                 cid=int(box.cls)
                 if cid not in self.classes and cid not in self.proof_classes:
                     self.evidence.append(dict(
-                        cls=cid, xyxy=[float(v) for v in box.xyxy[0]],
+                        cls=cid, xyxy=_to_float_list(box.xyxy[0]),
                         color_conf=float(box.conf), n_person_boxes=None,
                         best_person_iou=None, best_person_conf=None,
                         best_person_xyxy=None, in_classes_filter=False,
@@ -150,21 +166,21 @@ class PersonVerifier:
                 if key is not None:
                     self.verified_boxes.append(dict(
                         cls=key[0], xyxy=list(key[1]),
-                        person_xyxy=(list(people[best_idx][0]) if best_idx>=0 else None),
-                        person_conf=(people[best_idx][1] if best_idx>=0 else None),
-                        person_iou=best_iou,
+                        person_xyxy=(_to_float_list(people[best_idx][0]) if best_idx>=0 else None),
+                        person_conf=(float(people[best_idx][1]) if best_idx>=0 else None),
+                        person_iou=float(best_iou),
                         n_person_boxes=len(people),
                         shirt_fractions=shirt_fractions,
                         shirt_checked_here=shirt_checked_here,
                         reject_reason=None))
             evidence=dict(
                 cls=cid,
-                xyxy=[float(v) for v in box.xyxy[0]],
+                xyxy=_to_float_list(box.xyxy[0]),
                 color_conf=float(box.conf),
                 n_person_boxes=len(people),
-                best_person_iou=best_iou,
-                best_person_conf=(people[best_idx][1] if best_idx>=0 else None),
-                best_person_xyxy=(list(people[best_idx][0]) if best_idx>=0 else None),
+                best_person_iou=float(best_iou),
+                best_person_conf=(float(people[best_idx][1]) if best_idx>=0 else None),
+                best_person_xyxy=(_to_float_list(people[best_idx][0]) if best_idx>=0 else None),
                 in_classes_filter=(cid in self.classes),
                 is_proof_class=is_proof_class,
                 matched=matched,

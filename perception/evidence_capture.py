@@ -51,6 +51,10 @@ class EvidenceCapture(object):
         self._dropped = 0
         self._written = False
 
+    def params(self):
+        """Model SHAs, thresholds and run id merged into every index row."""
+        return self._params()
+
     def _params(self):
         return dict(pr_conf=os.environ.get("PR_CONF", ""),
                     pr_person_verify_conf=os.environ.get("PR_PERSON_VERIFY_CONF", ""),

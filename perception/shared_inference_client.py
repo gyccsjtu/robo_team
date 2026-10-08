@@ -135,7 +135,9 @@ class SharedInferenceClient:
         # N12: v3 adds per-box support detail inside verified_person_boxes and
         # a separate verified_person_rejected list. v1/v2 replies stay valid.
         proof_supported=type(version) is int and version in (1,2,3)
-        colors=('green','white','red') if version in (2,3) else ('green','white')
+        # N12 fix (codex review #4): blue was missing from the shared colour
+        # list (pre-existing gap); service and PersonVerifier both emit blue.
+        colors=('green','white','red','blue') if version in (2,3) else ('green','white')
         return boxes, dict(shared=True, infer_s=reply.get("infer_s"),
                            queue_s=reply.get("queue_s"),
                            verification_version=(version if proof_supported else None),

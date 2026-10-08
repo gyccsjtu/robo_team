@@ -476,7 +476,12 @@ _CSV = logger("perception_%s" % UAV, [
 _FRAMES = logger("frame_probe_%s" % UAV, FRAME_FIELDS)
 
 
-_EVIDENCE = EvidenceCapture(UAV)
+# N12 fix (codex review #2): two bounded capture channels — failures AND a
+# sampled stream of proof-passing candidates. The 13 "verified but wrong"
+# green candidates live in the second channel; the first alone can never
+# capture them.
+_EVIDENCE_FAIL = EvidenceCapture(UAV)
+_EVIDENCE_PASS = EvidenceCapture(UAV + "_pass", per_minute=2, total=60)
 
 
 def _person_detail(details, cid, xyxy):
@@ -507,7 +512,8 @@ def _person_detail(details, cid, xyxy):
                 n_person_boxes=best.get('n_person_boxes'),
                 reject_reason=best.get('reject_reason'),
                 matched=best.get('matched'),
-                shirt_fractions=best.get('shirt_fractions'))
+                shirt_fractions=best.get('shirt_fractions'),
+                person_xyxy=best.get('person_xyxy', best.get('best_person_xyxy')))
 # 调试快照**另开一条话题**：它原来和契约挤在同一条 topic 上，形状完全不同。
 # 调试通道与契约通道必须分开，否则要么队友解析不了、要么我自己的复盘脚本全废。
 DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
@@ -1403,22 +1409,29 @@ def main():
                             person_conf=(_pd or {}).get('person_conf'),
                             n_person_boxes=(_pd or {}).get('n_person_boxes'),
                             reject_reason=(_pd or {}).get('reject_reason'))
-                        # N12: bounded capture of suspicious candidates — passed
-                        # the colour gate close-in but failed person proof.
+                        # N12 (fixed per codex review): capture BOTH failure
+                        # candidates and a bounded sample of proof-passing ones;
+                        # every row carries model SHAs/thresholds/run id and the
+                        # supporting person box when one exists.
                         try:
+                            _common = dict(
+                                cls=_color, color_conf=round(float(conf), 3),
+                                color_xyxy=[round(float(v), 1) for v in (x1, y1, x2, y2)],
+                                person_iou=(_pd or {}).get('person_iou'),
+                                person_conf=(_pd or {}).get('person_conf'),
+                                n_person_boxes=(_pd or {}).get('n_person_boxes'),
+                                reject_reason=(_pd or {}).get('reject_reason'),
+                                person_xyxy=(_pd or {}).get('person_xyxy'),
+                                shirt_fractions=(_pd or {}).get('shirt_fractions'),
+                                range_m=round(float(rng), 2),
+                                xyz=[round(wx, 2), round(wy, 2)],
+                                image_stamp=frame_stamp,
+                                path=('shared' if not _local_inference else 'local'),
+                                **_EVIDENCE_FAIL.params())
                             if (not _person_proof) and rng <= 22.0 and conf >= 0.40:
-                                _EVIDENCE.capture(img, dict(
-                                    cls=_color, color_conf=round(float(conf), 3),
-                                    color_xyxy=[round(float(v), 1) for v in (x1, y1, x2, y2)],
-                                    person_iou=(_pd or {}).get('person_iou'),
-                                    person_conf=(_pd or {}).get('person_conf'),
-                                    n_person_boxes=(_pd or {}).get('n_person_boxes'),
-                                    reject_reason=(_pd or {}).get('reject_reason'),
-                                    shirt_fractions=(_pd or {}).get('shirt_fractions'),
-                                    range_m=round(float(rng), 2),
-                                    xyz=[round(wx, 2), round(wy, 2)],
-                                    image_stamp=frame_stamp,
-                                    path=('shared' if not _local_inference else 'local')))
+                                _EVIDENCE_FAIL.capture(img, _common)
+                            elif _person_proof and rng <= 22.0:
+                                _EVIDENCE_PASS.capture(img, _common)
                         except Exception as _ev_err:
                             print("[pr] evidence capture error: %s" % _ev_err, flush=True)
 

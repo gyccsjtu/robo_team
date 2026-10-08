@@ -286,5 +286,46 @@ class Passthrough(unittest.TestCase):
         self.assertIsNone(v.evidence[0]['n_person_boxes'])
 
 
+
+
+class SerializationRegression(unittest.TestCase):
+    """Codex review #1: support boxes built from ultralytics xyxy (numpy /
+    torch Tensor) must be JSON-serializable, or the shared service reply
+    dies with TypeError right when a correct proof exists."""
+
+    def test_verified_boxes_json_serializable_with_numpy_boxes(self):
+        import json
+        install_fake_jersey(shirt_supported=True)
+        people = [(0.9, np.array([0.0, 0.0, 20.0, 80.0]))]   # ndarray, like real boxes
+        v = make_verifier(people, classes=(1,), proof_classes=(1,),
+                          color_check=True)
+        v.filter_boxes(None, [box(1, .9, (2.0, 5.0, 18.0, 78.0))])
+        self.assertEqual(len(v.verified_boxes), 1)
+        # must not raise TypeError: Object of type Tensor/float64 is not JSON serializable
+        blob = json.dumps(v.verified_boxes)
+        self.assertIn('person_xyxy', blob)
+        data = json.loads(blob)
+        self.assertEqual(data[0]['person_xyxy'], [0.0, 0.0, 20.0, 80.0])
+        remove_fake_jersey()
+
+    def test_evidence_json_serializable_with_numpy_boxes(self):
+        import json
+        people = [(0.9, np.array([100.0, 0.0, 120.0, 80.0]))]
+        v = make_verifier(people, classes=(1,), proof_classes=(1,))
+        v.filter_boxes(None, [box(1, .8, (10.0, 10.0, 30.0, 90.0))])
+        json.dumps(v.evidence)          # must not raise
+        json.dumps(v.rejected_boxes)    # must not raise
+
+    def test_person_xyxy_exposed_for_capture(self):
+        install_fake_jersey(shirt_supported=True)
+        people = [(0.9, np.array([0.0, 0.0, 20.0, 80.0]))]
+        v = make_verifier(people, classes=(1,), proof_classes=(1,),
+                          color_check=True)
+        v.filter_boxes(None, [box(1, .9, (2.0, 5.0, 18.0, 78.0))])
+        ev = v.evidence[0]
+        self.assertEqual(ev['best_person_xyxy'], [0.0, 0.0, 20.0, 80.0])
+        remove_fake_jersey()
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
