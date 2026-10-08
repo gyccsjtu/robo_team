@@ -548,6 +548,8 @@ def on_img(msg):
         _latest["stamp"] = msg.header.stamp.to_sec()
         _latest["recv_wall"] = time.time()
         _latest["receive_age_s"] = rospy.Time.now().to_sec() - _latest["stamp"]
+        _latest["header"] = dict(frame_id=str(msg.header.frame_id),
+                                 seq=int(msg.header.seq))
 
 
 def on_camera_info(msg):
@@ -564,7 +566,7 @@ def on_camera_info(msg):
 _camera_ready = False
 
 
-def pose_at_stamp(stamp, fallback):
+def pose_at_stamp(stamp, fallback, evidence=None):
     """Estimate camera translation at an image ROS timestamp.
 
     Gazebo's GetLinkState service returns the current pose only. A short history
@@ -590,7 +592,22 @@ def pose_at_stamp(stamp, fallback):
     # Project the small-interval matrix blend back to a proper rotation.
     left, _, right = np.linalg.svd((1.-alpha)*first[4]+alpha*second[4])
     correction = np.diag([1., 1., np.linalg.det(left@right)])
-    return xyz+(left@correction@right,)
+    rotation = left@correction@right
+    if evidence is not None:
+        # Diagnostic only: copy the exact samples chosen for this image, while
+        # keeping the existing alignment and control result unchanged.
+        def sample_record(sample):
+            row = dict(sample_s=float(sample[0]),
+                       camera_xyz=[float(v) for v in sample[1:4]],
+                       camera_rotation=sample[4].reshape(-1).tolist())
+            if len(sample) > 5:
+                row['service'] = dict(sample[5])
+            return row
+        evidence.update(image_s=float(stamp), first=sample_record(first),
+                        second=sample_record(second), rotation_alpha=float(alpha),
+                        camera_xyz=[float(v) for v in xyz],
+                        camera_rotation=rotation.reshape(-1).tolist())
+    return xyz+(rotation,)
 
 
 def person_likelihood(h):
@@ -1091,7 +1108,13 @@ def main():
             rotation = quat_to_R(q.x, q.y, q.z, q.w)
             offset = rotation @ CAM_OFF_BL
             sample = ((before+after)*.5, pose.position.x+offset[0],
-                      pose.position.y+offset[1], pose.position.z+offset[2], rotation)
+                      pose.position.y+offset[1], pose.position.z+offset[2], rotation,
+                      dict(before_s=float(before), after_s=float(after),
+                           link_name=str(response.link_state.link_name),
+                           reference_frame=str(response.link_state.reference_frame),
+                           link_xyz=[float(pose.position.x), float(pose.position.y),
+                                     float(pose.position.z)],
+                           link_quaternion_xyzw=[float(q.x), float(q.y), float(q.z), float(q.w)]))
             with _pose_history_lock:
                 if _pose_history and sample[0] <= _pose_history[-1][0]:
                     return
@@ -1186,6 +1209,9 @@ def main():
             with _lock:
                 img = None if _latest["img"] is None else _latest["img"].copy()
                 frame_stamp = _latest["stamp"]
+                image_header = dict(_latest.get('header', {}))
+                image_recv_wall = _latest.get('recv_wall')
+                image_receive_age_s = _latest.get('receive_age_s')
             frame_age = max(0.0, now - frame_stamp) if frame_stamp > 0.0 else None
             if (img is not None and _camera_ready and img.shape[:2] == (IMG_H, IMG_W)
                     and frame_stamp > _processed_image_stamp and 0 <= now-frame_stamp <= 1.):
@@ -1204,8 +1230,15 @@ def main():
                     px, py, pz = px + _off[0], py + _off[1], pz + _off[2]
                     # 相机水平偏航（视差判据要用）：取旋转矩阵第一列的水平分量
                     yaw_cam = math.atan2(R[1, 0], R[0, 0])
+                    frame_binding = dict(schema_version=1, image_header=image_header,
+                        image_topic=CAM_TOPIC, configured_link=CAM_LINK,
+                        camera_info_topic=CAM_INFO_TOPIC,
+                        camera_offset_link=CAM_OFF_BL.tolist(),
+                        image_recv_wall=image_recv_wall, image_receive_age_s=image_receive_age_s,
+                        intrinsics=[float(FX), float(FY), float(CX), float(CY)],
+                        size=[int(IMG_W), int(IMG_H)])
                     px, py, pz, R = pose_at_stamp(
-                        frame_stamp, (px, py, pz, R))
+                        frame_stamp, (px, py, pz, R), evidence=frame_binding)
                     yaw_cam = math.atan2(R[1, 0], R[0, 0])
                     uav = (px, py, yaw_cam)
                     uav_last = (px, py)          # 供清理段判"离飞机过远"
@@ -1426,6 +1459,8 @@ def main():
                                 range_m=round(float(rng), 2),
                                 xyz=[round(wx, 2), round(wy, 2)],
                                 image_stamp=frame_stamp,
+                                camera_binding=frame_binding,
+                                effective_conf=float(CONF),
                                 path=('shared' if not _local_inference else 'local'),
                                 **_EVIDENCE_FAIL.params())
                             if (not _person_proof) and rng <= 22.0 and conf >= 0.40:

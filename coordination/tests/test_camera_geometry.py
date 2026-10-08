@@ -42,6 +42,86 @@ class CameraGeometryTests(unittest.TestCase):
         self.assertAlmostEqual(xyz_rotation[0], 20.3)
         np.testing.assert_allclose(xyz_rotation[3], np.eye(3))
 
+    def test_binding_records_actual_bracket_and_interpolated_rotation(self):
+        import json
+        angle = .2
+        rotated = np.array([[np.cos(angle), -np.sin(angle), 0.],
+                            [np.sin(angle), np.cos(angle), 0.], [0., 0., 1.]])
+        history = [(10., 0., 0., 4., np.eye(3),
+                    dict(before_s=9.99, after_s=10.01, link_name='uav2::camera')),
+                   (10.2, .4, 0., 4., rotated,
+                    dict(before_s=10.19, after_s=10.21, link_name='uav2::camera')),
+                   (10.4, .8, 0., 4., rotated)]
+        align = self.actual_pose_alignment(history)
+        evidence = dict(schema_version=1)
+        actual = align(10.1, None, evidence=evidence)
+        unchanged = align(10.1, None)
+        self.assertEqual(actual[:3], unchanged[:3])
+        np.testing.assert_allclose(actual[3], unchanged[3])
+        self.assertEqual(evidence['first']['sample_s'], 10.)
+        self.assertEqual(evidence['second']['sample_s'], 10.2)
+        self.assertEqual(evidence['first']['service']['link_name'], 'uav2::camera')
+        np.testing.assert_allclose(evidence['camera_rotation'], actual[3].reshape(-1))
+        json.dumps(evidence, allow_nan=False)
+
+    def test_rejected_alignment_does_not_fabricate_binding(self):
+        history = [(10., 0., 0., 4., np.eye(3)), (10.2, .4, 0., 4., np.eye(3))]
+        evidence = {}
+        self.assertIsNone(self.actual_pose_alignment(history)(9., None, evidence=evidence))
+        self.assertEqual(evidence, {})
+
+    def test_old_pose_samples_remain_compatible_with_optional_binding(self):
+        history = [(10., 0., 0., 4., np.eye(3)), (10.2, .4, 0., 4., np.eye(3))]
+        evidence = {}
+        self.actual_pose_alignment(history)(10.1, None, evidence=evidence)
+        self.assertNotIn('service', evidence['first'])
+
+    def test_image_callback_copies_original_header_with_image_timestamp(self):
+        from types import SimpleNamespace as NS
+        source = Path(__file__).parents[2]/'perception/perception_real.py'
+        function = next(n for n in ast.parse(source.read_text(encoding='utf-8')).body
+                        if isinstance(n, ast.FunctionDef) and n.name == 'on_img')
+        latest = {}
+        image = np.zeros((2, 3, 3), dtype=np.uint8)
+        scope = dict(_lock=threading.Lock(), _latest=latest,
+                     CvBridge=lambda: NS(imgmsg_to_cv2=lambda msg, encoding: image),
+                     time=NS(time=lambda: 1000.),
+                     rospy=NS(Time=NS(now=lambda: NS(to_sec=lambda: 10.3))))
+        exec(compile(ast.Module(body=[function], type_ignores=[]), str(source), 'exec'), scope)
+        header = NS(seq=7, frame_id='uav_3/cgo3_camera_optical_frame',
+                    stamp=NS(to_sec=lambda: 10.1))
+        scope['on_img'](NS(header=header))
+        header.frame_id = 'uav_1/other'
+        self.assertEqual(latest['header'], dict(seq=7, frame_id='uav_3/cgo3_camera_optical_frame'))
+        self.assertEqual(latest['stamp'], 10.1)
+        self.assertIs(latest['img'], image)
+
+    def test_actual_pose_sampler_keeps_service_interval_and_link_identity(self):
+        from types import SimpleNamespace as NS
+        source = Path(__file__).parents[2]/'perception/perception_real.py'
+        function = next(n for n in ast.walk(ast.parse(source.read_text(encoding='utf-8')))
+                        if isinstance(n, ast.FunctionDef) and n.name == '_sample_camera_pose')
+        times = iter([10., 10.04])
+        history = []
+        pose = NS(position=NS(x=1., y=2., z=4.), orientation=NS(x=0., y=0., z=0., w=1.))
+        response = NS(success=True, link_state=NS(pose=pose,
+                      link_name='typhoon_h480_2::cgo3_camera_link', reference_frame='world'))
+        scope = dict(pose_sampler=lambda link, reference: response,
+                     CAM_LINK=response.link_state.link_name, CAM_OFF_BL=np.array([0.,0.,-.162]),
+                     quat_to_R=lambda *q: np.eye(3), _pose_history=history,
+                     _pose_history_lock=threading.Lock(),
+                     rospy=NS(Time=NS(now=lambda: NS(to_sec=lambda: next(times))),
+                              logwarn_throttle=lambda *args: self.fail(str(args))))
+        exec(compile(ast.Module(body=[function], type_ignores=[]), str(source), 'exec'), scope)
+        scope['_sample_camera_pose'](None)
+        self.assertEqual(len(history), 1)
+        self.assertAlmostEqual(history[0][0], 10.02)
+        self.assertAlmostEqual(history[0][3], 3.838)
+        self.assertEqual(history[0][5]['link_xyz'], [1.,2.,4.])
+        self.assertEqual(history[0][5]['before_s'], 10.)
+        self.assertEqual(history[0][5]['after_s'], 10.04)
+        self.assertEqual(history[0][5]['reference_frame'], 'world')
+
     def test_missing_history_never_substitutes_current_pose_for_old_image(self):
         pose = (1.,2.,4.,np.eye(3))
         for history in ([], [(10.,)+pose]):
