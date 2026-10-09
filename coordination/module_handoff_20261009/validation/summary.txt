@@ -1,0 +1,8 @@
+Overall offline/source verification: PASS
+Selected offline pure-module tests and extracted actual adapter methods; no ROS/PX4/Gazebo execution, six-aircraft flight, or 3D safety validation.
+Source manifest before/after tests: PASS / PASS
+Tests: 222 / 222; failures=0 errors=0 skipped=0
+radar: PASS (71 / 71 tests)
+authority: PASS (88 / 88 tests)
+perception: PASS (63 / 63 tests)
+Unperformed checks are not PASS; see summary.json for details.

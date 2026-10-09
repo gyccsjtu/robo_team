@@ -1,0 +1,8 @@
+# 动态调整协同参数服务
+# 用于运行时修改协同算法参数
+
+string[] keys  # 要修改的参数键列表
+float64[] values  # 对应的参数值
+---
+bool success  # 是否成功
+string message  # 消息

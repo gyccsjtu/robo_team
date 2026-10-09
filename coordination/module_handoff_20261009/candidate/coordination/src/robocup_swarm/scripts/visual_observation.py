@@ -1,0 +1,67 @@
+"""Pure schema-2/3 evidence fence; estimates cannot refresh observations."""
+import math
+
+TAG_TO_TID = dict(green='t0', blue='t1', brown='t2', white='t3', red1='t5', red2='t4')
+
+
+class VisualEvidence:
+    def __init__(self, run_id, fleet):
+        if not run_id or not fleet:
+            raise ValueError('Explicit run and fleet required')
+        self.run_id, self.fleet = run_id, tuple(fleet)
+        self.sequences, self.stamps, self.last_s = {}, {}, 0.
+
+    def receive(self, message, now):
+        required = {'schema_version', 'run_id', 'uav_id', 'seq', 'sample_s',
+                    'target_id', 'frame_id', 'xyz', 'confidence', 'observation_id'}
+        try:
+            version = message['schema_version']
+            if type(version) is not int or version not in (2,3,4,5,6,7):
+                return None
+            if version in (4,5,6,7):
+                required |= {'evidence_kind'}
+                if message.get('evidence_kind') != 'navigation_candidate':
+                    return None
+            if version in (5,6,7):
+                required |= {'motion_identity_verified'}
+                if type(message.get('motion_identity_verified')) is not bool:
+                    return None
+            if version == 6:
+                required |= {'candidate_reason','person_hits','track_hits'}
+                if (message.get('target_id') != 'white'
+                        or message.get('candidate_reason') != 'white_early_proof'
+                        or message.get('person_frame_verified') is not True
+                        or message.get('motion_identity_verified') is not False
+                        or any(type(message.get(k)) is not int or message[k] < 2
+                               for k in ('person_hits','track_hits'))):
+                    return None
+            if version == 7:
+                required |= {'candidate_reason','person_hits','track_hits','approach_motion_verified'}
+                if (message.get('target_id')!='blue'
+                        or message.get('candidate_reason')!='blue_approach_motion'
+                        or message.get('person_frame_verified') is not True
+                        or message.get('approach_motion_verified') is not True
+                        or any(type(message.get(k)) is not int or message[k]<2
+                               for k in ('person_hits','track_hits'))):return None
+            if version in (3,4,5,6,7):
+                required |= {'camera_xyz', 'person_frame_verified'}
+                camera = message.get('camera_xyz')
+                if (not isinstance(camera,list) or len(camera) != 3
+                        or any(type(v) not in (int,float) or not math.isfinite(v) for v in camera)
+                        or type(message.get('person_frame_verified')) is not bool):
+                    return None
+            uid, tag = message['uav_id'], message['target_id']
+            seq, stamp, confidence, xyz = message['seq'], message['sample_s'], message['confidence'], message['xyz']
+            if (set(message) != required
+                    or message['run_id'] != self.run_id or uid not in self.fleet or tag not in TAG_TO_TID
+                    or message['frame_id'] != 'world_enu' or type(seq) is not int or seq <= self.sequences.get(uid, 0)
+                    or not isinstance(xyz, list) or len(xyz) != 3
+                    or any(type(v) not in (int, float) or not math.isfinite(v) for v in (*xyz, confidence, stamp, now))
+                    or not 0 <= confidence <= 1 or not 0 <= now-stamp <= 1 or now < self.last_s
+                    or stamp <= self.stamps.get((uid, tag), -1.)
+                    or message['observation_id'] != '%s:%s:%d' % (self.run_id, uid, seq)):
+                return None
+        except (TypeError, KeyError, ValueError):
+            return None
+        self.sequences[uid], self.stamps[(uid, tag)], self.last_s = seq, stamp, now
+        return dict(message)

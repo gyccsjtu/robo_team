@@ -1,0 +1,2 @@
+# Version used for the recorded offline geometry tests.
+numpy==2.3.5

@@ -1,0 +1,1855 @@
+{
+  "schema_version": 1,
+  "repository_url": "https://github.com/gyccsjtu/robo_team",
+  "baseline_commit": "d4976a2cb4f4dc8212e094839d31f019a0a762d8",
+  "candidate_commit": "f4050badc03373329c03923903a640b7859aee16",
+  "exported_file_count": 307,
+  "packaging_markers": [
+    "CATKIN_IGNORE",
+    "COLCON_IGNORE"
+  ],
+  "files": [
+    {
+      "path": "coordination/docs/allocation_geometry_screen_v1.md",
+      "bytes": 1205,
+      "sha256": "05dfed9f7f6ed835d36792fa435c00dc54a86ebb49e4aecb3705ef7f01e26f31",
+      "git_blob_oid": "7ae3357da420d8453ebf43e4c5142ee09f056d10"
+    },
+    {
+      "path": "coordination/docs/bounded_escape_integration_20261007.md",
+      "bytes": 3616,
+      "sha256": "d8271de27bee1274b8a3aa7caa9853bdba9c148f336f6d918237104293923855",
+      "git_blob_oid": "011464a6f7dd2af926911cc223435e2a12402ceb"
+    },
+    {
+      "path": "coordination/docs/fleet_motion_contract_v1.md",
+      "bytes": 3001,
+      "sha256": "28f8a0848197679027e1ae803356a109a37969896eb6e945bc4defdc172f2521",
+      "git_blob_oid": "13c861ea909a9f5bc9ed5d35981dcf0bc0d7f324"
+    },
+    {
+      "path": "coordination/docs/online_radar_planning_v1.md",
+      "bytes": 2666,
+      "sha256": "a1bd63565f440b46f5439f490e76a3a35a7ce0698f82f7b5287138b0a78177f7",
+      "git_blob_oid": "3a5b3dd57abb7d8e30771a96d93a461853142207"
+    },
+    {
+      "path": "coordination/docs/position_brake_v1.md",
+      "bytes": 1680,
+      "sha256": "e8074a5615de055b54114f73dcafa43a04cddb5fa4629d86998360e217fa87f4",
+      "git_blob_oid": "55a29e70eba5830d268ff4c3d661a404b94355af"
+    },
+    {
+      "path": "coordination/docs/radar_fleet_wiring_v1.md",
+      "bytes": 2133,
+      "sha256": "c0f6e4e4f20c1103c1eea7d2350e31dfad4ccc407820d55b147ec345b9a5bd9b",
+      "git_blob_oid": "cf38fe6df33fd33c162c29cedc9468b1f9a77a97"
+    },
+    {
+      "path": "coordination/docs/radar_observed_map_v1.md",
+      "bytes": 2201,
+      "sha256": "6965d0ca5e66886ca235e72777e6d381f76f341cdfd194cb3a62ee8fea63da85",
+      "git_blob_oid": "d940bd98417928c2f6202b26794796aa1ca3e5a5"
+    },
+    {
+      "path": "coordination/docs/radar_velocity_contract_v1.md",
+      "bytes": 3190,
+      "sha256": "00ae055e024be97afda4d97fc3fb29678afb6a1739a83d3670de50d89e92801f",
+      "git_blob_oid": "07f1fcd39fd7e27b9f08389ca4d1cb150fa688b6"
+    },
+    {
+      "path": "coordination/docs/red_matching_organizer_20261003.md",
+      "bytes": 2981,
+      "sha256": "35f70ac6f46770f7617ad237215835a803a768235bd9036f6b62ff3c7d2fc5f6",
+      "git_blob_oid": "7b3ac430ebbc41357395cfc8770370e4482b0b22"
+    },
+    {
+      "path": "coordination/docs/route_reservation_v1.md",
+      "bytes": 10922,
+      "sha256": "e731d4bada46d611663449406be4bfb791706b2b7cbcfb76b336fca735e1ba2c",
+      "git_blob_oid": "95e627b07a7f2b49779ed27524f6a334fc6b7fc5"
+    },
+    {
+      "path": "coordination/docs/search_completion_contract_v1.md",
+      "bytes": 1172,
+      "sha256": "04b2d76705589eaf1ab43b4f42494c6b342eaad5e4ee00c190dad387f5763921",
+      "git_blob_oid": "d19f230d48662dfdea1a6dca1e383140dad68d3b"
+    },
+    {
+      "path": "coordination/docs/search_lease_contract_v2.md",
+      "bytes": 1968,
+      "sha256": "9ae9212fa970a188bb0d065498990fd80c51812a9852e4aff3d7dec0fd7a8e84",
+      "git_blob_oid": "e5bd6e83cf6711812efcef98eba20c6ad8f12a79"
+    },
+    {
+      "path": "coordination/docs/search_observation_v1.md",
+      "bytes": 6534,
+      "sha256": "0fa5a6d1bc486a384a69cde1a876e0e504cc78d56f2c6cba8192ff696c63421c",
+      "git_blob_oid": "d4652f9c737fdc00be8ae32cd070f7ac57a49614"
+    },
+    {
+      "path": "coordination/docs/task_authority_v2.md",
+      "bytes": 10814,
+      "sha256": "55c226b2f0e766c2af979a7d3473f630143ba45a344fd0ef66c279fdc0237cfd",
+      "git_blob_oid": "531cb60c6b75741dc874c0cf20d3a16dca9b6d0d"
+    },
+    {
+      "path": "coordination/docs/visual_observation_v2.md",
+      "bytes": 9490,
+      "sha256": "8fc12618fae3ab2e8a854dc1dbaea95c23fcddf46e5bf63ed664240b5e4121a2",
+      "git_blob_oid": "d7c398629e16e98d3261ce5e516843e0f7cc9845"
+    },
+    {
+      "path": "coordination/docs/visual_observation_v3.md",
+      "bytes": 8981,
+      "sha256": "38dd981650789184ed6458bccfad3c3e77fb33a3e7bcda9225d6ce8889d786d5",
+      "git_blob_oid": "ae5ca15467155b806f6cf5770353b5e4451990b8"
+    },
+    {
+      "path": "coordination/scripts/city_swarm_run.py",
+      "bytes": 32749,
+      "sha256": "68355f2723dd7846c2b84fa7dd9a5c2128604c5d8fd5c6fc4169544a042a72cd",
+      "git_blob_oid": "110d1ea8249bee5ef269aa783453dbd8e3bfcbb7"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/CMakeLists.txt",
+      "bytes": 558,
+      "sha256": "fb64de3e3e7afc08a5bb937dc076e9050da9d8880b0a56ff8e289fcfae511fe7",
+      "git_blob_oid": "d3e9dd26896670ba262ba6614b606422ae9c6d3a"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/config/astar_planner.yaml",
+      "bytes": 316,
+      "sha256": "0d3183f4e2cc38b579211ec9fa2c9c241893ff8e0645cb35022388aaf04e6ca2",
+      "git_blob_oid": "6c596e168da3be1e24638442ba7e4f07a1c1b656"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/config/single_uav_waypoints.yaml",
+      "bytes": 1337,
+      "sha256": "74f7449d32c0c846bb3c963a3ed3e6994c9c837e906a702af1509b13e3e67d1f",
+      "git_blob_oid": "552925901c99a5baf3450e04e20b625bd268e7e4"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/config/single_wall_route.yaml",
+      "bytes": 3351,
+      "sha256": "52676810b29706d21965df5edb0ca4bc888d572b52d50bc477d82c2ce5bb278f",
+      "git_blob_oid": "ed08f76dade9629622fceacaf83924870303cdf1"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/launch/single_uav_waypoints.launch",
+      "bytes": 325,
+      "sha256": "eed46fa20c47467877845b2b9fbe2e1edfff447905429ca3fac40cddc6469c2f",
+      "git_blob_oid": "e626e5ceca4cf7ed2107adc9815c190d256af2c1"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/msg/CoordinationStatus.msg",
+      "bytes": 198,
+      "sha256": "d1ecd3628fd30d571e2265574843665d844b0706cc77853dc8f9c77cf0f12ed5",
+      "git_blob_oid": "7e9f333e97850fd9863f8f61384ae14662e0aef0"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/package.xml",
+      "bytes": 675,
+      "sha256": "ea43de14300e769ccdb3d63f7b21b13fe67ff34e8a083bbec8df98f4bfbeee77",
+      "git_blob_oid": "dcd3ea24b5ea4acf12863cb1a4c8a2c5e7f9b0ea"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/scripts/coordination_executor.py",
+      "bytes": 29770,
+      "sha256": "79a13c98db8cafd71b15f08984f11309139af7d8520a5c7e99c3da1f9d2fa76f",
+      "git_blob_oid": "4774b1ffab3cba30704b460d83d431c1acb2296f"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/scripts/coordination_node.py",
+      "bytes": 19598,
+      "sha256": "72af046ccfedfcf334e8185d503fbc4d0dd9b395d4d8264730920f3d21cefa1b",
+      "git_blob_oid": "caa120da85681ff0c6ec19c1002ee972b942f668"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/scripts/plan_training_route.py",
+      "bytes": 6115,
+      "sha256": "aee8409e8ae0fddb89d898e199136fa18949998d9631193cc382bbfac102310e",
+      "git_blob_oid": "be0508d01b19b0d30bce66479ec64d85aa51a42c"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/scripts/uav_navigation_node.py",
+      "bytes": 118767,
+      "sha256": "de09e526fc337d0ac64b40bc44cbc0407251a84f42efdd1a4dc5a6137974754f",
+      "git_blob_oid": "65e79ae0cea89d43396774547969fa2866bf42a4"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/setup.py",
+      "bytes": 596,
+      "sha256": "2c7597ec7f95c27a137d2c95c56ef5f1340c681042f21b0149b0829ad5a7d80f",
+      "git_blob_oid": "45403538bb99e8e0cc1b7e7b09827f50f83aed4b"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/__init__.py",
+      "bytes": 67,
+      "sha256": "7aa650fcf99394734f9e7edd522567fcd5a3a8289398c944380c44bc57236dff",
+      "git_blob_oid": "1a94227a64ea8399b86bebeac3f40235da7e872e"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/astar.py",
+      "bytes": 11575,
+      "sha256": "9842a72009eb94be3b85c5f6d9d604176629eb821dc5f0627b154055cbe4ae10",
+      "git_blob_oid": "7b42bb2660de31d84f085e20086774185586a159"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/__init__.py",
+      "bytes": 191,
+      "sha256": "54999699151f3d515968c3c097b0acb642a0e3a09d4a183e5535d6756d4fbb56",
+      "git_blob_oid": "acc85126a89a29bd35160e39784f352e6a96edf5"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/core.py",
+      "bytes": 37553,
+      "sha256": "2114c840c9e90100b1d9c5f8015d56aea17debd246e6080999c05605c0e508d7",
+      "git_blob_oid": "abbcbe3f142d1104812e0109f59f6579b6b04ac4"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/executor.py",
+      "bytes": 8111,
+      "sha256": "ed75a06cd4ffcd009bf00f1ced400613dcc3a8c639935f99769c82875946639d",
+      "git_blob_oid": "790c7a691abc584b89cc7b42e05b2aadcfb4fc0d"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/geometry.py",
+      "bytes": 4349,
+      "sha256": "6d89077b1ee28e068a8e0f66cecaa6caa22a401be5c246bccbaefda03ec33426",
+      "git_blob_oid": "980e22d44663ba1e7d6dcb8edea4fca7200f5bc0"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/protocol.py",
+      "bytes": 4328,
+      "sha256": "3140a010c964059f33fb45722bbaf7ff11d754242a35d3c4b66b06c269d2a9f4",
+      "git_blob_oid": "1e7fc2c01cb447e36023e1e5996645e71ca8b337"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/route_planner.py",
+      "bytes": 8683,
+      "sha256": "269fd79c5a55ceb05e626f5af3f779f3734cf7c449012643b0049ea7870529af",
+      "git_blob_oid": "170d6e0170aabaca40fc554048cff321dbc7c8b8"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination/verdict.py",
+      "bytes": 9586,
+      "sha256": "b082548b2b00cf0763c39618bd3d1cdc5bee10586c18e36e1078c04f18ac122f",
+      "git_blob_oid": "dabefe6cf5c3287501e59428780b7410d8faa57f"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/__init__.py",
+      "bytes": 1371,
+      "sha256": "30b535b31dbbee8dda9c0475995bca095a9bcf5b40027c892b87925f4f1b1288",
+      "git_blob_oid": "cd4b057a00566b4371420672558fda2c062f9cd4"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/bus.py",
+      "bytes": 4957,
+      "sha256": "fee0770f1b56a0b9b004ea5e5c61b6fe39b82413864ea359282920e996310815",
+      "git_blob_oid": "fd026a872fdcf7c6abf2f83511f3f1f6714d3781"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/map_revision.py",
+      "bytes": 4463,
+      "sha256": "9fa6bf4432f7bf3fa220ce4f122dc82ddfb9f40accab107529ea1c3880ff1f59",
+      "git_blob_oid": "56f563955a34ce22448a3846a84f4e219a27f2f4"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/monitor.py",
+      "bytes": 4343,
+      "sha256": "4ea55454fd0cef7fec71eab7a4df67f4692b1a96aa05d2244d1268f40cb8220a",
+      "git_blob_oid": "e9769c95b5109b1f7271d9a355dcdc8311f2ce20"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/position_cache.py",
+      "bytes": 1494,
+      "sha256": "7ae1823e48b65d184d71c7ea9b8bcca128e4e5ae631f64165754a97cc8b6052a",
+      "git_blob_oid": "dcdb41a4f66f99531fb9c2931cbd51e82165a6d7"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/stop_check.py",
+      "bytes": 3282,
+      "sha256": "cdac03435454dd8ec834db9fd82b19b09751706d78a8d5370c4bc66c92d269ee",
+      "git_blob_oid": "bc28386f35f4949c516a3975ce107c57020d0087"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/coordination_adapter/waiting_points.py",
+      "bytes": 5444,
+      "sha256": "e90791e5f315f3732bfd97c0da642255c1669ffc7d1b073cf861054e4752c1e9",
+      "git_blob_oid": "d39d6480eaf500618d0163c3c156d45a61d84016"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/grid_downsampler.py",
+      "bytes": 8146,
+      "sha256": "9ca3a1eca32238b1ce0f3db8333ec5cb81450d89aac36695d159db3de643a07f",
+      "git_blob_oid": "8414f6ba0eadb346ca5940bfb3acc42f6da017ba"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/local_grid.py",
+      "bytes": 18456,
+      "sha256": "6539b8c2d2ea9018e534e76b719aa53458176a31d340e6081597dc071bd20b2f",
+      "git_blob_oid": "5b76dcaa5b0c53f3dab2f37145d70a9dc6b51f6e"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/route_runtime.py",
+      "bytes": 51990,
+      "sha256": "cc1ca2192c48b974fb0f956a2592da10aa5ff0bb3f2a18913cf9c91380d06711",
+      "git_blob_oid": "c82d5e37c119da4cc47135f189433ece9e60fcd9"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/route_safety.py",
+      "bytes": 29924,
+      "sha256": "8c76fe7c8b5b6ee1f04baa07902e5c6172353ceded742090e8de0ed38d8437ef",
+      "git_blob_oid": "8617e4429d2ec7eabf2032a0ea0bd930910e4ca9"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/src/robocup_navigation/team_grid_subscriber.py",
+      "bytes": 6700,
+      "sha256": "ea3f3e11a9ed8dee2de069e2e25a56b9acdee665bd0ba316030921a5ecc4d4fc",
+      "git_blob_oid": "5c3c4e88543fc21ba008090b24b3cee820bc1981"
+    },
+    {
+      "path": "coordination/src/robocup_navigation/srv/SetCoordinationLimits.srv",
+      "bytes": 226,
+      "sha256": "bb6cda2eb3bee9ae60ea9fc99e36ad3cf2b2d8bcdb7d3eac6b90a57513199e5a",
+      "git_blob_oid": "53275ab1a9e7370e430b3afb5012efdb9df9b016"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/CMakeLists.txt",
+      "bytes": 7608,
+      "sha256": "84d6ac1dfc9bd2618e366b74305f9a1764660ea0d97fd634c04a2a315e112282",
+      "git_blob_oid": "36f5da22bd7cd4680954a2fb01f65ffc39c90b81"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/launch/multi_uav_sitl.launch",
+      "bytes": 12505,
+      "sha256": "66c130090845e710a20c9cb029affcca8b1c89fe1668168744426c7a85db7f99",
+      "git_blob_oid": "54e9224d9e0820c722548cb28e60108134480590"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/launch/multi_uav_sitl.launch.bak.1790500580",
+      "bytes": 12193,
+      "sha256": "7e594bd05ddded611cfafd11fb746eb38379c1c4eb01271edb12370faf681037",
+      "git_blob_oid": "658c6c7cb6963dbbee9b723288325fe854947a3d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/launch/swarm.launch",
+      "bytes": 5015,
+      "sha256": "14e271a06d990ebf6a13336f1e55f070631e98b2b3c27dbd4d21bd2deb5db32c",
+      "git_blob_oid": "c779cb5d1bdb9d2a66c4bc26ce15dd50ad694d94"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/launch/swarm.launch.bak.with_targets_20260926_235030",
+      "bytes": 4214,
+      "sha256": "6bc5e777a77473bfb36d8f96e953b6998ac2450e9abaed42f3866edb4588522c",
+      "git_blob_oid": "644efbced3964a5a0ef615a443f0a02b4edc9d0d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/msg/ActorInfo.msg",
+      "bytes": 186,
+      "sha256": "c216a4909a2ae14bb966943fdb3cf207b39b88b8a9e1338965bfef22a077820f",
+      "git_blob_oid": "1b5eac953a9e32bca276419ed5c03c7e181fbf90"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/msg/SearchAssignment.msg",
+      "bytes": 570,
+      "sha256": "6b4e498ff1c97fb7ae601841c8ee869ee33d6e268edd715dfec57c64dd011fbe",
+      "git_blob_oid": "2b027097649e3adc35febfca52153d4f32c9db88"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/msg/SearchAssignment.msg.bak_improve",
+      "bytes": 511,
+      "sha256": "34441b750a6f4091a645711b704899ea49381da489b148ff525ef918e1c3af38",
+      "git_blob_oid": "add103919c15637d1acc3f4ac683ab40d3254ac7"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/msg/TargetDetection.msg",
+      "bytes": 830,
+      "sha256": "6ba93c0fc74969fea994796c0678365faf766072f6611f59f73cc82b0b63a412",
+      "git_blob_oid": "cf630b8ca6857af136af0b9c2059c670767ef3fa"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/msg/TargetState.msg",
+      "bytes": 1212,
+      "sha256": "a7a2cafa1aae268dd8cb6da32b1a1b867400c6306afafde23f77a4a7ae149ee7",
+      "git_blob_oid": "049111306030ac0f2292202d70e7e07e4352df5e"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/msg/UavStatus.msg",
+      "bytes": 906,
+      "sha256": "e37cb7b98d8138dc24fdd7cf8f0494e37fcb842817cdcb968fc7aa2b46385552",
+      "git_blob_oid": "c16290964f9ec812a4da575599af21305d000173"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/package.xml",
+      "bytes": 3251,
+      "sha256": "34a48a8a66ef2f996fbe73e99e900862f5b6535f6d4b79d8be70e3ccd0fe27c2",
+      "git_blob_oid": "22990e263c3906ddd1ccb600c28fa88236233d8d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/allocation_geometry.py",
+      "bytes": 1593,
+      "sha256": "c855093031960d5e3a9776dbeff2a530a08721a532e852721b010eb817fa422b",
+      "git_blob_oid": "5fc844f5547362541a48fb840131a03d1331a75a"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/bounded_escape.py",
+      "bytes": 4140,
+      "sha256": "65e18a2fb0472faab5a65278e54ff3f61fc9d693d0db2f7da407e0eb89ec1545",
+      "git_blob_oid": "9621a924a3c733f577ee911fa77c01bd85ffb1ab"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/companion_tracking.py",
+      "bytes": 1467,
+      "sha256": "24498daf42dd3ffcb801c8a6d25e6e7b08887e8548599fcbb6c113c692df29bb",
+      "git_blob_oid": "6542c3950c690ec0a1f685e466b49aba20630a56"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/control_actor.py",
+      "bytes": 25620,
+      "sha256": "a500f6f68430c9d9bb77bc571b837eebc623dfd337bf46e2e8448ae87db05eae",
+      "git_blob_oid": "95ba1c8b25b58a35f2b8966347fed0cce2f4ffbc"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/control_actors.sh",
+      "bytes": 179,
+      "sha256": "10e77aa05a69320554b1ef1baa0eb8886a4c762790571f3a3b2e6949e81419d6",
+      "git_blob_oid": "d32cd3eaac944f12c3d88938b5ecf52d1caefb04"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/cooperative_tracker.py",
+      "bytes": 29703,
+      "sha256": "1f08b4471f53f1c87307355e6c9fc592b309c12ccde51003483b6d10338c4f38",
+      "git_blob_oid": "12a6e0d3ef458926c7bababd8c904dd3a7ecdcfc"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/csv_logger.py",
+      "bytes": 1932,
+      "sha256": "0598fcda689c7c0560b238abc18d7e99c69ca2aad33b5444d00df8e6e2bbced0",
+      "git_blob_oid": "825cb4ff4fb22359a9ae26ce3d69711ad8e4306e"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/detection_to_actor.py",
+      "bytes": 2549,
+      "sha256": "75506452543fc9f49d7150b262d7d8d8d537c0650b9b6b2b6e2766634202e429",
+      "git_blob_oid": "8add8342078414d77944698af07a80a1aa2629a9"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/detection_to_official.py",
+      "bytes": 20779,
+      "sha256": "90dba8bb70d4cdf81cc56bb1382acb7e3119fd8da6349ac8523fd2b4a1d40000",
+      "git_blob_oid": "0007eb2b1c31dc6afd75477640230f94bbd3884c"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/dwa_avoidance.py",
+      "bytes": 95377,
+      "sha256": "4d2345cd99366eaee22170aed7e4ce4000440ee4bafe1189e9335ca63bd2bb9a",
+      "git_blob_oid": "8e51527694a3a3a07d8e5eddcbe1a0077ef6afc7"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/fcu_configuration.py",
+      "bytes": 548,
+      "sha256": "4b9ea8c4a27ad801533f4db542ef1ec01b9904715cd6672b21dc77cb0d2eee23",
+      "git_blob_oid": "a7d28db690b88c453185314ebbf37e5c9410122c"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/fleet_motion_guard.py",
+      "bytes": 3237,
+      "sha256": "ab434285c48c073ddff6935863cd14d2f5abaadb7e9855b1dee62d058bf0c9b4",
+      "git_blob_oid": "4f34b618be223399de028b4c36549950f161e300"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/green_source_motion.py",
+      "bytes": 1497,
+      "sha256": "4b34fc3df9befd843830b11bf3a75165a3d6f5f0839d42e90d18d19f81dd8489",
+      "git_blob_oid": "8a6044b139756ad6d24d122581fcecc55ba3f179"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/judge_system.py",
+      "bytes": 22625,
+      "sha256": "e5f0e154ce29181a223325259d707cbd91ea79831930012ae6d0412e789f177a",
+      "git_blob_oid": "aa16155f03bc0a6b3cd74f591a3b3937045b01fc"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/legacy_pursuit.py",
+      "bytes": 916,
+      "sha256": "5b45ff12b2361c428bc6cb7ab5a25991d131d4e6b75c77f35e421e67b792c6cf",
+      "git_blob_oid": "18e53c04aa07ec67a1e3a1a312788abbb641be5c"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/local_esdf.py",
+      "bytes": 10157,
+      "sha256": "2aa85a3126de91946fa680cb7a68334919aeca373204008a09422753f0fc274a",
+      "git_blob_oid": "f4c57c8b20c0ee3b2950a8acd27a8b0c3407c716"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/mission_time.py",
+      "bytes": 53564,
+      "sha256": "9f6a4c8763c0161629957df54eafc121d7b6b96a3d00b4c4e048b4d0d208a68b",
+      "git_blob_oid": "289e15ddc0c3e676b551562c230b5347f63e610d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/navigation_feedback.py",
+      "bytes": 2766,
+      "sha256": "ea45a63fa00da4bb8be5ab271c6df46b5abf514c84db8d3b11998db4a9417725",
+      "git_blob_oid": "d62c0e742bd9f69c70bb1c2d208dd356b921826c"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/official_report_sources.py",
+      "bytes": 2744,
+      "sha256": "f592ba484f993113cd6ea308bdce2ba554f0540ee4d9816a2ad3bed67a887da3",
+      "git_blob_oid": "4d1eb23098943b2df461aabb32c7d010449ee1f6"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/online_radar_planner.py",
+      "bytes": 18533,
+      "sha256": "c12dc3a170549812e90583a13e76ebe452ac42ccf2ebdf90d3633cfba14141ce",
+      "git_blob_oid": "253d32bf0f6cbbdeebcffe6d1b49bc9e4d1aa2be"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/orbit_geometry.py",
+      "bytes": 2092,
+      "sha256": "646d419e7518d6087553b5b3ec71b93958ecd13c29c219669f3d2d75a1b49562",
+      "git_blob_oid": "b52413c3aeca82456262b5c1ca45fb02028ada73"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/own_visual_guidance.py",
+      "bytes": 1208,
+      "sha256": "18239a69071850c828562f796d5e6d9b5376d9358d8ef4ad90c82f3801542948",
+      "git_blob_oid": "6e2a27d0b972e47a3ac0bd11b96c02c28aa493af"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/persistent_los.py",
+      "bytes": 7250,
+      "sha256": "ae53bd7f0319744247cc103957696bd575682e5ca85f10f7be3ce1521aefecd0",
+      "git_blob_oid": "e0aeefaa1247e66bfa50c45c70cac7ee619f092c"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/pose_quality.py",
+      "bytes": 2167,
+      "sha256": "748c005256f3137db09de8929ac3281c71d199f1572ddbd3e78833923ecf1e72",
+      "git_blob_oid": "7fb7d7960c418fe252209f77bdf19d9b8c7ca5af"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/pose_rate.py",
+      "bytes": 4455,
+      "sha256": "cec37f5b109b910becce9145b81c09dbdd4b41b7321ae3f2accd5d54ba641007",
+      "git_blob_oid": "350bc95c64d480eb0e97a56f826b55baca6b705a"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/position_brake.py",
+      "bytes": 2376,
+      "sha256": "0594c37c8e8899c7cf7ce6580a7def5545b234a458a1f0e46199843029879876",
+      "git_blob_oid": "303f84f4bb5750f03d05b239b483a885be5311c1"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/publisher_authority.py",
+      "bytes": 780,
+      "sha256": "1941a6f77b10a39bcf702ff5a1ff6f62d9ea92c5dc0fd5961030d20a8f4fd779",
+      "git_blob_oid": "7ecf98c32ddf0d209b7e1af71aa879963632e779"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/radar_observed_map.py",
+      "bytes": 3926,
+      "sha256": "3764defd22b44e8ad59e9e56d2eb98940f65c01504bf128107c092e8eef3a46b",
+      "git_blob_oid": "dc61c9fbacf4a5054849f3300b74aedc21db5fce"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/radar_velocity_guard.py",
+      "bytes": 3741,
+      "sha256": "53082936ffcf5b1a4ebe44579c3a0e2fecab3463f7d3ab54720acfe18f38ce39",
+      "git_blob_oid": "59ed8647a928e5b726d8970cec4720931184d26d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/red_observations.py",
+      "bytes": 1283,
+      "sha256": "954931a0dda9474bf2dc9de64818930e899c06449bbdf4248f5cff91879c79c0",
+      "git_blob_oid": "f007e5b059ae4dcf8ff0a90cf3ff89f8cf20860d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/report_readiness.py",
+      "bytes": 2504,
+      "sha256": "8b9cfc1997c3575930c30c31bb6c3af2af41e5f378d32073a5b0c4a411786628",
+      "git_blob_oid": "5e3bc51e8e3b62325b5e79721eb187cc8c230420"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/route_endpoint.py",
+      "bytes": 750,
+      "sha256": "f6c69032131321c2e071740a302ecc10bb0415e111438b3b0a938a57116b8a69",
+      "git_blob_oid": "c6a8ad1c71cf970cda3f95977f3d03a0adf2db2d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/route_planner.py",
+      "bytes": 9472,
+      "sha256": "d234ec7b6e52b6749c63adbba6036b813366bde028f5fa1fe5b17e4acc2ead99",
+      "git_blob_oid": "52987fc20e3e3924da1d833039a3e9bfd34c78fb"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/route_reservation.py",
+      "bytes": 16850,
+      "sha256": "94f54142e4a290e25cbc7c6abc1715ac0b869263c2d246e6d76b7e12976d1e17",
+      "git_blob_oid": "51495c196dd7b2e30cb2c780811885301debb722"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/run_ablation.py",
+      "bytes": 13941,
+      "sha256": "68c720f7b0705e4d8b909627f7b301e3e25ab5be1c3ad684ac5bd419ffec1995",
+      "git_blob_oid": "c3990231fb8e112dd3e4b27a23309a57d32e50ae"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/run_multi_uav_3.sh",
+      "bytes": 4721,
+      "sha256": "0018ee6d9b330dad2ee49885a7611739306f8f3ae082c288211367630c055d42",
+      "git_blob_oid": "b7f7b690fad98de5054d7b5d8c1244daaf3f18f0"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/run_test.sh",
+      "bytes": 287,
+      "sha256": "2a718ee0b8e18f2da0b4e33db2cbc52db222fe6dae30aecab1860c08b4477386",
+      "git_blob_oid": "2c42ccb385be82406bb2adbcac6f379e41b52297"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/score_cal.py",
+      "bytes": 13486,
+      "sha256": "7b323865c2349c4f3fa488945282f5e04e5b3480cf219b25fe95fadee68fe47e",
+      "git_blob_oid": "5f1e245ec2ea848a11498ef5b366a6964300068b"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/search_completion.py",
+      "bytes": 910,
+      "sha256": "2194c9848232e189b9beb5b662e98d0ec08d5ade91fc57e1b2a794582881873d",
+      "git_blob_oid": "1b37cb964a7b396de2e028dcb4015c8f11d9b0b8"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/search_observation.py",
+      "bytes": 20734,
+      "sha256": "f1c20e16025bf9a25a80e95c845ebca34454f00fadc4af09ed1675980d77405b",
+      "git_blob_oid": "69dfe455ff3cf1c83cbbcf7c9b4942289250dccb"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/search_occupancy.py",
+      "bytes": 1930,
+      "sha256": "2393807e500dd215a80063ef68a9379dfd9e7970272b4ad43915f19b8777558d",
+      "git_blob_oid": "85bc6e30344c96ff0b0bc7bead1b71db4fd4f750"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/single_uav_avoidance.py",
+      "bytes": 11736,
+      "sha256": "2dfaf2a4f63cab65f5100d9cda0f1805f80881984730ddf067feecefc6ebf79e",
+      "git_blob_oid": "c18a7eeab077e921e133fc6c29a575c93165749d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/source_aligned_fusion.py",
+      "bytes": 2878,
+      "sha256": "453076621a14a9b87c747c88780b6924a3762da91bb1459bd7115f9a58e0fb08",
+      "git_blob_oid": "453c9b2131c6044fde4615a06a413c09f2af0419"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/stop_control_actors.sh",
+      "bytes": 86,
+      "sha256": "a8a7d5f55b8a6d4c5b002a63fdd90b767e98d47dfb9ba189bc8d009ccf5a2104",
+      "git_blob_oid": "1e35233275b10952fd352433cfff9a9ea81f9439"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/strategy_compare.py",
+      "bytes": 38316,
+      "sha256": "6a4287b93b0a187c90bda0255785b2e03c8ac8f44eb6f75dde079a40d7c96ad0",
+      "git_blob_oid": "a0232367d3e59034ae6f32b911f086f12edad07c"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_agent.py",
+      "bytes": 192884,
+      "sha256": "aa12788536ea450219965afb61631361942ee78eccd0ad3ec2b5a673dbfcc6fc",
+      "git_blob_oid": "9d2b0b158a7982ba9fc3b3ecb31637e5295568b3"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_agent.py.bak",
+      "bytes": 78491,
+      "sha256": "a28b8807c3270aeadea4509e93e0f61d2a437238d7dba737f87d5a494dfc3142",
+      "git_blob_oid": "c6e2cae71828c6a013958d363bdaf3e49afdd813"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_agent.py.bak2_20261002",
+      "bytes": 105763,
+      "sha256": "61325d63908e69ae747a57741f3170c7ad8bfdb45c1190b0e748f963531f488b",
+      "git_blob_oid": "a8f34120c638fa9b4249fef09ce43f23720a6e99"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_agent.py.bak_20261002",
+      "bytes": 103372,
+      "sha256": "3a46406b5930ade8e1ec66d118a2305a6bbfa4c41ce0f94f5937f0b2714c6b74",
+      "git_blob_oid": "7a0b4dd4f5b2d5decfdf2aeb5bf05a917911162e"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_controller.py",
+      "bytes": 2210,
+      "sha256": "edec754447850c043b9cbd266c2d524cd01a2e30324f8ea1a48d94b35c468f18",
+      "git_blob_oid": "93c2589e3983bdeccc871c88afe5ac9c9dd4ccb5"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_manager.py",
+      "bytes": 89719,
+      "sha256": "b767e8b3bd92ba8e23705826f24b0fa5e21df450358b9daff15f699b186a20fa",
+      "git_blob_oid": "64b72f64e31b547f61cdd80bf7b04bb89d42b1e4"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_manager.py.bak2_20261002",
+      "bytes": 63573,
+      "sha256": "4ebbba86c61615ac4e179fc973dc990bbd5485332487cc98a6e32d5596488e3e",
+      "git_blob_oid": "6f27be30507023fae355d79a03c093ba11506049"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_manager.py.bak_20261002",
+      "bytes": 63152,
+      "sha256": "0ceedc527911461c6f6d1c5d3a9264e801de536193db26e2591ccd6e67d34ea3",
+      "git_blob_oid": "9f8e360a1fa920a662abcda9eb8346b50ec88a55"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_offboard_server.py",
+      "bytes": 10397,
+      "sha256": "fd37c26fc435fd3cffbbc0a11604825b0403c784161dd91199deb0d35ff07759",
+      "git_blob_oid": "5a749b902dbcbdc89e9a5706dd90b03e0c128564"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_task.py",
+      "bytes": 46702,
+      "sha256": "c6ad465d09ecfce98d3a06bc5c36dd45c1d33b0f29ed033f4f43aff1c7334206",
+      "git_blob_oid": "67ac35474c3fb3d521bbbf3e615783f3f442ad32"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/swarm_viz.py",
+      "bytes": 21664,
+      "sha256": "ffbda5a5aa4495098d61c8245fb8189f455f6c143dbcd7a31792084bfbdb9d9f",
+      "git_blob_oid": "4bf6efd72e37d761da9e09ba88a78b9556e4d99b"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/target_motion.py",
+      "bytes": 2597,
+      "sha256": "d3410de0fe8cd7ca9448a60ed22f9a7c664ccbb80c164a3e4eb8d8ed4a34d0a9",
+      "git_blob_oid": "6154262fe7b08e212d86eb01cad6e3920aa024bb"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/target_sim_node.py",
+      "bytes": 14095,
+      "sha256": "75369af7e9aa3e8c029395d488d8339e484dc5e1845267c59abf6c7a5a63cdc4",
+      "git_blob_oid": "18ac755dba4659772de3c7d4bafda467add62ec8"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/task_allocator.py",
+      "bytes": 60580,
+      "sha256": "f64cbeeda5c5dbb0a8be3ff64de69d232b537e46f4f0cb9ee6ad5eff066f343d",
+      "git_blob_oid": "16cffb6aa50af417d2b48e786396527872d4af9d"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/task_authority.py",
+      "bytes": 15393,
+      "sha256": "83a8b9acfc79ecdee2732ccccb6fea0ad0904c489bba7551caf9d0a60a3aef18",
+      "git_blob_oid": "34801d6554194b437e60a32af00dd4f2d2c93711"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/team_bench.py",
+      "bytes": 38664,
+      "sha256": "9b65399dcc0712fbf3117e025e5b2b54467d5d0a5c6e79365e321903e44011f1",
+      "git_blob_oid": "f9aec7ce0d5eba8ed77ceec1d1513a5368e4d3e3"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/track_bench.py",
+      "bytes": 16310,
+      "sha256": "971b401ce669cce3644a3a8b4947150e746948f53a60e94a2ad2835b205180ed",
+      "git_blob_oid": "331b01c0f1ad8a5253e2cebfb9a66a1ec911da7c"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/tracker_selection.py",
+      "bytes": 2465,
+      "sha256": "f8063466e443a22ae18b5de4f6b35890f949088011b4e1638845932895417f3a",
+      "git_blob_oid": "fd37ebf00831b5d41d71f2b428a5de165eeac681"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/tracking_navigation.py",
+      "bytes": 4363,
+      "sha256": "e03323bcb5435a56ab7ace6e0a61f8574ebb802438175e2f1adbb33596ac3309",
+      "git_blob_oid": "fb0d8ebe260b9bb3b0af240c2cba59dd5f673b33"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/verify_swarm_avoidance.py",
+      "bytes": 8661,
+      "sha256": "96188e8b54d6f339033e434ff12f69b3e43c9a07c8dee59532d8a3b53c65f301",
+      "git_blob_oid": "62d60052286d54ea612150342cb50782857cc170"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/visual_observation.py",
+      "bytes": 3986,
+      "sha256": "788bce8de81bc6e7c4b513f683f1262e16f81ef8f082f56d8c3fa03074c296eb",
+      "git_blob_oid": "f66dbde617aeaa3e7ff0fce58500656b9efd517c"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/white_reacquisition.py",
+      "bytes": 2695,
+      "sha256": "01e4c45fd9d007c2adf1351ce473dcf81a866876e7b262ba8f3f05bb379e65f8",
+      "git_blob_oid": "ff8d20022a1fb10a644935aecf28c841df7dcc51"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py",
+      "bytes": 40922,
+      "sha256": "1b4b0fe5558f648e693d4ed4353b9bed049b826bdf0a73c8380e66d1e6ecf91d",
+      "git_blob_oid": "979711e42b658f7050c01006260a2434befeed32"
+    },
+    {
+      "path": "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py.bak2_20261002",
+      "bytes": 17789,
+      "sha256": "304c24e112d3be654c42199d699f3bf6bbd49774ff80de5740d2d0fa32e5a919",
+      "git_blob_oid": "8fe398f30d87a30feb2d4a65dd1dcf72c1626609"
+    },
+    {
+      "path": "coordination/tests/.gitkeep",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "git_blob_oid": "d3f5a12faa99758192ecc4ed3fc22c9249232e86"
+    },
+    {
+      "path": "coordination/tests/bridge_trace_round1_20261008.jsonl",
+      "bytes": 14380,
+      "sha256": "d9c1659c4b527f870f2ba4e79e5419debfc455cd6a51811accd546827d1b68f2",
+      "git_blob_oid": "016effcc3a75d5ce185f4e70e18992a5ecaf3955"
+    },
+    {
+      "path": "coordination/tests/check_uav_flight_log.py",
+      "bytes": 1681,
+      "sha256": "ea81f848431f6c67cdd443ea8306444b4fa3ad602b6f0c5f0a5f0bc8e57ea0f1",
+      "git_blob_oid": "f5a7089a5e835dd3e2636373257ee816bc9ee22f"
+    },
+    {
+      "path": "coordination/tests/sitl_motion_safety.py",
+      "bytes": 3707,
+      "sha256": "4a91c7f8a063064e3b1f7fd4cedabb2363d110631db86fd031eff6760fe469de",
+      "git_blob_oid": "a2744f52d17808335a3c27afd09c5386ce7d14d9"
+    },
+    {
+      "path": "coordination/tests/sitl_single_wall.py",
+      "bytes": 12821,
+      "sha256": "3937e8682fff6cb11fcc4f16e5c7d49e7521aa1e6cdafcd641f6dd709ba18110",
+      "git_blob_oid": "d64e5e6b1495d1c01d0e5360929d3b72d973d8c6"
+    },
+    {
+      "path": "coordination/tests/test_actor_environment_bridge.py",
+      "bytes": 5594,
+      "sha256": "246de5be2c08d7cdc1f7d4ce53a2d9d2a3af5ab96b946646bf25837cc02571e9",
+      "git_blob_oid": "23f5d9bfe9dc8fd8a272d150a6f20a867a9e5a11"
+    },
+    {
+      "path": "coordination/tests/test_actor_teleport_wait.py",
+      "bytes": 7074,
+      "sha256": "a0d44cfc566a1066d24966f3b39d0a1f2497593cf5582f7859332c9101548c4a",
+      "git_blob_oid": "e3f20e405a75e2de33aca69dd7071d31616de635"
+    },
+    {
+      "path": "coordination/tests/test_allocation_geometry.py",
+      "bytes": 2274,
+      "sha256": "d5896a5e4653abd239e68173e495627b7e46c97d59ebb11874b6dfc1b0c12bcc",
+      "git_blob_oid": "f671b20d1c655e1c9f7abbdefa645de7e81c1e5d"
+    },
+    {
+      "path": "coordination/tests/test_approach_observer_dispatch.py",
+      "bytes": 4200,
+      "sha256": "a1bdcb195533c2e3bc7040d9844b94efc3c9eeacb1b769014a953ffebcf51f4e",
+      "git_blob_oid": "0b54050c970883f1b101c83f40173dd321e53f58"
+    },
+    {
+      "path": "coordination/tests/test_approach_reporting.py",
+      "bytes": 4877,
+      "sha256": "d3fee3cfcf90c0e2c8d2efa0f3db631f28ed80e8d4bae250ab056b65c093808c",
+      "git_blob_oid": "d38150f071d83e013c1b47ae46a9647f7c91a447"
+    },
+    {
+      "path": "coordination/tests/test_astar_planner.py",
+      "bytes": 9103,
+      "sha256": "0951f0e0af2f6b7a509f0abb934583881f610a42e807121543794506271d230e",
+      "git_blob_oid": "def7e2935bf47fc8b1e64e0748faaf0784d43a11"
+    },
+    {
+      "path": "coordination/tests/test_authority_elimination.py",
+      "bytes": 13204,
+      "sha256": "c350f51ffc539837e9f1c68e20a612e84cb7a8d25e5a517d13a8597728b174a0",
+      "git_blob_oid": "bb42da0c99ef6173d622849938c886f6aaa7ef33"
+    },
+    {
+      "path": "coordination/tests/test_blue_early_discovery.py",
+      "bytes": 6710,
+      "sha256": "b5ff217de47081c765a9c3acbd3e98e8fd87481a4701d5c2e8ddadce4c56c43d",
+      "git_blob_oid": "3b6581057b914f7f16488f6b82085c6cb9c00eda"
+    },
+    {
+      "path": "coordination/tests/test_blue_motion_identity.py",
+      "bytes": 6989,
+      "sha256": "95bcc8a2327896bca824e8cc6e07eacff155f5175d9c5cfeaed8316a9a173402",
+      "git_blob_oid": "fb477c980e14d9f7dc8f4922d443fb08fd8589c7"
+    },
+    {
+      "path": "coordination/tests/test_blue_source_alignment.py",
+      "bytes": 2838,
+      "sha256": "2fb9dfd21d9fc580169589829124fd40db5c1362ecbae25cc1210af5155b3781",
+      "git_blob_oid": "bd16c276eb30866b5c05e29ce0e2e07bdc96d622"
+    },
+    {
+      "path": "coordination/tests/test_bounded_escape.py",
+      "bytes": 7105,
+      "sha256": "8ab04365e253b632b57258f28a98ca830b9a77c36a942c805d6fbeb202b3d796",
+      "git_blob_oid": "e1d7a4cb97153c1b703a2ac5400608f397776876"
+    },
+    {
+      "path": "coordination/tests/test_bounded_escape_agent.py",
+      "bytes": 12791,
+      "sha256": "fec5ea38e8bf878e8e518ab1d22571d35a1d6328c411eb3d4278aaba5f75979b",
+      "git_blob_oid": "9458f9d985e0fc793ae506cdfeab38a8c8e48fa0"
+    },
+    {
+      "path": "coordination/tests/test_bridge_acceptance.py",
+      "bytes": 3762,
+      "sha256": "79c9d8ad34bc62600b2bc1e0c13e3ddab4bf319e0e9e6511eb7f6a72601586fe",
+      "git_blob_oid": "4a25fa9428f5ee776d63f9864358203c7b344728"
+    },
+    {
+      "path": "coordination/tests/test_bridge_emit_diagnostics.py",
+      "bytes": 11167,
+      "sha256": "bef44d9cba1fb8e1aeb63b061e215618c6fd4a12102cf6ae406913c70e3693de",
+      "git_blob_oid": "6e573c0ccaf287bde3a22232cd3ed6609182168f"
+    },
+    {
+      "path": "coordination/tests/test_brown_activation.py",
+      "bytes": 3378,
+      "sha256": "95729a52581c45088a1f4c748c6c30dd0445c91671e32aec03b712312b875db0",
+      "git_blob_oid": "d578a38d391d18e389e92d1d51297fd0c0083d3e"
+    },
+    {
+      "path": "coordination/tests/test_brown_white_recovery.py",
+      "bytes": 8283,
+      "sha256": "ddc9b3f149e2e02ec38f10835073b079fa5f6d496a07a028b168bc26aa847f31",
+      "git_blob_oid": "79a7cbe101fe4705ae9c343139fdff08b3209b9a"
+    },
+    {
+      "path": "coordination/tests/test_camera_geometry.py",
+      "bytes": 8803,
+      "sha256": "22bcf1ef71da7af99a507134b6a6cf66d0a8278e1a9c137c4af0441b7cdff9df",
+      "git_blob_oid": "d025e3c0afc02d29ad0358f76da425d4fc640a5f"
+    },
+    {
+      "path": "coordination/tests/test_camera_takeover_adapter.py",
+      "bytes": 5649,
+      "sha256": "a70462e620f6d6789c187ba99ccf52cc7a0b466f587360314af8973c878ec1f0",
+      "git_blob_oid": "40caa0eb69bd9df6b417e01f620c1328d251cba7"
+    },
+    {
+      "path": "coordination/tests/test_camera_task.py",
+      "bytes": 3413,
+      "sha256": "a756c0639cdb66997a93f271a29fb5644db1c38e9532701f97d5b2be472f5c6a",
+      "git_blob_oid": "13198e4d1986e0565f4f0949287d5048831409b3"
+    },
+    {
+      "path": "coordination/tests/test_camera_track_evidence.py",
+      "bytes": 2142,
+      "sha256": "c050c15cf27b697676b4c017c8c21c9400ffbaa298dba80a6d14fbe2e464b787",
+      "git_blob_oid": "d5832f2404a618883cc7bca87ce7553737f6b03d"
+    },
+    {
+      "path": "coordination/tests/test_city_judge_clock.py",
+      "bytes": 3215,
+      "sha256": "0c9e196d52c4ed3da1e6ca9dd9253cef6bffccde5e15777df7cc98fbb460fac0",
+      "git_blob_oid": "b1806bc16cf631b38f7e5feff31132c3d7024c6e"
+    },
+    {
+      "path": "coordination/tests/test_city_service_deadline.py",
+      "bytes": 3427,
+      "sha256": "cac8c529f4ddf114537d4a6bcd6205606217ddcc5022752eafd302798e4ba92d",
+      "git_blob_oid": "219b74beed603146a12752b69cc4ed3ea95c043c"
+    },
+    {
+      "path": "coordination/tests/test_city_startup.py",
+      "bytes": 4807,
+      "sha256": "a67498fad6c0aef2568bcaa53ea90460d4d4530d64e4a6c038a55d9c298ebdaf",
+      "git_blob_oid": "dc3007a09ec1354e3772c7882a018e361b7b3c72"
+    },
+    {
+      "path": "coordination/tests/test_companion_tracking.py",
+      "bytes": 3656,
+      "sha256": "5deecc7c0cffade44488f539fdb37f45c3df30d339ba54e97f0f6b0137f380f7",
+      "git_blob_oid": "e06d20d9127f77ec51d50d5fd0edb32eced03d9e"
+    },
+    {
+      "path": "coordination/tests/test_confirmed_visual_adapters.py",
+      "bytes": 6060,
+      "sha256": "392bbd4e12bf75137c1c54f9d3e9c8621bba5c64ab88835b67cccb44043c60fa",
+      "git_blob_oid": "fb7e58f981fe5a2e93d768651713b28776694a7a"
+    },
+    {
+      "path": "coordination/tests/test_contiguous_search_zones.py",
+      "bytes": 5233,
+      "sha256": "af093a93f9c644e3b3e2106675847783eaad243d008b15ac3229bf742c6febd7",
+      "git_blob_oid": "524a41f3bfd17811238d53f16f9b7bcd130677dd"
+    },
+    {
+      "path": "coordination/tests/test_coordination.py",
+      "bytes": 17904,
+      "sha256": "46ed4faae40fe0be025b8db9b678cc59dc0452d43ef8a2cee217f806e7a70832",
+      "git_blob_oid": "797fad37c8bf107a38b68d6660b5cce0d6c59da4"
+    },
+    {
+      "path": "coordination/tests/test_coordination_adapter.py",
+      "bytes": 9079,
+      "sha256": "62b7ae16c60c766248752a24f3c908021d8aa04c5ef0b0f07e3d2ad25d1bc807",
+      "git_blob_oid": "064a4e70f241a715d83a8071b49af4476f70005a"
+    },
+    {
+      "path": "coordination/tests/test_coordination_adapter_components.py",
+      "bytes": 7999,
+      "sha256": "2aeb8f1baf643ecfadd6423e75589ad93c7a28120acc41ebf461a9ff4b1249e7",
+      "git_blob_oid": "4da33aea3f39e5dee18f4e6997b72a9a72dc2206"
+    },
+    {
+      "path": "coordination/tests/test_estimator_bootstrap.py",
+      "bytes": 1042,
+      "sha256": "b61c3fbcf94db3f6013e000fe610140bccb15e9f5a35d62ebec615849b265534",
+      "git_blob_oid": "b3a21e2642fc9c9ff7a18acf391d6e71f4516c1a"
+    },
+    {
+      "path": "coordination/tests/test_evidence_writer.py",
+      "bytes": 1864,
+      "sha256": "7c5230e6958ebd1ef6a0a2b0dbf932be9a20919c29aba91608f16d74ff029f56",
+      "git_blob_oid": "9f773c1efe1a99c6c7bd5ddef1a0917defd9c950"
+    },
+    {
+      "path": "coordination/tests/test_fast_competition_fixes.py",
+      "bytes": 12203,
+      "sha256": "fa699910c33c403fef24a11afe28cccc41ff652fc4f81b87624395b29ab68cc6",
+      "git_blob_oid": "3fdb224c11407b878910cdaa2744dd4fb805214e"
+    },
+    {
+      "path": "coordination/tests/test_fcu_configuration.py",
+      "bytes": 1009,
+      "sha256": "d5d5b82a805951078048ec2bf43b527ba66d6d57967be8865b029d0e9fb78b7e",
+      "git_blob_oid": "b80d3192d27cebe47b11e8dd47d500152bad2c65"
+    },
+    {
+      "path": "coordination/tests/test_fixture_contacts.py",
+      "bytes": 1587,
+      "sha256": "78f1f0918637f919b619e9aa90ff2b6593cb473153e641265a5185adb5cd6823",
+      "git_blob_oid": "998ab382b9675bddc1de05d4a648b5c5185a7178"
+    },
+    {
+      "path": "coordination/tests/test_fleet_auction_barrier.py",
+      "bytes": 2028,
+      "sha256": "8aa0df3bb6616b397feb78df14e72b6eb80a07ba1281813940955c5cb4974e0a",
+      "git_blob_oid": "09f69399659ee74f720100ce2b753e1820246f92"
+    },
+    {
+      "path": "coordination/tests/test_fleet_endpoint_guard.py",
+      "bytes": 1980,
+      "sha256": "4598667a9b4f083e71d4122a95ab348bb82d859706c10589e2f9fffb24deb2fe",
+      "git_blob_oid": "0134338db5cddad45e3ffbdabace29feb4de98ba"
+    },
+    {
+      "path": "coordination/tests/test_fleet_motion_guard.py",
+      "bytes": 2250,
+      "sha256": "c1d5d911c9703fdca9f35f655ec5dde511600813711cba341df18847216ccf4e",
+      "git_blob_oid": "17a37ddb6619016dd61bcdfd23a6ca54b2d800d5"
+    },
+    {
+      "path": "coordination/tests/test_flight_actor_evidence.py",
+      "bytes": 1950,
+      "sha256": "44dcb896636a0e37b2a4e3198100f9dd4548354a085c44a77e9b7c92dd50d97e",
+      "git_blob_oid": "08aae71f58a2be7f637021531f3dbb44cee699fb"
+    },
+    {
+      "path": "coordination/tests/test_green_original_motion.py",
+      "bytes": 2101,
+      "sha256": "6d62787d03224fe35ef294f2fd9efbd155bc4f75a68c2eff6f3fac5775a9b388",
+      "git_blob_oid": "2c48b7234a9bdad43568d430a51fb5ae888a42fc"
+    },
+    {
+      "path": "coordination/tests/test_grid_source.py",
+      "bytes": 18160,
+      "sha256": "e61c63c20a4d3f6ca06ca7788520c91baae24ee63e67cb2fd1e5b6f7027fbbad",
+      "git_blob_oid": "06ab2da0ff7647f593e1c17bdc5a18984c984489"
+    },
+    {
+      "path": "coordination/tests/test_handoff_reacquisition.py",
+      "bytes": 3775,
+      "sha256": "da46a5c87a5601b5efdc8b644bd6bade7043cfee3a02ddcd82a0e7970b84dc39",
+      "git_blob_oid": "4e611f105f16cb440975cdd6cb29d8ee9b515784"
+    },
+    {
+      "path": "coordination/tests/test_jersey_color.py",
+      "bytes": 2167,
+      "sha256": "ccd7fa68806d179b6eb4ff9ada3fd72b98ca994f3650829bc1bedff90296c131",
+      "git_blob_oid": "002bd99050b5cb60dbe46dea0f9596a4b80bb1ba"
+    },
+    {
+      "path": "coordination/tests/test_judge_terminal.py",
+      "bytes": 2757,
+      "sha256": "54705af7afcdbaa2975c3009c4a2d80191441b779dd2e74d5584afdbb143d635",
+      "git_blob_oid": "5405239c6ffbd4601b6908a118ba2a48e93a5020"
+    },
+    {
+      "path": "coordination/tests/test_legacy_migration.py",
+      "bytes": 3832,
+      "sha256": "e66f0d280ae8140461fecb47bd742e7dd9cc01d579aec0f2c8ed47ca92ea1cb9",
+      "git_blob_oid": "8eda7af2c02e8fb4708b4919fe36e9ecde09258e"
+    },
+    {
+      "path": "coordination/tests/test_local_grid.py",
+      "bytes": 6641,
+      "sha256": "6520d5f131299c0c165311b26d42e57e466d3906dcda80b9a0d4f49285bc5d4d",
+      "git_blob_oid": "37f123266b5fc6f8af2a7dbf586a22664962a2c9"
+    },
+    {
+      "path": "coordination/tests/test_navigation_regressions.py",
+      "bytes": 10466,
+      "sha256": "63808fb8cdffb6661471dd67a2adc63dc0eaf2fc2f40d211038fc99e575dd341",
+      "git_blob_oid": "cdff5c8c1630f927ef9a3843b34c4bd69cf59ec2"
+    },
+    {
+      "path": "coordination/tests/test_official_judge_transport.py",
+      "bytes": 3500,
+      "sha256": "ad09bbc1fd7f65a8975871455898bd0c554da831ca462cf9480da651225be276",
+      "git_blob_oid": "7dc763cfab0c12262b82d1c5287b1f8cabe72cb6"
+    },
+    {
+      "path": "coordination/tests/test_official_report_coast.py",
+      "bytes": 2393,
+      "sha256": "6d687b095c9c082041d5262f3a72d84bf00a30b4e0b3f74fdad174d571f222b1",
+      "git_blob_oid": "1c672bf333d49196fc093b616ce5573e59e1233a"
+    },
+    {
+      "path": "coordination/tests/test_official_report_sources.py",
+      "bytes": 5823,
+      "sha256": "3895a4c5d736b088cf460760f40e510c5a094d299df0a8beea72a288c759653a",
+      "git_blob_oid": "42d78c711a8dc4a82733edb1dfedbcecbf20eef3"
+    },
+    {
+      "path": "coordination/tests/test_official_tracker.py",
+      "bytes": 857,
+      "sha256": "5cbc456b5038b2ca67df4da8755239eae86b5135d0122b0f9dd4cd68b01447dd",
+      "git_blob_oid": "e01f35191161e864a4630f4b80dd8d82c055e094"
+    },
+    {
+      "path": "coordination/tests/test_online_radar_planner.py",
+      "bytes": 7690,
+      "sha256": "718ec17d9cd545d0880c61fe3f2ec329fcd381bae7645c12f904cbdedec7059b",
+      "git_blob_oid": "ecc0dd01e9adb6f75d8b44bf8f9d686f071a08fb"
+    },
+    {
+      "path": "coordination/tests/test_orbit_geometry.py",
+      "bytes": 7506,
+      "sha256": "254897b45644e7f8709e9e8d483e4d582f17ee9ded0b1297834568f3a3be511d",
+      "git_blob_oid": "c045f2e1d3299e5be1d9210855deb88897445f27"
+    },
+    {
+      "path": "coordination/tests/test_own_visual_guidance.py",
+      "bytes": 4594,
+      "sha256": "be5904619f230ce23bcab68b5b871d5bd1e6eda2887611a6d88dfdce3d4b3abb",
+      "git_blob_oid": "5b5a4e0bb6afa93f40df1790257f0847933d50d1"
+    },
+    {
+      "path": "coordination/tests/test_owned_run_interrupt.py",
+      "bytes": 3589,
+      "sha256": "7010cea084e8c265fe88481a73719f23ea273274bf9bbec7fbec082798cecb17",
+      "git_blob_oid": "180bbadd93d78bcfe12258d42ee643d0b6704d9f"
+    },
+    {
+      "path": "coordination/tests/test_perception_association_ranking.py",
+      "bytes": 3289,
+      "sha256": "729f74786bbf668dc46d648645238f55ad1b8d3265708f9ee58e20dbd4cc327e",
+      "git_blob_oid": "d2570ce8b521ab215a03f5ba2f511fea95e949eb"
+    },
+    {
+      "path": "coordination/tests/test_perception_discovery.py",
+      "bytes": 5324,
+      "sha256": "83d02b57cffd22a6493be619011c465199e9713f8f14dc1d131bf8dff8848dba",
+      "git_blob_oid": "4186c590116e538ca6831e5809a39462698950fb"
+    },
+    {
+      "path": "coordination/tests/test_perception_staleness.py",
+      "bytes": 2697,
+      "sha256": "228424de33a0ea7e87908a0db76872a3fc24fc703601539a8f2770d1ce2cde21",
+      "git_blob_oid": "c7937078e29fb2ec35b748d1b10b144a20f6ceb1"
+    },
+    {
+      "path": "coordination/tests/test_person_verifier.py",
+      "bytes": 4309,
+      "sha256": "21e60ae57eb7f7b482504457120b044da1be88fe5ef1ec7fe2a559611d1c50f8",
+      "git_blob_oid": "3309338fe489b482ce8370b7c069a5786fb84329"
+    },
+    {
+      "path": "coordination/tests/test_planar_altitude.py",
+      "bytes": 1875,
+      "sha256": "defe70495451a28dba50da8340a41f25545f9c212d8bf0780af404cfb07b022b",
+      "git_blob_oid": "126437c021ca9bf59c773691c7c8bfc24d0131fb"
+    },
+    {
+      "path": "coordination/tests/test_pose_quality.py",
+      "bytes": 5494,
+      "sha256": "4d99d610225fe921eb2b44096a302214b0cd0a79b0dde8c83dd9c6c346974ed4",
+      "git_blob_oid": "6ff7bc80bbb106b76a27f4348de96c95fea03d75"
+    },
+    {
+      "path": "coordination/tests/test_pose_rate.py",
+      "bytes": 13453,
+      "sha256": "4a7dadf59310d7ea39a8d338844970c520e7e30c4bc39fd794065330f8d3d126",
+      "git_blob_oid": "03e3586593c946023bce6fe961eea59a616da123"
+    },
+    {
+      "path": "coordination/tests/test_position_brake.py",
+      "bytes": 5504,
+      "sha256": "adc8d03c62378a986f7e5991fb5c7985d132b3374a1c7be2903c199f67887148",
+      "git_blob_oid": "4114ff2b6283104a691bc1c41a19ced764c3e205"
+    },
+    {
+      "path": "coordination/tests/test_publisher_authority.py",
+      "bytes": 1096,
+      "sha256": "e60af13093224aadd70f0ea702998587f90a803463a421b9e5b1f6226835b796",
+      "git_blob_oid": "85a46d8b39fa1c40607d6ba904bd07ed0fcb66b2"
+    },
+    {
+      "path": "coordination/tests/test_radar_fleet_models.py",
+      "bytes": 4636,
+      "sha256": "5bdffe95a87bbda8f8bb9562ec6d1d79f55b1eda6cf0442bd576b24bb52929a9",
+      "git_blob_oid": "c34c6ef61edaf15d36703d2a92a974f9d92a23a8"
+    },
+    {
+      "path": "coordination/tests/test_radar_fleet_wiring.py",
+      "bytes": 3929,
+      "sha256": "af098f18dfa821dc05c499f6e67183b59bd26857d39db2dee4504056442a1199",
+      "git_blob_oid": "4009f97f4859a1d4954fb6697262a5008d6bbc57"
+    },
+    {
+      "path": "coordination/tests/test_radar_observed_map.py",
+      "bytes": 4540,
+      "sha256": "9c1d34bfad9f73f13f9b548cae53773214d8c691cf0128dd68bb6ea84b31869e",
+      "git_blob_oid": "bfdbe82ee2b347350d688b5b23f766c153e6ef88"
+    },
+    {
+      "path": "coordination/tests/test_radar_velocity_guard.py",
+      "bytes": 16153,
+      "sha256": "1ed96ebd1a09fc67dff5332b7d2e6eb0bcbe1146b5948a3829fe511cac78df29",
+      "git_blob_oid": "46932f7f7db863bdc402a810987cf16033aac953"
+    },
+    {
+      "path": "coordination/tests/test_recent_motion.py",
+      "bytes": 2331,
+      "sha256": "3b93008d8e72ca0d55649ae2242db8d64ae1c5ab20fefaec1becb66ed411d781",
+      "git_blob_oid": "a163198cc0db11d4137d9c1ed57cee245eb253bf"
+    },
+    {
+      "path": "coordination/tests/test_red_judge_compat.py",
+      "bytes": 2734,
+      "sha256": "0e1447f4d373fc8708a79672bd04cef6c8907e0e6eac9b59baeb6547a9b79034",
+      "git_blob_oid": "53217ed9084947f2a5cf2ca2570b86480a71daa9"
+    },
+    {
+      "path": "coordination/tests/test_red_motion_limits.py",
+      "bytes": 2020,
+      "sha256": "b96f1187f45f53af86a21598a01d3226941c1986b1e98442a266c6af376fddac",
+      "git_blob_oid": "d74cf0367ad34f38a2d6c29abaf5c0d2374cc291"
+    },
+    {
+      "path": "coordination/tests/test_red_observations.py",
+      "bytes": 4154,
+      "sha256": "78851464675045aa8a4c9f78fd4da780ff1258ebfa7dfd3605d2796c701ef75d",
+      "git_blob_oid": "42a3ff0f77c3b17316ad0fff5a230bb5139c56e8"
+    },
+    {
+      "path": "coordination/tests/test_reserved_orbit.py",
+      "bytes": 4414,
+      "sha256": "9d3d8c38864dcf444edc01249af649abfec5b17ea8fdfca916b43994d1f4dbd7",
+      "git_blob_oid": "85385aa6c6e77344eb56745a7d74c2818f42a17a"
+    },
+    {
+      "path": "coordination/tests/test_route_corner_following.py",
+      "bytes": 2724,
+      "sha256": "c79e3a386df1249c8a620623b460e5aee8671417907580090075d30b386773b6",
+      "git_blob_oid": "f6e60b7cdb78e5ea668a79f6789db0d1d6170073"
+    },
+    {
+      "path": "coordination/tests/test_route_endpoint.py",
+      "bytes": 1253,
+      "sha256": "46d812ccc1f032776a315df5a5a33138cc179036307929d47bdad221713f2138",
+      "git_blob_oid": "edb24dfd216c3e39f56aba89fc23d02ae4aa8f48"
+    },
+    {
+      "path": "coordination/tests/test_route_reservation.py",
+      "bytes": 4598,
+      "sha256": "9e16423f6301396b69cf61af9dd1516097a8cc17c5cc1eba03f01faf855bae72",
+      "git_blob_oid": "f487b02e9833e00466723f1d15be6cc96f523c3c"
+    },
+    {
+      "path": "coordination/tests/test_route_runtime.py",
+      "bytes": 11847,
+      "sha256": "4645ab6c258703f90f9f606430f2119bd1e214d5c171d04de8403e2f3f0c5bf7",
+      "git_blob_oid": "0367f94d61ad35eab32d31adca42e4b33346a702"
+    },
+    {
+      "path": "coordination/tests/test_route_safety.py",
+      "bytes": 13714,
+      "sha256": "5297e78d5b30404038e2181ee21ed16fea1636a15cb1c5845640ad5701d7bcfc",
+      "git_blob_oid": "eeb272a549b21e1df4b0ac73d755bae44edb2082"
+    },
+    {
+      "path": "coordination/tests/test_route_speed_budget.py",
+      "bytes": 14749,
+      "sha256": "1c9863318e95f3d4d92207e637a8eeff8d2e5f8de1f5bd166c2658f9659e28b0",
+      "git_blob_oid": "9affa4e4c5ff9d989571fe72053a05caa3791009"
+    },
+    {
+      "path": "coordination/tests/test_scene_mode.py",
+      "bytes": 6015,
+      "sha256": "47ac38cbaa894d86c5ecf3162d3e6f3d29d0eaabd592cdd149179295916ba34a",
+      "git_blob_oid": "66c62c9881160e15a64686eb0447ba79c87a3b4b"
+    },
+    {
+      "path": "coordination/tests/test_search_bounded_progress.py",
+      "bytes": 3318,
+      "sha256": "cc7954e5b6c368d6bc2959f23707e44839556607b61a0acd01b168867c42207a",
+      "git_blob_oid": "6dfeb9709a34b1f23b4da70e67c592bf07a3bcde"
+    },
+    {
+      "path": "coordination/tests/test_search_completion.py",
+      "bytes": 1432,
+      "sha256": "ea372d24822979354f755eee3de00ac3191e2c4a87a023ce48c376a4831c2114",
+      "git_blob_oid": "e6db7f2bb4204d9d4292c8fcf635f672d80c1eb5"
+    },
+    {
+      "path": "coordination/tests/test_search_lease_v2.py",
+      "bytes": 1693,
+      "sha256": "a5b2008f05f0e0cbcab3f56dddc72bcf62647e67b9e7b10437b4ee22fe14e039",
+      "git_blob_oid": "a0a9a720acad4041c46f5b701e95473f00c0eb5a"
+    },
+    {
+      "path": "coordination/tests/test_search_observation.py",
+      "bytes": 28491,
+      "sha256": "f9c2cbd0ccdc7fad6487766c6fef23af9ce67a4cd68196d7c4faed03141af2e3",
+      "git_blob_oid": "099db42aba19013510f154dbdcdc5dd7f8e98778"
+    },
+    {
+      "path": "coordination/tests/test_search_occupancy.py",
+      "bytes": 5241,
+      "sha256": "cf3e6c5ab0e0da7aac784a289c0d75ca065f034a0c0f8f5735cfe553cf2507d0",
+      "git_blob_oid": "85fe96828c269b868269b2ca864fd5d73bc4a0ee"
+    },
+    {
+      "path": "coordination/tests/test_search_priority_defaults.py",
+      "bytes": 1863,
+      "sha256": "78a7ed21560edd947eaabc8715f70fffbc9e90e062877c86a7bc38378d441b3f",
+      "git_blob_oid": "5d19be4319410f14bfebb8aeb313d1fa9a6394f7"
+    },
+    {
+      "path": "coordination/tests/test_shadow_dilation.py",
+      "bytes": 4739,
+      "sha256": "08181682d41648eb5d7b848c4ed2a8a1fe121d08f9076a18cb1dac21025888a7",
+      "git_blob_oid": "07009b5419f8c8dfb237ddae2a46db521d483949"
+    },
+    {
+      "path": "coordination/tests/test_single_stack_port_guard.py",
+      "bytes": 1352,
+      "sha256": "1d0034dadff19830f2caaa18514bd2dd23070ac1ea777da005a5056670148c81",
+      "git_blob_oid": "5aaea7d4b89a209db9a08c7c473b74f39e4fd6f1"
+    },
+    {
+      "path": "coordination/tests/test_stale_tracking_intent.py",
+      "bytes": 2998,
+      "sha256": "97d32b4d8cca5844b87163f36ec83c405887490c16a33d1cf3d4fdab12f30434",
+      "git_blob_oid": "3f2e04863653607a952234c369688c86b62f90a8"
+    },
+    {
+      "path": "coordination/tests/test_stationary_person.py",
+      "bytes": 5213,
+      "sha256": "fd4e9b3f5b4722a0adeffec92b6348ecd659eac149efba780d0262ebf6b37c8c",
+      "git_blob_oid": "47721478ca39a21792b9956c5be20bdab4a1e726"
+    },
+    {
+      "path": "coordination/tests/test_stopped_observation.py",
+      "bytes": 6277,
+      "sha256": "36e6f67d754353c3cc7a4aae972c3f0cc013c42da84838fa716033244f97c349",
+      "git_blob_oid": "3516e50dc869f51a946d2ce939530526ed240ad8"
+    },
+    {
+      "path": "coordination/tests/test_target_chase_speed.py",
+      "bytes": 6817,
+      "sha256": "86ebfd9f3baeab8a5030a268264ea2a4d96d0f20d0a9844f45b1bc7d700ed8de",
+      "git_blob_oid": "741ba2db5001cbf0092c81de7c4c055612f85c0d"
+    },
+    {
+      "path": "coordination/tests/test_target_motion.py",
+      "bytes": 2235,
+      "sha256": "435ad3c88d9e2aa579467ed3288b45ff5be94470669d1af13fafa94afd8edbf7",
+      "git_blob_oid": "87d0af54fe0c34919afa8cbc75de6fe720e6c0bc"
+    },
+    {
+      "path": "coordination/tests/test_task_authority_v2.py",
+      "bytes": 12424,
+      "sha256": "fc7b037f50bdcfa32be22d770e88c1aaab3bc7c04b75793d68f7edc7bff087ce",
+      "git_blob_oid": "836ced1cc99b8779df040e3df414d7ea4007813a"
+    },
+    {
+      "path": "coordination/tests/test_tracker_selection.py",
+      "bytes": 3449,
+      "sha256": "67ae7eeb8b553c5ec02d92fca4ad136fa5d1d3a5bc9a2740a1a39d6051bddae5",
+      "git_blob_oid": "47809086b2450d89e823caab1d324ccaae28e234"
+    },
+    {
+      "path": "coordination/tests/test_tracking_backoff.py",
+      "bytes": 9166,
+      "sha256": "cce73a68159fdf8c9d8a4482974dd60be4b89cbca20ec9df52614be49792d403",
+      "git_blob_oid": "d3b127100384b188ffbdda042faa9e6853f982e0"
+    },
+    {
+      "path": "coordination/tests/test_tracking_navigation.py",
+      "bytes": 6462,
+      "sha256": "e91838f45334315ed6df95d169ece0163cebc03b8f837a368c3387a4b9f3cd6b",
+      "git_blob_oid": "7791dd33fa23f3d650043cf1e70f62b6860779f3"
+    },
+    {
+      "path": "coordination/tests/test_tracking_plan_handoff.py",
+      "bytes": 7349,
+      "sha256": "98c655a0617fef13f9b1b6a69591b92395359927668e8927209f2fe7f12cc186",
+      "git_blob_oid": "e08c38667e3a50efd45833b3ef5972527e89a279"
+    },
+    {
+      "path": "coordination/tests/test_uav_motion.py",
+      "bytes": 10728,
+      "sha256": "15f30ffa14de87d6978c086a5d5748133a71b78f31bb8c55914a551b26bffb90",
+      "git_blob_oid": "4804ad03323d074184d963ebe048780476cad0e7"
+    },
+    {
+      "path": "coordination/tests/test_visual_accuracy_observer.py",
+      "bytes": 3338,
+      "sha256": "e52c146b3380e7dfcc77104ab9b848fa446be7011e164e39220dce120026749a",
+      "git_blob_oid": "d6e60bf36c529b99f956546ea7a3432275f917b2"
+    },
+    {
+      "path": "coordination/tests/test_visual_gap_capture.py",
+      "bytes": 2936,
+      "sha256": "ffde72952cf3c4604b70e3e1e69ee251119504b4053a0b45ee809dd2d5eeda0d",
+      "git_blob_oid": "a819ee947f52adfb46bafd592fa03e06e5b08a8a"
+    },
+    {
+      "path": "coordination/tests/test_visual_observation.py",
+      "bytes": 7392,
+      "sha256": "80721ac471e58daf628e80d06a618a183fbdc67ac55e9894a3a4e91fa4f8be82",
+      "git_blob_oid": "37952e4a0775bab7d60d3bf3d4b53f67a33ae367"
+    },
+    {
+      "path": "coordination/tests/test_visual_rendezvous.py",
+      "bytes": 3776,
+      "sha256": "eae6d731f9a67efdcc572e2f71fdc7f50cbdf7e0a7e78b9740f432448f6467c7",
+      "git_blob_oid": "5777fb054b42e7b7eae7d8faaca6b6cf00577e5d"
+    },
+    {
+      "path": "coordination/tests/test_visual_report_frame_dedup.py",
+      "bytes": 2963,
+      "sha256": "f9e1cd891e525ac024445e4555ababaeebd737afa840e1d2b04da04e6026cf5e",
+      "git_blob_oid": "7f30d2f6bbee92e73e8f36dcffe95b110b5e37f8"
+    },
+    {
+      "path": "coordination/tests/test_white_early_discovery.py",
+      "bytes": 5190,
+      "sha256": "468193f22dc96f8c875693b87bcc46e5ded65b0c828d971ff08a4bccfe63a2e5",
+      "git_blob_oid": "ccad397a738f3a051fbc6b18fa6eab1fb983de57"
+    },
+    {
+      "path": "coordination/tests/test_white_tools.py",
+      "bytes": 20686,
+      "sha256": "828b0bf04cb6f29de6bd2f2a09d80a686a9fc4c7b73c562deec7040c50658b00",
+      "git_blob_oid": "9b8d1576f2e8a761f8da8d76f5cd758e28fbb06f"
+    },
+    {
+      "path": "coordination/vendor/official_robocup/20261006/score_cal.py",
+      "bytes": 13133,
+      "sha256": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+      "git_blob_oid": "22ac8b6d0ef747c5fdc98e8cbc0fdd7c2aac4b23"
+    },
+    {
+      "path": "perception/.gitattributes",
+      "bytes": 94,
+      "sha256": "e2430fe425e0b805a832523c07dada8b6edcbed939e5b4492a52c524535d6b9a",
+      "git_blob_oid": "0f28acd2af4b5e3be953560b05ea83d820a321c7"
+    },
+    {
+      "path": "perception/.gitignore",
+      "bytes": 262,
+      "sha256": "d51d54c5b8a9a6516c76cae2b6baca13315a53cb6325649e1b792ecb3b5df6b8",
+      "git_blob_oid": "bc0d65cf84e38c0e8b76ef2db81659aef21a4f92"
+    },
+    {
+      "path": "perception/README.md",
+      "bytes": 33519,
+      "sha256": "f32265146e1a0d5f90124e965669ec0c4b9d4b4b8ce947168d3528a4938ae89b",
+      "git_blob_oid": "402d929b402f9b0bbd0f74c5d48a1072524b4eae"
+    },
+    {
+      "path": "perception/camera_geometry.py",
+      "bytes": 2540,
+      "sha256": "8f516845c0cffdbaa8cfaf67ad27c57ab2e4ab3d2b8fdd9a3c5da29c19559201",
+      "git_blob_oid": "a5b7e63d4e6c018ef9f544fd878fe7f208eddccb"
+    },
+    {
+      "path": "perception/camera_task.py",
+      "bytes": 1586,
+      "sha256": "a5fd517fc18332c9151098e70a8f6be76a8c85461972b6b333d41e7d3e092e41",
+      "git_blob_oid": "3204aafdecb2abba4e6ba7563525202ff13a177d"
+    },
+    {
+      "path": "perception/docs/部署检查清单.md",
+      "bytes": 10924,
+      "sha256": "b2cdb2872204137be2f38b0b60cd6591a85a2b976520755ed83842afca7fd221",
+      "git_blob_oid": "a6fd0be4634009caa1bb7d38d267574ce5769bad"
+    },
+    {
+      "path": "perception/enhanced_tracker.py",
+      "bytes": 17504,
+      "sha256": "d4eb217325c6496145b575ead792668f427dea4ea3e93a583a09cda0e3bbb6a6",
+      "git_blob_oid": "60d631ed2904f3a1a63908738a56e6751bfa0135"
+    },
+    {
+      "path": "perception/evidence_capture.py",
+      "bytes": 4466,
+      "sha256": "3b3b7c4275da0307d420583ee93f71e6b93c3eb78ab30fe380158a4f838875de",
+      "git_blob_oid": "c8df9af6a6092eb7e6b2d2e77ca0006f86909811"
+    },
+    {
+      "path": "perception/frame_probe.py",
+      "bytes": 4479,
+      "sha256": "ec9d262b012832ff04579b77ad7a9b4114ef39eb541a2333a680de4295cc6cd1",
+      "git_blob_oid": "9d107ddc66082b752fe80cf3cf12c17dc2124975"
+    },
+    {
+      "path": "perception/fresh_person.py",
+      "bytes": 2134,
+      "sha256": "a1f4f11c28d8c738cf6e2a2306cfce069417e46d9a6c7fb9b51f13d59e163477",
+      "git_blob_oid": "e3f291389b9af4a761c93407ba31f8fa309136a5"
+    },
+    {
+      "path": "perception/jersey_color.py",
+      "bytes": 1779,
+      "sha256": "13d49f153f56cc826288272900e4662ce08d61cc2fad99f7b9a76bb156503365",
+      "git_blob_oid": "eacb7616c3d8170c1fbf9128625b3da9ac5471b5"
+    },
+    {
+      "path": "perception/launch/robocup_1uav.launch",
+      "bytes": 2313,
+      "sha256": "e0fa180dc286484a6f00a370ad748620bf7e5f585b9759f498e89d3d39134482",
+      "git_blob_oid": "87b2e3b69ea6e99ae11bb91b938645a340e590fa"
+    },
+    {
+      "path": "perception/launch/uav_only.launch",
+      "bytes": 1449,
+      "sha256": "5ac9f1150130dfa617a70bd1932b8c548840b1f839462b0504b61281ed4848c4",
+      "git_blob_oid": "20b04c69aab484312fb09b69b264f3381bae0e76"
+    },
+    {
+      "path": "perception/launch/world_min.launch",
+      "bytes": 1728,
+      "sha256": "ab34d77b59c036a24f01a70226be745f55d61096238bd820fa4e7baed0daa9e3",
+      "git_blob_oid": "083f3b531085aa436350b40c7e5c4fa1dc5c3087"
+    },
+    {
+      "path": "perception/launch/world_only.launch",
+      "bytes": 773,
+      "sha256": "d537d6a544fee994011d33c1f199c720a2569f620e630e7a35bcf27660bfef1b",
+      "git_blob_oid": "dac5daa469d1b908b49afbb73a013611767adedd"
+    },
+    {
+      "path": "perception/motion_identity.py",
+      "bytes": 3226,
+      "sha256": "63cc396202637d84f3e758d699cda2c5d805a7b427352d7b8682d86e0bb6cafc",
+      "git_blob_oid": "a677ce6d607d596f34e0cbe37758e23899ce8dd7"
+    },
+    {
+      "path": "perception/patch/README.md",
+      "bytes": 3935,
+      "sha256": "18121435003938deabf6fb9d94278a90ac98a9fc1a912a72407ceef786a33c04",
+      "git_blob_oid": "2267425ebea15155829c1d4cbc08f7f26cecff50"
+    },
+    {
+      "path": "perception/patch/add_stereo_camera.py",
+      "bytes": 10556,
+      "sha256": "a163d25497e25d389ad824dda212689886c54240f166d58a50e878624110cd07",
+      "git_blob_oid": "e1858effc0935cb793f3cf356898bd5e580ca80a"
+    },
+    {
+      "path": "perception/perception_real.py",
+      "bytes": 121542,
+      "sha256": "94b78d278bfceff0fc4a7eec66264770f89cb5802f6d7c945c5ca845d9bba681",
+      "git_blob_oid": "fc3283a9462e05e93311b3a51140dd6e98eac3da"
+    },
+    {
+      "path": "perception/person_verifier.py",
+      "bytes": 9954,
+      "sha256": "f39d17811354aec7720937a9f062c5b1fc4cc79a879c21c6861964748a094cbf",
+      "git_blob_oid": "a458a6ef3f792efa48831bb829ae8324a3b89988"
+    },
+    {
+      "path": "perception/recent_motion.py",
+      "bytes": 1500,
+      "sha256": "cf6375665ef04e877e6439f4681fdc049fd2bcc9e7bb72c9298cc74a38e3efe5",
+      "git_blob_oid": "62fefe4e166fdb3bf0641428ec7bee6f616ece3d"
+    },
+    {
+      "path": "perception/requirements.txt",
+      "bytes": 244,
+      "sha256": "0c62c612281122d827f665c8d6f664278e1d9fd95dce297deff8c664bf0a3c2b",
+      "git_blob_oid": "87a4df0164254c46afed6b5ca3215cae1462fae1"
+    },
+    {
+      "path": "perception/scripts/analyze_snap.py",
+      "bytes": 7829,
+      "sha256": "5ae315e7d0ac7066cb63513295c737413db1be76113b80ea7bcc7d1866da8059",
+      "git_blob_oid": "071cae8f1175435316c96076b2243af6e6aa5817"
+    },
+    {
+      "path": "perception/scripts/check_target_report_schema.py",
+      "bytes": 7646,
+      "sha256": "836f948b5d617a8a44ebaba7e96bcea17260a78edc86ec6e826bc920b2f4bf19",
+      "git_blob_oid": "35046907114a2feeeb2d1eb2b6e5b928e4666640"
+    },
+    {
+      "path": "perception/scripts/control_actor_m2.py",
+      "bytes": 22062,
+      "sha256": "921e7180f2195893405159a896db982ca8a2da722d3a18125a74566594172b48",
+      "git_blob_oid": "2c2482b17958d0c438f941ae00192bc6d4b125d1"
+    },
+    {
+      "path": "perception/scripts/env_robocup.sh",
+      "bytes": 3407,
+      "sha256": "431fba1742dbfb20ee5fdfd5e023fecc49fa093bbf0e9846f854acf442f902cd",
+      "git_blob_oid": "edd7b092bf0912fe0553aef284ec9a3ebf8ab5ca"
+    },
+    {
+      "path": "perception/scripts/fly_takeoff.py",
+      "bytes": 7755,
+      "sha256": "6ca28d5972b438291be772da20c384df51888f1fee9eaad15f3b3bb097b6ea18",
+      "git_blob_oid": "f6f25014dd69c6c23658b37be2d3cc6ec49a2d13"
+    },
+    {
+      "path": "perception/scripts/ground_truth_bridge.py",
+      "bytes": 4962,
+      "sha256": "9f7c8c613434f6050584758d72670854b2c21434b023cee0b6eeaeb41b28c863",
+      "git_blob_oid": "ef6c1ef69cd8085650582bb6c36b28294ff02e0a"
+    },
+    {
+      "path": "perception/scripts/guide_actor.py",
+      "bytes": 2153,
+      "sha256": "bb7cf785585688448cfd705220574c97d59716de1a5a845b84f63b6e3d266ff5",
+      "git_blob_oid": "c3bfa2d32479caf49c88ee68a66b4720037511ae"
+    },
+    {
+      "path": "perception/scripts/guide_patrol.py",
+      "bytes": 2831,
+      "sha256": "d0cc20d63fb2d86740f0baf5ec08ad8a5639773ccd32888912a4894112dc63b4",
+      "git_blob_oid": "8dfd521386b59f8daa70d663a7da12b0255cbc4b"
+    },
+    {
+      "path": "perception/scripts/judge_official_15s.py",
+      "bytes": 8882,
+      "sha256": "9b874e149aa16ec72e9b62c7d2dc1f93b3e49921f2d09aceb88f6c4134ed3bba",
+      "git_blob_oid": "b8992e97f978f4197e07bc897097914154ee1c47"
+    },
+    {
+      "path": "perception/scripts/probe_actor_speed.py",
+      "bytes": 2160,
+      "sha256": "78b5e9cfd33eaf32937b9ae64ff9ba5e1dbbcd516f6e81526547caddc79948bb",
+      "git_blob_oid": "cc90a3f1dad25cba07d8dd54097f1baa54ba78f4"
+    },
+    {
+      "path": "perception/scripts/proc_util.sh",
+      "bytes": 2245,
+      "sha256": "986e42f61e018005e53060472c0fcd88236c5876a64b08ac1f7b786983cdde8a",
+      "git_blob_oid": "a4cd1c8a4fec0a0a41fb7b116603422245a07b61"
+    },
+    {
+      "path": "perception/scripts/rec_snap.py",
+      "bytes": 3737,
+      "sha256": "1f3dad3ebc0fcd0f17f35ee1383fc26716b232f63287994121dcbdadb6c69ab9",
+      "git_blob_oid": "1c3c60fe94e78e5a42dcdaf86165059a09107aa2"
+    },
+    {
+      "path": "perception/scripts/replay_target_report.py",
+      "bytes": 6127,
+      "sha256": "7212d60dd8140b4eab12867447769b9d155fa9619e0f702bfd209976111092e9",
+      "git_blob_oid": "f8554ac24d54ff70516481ed8b9fdcc9d5d9ab78"
+    },
+    {
+      "path": "perception/scripts/restart_stack_fly.sh",
+      "bytes": 6848,
+      "sha256": "2349ff9c696b77b526f3cca56d9309adad808200fe66d0d18d9af295bc129aec",
+      "git_blob_oid": "6ab35c18ae287b31ff001ac72e107d5e015e4904"
+    },
+    {
+      "path": "perception/scripts/run_actors.sh",
+      "bytes": 1775,
+      "sha256": "4c20fd83e9598de64f850ae7cc17f544096d7561c759326539793c289b534fbc",
+      "git_blob_oid": "3d656f897f9ec4c8e70601d28f1e862cebebbfdd"
+    },
+    {
+      "path": "perception/scripts/snapshot_cam.py",
+      "bytes": 1099,
+      "sha256": "4d36648c90b46a6c0818f3c0220c1b0f6ac30186509882e968da5a5c98bbd4e4",
+      "git_blob_oid": "6d20f30f3423aced07b8772798af5cb40eb9937b"
+    },
+    {
+      "path": "perception/scripts/verify_official_assets.py",
+      "bytes": 14935,
+      "sha256": "dff32f08a47d6ad7b82459fe6965701055c501fd4be81bd488e923c981ccff09",
+      "git_blob_oid": "f53c7e7e6c8de87c7417f14ee38a9b025922843e"
+    },
+    {
+      "path": "perception/shared_inference_client.py",
+      "bytes": 6761,
+      "sha256": "252707ece65ccad7b540a9d386f73084f92d5c8b764237b3c532d0d140642a10",
+      "git_blob_oid": "189e73eead05316e534c871693b6b40ff597d6bd"
+    },
+    {
+      "path": "perception/shared_inference_service.py",
+      "bytes": 11136,
+      "sha256": "7ef30245223bccb59306523bd282added3e9771013d9f8c4349ef2faf930f58b",
+      "git_blob_oid": "579dad883652350094001f53dcdfe05435145f52"
+    },
+    {
+      "path": "perception/stationary_person.py",
+      "bytes": 368,
+      "sha256": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330",
+      "git_blob_oid": "b3b0b048619ec4586e9d88f8b4e4dcf6c32f8a0f"
+    },
+    {
+      "path": "perception/tests/test_evidence_capture.py",
+      "bytes": 4130,
+      "sha256": "1986cceb7e623c73a87a562dd72555961d9e21ded44472b7c692dafcadff093a",
+      "git_blob_oid": "1f433e4e8ac68b185497053a0d2777da8aa7d005"
+    },
+    {
+      "path": "perception/tests/test_frame_probe.py",
+      "bytes": 6925,
+      "sha256": "bce4027c77f1db7f761c1bc7084c23f2256227d61714ceca0485ff598bc4fbd1",
+      "git_blob_oid": "2e132d65dc713337453d7021cfa7a4a59b35774f"
+    },
+    {
+      "path": "perception/tests/test_person_verifier_rich.py",
+      "bytes": 14949,
+      "sha256": "9d92dbdd77cba3a722698cb184fe5c6fb3ee87aa74bcad6a0fe52b9f7531108b",
+      "git_blob_oid": "002cafd417fbf56c19a295ea973790b6b7452fd6"
+    },
+    {
+      "path": "perception/tests/test_shared_inference.py",
+      "bytes": 9144,
+      "sha256": "22dd1a03337d87d305707f918329691e011c85681df0e597db2729ded6028e48",
+      "git_blob_oid": "b4cd864d7ef46724fa42d9e1a9d723f47bd8601a"
+    },
+    {
+      "path": "perception/tools/README.md",
+      "bytes": 2242,
+      "sha256": "b04ce21893ed2931064322535799500bf026cdaa93097ec36c94d0d6cfcbf914",
+      "git_blob_oid": "2826335a8a3058092ab5305b9e9c247f5ce51978"
+    },
+    {
+      "path": "perception/tools/audit_brown_red.py",
+      "bytes": 3977,
+      "sha256": "f67000198311d17c52e490ed8b2f578052944ee720c2a6d680a6dfff91a5e54d",
+      "git_blob_oid": "e9eb012a1593ac2f7bd604702055acb2fad60459"
+    },
+    {
+      "path": "perception/tools/calib_selfmask.py",
+      "bytes": 12839,
+      "sha256": "a7bd303b90c81b51681a75720dc39f9d6d59dd0657cb923be7dc64c9f1b99f94",
+      "git_blob_oid": "a85068bf978faf19fd13b2d4dd6bacc30fb942e0"
+    },
+    {
+      "path": "perception/tools/diag_geom.py",
+      "bytes": 3670,
+      "sha256": "6594f8f239901c17b37ccab000beaecbc6cde55fd36c5f0b500c20e31c801208",
+      "git_blob_oid": "86259e7d4d9b1336878ef96d87bd81b265086bba"
+    },
+    {
+      "path": "perception/tools/diag_identity.py",
+      "bytes": 3158,
+      "sha256": "02c394e5d15421e8ec3b0e9b2823637914823361e8b863d11d3596ad20b4eeee",
+      "git_blob_oid": "dd81a8b56521a21efcb7e7cf200c2365958c313a"
+    },
+    {
+      "path": "perception/tools/dual_check.py",
+      "bytes": 12433,
+      "sha256": "531fe13d72939f1f50d75b7b632041ec1953a6d4631481a85998140e4eed7513",
+      "git_blob_oid": "37b62acc186976bd0cb9e4ea99a1367949b64b93"
+    },
+    {
+      "path": "perception/tools/fly_to_actor.py",
+      "bytes": 19745,
+      "sha256": "9eb0bfe0d9b61ff856c8ba3210d2ae7019c3a7451eb95db16b466b02004b248b",
+      "git_blob_oid": "d3be18ae408e0e966d8be2feab3047633f161821"
+    },
+    {
+      "path": "perception/tools/hover_teleport.py",
+      "bytes": 17749,
+      "sha256": "fb571799cba9cf4c1ef23ff6fae9d6058f643df099a32c74b3fc3b26c28f2ea4",
+      "git_blob_oid": "e458cac1e9546995d0059a34d8dfb2d889fe9d70"
+    },
+    {
+      "path": "perception/tools/ht_watch.py",
+      "bytes": 3900,
+      "sha256": "c179e3b3a82b6b992dcf6bb3f48417a01a5122efd106d20b0bff6f0a26d05413",
+      "git_blob_oid": "f1f9e791a82b0f626462cddde7fb35f8ce0b85d9"
+    },
+    {
+      "path": "perception/tools/m3_verify.py",
+      "bytes": 14391,
+      "sha256": "4d94301178fcc3acbdfd0fa149dbe617d87d86eb742dfae163a9a0edb58cf2b6",
+      "git_blob_oid": "75415e07ba9b9d969f6366c7d68de1b38dcd4738"
+    },
+    {
+      "path": "perception/tools/m5_dump_analyze.py",
+      "bytes": 4468,
+      "sha256": "259bb36f55be570b2f096e6c5b800792461413ad42dbf9a3e20e09a46e9f6c1f",
+      "git_blob_oid": "ffda4c00d2b8d5621d54bc7437c561edc14b36be"
+    },
+    {
+      "path": "perception/tools/probe_target_report.py",
+      "bytes": 6868,
+      "sha256": "ce32ff969b253ae9b59bbd8ab6d9a80e9005e79e7c769cf836f1f7c5303e83ac",
+      "git_blob_oid": "4e4fd1872ba8117b98c373533a1bedb92a5e53cf"
+    },
+    {
+      "path": "perception/tools/snap_frame.py",
+      "bytes": 1328,
+      "sha256": "b9b50e22a4a912e32d84587184032a7c23d4d9f847b96df136473a047093dfbf",
+      "git_blob_oid": "1198c8753507c8ebea88d583b18ba64390374670"
+    },
+    {
+      "path": "perception/tools/test_assoc_gate.py",
+      "bytes": 3481,
+      "sha256": "a421a99984c26a87c6e9a9cfd9d34f76bc856f3fe3f416774a42b53d246bddc4",
+      "git_blob_oid": "9a28ea51b0decd47e345b01c9fd6e59cfba8fa37"
+    },
+    {
+      "path": "perception/tools/test_red_slots.py",
+      "bytes": 6576,
+      "sha256": "8add31f797eb4ea97f405e7ad28133d72eee4918ef9ca54134d286b4229f76ab",
+      "git_blob_oid": "c8fe60be8acd6ab4db4a4c8de810e149e1f0e558"
+    },
+    {
+      "path": "perception/tools/val_cm.py",
+      "bytes": 1957,
+      "sha256": "a2bbc4d041e6e2d251ecaef19da649f6ad7e371a8abefc7fc998259955f91421",
+      "git_blob_oid": "909f2fcca5d1e64b497e184a5e4ced16bd27fc88"
+    },
+    {
+      "path": "perception/white_discovery.py",
+      "bytes": 1248,
+      "sha256": "299e70ef8eef9d59dbf531da54bb08161e8d79fb8e0042186606e49c860c8dff",
+      "git_blob_oid": "049c037d2d0fa8810411686779b403a6feb902b3"
+    },
+    {
+      "path": "perception/worlds/actor_min.world",
+      "bytes": 16567,
+      "sha256": "dae08641ca9c733b7ff1383400cb4fc7aee512a6cb9aba963cd96ab0c0fa5938",
+      "git_blob_oid": "2cae96e0d78feea428851f63248e1d0777bb3bcf"
+    }
+  ]
+}

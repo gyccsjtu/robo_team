@@ -1,0 +1,6 @@
+*.md text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+# Keep this last: preserve every exported Git blob, including original CRLF.
+candidate/** -text
