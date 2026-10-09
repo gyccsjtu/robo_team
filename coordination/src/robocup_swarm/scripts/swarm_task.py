@@ -411,8 +411,12 @@ class TaskAllocator(object):
         # spawn 区 actor_4/5 蹲守不足 → find_finish 反而下降 (v12c 3→v12d 1)。
         # 解决方案：任务前 90s 给近距离格加 ~0.8/ft 的额外偏向，6 架机先在 spawn 区
         # 充分搜索找到 actor_4/5，90s 后再分散到远端 (actor_1/2/3 在 (70,22)/(18,-18)/(72,32))。
+        # v24 修正（2026-10-09）：90s 蹲守实测失效 —— actor_4/5 出生即跑（第一段
+        # 路径直指东区），spawn 区蹲守找不到它们，反而把 5min 覆盖锁定在 17%
+        # （x∈[-44.5,43]）。缩到 30s：出生区短暂停留后立即散开，结合搜索巡航提速
+        # （SEARCH_CRUISE_SPEED=3.0）显著扩大覆盖面积。
         self.mission_start = None
-        self.early_phase_sec = float(os.environ.get("EARLY_PHASE_SEC", "90.0"))
+        self.early_phase_sec = float(os.environ.get("EARLY_PHASE_SEC", "30.0"))
         # ---- NBV ----
         self.vis_enable = VIS_ENABLE
         # ---- 国家一等奖标准：目标预瞄 ----
@@ -620,7 +624,20 @@ class TaskAllocator(object):
         # 区域因子：搜索阶段优先选择自己区域内的格子
         uav_zone = self.grid.get_uav_zone(uav_id)
         cell_zone = self.grid.get_zone_id(cell_key)
-        zone_bonus = 1.0 if cell_zone == uav_zone else 0.5  # 本区域+1，其他区域+0.5（差异 0.5，配合 W_ZONE=1.2 → 0.6 影响力足以主导）
+        # v20（2026-10-09）：起飞期强分区铺开。
+        # v19 尸检（logs_20261009_000759）：brown 东区 (11,-16) 297s 才首检、red2 全场零检测
+        # （被 12~20m 惊动盲区吓跑后一路逃到 x=120 深处）——根因是起飞期 zone_bonus 差异仅
+        # 0.5×1.2=0.6，近格 gain+novelty 全满直接压过 zone，6 架全被派在西区 col 2~4
+        # （manager 分配日志实锤），东区/北区责任机 h480_1/3/5 全被留在西区。
+        # 修复：early_phase 内外区 0.0（差异 1.2×W_ZONE=1.2，配合 spread 扎堆惩罚，
+        # 本区远格效用稳定压过外区近格 → 起飞即直奔本责任区，90s 内 6 区铺满）；
+        # early_phase 结束后恢复 0.5 软约束，允许跨区支援。
+        if cell_zone == uav_zone:
+            zone_bonus = 1.0
+        elif self.mission_start is not None and (_now() - self.mission_start) < self.early_phase_sec:
+            zone_bonus = 0.0   # 起飞期：只搜本责任区（强倾斜，非硬过滤——外区格子仍有 gain/novelty/spread）
+        else:
+            zone_bonus = 0.5   # 常规期：软约束
 
         # 新颖性：越久没被派过（含从未派过）分越高 —— 面覆盖真正的主排序键
         _last = self.visit_time.get(cell_key, 0.0)

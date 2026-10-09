@@ -2,7 +2,7 @@
 import rospy
 import sys
 from std_msgs.msg import Int16,String, Time, Float32
-from robocup_swarm.msg import ActorInfo
+from robocup_swarm.msg import ActorInfo  # [MERGED 2026-10-09] 适配本队桥节点（远端用 ros_actor_cmd_pose_plugin_msgs）
 from gazebo_msgs.srv import DeleteModel,GetModelState
 import time
 import os
@@ -27,28 +27,8 @@ DETECTION_DURATION = 15.0
 MISSION_TIMEOUT = 600.0
 DEFAULT_UAV_LOSS_PENALTY = 100.0
 UAV_MISS_LIMIT = 3
-#跟踪分数相关设置
-TRACKING_DURATION = 20.0
-TRACKING_DISTANCE = 10.0
-uav_positions = [None] * uav_num
-tracking_start_time = [None] * actor_num
-tracked_actors = set()
 
-
-
-left_actors = []
-find_actors = []
-actors_pos = [None] * actor_num
-count_flag = [False] * actor_num
-topic_arrive_time = [0.0] * actor_num
-find_time = [0.0] * actor_num
-
-
-find_actor_pub = []
-mission_finished = False
-uav_loss_count = 0
-uav_loss_penalty = DEFAULT_UAV_LOSS_PENALTY
-# 2026-10-05 复盘统计：score_cal reset 触发与 streak 长度分布（聚合写 stderr）
+# [MERGED 2026-10-09] 复盘统计：reset 触发 / streak 长度 / 误差直方图（远端无）
 _STATS = {
     "last_t": 0.0,
     "cb_calls": 0,
@@ -61,21 +41,31 @@ _STATS = {
     "streak_len_max": 0.0,
     "streak_lt1": 0, "streak_1to5": 0, "streak_5to10": 0,
     "streak_10to15": 0, "streak_ge15": 0,
-    # 2026-10-06: 裁判误差判据（<1m）直方图 —— 上报坐标 vs Gazebo 真值距离。
-    # ge1 是"越界即清零"的直接计数，dist_max 是全程最远误差。
     "dist_n": 0, "dist_max": 0.0,
     "dist_lt03": 0, "dist_03to05": 0, "dist_05to08": 0,
     "dist_08to1": 0, "dist_ge1": 0,
     "streak_last_start": None,
     "_last_reset_cause": None,
 }
+
+left_actors = []
+find_actors = []
+actors_pos = [None] * actor_num
+count_flag = [False] * actor_num
+topic_arrive_time = [0.0] * actor_num
+find_time = [0.0] * actor_num
+find_actor_pub = []
+mission_finished = False
+uav_loss_count = 0
+uav_loss_penalty = DEFAULT_UAV_LOSS_PENALTY
 sensor_cost = 0.0
 target_finish = 0
 find_finish = 0
 score = 0.0
 time_usage = 0.0
 start_time = 0.0
-
+flag_1 = 0
+flag_2 = 1
 
 
 def _now():
@@ -90,21 +80,44 @@ def _publish_score():
 
 
 def _progress_score():
-    track_finish = len(tracked_actors)
-
-    return (
-        find_finish * 50
-        + track_finish * 80
-        + target_finish * 100
-        - sensor_cost * 3e-3
-        - uav_loss_count * uav_loss_penalty
-    )
+    # [MERGED 2026-10-09] 已删除 track×80（远端 4a6542b 回滚了 eca3453 的跟踪分）
+    return (find_finish * 50 + target_finish * 100
+            - sensor_cost * 3e-3 - uav_loss_count * uav_loss_penalty)
 
 
+# [MERGED 2026-10-09] 复盘统计聚合（10s 窗口写 stderr）
+def _stats_dump(now, force=False):
+    if not force and (now - _STATS["last_t"] < 10.0 or _STATS["last_t"] == 0.0):
+        if _STATS["last_t"] == 0.0:
+            _STATS["last_t"] = now
+        return
+    s = _STATS["streak_samples"]
+    avg = (_STATS["streak_len_sum"] / s) if s > 0 else 0.0
+    sys.stderr.write(
+        "[SCORE_STATS] win=%.0fs cb=%d reset=%d far_dist=%d discontinuous=%d "
+        "streak_avg=%.2fs max=%.2fs buckets(lt1/1-5/5-10/10-15/ge15)=%d/%d/%d/%d/%d "
+        "dist(n/max/ge1)=%d/%.2fm/%d\n" % (
+            now - _STATS["last_t"],
+            _STATS["cb_calls"], _STATS["reset_total"],
+            _STATS["reset_by_distance"], _STATS["reset_by_discontinuous"],
+            avg, _STATS["streak_len_max"],
+            _STATS["streak_lt1"], _STATS["streak_1to5"], _STATS["streak_5to10"],
+            _STATS["streak_10to15"], _STATS["streak_ge15"],
+            _STATS["dist_n"], _STATS["dist_max"], _STATS["dist_ge1"]))
+    sys.stderr.flush()
+    _STATS.update({"cb_calls": 0, "reset_total": 0,
+                   "reset_by_distance": 0, "reset_by_discontinuous": 0,
+                   "streak_samples": 0, "streak_len_sum": 0.0, "streak_len_max": 0.0,
+                   "streak_lt1": 0, "streak_1to5": 0, "streak_5to10": 0,
+                   "streak_10to15": 0, "streak_ge15": 0,
+                   "dist_n": 0, "dist_max": 0.0,
+                   "dist_lt03": 0, "dist_03to05": 0, "dist_05to08": 0,
+                   "dist_08to1": 0, "dist_ge1": 0,
+                   "last_t": now, "streak_last_start": None})
 
+
+# [MERGED 2026-10-09] [FINAL] 单行汇总（_finish 与 ROS shutdown 异常路径共用）
 def _emit_final(reason):
-    """2026-10-06: [FINAL] 单行汇总（_finish 与 ROS shutdown 异常路径共用）。
-    dist 字段是裁判误差判据（<1m）的直接证据：n=样本数 max=最远 ge1=越界次数。"""
     _ss = _STATS
     print(
         "[FINAL] score={} find_finish={} uav_loss={} "
@@ -139,7 +152,7 @@ def _finish(reason, final_score=None):
     if mission_finished:
         return
     mission_finished = True
-    # 2026-10-05 复盘：进程退出前强制打出最后一段聚合
+    # [MERGED 2026-10-09] 进程退出前强制打出最后一段聚合
     try:
         _stats_dump(_now(), force=True)
     except Exception:
@@ -148,7 +161,7 @@ def _finish(reason, final_score=None):
         score = final_score
     print(reason)
     print('score:', score)
-    # 2026-10-06: Ctrl-C / SIGTERM 时也保证能从 03_judge.log 末尾 grep 到最终值
+    # [MERGED 2026-10-09] Ctrl-C / SIGTERM 时也保证能从 03_judge.log 末尾 grep 到最终值
     try:
         _stats_dump(_now(), force=True)
         _emit_final(reason)
@@ -165,7 +178,7 @@ def _reset_detection(actor_id):
     count_flag[actor_id] = False
     find_time[actor_id] = 0.0
     topic_arrive_time[actor_id] = 0.0
-    # 2026-10-05 复盘统计：reset 触发频率（按原因拆分）—— 判断 EMA 双轨制是否生效
+    # [MERGED 2026-10-09] reset 计数 + streak 桶统计
     _STATS["reset_total"] += 1
     if _STATS.get("_last_reset_cause"):
         _STATS["reset_by_" + _STATS["_last_reset_cause"]] += 1
@@ -176,44 +189,12 @@ def _reset_detection(actor_id):
         _STATS["streak_len_sum"] += dur
         if dur > _STATS["streak_len_max"]:
             _STATS["streak_len_max"] = dur
-        # 桶：<1s / 1-5 / 5-10 / 10-15 / >=15
         if   dur < 1.0:  _STATS["streak_lt1"]   += 1
         elif dur < 5.0:  _STATS["streak_1to5"]  += 1
         elif dur < 10.0: _STATS["streak_5to10"] += 1
         elif dur < 15.0: _STATS["streak_10to15"] += 1
         else:            _STATS["streak_ge15"]  += 1
-    _STATS["streak_last_start"] = -1.0  # 表示本轮未在 streak
-
-
-def _stats_dump(now, force=False):
-    """2026-10-05 复盘统计：score_cal 的 reset/streak 聚合一览"""
-    if not force and (now - _STATS["last_t"] < 10.0 or _STATS["last_t"] == 0.0):
-        if _STATS["last_t"] == 0.0:
-            _STATS["last_t"] = now
-        return
-    s = _STATS["streak_samples"]
-    avg = (_STATS["streak_len_sum"] / s) if s > 0 else 0.0
-    sys.stderr.write(
-        "[SCORE_STATS] win=%.0fs cb=%d reset=%d far_dist=%d discontinuous=%d "
-        "streak_avg=%.2fs max=%.2fs buckets(lt1/1-5/5-10/10-15/ge15)=%d/%d/%d/%d/%d "
-        "dist(n/max/ge1)=%d/%.2fm/%d\n" % (
-            now - _STATS["last_t"],
-            _STATS["cb_calls"], _STATS["reset_total"],
-            _STATS["reset_by_distance"], _STATS["reset_by_discontinuous"],
-            avg, _STATS["streak_len_max"],
-            _STATS["streak_lt1"], _STATS["streak_1to5"], _STATS["streak_5to10"],
-            _STATS["streak_10to15"], _STATS["streak_ge15"],
-            _STATS["dist_n"], _STATS["dist_max"], _STATS["dist_ge1"]))
-    sys.stderr.flush()
-    _STATS.update({"cb_calls": 0, "reset_total": 0,
-                   "reset_by_distance": 0, "reset_by_discontinuous": 0,
-                   "streak_samples": 0, "streak_len_sum": 0.0, "streak_len_max": 0.0,
-                   "streak_lt1": 0, "streak_1to5": 0, "streak_5to10": 0,
-                   "streak_10to15": 0, "streak_ge15": 0,
-                   "dist_n": 0, "dist_max": 0.0,
-                   "dist_lt03": 0, "dist_03to05": 0, "dist_05to08": 0,
-                   "dist_08to1": 0, "dist_ge1": 0,
-                   "last_t": now, "streak_last_start": None})
+    _STATS["streak_last_start"] = -1.0
 
 
 def _delete_actor(actor_id):
@@ -233,6 +214,7 @@ def _delete_actor(actor_id):
     return True
 
 
+# [MERGED 2026-10-09] 远端基线 + _STATS 累积 / RESET_DBG / dist 直方图叠加
 def _process_actor_detection(msg, actor_ids):
     global find_finish, score, time_usage
     if mission_finished or not getattr(msg, 'cls', None):
@@ -252,8 +234,7 @@ def _process_actor_detection(msg, actor_ids):
             continue
         distance_sq = ((msg.x - position.x) ** 2 + (msg.y - position.y) ** 2)
         continuous = previous == 0.0 or now - previous <= DETECTION_INTERVAL
-        # 2026-10-06: 裁判误差判据（<1m）直方图 —— 上报坐标 vs Gazebo 真值，
-        # 含被 reset 的样本（越界样本正是"计时清零"的直接原因，必须统计）
+        # [MERGED] dist 直方图（含被 reset 的样本）
         _dist = distance_sq ** 0.5
         _STATS["dist_n"] += 1
         if _dist > _STATS["dist_max"]:
@@ -264,13 +245,10 @@ def _process_actor_detection(msg, actor_ids):
         elif _dist < 1.0:  _STATS["dist_08to1"]  += 1
         else:              _STATS["dist_ge1"]    += 1
         if distance_sq >= err_threshold ** 2 or not continuous:
-            # 拆分 reset 原因：distance vs discontinuous（用于判断 EMA 双轨制是否生效）
-            # 2026-10-06 修：旧三元式 "discontinuous" if continuous else "distance"
-            # 标签写反 —— 走到此处且 continuous=True 时失败原因必是 distance。
+            # [MERGED] 拆分 reset 原因：distance vs discontinuous
             _STATS["_last_reset_cause"] = ("distance" if distance_sq >= err_threshold ** 2
                                            else "discontinuous")
-            # 2026-10-06 B 项诊断打印：每帧距离误差值（判断外推补偿是过冲还是欠补）
-            # （v10 复盘：此打印此前只在 XTDrone/robocup 版有，coordination 版漏合并）
+            # [MERGED] RESET_DBG 诊断打印：每帧距离误差（判断外推补偿是过冲还是欠补）
             if continuous:
                 sys.stderr.write(
                     "[RESET_DBG] actor=%s dist=%.2fm msg=(%.2f,%.2f) true=(%.2f,%.2f) t=%.2fs\n"
@@ -303,12 +281,133 @@ def _process_actor_detection(msg, actor_ids):
         if target_finish == actor_num:
             elapsed = max(0.0, now - start_time)
             score = (2580.0 - elapsed - sensor_cost * 3e-3
-                     - uav_loss_count * uav_loss_penalty)
+                     - uav_loss_count * 30.0)
             _finish('Mission finished', score)
         else:
             print('score:', score)
             _publish_score()
-    # 2026-10-05 复盘：每回调聚合一次 _STATS（10s 窗口）
+    # [MERGED] 每回调聚合一次 _STATS
+    _stats_dump(now)
+
+
+# [MERGED 2026-10-09] 远端基线（4a6542b 红色交叉匹配修复）+ _STATS 累积 / RESET_DBG / dist 直方图叠加
+def _process_red_detection(msg, flag_name, reset_value):
+    """Process a red-target message using the legacy two-target matching.
+
+    Both red topics are allowed to match either actor_4 or actor_5.  The
+    callback only clears a pending red detection after both red target
+    candidates fail the same message, which is the behavior used by the
+    Downloads version of this node.
+    """
+    global find_finish, score, time_usage, flag_1, flag_2
+    if mission_finished or getattr(msg, 'cls', '') != 'red':
+        return
+
+    red_cnt = 0
+    actor_ids = actor_id_dict['red']
+    now = _now()
+    _STATS["cb_calls"] += 1
+    _STATS["_last_reset_cause"] = None
+    for actor_id in actor_ids:
+        if actor_id not in left_actors:
+            continue
+
+        position = actors_pos[actor_id]
+        previous = topic_arrive_time[actor_id]
+        topic_arrive_time[actor_id] = now
+        # [MERGED] 把 distance_sq 提前抽出便于做直方图（远端在 valid 里内联）
+        distance_sq = ((msg.x - position.x) ** 2 +
+                       (msg.y - position.y) ** 2)
+        continuous = previous == 0.0 or now - previous <= DETECTION_INTERVAL
+        # [MERGED] dist 直方图
+        _dist = distance_sq ** 0.5
+        _STATS["dist_n"] += 1
+        if _dist > _STATS["dist_max"]:
+            _STATS["dist_max"] = _dist
+        if   _dist < 0.3:  _STATS["dist_lt03"]   += 1
+        elif _dist < 0.5:  _STATS["dist_03to05"] += 1
+        elif _dist < 0.8:  _STATS["dist_05to08"] += 1
+        elif _dist < 1.0:  _STATS["dist_08to1"]  += 1
+        else:              _STATS["dist_ge1"]    += 1
+        valid = (position is not None
+                 and distance_sq < err_threshold ** 2
+                 and continuous)
+
+        if valid:
+            if not count_flag[actor_id]:
+                count_flag[actor_id] = True
+                find_time[actor_id] = now
+                if actor_id in find_actors:
+                    find_actors.remove(actor_id)
+                find_finish = actor_num - len(find_actors)
+                if actor_id < len(find_actor_pub):
+                    find_actor_pub[actor_id].publish(now)
+                score = _progress_score()
+                print('find actor_' + str(actor_id))
+                _publish_score()
+                if flag_name == 'flag_1':
+                    flag_1 = actor_id
+                else:
+                    flag_2 = actor_id
+                continue
+
+            if now - find_time[actor_id] < DETECTION_DURATION:
+                continue
+            if not _delete_actor(actor_id):
+                continue
+
+            _reset_detection(actor_id)
+            print('actor_%d is OK' % actor_id)
+            print('Time usage:', time_usage)
+            if target_finish == actor_num:
+                elapsed = max(0.0, now - start_time)
+                score = (2580.0 - elapsed - sensor_cost * 3e-3
+                         - uav_loss_count * 30.0)
+                _finish('Mission finished', score)
+            else:
+                print('score:', score)
+                _publish_score()
+            continue
+
+        # [MERGED] 红色路径失败时计入 reset（远端不统计）
+        if position is not None:
+            if distance_sq >= err_threshold ** 2:
+                _STATS["reset_total"] += 1
+                _STATS["reset_by_distance"] += 1
+                sys.stderr.write(
+                    "[RESET_DBG] red actor=%s dist=%.2fm msg=(%.2f,%.2f) true=(%.2f,%.2f) t=%.2fs\n"
+                    % (actor_id, distance_sq**0.5, msg.x, msg.y, position.x, position.y, now))
+            elif not continuous:
+                _STATS["reset_total"] += 1
+                _STATS["reset_by_discontinuous"] += 1
+        # [MERGED] streak 闭合
+        cur = _STATS["streak_last_start"]
+        if cur is not None and cur != -1.0:
+            dur = now - cur
+            _STATS["streak_len_sum"] += dur
+            _STATS["streak_samples"] += 1
+            if dur > _STATS["streak_len_max"]:
+                _STATS["streak_len_max"] = dur
+            if   dur < 1.0:  _STATS["streak_lt1"]   += 1
+            elif dur < 5.0:  _STATS["streak_1to5"]  += 1
+            elif dur < 10.0: _STATS["streak_5to10"] += 1
+            elif dur < 15.0: _STATS["streak_10to15"] += 1
+            else:            _STATS["streak_ge15"]  += 1
+            _STATS["streak_last_start"] = -1.0
+
+        red_cnt += 1
+
+    # Match the Downloads implementation: reset the candidate remembered by
+    # this red topic only when both red actors fail this message.
+    if red_cnt == len(actor_ids):
+        current_flag = flag_1 if flag_name == 'flag_1' else flag_2
+        if current_flag != reset_value and current_flag in actor_ids:
+            count_flag[current_flag] = False
+            if flag_name == 'flag_1':
+                flag_1 = reset_value
+            else:
+                flag_2 = reset_value
+    # [MERGED] 每回调聚合一次
     _stats_dump(now)
 
 
@@ -317,75 +416,11 @@ def actor_info_callback(msg):
     _process_actor_detection(msg, ids)
 
 def actor_info1_callback(msg):
-    _process_actor_detection(msg, [5] if getattr(msg, 'cls', '') == 'red' else [])
+    # [MERGED 2026-10-09] 远端红色交叉匹配修复：red1 话题走 _process_red_detection
+    _process_red_detection(msg, 'flag_1', 0)
 
 def actor_info2_callback(msg):
-    _process_actor_detection(msg, [4] if getattr(msg, 'cls', '') == 'red' else [])
-    
-def _update_tracking(now):
-    global score
-
-    for actor_id in list(left_actors):
-
-        actor_pos = actors_pos[actor_id]
-
-        if actor_pos is None:
-            tracking_start_time[actor_id] = None
-            continue
-
-        in_tracking_range = False
-
-        for uav_id in range(uav_num):
-
-            if uav_lost[uav_id]:
-                continue
-
-            uav_pos = uav_positions[uav_id]
-
-            if uav_pos is None:
-                continue
-
-            dx = uav_pos.x - actor_pos.x
-            dy = uav_pos.y - actor_pos.y
-
-            distance_sq = dx * dx + dy * dy
-
-            if distance_sq <= TRACKING_DISTANCE ** 2:
-                in_tracking_range = True
-                break
-
-        # 当前至少有一架无人机在跟踪范围内
-        if in_tracking_range:
-
-            # 本轮连续跟踪开始
-            if tracking_start_time[actor_id] is None:
-                tracking_start_time[actor_id] = now
-
-            # 连续跟踪达到20秒
-            elif (
-                now - tracking_start_time[actor_id]
-                >= TRACKING_DURATION
-            ):
-
-                # 同一目标跟踪分只记一次
-                if actor_id not in tracked_actors:
-
-                    tracked_actors.add(actor_id)
-
-                    print(
-                        'actor_%d tracking success' % actor_id
-                    )
-
-                    score = _progress_score()
-                    _publish_score()
-
-        else:
-            # 本轮连续跟踪失败，重新计时
-            # 但不会取消已经获得的跟踪分
-            tracking_start_time[actor_id] = None
-
-
-
+    _process_red_detection(msg, 'flag_2', 1)
 
 if __name__ == "__main__":
     left_actors = list(range(actor_num))
@@ -393,14 +428,13 @@ if __name__ == "__main__":
     actors_pos = [None] * actor_num
     count_flag = [False] * actor_num
     topic_arrive_time = [0.0] * actor_num
-    tracking_start_time = [None] * actor_num
-    tracked_actors = set()
-
     find_time = [0.0] * actor_num
     find_actor_pub = []
     mission_finished = False
     uav_loss_count = 0
     uav_loss_penalty = DEFAULT_UAV_LOSS_PENALTY
+    flag_1 = 0
+    flag_2 = 1
     uav_seen = [False] * uav_num
     uav_lost = [False] * uav_num
     uav_miss_count = [0] * uav_num
@@ -408,9 +442,9 @@ if __name__ == "__main__":
     time.sleep(1)
     start_time = rospy.get_time()
     del_model = rospy.ServiceProxy("/gazebo/delete_model",DeleteModel)
-    get_model_state = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState) 
-    score_pub = rospy.Publisher("/score",Int16,queue_size=1) 
-    time_usage_pub = rospy.Publisher("/time_usage",Int16,queue_size=1) 
+    get_model_state = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
+    score_pub = rospy.Publisher("/score",Int16,queue_size=1)
+    time_usage_pub = rospy.Publisher("/time_usage",Int16,queue_size=1)
     left_actors_pub = rospy.Publisher("/left_actors",String,queue_size=1)
     actor_blue_sub = rospy.Subscriber("/actor_blue_info",ActorInfo,actor_info_callback,queue_size=1)
     actor_green_sub = rospy.Subscriber("/actor_green_info",ActorInfo,actor_info_callback,queue_size=1)
@@ -448,26 +482,17 @@ if __name__ == "__main__":
                 success = getattr(response, 'success', True)
                 if success:
                     uav_pos_tmp = response.pose.position
-
-                    # 保存该无人机当前位置
-                    uav_positions[i] = uav_pos_tmp
-
                     uav_seen[i] = True
                     uav_miss_count[i] = 0
-
                     if uav_pos_tmp.z > MAX_UAV_ALTITUDE:
                         score = 0
-                        _finish(
-                            'Warning: UAV %d is higher than 6 meters' % i,
-                            0
-                        )
+                        _finish('Warning: UAV %d is higher than 6 meters' % i, 0)
                         break
                 elif uav_seen[i] and not uav_lost[i]:
                     uav_miss_count[i] += 1
                     if uav_miss_count[i] >= UAV_MISS_LIMIT:
                         uav_lost[i] = True
                         uav_loss_count += 1
-                        uav_positions[i] = None
                         score = _progress_score()
                         print('UAV %d lost; penalty %.1f' % (i, uav_loss_penalty))
             except Exception as exc:
@@ -486,24 +511,16 @@ if __name__ == "__main__":
                 if not getattr(response, 'success', True):
                     continue
                 actors_pos_tmp = response.pose.position
-                # 2026-10-05 国家一等奖修：旧版要求 x^2+y^2 != 0 ⇒ 原点附近 spawn
-                # 的 actor 永远进不了 actors_pos ⇒ 永远 position is None ⇒
-                # _process_actor_detection 直接 _reset_detection 清零，无法 delete。
-                # 修复：只要返回成功（x,y 是任意值）就记录，包括原点 actor。
+                # [MERGED 2026-10-09] 远端有 "x^2+y^2 != 0" 守卫，原点 spawn 的 actor
+                # 永远进不了 actors_pos → 永远 position is None → 永远 _reset_detection
+                # 本地已验证 fix：直接记录，无条件
                 actors_pos[i] = actors_pos_tmp
             except Exception:
                 continue
-        # 更新本轮时间
-        now = rospy.get_time()
-        time_usage = now - start_time
-
-        # 根据 UAV 和目标真实位置进行连续跟踪判定
-        _update_tracking(now)
-
+        time_usage = rospy.get_time() - start_time
         if time_usage > MISSION_TIMEOUT:
             _finish('Time out, mission failed', score)
             break
-
         score = _progress_score()
         _publish_score()
         time_usage_pub.publish(int(time_usage))
@@ -519,8 +536,7 @@ if __name__ == "__main__":
                     cv2.waitKey(1)
             except Exception:
                 pass
-        # 2026-10-06: hard_cap SIGINT 场景下 rate.sleep 抛 ROSInterruptException，
-        # 旧版直接裸奔退出 ⇒ 03_judge.log 只剩 traceback、复盘统计全丢（v9 即如此）。
+        # [MERGED 2026-10-09] hard_cap SIGINT 场景下 rate.sleep 抛 ROSInterruptException 兜底
         try:
             rate.sleep()
         except rospy.ROSInterruptException:

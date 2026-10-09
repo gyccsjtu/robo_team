@@ -83,7 +83,9 @@ OBS_SPREAD_M = 5.0      # 窗内新观测与已有观测的最大允许距离 m�
 SPREAD_FAR_M = float(os.environ.get("BRIDGE_SPREAD_FAR", "10.0"))
 VEL_DT_MIN = 0.10       # 最小差分间隔，避免高频小 dt 放大噪声
 VEL_ALPHA = 0.6         # 速度 EMA 增益（2026-10-06 五轮复盘：0.35 转向收敛太慢，方向误差 23° 导致外推横向偏差）
-VEL_MAX = 4.0           # 速度限幅，防 YOLO 跳变拉飞（与 cooperative_tracker 一致）
+VEL_MAX = 2.2           # 速度限幅（v24b：4.0→2.2=actor 物理上限 2m/s+10% 余量——
+                        # 4m/s 的"速度"必是 YOLO 跳变污染，外推 0.75s 就偏 3m）
+                        # 防YOLO跳变拉飞（与 cooperative_tracker 一致）
 COAST_TIME = 1.5        # 短暂遮挡：保持最后位置 s
 # === 2026-10-03 我方新增：官方播报距离闸门（带滞回）+ 播报保持器 ===
 # 官方判据：误差<1m、间隔≤1s、连续 15s（score_cal.py:135-165），15s 攒满即
@@ -91,7 +93,9 @@ COAST_TIME = 1.5        # 短暂遮挡：保持最后位置 s
 # 在 **25s 后瞬移**（control_actor.py:112-127）⇒ 净余量只有 10s，断一次就归零。
 # 单目测距误差随距离放大，远处播报会把计时清零。默认 12m —— 实测 7m 内误差
 # 0.26~0.69m（达标），15.98m 时系统报 17.09m（误差 1.1m，刚好越界）。
-ACTOR_PUB_MAX_RANGE_M = float(os.environ.get("BRIDGE_PUB_MAX_RANGE", "8.0"))
+# v22-C（2026-10-09）：8.0→9.5 —— v21 实证 brown 在 8.6m 被拦 5 次（每秒一条 GATE_DBG，
+# 差 0.6m 进不了闸门），9.5m 处单目误差 ~0.85m 仍 <1m 达标；进闸更早 = streak 更早起算。
+ACTOR_PUB_MAX_RANGE_M = float(os.environ.get("BRIDGE_PUB_MAX_RANGE", "9.5"))
 # ⛔ 原来这里有一个 GATE_RETRY_S 和 self._gate_hold，注释写"避免抖动导致话题断续"，
 #    但 **GATE_RETRY_S 从未被任何代码引用、_gate_hold 只写不读** —— 滞回其实
 #    根本没实现，闸门是纯瞬时的：range_m 一过 12m 立刻停发。目标在 12m 边界
@@ -104,7 +108,7 @@ ACTOR_PUB_HOLD_RANGE_M = float(os.environ.get("BRIDGE_PUB_HOLD_RANGE", "15.0"))
 # 补齐，把静默压在 1s 以内。外推超过 KEEPALIVE_MAX_T 就不再硬撑（宁可断，
 # 也不报一个必然 >1m 的假位置 —— 误差超 1m 同样清零）。
 ACTOR_KEEPALIVE_DT = float(os.environ.get("BRIDGE_KEEPALIVE_DT", "0.75"))
-ACTOR_KEEPALIVE_MAX_T = float(os.environ.get("BRIDGE_KEEPALIVE_MAX_T", "1.3"))
+ACTOR_KEEPALIVE_MAX_T = float(os.environ.get("BRIDGE_KEEPALIVE_MAX_T", "2.2"))
 # 2026-10-06 六轮复盘核心修复：官方判据「相邻广播间隔 <=1.0s」（score_cal DETECTION_INTERVAL）
 # 只约束不超 1s，不要求高频。广播 3Hz 时 15s streak 需 45 次连乘全过（单次失败率 20% ->
 # 成功率 0.8^45≈8e-6，必然 0 消除）；节流到 0.75s 一次后 15s 只需 20 次连乘（0.8^20=1.2%），
@@ -117,7 +121,9 @@ PUB_MIN_INTERVAL = float(os.environ.get("BRIDGE_PUB_MIN_INTERVAL", "0.75"))
 # 2.0s 停发 → 官方「间隔>1s」reset 27 次。贴脸跟随态 actor 相对静止，
 # coast 期外推封顶（te≤1.15s + EXTRAP_MAX_D 限幅）位置不漂，撑过间歇丢失
 # 15s streak 不断；actor 快速逃跑时误差 reset 早晚问题，无净损失。
-DROP_TIME = float(os.environ.get("BRIDGE_DROP_TIME", "4.0"))
+# 2026-10-08 消除 actor 冲刺：DROP_TIME 4.0→8.0（v18b streak_max=0.0s 修复，
+# 多撑 4s 遮挡防追鬼断链；EXTRAP_MAX_T/D 联合限幅保误差<1.5m）。
+DROP_TIME = float(os.environ.get("BRIDGE_DROP_TIME", "8.0"))
 # 新轨激活门槛：未激活轨只有融合窗内最高置信度 >= 该值才允许 alive。
 # 2026-10-01 复盘：3 条 0.43~0.61 的 red1 误检（真身为 green 演员）建出鬼影轨
 # t4，全队盘旋假目标并广播假消除。已激活轨不受此限（延续观测允许低置信度）。
@@ -140,9 +146,20 @@ FLEE_SPEED = 2.0        # state 粗估：超过即给 FLEE（下游不依赖该�
 # 反复归零（03_judge.log 大量重复 find actor_N）。上报前按估计速度外推（DELAY 补满全链路滞后）：
 #   te = min(gap, EXTRAP_MAX_T) + EXTRAP_DELAY
 # 距离限幅 EXTRAP_MAX_D 防速度估计被 YOLO 跳变污染时外推飞掉。
-EXTRAP_DELAY  = float(os.environ.get("BRIDGE_EXTRAP_DELAY", "0.65"))
-EXTRAP_MAX_T  = float(os.environ.get("BRIDGE_EXTRAP_MAX_T", "0.5"))
-EXTRAP_MAX_D  = float(os.environ.get("BRIDGE_EXTRAP_MAX_D", "3.0"))
+EXTRAP_DELAY  = float(os.environ.get("BRIDGE_EXTRAP_DELAY", "0.45"))
+# 2026-10-08 消除 actor 冲刺：EXTRAP_MAX_T 0.5→1.5（让最近 obs 多走 1s 进 strict 限幅），
+# EXTRAP_MAX_D 3.0→2.0（双重保护：外推距离 < 2m，仍在裁判 1m 误差阈值的 2× 内留余量）。
+# v22-D（2026-10-09）：EXTRAP_DELAY 0.65→0.45 + EXTRAP_MAX_D 2.0→1.2 —— v21 RESET_DBG
+# 实证贴脸播报误差稳定 1.39~1.58m（差 0.4m 达标，77 次 reset 全是 far_dist）：
+# actor 正常游走 1.5m/s（control_actor velocity=1.5，非逃跑），外推过冲
+# （msg 移动 1.5m/s vs true 1.07m/s）+ EXTRAP_MAX_D=2.0 打满 → 误差 1.5m。
+# 限幅 1.2m 把最坏误差压进 1m 阈值附近；欠外推 0.3s 好过过冲 0.5s（游走会转弯，
+# 过冲方向错 = 双倍罚，欠外推只罚延迟差）。
+EXTRAP_MAX_T  = float(os.environ.get("BRIDGE_EXTRAP_MAX_T", "1.5"))
+# v24b：EXTRAP_MAX_D 1.2→0.5 —— v24b 实测外推过冲 1.4~3.0m（速度被跳变拉飞时
+# 0.75s 双重前推飞掉）。0.5m 限幅 + 观测误差 0.3m = 最坏 0.8m < 1m 阈值。
+# 正常速度（1m/s）下前推需求 0.65m——0.5m 略欠外推，欠 0.15s 好过过冲（游走会转弯）。
+EXTRAP_MAX_D  = float(os.environ.get("BRIDGE_EXTRAP_MAX_D", "0.5"))
 
 # ---- 国家一等奖标准改进：自适应外推 ----
 # 自适应外推：根据速度估计质量动态调整外推参数
@@ -293,7 +310,19 @@ class TargetBridgeCore(object):
         # 2026-10-03 我方补：记录最近一次观测距离，供播报闸门使用。
         if range_m is not None:
             tr.range_m = float(range_m)
-        w = conf * conf if conf > 0.0 else 1e-6
+        # 【v24b 决定性修复 2026-10-09】融合权重加入距离因子。
+        # conf² 不含距离信息：远机（12~20m，单目误差 0.9~1.1m+）与贴脸机
+        # （2m，误差 ~0.1m）平等融合 → 融合位置被拉偏 1m+。v23c actor_0
+        # 恒偏西 1.1m（35s 稳定）、v24 actor_1 msg 在 true 前后跳 2.9m
+        # （两机观测交替主导）均为此根因。
+        # w = conf²/(1+(range/6)²)：2m→0.89、6m→0.5、12m→0.2、16m→0.12、
+        # 22m→0.07 —— 贴脸机主导融合，远机仅作存在性佐证。
+        if range_m is not None and range_m > 0.0:
+            w = conf * conf / (1.0 + (float(range_m) / 6.0) ** 2)
+        elif conf > 0.0:
+            w = conf * conf
+        else:
+            w = 1e-6
         # 先裁剪过期观测：一致性锚点只在 OBS_WINDOW 内有效。
         # 2026-10-01 复盘：旧实现锚点永不过期，YOLO 跟丢 >0.6s 后演员走出
         # 5m，重捕获观测被冻结锚点永久拒绝（拒收又不清窗）→ 目标位置冻结
@@ -511,7 +540,9 @@ class YoloTargetBridge(object):
         rospy.Subscriber("/left_actors", _msg_string_cls(),
                          self._left_cb, queue_size=5)
 
-        pub_hz = float(os.environ.get("BRIDGE_PUB_HZ", "10"))
+        # 2026-10-08 消除 actor 冲刺：PUB_HZ 10→15（间隔 0.067s ≪ 裁判 1s 阈值，
+        # 防止 tick 抖动导致 discontinuous 清零 15s 计数）。
+        pub_hz = float(os.environ.get("BRIDGE_PUB_HZ", "15"))
         self._timer = rospy.Timer(rospy.Duration(1.0 / max(1.0, pub_hz)),
                                   self._tick)
         rospy.loginfo("yolo_target_bridge 启动：target_report → /swarm/target_states"
@@ -642,7 +673,7 @@ class YoloTargetBridge(object):
         """向官方话题发布一条 ActorInfo（唯一的播报出口，供 _emit 与保持器共用）。
 
         · cls 必须取官方 actor_id_dict 的键（红球是 'red'，不是 'red1'）。
-        · RED_DUAL 时只有"当前焦点红球"会真正发出，且同时发到两条 red 流。
+        · RED_DUAL 时 red1/red2 各自只发对应 red 流，避免两球坐标交替污染累计状态。
         """
         if tag not in self._actor_pubs:
             return
@@ -663,14 +694,12 @@ class YoloTargetBridge(object):
         if _last_pub is not None and now - _last_pub < PUB_MIN_INTERVAL:
             return
         if RED_DUAL and tag in RED_TAGS:
-            # 双流同发：只发"当前焦点"那个球，避免两个球的坐标交替刷同一条流
-            # （交替 ⇒ 每条流都被对方的坐标不断 _reset_detection，永远累不满 15s）。
-            if tag != self._red_focus:
-                return
-            for t in RED_TAGS:
-                self._actor_pubs[t].publish(am)
-                self._pub_last[t] = now
-                self._note_pub(t, now)
+            # B3（2026-10-09）：双红球各轨独立播报，red1 只喂 red1 流，
+            # red2 只喂 red2 流。官方每条流内部都会匹配 actor_4/5；
+            # 若把两球坐标同发到两条流，交替坐标会清除对方流的累计状态。
+            self._actor_pubs[tag].publish(am)
+            self._pub_last[tag] = now
+            self._note_pub(tag, now)
             return
         self._actor_pubs[tag].publish(am)
         self._pub_last[tag] = now
@@ -732,8 +761,7 @@ class YoloTargetBridge(object):
             if tag not in self._actor_pubs or tag in self.core.eliminated:
                 self._gate_live[tag] = False
                 continue
-            if RED_DUAL and tag in RED_TAGS and tag != self._red_focus:
-                continue                    # 非焦点红球：本来就不发，保持器也别空转
+            # B3：非焦点红球也走保持器（双流独立后不再拦截）
             tr = self.core.tracks.get(tag)
             if tr is None or not tr.alive:
                 continue
@@ -743,8 +771,17 @@ class YoloTargetBridge(object):
                 continue
             if dt > ACTOR_KEEPALIVE_MAX_T:
                 continue                    # 太久没观测：不硬撑，等真实观测回来
-            x = tr.x + (getattr(tr, "vx", 0.0) or 0.0) * dt
-            y = tr.y + (getattr(tr, "vy", 0.0) or 0.0) * dt
+            # v24b：补发外推同样限幅 EXTRAP_MAX_D（0.5m）——dt 可达 1.3s，
+            # 速度 2.2m/s 时无限幅外推 2.86m，必被裁判 far_dist 清零。
+            _vx = getattr(tr, "vx", 0.0) or 0.0
+            _vy = getattr(tr, "vy", 0.0) or 0.0
+            _d = math.hypot(_vx * dt, _vy * dt)
+            if _d > EXTRAP_MAX_D and _d > 1e-6:
+                _s = EXTRAP_MAX_D / _d
+                _vx *= _s
+                _vy *= _s
+            x = tr.x + _vx * dt
+            y = tr.y + _vy * dt
             self._publish_actor(tag, x, y)
 
     def _tick(self, _evt):
@@ -941,24 +978,23 @@ def _red_dual_selftest():
     _activate(b, "red2", 40.0, 0.0, 8.0)
     assert b._pick_red_focus() == "red1", b._red_focus
 
-    # 焦点球（red1 / t5）⇒ 两条 red 流同发，且 cls 都是 'red'
+    # B3：red1 / t5 只发对应 red1 流，避免污染 red2 流
     b._advance(1.0)                             # 推进假时钟，越过节流窗
     b._emit(dict(tag="red1", tid="t5", x=10.0, y=0.0, vx=0.0, vy=0.0,
                  state=0, eliminated=False))
     assert len(b._actor_pubs["red1"].msgs) == 1
-    assert len(b._actor_pubs["red2"].msgs) == 1, "焦点球必须双流同发"
+    assert len(b._actor_pubs["red2"].msgs) == 0, "red1 不得污染 red2 流"
     assert b._actor_pubs["red1"].msgs[0].cls == "red"
-    assert b._actor_pubs["red2"].msgs[0].cls == "red"
-    assert b._actor_pubs["red2"].msgs[0].x == b._actor_pubs["red1"].msgs[0].x
-    print("8) 焦点红球双流同发 OK（cls='red'，坐标一致）")
+    print("8) red1 只发 red1 流 OK（cls='red'）")
 
-    # 非焦点球（red2 / t4）⇒ 一条都不发（避免两球坐标交替刷同一流）
-    n1, n2 = len(b._actor_pubs["red1"].msgs), len(b._actor_pubs["red2"].msgs)
+    # red2 / t4 只发对应 red2 流，不因当前焦点仍是 red1 而静默
+    n1 = len(b._actor_pubs["red1"].msgs)
     b._emit(dict(tag="red2", tid="t4", x=40.0, y=0.0, vx=0.0, vy=0.0,
                  state=0, eliminated=False))
-    assert len(b._actor_pubs["red1"].msgs) == n1
-    assert len(b._actor_pubs["red2"].msgs) == n2, "非焦点红球不得发布"
-    print("9) 非焦点红球静默 OK")
+    assert len(b._actor_pubs["red1"].msgs) == n1, "red2 不得污染 red1 流"
+    assert len(b._actor_pubs["red2"].msgs) == 1
+    assert b._actor_pubs["red2"].msgs[0].x == 40.0
+    print("9) red2 只发 red2 流 OK")
 
     # 官方删掉一个红衣人（actor_5）⇒ red1 作废，焦点切到可用的 red2
     b._note_red_left({0, 1, 2, 3, 4, 5})      # 先建立 baseline（首帧不作差集）
@@ -970,7 +1006,7 @@ def _red_dual_selftest():
     b._advance(1.0)                             # 推进假时钟，越过节流窗
     b._emit(dict(tag="red2", tid="t4", x=40.0, y=0.0, vx=0.0, vy=0.0,
                  state=0, eliminated=False))
-    assert b._actor_pubs["red1"].msgs[-1].x == 40.0
+    assert b._actor_pubs["red1"].msgs[-1].x == 10.0   # red1 流保持旧坐标
     assert b._actor_pubs["red2"].msgs[-1].x == 40.0
     print("10) 消除后红球焦点自动切换 OK（两个红球可依次拿分）")
 
@@ -980,7 +1016,8 @@ def _red_dual_selftest():
                  state=0, eliminated=False))
     assert len(b._actor_pubs["green"].msgs) == 1
     assert b._actor_pubs["green"].msgs[0].cls == "green"
-    assert len(b._actor_pubs["red1"].msgs) == 1 + 1     # 未被 green 追加
+    assert len(b._actor_pubs["red1"].msgs) == 1         # 未被 green 追加
+    assert len(b._actor_pubs["red2"].msgs) == 2         # 第9/10项各发一条，未受 green 影响
     print("11) 非红球路径不受影响 OK")
 
 

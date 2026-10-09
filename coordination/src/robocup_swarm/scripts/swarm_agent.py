@@ -161,6 +161,13 @@ RADAR_EMA_ALPHA   = float(os.environ.get('RADAR_EMA_ALPHA', '0.6'))    # 雷达�
 # 0.40 地板只滤掉主体、0.40~0.45 尾部残余仍触发虚假近障/三面堵死。抬到 0.50
 # 与 SLAM mark_scan 的 min_range 对齐（单一地板）。
 RADAR_SELF_ECHO_M = float(os.environ.get('RADAR_SELF_ECHO_M', '0.50'))
+# B1 近障困局脱离：前方与两侧持续收窄时，限时沿来路反向退出，避免在建筑巷道内原地抖动。
+RADAR_JAM_FRONT_R = float(os.environ.get('RADAR_JAM_FRONT_R', '2.5'))
+RADAR_JAM_SIDE_R = float(os.environ.get('RADAR_JAM_SIDE_R', '4.0'))
+RADAR_JAM_TRIGGER_S = float(os.environ.get('RADAR_JAM_TRIGGER_S', '4.0'))
+RADAR_JAM_ESCAPE_S = float(os.environ.get('RADAR_JAM_ESCAPE_S', '3.0'))
+RADAR_JAM_ESCAPE_SPD = float(os.environ.get('RADAR_JAM_ESCAPE_SPD', '1.0'))
+RADAR_JAM_CLEAR_R = float(os.environ.get('RADAR_JAM_CLEAR_R', '4.0'))
 # === 2026-10-05 比赛规则硬约束：扩大软减速带 ===
 # 旧默认 MAP_GUARD_SOFT=2.0 + MAP_GUARD_MARGIN=1.0 = 总 3m 软带。本机巡航 6 m/s
 # 下，0.05s 一帧移动 0.3m，3m 软带只能覆盖 10 帧 = 0.5s，飞机在进入软带到硬停之间
@@ -308,12 +315,12 @@ ORBIT_SPEED     = 0.13    # 盘旋角速度 rad/s（r=6m 时线速度 0.78 m/s�
 # 6m 圈在 3.2m 高度俯角 28.2°（脚）~14°（头），全身入视场；斜距 6.8m 仍在
 # 感知 10m 检测半径与桥 8m 播报闸门内。裁判 <1m 判据靠身高反推测距精度
 # （6m 处 h_px≈106，±3px → ±0.17m），与圈半径无强耦合。
-ORBIT_RADIUS_CLOSE = 6.0
+ORBIT_RADIUS_CLOSE = 4.5
 ORBIT_SPEED_CLOSE  = 0.05
-# 盘旋/追踪期目标高度上限：6m 圈下保证 actor 全身（脚部 z=0）入视场的最高高度
-# = 6.0×tan(29.5°) ≈ 3.39m，取 3.2 留余量。原逻辑追踪 +1.0m 偏移把层高 2.8 的
-# 机推到 3.8m（脚部 32.3° 出视场）、层高 4.6 的机推到 5.6m（连头部都 33° 出视场）。
-ORBIT_ALT_MAX      = float(os.environ.get('ORBIT_ALT_MAX', '3.2'))
+# B2：贴脸圈收至 4.5m，追踪高度收至 2.6m。
+# 相机离机体约 0.85m，脚部俯角约 atan((2.6-0.85)/4.5)=21.3°，仍在 VFOV 半角内；
+# 斜距约 4.8m，降低单目测距与外推误差，同时保持全身可见。
+ORBIT_ALT_MAX      = float(os.environ.get('ORBIT_ALT_MAX', '2.6'))
 # 2026-10-07 五分钟冲刺: 贴脸切换过渡期速度上限.
 # 从 6m 盘旋圈切到 2m 贴脸圈时, 0.3 增量 P 控制的最坏误差 = 0.3*(6+2)=2.4m,
 # POS_KP=0.8 → 瞬时速度 1.92 m/s > 1.0 → 在 20m 内触发官方逃跑判定(机速>1.0
@@ -335,15 +342,41 @@ SPOOK_DIST      = 22.0    # 进入此距离就压速（官方逃跑判定边界 
 # 既不触犯 1.0 m/s 阈值（15% 余量）、又能用 SPOOK_DIST=22m 让 ORCA 互斥开始前就到位。
 # 仍然配合 SPOOK_DIST=22m 形成「飞机不冲到 20m 内」的硬护栏，actor 不会逃跑。
 SPOOK_SPEED     = 0.85    # 接近阶段最大线速度 m/s（离 1.0 m/s 阈值 15% 余量，ORCA 起步前稳进）
-# 目标已进入 FLEE（官方：UAV 广播其位置后 actor 以 2 m/s 逃跑），慢速 0.5 必然被甩开跟丢。
-# 此时短暂提速咬住（须略 >2.0）；目标不在逃跑时仍用 SPOOK_SPEED 防惊吓。
-# 国家一等奖标准修复（2026-10-04）：FLEE_CHASE_SPEED=3.5，给 SPOOK_SPEED=0.5 的亏空补回，
-# 3.5 = actor 2 m/s × 1.75 倍 + DWA 安全留量，足以咬住又不会破坏 SP。
-FLEE_CHASE_SPEED  = float(os.environ.get('FLEE_CHASE_SPEED', '3.5'))
+# v24 提速（2026-10-09）：搜索巡航恒速 + 近引导点减速带距离。
+# 依据 v23 重定标：官方逃跑为「一次性闩锁」且未武装（未播报）目标不会逃，
+# 搜索段可放心全速巡航；武装目标 22m 内由 _transit_cap 压速兜底。
+# 原 P 控制搜索在 LOOKAHEAD=3m 时理论 2.4m/s、实际仅 ~1.7m/s（拥堵/近障），
+# 5min 只覆盖地图 17%（x∈[-44.5,43], y∈[-54.5,-9]），4/6 actor 的活动区
+# 从未被搜索格覆盖 → 全程零观测零派机。恒速 3.0m/s + 2m 减速带（近引导点
+# 切回 P 控制自然减速，防冲过格中心）。
+SEARCH_CRUISE_SPEED = float(os.environ.get('SEARCH_CRUISE_SPEED', '3.0'))
+SEARCH_DECEL_M      = float(os.environ.get('SEARCH_DECEL_M', '2.0'))
+# v23 重定标（2026-10-09，规则 PDF 深挖 + 官方 master e9e4ef8 代码核对）：
+# 官方 control_actor.py 逃跑机制实为「一次性闩锁」——
+#   1) 触发是瞬时判定：reported（官方首次有效播报 /find_actor_N）且任意 UAV
+#      <20m 且地速>1.0m/s → 立即逃跑（无「持续 2s」判定，v21 注释有误）；
+#   2) escape_triggered 置位后全场无任何复位点 → 每个 actor 全场至多逃一次，
+#      跑完路线后回 1m/s 随机走且永远不会再逃；
+#   3) 逃跑速度 escape_speed=2.0，路线=距最近 UAV 最远的地图角（可达 100m+）。
+# 因此 v21「0.95 追逃等官方复位」模型作废（0.95 追 2.0 必丢 YOLO 12m 接触，
+# 正是 v20/v21 confirming lost 的根因）。新策略：
+#   - 真在逃（观测速度≥ESCAPE_RUN_SPEED）→ 全速咬住，14m 内切牧羊 pace；
+#   - 逃跑跑完=「已花掉」→ 解除一切压速护栏，全速贴脸消除；
+#   - 未武装（/find_actor_N 从未发布）目标不会逃 → 全速接近到播报闸门外缘；
+#   - 反复确认被拒 → 主动花掉逃跑（SPEND_ENABLE），变永久温顺目标后从容消除。
+FLEE_CHASE_SPEED  = float(os.environ.get('FLEE_CHASE_SPEED', '6.0'))
 # 国家一等奖标准修复（2026-10-04）：bridge 已把 state 语义对齐「被观测即逃跑」，
 # FLEE_STATE_FRESH 不应只 3s（3s 后就回到 SPOOK_SPEED=0.5 慢速又被甩开）。
 # 规则 §2.5(4)：30s 未消除才瞬移；这之前 actor 一直在 2 m/s 跑。给到 25s 留 5s 余量。
 FLEE_STATE_FRESH  = float(os.environ.get('FLEE_STATE_FRESH', '25.0'))
+# === v23（2026-10-09）一次性逃跑生命周期参数（配套上方重定标） ===
+ESCAPE_RUN_SPEED      = float(os.environ.get('ESCAPE_RUN_SPEED', '1.7'))    # 观测速度≥此值视为逃跑跑中（官方逃 2.0 / 随机走 1.0）
+WALK_SPEED_MAX        = float(os.environ.get('WALK_SPEED_MAX', '1.2'))      # 观测速度≤此值视为行走
+ESCAPE_SPENT_QUIET_S  = float(os.environ.get('ESCAPE_SPENT_QUIET_S', '8.0'))  # 逃跑跑过后持续行走此时长 → 判定「已花掉」
+UNARMED_BRAKE_DIST    = float(os.environ.get('UNARMED_BRAKE_DIST', '13.0'))   # 未武装目标全速接近的减速点（播报闸门 11m + 2m 余量）
+FLEE_SHEPHERD_DIST    = float(os.environ.get('FLEE_SHEPHERD_DIST', '14.0'))   # 追逃时距目标小于此值切牧羊 pace（不冲过目标）
+FLEE_SHEPHERD_SPEED   = float(os.environ.get('FLEE_SHEPHERD_SPEED', '2.6'))   # 牧羊 pace：略快于逃跑 2.0，保持 YOLO 视场
+SPEND_ENABLE          = int(os.environ.get('SPEND_ENABLE', '1'))              # 官方反复重置确认后主动花掉一次性逃跑（0=回退旧退避行为）
 # === 2026-10-03 队友补（单机主链实测）：输出通道 / 位置设定点 / 估计可信性闸门 ===
 # 最终下发给 PX4 的通道：pos=位置设定点（默认，实测唯一能起飞且跟踪正常的通道）；
 # vel=旧的 setpoint_velocity 通道（本机实测垂向跟踪只有 20%，留作对照）。
@@ -585,6 +618,11 @@ class SwarmAgent(object):
         self._target_state = {}    # target_id -> (state, t)，目标运动状态（1=FLEE）
         self._detect_log_t = {}     # tid -> 上次 [ALGO] detect 日志时刻（按 target 分别节流）
         self._last_detect_t = 0.0
+        # ---- v23：一次性逃跑生命周期（官方 escape_triggered 闩锁模型的团队侧镜像）----
+        self._flee_run_t = {}       # tid -> 最近一次观测到逃跑跑速（≥ESCAPE_RUN_SPEED）的时刻
+        self._walk_since = {}       # tid -> 逃跑跑过后持续行走的起始时刻
+        self._escape_spent = set()  # 已花掉逃跑的目标（全场永不再逃 → 解除压速护栏）
+        self._spend_mode = set()    # 指令态：主动全速触发并花掉该目标的一次性逃跑
 
         # ---- 目标盘旋确认 ----
         self._orbit_target = None    # 当前盘旋目标 ID
@@ -602,6 +640,11 @@ class SwarmAgent(object):
         self._orbit_center = None    # 盘旋中心 (x, y)
         self._confirm_start = 0.0   # 连续确认开始时间
         self._last_confirm_t = 0.0   # 上次确认时间
+        self._los_lost_t = 0.0      # LOS 宽容窗口起算时刻（2026-10-09 修复：
+                                    # 之前在 __init__ 缺失，agent 首次进入
+                                    # _update_orbit 的不可见分支即 AttributeError
+                                    # 崩溃，实测 agent_1 连续崩 2389 次、
+                                    # agent_0 崩 8 次，直接瘫痪 2 机）
         self._target_to_orbit = None  # 待盘旋目标位置 (x, y)
         self._t_seen = {}          # tid -> 最后一次收到位置的时刻（判定目标是否已消失）
         self._giveup_until = {}    # tid -> 该时刻前不再自动盘旋（放弃过 / 已消除）
@@ -1162,6 +1205,7 @@ class SwarmAgent(object):
         self._target_state[msg.target_id] = (
             int(msg.state), rospy.Time.now().to_sec())
         self._t_seen[msg.target_id] = rospy.Time.now().to_sec()
+        self._escape_bookkeeping(msg.target_id)   # v23：观测速度 → 逃跑生命周期
 
     def _friend_status_cb(self, msg):
         """接收友机位置和高度，用于避碰"""
@@ -1208,7 +1252,7 @@ class SwarmAgent(object):
               and str(self._track_assigned_id) == tid):
             is_my_target = True
         elif (tid in getattr(self, '_claims', {})
-              and self._claims.get(tid, 0) > rospy.Time.now().to_sec() - 5.0):
+              and self._claims.get(tid, (None, 0.0))[1] > rospy.Time.now().to_sec() - 5.0):
             is_my_target = True
         # 2026-10-06 复盘补丁: 如果本机正在/最近正在跟踪该 tid 的位置 (targets 缓存里
         # 有该 tid 且 _t_seen 在最近 8s 内), 也算本机的目标.
@@ -1640,6 +1684,35 @@ class SwarmAgent(object):
             else:
                 advance = 0.4    # 极端贴墙（best_r<0.5）：低速横滑 0.4 m/s 脱离
                 advance_mode = '贴墙横滑'
+            # B1 近障困局脱离（2026-10-09）：三面收窄持续超过阈值时，限时沿来路反向退出。
+            # 反向后净空不再被机身自挤压（前进时雷达扫到建筑巷道内壁，扇区净空被压缩），
+            # 用离线干净的「反向后退」打破原地横跳/抖动循环；退出到净空或超时后回到旧逻辑。
+            if advance < RADAR_BACKOFF_SPD * 0.8 and \
+               front < RADAR_JAM_FRONT_R and left < RADAR_JAM_SIDE_R and right < RADAR_JAM_SIDE_R:
+                _jam_t0 = getattr(self, "_jam_escape_t0", None)
+                _jam_until = getattr(self, "_jam_escape_until", 0.0)
+                _now = now.to_sec() if hasattr(now, "to_sec") else now
+                if _jam_t0 is None:
+                    self._jam_escape_t0 = _now
+                    _jam_t0 = _now
+                if _now - _jam_t0 >= RADAR_JAM_TRIGGER_S:
+                    # 已持续触发时长：进入限时反向退出
+                    if _now >= _jam_until:
+                        self._jam_escape_until = _now + RADAR_JAM_ESCAPE_S
+                    if _now < self._jam_escape_until:
+                        # 反向 = 沿机头反向（yaw 方向 180°），低速后退，避免撞墙
+                        _bx = RADAR_JAM_ESCAPE_SPD * math.cos(self.yaw + math.pi)
+                        _by = RADAR_JAM_ESCAPE_SPD * math.sin(self.yaw + math.pi)
+                        guarded = (_bx, _by)
+                        self._radar_retreating = True
+                        rospy.logwarn_throttle(2.0,
+                                               '[%s] 近障困局 %.0fs → 反向退出 %.0fs vout=(%.2f,%.2f)',
+                                               self.uav_id, _now - _jam_t0,
+                                               RADAR_JAM_ESCAPE_S, guarded[0], guarded[1])
+                        return guarded
+                # 未触发或已退出：回落旧分级逻辑
+            else:
+                self._jam_escape_t0 = None
             ang = math.radians(best_deg)                          # 机体系
             body_x = advance * math.cos(ang)
             body_y = advance * math.sin(ang)
@@ -1656,12 +1729,16 @@ class SwarmAgent(object):
                                    guarded[0], guarded[1], advance_mode, advance)
             return guarded
 
-        # === v16 修复：前向硬上限 0.35 → 0.65 ===
+        # === v16 修复：前向硬上限 0.35 → 0.65（近墙线性段保留）===
         # v15 实测（logs_20261007_140942）：城区 front 3~4m 常态化，守卫持续介入，
         # vout 前向分量均值仅 0.16 m/s（中位 0.47），13m 直线飞 210s。
         # 0.35 上限把远端预警区（front>3.9m）也压死；线性段在 front<3.9m 时
         # 主导（(front-1.6)/3.9 < 0.65），近墙减速不受影响，仅放宽远端。
-        forward = max(0.0, min(speed * 0.65,
+        # v24 提速（2026-10-09）：去掉无近障时的 0.65 硬上限 —— front≥WARN 时
+        # 恒速巡航应保持 SEARCH_CRUISE_SPEED=3.0（0.65 上限会把 3.0 压到 1.95，
+        # 抵消 v24 搜索提速，5min 覆盖仍锁死 17%）。front<WARN 的线性减速段
+        # 原样保留（front=3m→1.8m/s、front=1.6m→0，刹停距离仍 < LOOKAHEAD=3m）。
+        forward = max(0.0, min(speed,
                                 speed * (front - RADAR_STOP_R) /
                                 max(RADAR_WARN_R - RADAR_STOP_R, 1e-6)))
         # 侧向逃逸速度随净空收紧（旧值可达 1.5 m/s，在 0.5m 净空下横滑 = 刮擦）
@@ -2658,12 +2735,9 @@ class SwarmAgent(object):
                 vx = POS_KP * err_x
                 vy = POS_KP * err_y
                 spd = math.hypot(vx, vy)
-                # 接近 actor 时压速，避免触发官方逃跑机制（详见 SPOOK_SPEED 注释）。
-                # 目标已逃跑则提速咬住，否则 0.8m/s 追 2.0m/s 必然跟丢。
-                if self._target_fleeing(_track_id):
-                    cap = FLEE_CHASE_SPEED
-                else:
-                    cap = SPOOK_SPEED if dist < SPOOK_DIST else MAX_SPEED
+                # v23：按官方一次性逃跑闩锁模型取上限（真逃→全速咬住/牧羊；
+                # 已花掉/spend→全速；未武装 13m 外→全速；已武装未花掉→22m 内压速）。
+                cap = self._approach_cap(_track_id, dist)
                 if spd > cap:
                     vx *= cap / spd
                     vy *= cap / spd
@@ -2743,22 +2817,28 @@ class SwarmAgent(object):
             self._last_local_goal = local_goal
         err_x = local_goal[0] - self.world_xy[0]
         err_y = local_goal[1] - self.world_xy[1]
-        vx = POS_KP * err_x
-        vy = POS_KP * err_y
+        # v24 提速（2026-10-09）：搜索巡航改为恒速 —— 原 P 控制在 LOOKAHEAD=3m
+        # 时理论 2.4m/s、实际受拥堵/近障降到 ~1.7m/s，5min 只覆盖地图 17%，
+        # 4/6 actor 的活动区从未被搜索格覆盖 → 全程零观测。恒速 3.0m/s +
+        # SEARCH_DECEL_M 减速带（近引导点切回 P 控制防冲过格中心）。
+        _err = math.hypot(err_x, err_y)
+        if _err > SEARCH_DECEL_M:
+            vx = err_x / _err * SEARCH_CRUISE_SPEED
+            vy = err_y / _err * SEARCH_CRUISE_SPEED
+        else:
+            vx = POS_KP * err_x
+            vy = POS_KP * err_y
         spd = math.hypot(vx, vy)
         if spd > MAX_SPEED:
             vx *= MAX_SPEED / spd
             vy *= MAX_SPEED / spd
-        # 已知目标在附近（即使 manager 尚未下发追踪指派）→ 提前压速，
-        # 避免以搜索速度冲进 20m 触发演员逃跑（实测演员被惊到 3.87m/s）。
-        # 例外：该目标已在逃跑 -> 提速咬住，避免慢速被甩开跟丢。
-        _ntd = self._nearest_target_dist()
-        if _ntd is not None and _ntd[1] < SPOOK_DIST:
-            _cap = (FLEE_CHASE_SPEED if self._target_fleeing(_ntd[0])
-                    else SPOOK_SPEED)
-            if spd > _cap:
-                vx *= _cap / spd
-                vy *= _cap / spd
+        # v23：对 22m 内所有「可被惊吓」目标（已武装/未花掉/未在逃）取保守压速；
+        # 未武装 13m 外、已花掉、在逃目标均不设限（详见 _transit_cap 注释）。
+        # 旧逻辑只看最近目标，会漏掉 22m 内的其他武装目标（路过惊逃）。
+        _cap = self._transit_cap()
+        if spd > _cap:
+            vx *= _cap / spd
+            vy *= _cap / spd
 
         # === 友机避碰 ===
         vx, vy = self._apply_friend_avoidance(vx, vy)
@@ -2787,6 +2867,101 @@ class SwarmAgent(object):
         state, t = ent
         return state == 1 and \
             (rospy.Time.now().to_sec() - t) <= FLEE_STATE_FRESH
+
+    # ---- v23：一次性逃跑生命周期（官方闩锁模型的团队侧推断） ----
+    def _target_speed(self, tid):
+        """目标最近一次广播的观测速度（m/s）；未知返回 None。"""
+        ent = self.targets.get(tid)
+        if ent is None:
+            return None
+        return math.hypot(ent[2], ent[3])
+
+    def _is_armed(self, tid):
+        """官方是否已首次有效播报该目标（/find_actor_N 曾发布 → actor 已武装可逃）。
+
+        官方 control_actor 的 reported 由 /find_actor_N 首次发布置位（一次性闩锁），
+        我方全员订阅该话题（_find_cb），故武装状态团队侧可见且一致。
+        解析失败按已武装处理（保守）。"""
+        try:
+            idx = int(str(tid)[1:])
+        except (IndexError, ValueError):
+            return True
+        return idx in self._find_t
+
+    def _escape_bookkeeping(self, tid):
+        """基于观测速度推断「一次性逃跑」生命周期（每帧 /swarm/target_states 调用）。
+
+        - 观测速度 ≥ ESCAPE_RUN_SPEED → 逃跑跑中（官方 escape_speed=2.0，随机走 1.0）；
+        - 逃跑跑过后持续 ≤ WALK_SPEED_MAX 走 ESCAPE_SPENT_QUIET_S → 判定「已花掉」：
+          官方 escape_triggered 闩锁永不复位，该目标全场永不再逃 → 解除压速护栏。
+        误判自愈：若把行走噪声误判为逃跑跑，随后全速接近会真正触发（一次性）逃跑，
+        进入追逃-跑完-已花掉闭环，仅损失一次 15s streak，无系统性风险。"""
+        ent = self.targets.get(tid)
+        if ent is None:
+            return
+        spd = math.hypot(ent[2], ent[3])
+        now = rospy.Time.now().to_sec()
+        if spd >= ESCAPE_RUN_SPEED:
+            self._flee_run_t[tid] = now
+            self._walk_since.pop(tid, None)
+            return
+        if tid not in self._flee_run_t or spd > WALK_SPEED_MAX:
+            return
+        t0 = self._walk_since.setdefault(tid, now)
+        if now - t0 >= ESCAPE_SPENT_QUIET_S and tid not in self._escape_spent:
+            self._escape_spent.add(tid)
+            self._spend_mode.discard(tid)
+            rospy.loginfo('[%s] %s 一次性逃跑已花掉（跑后持续行走 %.0fs）'
+                          '→ 解除压速护栏，全速贴脸',
+                          self.uav_id, tid, now - t0)
+
+    def _approach_cap(self, tid, dist):
+        """v23：追踪/接近指定目标的速度上限（官方一次性逃跑闩锁模型）。
+
+        优先级：
+        1. 已花掉 → 全速（闩锁已消耗完，永不再逃）；
+        2. 在逃（当前跑速）或逃跑跑过（_flee_run_t 非空=闩锁已触发，含跑动中途
+           障碍减速的瞬时低谷）→ 全速咬住；14m 内切牧羊 pace
+          （0.95 追 2.0 必丢 YOLO 接触）；
+        3. spend_mode（主动花掉）→ 全速（故意触发）；
+        4. 未武装且距离>UNARMED_BRAKE_DIST → 全速（reported=False 官方不会逃；
+           13m 处减速是为播报闸门 11m 处武装瞬间机速已 <1.0，不惊逃）；
+        5. 其余（已武装未花掉）→ 22m 内 SPOOK_SPEED 压速保护 15s streak。"""
+        if tid in self._escape_spent:
+            return MAX_SPEED
+        spd_t = self._target_speed(tid)
+        if ((spd_t is not None and spd_t >= ESCAPE_RUN_SPEED)
+                or tid in self._flee_run_t):
+            return MAX_SPEED if dist > FLEE_SHEPHERD_DIST else FLEE_SHEPHERD_SPEED
+        if tid in self._spend_mode:
+            return MAX_SPEED
+        if not self._is_armed(tid) and dist > UNARMED_BRAKE_DIST:
+            return MAX_SPEED
+        return SPOOK_SPEED if dist < SPOOK_DIST else MAX_SPEED
+
+    def _transit_cap(self):
+        """v23：搜索/巡航分支的压速——对 SPOOK_DIST 内所有「可被惊吓」目标取保守上限。
+
+        可被惊吓 = 距离≤SPOOK_DIST 且（已武装 或 距离≤UNARMED_BRAKE_DIST）
+                   且 闩锁未触发（未观测到逃跑跑速、未花掉、非 spend_mode）。
+        未武装目标在 13m 内同样压速：一播报就武装，若此刻机速>1.0 会立即触发逃跑。
+        观测到过逃跑跑速（_flee_run_t 非空）= 闩锁已触发 = 永不可再惊吓（含跑动
+        中途障碍减速的瞬时低谷，不因此重新压速追丢）。
+        无可惊吓目标 → 不压速（旧逻辑只看最近目标，会漏掉 22m 内的其他武装目标）。"""
+        wx = self.world_xy
+        if wx is None or not self.targets:
+            return MAX_SPEED
+        for tid, (tx, ty, vx, vy) in self.targets.items():
+            d = math.hypot(tx - wx[0], ty - wx[1])
+            if d > SPOOK_DIST:
+                continue
+            if (tid in self._flee_run_t or tid in self._escape_spent
+                    or tid in self._spend_mode):
+                continue
+            if not self._is_armed(tid) and d > UNARMED_BRAKE_DIST:
+                continue
+            return SPOOK_SPEED
+        return MAX_SPEED
 
     # ---- 已消除目标清理 / 盘旋放弃 / 防扎堆（2026-09-27 新增）----
     def _left_actors_cb(self, msg):
@@ -2903,7 +3078,18 @@ class SwarmAgent(object):
                     self.uav_id, tid, _d, CLOSE_ENOUGH_M)
                 self._reset_n[actor_idx] = 0      # 够不着不算"被拒绝"
                 return
-        if BACKOFF_ENABLE and self._reset_n[actor_idx] >= CONFIRM_RESET_MAX:
+        if SPEND_ENABLE and self._reset_n[actor_idx] >= CONFIRM_RESET_MAX:
+            # v23：官方逃跑闩锁是一次性的——反复重置说明「温顺接近」路线失败。
+            # 主动花掉逃跑：全速冲进 20m 触发（一次性）逃跑 → 追至跑完 →
+            # 目标变永久温顺（永不再逃，别机路过也不再惊逃）→ 全速贴脸消除。
+            # 取代旧「退避 45s」：退避基于「逃跑可复位」的错误模型，且退避期间
+            # 目标仍可能被任意友机路过惊逃，streak 永远立不起来。
+            self._spend_mode.add(tid)
+            self._abort_orbit('官方已重置 %d 次确认 → 花掉一次性逃跑'
+                              '（全速触发+追至跑完+贴脸消除）'
+                              % self._reset_n[actor_idx],
+                              clear_path=False)
+        elif BACKOFF_ENABLE and self._reset_n[actor_idx] >= CONFIRM_RESET_MAX:
             self._giveup_until[tid] = rospy.Time.now().to_sec() + BACKOFF_COOLDOWN
             self._abort_orbit('官方已重置 %d 次确认，退避 %.0fs 去搜别处'
                               % (self._reset_n[actor_idx], BACKOFF_COOLDOWN),
@@ -3201,6 +3387,11 @@ class SwarmAgent(object):
         self._send_vel(vx, vy)
 
         # 检查确认时间
+        # ⚠ v22-A 回滚（2026-10-09 04:52）：加 _confirm_start>0 防御后，目标不可见时
+        # confirm_duration=0 → 永不触发放弃 → 飞机卡死盘旋态（v22 仿真实证：6 机全卡、
+        # manager 70s 后 0 分配、score 464.9→44.9 崩溃）。v21 的"sim 时间戳误判"实际是
+        # 逃生阀：不可见时快速放弃回搜索池。保留原逻辑，不可见退出的正确修法是
+        # stale→宽限→放弃链路（v16 已有），不动这里。
         confirm_duration = now - self._confirm_start
         # 2026-10-06 国家一等奖: 贴脸锁定时长到期检查
         if self._confirm_close and now >= self._confirm_close_until:

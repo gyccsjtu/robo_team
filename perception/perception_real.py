@@ -630,6 +630,12 @@ class Track(object):
         self.appear_updated = 0         # 外观特征更新帧数
 
     def predict(self, dt):
+        # v24b：前推速度限幅 2.2m/s（actor 物理上限）——YOLO 跳变差分可产生
+        # 10m/s+ 假速度，LAG_COMP 0.3s 前推就偏 3m+，裁判 far_dist 清零。
+        _sp = math.hypot(self.vx, self.vy)
+        if _sp > 2.2:
+            _k = 2.2 / _sp
+            return self.x + self.vx * _k * dt, self.y + self.vy * _k * dt
         return self.x + self.vx * dt, self.y + self.vy * dt
 
     def pub_xy(self):
@@ -1090,7 +1096,12 @@ def main():
                         # 目标在远处时视线接近水平，v_world[2]≈0，t=-pz/v_world[2] 很大，
                         # 框底部 2 像素的截断会被放大成 >1m 的坐标偏差（实测导致官方不认）。
                         # ROI_BOT 仍用于 L794 的过滤（框完全在底部带则跳过）。
-                        v = float(y2)
+                        # 【v24c 决定性修复 2026-10-09】框底内缩 5% 框高：YOLO 框底含
+                        # 边界/阴影膨胀 ~15-20px（低于真实脚底），射线过膨胀点交地面
+                        # → 交点沿视线偏远 z_c·δpx/(FY·cos²θ) ≈ 0.8~1.1m（俯角 59°）。
+                        # v22b/v23c/v24c 三轮实测 1.02~1.21m 恒定偏差带（方向恒沿视线
+                        # 水平分量）即此根因。内缩 5%×框高（~15px@300px）抵消膨胀。
+                        v = float(y2) - 0.05 * float(y2 - y1)
                         v_opt = np.array([(u - CX) / FX, (v - CY) / FY, 1.0])
                         v_link = M_OPT2LINK @ v_opt
                         v_world = R @ v_link
@@ -1134,8 +1145,18 @@ def main():
                                 and y2 >= (img.shape[0] - FEET_CLIP_PX):
                             _rng_h = FY * H_ASSUMED / h_px
                             if 0.5 < _rng_h < MAX_RANGE:
+                                # 【v24 决定性修复 2026-10-09】_rng_h 是「水平距 d」不是斜距！
+                                # 针孔模型精确解 h_px = FY·H/d（d=水平距，与俯角无关）。
+                                # 旧代码 t = _rng_h/n_v 把 d 当斜距沿视线走 → 3D 点水平
+                                # 分量 = d·cosθ，系统性偏短 d·(1-cosθ)：贴脸 2m 圈俯角
+                                # 64° → 偏短 1.13m，且偏差方向恒沿视线水平分量（飞机在
+                                # 目标西侧就偏西）——v21~v23c 三轮实测播报误差恒定
+                                # 1.03~1.58m 全部由此而来（官方 1m 判据永远差 0.03~0.6m）。
+                                # 修复：t = d/|v_world_xy|，让 3D 点水平分量精确 = d。
+                                _vh = math.hypot(v_world[0], v_world[1])
                                 rng = _rng_h
-                                t = rng / max(1e-6, n_v)   # 位置沿用同一 t（rng = t·n_v）
+                                if _vh > 1e-6:
+                                    t = _rng_h / _vh
                                 impl_h = h_px * rng / FY
                         # 远距离小框的 AR 上限单独放宽（见 AR_MAX_SMALL 处的实测记录）
                         _ar_max = AR_MAX_SMALL if h_px < SMALL_BOX_H_PX else AR_MAX

@@ -7,7 +7,7 @@
 规则5：无人机需**连续 15 秒**正确广播恐怖分子 ID + 坐标，裁判判定消除。
        连续 = 三条同时满足，断一条即清零重来：
          (a) 每次上报的**坐标误差 < ERR_TOL(1.0 m)**
-         (b) 相邻两次上报的**间隔 <= GAP_TOL(1.0 s)**
+         (b) 相邻两次上报的**间隔 <= GAP_TOL(2.5 s)**
          (c) 累计满 CONFIRM_TIME(15 s)
 规则4：被**累计感知** 30 s 仍未消除 → 目标瞬移躲藏。
 
@@ -59,12 +59,16 @@ CONFIRM_TIME = 15.0     # 规则5：连续确认时长 s
 # 才释放追踪机。比官方 15s 多一倍以容忍上报链路偶发断流。可由 CONFIRM_HOLD_TIMEOUT env 覆盖。
 CONFIRM_HOLD_TIMEOUT = float(os.environ.get("CONFIRM_HOLD_TIMEOUT", "30.0"))
 ERR_TOL = float(os.environ.get("ERR_TOL", "1.0"))   # 规则5：单次上报坐标误差上限 m（允许 env 覆盖）
-GAP_TOL = float(os.environ.get("GAP_TOL", "1.0"))   # 规则5：相邻上报最大间隔 s（5 分钟实测 YOLO 帧丢/摆头会让 1.0s 太严, 改成 2.5）
+GAP_TOL = float(os.environ.get("GAP_TOL", "2.5"))   # 规则5：相邻上报最大间隔 s（v20 落盘：5 分钟实测 YOLO 帧丢/摆头 1.0s 太严，brown 单机确认 130s 只到 60% 就是间歇 reset；此为 manager 内部进度条口径，可比裁判 1s 宽——真消除以裁判 15s streak 为准，CONFIRM_HOLD_TIMEOUT=30s 已兜底释放时机）
 # 规则4：首次被裁判正确检测起墙钟跨度 → 瞬移。
 # 以官方规则 PDF 为准 = 30s；control_actor.py 里 teleportation_interval=25 是旧版本差异。
 # 若实测裁判脚本仍是 25s，启动脚本 export TELEPORT_INTERVAL=25 覆盖即可。
 EVADE_TIME = float(os.environ.get("TELEPORT_INTERVAL", "30"))
 OBS_TTL = 1.0           # 单条观测的有效期 s（超过则视为陈旧，不计入）
+# v20：断流宽限——covered=False（YOLO 间歇丢帧/遮挡）时 confirm_since 不立即清零，
+# 宽限 CONFIRM_GRACE_S 内冻结进度；与桥 coast 外推续播（DROP_TIME=4s）口径对齐，
+# 否则 manager 反复清零而裁判 streak 不断，两边进度永远对不上。
+CONFIRM_GRACE_S = float(os.environ.get("CONFIRM_GRACE_S", "3.0"))
 
 # ---- 融合参数 ----
 FUSE_ALPHA = 0.35       # 位置增益
@@ -108,13 +112,15 @@ class CooperativeTarget(object):
 
     def __init__(self, target_id, t0=0.0, confirm_time=CONFIRM_TIME,
                  evade_time=EVADE_TIME, obs_ttl=OBS_TTL,
-                 err_tol=ERR_TOL, gap_tol=GAP_TOL):
+                 err_tol=ERR_TOL, gap_tol=GAP_TOL,
+                 confirm_grace=CONFIRM_GRACE_S):
         self.target_id = target_id
         self.confirm_time = confirm_time
         self.evade_time = evade_time
         self.obs_ttl = obs_ttl
         self.err_tol = err_tol
         self.gap_tol = gap_tol
+        self.confirm_grace = confirm_grace
 
         self.observers = set()     # 当前注册的观察员
         self.last_obs = {}         # uav_id -> TargetObservation（各自最新一条）
@@ -252,7 +258,11 @@ class CooperativeTarget(object):
                 self.last_err = math.hypot(est[0] - truth[0], est[1] - truth[1])
             # 门槛 (a) 误差；(b) 间隔
             err_ok = (self.last_err is None) or (self.last_err <= self.err_tol)
-            gap_ok = (self.last_ok_t is None) or (now - self.last_ok_t <= self.gap_tol)
+            # v20：恢复帧 gap 门槛加宽限量（gap_tol + confirm_grace）——断流宽限内冻结的
+            # 进度，不能在观测恢复帧又被 gap 门槛清掉（否则宽限形同虚设）。
+            # 常态上报 0.8s 远小于阈值不受影响；只有断流 2.5~5.5s 的恢复帧被放行。
+            gap_ok = (self.last_ok_t is None) or (
+                now - self.last_ok_t <= self.gap_tol + self.confirm_grace)
 
             if err_ok and gap_ok:
                 if self.confirm_since is None:
@@ -272,10 +282,19 @@ class CooperativeTarget(object):
                 self.last_ok_t = None
                 return "reset"                          # 官方口径的重置
         else:
+            # v20：断流宽限——YOLO 间歇丢帧/短暂遮挡时不清零 confirm_since（冻结进度）。
+            # 桥在 DROP_TIME=4s 内用 coast 外推续播官方话题，裁判 streak 并未断；
+            # manager 若立即清零，两边口径永远对不上（brown 单机确认 130s 只到 60% 的根因）。
+            # 超过 CONFIRM_GRACE_S 仍无观测才真清零（真跟丢）。
             if self.confirm_since is not None:
-                self.resets += 1
-            self.confirm_since = None                   # 全员看不见 → 清零
-            self.last_ok_t = None
+                if self.last_ok_t is not None and (now - self.last_ok_t) <= self.confirm_grace:
+                    pass  # 宽限期内：冻结进度，等观测恢复后继续累积
+                else:
+                    self.resets += 1
+                    self.confirm_since = None
+                    self.last_ok_t = None
+            else:
+                self.last_ok_t = None
 
         # 规则4：裁判首次收到合格上报起 25 s 墙钟跨度未消除 → 瞬移
         # 与 control_actor.actor_teleportation_callback 对齐：teleportation_interval = 25s
@@ -442,7 +461,13 @@ if __name__ == "__main__":
         tr3.report("uav_1", "t2", float(k), 0.0, 0.0, truth=(0.0, 0.0))
         tr3.update(float(k))
     assert tr3.targets["t2"].confirm_since is not None
+    # v20 断流宽限语义：CONFIRM_GRACE_S=3.0 内无观测冻结进度（防止 YOLO 丢帧误清零），
+    # 只有超过宽限期仍无观测才真清零。旧断言在 k=13（距 last_ok_t=10 恰好 3s，等号满足
+    # <= grace）即断言归零，与冻结语义矛盾 —— 修正为两段断言。
     for k in range(11, 14):
+        tr3.update(float(k))
+    assert tr3.targets["t2"].confirm_since is not None, "宽限期内应冻结进度"
+    for k in range(14, 16):
         tr3.update(float(k))
     assert tr3.targets["t2"].confirm_since is None, "全员失效应归零"
     print("3) 全员失效 → 连续计时归零 OK")
@@ -461,13 +486,19 @@ if __name__ == "__main__":
     tr5.add_target("t4", now=0.0)
     tr5.assign_observers("t4", ["uav_1"])
     ev = None
-    for k in range(1, int(EVADE_TIME) + 5):
-        if k % 7 <= 4:                       # 观测 4s 断 2s，永远凑不满 15s
+    for k in range(1, int(EVADE_TIME) + 8):
+        if k % 10 in (1, 2, 3, 4):           # 观测 4s 断 6s，断流 > CONFIRM_GRACE_S=3s，
             tr5.report("uav_1", "t4", float(k), 0.0, 0.0, truth=(0.0, 0.0))
+        # v20 语义：断流 2s（旧场景）被宽限冻结进度，已能凑满 15s；此处必须用
+        # 超宽限的断流才能让确认反复清零、墙钟 30s 仍不消除 → 触发瞬移。
         for tid, e in tr5.update(float(k)):
             ev = e
-    assert ev == "evade", "墙钟 %.0fs 未消除应触发瞬移，实际 %s" % (EVADE_TIME + 4, ev)
-    assert tr5.targets["t4"].confirm_since is None
+        if ev == "evade":
+            # 瞬移触发后立即断言清零——循环继续跑会让下一帧新观测立即重建确认，
+            # 此时测"最终状态"反而断言失败，测"触发瞬间状态"才是规则语义。
+            assert tr5.targets["t4"].confirm_since is None, "瞬移应清零确认计时"
+            break
+    assert ev == "evade", "墙钟 %.0fs 未消除应触发瞬移，实际 %s" % (EVADE_TIME + 7, ev)
     print("5) 规则4：墙钟 %.0fs 未消除 → 瞬移且计时清零 OK" % EVADE_TIME)
 
     # 6) 非观察员的观测不计入
@@ -526,15 +557,25 @@ if __name__ == "__main__":
     print("9) B3 误差门槛生效 OK（误差 70m 未消除，不合格上报 %d 次）"
           % tr9.targets["t"].rejects)
 
-    # 10) B4：上报间隔 > 1.0s 必须打断计时
+    # 10) B4：上报间隔门槛。v20 语义：间隔 ≤ gap_tol+grace = 2.5+3.0 = 5.5s
+    #     的断流帧被宽限放行（与桥 coast 外推续播口径对齐），3s 间隔不打断；
+    #     真正超宽限的间隔（如 6s）才会打断计时。
     tr10 = CooperativeTracker()
     tr10.add_target("t", now=0.0)
     tr10.assign_observers("t", ["u1"])
     for k in range(0, 16):
         tr10.report("u1", "t", float(k * 3), 0.0, 0.0, truth=(0.0, 0.0))
         tr10.update(float(k * 3))
-    assert not tr10.targets["t"].eliminated, "间隔 3s 不应消除（旧版会误消除）"
-    print("10) B4 上报间隔门槛生效 OK（间隔 3s 未消除）")
+    assert tr10.targets["t"].eliminated, "间隔 3s ≤ 宽限 5.5s 应累积并消除"
+    print("10) B4 上报间隔门槛 OK（间隔 3s 在宽限内放行→消除）")
+    tr10b = CooperativeTracker()
+    tr10b.add_target("t", now=0.0)
+    tr10b.assign_observers("t", ["u1"])
+    for k in range(0, 16):
+        tr10b.report("u1", "t", float(k * 6), 0.0, 0.0, truth=(0.0, 0.0))
+        tr10b.update(float(k * 6))
+    assert not tr10b.targets["t"].eliminated, "间隔 6s > 宽限 5.5s 应打断"
+    print("10) B4 上报间隔门槛 OK（间隔 6s 超宽限→打断，未消除）")
 
     # 11) 离线蒙特卡洛：定量评估融合参数（不需要仿真机时）
     #     场景：actor 以 v 匀速移动，观测带 OU 相关噪声 sigma（CORR=5.0s，

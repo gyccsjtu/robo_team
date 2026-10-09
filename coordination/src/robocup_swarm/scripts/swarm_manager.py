@@ -746,9 +746,13 @@ class SwarmManager(object):
                     best, best_d = uid, d
             if best is None:
                 continue
-            # 距离余量：放宽到 DETECT_RADIUS + DETECT_RADIUS_MARGIN
-            # 飞机距离目标 20m 但已在视野里也应该派去（DISPATCH_ON_FIRST_HIT）
-            _disp_limit = DETECT_RADIUS + DETECT_RADIUS_MARGIN
+            # v24（2026-10-09）：派机距离门槛放宽。原阈值 DETECT_RADIUS+MARGIN=13m
+            # 存在「鸡生蛋」死结——飞机不派过去就不会接近目标，不接近就永远够不到
+            # 13m。实测 white 在 (57.6,-8.2) 距最近空闲机仅 19.5m 仍被「暂不派遣」
+            # 拦下直到 5min 结束从未消除。放宽到 DISPATCH_FAR_LIMIT=60m（搜索巡航
+            # 3m/s 下 20s 可达）：目标一经发现/播种，立即派最近空闲机去接近确认；
+            # 接近后仍无观测由 TRACK_CONFIRM_TIMEOUT 超时释放兜底，不浪费机。
+            _disp_limit = float(os.environ.get("DISPATCH_FAR_LIMIT", "60.0"))
             if best_d >= _disp_limit:
                 rospy.loginfo_throttle(5.0,
                     "[manager] 目标 %s 最近机 %s 距 %.1fm ≥ 派遣阈值 %.1fm，暂不派遣",
@@ -1049,11 +1053,13 @@ class SwarmManager(object):
         if best_uav is None:
             return
 
-        # P2 修复：派遣距离余量。DETECT_RADIUS=20m 是感知上限，贴边派遣后
-        # 目标稍微移动就出视野，6s 内跟丢（实测 dist=19.924 派遣后 6s 跟丢）。
-        # 要求 best_dist < DETECT_RADIUS - DISPATCH_MARGIN 才派遣，否则等更近的
-        # 飞机/目标靠近，避免无效派遣占机。
-        _disp_limit = DETECT_RADIUS - DISPATCH_MARGIN
+        # v26 修复：派遣距离门槛统一为 DISPATCH_FAR_LIMIT（与 _dispatch_pending_targets
+        # 一致）。旧值 DETECT_RADIUS - DISPATCH_MARGIN = 8m 只在"最近空闲机距目标
+        # <8m"时派机——但首击时检测机自身正在执行搜索任务不空闲，第二近的空闲机
+        # 往往落在 8~60m 区间，被 8m 门槛拦下后整轮只能等周期兜底派机（白白推迟
+        # 一个调度周期）。放宽后目标一经检测立即派机接近确认，接近后无观测由
+        # TRACK_CONFIRM_TIMEOUT 超时释放兜底，不浪费机。
+        _disp_limit = float(os.environ.get("DISPATCH_FAR_LIMIT", "60.0"))
         if best_dist >= _disp_limit:
             rospy.loginfo(
                 "[manager] 目标 %s 最近机 %s 距 %.1fm ≥ 派遣阈值 %.1fm，暂不派遣",
@@ -1478,8 +1484,15 @@ class SwarmManager(object):
                 continue
             if (now - _fct) < _cto:
                 continue
+            # v22-B（2026-10-09）：一次性处理——v21 实证 51 条重复告警（每秒扫描重复
+            # WARN+释放+黑名单刷新），且黑名单后 confirming 状态不清理导致 DEBUG 持续显示。
+            if tid in getattr(self, "_confirm_timeout_done", set()):
+                continue
+            if not hasattr(self, "_confirm_timeout_done"):
+                self._confirm_timeout_done = set()
+            self._confirm_timeout_done.add(tid)
             rospy.logwarn("[manager] 目标 %s 首次确认后 %.0fs 仍未消除（超时 %.0fs）"
-                          "→ 释放追踪机 + 黑名单 %.0fs", tid, now - _fct, _cto, _bl_hold)
+                          "→ 释放追踪机 + 黑名单 %.0fs（一次性处理）", tid, now - _fct, _cto, _bl_hold)
             self._confirm_timeout_bl[tid] = now + _bl_hold
             try:
                 self._release_tracker(tid, reason="confirm_timeout")

@@ -628,12 +628,22 @@ do_start(){
     #   3. IDENTITY_GATE=1 要求本机 detection 与 bridge 融合坐标 ≤3m，而融合坐标来源
     #      正是本机 detection，会形成自指。远距鬼影由 bridge NEW_TRACK_CONF=0.55 拦截，
     #      这边只需要放宽距离 + 外推两项。
+    # v23（2026-10-09）误检治理三连（t1 幽灵 310s 教训）：
+    #  CONFIRM_HITS 2→3：2 帧(0.4s)太松，单帧误检 0.4s 就"确认"登记；
+    #  ACTOR_PUB_RANGE 80→45：80m 距离门为边缘瞬移目标开的口子，实测从未接到
+    #    边缘目标却放进 17~40m 远程误检（perception_real.py 注释实证 tid=6@36m）；
+    #  ACTOR_CONFIRM_ONLY=1：未确认 track 一律不上报（队友实测 hits=2~3 假 track
+    #    以 20~40m 误差清零裁判 15s 计时）。真目标登记延迟仅 +0.2s。
+    #  ⚠ 注释必须放在 bash -c 字符串外：字符串内 \ 续行会把注释接进逻辑行，
+    #    # 之后的环境变量前缀链全部被当成注释吃掉（v23 首跑 6 机 img_age=-1 全瞎的根因）。
     for u in "${PR_UAV_ARR[@]}"; do
         start_group "pr_$u" "$LOGDIR/04_perception_$u.log" bash -c \
             "cd '$PERC_DIR' && CUDA_VISIBLE_DEVICES='' \
              PR_UAV='$u' PR_CAM_LINK='$u::base_link' \
-             PR_CONFIRM_HITS=2 PR_COORD_HZ=4 PR_ACTOR_PUB_RANGE=80 PR_PUB_EMA=0.5 \
-             PR_MAX_COAST_PUB=12 \
+             PR_CONFIRM_HITS=3 PR_COORD_HZ=4 PR_ACTOR_PUB_RANGE=45 PR_PUB_EMA=0.5 \
+             PR_ACTOR_CONFIRM_ONLY=1 \
+             PR_RED_STICKY_R=2.5 \
+             PR_MAX_COAST_PUB=18 \
              python3 -u perception_real.py"
     done
 
@@ -647,10 +657,12 @@ do_start(){
         #   修复:  MAX_D=2.5（覆盖 2m/s×1.45s=2.9m 的绝大部分）、DELAY=0.9（补偿
         #          感知滞后 ~1s）、DROP_TIME=2.0（断流 2s 立即停发，宁断不假）
         #   NEW_TRACK_CONF=0.55 / FRAMES=2 保持（激活门槛已被验证合理）
+        # v23c（2026-10-09）：DELAY 0.6→0.45——v22-D 已把代码默认改为 0.45（实测误差
+        # 1.58→1.03m），但此处 env=0.6 一直覆盖它，v22-D 从未真正生效（同 BACKUP_AFTER 教训）
         start_group yolo_bridge "$LOGDIR/04b_yolo_bridge.log" bash -c \
             "cd '$SWARM_SCRIPTS' && \
              BRIDGE_DROP_TIME=4.0 BRIDGE_NEW_TRACK_CONF=0.55 BRIDGE_NEW_TRACK_FRAMES=2 \
-             BRIDGE_EXTRAP_DELAY=0.6 BRIDGE_EXTRAP_MAX_D=1.6 \
+             BRIDGE_EXTRAP_DELAY=0.45 BRIDGE_EXTRAP_MAX_D=0.5 \
              python3 -u yolo_target_bridge.py"
         # 2026-10-07 v12: 高负载下桥注册可能 >4s（Gazebo+6 PX4+YOLO 同启），
         # 单次检查误杀整局（实测 logs_20261007_120809 启动中断）。改轮询最多 ~34s。
@@ -870,14 +882,26 @@ do_start(){
         # 国家一等奖优化（2026-10-04 复盘）：首见距离余量 + 跟踪半径余量同时放宽，
         #   让"飞机距离目标 25m 已看见但没派"这类浪费窗口消失；备份机接棒半径提到 60m
         #   让边缘瞬移（70/72m）也能在 3~5s 内被接上。
-        export BACKUP_MAX=3             # 默认2 → 3：6 目标时多一架少漏一个
-        export BACKUP_AFTER=2.0         # 默认3 → 2：15s 内 2s 没动静就派
+        export BACKUP_MAX=2             # v23（2026-10-09）：3→2 回滚——v22b 实证 t1 单帧误检
+                                        # （真值 32m 外）stall=2s 就吸走 4 机（h480_1/3/4/5）20s，
+                                        # 搜索瘫痪 310s。少一架 backup 少被误检吸走一架。
+        export BACKUP_AFTER=5.0         # v23：2.0→5.0 恢复 2026-10-05 修复（run_match.sh 旧注释
+                                        # "默认3"已过时，代码默认 2026-10-05 起就是 5.0，此处 2.0
+                                        # 把它覆盖回退了）。stall=2s 是正常确认波动，5s 才是真卡住。
         export BACKUP_MAX_DIST=80.0     # 默认60 → 80：边缘瞬移的远点也接得上
         export DISPATCH_BACKUP_DIST=60.0 # 默认40 → 60：主派机 >60m 即派接棒机
         export ALLOC_PERIOD=1.0         # 默认1.5 → 1.0：拍卖更密集，6 架少空转
         export HOT_TARGET_TTL=10.0      # 默认8 → 10：热目标留住更久，飞过别处也知道
         export DISPATCH_MARGIN=0.0      # 默认2 → 0：首见即派，不再等最近机贴到 18m 内
         export DETECT_RADIUS_MARGIN=3.0 # 默认5 → 3（2026-10-05）：配合 DETECT_RADIUS 20→10，派遣上限回到 13m
+        # v24（2026-10-09）：搜索巡航提速 + 覆盖推进 —— 4/6 actor 因搜索格从未
+        # 推进到其活动区而全程零观测（5min 只覆盖地图 17%）。恒速 3.0m/s 巡航 +
+        # 2m 减速带；出生区锁定 30s 后立即散开；已发现目标派机距离放宽到 60m
+        # （原 13m 存在「飞机不派过去就永远够不到 13m」的鸡生蛋死结）。
+        export SEARCH_CRUISE_SPEED=3.0
+        export SEARCH_DECEL_M=2.0
+        export EARLY_PHASE_SEC=30.0
+        export DISPATCH_FAR_LIMIT=60.0
         export LEASE_DURATION=22.0      # 默认20 → 22：飞行+扫描+衔接余量
         export DWELL_LOOKAHEAD=1        # 默认1（开）：搜索飞行+到点 dwell 机头持续对准下一引导点（2026-10-05 修单相机视野丢点）
 
