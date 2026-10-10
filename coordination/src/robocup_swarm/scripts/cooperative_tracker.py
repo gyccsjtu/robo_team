@@ -113,7 +113,7 @@ class CooperativeTarget(object):
     def __init__(self, target_id, t0=0.0, confirm_time=CONFIRM_TIME,
                  evade_time=EVADE_TIME, obs_ttl=OBS_TTL,
                  err_tol=ERR_TOL, gap_tol=GAP_TOL,
-                 confirm_grace=CONFIRM_GRACE_S):
+                 confirm_grace=CONFIRM_GRACE_S, official_only=False):
         self.target_id = target_id
         self.confirm_time = confirm_time
         self.evade_time = evade_time
@@ -131,6 +131,8 @@ class CooperativeTarget(object):
         self.resets = 0            # 被重置次数：从「正在确认」被打断（调度的关键信号）
         self.rejects = 0           # 不合格上报次数：误差超限或间隔超限（诊断用）
         self.eliminated = False
+        self.official_only = official_only
+        self.confirmation_pending = False
         self.evaded = False
 
         # ---- 规则4：裁判首次收到合格上报起 25 s 墙钟跨度（匹配 control_actor.teleportation_interval=25）----
@@ -270,9 +272,12 @@ class CooperativeTarget(object):
                     if self._first_confirm_t is None:
                         self._first_confirm_t = now  # 规则4 计时起点：首次进入确认状态
                 self.last_ok_t = now
-                if now - self.confirm_since >= self.confirm_time:
-                    self.eliminated = True
-                    self._evade_fired = True
+                if now - self.confirm_since >= self.confirm_time and not self.confirmation_pending:
+                    self.confirmation_pending = True
+                    if not self.official_only:
+                        self.eliminated = True
+                    if not self.official_only:
+                        self._evade_fired = True
                     return "confirmed"
             else:
                 self.rejects += 1
@@ -280,6 +285,7 @@ class CooperativeTarget(object):
                     self.resets += 1
                 self.confirm_since = None
                 self.last_ok_t = None
+                self.confirmation_pending = False
                 return "reset"                          # 官方口径的重置
         else:
             # v20：断流宽限——YOLO 间歇丢帧/短暂遮挡时不清零 confirm_since（冻结进度）。
@@ -293,6 +299,7 @@ class CooperativeTarget(object):
                     self.resets += 1
                     self.confirm_since = None
                     self.last_ok_t = None
+                    self.confirmation_pending = False
             else:
                 self.last_ok_t = None
 
@@ -303,6 +310,7 @@ class CooperativeTarget(object):
             self.evaded = True
             self._evade_fired = True
             self.confirm_since = None
+            self.confirmation_pending = False
             self.last_obs.clear()
             return "evade"
         return None
@@ -333,12 +341,14 @@ class CooperativeTracker(object):
     """全部目标的协同确认管理器。"""
 
     def __init__(self, confirm_time=CONFIRM_TIME, evade_time=EVADE_TIME,
-                 obs_ttl=OBS_TTL, err_tol=ERR_TOL, gap_tol=GAP_TOL):
+                 obs_ttl=OBS_TTL, err_tol=ERR_TOL, gap_tol=GAP_TOL,
+                 official_only=False):
         self.confirm_time = confirm_time
         self.evade_time = evade_time
         self.obs_ttl = obs_ttl
         self.err_tol = err_tol
         self.gap_tol = gap_tol
+        self.official_only = official_only
         self.targets = {}     # target_id -> CooperativeTarget
         self.eliminated = []  # 已消除的目标 id（按时间顺序）
 
@@ -346,7 +356,8 @@ class CooperativeTracker(object):
         self.targets[target_id] = CooperativeTarget(
             target_id, t0=now, confirm_time=self.confirm_time,
             evade_time=self.evade_time, obs_ttl=self.obs_ttl,
-            err_tol=self.err_tol, gap_tol=self.gap_tol)
+            err_tol=self.err_tol, gap_tol=self.gap_tol,
+            official_only=self.official_only)
         return self.targets[target_id]
 
     def assign_observers(self, target_id, uav_ids):
@@ -383,7 +394,8 @@ class CooperativeTracker(object):
                 continue
             ev = t.update(now)
             if ev == "confirmed":
-                self.eliminated.append(tid)
+                if t.eliminated:
+                    self.eliminated.append(tid)
                 events.append((tid, "confirmed"))
             elif ev == "evade":
                 events.append((tid, "evade"))
@@ -404,8 +416,8 @@ class CooperativeTracker(object):
         """需要**增派**观察员的目标（这是「Cooperative」真正该落地的地方）。
 
         判据（任一成立即建议增派）：
-          - 已被官方重置 >= reset_thresh 次：单机扛不住，需要第二架补视线/补精度；
-          - 连续计时停滞 >= stall_thresh 秒仍未消除：进度条卡住。
+          - 内部确认被重置 >= reset_thresh 次：单机需要第二架补视线；
+          - 距上次合格观测 >= stall_thresh 秒：观测确实停滞。
 
         注意：6 机对 6 目标时全局冗余派机无收益（已证伪），
         只有这种**按重置次数定向**的增派才有意义。
@@ -416,9 +428,9 @@ class CooperativeTracker(object):
                 continue
             if t.resets >= reset_thresh:
                 out.append((tid, "resets=%d" % t.resets))
-            elif t.confirm_since is not None and \
-                    (now - t.confirm_since) >= stall_thresh:
-                out.append((tid, "stall=%.1fs" % (now - t.confirm_since)))
+            elif t.confirm_since is not None and t.last_ok_t is not None and \
+                    (now - t.last_ok_t) >= stall_thresh:
+                out.append((tid, "stall=%.1fs" % (now - t.last_ok_t)))
         return out
 
 

@@ -43,6 +43,21 @@ from fcu_configuration import configure as configure_fcu_parameters
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 
+
+def estimated_world_hard_bounds(grid, margin_fraction=0.25):
+    """Accept legal map-edge flight; reject only positions well beyond it.
+
+    The old fixed +/-100 m defaults made x>150 look corrupt even though the
+    match metadata permits x up to 155 m.  Recovery from the actual boundary
+    is handled separately by _bounds_recovery_velocity().
+    """
+    xmin, ymin = grid.origin
+    xmax = xmin + grid.width * grid.resolution
+    ymax = ymin + grid.height * grid.resolution
+    mx = (xmax - xmin) * margin_fraction
+    my = (ymax - ymin) * margin_fraction
+    return xmin - mx, xmax + mx, ymin - my, ymax + my
+
 # ============================ 参数 ============================
 # 工作空间根目录：可用环境变量 ROBOCUP_WS 覆盖（云端部署/换用户时无需改代码）
 WS_ROOT = os.environ.get("ROBOCUP_WS", "/home/ros/team_ws/robocup")
@@ -109,6 +124,12 @@ PLAN_FALLBACK = int(os.environ.get("PLAN_FALLBACK", "0"))
 MAX_SPEED       = float(os.environ.get('MAX_SPEED', '6.0'))   # 巡航速度上限 m/s（2026-规则 §2.5(4)：恐怖分子感知后 2m/s 逃逸，本机必须 ≥6 才能跟住；6m/s 留 2x 余量）
 POS_KP          = 0.8     # 位置 P 控制增益
 ARRIVE_TOL      = 0.8     # 到达格中心判定半径 m（< 此值视为已到，开始原地搜索）
+SEARCH_ARRIVE_TOL = float(os.environ.get('SEARCH_ARRIVE_TOL', '2.0'))
+SEARCH_SWEEP_DEG = float(os.environ.get('SEARCH_SWEEP_DEG', '35.0'))
+SEARCH_SWEEP_PERIOD_S = float(os.environ.get('SEARCH_SWEEP_PERIOD_S', '6.0'))
+SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
+SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
+SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '16.0'))
 PUB_RATE        = 10.0    # 状态发布频率 Hz
 CTRL_RATE       = 20.0    # 控制频率 Hz
 DETECT_RATE     = float(os.environ.get('DETECT_RATE', '3.0'))   # 规则 §2.5(10)：连续 15s 正确广播 → 3Hz × 15s = 45 个采样，远高于裁判认定的连续窗口
@@ -118,7 +139,7 @@ DETECT_RATE     = float(os.environ.get('DETECT_RATE', '3.0'))   # 规则 §2.5(1
 # （2026-10-01 22:41 局实测：t3 幽灵吸住 4 架 3 分钟，确认进度反复归零）。
 # 国家一等奖优化（2026-10-03）：与 yolo_target_bridge DROP_TIME=8s 对齐，
 # 防止 bridge 已停发但 agent 仍上报过期坐标的窗口期。
-TARGET_TTL      = float(os.environ.get("TARGET_TTL", "8.0"))
+TARGET_TTL      = float(os.environ.get("TARGET_TTL", "2.5"))
 
 # 2D 雷达安全层：由 swarm_agent 唯一发布 MAVROS 速度设定点，避免与
 # radar_avoid 的 setpoint_position 双控制。雷达只在近障时修正当前速度。
@@ -126,6 +147,8 @@ RADAR_GUARD     = int(os.environ.get('RADAR_GUARD', '1'))
 RADAR_FRESH_S   = float(os.environ.get('RADAR_FRESH_S', '0.5'))
 RADAR_WARN_R    = float(os.environ.get('RADAR_WARN_R', '5.5'))   # 规则 §2.5(7)：碰撞扣30/次，雷达预警半径扩大到 5.5m（车体级别障碍），留 1.5m 减速带宽
 RADAR_STOP_R    = float(os.environ.get('RADAR_STOP_R', '1.6'))   # 硬停距 ≥ 1.6m，确保横向漂移不会擦肩
+RADAR_SIDE_PANIC_R = float(os.environ.get('RADAR_SIDE_PANIC_R', '1.6'))
+RADAR_SIDE_PANIC_SPEED = float(os.environ.get('RADAR_SIDE_PANIC_SPEED', '0.5'))
 # === 2026-10-03 雷达「必须能刹住」硬约束 + 贴墙后退（防撞楼）===
 # 实测事故（02:24 场）：飞机在 world (2.87,-8.78) 顶住 house_2_126 的北立面
 # （该楼 x[-2.5,8.5] y[-18.5,-9.5]，北面 y=-9.5，机身 y=-8.8 ⇒ 净空 0.7m），
@@ -168,6 +191,19 @@ RADAR_JAM_TRIGGER_S = float(os.environ.get('RADAR_JAM_TRIGGER_S', '4.0'))
 RADAR_JAM_ESCAPE_S = float(os.environ.get('RADAR_JAM_ESCAPE_S', '3.0'))
 RADAR_JAM_ESCAPE_SPD = float(os.environ.get('RADAR_JAM_ESCAPE_SPD', '1.0'))
 RADAR_JAM_CLEAR_R = float(os.environ.get('RADAR_JAM_CLEAR_R', '4.0'))
+# R1（2026-10-09）守卫交替振荡死锁检测：雷达/栅格守卫每帧反复改写方向
+# 互相抵消 → 原地打转（v26 agent_3 90s、agent_0 80s）。检测到守卫持续
+# 交替反向时，强制沿目标航向直行 OSC_BREAKOUT_S，期间守卫只限幅不改向。
+OSC_WATCH_S = float(os.environ.get('OSC_WATCH_S', '3.0'))      # 观察窗口 s
+OSC_SWITCH_N = int(os.environ.get('OSC_SWITCH_N', '4'))        # 窗口内反向切换 ≥N 次判死锁
+OSC_BREAKOUT_S = float(os.environ.get('OSC_BREAKOUT_S', '2.0'))# 强制脱困直行时长 s
+OSC_BREAKOUT_SPD = float(os.environ.get('OSC_BREAKOUT_SPD', '1.2'))  # 直行速度 m/s
+# R2（2026-10-09）世界坐标可信度：EKF 慢漂移钳制/病态重锚定后，world 与世界
+# 物理位置脱节，禁止这段时间内做"到圈即贴脸"决策（v26 距真身 48m 假到达）。
+WORLD_TRUST_HOLD_S = float(os.environ.get('WORLD_TRUST_HOLD_S', '3.0'))
+# 正常飞行的 EKF 速度尖峰常只需截断几厘米；这种微调不应连续刷新
+# 3 秒不可信窗口，使目标近旁的控制循环一直悬停。
+WORLD_TRUST_CLAMP_EXCESS_M = float(os.environ.get('WORLD_TRUST_CLAMP_EXCESS_M', '0.15'))
 # === 2026-10-05 比赛规则硬约束：扩大软减速带 ===
 # 旧默认 MAP_GUARD_SOFT=2.0 + MAP_GUARD_MARGIN=1.0 = 总 3m 软带。本机巡航 6 m/s
 # 下，0.05s 一帧移动 0.3m，3m 软带只能覆盖 10 帧 = 0.5s，飞机在进入软带到硬停之间
@@ -299,34 +335,187 @@ BUILDING_DIST    = 5.0      # 建筑判定距离 m（小于此值视为建筑附
 # 国家一等奖标准修复（2026-10-04）：
 #   旧 ORBIT_RADIUS=5.0 + ORBIT_SPEED=0.19 → 线速度 = 0.19×5 = 0.95 m/s，**刚好压在 1.0 m/s
 #   触发线上**。一旦 EKF 抖动或位置控制超调，飞机瞬时速度就会突破 1.0 m/s → actor 触发逃跑。
-# 修复：ORBIT_RADIUS=6.0（仍 < 7m 安全半径）+ ORBIT_SPEED=0.13 rad/s → 线速度 = 0.13×6
-#   = 0.78 m/s，离触发线 22% 安全余量，足够吸收 EKF 抖动。
-#   同时 r=6m 仍在 20m 视野中心偏内，相机（FOV 90°）始终覆盖目标。
-ORBIT_RADIUS    = 6.0     # 盘旋半径 m（< actor uav_safety_radius=7.0 不被推）
+# 官方 control_actor.py 在无人机距演员 <7m 时会持续把演员推走。
+# 下载目录的六目标开发场景快照采用 8m 观察圈；留 1m 缓冲，同时保持
+# 在本队 9.5m 的近距裁判播报门内。
+ORBIT_RADIUS    = 8.0     # 盘旋半径 m（> actor uav_push_radius=7.0）
 # 线速度 = ORBIT_SPEED * ORBIT_RADIUS，必须严格 < 1.0 m/s（防触发逃跑判定）。
-ORBIT_SPEED     = 0.13    # 盘旋角速度 rad/s（r=6m 时线速度 0.78 m/s，离 1.0 阈值 22% 安全余量）
-# 2026-10-06 国家一等奖: 团队侧确认后切「贴脸模式」让 yolo 误差 < 1m 持续 15s
-# 触发官方 score_cal.py:122-168 err_threshold=1m 判定 +100 消除分.
-#   ORBIT_RADIUS_CLOSE=2m   (远小于 7m 安全半径, 不会被推)
-#   ORBIT_SPEED_CLOSE=0.05  rad/s → 线速度 0.10 m/s (离 1.0m/s 阈值 90% 余量)
-# 2026-10-07 v12 复盘: 贴脸圈半径 2.0 → 6.0。相机水平前装 VFOV 半角 ≈29.5°，
-# 盘旋高度 3.2m 时 2m 圈俯角 atan(3.2/2)=58°——actor 全身都在视场外，YOLO 必然
-# 断流（实测 logs_20261007_121403: 进入贴脸同秒即"无位置更新"放弃）。
-# 6m 圈在 3.2m 高度俯角 28.2°（脚）~14°（头），全身入视场；斜距 6.8m 仍在
-# 感知 10m 检测半径与桥 8m 播报闸门内。裁判 <1m 判据靠身高反推测距精度
-# （6m 处 h_px≈106，±3px → ±0.17m），与圈半径无强耦合。
-ORBIT_RADIUS_CLOSE = 4.5
+ORBIT_SPEED     = 0.11    # r=8m 时切向 0.88m/s，保留逃跑阈值余量
+# 近距观察半径：09:15 本轮 red1 在 2.5~4.5m 时框中心落到 480px
+# 图像的 y=466~477，随后失去真实观测、官方坐标误差持续扩大。8m 使人
+# 保持在画面内部且位于 7m 驱离区之外，仍低于 9.5m 播报进入距离门。
+ORBIT_RADIUS_CLOSE = float(os.environ.get('ORBIT_RADIUS_CLOSE', '8.0'))
 ORBIT_SPEED_CLOSE  = 0.05
-# B2：贴脸圈收至 4.5m，追踪高度收至 2.6m。
-# 相机离机体约 0.85m，脚部俯角约 atan((2.6-0.85)/4.5)=21.3°，仍在 VFOV 半角内；
-# 斜距约 4.8m，降低单目测距与外推误差，同时保持全身可见。
+# 近处压低以免脚部出画面；8m 观察圈则保留搜索高度附近的视线。
+# 21:03 局绿色在 8m 处由 3.4m 降至约 2.2m 后连续丢失真实视觉，
+# 地图几何 LOS 却一直为 True，裁判确认被反复重置。
 ORBIT_ALT_MAX      = float(os.environ.get('ORBIT_ALT_MAX', '2.6'))
-# 2026-10-07 五分钟冲刺: 贴脸切换过渡期速度上限.
-# 从 6m 盘旋圈切到 2m 贴脸圈时, 0.3 增量 P 控制的最坏误差 = 0.3*(6+2)=2.4m,
-# POS_KP=0.8 → 瞬时速度 1.92 m/s > 1.0 → 在 20m 内触发官方逃跑判定(机速>1.0
-# 且距离<20m 持续 2s) → actor 进入逃跑态, 外推误差 >1m, 官方 15s 永远清零.
-# 过渡期一律 cap 到 0.95 m/s (离 1.0 阈值 5% 余量), 稳态由 ORBIT_SPEED_CLOSE 接管.
+ORBIT_FAR_ALT_MAX  = float(os.environ.get('ORBIT_FAR_ALT_MAX', '3.5'))
+ORBIT_FAR_ALT_START = float(os.environ.get('ORBIT_FAR_ALT_START', '5.5'))
+ORBIT_FAR_ALT_FULL = float(os.environ.get('ORBIT_FAR_ALT_FULL', '7.5'))
+
+
+def observation_altitude_cap(range_m):
+    """Smoothly raise a distant observer without cropping a nearby actor."""
+    if range_m is None or not math.isfinite(range_m):
+        return ORBIT_ALT_MAX
+    span = max(ORBIT_FAR_ALT_FULL - ORBIT_FAR_ALT_START, 0.1)
+    frac = min(1.0, max(0.0, (range_m - ORBIT_FAR_ALT_START) / span))
+    return ORBIT_ALT_MAX + frac * (ORBIT_FAR_ALT_MAX - ORBIT_ALT_MAX)
+# 平稳近距速度保持 0.95m/s；距离持续拉大时短时使用追逃速度。
 CLOSE_TRANSIT_SPEED = float(os.environ.get('CLOSE_TRANSIT_SPEED', '0.95'))
+CLOSE_BACKOFF_SPEED = float(os.environ.get('CLOSE_BACKOFF_SPEED', '1.8'))
+CLOSE_RECEDING_MIN_DIST = 6.0
+CLOSE_RECEDING_RATE = 0.45
+CLOSE_TARGET_AWAY_RATE = 0.25
+CLOSE_RECEDING_SAMPLE_S = 0.7
+CLOSE_CHASE_HOLD_S = 2.0
+# A search aircraft can enter the observation ring at 3 m/s.  The ordinary
+# 2.5 m/s² command slew then takes almost a second to reach the close cap,
+# carrying it inside the actor's 7 m push radius before the slow orbit starts.
+# Only increase the slew rate while *reducing* an existing command in close
+# mode.  Acceleration toward the actor keeps the normal bound.
+CLOSE_BRAKE_ACC = float(os.environ.get('CLOSE_BRAKE_ACC', '8.0'))
+
+
+def horizontal_slew_limit(vx, vy, last_v, close_mode=False):
+    """Limit command changes while allowing prompt braking at ring entry."""
+    lvx, lvy = last_v
+    max_acc = MAX_ACC
+    old_speed_sq = lvx * lvx + lvy * lvy
+    if (close_mode and old_speed_sq > CLOSE_TRANSIT_SPEED ** 2 and
+            vx * vx + vy * vy < old_speed_sq and
+            vx * lvx + vy * lvy < old_speed_sq):
+        max_acc = max(MAX_ACC, CLOSE_BRAKE_ACC)
+    max_dv = max_acc / CTRL_RATE
+    dvx, dvy = vx - lvx, vy - lvy
+    dv = math.hypot(dvx, dvy)
+    if dv > max_dv and dv > 1e-9:
+        return lvx + dvx * max_dv / dv, lvy + dvy * max_dv / dv
+    return vx, vy
+
+
+def observation_ring_goal(wx, wy, tx, ty, radius, bounds, margin=2.5):
+    """Choose an in-bounds observation point when the radial point is outside.
+
+    A target at the north edge can have a UAV just north of it.  Preserving
+    that radial angle asks the aircraft to orbit outside the search map, where
+    the map guard cancels its velocity and the camera soon loses the target.
+    Prefer a reachable point along the side of the ring; penalize paths that
+    cut through the actor's 7 m push circle.
+    """
+    xmin, xmax, ymin, ymax = bounds
+    xmin += margin
+    xmax -= margin
+    ymin += margin
+    ymax -= margin
+    angle = math.atan2(wy - ty, wx - tx)
+    preferred = (tx + radius * math.cos(angle),
+                 ty + radius * math.sin(angle))
+    if xmin <= preferred[0] <= xmax and ymin <= preferred[1] <= ymax:
+        return preferred
+    best = None
+    for i in range(32):
+        a = 2.0 * math.pi * i / 32.0
+        gx, gy = tx + radius * math.cos(a), ty + radius * math.sin(a)
+        if not (xmin <= gx <= xmax and ymin <= gy <= ymax):
+            continue
+        dx, dy = gx - wx, gy - wy
+        length_sq = dx * dx + dy * dy
+        fraction = (max(0.0, min(1.0,
+                    ((tx - wx) * dx + (ty - wy) * dy) / length_sq))
+                    if length_sq > 1e-9 else 0.0)
+        closest = math.hypot(wx + fraction * dx - tx,
+                             wy + fraction * dy - ty)
+        cut_penalty = 100.0 if closest < min(7.0, math.hypot(wx - tx, wy - ty)) - 0.1 else 0.0
+        cost = math.sqrt(length_sq) + cut_penalty
+        if best is None or cost < best[0]:
+            best = (cost, gx, gy)
+    return (best[1], best[2]) if best is not None else preferred
+
+
+def close_follow_velocity(err_x, err_y, target_vx, target_vy, observation_age):
+    """近距跟随速度：位置纠偏加目标速度前馈，最终低于逃跑触发线。"""
+    vx, vy = POS_KP * err_x, POS_KP * err_y
+    if (0.0 <= observation_age <= TARGET_TTL and
+            math.isfinite(target_vx) and math.isfinite(target_vy)):
+        target_speed = math.hypot(target_vx, target_vy)
+        if target_speed > 1.2:
+            target_vx *= 1.2 / target_speed
+            target_vy *= 1.2 / target_speed
+        vx += target_vx
+        vy += target_vy
+    speed = math.hypot(vx, vy)
+    if speed > CLOSE_TRANSIT_SPEED:
+        vx *= CLOSE_TRANSIT_SPEED / speed
+        vy *= CLOSE_TRANSIT_SPEED / speed
+    return vx, vy
+
+
+def close_target_is_receding(dist, old_dist, elapsed, observation_age,
+                             target_away_rate):
+    """Detect a widening camera range from fresh observations, not track velocity.
+
+    The vision velocity is heavily smoothed and was only 0.2 m/s while the
+    red actor moved about 2 m/s in the 13:52 match.
+    """
+    return (dist >= CLOSE_RECEDING_MIN_DIST and
+            CLOSE_RECEDING_SAMPLE_S <= elapsed <= 2.0 and
+            0.0 <= observation_age <= 1.0 and
+            target_away_rate >= CLOSE_TARGET_AWAY_RATE and
+            (dist - old_dist) / elapsed >= CLOSE_RECEDING_RATE)
+
+
+def ring_standoff_velocity(vx, vy, wx, wy, tx, ty, radius,
+                           target_vx=0.0, target_vy=0.0):
+    """Give a too-close camera a definite outward command, even with feedforward."""
+    dx, dy = wx - tx, wy - ty
+    dist = math.hypot(dx, dy)
+    if dist < 1e-6 or dist >= radius - 0.5:
+        return vx, vy
+    ux, uy = dx / dist, dy / dist
+    # When a walking actor is already moving away, it will restore the ring
+    # separation itself.  Forcing the aircraft to retreat at 6-7 m lost the
+    # camera view in the 12:24 run, despite an otherwise valid 0.95 m/s
+    # follow command.  Keep the backoff when truly inside the 5.5 m buffer.
+    receding = -(target_vx * ux + target_vy * uy)
+    if dist > 5.5 and receding >= 0.4:
+        return vx, vy
+    outward = vx * ux + vy * uy
+    if outward < 0.35:
+        vx += (0.35 - outward) * ux
+        vy += (0.35 - outward) * uy
+    speed = math.hypot(vx, vy)
+    if speed > CLOSE_TRANSIT_SPEED:
+        vx *= CLOSE_TRANSIT_SPEED / speed
+        vy *= CLOSE_TRANSIT_SPEED / speed
+    return vx, vy
+
+
+def urgent_close_backoff_velocity(vx, vy, wx, wy, tx, ty, tvx, tvy):
+    """Retreat when a walking actor is about to enter the camera's blind spot.
+
+    A 0.95 m/s cap cannot preserve standoff from an actor walking toward the
+    aircraft at about 1 m/s.  Keep the quiet cap while there is room, then
+    spend the actor's one-time escape response if the alternative is losing
+    the observation entirely.
+    """
+    dx, dy = wx - tx, wy - ty
+    dist = math.hypot(dx, dy)
+    if dist < 1e-6:
+        return vx, vy, False
+    ux, uy = dx / dist, dy / dist
+    approaching = tvx * ux + tvy * uy
+    if dist < 6.5 and approaching >= 0.4:
+        speed = min(CLOSE_BACKOFF_SPEED, max(1.2, approaching + 0.45))
+        return speed * ux, speed * uy, True
+    if dist < 5.5:
+        outward = vx * ux + vy * uy
+        if outward < 0.85:
+            vx += (0.85 - outward) * ux
+            vy += (0.85 - outward) * uy
+        return vx, vy, False
+    return vx, vy, False
 # 2026-10-06 国家一等奖: 贴脸锁定时长, 比官方 15s + 余量.
 # 期间即使 manager 接着确认其他 tid, 本机贴脸也不退出.
 CONFIRM_LOCK_DURATION = 30.0
@@ -558,6 +747,13 @@ class SwarmAgent(object):
         self._scan_t = 0.0           # 最近雷达帧的 ROS 时间
         self.state = State()
         self.assignment = None      # SearchAssignment 当前任务
+        self._search_scan_key = None
+        self._search_scan_yaw0 = None
+        self._search_scan_phase = 0
+        self._search_scan_settle_t = None
+        self._search_scan_started_t = None
+        self._search_scan_done = False
+        self._search_scan_failed = False
 
         # ---- A* 避障（合规重构 2026-10-07：雷达 SLAM 实时建图）----
         # metadata 只提供规则定值（bounds/frame/spawn），障碍恒为空；
@@ -604,7 +800,12 @@ class SwarmAgent(object):
         self._last_local_goal = None
 
         # ---- 覆盖栅格（与 manager 一致，10m 格）----
-        self.cov_grid = CoverageGrid(MAP_X_MIN, MAP_X_MAX, MAP_Y_MIN, MAP_Y_MAX, GRID_SIZE_M)
+        # 覆盖格与 manager 使用同一份 metadata 边界；固定 ±100 的旧边界
+        # 会让 x>100 的扫描状态 confidence 恒为 0，边缘格永远无法完成。
+        self.cov_grid = CoverageGrid(
+            _b.get("x_min", MAP_X_MIN), _b.get("x_max", MAP_X_MAX),
+            _b.get("y_min", MAP_Y_MIN), _b.get("y_max", MAP_Y_MAX),
+            GRID_SIZE_M)
 
         # ---- 目标检测（规则3 几何判定：距离 + 视线遮挡）----
         # 用**未膨胀**的原始 SLAM 栅格做 LOS 判定（膨胀是给飞行留裕度的，
@@ -634,6 +835,9 @@ class SwarmAgent(object):
         self._confirm_close_tid = None
         self._confirm_close_t0 = 0.0
         self._confirm_close_until = 0.0
+        self._close_range_ref = None
+        self._close_chase_tid = None
+        self._close_chase_until = 0.0
         self._last_track_goal = None # 追踪时上次 A* 的目标点（用于节流）
         self._last_track_plan_t = 0.0  # 追踪时上次 A* 规划时刻
         self._plan_fallback_n = 0  # A* 失败退化直飞的次数
@@ -662,6 +866,7 @@ class SwarmAgent(object):
 
         # ---- 友机避碰 ----
         self._friend_positions = {}  # 其他无人机位置 {uav_id: (x, y, z)}
+        self._friend_seen = {}
 
         # ---- MAVROS 服务 ----
         self.arm_srv = rospy.ServiceProxy("/%s/mavros/cmd/arming" % uav_id, CommandBool)
@@ -774,17 +979,24 @@ class SwarmAgent(object):
                     self.offset = (self.offset[0] - (_dx - _keep_x),
                                    self.offset[1] - (_dy - _keep_y))
                     wx, wy = _prev[0] + _keep_x, _prev[1] + _keep_y
+                    if _dist - _max_step >= WORLD_TRUST_CLAMP_EXCESS_M:
+                        self._world_trust_until = _tnow0 + WORLD_TRUST_HOLD_S
                     rospy.logwarn_throttle(
                         5.0, "[%s] EKF 慢漂移钳制：world 隐含速度 %.1fm/s > %.1f"
                         "（cmd峰值%.1f），截断 %.2fm（offset 吸收）", self.uav_id,
                         _dist / _dt, _clamp_v, _peak, _dist - _max_step)
             self._world_smooth_t = _tnow0
         self._world_smooth = (wx, wy)
-        # 地图硬边界外 50% 容差；超出视为 EKF 病态 → 拒用
-        _hard_xmin = MAP_X_MIN * 1.5
-        _hard_xmax = MAP_X_MAX * 1.5
-        _hard_ymin = MAP_Y_MIN * 1.5
-        _hard_ymax = MAP_Y_MAX * 1.5
+        # Judge map bounds come from metadata.  In the 13:35 match x_max=155,
+        # while fixed MAP_X_MAX=100 made valid x=150..155 trigger this gate.
+        _grid = getattr(self, 'grid', None)
+        if _grid is not None:
+            _hard_xmin, _hard_xmax, _hard_ymin, _hard_ymax = (
+                estimated_world_hard_bounds(_grid))
+        else:
+            # Unit-test/minimal-agent construction before metadata load.
+            _hard_xmin, _hard_xmax = MAP_X_MIN * 1.5, MAP_X_MAX * 1.5
+            _hard_ymin, _hard_ymax = MAP_Y_MIN * 1.5, MAP_Y_MAX * 1.5
         if not (_hard_xmin <= wx <= _hard_xmax and _hard_ymin <= wy <= _hard_ymax):
             # 仅在错位刚发生时打一次，避免每秒刷屏
             _now = rospy.Time.now().to_sec()
@@ -806,6 +1018,7 @@ class SwarmAgent(object):
                 if _lg is not None and self.local_xy is not None:
                     self.offset = (_lg[0] - self.local_xy[0],
                                    _lg[1] - self.local_xy[1])
+                    self._world_trust_until = rospy.Time.now().to_sec() + WORLD_TRUST_HOLD_S
                     rospy.logwarn("[%s] EKF 病态重锚定：world 冻结回最后可信 (%.1f,%.1f)，"
                                   "offset→(%.2f,%.2f)（外推模式）",
                                   self.uav_id, _lg[0], _lg[1],
@@ -819,6 +1032,15 @@ class SwarmAgent(object):
         # 合法 world：记录为最后可信位置（EKF 病态时的重锚定基准）
         self._last_good_world = (wx, wy)
         return (wx, wy)
+
+    def _world_trusted(self):
+        """R2（2026-10-09）：世界坐标当前是否可信。
+
+        显著钳制/重锚定后 WORLD_TRUST_HOLD_S 内返回 False——防止用被污染的
+        world_xy 触发"到圈即贴脸"（v26 agent_0 距 t4 真身 48m 处假到达）。
+        返回 False 时调用方应悬停等世界坐标自愈，或只用保守的距离判据。
+        """
+        return rospy.Time.now().to_sec() > getattr(self, "_world_trust_until", 0.0)
 
     def _calibrate_offset(self):
         """确定局部→世界的恒定平移（世界系 = MAVROS 局部系 + offset）。
@@ -1003,6 +1225,8 @@ class SwarmAgent(object):
                     self._ekf_window = [(new_xy, now, new_off)]
                     # v18：重锚定后 world 基准已变，清速度钳制基准防误钳
                     self._world_smooth = None
+                    # R2（2026-10-09）：原点跳变重锚定同样污染 world，短时不可信
+                    self._world_trust_until = now + WORLD_TRUST_HOLD_S
         # 维护位置估计轨迹（EST_GUARD 闸门的数据源；必须在 anchor 闸门之外每帧调用，
         # 否则 _est_hist 恒为空 → _est_trustworthy 恒 False → 飞机永远悬停不走）
         self._est_track(new_xy, now)
@@ -1081,7 +1305,8 @@ class SwarmAgent(object):
 
     def _scan_cb(self, msg):
         self._scan = msg
-        self._scan_t = rospy.Time.now().to_sec()
+        stamped = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
+        self._scan_t = stamped if stamped > 0.0 else rospy.Time.now().to_sec()
         self._slam_update()
 
     def _slam_update(self):
@@ -1107,7 +1332,8 @@ class SwarmAgent(object):
         try:
             marked = self.slam.mark_scan(self.world_xy, self.yaw, self._scan,
                                          SLAM_MAX_RANGE, SLAM_DEPTH_CELLS)
-        except Exception:
+        except Exception as exc:
+            rospy.logerr_throttle(5.0, '[%s] 激光建图失败: %s', self.uav_id, exc)
             return
         if marked <= 0:
             return
@@ -1139,6 +1365,47 @@ class SwarmAgent(object):
     def _assign_cb(self, msg):
         if msg.uav_id != self.uav_id:
             return
+        if msg.task_type == 255:
+            old_tid = getattr(self, '_track_assigned_id', None)
+            if old_tid and msg.target_id and msg.target_id != old_tid:
+                return
+            self.assignment = None
+            self._search_scan_key = None
+            self._search_scan_done = False
+            self._search_scan_failed = False
+            self._track_assigned_id = None
+            self._target_to_orbit = None
+            self._orbit_target = None
+            self._orbit_center = None
+            self._orbit_prev = None
+            self._confirm_start = 0.0
+            self._last_confirm_t = 0.0
+            self._confirm_close = False
+            self._confirm_close_tid = None
+            self._confirm_close_until = 0.0
+            self._look_at = None
+            self._last_local_goal = None
+            self.path = []
+            self.path_target = None
+            self._last_flight_v = (0.0, 0.0)
+            with self._plan_lock:
+                self._plan_pending = None
+            return
+        if msg.task_type == 0:
+            scan_key = (msg.cell_ix, msg.cell_iy,
+                        round(msg.target_x, 2), round(msg.target_y, 2))
+            if scan_key != self._search_scan_key:
+                self._search_scan_key = scan_key
+                self._search_scan_yaw0 = None
+                self._search_scan_phase = 0
+                self._search_scan_settle_t = None
+                self._search_scan_started_t = None
+                self._search_scan_done = False
+                self._search_scan_failed = False
+        else:
+            self._search_scan_key = None
+            self._search_scan_done = False
+            self._search_scan_failed = False
         self.assignment = msg
         # 处理特殊任务类型
         if msg.task_type == 1:  # 目标确认/追踪
@@ -1202,15 +1469,21 @@ class SwarmAgent(object):
                 self._target_to_orbit = None
             return
         self.targets[msg.target_id] = (msg.x, msg.y, msg.vx, msg.vy)
-        self._target_state[msg.target_id] = (
-            int(msg.state), rospy.Time.now().to_sec())
-        self._t_seen[msg.target_id] = rospy.Time.now().to_sec()
+        now = rospy.Time.now().to_sec()
+        # header.stamp 来自最后一次真实图像。bridge 的保活帧仍会到达，
+        # 但不能重置目标新鲜度；否则 8s 内的冻结位置每帧都变成“新观测”。
+        sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
+        if sample <= 0.0 or sample > now:
+            sample = now
+        self._target_state[msg.target_id] = (int(msg.state), sample)
+        self._t_seen[msg.target_id] = sample
         self._escape_bookkeeping(msg.target_id)   # v23：观测速度 → 逃跑生命周期
 
     def _friend_status_cb(self, msg):
         """接收友机位置和高度，用于避碰"""
         if msg.uav_id != self.uav_id:
             self._friend_positions[msg.uav_id] = (msg.x, msg.y, msg.z)
+            self._friend_seen[msg.uav_id] = rospy.Time.now().to_sec()
 
     def _finish_cb(self, msg):
         """收到任务完成广播后退出搜索循环。"""
@@ -1244,23 +1517,21 @@ class SwarmAgent(object):
             return
         if not tid:
             return
-        # 匹配判断: 本机真的在追这个 tid 吗?
-        is_my_target = False
-        if self._orbit_target is not None and str(self._orbit_target) == tid:
-            is_my_target = True
-        elif (getattr(self, '_track_assigned_id', None) is not None
-              and str(self._track_assigned_id) == tid):
-            is_my_target = True
-        elif (tid in getattr(self, '_claims', {})
-              and self._claims.get(tid, (None, 0.0))[1] > rospy.Time.now().to_sec() - 5.0):
-            is_my_target = True
-        # 2026-10-06 复盘补丁: 如果本机正在/最近正在跟踪该 tid 的位置 (targets 缓存里
-        # 有该 tid 且 _t_seen 在最近 8s 内), 也算本机的目标.
-        # 解决 t1 已跑出 80m+ 但 uav 还能看到 yolo 报位置的极端情况.
-        elif (tid in self.targets
-              and rospy.Time.now().to_sec() - self._t_seen.get(tid, 0.0) < 8.0):
-            is_my_target = True
-        if is_my_target:
+        # 团队确认是目标级广播，不能把“收到广播”当作本机到圈。
+        # 上轮 agent_5 距 t2 43m 仍因被指派而进入 0.95m/s 贴脸模式，
+        # 此后数十秒追不上目标。只有本机正在执行这个目标、视觉仍新鲜、
+        # 实际已在盘旋圈且 LOS 可见，才允许切低速。
+        is_my_target = (
+            str(getattr(self, '_track_assigned_id', None)) == tid or
+            str(getattr(self, '_orbit_target', None)) == tid)
+        target = self.targets.get(tid)
+        wx = self.world_xy
+        now = rospy.Time.now().to_sec()
+        near_and_visible = (target is not None and wx is not None and
+                            now - self._t_seen.get(tid, 0.0) <= TARGET_TTL and
+                            math.hypot(target[0] - wx[0], target[1] - wx[1]) <= ORBIT_RADIUS and
+                            self.los.visible(wx[0], wx[1], target[0], target[1]))
+        if is_my_target and near_and_visible and self._world_trusted():
             # 2026-10-07 五分钟冲刺: manager 团队确认作为兜底入口 (到圈即贴脸后
             # 此处幂等跳过; 若 agent 侧未触发——如目标中途换机接力——由此补上)
             self._enter_close_mode(tid)
@@ -1500,12 +1771,14 @@ class SwarmAgent(object):
         wx, wy = _w
 
         # 检查是否在追踪目标
-        # 2026-10-07 v12c：追踪/贴脸时高度钳到 ORBIT_ALT_MAX 上限。
-        # 6m 贴脸圈 + 3.2m 高度 → 俯角 atan(3.2-0.85 / 6) ≈ 21°，actor 全身入视场
-        # （前装双目 VFOV 半角 29.5°，脚部 28.2° 临界）；旧值 +1.0 会让 4.0/4.6 层
-        # 飞机在 5.0/5.6m 高度盘旋，俯角过小且远，YOLO 检测不稳。
+        # 近处保持低视点以免脚出画面；8m 观察圈不再强制降到
+        # 2.6m（叠加 EKF 高度降层后实测约 2.2m）。相机是否真的看到
+        # 人只能由视觉链确认，地图 LOS 不能替代图像。
         if self._orbit_target is not None:
-            return min(1.0, ORBIT_ALT_MAX - self.altitude_layer)
+            target = self.targets.get(self._orbit_target)
+            rng = (math.hypot(target[0] - wx, target[1] - wy)
+                   if target is not None else None)
+            return min(1.0, observation_altitude_cap(rng) - self.altitude_layer)
 
         # 检查是否在建筑附近（使用未膨胀的原始栅格）
         if hasattr(self, 'los') and self.los:
@@ -1538,11 +1811,16 @@ class SwarmAgent(object):
         雷达角度在机体系内，0 弧度为机头方向。这里只改水平速度，
         不接管 OFFBOARD，也不另发 MAVROS 设定点。
         """
+        # R1（2026-10-09）：近障强介入标记。雷达进入近障逻辑（front < WARN 或
+        # 三面堵死/后退）时置 True，_send_vel 据此让栅格守卫放弃方向改写，
+        # 根治「雷达转向→栅格覆盖反向→50ms 互相对消原地打转」（v26 撞墙主因）。
+        # 所有非近障提前返回在此统一先置 False（下方近障 return 前再置 True）。
+        self._radar_strict = False
         if not RADAR_GUARD or self._scan is None:
             return vx, vy
         now = rospy.Time.now().to_sec()
         if now - self._scan_t > RADAR_FRESH_S:
-            return vx, vy
+            return 0.0, 0.0
         speed = math.hypot(vx, vy)
         if speed < 0.05:
             return vx, vy
@@ -1595,8 +1873,21 @@ class SwarmAgent(object):
         if right < _SELF_ECHO:
             right = scan.range_max
 
+        # 前视目标时，盘旋和侧移的运动方向经常与机头相差 90°。旧分支只看
+        # 机头 front，然后无条件把输入速度重建为「前进+横移」：即使输入是
+        # 安全侧移，也会被推向机头前方的墙。非前向运动按真实运动方向激光
+        # 净空限速；盲区或堵死时原地停止，等待航向/路径重规划。
+        body_angle = (math.atan2(vy, vx) - self.yaw + math.pi) % (2.0 * math.pi) - math.pi
+        if abs(body_angle) > math.radians(35.0):
+            guarded = self._final_scan_cap(vx, vy)
+            if math.hypot(*guarded) < 0.05:
+                self._radar_strict = True
+                self._radar_strict_d = 0.0
+            return guarded
+
         # 最近净空（三扇区最小值）→ 硬刹停速度上限 v <= sqrt(2*a*(d-安全间隙))
         d_min = min(front, left, right)
+        self._radar_strict_d = d_min   # R1：供栅格守卫互斥分支读取
         v_cap = math.sqrt(max(0.0, 2.0 * MAX_ACC *
                               max(0.0, d_min - RADAR_SAFE_GAP)))
         # ---- 国家一等奖修复（2026-10-05）：v_cap 最低保底 ----
@@ -1610,9 +1901,13 @@ class SwarmAgent(object):
             return vx, vy
 
         # 优先选择净空更大的侧面；正前方两侧都未知时固定向左，避免左右抖动。
-        side = 1.0 if left >= right else -1.0
-        if abs(left - right) < 0.25:
+        # 左右净空差很小时保持上次绕行侧，避免测量噪声每帧反转。
+        side = getattr(self, '_radar_side', 1.0 if left >= right else -1.0)
+        if left - right > 0.7:
             side = 1.0
+        elif right - left > 0.7:
+            side = -1.0
+        self._radar_side = side
 
         # ---- 国家一等奖修复（2026-10-04）：三面近障兜底后退 ----
         # 真实仿真日志（logs_20261004_013325）实锤：UAV_0 以 front=0.31 / left=0.30 /
@@ -1705,6 +2000,7 @@ class SwarmAgent(object):
                         _by = RADAR_JAM_ESCAPE_SPD * math.sin(self.yaw + math.pi)
                         guarded = (_bx, _by)
                         self._radar_retreating = True
+                        self._radar_strict = True
                         rospy.logwarn_throttle(2.0,
                                                '[%s] 近障困局 %.0fs → 反向退出 %.0fs vout=(%.2f,%.2f)',
                                                self.uav_id, _now - _jam_t0,
@@ -1720,6 +2016,7 @@ class SwarmAgent(object):
             guarded = (cy * body_x - sy * body_y,
                        sy * body_x + cy * body_y)
             self._radar_retreating = True                          # 主流程旁路加速度限幅
+            self._radar_strict = True                              # R1：栅格守卫不得再改写方向
             rospy.logwarn_throttle(2.0,
                                    '[%s] 2D雷达三面堵死 front=%.2f left=%.2f right=%.2f '
                                    '→ 扇区%.0f°净空%.2fm %s vout=(%.2f,%.2f) %s速度=%.2f',
@@ -1759,12 +2056,68 @@ class SwarmAgent(object):
         if front < RADAR_BACKOFF_R and RADAR_BACKOFF_SPD > 0.0:
             guarded = (guarded[0] - cy * RADAR_BACKOFF_SPD,
                        guarded[1] - sy * RADAR_BACKOFF_SPD)
+        self._radar_strict = True   # R1：近障线性段强介入，栅格守卫不得改写
         rospy.logwarn_throttle(2.0,
                                '[%s] 2D雷达近障 front=%.2fm left=%.2f right=%.2f '
                                '-> vin=(%.2f,%.2f) vout=(%.2f,%.2f)',
                                self.uav_id, front, left, right,
                                vx, vy, guarded[0], guarded[1])
         return guarded
+
+    def _final_scan_cap(self, vx, vy):
+        """在所有转向与限幅之后，对最终运动方向再查一次原始激光。"""
+        speed = math.hypot(vx, vy)
+        if not RADAR_GUARD or speed < 0.05:
+            return vx, vy
+        now = rospy.Time.now().to_sec()
+        scan = self._scan
+        if scan is None or now - self._scan_t > RADAR_FRESH_S:
+            return 0.0, 0.0
+        body_angle = (math.atan2(vy, vx) - self.yaw + math.pi) % (2 * math.pi) - math.pi
+        nearest = None
+        nearest_any = None
+        nearest_any_angle = None
+        for i, raw in enumerate(scan.ranges):
+            beam = scan.angle_min + i * scan.angle_increment
+            delta = (beam - body_angle + math.pi) % (2 * math.pi) - math.pi
+            r = float(raw)
+            if math.isnan(r):
+                continue
+            if not math.isfinite(r) or r > scan.range_max or r < RADAR_SELF_ECHO_M:
+                r = scan.range_max
+            # 机尾 ±100..135° 的 0.50m 固定回波来自机身/桨架：六机在
+            # 完全不同位置均反复出现，但 front/left/right 净空仍为数米。
+            # 它不应限制朝前飞行；若真正朝该角度移动，下方 ±20° 的
+            # 运动方向刹停检查仍会读取原始射线并停车。
+            if abs(beam) <= math.radians(100.0) and (nearest_any is None or r < nearest_any):
+                nearest_any, nearest_any_angle = r, beam
+            if abs(delta) > math.radians(20.0):
+                continue
+            nearest = r if nearest is None else min(nearest, r)
+        # 任一方向已贴近障碍时，禁止继续向它移动；平行滑行或后退也须慢速。
+        # 上轮侧向回波曾低至 0.58m，单纯检查运动方向 ±20° 无法约束擦墙速度。
+        if nearest_any is not None and nearest_any < RADAR_SIDE_PANIC_R:
+            toward = vx * math.cos(self.yaw + nearest_any_angle) + \
+                     vy * math.sin(self.yaw + nearest_any_angle)
+            if toward > 0.05:
+                rospy.logwarn_throttle(2.0,
+                    '[%s] 末级雷达侧障停车 d=%.2fm toward=%.2fm/s',
+                    getattr(self, 'uav_id', '?'), nearest_any, toward)
+                return 0.0, 0.0
+            if speed > RADAR_SIDE_PANIC_SPEED:
+                k = RADAR_SIDE_PANIC_SPEED / speed
+                vx, vy = vx * k, vy * k
+                speed = RADAR_SIDE_PANIC_SPEED
+                rospy.logwarn_throttle(2.0,
+                    '[%s] 末级雷达侧障限速 d=%.2fm cap=%.2fm/s',
+                    getattr(self, 'uav_id', '?'), nearest_any, speed)
+        if nearest is None or nearest <= RADAR_STOP_R:
+            return 0.0, 0.0
+        cap = min(MAX_SPEED, math.sqrt(max(0.0, 2.0 * MAX_ACC *
+                                          (nearest - RADAR_STOP_R))))
+        if speed > cap:
+            return vx * cap / speed, vy * cap / speed
+        return vx, vy
 
     def _grid_blocked(self, wx, wy):
         """世界点在栅格上是否不可通行（障碍或越界；越界也视为墙，防冲出地图）。"""
@@ -1785,6 +2138,24 @@ class SwarmAgent(object):
         （距起飞点 (0,-3) 仅 3.08m）；改成「仍走栅格但缩前瞻」，爬升期也保护。
         """
         if not GRID_GUARD:
+            return vx, vy
+        # R1（2026-10-09）：雷达近障强介入时，栅格守卫只做速度限幅、不再改写
+        # 方向。v26 实证（agent_3）：雷达守卫把速度转向右侧避开前障 → 栅格守卫
+        # 随即判定"前方被占→转向 -170°"，两守卫每 50ms 互相覆盖 → 原地打转
+        # 90s+（agent_0 在 (-37,-19) 困 80s）。此时雷达层数据更原始、更真，
+        # 栅格（SLAM 膨胀+滞后）让位。
+        if getattr(self, "_radar_strict", False):
+            # 仅按"最近净空"夹合速度上限（v_cap 同款物理），不碰方向
+            d_min = getattr(self, "_radar_strict_d", None)
+            if d_min is not None and d_min < RADAR_WARN_R:
+                _sp = math.hypot(vx, vy)
+                if _sp > 1e-9:
+                    _cap = math.sqrt(max(0.0, 2.0 * MAX_ACC *
+                                         max(0.0, d_min - RADAR_SAFE_GAP)))
+                    _cap = max(_cap, RADAR_VCAP_FLOOR)
+                    if _sp > _cap:
+                        k = _cap / _sp
+                        vx, vy = vx * k, vy * k
             return vx, vy
         wx = self.world_xy
         if wx is None:
@@ -1867,6 +2238,70 @@ class SwarmAgent(object):
         rospy.logwarn_throttle(2.0, '[%s] 栅格近障：前方被占 → 转向 %.0f° 减速 %.1f→%.1f m/s',
                                self.uav_id, math.degrees(best), spd, safe_spd)
         return safe_spd * math.cos(best), safe_spd * math.sin(best)
+
+    def _oscillation_breakout(self, vx, vy):
+        """R1（2026-10-09）：守卫交替振荡脱困。
+
+        雷达/栅格守卫在"近障->转向"路径上互相覆盖（雷达转向右侧、栅格判前方占
+        再转回左侧），每 50ms 方向翻转一次，位置原地打转（v26 撞墙主因）。检测
+        速度方向在窗口内频繁大角度翻转 → 强制沿最近一个目标航向直行，期间守卫
+        只做速度限幅（由 _grid_guard_velocity 的互斥分支承载）。
+        """
+        _prev = getattr(self, "_osc_prev", None)
+        _flicks = getattr(self, "_osc_flicks", 0)
+        _win_t0 = getattr(self, "_osc_win_t0", 0.0)
+        _break_until = getattr(self, "_osc_break_until", 0.0)
+        _now = rospy.Time.now().to_sec()
+
+        # 脱困期内：输出固定直行方向（沿脱困时刻锁定航向），不给守卫改写机会。
+        # 但雷达近障强介入（_radar_strict=True）时让位给雷达输出——严禁脱困直行
+        # 顶着真实障碍飞（近障≥脱困，振荡是慢病，撞墙是急症）。
+        if _now < _break_until:
+            if getattr(self, "_radar_strict", False):
+                return vx, vy
+            _hd = getattr(self, "_osc_break_hd", 0.0)
+            _sp = getattr(self, "_osc_break_sp", OSC_BREAKOUT_SPD)
+            return _sp * math.cos(_hd), _sp * math.sin(_hd)
+
+        spd = math.hypot(vx, vy)
+        if spd < 0.05:
+            return vx, vy
+
+        hd = math.atan2(vy, vx)
+        if _prev is not None:
+            _dh = abs(hd - _prev)
+            while _dh > math.pi:
+                _dh = abs(2 * math.pi - _dh)
+            if _dh > math.radians(120.0):
+                _flicks += 1
+                if _win_t0 == 0.0:
+                    _win_t0 = _now
+        self._osc_prev = hd
+        self._osc_flicks = _flicks
+        self._osc_win_t0 = _win_t0
+
+        if _win_t0 == 0.0:
+            return vx, vy
+        _win_span = _now - _win_t0
+        # 窗口内持续大幅翻转 → 判死锁，触发脱困
+        if _win_span >= OSC_WATCH_S and _flicks >= OSC_SWITCH_N:
+            # 锁定当前航向直行（脱困期保持恒定），重置检测状态
+            self._osc_break_hd = hd
+            self._osc_break_sp = OSC_BREAKOUT_SPD
+            self._osc_break_until = _now + OSC_BREAKOUT_S
+            self._osc_prev = None
+            self._osc_flicks = 0
+            self._osc_win_t0 = 0.0
+            rospy.logwarn('[%s] 守卫交替振荡 %.1fs/%d次 → 强制脱困直行 %.0fs',
+                          self.uav_id, _win_span, _flicks, OSC_BREAKOUT_S)
+            return OSC_BREAKOUT_SPD * math.cos(hd), OSC_BREAKOUT_SPD * math.sin(hd)
+        # 窗口横跨过长但翻转数不足（偶发转向/正常朝向调整）→ 重置窗口，
+        # 避免"一次翻转 + 很久以后"误触发脱困。真振荡会持续翻转、窗口重开。
+        if _win_span > max(OSC_WATCH_S, 3.0) * 2.0 and _flicks < OSC_SWITCH_N:
+            self._osc_prev = None
+            self._osc_flicks = 0
+            self._osc_win_t0 = 0.0
+        return vx, vy
 
     def _map_guard_velocity(self, vx, vy):
         """地图边界护栏：禁止速度把飞机继续带出 A* 栅格。
@@ -1972,6 +2407,14 @@ class SwarmAgent(object):
                 _vz = 0.0
             elif self._crash_t0 is not None and _now_s - self._crash_t0 >= CRASH_RECOVER_MAX_S:
                 _vz = 0.0
+            if _vz == 0.0:
+                # 本分支在 _send_vel 的最前面直接 return；若只把 vz 置零，
+                # 下方通常负责清标志的代码永远到不了，飞机会永久原地等待。
+                self._crash_flagged = False
+                self._crash_cnt = 0
+                self._crash_t0 = None
+                rospy.logwarn('[CRASH] %s 恢复达到高度/时间上限，清除恢复标志',
+                              self.uav_id)
             _m = TwistStamped()
             _m.header.stamp = rospy.Time.now()
             _m.header.frame_id = 'world'
@@ -1994,11 +2437,23 @@ class SwarmAgent(object):
         # 触地 + EKF 恢复可信 → 清熔断状态重新起飞。复飞走「起飞垂直爬升门」；
         # 若 EKF 再次雪崩会再次熔断，安全闭环。注意：恢复检查必须在外层
         # 「不可信」分支之前——恢复后 trustworthy=True 永远进不了该分支。
-        if getattr(self, '_ekf_frozen', False) and self._est_trustworthy() \
-                and self.local_z is not None and self.local_z < 0.35:
-            rospy.logwarn('[%s] 熔断后已触地且 EKF 恢复可信 → 清熔断状态复飞',
+        _recover_ready = (getattr(self, '_ekf_frozen', False)
+                          and not getattr(self, '_crash_flagged', False)
+                          and self._est_trustworthy()
+                          and self.local_z is not None
+                          and self.local_z < MIN_CRUISE_ALT - 0.3)
+        if _recover_ready:
+            _now_s = rospy.Time.now().to_sec()
+            if getattr(self, '_ekf_recover_since', None) is None:
+                self._ekf_recover_since = _now_s
+            _recover_ready = (_now_s - self._ekf_recover_since >= 2.0)
+        else:
+            self._ekf_recover_since = None
+        if _recover_ready:
+            rospy.logwarn('[%s] 熔断后低空稳定且 EKF 恢复可信 → 清熔断状态复飞',
                           self.uav_id)
             self._ekf_frozen = False
+            self._ekf_recover_since = None
             self._est_hold_n = 0
             self._offboard_rearm_done = False
             self._takeoff_done = False   # 重新走垂直爬升门
@@ -2011,6 +2466,8 @@ class SwarmAgent(object):
                     self.mode_srv(custom_mode='OFFBOARD')
             except Exception:
                 pass
+            self._send_vel(0.0, 0.0, vz=CLIMB_VZ)
+            return
         if vz is None and not self._est_trustworthy():
             self._est_hold_n = getattr(self, '_est_hold_n', 0) + 1
             _cap = min(ALT_TARGET_CAP, ALT_HARD_CEIL - ALT_HARD_MARGIN)
@@ -2094,10 +2551,18 @@ class SwarmAgent(object):
         else:
             # 雷达先修正水平速度，再经过统一的加速度限幅和高度护栏。
             self._radar_retreating = False  # 重置标记
+            self._radar_strict = False      # R1：每帧重置（雷达守卫内按需置 True）
             vx, vy = self._radar_guard_velocity(vx, vy)
             # 无激光时栅格兜底（雷达在线也再过一道，双保险）
+            # R1：雷达强介入时 _grid_guard_velocity 内部已自动让位只夹速度
             vx, vy = self._grid_guard_velocity(vx, vy)
             vx, vy = self._map_guard_velocity(vx, vy)
+            # R1 振荡死锁检测：守卫交替反向（雷达/栅格对阵）持续太久 → 强制
+            # 沿当前自由扇区直行 2s，期间两守卫只做速度限幅（v26 agent_3 例证）
+            if math.hypot(vx, vy) >= 0.05:
+                vx, vy = self._oscillation_breakout(vx, vy)
+
+        guard_stop = math.hypot(vx, vy) < 0.05
 
         # === 2026-09-27：水平加速度限幅 ===
         # 避让增益提高后，ORCA 输出可能在相邻帧跳到近乎反向（22:29 轮事故：
@@ -2109,14 +2574,13 @@ class SwarmAgent(object):
         # 后退速度夹成几帧才能爬到目标速度，飞机在 0.3m 墙里推不开。
         if not hasattr(self, "_last_cmd_v"):
             self._last_cmd_v = None
-        if self._last_cmd_v is not None and not getattr(self, "_radar_retreating", False):
-            _lvx, _lvy = self._last_cmd_v
-            _maxdv = MAX_ACC / CTRL_RATE
-            _dvx, _dvy = vx - _lvx, vy - _lvy
-            _dvn = math.hypot(_dvx, _dvy)
-            if _dvn > _maxdv and _dvn > 1e-9:
-                vx = _lvx + _dvx * _maxdv / _dvn
-                vy = _lvy + _dvy * _maxdv / _dvn
+        if not guard_stop and self._last_cmd_v is not None and not getattr(self, "_radar_retreating", False):
+            vx, vy = horizontal_slew_limit(
+                vx, vy, self._last_cmd_v,
+                close_mode=bool(getattr(self, '_confirm_close', False)))
+        if guard_stop:
+            vx, vy = 0.0, 0.0
+        vx, vy = self._final_scan_cap(vx, vy)
         self._last_cmd_v = (vx, vy)
 
         # === 高度最后防线（加速度限幅之后再裁，避免被限幅抵消）===
@@ -2328,11 +2792,13 @@ class SwarmAgent(object):
         # 记录最终下发的水平速度（供路径未就绪时继续发，保证 offboard 不断流）
         self._last_flight_v = (vx, vy)
         if FLIGHT_OUTPUT == "pos":
-            self._publish_pos_output(vx, vy, target_alt, vz)
+            self._publish_pos_output(cmd.twist.linear.x, cmd.twist.linear.y,
+                                     target_alt, cmd.twist.linear.z,
+                                     cmd.twist.angular.z)
         else:
             self.vel_pub.publish(cmd)
 
-    def _publish_pos_output(self, vx, vy, target_alt, vz=None):
+    def _publish_pos_output(self, vx, vy, target_alt, vz=None, yaw_rate=0.0):
         """速度 → 位置设定点。
 
         速度指令本身已经过加速度限幅 / 雷达 / 栅格 / 地图边界四层守卫，这里只做
@@ -2352,7 +2818,8 @@ class SwarmAgent(object):
             m.header.frame_id = 'world'
             m.twist.linear.x = vx
             m.twist.linear.y = vy
-            m.twist.linear.z = 0.0
+            m.twist.linear.z = 0.0 if vz is None else vz
+            m.twist.angular.z = yaw_rate
             self.vel_pub.publish(m)
             return
         step_x = vx * POS_SP_LEAD
@@ -2367,16 +2834,20 @@ class SwarmAgent(object):
         sp.header.frame_id = 'map'
         sp.pose.position.x = lxy[0] + step_x
         sp.pose.position.y = lxy[1] + step_y
-        # 高度：降落段必须真降，否则位置模式会一直保持 target_alt 悬停；
-        # 其余情况用 target_alt（官方 >6m 判 0，这里目标 2.8m，天然安全）。
+        # 位置模式也必须执行最终安全竖直速度，尤其是悬停、硬顶下降和坠机恢复。
         if self._landing:
             z = max(0.0, self.local_z - 0.6)
+        elif vz is not None:
+            z = self.local_z + vz * POS_SP_LEAD
         elif target_alt is not None:
             z = target_alt
         else:
             z = self.local_z
-        sp.pose.position.z = z
-        sp.pose.orientation.w = 1.0
+        sp.pose.position.z = max(0.0, min(z, ALT_RECOVER_CEIL))
+        yaw = getattr(self, 'yaw', 0.0) or 0.0
+        yaw += max(-YAW_RATE_MAX, min(YAW_RATE_MAX, yaw_rate)) * POS_SP_LEAD
+        sp.pose.orientation.z = math.sin(yaw * 0.5)
+        sp.pose.orientation.w = math.cos(yaw * 0.5)
         self._pos_sp = (sp.pose.position.x, sp.pose.position.y, sp.pose.position.z)
         self._pos_sp_t = rospy.Time.now().to_sec()
         self.pos_pub.publish(sp)
@@ -2593,6 +3064,48 @@ class SwarmAgent(object):
             acc += seg
         return self.path[-1]
 
+    def _search_scan_step(self):
+        """原地转满一圈，确认前视相机实际朝过四个方向后才报覆盖完成。"""
+        assignment = getattr(self, 'assignment', None)
+        if (assignment is None or getattr(assignment, 'task_type', None) != 0 or
+                self._search_scan_key is None):
+            self._send_vel(0.0, 0.0)
+            return
+        now = rospy.Time.now().to_sec()
+        if self._search_scan_yaw0 is None:
+            self._search_scan_yaw0 = self.yaw
+            self._search_scan_started_t = now
+            self._search_scan_phase = 0
+            self._search_scan_settle_t = None
+        if self._search_scan_done or self._search_scan_failed:
+            self._send_vel(0.0, 0.0)
+            return
+        if now - self._search_scan_started_t > SEARCH_SCAN_TIMEOUT_S:
+            self._search_scan_failed = True
+            rospy.logwarn('[%s] 搜索格转向超时，拒绝标记已观察: %s',
+                          self.uav_id, self._search_scan_key)
+            self._send_vel(0.0, 0.0)
+            return
+        # 0/90/180/270 度，任意相邻两次视场有重叠；仅偏航，水平零速。
+        desired = self._search_scan_yaw0 + self._search_scan_phase * math.pi / 2.0
+        wx, wy = self.world_xy
+        self._look_at = (wx + 10.0 * math.cos(desired),
+                         wy + 10.0 * math.sin(desired))
+        err = (desired - self.yaw + math.pi) % (2.0 * math.pi) - math.pi
+        if abs(err) <= SEARCH_SCAN_YAW_TOL:
+            if self._search_scan_settle_t is None:
+                self._search_scan_settle_t = now
+            elif now - self._search_scan_settle_t >= SEARCH_SCAN_HOLD_S:
+                self._search_scan_phase += 1
+                self._search_scan_settle_t = None
+                if self._search_scan_phase >= 4:
+                    self._search_scan_done = True
+                    rospy.loginfo('[%s] 搜索格四向观察完成: %s',
+                                  self.uav_id, self._search_scan_key)
+        else:
+            self._search_scan_settle_t = None
+        self._send_vel(0.0, 0.0)
+
     def _control(self):
         """有任务 → A* 绕障飞向格中心；无任务 → 原地悬停。"""
         # === 降落模式 ===
@@ -2636,10 +3149,21 @@ class SwarmAgent(object):
                     self._world_none_since is None):
                 self._world_none_since = _now
             elif (_now - self._world_none_since) > 1.0 and self._offset_param is not None:
-                rospy.logerr_throttle(5.0,
-                    "[%s] world_xy 病态持续 %.1fs，强制重锚定 offset 到起飞点",
-                    self.uav_id, _now - self._world_none_since)
-                self.offset = self._offset_param
+                # world_xy already reanchors to the last trusted world point.
+                # Replacing that offset with the launch offset every second
+                # undid recovery and trapped UAV1 in an x=150..155 loop.
+                _lg = getattr(self, '_last_good_world', None)
+                if _lg is not None and self.local_xy is not None:
+                    self.offset = (_lg[0] - self.local_xy[0],
+                                   _lg[1] - self.local_xy[1])
+                    rospy.logwarn_throttle(
+                        5.0, "[%s] world_xy 暂不可用 %.1fs，保持最后可信位置重锚定",
+                        self.uav_id, _now - self._world_none_since)
+                else:
+                    self.offset = self._offset_param
+                    rospy.logerr_throttle(
+                        5.0, "[%s] world_xy 暂不可用 %.1fs，无可信历史位置，回起飞锚点",
+                        self.uav_id, _now - self._world_none_since)
                 self._ekf_window = None
                 self._world_none_since = None
                 # 重锚定后世界坐标恢复 → 不悬停，继续主流程
@@ -2693,7 +3217,32 @@ class SwarmAgent(object):
             tx, ty = self._target_to_orbit
             self._look_at = (tx, ty)       # 接近阶段机头就对准目标
             dist = math.hypot(tx - self.world_xy[0], ty - self.world_xy[1])
-            if dist < ORBIT_RADIUS:
+            # Keep the close controller across small range-estimate changes.
+            # The old exact 8 m switch ran A* pursuit whenever a walking
+            # target moved just outside the ring, then rushed inside 6 m and
+            # cropped the person out of the camera in the 10:54 match.
+            _retain_close = (self._confirm_close and
+                             self._confirm_close_tid == _track_id and
+                             self._orbit_target == _track_id and
+                             dist <= ORBIT_RADIUS_CLOSE + 1.5)
+            if (self._confirm_close and self._confirm_close_tid == _track_id and
+                    dist > ORBIT_RADIUS_CLOSE + 1.5 and
+                    _now_s - self._t_seen.get(_track_id, 0.0) <= TARGET_TTL):
+                self._confirm_close = False
+                self._confirm_close_tid = None
+                self._orbit_prev = None
+                self._orbit_target = None
+                self._confirm_start = 0.0
+            # R2（2026-10-09）：world 不可信时禁止"到圈即贴脸"，改为悬停等待
+            # 世界坐标自愈，防止用被污染的 world 判定假到达（v26 距真身 48m 贴脸）
+            if dist < ORBIT_RADIUS and not self._world_trusted():
+                rospy.logwarn_throttle(2.0,
+                    '[%s] 到圈判定 dist=%.1fm 但 world 不可信（钳制/重锚定后 %.0fs 内）'
+                    '→ 悬停等自愈，不切贴脸', self.uav_id, dist,
+                    WORLD_TRUST_HOLD_S)
+                self._send_vel(0.0, 0.0)
+                return
+            if dist < ORBIT_RADIUS or _retain_close:
                 # 到达目标附近，开始盘旋
                 # === v16.1 修复：到圈分支每周期重入 ===
                 # v16 实测（agent_4）：宽限期内 dist 仍 < ORBIT_RADIUS，本分支
@@ -2746,6 +3295,16 @@ class SwarmAgent(object):
                 return
 
         # === 搜索任务（task_type=0）===
+        # _abort_orbit clears the pursuit pointer before the manager releases
+        # its assignment.  A task_type=1 with no pointer used to fall through
+        # here, fly toward the actor as a search waypoint and scan four
+        # directions with key=None.  Hold position and keep the target bearing
+        # until a refreshed pursuit or a real search assignment arrives.
+        if task_type != 0:
+            self._look_at = ((self.assignment.target_x, self.assignment.target_y)
+                             if task_type == 1 else None)
+            self._send_vel(0.0, 0.0)
+            return
         # 检查是否在盘旋，以及是否能看到目标
         self._update_orbit()
         if self._orbit_target is not None:
@@ -2759,37 +3318,22 @@ class SwarmAgent(object):
         if not DWELL_LOOKAHEAD:
             self._look_at = None
 
-        # === 2026-10-03：搜索时主动追近距目标 ===
-        # 若 target_states 已知 50m 内有目标，覆盖 manager 的搜索格目标，直接飞过去。
-        # 否则单纯靠搜索格中心 80m 外派遣（manager 阈值改 80m 后），飞机仍要飞 30s
-        # 才到 actor 区域，且不能保证任何一架恰好分到 actor 所在格。
-        # 这里兜底：任意目标 ≤50m 且目标 alive 即把 goal 替换为目标位置，
-        # 让 agent 主动接近 → 进入 20m 探测范围。
-        _ntd = self._nearest_target_dist()
-        _target_pursuit_m = 50.0
-        _override_goal = None
-        _override_dist = None
-        if (_ntd is not None and _ntd[1] <= _target_pursuit_m
-                and self._target_state.get(_ntd[0], (0, 0.0))[0] != 2):
-            _tx, _ty, _vx_t, _vy_t = self.targets[_ntd[0]]
-            _override_goal = (_tx, _ty)
-            _override_dist = _ntd[1]
+        # 搜索机遵守管理器的责任格。原先这里让所有距离任意视觉候选
+        # 50m 内的搜索机私自改道，单个蓝色假目标曾吸走大半机队，
+        # 导致真正未发现的目标活动区无人搜索。近距真实目标仍由
+        # _update_orbit 接手；远距候选由 manager 按任务类型派追踪机。
+        goal = (self.assignment.target_x, self.assignment.target_y)
+        dist = math.hypot(goal[0] - self.world_xy[0], goal[1] - self.world_xy[1])
 
-        if _override_goal is not None:
-            goal = _override_goal
-            dist = _override_dist
-        else:
-            goal = (self.assignment.target_x, self.assignment.target_y)
-            dist = math.hypot(goal[0] - self.world_xy[0], goal[1] - self.world_xy[1])
-
-        if dist < ARRIVE_TOL:
-            # 已到达格中心，检查是否有可盘旋的目标
+        if dist < SEARCH_ARRIVE_TOL:
+            # 前视相机只覆盖一个扇区。抵达格心并不等于看过周围；原来 manager
+            # 立即把半径 10m 的圆判成已搜索，蓝/白目标因此整局漏检。
             self.path = []
             self._check_start_orbit()
             if self._orbit_target is not None:
                 self._fly_orbit()
             else:
-                self._send_vel(0.0, 0.0)
+                self._search_scan_step()
             return
 
         # 目标变了 → 异步投递规划（非阻塞；失败后按 _plan_fail_t 冷却 2s 再试）
@@ -2813,7 +3357,23 @@ class SwarmAgent(object):
         # 到点 dwell 段 path 会被 _check_start_orbit 清空 → _pick_local_goal
         # 返回 None → 上一句 self._look_at = self._last_local_goal 兜底冻结。
         if DWELL_LOOKAHEAD:
-            self._look_at = local_goal
+            # A forward camera sees only ±57°; a person beside the transit
+            # path can be between two aircraft yet outside both views.  Sweep
+            # the nose ±35° while keeping the same world-frame flight path.
+            # Stop sweeping close to the waypoint so the four-direction scan
+            # starts from a settled heading.  Radar and ORCA still constrain
+            # the final velocity in _send_vel.
+            if SEARCH_SWEEP_DEG > 0.0 and SEARCH_SWEEP_PERIOD_S > 0.0 \
+                    and math.hypot(local_goal[0] - self.world_xy[0],
+                                   local_goal[1] - self.world_xy[1]) > SEARCH_DECEL_M:
+                _bearing = math.atan2(local_goal[1] - self.world_xy[1],
+                                      local_goal[0] - self.world_xy[0])
+                _sweep = math.radians(SEARCH_SWEEP_DEG) * math.sin(
+                    2.0 * math.pi * rospy.Time.now().to_sec() / SEARCH_SWEEP_PERIOD_S)
+                self._look_at = (self.world_xy[0] + 10.0 * math.cos(_bearing + _sweep),
+                                 self.world_xy[1] + 10.0 * math.sin(_bearing + _sweep))
+            else:
+                self._look_at = local_goal
             self._last_local_goal = local_goal
         err_x = local_goal[0] - self.world_xy[0]
         err_y = local_goal[1] - self.world_xy[1]
@@ -2852,6 +3412,8 @@ class SwarmAgent(object):
             return None
         best = None
         for tid, (tx, ty, _, _) in self.targets.items():
+            if rospy.Time.now().to_sec() - self._t_seen.get(tid, 0.0) > TARGET_TTL:
+                continue
             d = math.hypot(tx - wx[0], ty - wx[1])
             if best is None or d < best[1]:
                 best = (tid, d)
@@ -2934,7 +3496,22 @@ class SwarmAgent(object):
                 or tid in self._flee_run_t):
             return MAX_SPEED if dist > FLEE_SHEPHERD_DIST else FLEE_SHEPHERD_SPEED
         if tid in self._spend_mode:
-            return MAX_SPEED
+            return MAX_SPEED if dist > FLEE_SHEPHERD_DIST else FLEE_SHEPHERD_SPEED
+        # 正常行走约 1m/s；目标沿远离本机方向走时，0.85m/s 温顺接近
+        # 在数学上永远到不了 6m 观测圈。只在新鲜观测证明其远离且当前
+        # 距离仍超过 8m 时，主动花掉官方一次性逃跑闩锁并加速接近。
+        # 待目标真正逃跑后，以上面的逃跑分支按 2.6~6m/s 接力追踪。
+        ent = self.targets.get(tid)
+        wx = self.world_xy
+        if (ent is not None and wx is not None and dist > 8.0 and
+                rospy.Time.now().to_sec() - self._t_seen.get(tid, 0.0) <= TARGET_TTL):
+            radial = ((ent[0] - wx[0]) * ent[2] +
+                      (ent[1] - wx[1]) * ent[3]) / max(dist, 1e-6)
+            if spd_t is not None and spd_t >= 0.7 and radial >= 0.35:
+                self._spend_mode.add(tid)
+                rospy.loginfo('[%s] %s 目标远离 rad=%.2fm/s 且慢速无法追近，'
+                              '启动一次性追逃', self.uav_id, tid, radial)
+                return MAX_SPEED if dist > FLEE_SHEPHERD_DIST else FLEE_SHEPHERD_SPEED
         if not self._is_armed(tid) and dist > UNARMED_BRAKE_DIST:
             return MAX_SPEED
         return SPOOK_SPEED if dist < SPOOK_DIST else MAX_SPEED
@@ -3203,10 +3780,10 @@ class SwarmAgent(object):
     def _enter_close_mode(self, tid):
         """2026-10-07 五分钟冲刺: 统一的贴脸模式入口.
 
-        到达 6m 盘旋圈即直接切贴脸, 不再等 manager 团队确认 15s:
+        到达 8m 观察圈即切稳定近距跟随，不再等 manager 团队确认 15s:
         - 贴脸稳态误差 <0.5m 天然满足官方判据 (err<1m AND 间隔≤1s),
           官方 15s 计时从贴脸首帧起算 → 每目标省 15s 串行等待.
-        - 过渡期速度由 CLOSE_TRANSIT_SPEED=0.95 硬 cap, 不惊跑 actor.
+        - 平稳过渡期由 CLOSE_TRANSIT_SPEED=0.95 限速；失联趋势另行追赶。
         - manager /swarm/confirmed 回调幂等 (已 True 不重复), 兜底仍在.
         """
         if self._confirm_close and self._confirm_close_tid == tid:
@@ -3215,6 +3792,7 @@ class SwarmAgent(object):
         self._confirm_close_tid = tid
         self._confirm_close_t0 = rospy.Time.now().to_sec()
         self._confirm_close_until = self._confirm_close_t0 + CONFIRM_LOCK_DURATION
+        self._close_range_ref = None
         self._orbit_prev = None  # 清外推基线, 贴脸 angle 用当前位置重算
         rospy.loginfo(
             "[%s] 到达盘旋圈 → 直接切贴脸模式 (tid=%s) R=%.1fm/ω=%.3frad/s "
@@ -3226,11 +3804,17 @@ class SwarmAgent(object):
 
     def _check_start_orbit(self):
         """检查是否需要开始盘旋（发现可确认的目标）"""
+        # R2（2026-10-09）：world 不可信（EKF 钳制/重锚定后）不开始新盘旋——
+        # 检测距离判据基于被污染的 world_xy 会假到达/追错点
+        if not self._world_trusted():
+            return
         wx = self.world_xy
         if wx is None:
             return
 
         for tid, (tx, ty, _, _) in self.targets.items():
+            if rospy.Time.now().to_sec() - self._t_seen.get(tid, 0.0) > TARGET_TTL:
+                continue
             dist = math.hypot(tx - wx[0], ty - wx[1])
             # 在检测范围内且 LOS 可见
             if dist >= DETECT_RADIUS or not self.los.visible(wx[0], wx[1], tx, ty):
@@ -3254,8 +3838,10 @@ class SwarmAgent(object):
             self._stale_search_until.pop(tid, None)  # v16: 全新宽限窗口
             self._confirm_start = rospy.Time.now().to_sec()
             self._last_confirm_t = self._confirm_start
-            # 2026-10-07 五分钟冲刺: 自动发现的目标同样到圈即贴脸
-            self._enter_close_mode(tid)
+            # 检测半径是 10m，稳定观察圈是 8m。10m 处就限 0.95m/s
+            # 会使尚在逃跑的 actor 以更快速度甩开本机。
+            if dist <= ORBIT_RADIUS:
+                self._enter_close_mode(tid)
             rospy.loginfo("[%s] 开始盘旋确认目标 %s", self.uav_id, tid)
             break
 
@@ -3275,6 +3861,12 @@ class SwarmAgent(object):
         if _w is None:
             return
         wx, wy = _w
+
+        # R2（2026-10-09）：贴脸期间 world 突然不可信（EKF 钳制/重锚定）→ 悬停
+        # 等坐标自愈，不朝错误位置继续贴脸（v26 贴脸飞偏 48m 的直接诱因）
+        if not self._world_trusted():
+            self._send_vel(0.0, 0.0)
+            return
 
         # 目标长时间没有位置更新才判定已删除；短时遮挡要给 bridge/备份机接力窗口。
         # === v16 修复：到圈后 stale 宽限搜索 ===
@@ -3317,6 +3909,61 @@ class SwarmAgent(object):
         self._orbit_center = (tx, ty)
         self._look_at = (tx, ty)       # 盘旋全程机头持续指向目标中心
         now = rospy.Time.now().to_sec()
+        orbit_dist = math.hypot(tx - wx, ty - wy)
+        obs_age = now - self._t_seen.get(self._orbit_target, 0.0)
+        if self._confirm_close:
+            ref = getattr(self, '_close_range_ref', None)
+            if ref is None or ref[0] != self._orbit_target or now - ref[1] > 2.0:
+                self._close_range_ref = (self._orbit_target, now, orbit_dist,
+                                         tx, ty, wx, wy)
+            elif now - ref[1] >= CLOSE_RECEDING_SAMPLE_S:
+                old_ux = (ref[3] - ref[5]) / max(ref[2], 1e-6)
+                old_uy = (ref[4] - ref[6]) / max(ref[2], 1e-6)
+                away_rate = ((tx - ref[3]) * old_ux +
+                             (ty - ref[4]) * old_uy) / (now - ref[1])
+                # A normally walking actor can open range when the UAV is
+                # braking or avoiding a wall.  Chasing that 1 m/s walk at
+                # 2.6 m/s inside the 7 m push zone drives it to the boundary.
+                # Reserve this burst for an actor whose 2 m/s escape has
+                # actually been observed; the ordinary ring follower remains
+                # below the escape trigger speed.
+                _run_seen = self._flee_run_t.get(self._orbit_target)
+                if (_run_seen is not None and now - _run_seen <= 3.0 and
+                        self._orbit_target not in self._escape_spent and
+                        close_target_is_receding(
+                        orbit_dist, ref[2], now - ref[1], obs_age,
+                        away_rate)):
+                    self._close_chase_tid = self._orbit_target
+                    self._close_chase_until = now + CLOSE_CHASE_HOLD_S
+                    self._spend_mode.add(self._orbit_target)
+                    rospy.logwarn_throttle(2.0,
+                        '[%s] %s 近距目标远离 %.2fm/s（距离 %.1fm）→ 短时追赶',
+                        self.uav_id, self._orbit_target,
+                        (orbit_dist - ref[2]) / (now - ref[1]), orbit_dist)
+                self._close_range_ref = (self._orbit_target, now, orbit_dist,
+                                         tx, ty, wx, wy)
+        chase_close = (self._confirm_close and
+                       getattr(self, '_close_chase_tid', None) == self._orbit_target and
+                       now < getattr(self, '_close_chase_until', 0.0) and
+                       obs_age <= 1.0 and orbit_dist > 6.0)
+        # The close cap is below a walking actor's nominal 1m/s speed.  If
+        # that actor walks away, a 30s close-mode latch makes reacquisition
+        # mathematically impossible.  Let the normal one-shot escape policy
+        # decide whether faster pursuit is warranted once contact opens up.
+        if (self._confirm_close and orbit_dist > ORBIT_RADIUS_CLOSE + 1.5 and
+                now - self._t_seen.get(self._orbit_target, 0.0) <= TARGET_TTL):
+            self._confirm_close = False
+            self._confirm_close_tid = None
+            self._orbit_prev = None
+            rospy.loginfo('[%s] %s 距离 %.1fm 已离开近距圈，切受控重捕获',
+                          self.uav_id, self._orbit_target, orbit_dist)
+        # 从 10m 检测圈开始追的飞机，接近到 8m 后才能切低速。
+        # 团队广播可能先于到圈抵达，所以在实际位置上重复检查一次。
+        if (not self._confirm_close and self._orbit_target in self.targets and
+                now - self._t_seen.get(self._orbit_target, 0.0) <= TARGET_TTL and
+                orbit_dist <= ORBIT_RADIUS and
+                self.los.visible(wx, wy, tx, ty)):
+            self._enter_close_mode(self._orbit_target)
 
         # 国家一等奖：actor 速度估计 + 圆心外推到飞机飞行 dt 后
         prev = getattr(self, "_orbit_prev", None)
@@ -3339,23 +3986,28 @@ class SwarmAgent(object):
         ty_c = ty + prev_vy_t * dt
         angle = math.atan2(wy - ty_c, wx - tx_c)
 
+        xmin, ymin = self.grid.origin
+        xmax = xmin + self.grid.width * self.grid.resolution
+        ymax = ymin + self.grid.height * self.grid.resolution
+        _ring_bounds = (xmin, xmax, ymin, ymax)
+
         # 更新角度（顺时针盘旋）
-        # 2026-10-06 国家一等奖: 贴脸模式 (manager 团队确认) 用小半径悬停,
-        # 让 yolo 测距误差 < 1m 持续 15s → 官方 score_cal +100 消除分.
-        # 关键洞察 (2026-10-06 验证): 6m/0.78m/s 时飞机每圈只有 0.5s 在 actor
-        # 上方 1m 内, 官方 err<1m AND 间隔≤1s 判据频繁失败.
-        # 改为 1.5m 半径 + 0.02rad/s (线速度 0.03m/s) 的极慢小圈, 飞机 ~70%
-        # 时间都在 actor 头顶上方, 误差天然 <0.5m, 1s 间隔几乎不破.
+        # 近距模式维持 8m 观察距离：裁判判的是上报世界坐标精度，
+        # 不要求无人机压到演员头顶；压进 7m 会触发演员驱离，反而断流。
         if self._confirm_close:
-            # 极小半径极慢: 飞机基本贴着 actor 上方悬停, 不绕大圈
+            # 小角速度让相机稳定对准演员，减少图像框和测距抖动。
             _radius = ORBIT_RADIUS_CLOSE
             _speed  = ORBIT_SPEED_CLOSE
-            # 即使如此, 每帧也只移动 0.03m — 远小于 actor 1.3m/s × 0.1s = 0.13m
-            # 所以 _orbit_center 外推已经足够, 这里 angle 用飞机当前位置计算
+            # 这里的 angle 只决定观察方向；移动目标的平移由速度前馈负责。
             angle = math.atan2(wy - ty_c, wx - tx_c)
             target_x = tx_c + _radius * math.cos(angle)
             target_y = ty_c + _radius * math.sin(angle)
-            # 强制低速 P 控制: 防止 6m → 1.5m 切换瞬间的大速度冲击
+            if not (xmin + MAP_GUARD_MARGIN <= target_x <= xmax - MAP_GUARD_MARGIN and
+                    ymin + MAP_GUARD_MARGIN <= target_y <= ymax - MAP_GUARD_MARGIN):
+                target_x, target_y = observation_ring_goal(
+                    wx, wy, tx_c, ty_c, _radius,
+                    _ring_bounds, MAP_GUARD_MARGIN + 0.5)
+            # 平滑近距目标点，防止切换时位置指令突跳。
             target_x = wx + 0.3 * (target_x - wx)
             target_y = wy + 0.3 * (target_y - wy)
         else:
@@ -3367,16 +4019,47 @@ class SwarmAgent(object):
             # 目标位置（用外推后圆心，确保飞机真的"绕到 actor 未来位置上"）
             target_x = tx_c + _radius * math.cos(angle)
             target_y = ty_c + _radius * math.sin(angle)
+            if not (xmin + MAP_GUARD_MARGIN <= target_x <= xmax - MAP_GUARD_MARGIN and
+                    ymin + MAP_GUARD_MARGIN <= target_y <= ymax - MAP_GUARD_MARGIN):
+                target_x, target_y = observation_ring_goal(
+                    wx, wy, tx_c, ty_c, _radius,
+                    _ring_bounds, MAP_GUARD_MARGIN + 0.5)
 
         # P 控制飞向盘旋点
         err_x = target_x - wx
         err_y = target_y - wy
         vx = POS_KP * err_x
         vy = POS_KP * err_y
+        # 近距确认时，目标仍会以约 1 m/s 行走。仅靠经过 0.3 缩放的
+        # 位置误差产生约 0.2~0.5 m/s，飞机必然逐渐落后并丢失画面。
+        # 使用桥接轨迹的速度作前馈，再统一限到逃跑触发线以下；观测
+        # 过期时停用前馈，避免沿冻结速度继续追鬼影。
+        _urgent_backoff = False
+        if self._confirm_close and not chase_close:
+            _tvx, _tvy = (self.targets[self._orbit_target][2:4]
+                          if self._orbit_target in self.targets else (0.0, 0.0))
+            vx, vy = close_follow_velocity(
+                err_x, err_y, _tvx, _tvy,
+                now - self._t_seen.get(self._orbit_target, 0.0))
+            vx, vy = ring_standoff_velocity(
+                vx, vy, wx, wy, tx, ty, ORBIT_RADIUS_CLOSE,
+                _tvx if now - self._t_seen.get(self._orbit_target, 0.0) <= TARGET_TTL else 0.0,
+                _tvy if now - self._t_seen.get(self._orbit_target, 0.0) <= TARGET_TTL else 0.0)
+            vx, vy, _urgent_backoff = urgent_close_backoff_velocity(
+                vx, vy, wx, wy, tx, ty, _tvx, _tvy)
+        elif chase_close:
+            # The ring point is behind a retreating actor.  Follow the actual
+            # line of sight until the range closes; all radar, map and friend
+            # guards still run through _send_vel below.
+            vx = FLEE_SHEPHERD_SPEED * (tx - wx) / orbit_dist
+            vy = FLEE_SHEPHERD_SPEED * (ty - wy) / orbit_dist
         spd = math.hypot(vx, vy)
-        # 2026-10-07 五分钟冲刺: 贴脸模式(含 6m→2m 过渡期)速度硬上限 0.95 m/s,
+        # 近距稳定观察时速度上限 0.95 m/s；离圈后由追赶策略重新定速。
         # 严格低于官方逃跑触发阈值 1.0 m/s (机速>1.0 且 <20m 持续 2s → actor 逃跑).
-        _v_cap = CLOSE_TRANSIT_SPEED if self._confirm_close else MAX_SPEED
+        _v_cap = (FLEE_SHEPHERD_SPEED if chase_close else
+                  CLOSE_BACKOFF_SPEED if _urgent_backoff else
+                  CLOSE_TRANSIT_SPEED if self._confirm_close else
+                  self._approach_cap(self._orbit_target, orbit_dist))
         if spd > _v_cap:
             vx *= _v_cap / spd
             vy *= _v_cap / spd
@@ -3403,7 +4086,9 @@ class SwarmAgent(object):
         self._publish_claim()
 
         if confirm_duration >= CONFIRM_TIME:
-            rospy.loginfo("[%s] 目标 %s 已连续确认 %.1fs，可消除", self.uav_id, self._orbit_target, confirm_duration)
+            rospy.loginfo_throttle(
+                5.0, "[%s] 目标 %s 驻留观察 %.1fs，等待官方消除反馈",
+                self.uav_id, self._orbit_target, confirm_duration)
             # 团队侧已满足 15s，官方却迟迟没消除 = 官方链路断了（坐标过期 / 遮挡 / 它在逃跑）。
             # 继续死等只会把飞机锁死（实测 571s），不如放弃、让 manager 重新派活。
             if confirm_duration >= ORBIT_GIVEUP:
@@ -3464,13 +4149,19 @@ class SwarmAgent(object):
             return vx, vy
         wx, wy = _w
         _vx_in, _vy_in = vx, vy   # 记录 ORCA 前的期望速度
+        now = rospy.Time.now().to_sec()
+        for fid in list(self._friend_positions):
+            if now - self._friend_seen.get(fid, -1e18) > 1.0:
+                self._friend_positions.pop(fid, None)
+                self._friend_seen.pop(fid, None)
 
         # 先应用自适应速度
         vx, vy = self._adaptive_speed(vx, vy)
 
         # 起飞/爬升阶段豁免水平避让：起飞区 6 架间距只有 8m，全部落在 ORCA
         # 互斥范围内会直接死锁（实测 ORCA 无解 110 次、6 架全程趴地起不来）。
-        if self.local_z is not None and self.local_z < ALT_TAKEOFF + CLIMB_NO_AVOID:
+        if self.local_z is not None and self.local_z < ALT_TAKEOFF \
+                and math.hypot(vx, vy) < 0.05:
             self._last_orca_v = (vx, vy)
             return vx, vy
 
@@ -3479,7 +4170,9 @@ class SwarmAgent(object):
         has_conflict = False
         for fid, (fx, fy, fz) in self._friend_positions.items():
             dist = math.hypot(fx - wx, fy - wy)
-            if 0.5 < dist < FRIEND_SAFE_DIST:
+            friend_alt = fz if fz is not None else self.altitude_layer
+            my_alt = self.local_z if self.local_z is not None else self.altitude_layer
+            if 0.5 < dist and math.hypot(dist, my_alt - friend_alt) < SAFE_3D:
                 has_conflict = True
                 break
 
@@ -3521,7 +4214,8 @@ class SwarmAgent(object):
             if dist < FRIEND_SAFE_DIST * 3:
                 px, py = fx - wx, fy - wy
                 if dist > 0.01:
-                    nx, ny = px / dist, py / dist
+                    # 半平面要求 v·n 为正，n 必须指向远离友机的一侧。
+                    nx, ny = -px / dist, -py / dist
                     # 加 bias 让对称情况不反复横跳
                     nx += bias_dir * 0.3
                     ny += bias_dir * 0.3
@@ -3637,7 +4331,12 @@ class SwarmAgent(object):
         st.x = self.world_xy[0]
         st.y = self.world_xy[1]
         st.z = self.local_z if self.local_z is not None else 0.0
-        st.connected = self.state.connected
+        # 飞控链路仍连接不代表此机可执行任务。EKF 熔断或坠机恢复期间
+        # world_xy 可能严重漂移；继续向 manager 报可用会占住搜索格，
+        # 甚至把从未看过的区域标成已覆盖。
+        st.connected = bool(self.state.connected and
+                            not getattr(self, '_ekf_frozen', False) and
+                            not getattr(self, '_crash_flagged', False))
 
         # 用实际位置计算所在格子（而非被分配的格子）- 使用 10m 覆盖栅格
         # 覆盖判定由 manager 端用感知半径批量处理，agent 只需上报位置
@@ -3645,8 +4344,12 @@ class SwarmAgent(object):
         if actual_cell is not None:
             st.cell_ix = actual_cell[0]
             st.cell_iy = actual_cell[1]
-            # 只要有有效位置就报 confidence=1.0，manager 会用 20m 半径批量覆盖
-            st.confidence = 1.0
+            # 1=当前格四向观察完成；0=仅到达，-1=偏航失败。manager 不得
+            # 把位置接近等同于相机已观察，否则前视盲区会整局漏搜。
+            st.confidence = (-1.0 if getattr(self, '_search_scan_failed', False) else
+                             1.0 if getattr(self, '_search_scan_done', False) and
+                             self.assignment is not None and
+                             self.assignment.task_type == 0 else 0.0)
         else:
             st.cell_ix = -1
             st.cell_iy = -1

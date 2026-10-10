@@ -12,7 +12,7 @@
   - 初始 1 秒 / 5 秒 / 10 秒三个时刻的 /score、/time_usage、/left_actors
   - 6 条颜色流：是否到达、cls、x/y
   - 反推 sensor_cost（假设 find=tgt=track=uav_loss=0）
-  - 反推 (find, track, target) 组合 -> score 与首帧 /score 最接近的组合
+  - 反推 (find, target) 组合 -> score 与末帧 /score 最接近的组合
 """
 import sys
 import time
@@ -20,7 +20,7 @@ import json
 
 import rospy
 from std_msgs.msg import Int16, String
-from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
+from robocup_swarm.msg import ActorInfo
 
 SCORE_TOPIC = "/score"
 TIME_TOPIC = "/time_usage"
@@ -128,7 +128,7 @@ def main():
             print(f"  ⚠ 警告：sensor_cost 是负的 → 早期 score > 0 → 已有 find/track/target 触发")
 
     print()
-    print("【F. 反推 (find, track, target) 组合】")
+    print("【F. 反推 (find, target) 组合】")
     if score_samples:
         s_now = list(score_samples.values())[-1]
         print(f"  最新 score={s_now}")
@@ -136,13 +136,12 @@ def main():
         best = []
         for f in range(0, 7):
             for tg in range(0, 7):
-                for tk in range(0, 7):
-                    guess = f * 50 + tk * 80 + tg * 100 - sc * 0.003
-                    if abs(guess - s_now) < 1.0:
-                        best.append((f, tk, tg, guess))
+                guess = f * 50 + tg * 100 - sc * 0.003
+                if abs(guess - s_now) < 1.0:
+                    best.append((f, tg, guess))
         if best:
-            for f, tk, tg, g in best[:10]:
-                print(f"    (find={f}, track={tk}, target={tg}, sc≈{sc:.0f}) => {g:.1f}")
+            for f, tg, g in best[:10]:
+                print(f"    (find={f}, target={tg}, sc≈{sc:.0f}) => {g:.1f}")
         else:
             print("    在 0~6 范围内没有匹配的整数组合")
 

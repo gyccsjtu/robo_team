@@ -108,8 +108,8 @@ class SearchCell(object):
         self.owner = None     # 执行机 id
         self.lease_until = 0.0
         self.confidence = 0.0 # 覆盖置信度 [0,1]
-        self.review_t = 0.0   # REVIEW 状态进入时刻（wall）
-        self.covered_t = 0.0  # COVERED 状态进入时刻（wall，供 reopen）
+        self.review_t = 0.0   # REVIEW 状态进入时刻（仿真钟）
+        self.covered_t = 0.0  # COVERED 状态进入时刻（仿真钟，供 reopen）
 
 
 class CoverageGrid(object):
@@ -183,8 +183,7 @@ class CoverageGrid(object):
         """
         if max_age is None:
             max_age = float(os.environ.get("REV_COVER_AGE", "60.0"))
-        import time as _t
-        now = _t.time()
+        now = _now()
         n = 0
         for key, c in self.cells.items():
             if c.state == STATE_COVERED and (now - c.covered_t) > max_age:
@@ -204,8 +203,7 @@ class CoverageGrid(object):
         REVIEW 格 60s 未复查强制回 FREE，重新拍卖（用独立 review_t
         字段记录进入时刻，避免污染 confidence 语义）。
         """
-        import time as _t
-        now = _t.time()
+        now = _now()
         n = 0
         for key, c in self.cells.items():
             if c.state == STATE_REVIEW and (now - c.review_t) > max_age:
@@ -287,12 +285,12 @@ class CoverageGrid(object):
         """返回给定飞机负责的区域（uav_1 -> zone 0, uav_2 -> zone 1, ...）"""
         # 从 uav_1, uav_2, ... 提取数字
         try:
-            num = int(uav_id.split('_')[1])
-            return (num - 1) % self.num_uavs
+            num = int(uav_id.rsplit('_', 1)[-1])
+            return num % self.num_uavs
         except:
             return 0
 
-    def is_covered(self, x, y, radius_m):
+    def is_covered(self, x, y, radius_m, visible_fn=None):
         """(x,y) 处观测半径 radius_m 覆盖到的所有格标记为已覆盖，返回覆盖的格列表。
 
         国家一等奖 v3（2026-10-07）：同时刷新 visit_time。
@@ -304,7 +302,8 @@ class CoverageGrid(object):
         now = _now()
         for key, c in self.cells.items():
             d = math.hypot(c.cx - x, c.cy - y)
-            if d <= radius_m and c.state != STATE_COVERED:
+            if (d <= radius_m and c.state != STATE_COVERED and
+                    (visible_fn is None or visible_fn(c.cx, c.cy))):
                 c.state = STATE_COVERED
                 c.confidence = 1.0
                 c.owner = None
@@ -322,8 +321,7 @@ class CoverageGrid(object):
             c.confidence = confidence
             c.owner = None
             c.lease_until = 0.0
-            import time as _t
-            c.review_t = _t.time()
+            c.review_t = _now()
 
 
 import os
@@ -337,6 +335,9 @@ def _envf(name, default):
         return default
 
 _PRIORITY_ON = os.environ.get('PRIORITY_CORNER', '1') not in ('0', 'false', 'False', '')
+SEARCH_HARD_HOME_ZONE = os.environ.get('SEARCH_HARD_HOME_ZONE', '1') not in ('0', 'false', 'False', '')
+SEARCH_HOME_HARD_S = float(os.environ.get('SEARCH_HOME_HARD_S', '120.0'))
+SEARCH_Y_EDGE_DEFER_M = float(os.environ.get('SEARCH_Y_EDGE_DEFER_M', '7.0'))
 _PRIORITY_DECAY = _envf('PRIORITY_DECAY', 300.0)
 # 2026-10-05 国家一等奖修复：_PRIORITY_RADIUS 30→22.0。原 30m 在 (-35,-28) 单点偏置
 # 下,优先级区是 x[-65,-5]×y[-58,2] 200×60=12000 m²,actor 聚集区
@@ -430,7 +431,9 @@ class TaskAllocator(object):
         self._hot_used = 0
         self._hot_max = int(float(os.environ.get("HOT_TARGET_MAX_UAV", "2")))
         # 国家一等奖 v3（2026-10-07）：任务起始时刻（仿真钟），用于早期近距离偏向
-        self.mission_start = _now() if rospy is not None and not rospy.is_shutdown() else time.time()
+        # 从首架可执行搜索任务的飞机开始计时。manager 在飞机起飞前就创建分配器，
+        # 若在构造时计时，30s 分区期会在首轮派位前耗尽。
+        self.mission_start = None
         self.w_vis = W_VIS
         self.vis_stale = max(1.0, VIS_STALE)
         self.vis_radius = VIS_RADIUS
@@ -732,7 +735,7 @@ class TaskAllocator(object):
                 return True
         return False
 
-    def _priority_bonus(self, key, n_prio=0, now=None):
+    def _priority_bonus(self, key, n_prio=0, now=None, uav_id=None):
         """早期偏置：让「已知最晚才被发现的角落」在任务前段就被覆盖。
         
         背景：actor_5 出生在 (-35,-28) 的建筑区，是搜索最晚触达的角落；
@@ -749,6 +752,10 @@ class TaskAllocator(object):
           PRIORITY_DECAY   偏置在多少秒内线性衰减到 0，默认 300
         """
         if not _PRIORITY_ON:
+            return 0.0
+        # 优先角落的巨额奖励只能给其责任区飞机。飞机是分批起飞/逐架进入
+        # 拍卖的，按「本轮最多 N 架」计数会在每轮清零，导致六架先后奔向同一角落。
+        if uav_id is not None and self.grid.get_zone_id(key) != self.grid.get_uav_zone(uav_id):
             return 0.0
         if n_prio >= _PRIORITY_MAX_UAV:
             return 0.0   # 本轮额度用完了，别把所有机都吸过去
@@ -777,6 +784,8 @@ class TaskAllocator(object):
         贪心：按当前「收益最高」逐机分配（每机取剩余格中自身效用最大者），
         已分配格即时从候选池移除（降低重复率），实现轻量拍卖。
         """
+        if uavs and self.mission_start is None:
+            self.mission_start = _now()
         # 跟踪各机任务数（已分配+执行中的）
         task_counts = {uid: 0 for uid in uavs}
         for c in self.grid.cells.values():
@@ -784,6 +793,18 @@ class TaskAllocator(object):
                 task_counts[c.owner] += 1
 
         remaining = set(self.grid.uncovered_cells())
+        # A camera one cell inside the north/south border still sees across
+        # that border (the visual search radius is 10 m).  The previous
+        # allocator sent UAV5 alternately to y=57.5 and y=64.5 for ~200 s,
+        # while blue/white actors at y=33..37 remained unseen. Defer the
+        # outer row until interior candidates are exhausted; keep x-edge
+        # cells because actors can stop against the east/west boundary.
+        if SEARCH_Y_EDGE_DEFER_M > 0.0:
+            inner = {key for key in remaining
+                     if self.grid.y_min + SEARCH_Y_EDGE_DEFER_M <= self.grid.cell(key).cy <=
+                     self.grid.y_max - SEARCH_Y_EDGE_DEFER_M}
+            if inner:
+                remaining = inner
         assigned = {}          # uav_id -> cell_key
         assigned_positions = []  # [(cx,cy)] 已分配格中心，供重复率计算
         self.last_allocation = []
@@ -810,8 +831,18 @@ class TaskAllocator(object):
             # 也排除正在执行任务的其他飞机的目标位置
             other_executing = {oid: pos for oid, pos in executing_uav_targets.items() if oid != uav_id}
 
-            for key in remaining:
-                u = self.utility(uav_id, ux, uy, key, assigned_positions, risk_map, task_counts, other_uavs, other_executing) + self._priority_bonus(key, n_prio)
+            # Spread into six sectors at takeoff, then allow nearest-aircraft
+            # support across sector lines. A sector can have many remaining
+            # cells even when its aircraft is needed beside a live target.
+            hard_home = (SEARCH_HARD_HOME_ZONE and
+                         self.mission_start is not None and
+                         _now() - self.mission_start < SEARCH_HOME_HARD_S)
+            home_zone = self.grid.get_uav_zone(uav_id)
+            home = [key for key in remaining
+                    if self.grid.get_zone_id(key) == home_zone]
+            candidates = home if hard_home and home else remaining
+            for key in candidates:
+                u = self.utility(uav_id, ux, uy, key, assigned_positions, risk_map, task_counts, other_uavs, other_executing) + self._priority_bonus(key, n_prio, uav_id=uav_id)
                 if u > best_u:
                     best_u = u
                     best_key = key

@@ -103,6 +103,9 @@ def _resolve_weights():
 
 WEIGHTS = os.environ.get("PR_WEIGHTS") or _resolve_weights()
 CONF = float(os.environ.get("PR_CONF", "0.40"))
+# 白衣人历史真检置信度常在 0.34～0.40；统一 0.40 推理阈值会在建轨前
+# 丢掉这些框。仅对白类放宽，其他颜色仍按 CONF 过滤。
+WHITE_CONF = float(os.environ.get("PR_WHITE_CONF", "0.30"))
 UAV = os.environ.get("PR_UAV", "typhoon_h480_0")
 # ---- 2026-09-19 双目改造 ----
 # 相机不再走 cgo3（单目 640x360 云台相机），改成平台上双目相机的**左目**
@@ -150,6 +153,132 @@ H_MAX_L = float(os.environ.get("PR_H_MAX_L", "3.20"))
 AR_MIN_L = float(os.environ.get("PR_AR_MIN_L", "0.40"))
 AR_MAX_L = float(os.environ.get("PR_AR_MAX_L", "3.00"))
 CONFIRM_HITS = int(os.environ.get("PR_CONFIRM_HITS", "5"))   # 达到后转宽松档
+# A three-frame red detection at (-19,-2) in the 10:27 match was a static
+# object, yet it replaced a real red actor near (129,60) and dispatched two
+# aircraft across the arena.  Real red tracks had >=8 hits on first report.
+RED_REPORT_HITS = int(os.environ.get("PR_RED_REPORT_HITS", "6"))
+
+
+def report_ready_hits(cls, hits):
+    return hits >= (RED_REPORT_HITS if cls == "red" else CONFIRM_HITS)
+
+
+def near_cropped_strict_ok(head_ground_used, range_m, conf, height_m, ar):
+    """Admit a high-confidence nearby head-ray box to the new-track gate.
+
+    Cropped feet make a real person appear too thin for the ordinary strict
+    aspect-ratio gate.  This does not grant official-report eligibility;
+    official_view_ok still needs a stable run of accurate head-ray positions.
+    """
+    return (head_ground_used and 0.0 < range_m <= STATIC_OK_RANGE and
+            conf >= STATIC_OK_CONF and H_MIN <= height_m <= H_MAX and
+            AR_MIN_L <= ar <= AR_MAX_L)
+
+
+def near_narrow_person_strict_ok(cls, range_m, conf, height_m, ar,
+                                 box_h, x1, x2, y1, image_width):
+    """Admit a clear, narrow full-body box to tracking before the UAV passes it.
+
+    The 20:21 match produced ten consecutive 0.86-0.91 blue detections at
+    (150, 51), then white and green at the same map edge.  Their 63-130 px
+    tall boxes were rejected solely because h/w was 2.3-3.0.  The weak blue
+    false positive at (89, -27) was only 0.40-0.64 confidence.  Keep this
+    relaxation for strongly classified people with an intact head;
+    the ordinary verdict and official-view gates still apply afterwards.
+    """
+    return (cls in ("blue", "green", "white", "brown", "red") and
+            0.0 < range_m <= 12.0 and conf >= 0.80 and
+            H_MIN <= height_m <= 2.40 and
+            AR_MAX < ar <= 3.20 and box_h >= 60.0 and
+            x1 >= 6.0 and x2 <= image_width - 6.0 and y1 >= 6.0)
+
+
+def skip_attached_verdict(cls, assigned_tid, range_m):
+    """The assigned person stays in frame when the camera follows it."""
+    need_tid = TID_OF_COLOR.get(cls)
+    assigned = (assigned_tid in ("t4", "t5") if cls == "red"
+                else assigned_tid is not None and assigned_tid == need_tid)
+    return assigned and range_m <= ATTACH_SKIP_RANGE
+
+
+def official_view_ok(uv, wh, width=752, height=480, range_m=None,
+                     clipped_stable=True):
+    """True when the person box has enough border for accurate ground range."""
+    u, v = uv
+    w, h = wh
+    # v is the foot pixel after the 5% box-height inset; restore the actual
+    # bottom edge.  Cropped feet or torso at an image edge gave >1 m errors
+    # on actor_3/4 in the 10:27 run, despite high YOLO confidence.
+    x1, x2 = u - w / 2.0, u + w / 2.0
+    y1, y2 = v - 0.95 * h, v + 0.05 * h
+    if not (x1 >= 6.0 and x2 <= width - 6.0 and y1 >= 6.0):
+        return False
+    if y2 <= height - 6.0:
+        return True
+    # At short range, a clipped foot has already been localized from the
+    # visible head ray (clipped_head_ground).  Suppressing all such boxes kept
+    # the exact, continuously observed red actor at the map edge invisible to
+    # the judge for >20 s.  Reject distant/partial boxes and missing heads.
+    return (clipped_stable and range_m is not None and 0.0 < range_m <= 6.0 and
+            h >= FEET_CLIP_MIN_PX and y2 <= height + 2.0)
+
+
+def blue_white_torso_vote(image, xyxy):
+    """Use only a clear shirt color to disambiguate duplicate person boxes."""
+    x1, y1, x2, y2 = (float(v) for v in xyxy)
+    width, height = x2 - x1, y2 - y1
+    if width < 12 or height < 24:
+        return None
+    image_h, image_w = image.shape[:2]
+    xa = max(0, min(image_w, int(x1 + 0.30 * width)))
+    xb = max(0, min(image_w, int(x1 + 0.70 * width)))
+    ya = max(0, min(image_h, int(y1 + 0.20 * height)))
+    yb = max(0, min(image_h, int(y1 + 0.52 * height)))
+    if xb - xa < 4 or yb - ya < 5:
+        return None
+    pixels = image[ya:yb, xa:xb].astype(np.float32)
+    blue, green, red = pixels[:, :, 0], pixels[:, :, 1], pixels[:, :, 2]
+    high = np.maximum(np.maximum(blue, green), red)
+    low = np.minimum(np.minimum(blue, green), red)
+    blue_fraction = np.mean((blue > 55.0) & (blue > 1.35 * green) &
+                            (blue > 1.50 * red))
+    white_fraction = np.mean((low > 90.0) &
+                             ((high - low) < 0.25 * high))
+    if blue_fraction >= 0.35 and blue_fraction > 1.8 * white_fraction:
+        return "blue"
+    if white_fraction >= 0.35 and white_fraction > 1.8 * blue_fraction:
+        return "white"
+    return None
+
+
+def filter_blue_white_duplicate_boxes(image, boxes):
+    """Drop a cross-class duplicate only when visible shirt color is decisive."""
+    dropped = set()
+    for i, first in enumerate(boxes):
+        if i in dropped or int(first.cls) not in (2, 3):
+            continue
+        a = [float(v) for v in first.xyxy[0]]
+        area_a = max(0.0, a[2] - a[0]) * max(0.0, a[3] - a[1])
+        for j in range(i + 1, len(boxes)):
+            second = boxes[j]
+            if j in dropped or {int(first.cls), int(second.cls)} != {2, 3}:
+                continue
+            b = [float(v) for v in second.xyxy[0]]
+            area_b = max(0.0, b[2] - b[0]) * max(0.0, b[3] - b[1])
+            overlap = max(0.0, min(a[2], b[2]) - max(a[0], b[0])) * \
+                      max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+            iou = overlap / max(area_a + area_b - overlap, 1e-6)
+            if iou < 0.75:
+                continue
+            votes = [blue_white_torso_vote(image, box) for box in (a, b)]
+            votes = [vote for vote in votes if vote is not None]
+            if not votes or len(set(votes)) != 1:
+                continue
+            preferred = 2 if votes[0] == "blue" else 3
+            dropped.add(i if int(first.cls) != preferred else j)
+            if i in dropped:
+                break
+    return [box for i, box in enumerate(boxes) if i not in dropped]
 
 H_REF = float(os.environ.get("PR_H_REF", "1.75"))      # 身高似然中心 (m)
 H_SIG = float(os.environ.get("PR_H_SIG", "0.70"))      # 身高似然宽度 (m)
@@ -390,17 +519,15 @@ VERDICT_RANGE_MAX = float(os.environ.get("PR_VERDICT_RANGE_MAX", "22.0"))
 # 打分下限：white 的 conf 本来就低（0.34~0.45，白墙误检反而更高），
 # 所以这里只当"别把太弱的框画出来"的兜底，真正的判据是运动性。
 VERDICT_SCORE = float(os.environ.get("PR_VERDICT_SCORE", "0.20"))
-# ---- 我方 10-02 追加：静止例外（static exception）----
-# 背景：这套 XTDrone world 里的 actor **默认静止不动**（收到第一条 cmd_motion
-# 才会走），而"运动性"是发布判决的硬门之一 ⇒ 静止的犯罪分子永远进不了发布通道
-# ⇒ 裁判的"连续 15s、误差<1m"永远攒不满 ⇒ 0 分。
-# 但完全放开门又会放回队友 10-01 复盘里的 17~21m 静态误检（那是他们加运动门
-# 的原因）。折中：已确认 + 身高在人形区间 + **近距离** + 持续存在 才放行；
-# 距离门卡得比 VERDICT_RANGE_MAX 严得多（22m → 12m），因为远处静态误检就在
-# 17~21m，且我们自己的测距精度在 >12m 也达不到裁判的 1m 预算。
+# 静止演员仍须进入视觉候选。10:54 局在东侧边界拍到蓝色演员
+# D=5.87m/hits=4、白色演员 D=1.62m/hits=4，原 hits>=8 使二者
+# 在发送候选前被丢弃，飞机飞过后再也无法积累到 8 次。用更严格的
+# 近距离限制允许 4 次真实检测通过；人体高度、置信度、视差和后续
+# 官方坐标精度门槛仍分别检查，远处静态建筑误检继续被挡住。
 STATIC_OK = int(os.environ.get("PR_STATIC_OK", "1"))
-STATIC_OK_HITS = int(os.environ.get("PR_STATIC_OK_HITS", "8"))
-STATIC_OK_RANGE = float(os.environ.get("PR_STATIC_OK_RANGE", "12.0"))
+STATIC_OK_HITS = int(os.environ.get("PR_STATIC_OK_HITS", "4"))
+STATIC_OK_RANGE = float(os.environ.get("PR_STATIC_OK_RANGE", "6.5"))
+STATIC_OK_CONF = float(os.environ.get("PR_STATIC_OK_CONF", "0.75"))
 ANNOT_MAX_COAST = int(os.environ.get("PR_ANNOT_MAX_COAST", "2"))  # 画框要求刚检出（别画外推）
 
 COLORS = {"green": (0, 255, 0), "blue": (255, 128, 0), "brown": (19, 69, 139),
@@ -498,25 +625,43 @@ def on_img(msg):
 
 
 def pose_at_stamp(stamp, fallback):
-    """Estimate camera translation at an image ROS timestamp.
-
-    Gazebo's GetLinkState service returns the current pose only. A short history
-    lets a delayed image use the camera position from its acquisition time.
-    Orientation uses the newest sample because the camera is rigidly mounted.
-    """
-    if stamp <= 0.0 or len(_pose_history) < 2:
-        return fallback
-    first, second = _pose_history[-2], _pose_history[-1]
+    """Bind a camera pose to the image time; never use an unrelated live pose."""
+    if stamp <= 0.0 or not _pose_history:
+        return None
+    history = tuple(_pose_history)
+    if len(history) == 1:
+        return fallback if abs(stamp - history[0][0]) <= 0.05 else None
+    first, second = history[-2:]
+    for earlier, later in zip(history, history[1:]):
+        if earlier[0] <= stamp <= later[0]:
+            first, second = earlier, later
+            break
     dt = second[0] - first[0]
-    if dt <= 1e-6:
-        return fallback
-    alpha = (stamp - second[0]) / dt
-    alpha = max(-2.0, min(0.5, alpha))
-    vx = (second[1] - first[1]) / dt
-    vy = (second[2] - first[2]) / dt
-    vz = (second[3] - first[3]) / dt
-    return (second[1] + vx * alpha, second[2] + vy * alpha,
-            second[3] + vz * alpha, second[4])
+    if dt <= 1e-6 or stamp < first[0] - 0.25 or stamp > second[0] + 0.05:
+        return None
+    alpha = (stamp - first[0]) / dt
+    xyz = tuple(first[i] + alpha * (second[i] - first[i]) for i in (1, 2, 3))
+    # Rotation must refer to the same image time as translation.
+    blend = (1.0 - alpha) * first[4] + alpha * second[4]
+    left, _, right = np.linalg.svd(blend)
+    correction = np.diag([1.0, 1.0, np.linalg.det(left @ right)])
+    return xyz + (left @ correction @ right,)
+
+
+def clipped_head_ground(u, y_top, px, py, pz, rotation):
+    """Estimate ground XY from a visible head when the feet are outside the image."""
+    if y_top <= FEET_CLIP_PX or pz <= H_ASSUMED:
+        return None
+    head_ray = rotation @ (M_OPT2LINK @ np.array(
+        [(u - CX) / FX, (y_top - CY) / FY, 1.0], dtype=float))
+    if head_ray[2] >= -1e-5:
+        return None
+    scale = (H_ASSUMED - pz) / head_ray[2]
+    if scale <= 0.0:
+        return None
+    wx, wy = px + scale * head_ray[0], py + scale * head_ray[1]
+    distance = math.hypot(wx - px, wy - py)
+    return (wx, wy, distance) if 0.5 < distance < MAX_RANGE else None
 
 
 def person_likelihood(h):
@@ -600,7 +745,7 @@ class Track(object):
     """alpha-beta 匀速跟踪器：状态 (x, y, vx, vy) + 身高 H + 外观特征（v4 新增多层次关联）。"""
     _seq = 0
 
-    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None):
+    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None):
         """appearance_feat: 外观特征向量（颜色直方图/深度特征），用于外观关联"""
         Track._seq += 1
         self.id = Track._seq
@@ -608,6 +753,8 @@ class Track(object):
         self.x, self.y = x, y
         self.vx, self.vy = 0.0, 0.0
         self.t = t
+        self.last_seen_t = t
+        self.observed_s = t if observation_s is None else observation_s
         self.hits = 1
         self.miss = 0
         self.conf = conf
@@ -625,6 +772,9 @@ class Track(object):
         self.score = conf * person_likelihood(h) * MOTION_FLOOR
         self.score_ema = self.score     # 平滑后的打分，用于选轨（避免单帧抖动抢位）
         self.pub_ema = None             # 对外发布坐标的 EMA（降低抖动，保 15s 连续<1m）
+        # 只供裁判近距裁脚框使用。移动目标的头顶框抖动会造成 >1m
+        # 深度误差；静止目标在边界仍需保留可上报的机会。
+        self.recent_observed_xy = [(self.observed_s, x, y)]
         # v4 新增：外观特征（颜色直方图/深度特征）用于多层次关联
         self.appearance = appearance_feat if appearance_feat is not None else np.zeros(32, dtype=np.float32)
         self.appear_updated = 0         # 外观特征更新帧数
@@ -666,8 +816,15 @@ class Track(object):
             return self.pub_ema
         return px, py
 
-    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None):
+    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None):
         """更新track状态，可选更新外观特征用于多层次关联"""
+        sample_s = t if observation_s is None else observation_s
+        if t <= self.t or sample_s <= self.observed_s or dt <= 0.0:
+            return False
+        self.observed_s = sample_s
+        self.recent_observed_xy = [p for p in self.recent_observed_xy
+                                   if sample_s - p[0] <= 2.5]
+        self.recent_observed_xy.append((sample_s, zx, zy))
         px, py = self.predict(dt)
         rx, ry = zx - px, zy - py
         self.x = px + ALPHA * rx
@@ -684,6 +841,7 @@ class Track(object):
         self.score = conf * person_likelihood(h) * self.motion_factor(t)
         self.score_ema = 0.7 * self.score_ema + 0.3 * self.score
         self.t, self.hits, self.miss = t, self.hits + 1, 0
+        self.last_seen_t = t
         if uav is not None:
             self.uav = uav
         # v4: 更新外观特征（使用滑动平均融合新特征，避免单帧噪声）
@@ -696,6 +854,32 @@ class Track(object):
             self.appear_updated += 1
         self.remember_travel()
         self.remember_parallax()
+        return True
+
+    def clipped_report_stable(self):
+        """Only trust a cropped head ray after a stationary, sustained view."""
+        samples = self.recent_observed_xy
+        if len(samples) < 4 or samples[-1][0] - samples[0][0] < 1.2:
+            return False
+        xs = [p[1] for p in samples]
+        ys = [p[2] for p in samples]
+        # The 19:35 brown actor walked about 1 m/s while its cropped-foot
+        # estimates alternated between y=4 and y=5.2; passing those samples
+        # to the judge reset the mandatory 15 s streak.
+        return (math.hypot(xs[-1] - xs[0], ys[-1] - ys[0]) < 0.45 and
+                max(math.hypot(x - xs[-1], y - ys[-1])
+                    for x, y in zip(xs, ys)) < 0.75)
+
+    def stationary_candidate_stable(self):
+        """Short, tight observation series for dispatch, never for range repair."""
+        samples = self.recent_observed_xy
+        if len(samples) < 4 or samples[-1][0] - samples[0][0] < 0.5:
+            return False
+        xs = [p[1] for p in samples]
+        ys = [p[2] for p in samples]
+        return (math.hypot(xs[-1] - xs[0], ys[-1] - ys[0]) < 0.55 and
+                max(math.hypot(x - xs[-1], y - ys[-1])
+                    for x, y in zip(xs, ys)) < 0.85)
 
     def remember_travel(self):
         """记录生命期内到出生点的最大位移（静止误检只有框抖动带来的零点几米）"""
@@ -720,6 +904,7 @@ class Track(object):
 
     def coast(self, dt):
         self.x, self.y = self.predict(dt)
+        self.t += dt
         self.miss += 1
         self.remember_travel()
 
@@ -768,15 +953,28 @@ class Track(object):
         if self.rng > VERDICT_RANGE_MAX:
             return False, "range"
         self.motion_factor(now)                 # 刷新 self.sp
+        static_near = (STATIC_OK and self.hits >= STATIC_OK_HITS and
+                       self.conf >= STATIC_OK_CONF and
+                       (self.rng <= STATIC_OK_RANGE or
+                        (self.cls in ("blue", "green", "white", "brown") and
+                         self.rng <= 12.0 and self.conf >= 0.80 and
+                         self.stationary_candidate_stable())))
         # 当前在动，或者生命期内动过 —— 见 VERDICT_DISP 的注释（治 actor 卡死）
         if self.sp < VERDICT_SP and self.max_disp < VERDICT_DISP:
             # 静止例外（我方 10-02）：近距离、已确认、像人的静止目标照样发布，
             # 否则这套 world 里静止的 actor 永远进不了发布通道，裁判的
-            # "连续 15s、误差<1m" 攒不满 ⇒ 0 分。远处静态误检仍被 12m 门挡住。
-            if not (STATIC_OK and self.hits >= STATIC_OK_HITS
-                    and self.rng <= STATIC_OK_RANGE):
+            # "连续 15s、误差<1m" 攒不满 ⇒ 0 分。远处静态误检继续被距离门挡住。
+            if not static_near:
                 return False, "static"
-        if self.score_ema < VERDICT_SCORE:
+        # score_ema 本身乘了 motion_factor。边界真演员静止后，即使近距
+        # 例外已经放行，0.84 置信度也会被运动因子压到 <0.20，重新判成噪声。
+        # 仅对连续稳定、近距且高置信度的静止人体免去这一重复运动门槛。
+        static_score_ok = (static_near and self.conf >= STATIC_OK_CONF and
+                           (self.clipped_report_stable() or
+                            (self.cls in ("blue", "green", "white", "brown") and
+                             self.conf >= 0.80 and
+                             self.stationary_candidate_stable())))
+        if self.score_ema < VERDICT_SCORE and not static_score_ok:
             return False, "score"
         return True, ""
 
@@ -945,8 +1143,8 @@ def main():
     red_prev_tid = [None] * len(TOPIC_OF["red"])
     red_silent_t = [None] * len(TOPIC_OF["red"])
     red_diag_t = [0.0] * len(TOPIC_OF["red"])
-    print("[pr] v4.0(双目) 几何+运动+人判决+red双流 | conf=%.2f  detect=%.0fHz  pub=%.0fHz"
-          % (CONF, PUB_HZ / DETECT_EVERY, PUB_HZ), flush=True)
+    print("[pr] v4.0(双目) 几何+运动+人判决+red双流 | conf=%.2f white_conf=%.2f  detect=%.0fHz  pub=%.0fHz"
+          % (CONF, WHITE_CONF, PUB_HZ / DETECT_EVERY, PUB_HZ), flush=True)
     print("[pr] 人判决: 标注%s 发布%s | H∈[%.2f,%.2f] 净速度≥%.2fm/s 打分≥%.2f 画框要求coast≤%d"
           % ("ON" if ANNOT_VERDICT else "off", "ON" if PUB_VERDICT else "off",
              VERDICT_H_MIN, VERDICT_H_MAX, VERDICT_SP, VERDICT_SCORE, ANNOT_MAX_COAST),
@@ -964,11 +1162,14 @@ def main():
     rate = rospy.Rate(PUB_HZ)
     n_loop = 0
     _t_live = 0.0            # 心跳上次打印墙钟（5s 一次，证明主线程活着）
+    _last_live_loop = 0      # 实际循环频率；配置频率不能代表 CPU 满载时的吞吐
+    _last_live_det = 0
     _coord_t = 0.0            # 上次发协同上报的墙钟（COORD_HZ 节流用）
     _obs_seq = 0              # observation_id 单调序号（契约要求非空且不复用）
     annot_img = None          # 最近一次参与检测的图像，供标注帧使用
     annot_z = 0.0             # 该帧对应的相机高度
     frame_stamp = 0.0         # 当前检测图像的 ROS 采集时间
+    processed_image_stamp = 0.0
     frame_age = None
     inference_s = None
     uav = (0.0, 0.0, 0.0)     # 最近一次取到的相机位姿 (x, y, 偏航)，供视差判据使用
@@ -1006,6 +1207,10 @@ def main():
                 img = None if _latest["img"] is None else _latest["img"].copy()
                 frame_stamp = _latest["stamp"]
             frame_age = max(0.0, now - frame_stamp) if frame_stamp > 0.0 else None
+            if frame_stamp <= processed_image_stamp or frame_age is None or frame_age > 0.5:
+                img = None
+            else:
+                processed_image_stamp = frame_stamp
             if img is not None:
                 try:
                     ls = gls(CAM_LINK, "world").link_state
@@ -1042,7 +1247,7 @@ def main():
 
                 if R is not None:
                     _infer_t0 = time.time()
-                    res = _model(img, conf=CONF, verbose=False)[0]
+                    res = _model(img, conf=min(CONF, WHITE_CONF), verbose=False)[0]
                     inference_s = time.time() - _infer_t0
                     # v4新增：时间戳同步优化 - 推理耗时补偿
                     # 假设推理均匀分布在帧的两端，使用 frame_stamp - inference_s/2 作为更准确的时间戳
@@ -1082,10 +1287,16 @@ def main():
                             if keep_b:
                                 keep.append(b)
                         filtered_boxes.extend(keep)
+                    # A single white shirt produced nearly identical blue and
+                    # white boxes in the 13:52 match.  Same-class NMS cannot
+                    # remove them; use visible torso color only when decisive.
+                    filtered_boxes = filter_blue_white_duplicate_boxes(img, filtered_boxes)
                     # 遍历过滤后的boxes
                     for b in filtered_boxes:
                         cid = int(b.cls)
                         conf = float(b.conf)
+                        if conf < (WHITE_CONF if cid == 3 else CONF):
+                            continue
                         x1, y1, x2, y2 = [float(v) for v in b.xyxy[0]]
                         if y2 < ROI_TOP or y1 > ROI_BOT:
                             continue
@@ -1143,31 +1354,35 @@ def main():
                         if FEET_CLIP_PX > 0.0 and h_px > 4.0 \
                                 and h_px >= FEET_CLIP_MIN_PX \
                                 and y2 >= (img.shape[0] - FEET_CLIP_PX):
-                            _rng_h = FY * H_ASSUMED / h_px
-                            if 0.5 < _rng_h < MAX_RANGE:
-                                # 【v24 决定性修复 2026-10-09】_rng_h 是「水平距 d」不是斜距！
-                                # 针孔模型精确解 h_px = FY·H/d（d=水平距，与俯角无关）。
-                                # 旧代码 t = _rng_h/n_v 把 d 当斜距沿视线走 → 3D 点水平
-                                # 分量 = d·cosθ，系统性偏短 d·(1-cosθ)：贴脸 2m 圈俯角
-                                # 64° → 偏短 1.13m，且偏差方向恒沿视线水平分量（飞机在
-                                # 目标西侧就偏西）——v21~v23c 三轮实测播报误差恒定
-                                # 1.03~1.58m 全部由此而来（官方 1m 判据永远差 0.03~0.6m）。
-                                # 修复：t = d/|v_world_xy|，让 3D 点水平分量精确 = d。
-                                _vh = math.hypot(v_world[0], v_world[1])
-                                rng = _rng_h
-                                if _vh > 1e-6:
-                                    t = _rng_h / _vh
-                                impl_h = h_px * rng / FY
+                            # 下沿截断时 h_px 只是可见身高，不能反推完整身高距离。
+                            # 用仍可见的头顶射线与人体高度平面求交；头顶也截断则放弃。
+                            head = clipped_head_ground(u, y1, px, py, pz, R)
+                            if head is None:
+                                continue
+                            # 后续统一计算 wx/wy；头顶估计直接覆盖地面落点。
+                            head_x, head_y, ground_dist = head
+                            t = None
+                            rng = ground_dist
+                            impl_h = H_ASSUMED
                         # 远距离小框的 AR 上限单独放宽（见 AR_MAX_SMALL 处的实测记录）
                         _ar_max = AR_MAX_SMALL if h_px < SMALL_BOX_H_PX else AR_MAX
-                        strict = (H_MIN <= impl_h <= H_MAX) and (AR_MIN <= ar <= _ar_max)
+                        strict = ((H_MIN <= impl_h <= H_MAX) and
+                                  (AR_MIN <= ar <= _ar_max)) or \
+                                 near_cropped_strict_ok(t is None, rng, conf,
+                                                        impl_h, ar) or \
+                                 near_narrow_person_strict_ok(
+                                     CLASSES[cid], rng, conf, impl_h, ar, h_px,
+                                     x1, x2, y1, img.shape[1])
                         loose = (H_MIN_L <= impl_h <= H_MAX_L) and (AR_MIN_L <= ar <= AR_MAX_L)
-                        if not loose:                       # 连宽松档都过不了 -> 纯噪声
+                        if not loose and not strict:        # 连获准的新建档都过不了 -> 纯噪声
                             _stat["n_geo_rej"] += 1
                             continue
 
-                        wx = px + t * v_world[0]
-                        wy = py + t * v_world[1]
+                        if t is None:
+                            wx, wy = head_x, head_y
+                        else:
+                            wx = px + t * v_world[0]
+                            wy = py + t * v_world[1]
                         # v4 新增：提取外观特征（HSV颜色直方图）用于多层次关联
                         img_crop = img[int(y1):int(y2), int(x1):int(x2)] if x2 > x1 and y2 > y1 else None
                         appearance_feat = extract_appearance_feat(img_crop) if img_crop is not None else None
@@ -1242,7 +1457,7 @@ def main():
                 # v4：传递外观特征用于后续关联
                 tk.update(d["xyz"][0], d["xyz"][1], dt, d["conf"],
                           d["uv"], d["wh"], d["range"], d["h"], now, uav,
-                          appearance_feat=appear_feat)
+                          appearance_feat=appear_feat, observation_s=frame_stamp)
             else:
                 tk.coast(dt)
 
@@ -1256,7 +1471,7 @@ def main():
                 # v4：创建track时保存外观特征
                 tracks.append(Track(d["cls"], d["xyz"][0], d["xyz"][1], d["conf"],
                                     d["uv"], d["wh"], d["range"], d["h"], now, uav,
-                                    appearance_feat=d.get("appearance")))
+                                    appearance_feat=d.get("appearance"), observation_s=frame_stamp))
 
         # ---------- 3) 清理 ----------
         # 原判据 math.hypot(tk.x, tk.y) 是"距世界原点"的距离，与飞机在哪无关：
@@ -1264,11 +1479,11 @@ def main():
         # 误检反被留下（"MAX_RANGE*2=120" 也就是这么来的）。改成"距本帧飞机位置"，
         # 并用最后一次有效位姿，避免位姿取失败那帧拿 (0,0) 当飞机位置清空全部 track。
         if uav_last is None:
-            tracks = [tk for tk in tracks if (now - tk.t) < TRACK_TIMEOUT]
+            tracks = [tk for tk in tracks if (now - tk.last_seen_t) < TRACK_TIMEOUT]
         else:
             _ux, _uy = uav_last
             tracks = [tk for tk in tracks
-                      if (now - tk.t) < TRACK_TIMEOUT
+                      if (now - tk.last_seen_t) < TRACK_TIMEOUT
                       and math.hypot(tk.x - _ux, tk.y - _uy) < MAX_RANGE]
 
         # ---------- 4) 发布 ----------
@@ -1288,9 +1503,13 @@ def main():
             # 关闭后会放大假目标占机风险。
             if PUB_VERDICT:
                 # 盘旋确认段跳过 attach 判据（见 verdict/ATTACH_SKIP_RANGE 注释）。
-                _need_tid = TID_OF_COLOR.get(tk.cls)
-                _skip_attach = (_cur_tid_for_verdict == _need_tid
-                                and tk.rng <= ATTACH_SKIP_RANGE)
+                # Red has two local slots and no entry in TID_OF_COLOR.
+                # Looking it up there returned None, so even the assigned
+                # red person was called "attached to camera" during a
+                # nose-locked follow.  The 20:38 run lost its red track this
+                # way after 89 hits, breaking the judge's 15-second streak.
+                _skip_attach = skip_attached_verdict(
+                    tk.cls, _cur_tid_for_verdict, tk.rng)
                 _person_ok, _reject_reason = tk.verdict(
                     now, max_coast=MAX_COAST_PUB,
                     attach_check=not _skip_attach)
@@ -1364,7 +1583,7 @@ def main():
             need_tid = TID_OF_RED_SLOT[si] if cls == "red" else TID_OF_COLOR.get(cls)
             if tk.rng > ACTOR_PUB_RANGE:
                 continue
-            if ACTOR_CONFIRM_ONLY and tk.hits < CONFIRM_HITS:
+            if ACTOR_CONFIRM_ONLY and not report_ready_hits(cls, tk.hits):
                 continue
             if OFFICIAL_ARBITRATED and cur_tid != need_tid:
                 continue
@@ -1383,8 +1602,10 @@ def main():
         pub_list = gated_list
 
         snap = []
+        _pub_xy_cache = {}  # 一轮内视觉报告与诊断必须使用同一次平滑结果
         for cls, si, tk in pub_list:
             px, py = tk.pub_xy()          # 补偿后的对外坐标（见 LAG_COMP / Track.pub_xy）
+            _pub_xy_cache[id(tk)] = (px, py)
             # 2026-10-01: 本机不再直发 /actor_<color>_info，改由 yolo_target_bridge
             # 用多机融合坐标统一发布（单一仲裁者，避免 6 机同色位置冲突让裁判反复重置）。
             # 2026-10-02: 由 PR_DIRECT_ACTOR_INFO 控制（默认 0=交给 bridge；
@@ -1493,12 +1714,15 @@ def main():
         # 为什么要节流：核心按自己 tick_hz 从单写者队列里取，我按检测频率灌
         # 6 条/帧会把它堆成积压（queue_size=50 + 无界 deque），既不加分也拖延迟。
         # 队友替身用的就是 2 Hz。
-        if COORD_ON and pub_list and (now - _coord_t) >= 1.0 / max(0.1, COORD_HZ):
+        if COORD_ON and any(tk.miss == 0 and tk.observed_s == frame_stamp
+                                for _, _, tk in pub_list) and (now - _coord_t) >= 1.0 / max(0.1, COORD_HZ):
             _coord_t = now
             for _cls, _si, _tk in pub_list:
+                if _tk.miss != 0 or _tk.observed_s != frame_stamp:
+                    continue
                 _tag = ("%s%d" % (_cls, _si + 1)) if NSLOTS[_cls] > 1 else _cls
                 _obs_seq += 1
-                _cx, _cy = _tk.pub_xy()      # 与裁判侧同一套补偿，两边坐标必须一致
+                _cx, _cy = _pub_xy_cache[id(_tk)]
                 # 2026-10-03 我方补：水平距离（m）= 本机位置到上报点的水平距离。
                 # 单目测距误差随距离放大（实测 34.7m 真实测成 21.3m，误差 13m），
                 # 而官方"误差<1m 连续 15s"的判据在远距离根本达不到。
@@ -1513,14 +1737,20 @@ def main():
                 # 直接喂进核心；改为方案 A 后未确认的照旧发真实置信度，核心
                 # 第一句 `if d['confidence'] < 1.: return` 自然忽略。
                 _coord_conf = max(0.0, min(1.0, float(_tk.conf)))
-                if COORD_CONF_ONE and _tk.hits >= CONFIRM_HITS:
+                if COORD_CONF_ONE and report_ready_hits(_cls, _tk.hits):
                     _coord_conf = 1.0
                 coord.publish(String(data=json.dumps({
                     "target_id": _tag,
                     "frame_id": "world_enu",
                     "xyz": [round(_cx, 2), round(_cy, 2), TARGET_Z],
                     "confidence": _coord_conf,
+                    "sample_s": float(_tk.observed_s),
+                    "source_uav": UAV,
                     "range_m": round(float(_rng_h), 2),
+                    "official_view_ok": official_view_ok(_tk.uv, _tk.wh,
+                                                           IMG_W, IMG_H,
+                                                           _tk.rng,
+                                                           clipped_stable=_tk.clipped_report_stable()),
                     # 2026-10-02 我方补：observation_id 必须六机全局唯一。
                     # 队友原版是 "obs-{tag}-{seq}"，seq 是每机本地计数 ⇒ 六机会
                     # 出现同名 observation_id，触发协调核心的 OBSERVATION_CONFLICT
@@ -1600,17 +1830,46 @@ def main():
         # 零输出先看心跳，禁止猜死锁；n_det 增长=YOLO在跑，pub_list 非空=有可上报目标。
         _now = rospy.get_time()
         if _now - _t_live >= 5.0:
+            _live_dt = _now - _t_live if _t_live > 0.0 else 0.0
+            _loop_hz = ((n_loop - _last_live_loop) / _live_dt
+                        if _live_dt > 0.0 else 0.0)
+            _new_det = _stat.get("n_det", 0) - _last_live_det
             _t_live = _now
+            _last_live_loop = n_loop
+            _last_live_det = _stat.get("n_det", 0)
             _img_stamp = _latest.get("stamp", 0.0) if _latest else 0.0
-            print("[pr] 心跳 loop=%d img_ts=%.3f img_age=%.2fs n_det=%d "
-                  "z=%.2fm pub=%d coord=%s cam=(%.1f,%.1f,%.1f)"
-                  % (n_loop, _img_stamp,
+            with arb_lock:
+                _live_tid = arb["tid"]
+            with tstate_lock:
+                _live_target = tstates.get(_live_tid)
+            _live_yaw = _bearing_err = _track_range = _track_age = float('nan')
+            if _pose_history:
+                _live_pose = _pose_history[-1]
+                _live_R = _live_pose[4]
+                _live_yaw = math.atan2(_live_R[1, 0], _live_R[0, 0])
+                if _live_target is not None:
+                    _dx = _live_target[0] - _live_pose[1]
+                    _dy = _live_target[1] - _live_pose[2]
+                    _bearing_err = math.degrees(wrap_pi(
+                        math.atan2(_dy, _dx) - _live_yaw))
+                    _track_range = math.hypot(_dx, _dy)
+                    _track_age = _now - _live_target[2]
+            print("[pr] 心跳 loop=%d actual_hz=%.1f img_ts=%.3f img_age=%.2fs "
+                  "n_det=%d det_delta=%d geo_rej=%d assoc=%d new=%d "
+                  "z=%.2fm pub=%d coord=%s cam=(%.1f,%.1f,%.1f) "
+                  "track=%s cam_yaw=%.1fdeg bearing_err=%.1fdeg "
+                  "track_range=%.1fm track_age=%.1fs"
+                  % (n_loop, _loop_hz, _img_stamp,
                      (_now - _img_stamp) if _img_stamp else -1.0,
-                     _stat.get("n_det", 0), annot_z,
+                     _stat.get("n_det", 0), _new_det,
+                     _stat.get("n_geo_rej", 0), _stat.get("n_assoc", 0),
+                     _stat.get("n_new", 0), annot_z,
                      len(pub_list), "ON" if COORD_ON else "OFF",
                      _pose_history[-1][1] if _pose_history else 0.0,
                      _pose_history[-1][2] if _pose_history else 0.0,
-                     _pose_history[-1][3] if _pose_history else 0.0), flush=True)
+                     _pose_history[-1][3] if _pose_history else 0.0,
+                     _live_tid or '-', math.degrees(_live_yaw),
+                     _bearing_err, _track_range, _track_age), flush=True)
 
         rate.sleep()
 

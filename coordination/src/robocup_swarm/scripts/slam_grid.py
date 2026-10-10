@@ -45,6 +45,9 @@ class SlamGrid(object):
         n = self.width * self.height
         self.cells = bytearray(n)        # 原始占用（0=未知/自由，1=占用）
         self.infl_cells = bytearray(n)   # 膨胀后占用（A* / grid_guard 用）
+        # Keep reference counts so a later free-space laser ray can remove an
+        # old moving-object hit without clearing another obstacle's margin.
+        self._infl_counts = bytearray(n)
         self._inflate_r = max(0, int(math.ceil(float(inflation_m) / self.resolution)))
         self._disk = self._make_disk(self._inflate_r)
         # 遥测
@@ -115,8 +118,30 @@ class SlamGrid(object):
         for dx, dy in self._disk:
             x, y = cx + dx, cy + dy
             if 0 <= x < w and 0 <= y < h:
-                self.infl_cells[y * w + x] = 1
+                j = y * w + x
+                self._infl_counts[j] += 1
+                self.infl_cells[j] = 1
         self.total_cells += 1
+        self.new_cells += 1
+        return True
+
+    def clear_cell(self, cell):
+        """Remove a former hit that a newer laser ray now observes as free."""
+        if not self.in_bounds(cell):
+            return False
+        cx, cy = cell
+        idx = cy * self.width + cx
+        if not self.cells[idx]:
+            return False
+        self.cells[idx] = 0
+        for dx, dy in self._disk:
+            x, y = cx + dx, cy + dy
+            if 0 <= x < self.width and 0 <= y < self.height:
+                j = y * self.width + x
+                self._infl_counts[j] -= 1
+                if self._infl_counts[j] == 0:
+                    self.infl_cells[j] = 0
+        self.total_cells -= 1
         self.new_cells += 1
         return True
 
@@ -150,6 +175,9 @@ class SlamGrid(object):
                    float(max_range))
         res = self.resolution
         marked = 0
+        cleared = 0
+        free_cells = set()
+        hit_points = []
         for i, r in enumerate(scan.ranges):
             if r is None:
                 continue
@@ -157,21 +185,42 @@ class SlamGrid(object):
                 r = float(r)
             except (TypeError, ValueError):
                 continue
-            if math.isnan(r) or math.isinf(r) or r < rmin or r > rmax:
+            if math.isnan(r) or r < rmin:
                 continue
+            # Gazebo may encode "no return" as exactly range_max rather
+            # than infinity.  Marking those endpoints makes a false closed
+            # ring around every UAV and eventually yields A* NO_PATH.
+            has_hit = math.isfinite(r) and r < rmax - 0.25 * res
+            ray_length = r if has_hit else rmax
             if r < min_range:
                 # 自回波地板：机身残余部件回波不建图（见 docstring）
                 continue
             th = yaw + a0 + inc * i
             c, s = math.cos(th), math.sin(th)
+            # Free-space evidence clears moving people and transient returns.
+            # Stop short of the measured surface; collect all hits and apply
+            # them after clearing so a neighboring beam cannot erase a wall.
+            clear_length = max(0.0, ray_length - 0.75)
+            for step in range(1, int(clear_length / res) + 1):
+                d = step * res
+                cell = self.world_to_cell((px + c * d, py + s * d))
+                if cell is not None:
+                    free_cells.add(cell)
+            if not has_hit:
+                continue
             # 命中点 + 沿射线深度填充（墙体厚度/室内）
             for k in range(int(depth_cells) + 1):
                 d = r + k * res
-                if self.mark_point(px + c * d, py + s * d):
-                    marked += 1
-        if marked:
+                hit_points.append((px + c * d, py + s * d))
+        for cell in free_cells:
+            if self.clear_cell(cell):
+                cleared += 1
+        for x, y in hit_points:
+            if self.mark_point(x, y):
+                marked += 1
+        if marked or cleared:
             self.mark_frames += 1
-        return marked
+        return marked + cleared
 
     # ------------------------------------------------------------------
     # 遥测 / 序列化

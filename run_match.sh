@@ -74,9 +74,9 @@ BB2MD="$REPO_ROOT/coordination/src/robocup_training_worlds/scripts/black_box_to_
 # YOLO→swarm 桥开关：target_report → /swarm/target_states，替换真值订阅（规则 §2.5.11）
 YOLO_BRIDGE="${YOLO_BRIDGE:-1}"
 SIM_TARGET_NODE="${SIM_TARGET_NODE:-0}"
-# 比赛墙钟 hard cap：默认 5 分钟（300s），到点自动调 stop_group 全杀。
-# 0=不限时；可被 MATCH_HARD_CAP=360 之类覆盖。
-MATCH_HARD_CAP="${MATCH_HARD_CAP:-300}"
+# 裁判按仿真钟控制单场时长；墙钟硬停会在低 RTF 时过早终止。
+# 0=由官方裁判结束；需要本地限时调试时可显式设置 MATCH_HARD_CAP。
+MATCH_HARD_CAP="${MATCH_HARD_CAP:-0}"
 # 起飞世界坐标（对齐 launch/robocup_with_laser.launch 六机 x/y），即各机 MAVROS→世界 offset
 # 2026-10-07 合规重构：spawn 改为队自定固定位置 —— 城外西侧 x=-50 一线（队自定起飞点，
 # 不依赖任何随机化结果）。避开固定灯柱（x>=-45 一带）；房屋每局随机化，不预读、不规避，
@@ -214,6 +214,9 @@ ros_env(){
     # 协同层工作空间（提供 robocup_swarm 消息）
     # shellcheck disable=SC1090
     [ -f "$COORD_WS_SETUP" ] && source "$COORD_WS_SETUP"
+    # 两个 catkin 工作空间并非 overlay；后 source 的 setup 会覆盖先前的
+    # PYTHONPATH，导致感知节点找不到 gazebo_msgs，启动后六机全无观测。
+    export PYTHONPATH="$(dirname "$COORD_WS_SETUP")/lib/python3/dist-packages:$(dirname "$WS_SETUP")/lib/python3/dist-packages:${PYTHONPATH:-}"
     # DISPLAY 校正：env 脚本为「无头服务器」默认 Xvfb :95，但若本机没装 Xvfb，
     # :95 实际不存在，裁判 score_cal.py 的 cv2.imshow 会连不上 X 而核心转储。
     # 解析顺序：当前 DISPLAY 对应的 X socket 真实存在 → 保留；否则回退物理 :0。
@@ -279,6 +282,18 @@ wait_gate(){
     local desc="$1" timeout="$2"; shift 2
     local t=0
     while ! "$@"; do
+        if [ "$desc" != "Gazebo 服务就绪" ] && [ "$t" -ge 2 ] && \
+                ! pgrep -x gzserver >/dev/null 2>&1; then
+            err "$desc —— Gazebo 已退出；检查 $LOGDIR/01_scene.log"
+            return 1
+        fi
+        if [ "$desc" = "Gazebo 服务就绪" ] && [ "$t" -ge 4 ]; then
+            if grep -Eq 'Segmentation fault \(core dumped\)|process has died.*exit code 139' \
+                    "$LOGDIR/01_scene.log" 2>/dev/null || ! pgrep -x gzserver >/dev/null 2>&1; then
+                err "Gazebo 启动崩溃；检查 $LOGDIR/01_scene.log（不再空等 ${timeout}s）"
+                return 1
+            fi
+        fi
         [ $t -ge "$timeout" ] && { err "$desc —— 等待超时（${timeout}s）"; return 1; }
         sleep 2; t=$((t+2))
     done
@@ -330,6 +345,12 @@ preflight(){
 
     check_hard "ROS Noetic setup"        "[ -f '$ROS_SETUP' ]"
     check_hard "catkin 工作空间 setup"   "[ -f '$WS_SETUP' ]"
+    if python3 -c 'import netifaces; netifaces.interfaces()' >/dev/null 2>&1; then
+        ok "ROS 本机网络接口可访问"
+    else
+        err "ROS 本机网络接口不可访问；roslaunch 无法启动（检查容器/沙箱网络权限）"
+        hard_miss=$((hard_miss+1))
+    fi
     check_hard "PX4 场景 robocup.launch" "[ -f '$PX4_ROOT/launch/robocup.launch' ]"
     check_hard "官方地图 robocup.world"  "[ -f '$OFFICIAL_WORLD' ]"
     check_hard "XTDrone 控制脚本"        "[ -f '$ROBO_DIR/control_actors.sh' ]"
@@ -420,6 +441,23 @@ preflight(){
     # 2026-10-03 复盘：catkin_ws 重建时丢了该包（源码在回收站），从 Trash 恢复后重编译。
     check_hard "actor 移动插件 libros_actor_cmd_pose_plugin.so" \
         "[ -f '$HOME/catkin_ws/devel/lib/libros_actor_cmd_pose_plugin.so' ]"
+    # catkin build 在本机把新库写入 build/，不会覆盖 devel/lib 的旧实体文件；
+    # Gazebo 只从 devel/lib 加载。防止源码更新后仍运行旧 actor 插件。
+    actor_build="$HOME/catkin_ws/build/ros_actor_cmd_pose_plugin/libros_actor_cmd_pose_plugin.so"
+    actor_runtime="$HOME/catkin_ws/devel/lib/libros_actor_cmd_pose_plugin.so"
+    actor_source="$HOME/catkin_ws/src/gazebo_ros_actor_cmd_plugin/src/ActorPluginRos.cpp"
+    actor_header="$HOME/catkin_ws/src/gazebo_ros_actor_cmd_plugin/include/actor_plugin_ros/ActorPluginRos.hpp"
+    if [ -f "$actor_build" ]; then
+        if [ "$actor_source" -nt "$actor_build" ] || [ "$actor_header" -nt "$actor_build" ]; then
+            err "actor 插件源码比编译产物新；先 catkin build ros_actor_cmd_pose_plugin"
+            hard_miss=$((hard_miss+1))
+        elif ! cmp -s "$actor_build" "$actor_runtime"; then
+            err "actor 插件 devel/lib 仍是旧版；将 build/ros_actor_cmd_pose_plugin/libros_actor_cmd_pose_plugin.so 安装到 devel/lib"
+            hard_miss=$((hard_miss+1))
+        else
+            ok "actor 插件源码、编译产物和 Gazebo 加载文件一致"
+        fi
+    fi
     case ":${GAZEBO_PLUGIN_PATH:-}:" in
         *":$PX4_ROOT/build/px4_sitl_default/build_gazebo:"*) ok "GAZEBO_PLUGIN_PATH 含 PX4 build_gazebo（SITL 模型插件）";;
         *) err "GAZEBO_PLUGIN_PATH 缺少 $PX4_ROOT/build/px4_sitl_default/build_gazebo（spawn 飞机即 gzserver 255 崩溃）"
@@ -504,10 +542,10 @@ preflight(){
     if [ "$SKIP_RADAR" = "1" ]; then
         info "A. SKIP_RADAR=1：不做 /scan 卡关，协同层自主起飞"
     else
-        warn "A. /typhoon_h480_N/scan：场景启动后逐机检查必须有帧（20Hz CPU ray）"
+        info "A. /typhoon_h480_N/scan：待场景启动后逐机验证有帧（当前不计缺失）"
         echo "      （话题存在不算数；hz 若为 0，检查 typhoon_h480_laser 模型是否被 Gazebo 正常加载）。"
     fi
-    warn "B. /swarm/target_states：第④步由 yolo_target_bridge 从 YOLO 检测喂入"
+    info "B. /swarm/target_states：待第④步由 yolo_target_bridge 从 YOLO 检测喂入（当前不计缺失）"
     echo "      （启动后校验发布者身份；第⑥步后自动做节点订阅合规审计）。"
 
     echo
@@ -529,10 +567,11 @@ do_start(){
             err "已有一场比赛在跑（$REG）。先 ./run_match.sh stop，或 FORCE=1 强制。"; exit 1
         fi
     fi
+    preflight >"$RUN_DIR/preflight.out" 2>&1 || { cat "$RUN_DIR/preflight.out"; exit 2; }
+    # A failed preflight must not erase the previous registry: stop needs its
+    # process groups to clean up a half-finished or timed-out match.
     : > "$REG"
-
-    preflight >/tmp/robocup_match/preflight.out 2>&1 || { cat /tmp/robocup_match/preflight.out; exit 2; }
-    cat /tmp/robocup_match/preflight.out | grep -E '^\[!\]|^----|无法' || true
+    grep -E '^\[!\]|^----|无法' "$RUN_DIR/preflight.out" || true
     ros_env
     # ros_env 才加载 robocup_swarm 的生成消息；此处用运行时实际导入的类核对类型名和 MD5。
     if ! python3 -c 'from robocup_swarm.msg import ActorInfo; print("%s %s" % (ActorInfo._type, ActorInfo._md5sum))' \
@@ -561,6 +600,13 @@ do_start(){
     start_group scene "$LOGDIR/01_scene.log" "${scene_cmd[@]}"
     wait_gate "Gazebo 服务就绪" "$GATE_TIMEOUT" has_service '/gazebo/get_model_state' \
         || partial_fail "场景没起来，看 $LOGDIR/01_scene.log"
+    # Gazebo may advertise its service before the first aircraft is spawned,
+    # then crash in libgazebo_rendering a few seconds later (observed exit 139
+    # at 08:34:52).  Verify it survived initial model creation before waiting
+    # up to 300 s for MAVROS heartbeats.
+    sleep 5
+    pgrep -x gzserver >/dev/null 2>&1 || partial_fail \
+        "Gazebo 在模型生成阶段退出；检查 $LOGDIR/01_scene.log"
 
     # ---- 若启用了 START_PAUSED=1：在等 MAVROS 之前先 unpause，否则 SITL 的 simulator start 会卡死 ----
     if [ "$START_PAUSED" = "1" ]; then
@@ -640,7 +686,7 @@ do_start(){
         start_group "pr_$u" "$LOGDIR/04_perception_$u.log" bash -c \
             "cd '$PERC_DIR' && CUDA_VISIBLE_DEVICES='' \
              PR_UAV='$u' PR_CAM_LINK='$u::base_link' \
-             PR_CONFIRM_HITS=3 PR_COORD_HZ=4 PR_ACTOR_PUB_RANGE=45 PR_PUB_EMA=0.5 \
+             PR_CONFIRM_HITS=3 PR_DETECT_EVERY=2 PR_COORD_HZ=4 PR_ACTOR_PUB_RANGE=45 PR_PUB_EMA=0.5 \
              PR_ACTOR_CONFIRM_ONLY=1 \
              PR_RED_STICKY_R=2.5 \
              PR_MAX_COAST_PUB=18 \
@@ -874,9 +920,10 @@ do_start(){
         fi
         # 协同层不得真值播种：目标只能由 YOLO 链路（经桥）获知（规则 §2.5.11）
         export SEED_TRUTH=0
+        export VISUAL_DISPATCH=1       # 仅使用本队 YOLO 新鲜候选提前派机，不播种裁判真值
 
         # ---- 协同层调度参数（系统内部参数，不改比赛硬规则） ----
-        # 比赛硬约束：6 目标 / 300s / 确认15s / 误差1m / 瞬移30s / 不订阅 model_states / MAX_SPEED≥6 m/s
+        # 比赛硬约束：6 目标 / 600 仿真秒 / 确认15s / 误差1m / 瞬移30s / 不订阅 model_states
         # 以下 9 项全是 swarm_manager 内部调度节奏：备份机上限、确认卡多久加派、备份机多远才接棒、
         # 拍卖周期、热目标留存时间、派遣/跟踪半径余量。改这些不会触犯任何比赛条款。
         # 国家一等奖优化（2026-10-04 复盘）：首见距离余量 + 跟踪半径余量同时放宽，
@@ -885,13 +932,18 @@ do_start(){
         export BACKUP_MAX=2             # v23（2026-10-09）：3→2 回滚——v22b 实证 t1 单帧误检
                                         # （真值 32m 外）stall=2s 就吸走 4 机（h480_1/3/4/5）20s，
                                         # 搜索瘫痪 310s。少一架 backup 少被误检吸走一架。
+        export SEARCH_RESERVE_MAX=2    # 未发现目标仍存在时，至少留 1~2 架机继续搜索
+        export SEARCH_HARD_HOME_ZONE=1 # 起飞初期先搜本责任区，避免六机反复回西侧
+        export SEARCH_HOME_HARD_S=120.0 # 初期分区展开后允许跨区支援
+        export SEARCH_Y_EDGE_DEFER_M=7.0 # 南北外排相机可由内侧一排看见，先推进到中央目标带
         export BACKUP_AFTER=5.0         # v23：2.0→5.0 恢复 2026-10-05 修复（run_match.sh 旧注释
                                         # "默认3"已过时，代码默认 2026-10-05 起就是 5.0，此处 2.0
                                         # 把它覆盖回退了）。stall=2s 是正常确认波动，5s 才是真卡住。
-        export BACKUP_MAX_DIST=80.0     # 默认60 → 80：边缘瞬移的远点也接得上
+        export BACKUP_MAX_DIST=20.0     # 20:21局：50m外备份占住东侧唯一近机，白/蓝目标无人可派
         export DISPATCH_BACKUP_DIST=60.0 # 默认40 → 60：主派机 >60m 即派接棒机
         export ALLOC_PERIOD=1.0         # 默认1.5 → 1.0：拍卖更密集，6 架少空转
         export HOT_TARGET_TTL=10.0      # 默认8 → 10：热目标留住更久，飞过别处也知道
+        export HOT_TARGET_ENABLE=0     # 已有目标由主追/近机接棒处理，搜索机继续找剩余目标
         export DISPATCH_MARGIN=0.0      # 默认2 → 0：首见即派，不再等最近机贴到 18m 内
         export DETECT_RADIUS_MARGIN=3.0 # 默认5 → 3（2026-10-05）：配合 DETECT_RADIUS 20→10，派遣上限回到 13m
         # v24（2026-10-09）：搜索巡航提速 + 覆盖推进 —— 4/6 actor 因搜索格从未
@@ -900,6 +952,16 @@ do_start(){
         # （原 13m 存在「飞机不派过去就永远够不到 13m」的鸡生蛋死结）。
         export SEARCH_CRUISE_SPEED=3.0
         export SEARCH_DECEL_M=2.0
+        export SEARCH_ARRIVE_TOL=2.0  # 与 manager 的 4m 验收半径衔接，避免在 1m 多的误差处悬停
+        export SEARCH_SWEEP_DEG=35.0  # 巡航中摆头补齐前视相机两侧盲区
+        export SEARCH_SWEEP_PERIOD_S=6.0
+        export ORBIT_ALT_MAX=2.6       # 近于 5.5m 保持低视点，避免脚部出框
+        export ORBIT_FAR_ALT_MAX=3.5   # 7.5m 外保持较高视线，避免 8m 跟踪时降至 2.2m 失画面
+        export ORBIT_FAR_ALT_START=5.5
+        export ORBIT_FAR_ALT_FULL=7.5
+        export W_FLIGHT=0.16         # 航程梯度足以压过相邻格的分散奖励，减少 30–41m 折返
+        export LEASE_STALL_S=20.0    # 靠墙停滞早于 90s 总租约回收
+        export LEASE_STALL_PROGRESS_M=2.0
         export EARLY_PHASE_SEC=30.0
         export DISPATCH_FAR_LIMIT=60.0
         export LEASE_DURATION=22.0      # 默认20 → 22：飞行+扫描+衔接余量
@@ -1190,7 +1252,10 @@ do_status(){
 
 # ============================ 停止 ==========================================
 do_stop(){
-    if [ ! -s "$REG" ]; then info "没有需要停止的比赛。"; exit 0; fi
+    # A failed start in older versions could truncate components.tsv before
+    # preflight rejected stale Gazebo/ROS processes.  Clean named residuals
+    # even when there are no registered process groups.
+    if [ ! -s "$REG" ]; then info "无已登记组件，仍检查并清理残留进程。"; fi
     # 先停业务节点（后起的先停），最后停场景
     stop_group d2o
     for i in 5 4 3 2 1 0; do stop_group "swarm_agent_$i"; done
@@ -1210,6 +1275,14 @@ do_stop(){
     pkill -9 -f '[p]erception_real.py'      2>/dev/null || true
     pkill -9 -f '[m]ultirotor_communication.py' 2>/dev/null || true
     pkill -9 -f '[c]ontrol_actor.py'        2>/dev/null || true
+    # When a stop command is run from an isolated PID namespace, it can
+    # remove the shared registry without seeing the host processes.  The
+    # host-side stop must still clear every business node by name.
+    pkill -9 -f '[s]warm_agent.py'         2>/dev/null || true
+    pkill -9 -f '[s]warm_manager.py'       2>/dev/null || true
+    pkill -9 -f '[y]olo_target_bridge.py'  2>/dev/null || true
+    pkill -9 -f '[d]etection_to_official.py' 2>/dev/null || true
+    pkill -9 -f '[s]core_cal.py'           2>/dev/null || true
     # 底层进程默认全清（原仅在 FULL_TEARDOWN=1 才清）：
     #   复盘 2026-10-02 23:29 局：gzserver 启动 2 分钟后被"new node registered with
     #   same name"顶掉 → sim 冻结 → control_actor 调 get_model_state 失败 + Python3

@@ -28,6 +28,8 @@ import json
 import math
 import os
 import re
+import statistics
+import sys
 
 # ---- 身份映射（对齐 ~/XTDrone/robocup/score_cal.py 的 actor_id_dict）----
 # 官方约定（score_cal.py:22 + 275-276 行话题绑定）：
@@ -59,20 +61,25 @@ OFFICIAL_CLS_OF_TAG = {
     "red1": "red", "red2": "red",
 }
 
-# ---- 红球双流（2026-10-03，按用户指示）----
-# 用户原话：官方说红色报回来的数据同时和两个真值（actor_4/actor_5）比，
-# 有一个对得上就有分。官方源码正是如此：两条 red 流各自独立做
-# 「误差<1m 连续 15s」，不匹配只 _reset_detection（清计时，**不扣分、不清已得 find 分**）。
-# 而两个红衣人**外观完全相同**，槽位绑定（slot0→红1、slot1→红2）只能靠空间连续性猜，
-# 猜错就 50% 概率两条流一起拿不到分。
-# ⇒ 改为：**锁定一个红球，把同一坐标同时发到 /actor_red1_info 与 /actor_red2_info**。
-#   哪条流对上了由官方自己判断（我们不需要知道这个球是 actor_4 还是 actor_5）；
-#   该球被消除后 /left_actors 会少一个红号，据此切到另一个球 ⇒ 两个红球都能确定性拿分。
+# The judge cross-checks either red topic against both red actors.  Each
+# visual trajectory still needs its own topic and persistent spatial identity;
+# publishing one trajectory on both topics disrupts the other 15 s streak.
+# RED_DUAL only keeps the diagnostic focus selector enabled.  The actual
+# official publisher below sends each red trajectory to its own topic.
 RED_DUAL = os.environ.get("BRIDGE_RED_DUAL", "1") == "1"
 RED_TAGS = ("red1", "red2")
 RED_ACTOR_IDS = frozenset(ACTOR_INDEX_OF_TAG[t] for t in RED_TAGS)   # {4, 5}
 # 焦点滞回：新球必须比当前球近这么多米才换向，防止两球距离接近时来回跳。
 RED_FOCUS_HYST_M = float(os.environ.get("BRIDGE_RED_FOCUS_HYST", "3.0"))
+# red1/red2 are local detector slots, not identities shared between aircraft.
+# Association is deliberately tighter than the fusion spread check: a wrong
+# red observation must not pull the other person's official report off target.
+RED_ASSOC_GATE_M = float(os.environ.get("BRIDGE_RED_ASSOC_GATE", "2.4"))
+RED_ASSOC_FRESH_S = float(os.environ.get("BRIDGE_RED_ASSOC_FRESH", "2.0"))
+# A detector's local red1/red2 label can swap after an occlusion.  Keep a
+# short position anchor beyond the freshness window so a stationary person
+# cannot take the other person's stale slot merely because both aged 2 s.
+RED_ASSOC_ANCHOR_S = float(os.environ.get("BRIDGE_RED_ASSOC_ANCHOR", "6.0"))
 
 # ---- 融合 / 计时参数 ----
 OBS_WINDOW = 0.6        # 多感知节点近帧融合窗 s（2Hz/节点 × 最多 6 节点）
@@ -115,6 +122,11 @@ ACTOR_KEEPALIVE_MAX_T = float(os.environ.get("BRIDGE_KEEPALIVE_MAX_T", "2.2"))
 # 若误差压缩使失败率 <=10% 则成功率 12%/窗口 —— 这是把「数学上不可能」变成「大概率全消除」的
 # 最大杠杆。PUB_MIN_INTERVAL=0.75 留 0.25s 余量防 tick 抖动导致间隔 >1.0s 触发 discontinuous。
 PUB_MIN_INTERVAL = float(os.environ.get("BRIDGE_PUB_MIN_INTERVAL", "0.75"))
+# 行走目标每 0.75s 才报一次时，1m/s 的目标在两次播报间已经移动
+# 0.75m；再叠加图像与 ROS 回调延迟，裁判的 1m 误差门常被击穿。
+# 只对速度可信且较快的轨迹缩短间隔，静止目标仍保留较低的播报频率。
+FAST_PUB_INTERVAL = float(os.environ.get("BRIDGE_FAST_PUB_INTERVAL", "0.45"))
+FAST_PUB_SPEED = float(os.environ.get("BRIDGE_FAST_PUB_SPEED", "0.7"))
 # 协同层需要给备用机完成接力的窗口。agent 自己还有 TARGET_STALE 门槛，
 # 因此这里不能在 3s 时立刻撤掉目标状态，否则短遮挡会直接清空盘旋任务。
 # v13（2026-10-07）：2.0→4.0 —— v12c actor_5 贴脸 3.07m 后 YOLO 间歇丢 2.5s，
@@ -124,6 +136,7 @@ PUB_MIN_INTERVAL = float(os.environ.get("BRIDGE_PUB_MIN_INTERVAL", "0.75"))
 # 2026-10-08 消除 actor 冲刺：DROP_TIME 4.0→8.0（v18b streak_max=0.0s 修复，
 # 多撑 4s 遮挡防追鬼断链；EXTRAP_MAX_T/D 联合限幅保误差<1.5m）。
 DROP_TIME = float(os.environ.get("BRIDGE_DROP_TIME", "8.0"))
+RED_OFFICIAL_FRESH_S = float(os.environ.get("RED_OFFICIAL_FRESH_S", "1.0"))
 # 新轨激活门槛：未激活轨只有融合窗内最高置信度 >= 该值才允许 alive。
 # 2026-10-01 复盘：3 条 0.43~0.61 的 red1 误检（真身为 green 演员）建出鬼影轨
 # t4，全队盘旋假目标并广播假消除。已激活轨不受此限（延续观测允许低置信度）。
@@ -194,9 +207,62 @@ def _vel_ema(v_old, raw):
     return max(-VEL_MAX, min(VEL_MAX, v))
 
 
+def stable_official_point(history, now):
+    """Median only when recent judge-eligible observations are stationary.
+
+    A single monocular depth jump just above 1 m resets the judge's entire
+    15-second streak.  Moving people must retain the newest observation,
+    because a median of their past positions would lag behind them.
+    """
+    recent = [p for p in history if 0.0 <= now - p[0] <= 2.0]
+    if len(recent) < 4 or recent[-1][0] - recent[0][0] < 0.8:
+        return None
+    half = len(recent) // 2
+    early = (statistics.median(p[1] for p in recent[:half]),
+             statistics.median(p[2] for p in recent[:half]))
+    late = (statistics.median(p[1] for p in recent[half:]),
+            statistics.median(p[2] for p in recent[half:]))
+    if math.hypot(late[0] - early[0], late[1] - early[1]) > 0.65:
+        return None
+    center = (statistics.median(p[1] for p in recent),
+              statistics.median(p[2] for p in recent))
+    if math.hypot(recent[-1][1] - center[0],
+                  recent[-1][2] - center[1]) > 1.25:
+        return None  # likely a different person or a genuine position change
+    return center
+
+
+def coherent_official_velocity(history, now):
+    """Fit motion only when recent full-frame positions form a straight track.
+
+    This guards the longer judge-side latency compensation against one-frame
+    monocular depth jumps and identity switches.
+    """
+    points = [p for p in history if 0.0 <= now - p[0] <= 2.0]
+    if len(points) < 3 or points[-1][0] - points[0][0] < 0.7:
+        return None
+    times = [p[0] for p in points]
+    mean_t = sum(times) / len(times)
+    den = sum((t - mean_t) ** 2 for t in times)
+    if den < 1e-6:
+        return None
+    mean_x = sum(p[1] for p in points) / len(points)
+    mean_y = sum(p[2] for p in points) / len(points)
+    vx = sum((p[0] - mean_t) * (p[1] - mean_x) for p in points) / den
+    vy = sum((p[0] - mean_t) * (p[2] - mean_y) for p in points) / den
+    speed = math.hypot(vx, vy)
+    if not 0.7 <= speed <= 2.3:
+        return None
+    worst = max(math.hypot(p[1] - (mean_x + vx * (p[0] - mean_t)),
+                           p[2] - (mean_y + vy * (p[0] - mean_t)))
+                for p in points)
+    return (vx, vy) if worst <= 0.35 else None
+
+
 class _Track(object):
     __slots__ = ("tag", "obs", "x", "y", "vx", "vy", "conf",
                  "t_obs", "alive", "elim_pending", "range_m",
+                 "good_x", "good_y", "good_t", "good_history",
                  "_last_fx", "_last_fy", "_last_ft",
                  "_high_conf_count", "_motion_history", "_last_vel_mag")
 
@@ -211,10 +277,15 @@ class _Track(object):
         # 2026-10-03 我方补：最近一次观测的水平距离（m），播报闸门用。
         # None = 发布端没给（兼容旧发布端）⇒ 闸门不限距离。
         self.range_m = None
+        self.good_x = None
+        self.good_y = None
+        self.good_t = -1e18
+        self.good_history = []
         self.t_obs = -1e18
         self.alive = False         # 是否正在对外发布
         self.elim_pending = False  # 待补发 eliminated=true
         self._last_fx = None
+        self._last_fy = None
         self._last_ft = None
         # 国家一等奖标准改进：多帧验证
         self._high_conf_count = 0  # 连续高置信度帧数
@@ -299,7 +370,8 @@ class TargetBridgeCore(object):
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
 
     # ---- 感知输入 ----
-    def report(self, t, target_id, x, y, conf, range_m=None):
+    def report(self, t, target_id, x, y, conf, range_m=None,
+               official_ok=True):
         """吸收一条 YOLO 观测。非法参数抛 ValueError。"""
         tag = str(target_id)
         if tag not in self.tracks:
@@ -307,9 +379,20 @@ class TargetBridgeCore(object):
         if tag in self.eliminated:
             return                      # 已消除目标的残余观测，不复活
         tr = self.tracks[tag]
+        if t < tr.t_obs - 0.05:
+            return  # 多机消息乱序时不能让旧图像倒退轨迹时间
+        # The activation counter describes consecutive *fresh* reports.
+        # Keeping it across a long visual gap lets one unrelated detection
+        # reactivate a dead track and immediately reach the judge stream.
+        if t - tr.t_obs > max(COAST_TIME, DROP_TIME):
+            tr.alive = False
+        if not tr.alive and t - tr.t_obs > COAST_TIME:
+            tr._high_conf_count = 0
+            tr._motion_history = []
+            tr._last_fx = tr._last_fy = tr._last_ft = None
+            tr.vx = tr.vy = 0.0
+            tr.good_history = []
         # 2026-10-03 我方补：记录最近一次观测距离，供播报闸门使用。
-        if range_m is not None:
-            tr.range_m = float(range_m)
         # 【v24b 决定性修复 2026-10-09】融合权重加入距离因子。
         # conf² 不含距离信息：远机（12~20m，单目误差 0.9~1.1m+）与贴脸机
         # （2m，误差 ~0.1m）平等融合 → 融合位置被拉偏 1m+。v23c actor_0
@@ -341,6 +424,12 @@ class TargetBridgeCore(object):
                 return
         # 超过 COAST_TIME：真·重捕获，允许任意位置。
         tr.obs.append((float(t), x, y, w, conf))
+        if official_ok:
+            tr.good_x, tr.good_y, tr.good_t = x, y, float(t)
+            tr.good_history = [p for p in tr.good_history if t - p[0] <= 2.0]
+            tr.good_history.append((float(t), x, y))
+            if range_m is not None:
+                tr.range_m = float(range_m)
 
         sw = sum(o[3] for o in tr.obs)
         fx = sum(o[1] * o[3] for o in tr.obs) / sw
@@ -360,7 +449,9 @@ class TargetBridgeCore(object):
                     scale = 2.5 / (vmag2 ** 0.5)
                     tr.vx *= scale
                     tr.vy *= scale
-        tr._last_fx, tr._last_fy, tr._last_ft = fx, fy, t
+                tr._last_fx, tr._last_fy, tr._last_ft = fx, fy, t
+        else:
+            tr._last_fx, tr._last_fy, tr._last_ft = fx, fy, t
 
         tr.x, tr.y = fx, fy
         tr.t_obs = float(t)
@@ -413,6 +504,10 @@ class TargetBridgeCore(object):
         newly = []
         for tr in self.tracks.values():
             idx = ACTOR_INDEX_OF_TAG[tr.tag]
+            # 两个红人的视觉槽位与官方 4/5 没有可证明的一一映射。
+            # 只消除一个时保留两条视觉轨，避免按编号错杀仍存活的红目标。
+            if tr.tag in RED_TAGS and (remaining & RED_ACTOR_IDS):
+                continue
             if idx in remaining:
                 continue
             if tr.tag in self.eliminated or tr.elim_pending:
@@ -442,9 +537,20 @@ class TargetBridgeCore(object):
                 self.eliminated.add(tr.tag)
                 out.append(dict(tag=tr.tag, tid=TAG_TO_TID[tr.tag],
                                 x=tr.x, y=tr.y, vx=tr.vx, vy=tr.vy,
-                                state=3, eliminated=True))
+                                state=3, eliminated=True, sample_s=tr.t_obs))
                 continue
             if not tr.alive:
+                # Perception already required several same-object YOLO hits
+                # before sending confidence=1.0.  A first such report can
+                # dispatch a search aircraft, but the judge-facing stream
+                # still waits for this bridge's second independent report.
+                gap = t - tr.t_obs
+                if (tr._high_conf_count == 1 and tr.conf >= 1.0 and
+                        0.0 <= gap <= 1.0):
+                    out.append(dict(tag=tr.tag, tid=TAG_TO_TID[tr.tag],
+                                    x=tr.x, y=tr.y, vx=tr.vx, vy=tr.vy,
+                                    state=0, eliminated=False, sample_s=tr.t_obs,
+                                    official_x=None, official_y=None))
                 continue
             gap = t - tr.t_obs
             if gap > DROP_TIME:
@@ -467,19 +573,22 @@ class TargetBridgeCore(object):
             te = (min(gap, EXTRAP_MAX_T) + EXTRAP_DELAY) * extrap_factor
             ex, ey = tr.vx * te, tr.vy * te
             ed = math.hypot(ex, ey)
-            # 2026-10-06 B 项诊断打印：每 actor 每 1s 一次（节流），便于判断外推过冲/欠补
-            _dbg_t = _BRIDGE_DBG_LAST.get(tr.tag, 0.0)
-            if ed > 0.05 and (t - _dbg_t) > 1.0:
-                _BRIDGE_DBG_LAST[tr.tag] = t
-                _core_log(
-                    "[EXTRAP_DBG] tag=%s te=%.3fs v=(%.2f,%.2f) m/s ex=%.2fm ey=%.2fm ed=%.2fm "
-                    "raw=(%.2f,%.2f) out=(%.2f,%.2f) gap=%.2fs vmag=%.2f", (
-                        tr.tag, te, tr.vx, tr.vy, ex, ey, ed,
-                        tr.x, tr.y, tr.x + ex, tr.y + ey, gap, vel_mag))
             # 自适应距离限幅
             max_d = EXTRAP_MAX_D * (1.0 if vel_mag >= EXTRAP_VEL_THRESHOLD else 0.7)
             if ed > max_d and ed > 0.0:
                 ex, ey = ex * max_d / ed, ey * max_d / ed
+            # Log the *applied* displacement.  Previously EXTRAP_DBG printed
+            # the pre-clamp 0.9-2.6 m proposal as "out" while the judge only
+            # received at most 0.5 m; that made live error diagnosis misleading.
+            _dbg_t = _BRIDGE_DBG_LAST.get(tr.tag, 0.0)
+            if ed > 0.05 and (t - _dbg_t) > 1.0:
+                _BRIDGE_DBG_LAST[tr.tag] = t
+                _core_log(
+                    "[EXTRAP_DBG] tag=%s te=%.3fs v=(%.2f,%.2f) m/s ex=%.2fm ey=%.2fm "
+                    "ed=%.2fm requested=%.2fm raw=(%.2f,%.2f) out=(%.2f,%.2f) "
+                    "gap=%.2fs vmag=%.2f",
+                    tr.tag, te, tr.vx, tr.vy, ex, ey, math.hypot(ex, ey), ed,
+                    tr.x, tr.y, tr.x + ex, tr.y + ey, gap, vel_mag)
             # ---- 国家一等奖标准修复（2026-10-04）：state 字段语义对齐官方规则 ----
             # 官方规则 §2.5(4)：「恐怖分子感知到无人机接近后（无人机向裁判系统广播恐怖分子
             #   位置）会改变方向，并以 2m/s 速度进行躲逃」。—— 触发条件是「任何 UAV 广播
@@ -493,9 +602,36 @@ class TargetBridgeCore(object):
             #   state=1；DROP_TIME 之外停止发布（alive=False 上方已拦掉），不再误判。
             # 这把「被观测到」与「逃跑态」绑定，与规则表述 100% 对齐。
             state = 1
+            good_age = t - tr.good_t
+            official_x = official_y = None
+            if (tr.good_x is not None and 0.0 <= good_age <= 0.9):
+                # The official report must use the last fully visible box;
+                # keep edge-clipped detections only for search and pursuit.
+                stable = stable_official_point(tr.good_history, tr.good_t)
+                if stable is not None:
+                    official_x, official_y = stable
+                else:
+                    motion = coherent_official_velocity(tr.good_history,
+                                                        tr.good_t)
+                    if motion is not None:
+                        gvx, gvy = motion
+                        horizon = good_age + EXTRAP_DELAY
+                        max_good_d = 1.2
+                    else:
+                        gvx, gvy = tr.vx, tr.vy
+                        horizon = good_age
+                        max_good_d = EXTRAP_MAX_D
+                    gex, gey = gvx * horizon, gvy * horizon
+                    gd = math.hypot(gex, gey)
+                    if gd > max_good_d and gd > 0.0:
+                        gex *= max_good_d / gd
+                        gey *= max_good_d / gd
+                    official_x, official_y = tr.good_x + gex, tr.good_y + gey
             out.append(dict(tag=tr.tag, tid=TAG_TO_TID[tr.tag],
                             x=tr.x + ex, y=tr.y + ey, vx=tr.vx, vy=tr.vy,
-                            state=state, eliminated=False))
+                            state=state, eliminated=False, sample_s=tr.t_obs,
+                            official_x=official_x, official_y=official_y,
+                            official_sample_s=tr.good_t))
         return out
 
 
@@ -516,6 +652,7 @@ class YoloTargetBridge(object):
         self.core = TargetBridgeCore()
 
         self.pub = rospy.Publisher("/swarm/target_states", TargetState, queue_size=30)
+        self.source_pub = rospy.Publisher("/swarm/visual_source", _msg_string_cls(), queue_size=30)
         # 同时向官方话题发布 ActorInfo：用多机融合坐标，保证 10Hz 上报连续，
         # 避免单机 track 断流导致上报间隔 >1s 被官方重置。
         self._actor_pubs = {}
@@ -532,6 +669,11 @@ class YoloTargetBridge(object):
         self._red_focus = None        # 当前正在盯的红球 tag（'red1'/'red2'）
         self._red_consumed = set()    # 已被官方消除的红球 tag，不再选为焦点
         self._red_prev_ids = None     # 上一帧 /left_actors 里的红球 actor 号集合
+        self._red_recent_pub = []     # (sim time, visual tag), correlate official find
+        self._red_find_binding = {}   # official actor id -> (visual tag, find time)
+        self._last_source_sample = {}
+        self._red_source_map = {}   # (source, local red slot) -> global red track
+        self._rejected_visual = {}  # tag -> (x, y, expiry); public judge find never arrived
         for tag in TAG_TO_TID:
             self._actor_pubs[tag] = rospy.Publisher(
                 "/actor_%s_info" % tag, ActorInfo, queue_size=3)
@@ -539,6 +681,13 @@ class YoloTargetBridge(object):
                          _msg_string_cls(), self._report_cb, queue_size=50)
         rospy.Subscriber("/left_actors", _msg_string_cls(),
                          self._left_cb, queue_size=5)
+        from std_msgs.msg import Float32
+        for actor_id in RED_ACTOR_IDS:
+            rospy.Subscriber("/find_actor_%d" % actor_id, Float32,
+                             lambda msg, aid=actor_id: self._find_red_cb(msg, aid),
+                             queue_size=5)
+        rospy.Subscriber("/swarm/rejected_visual", _msg_string_cls(),
+                         self._rejected_visual_cb, queue_size=5)
 
         # 2026-10-08 消除 actor 冲刺：PUB_HZ 10→15（间隔 0.067s ≪ 裁判 1s 阈值，
         # 防止 tick 抖动导致 discontinuous 清零 15s 计数）。
@@ -551,10 +700,126 @@ class YoloTargetBridge(object):
     def _now(self):
         return self._rospy.Time.now().to_sec()
 
+    def _rejected_visual_cb(self, msg):
+        try:
+            item = json.loads(msg.data)
+            tid = str(item["target_id"])
+            x, y = float(item["x"]), float(item["y"])
+            duration = min(900.0, max(1.0, float(item["duration_s"])))
+            if not all(math.isfinite(v) for v in (x, y, duration)):
+                return
+        except (ValueError, KeyError, TypeError):
+            return
+        for tag, tag_tid in TAG_TO_TID.items():
+            if tag_tid != tid:
+                continue
+            self._rejected_visual[tag] = (x, y, self._now() + duration)
+            tr = self.core.tracks[tag]
+            if tr.alive and math.hypot(tr.x - x, tr.y - y) <= 8.0:
+                self.core.tracks[tag] = _Track(tag)
+                self._gate_live.pop(tag, None)
+                self._pub_last.pop(tag, None)
+            self._rospy.logwarn("[bridge] %s 视觉位置暂时冷却，恢复其他位置的候选", tag)
+
+    def _visual_is_rejected(self, tag, x, y, now):
+        q = self._rejected_visual.get(tag)
+        if q is None:
+            return False
+        if now >= q[2]:
+            self._rejected_visual.pop(tag, None)
+            return False
+        return math.hypot(x - q[0], y - q[1]) <= 8.0
+
+    def _associate_red(self, source, local_tag, sample, x, y):
+        """Assign an aircraft-local red slot by position, never by its name.
+
+        Two detectors can name opposite people ``red1``.  Reusing their local
+        names as global keys fused both people together and reset the judge's
+        15-second streak.  A distant unmatched report is rejected when both
+        global tracks are fresh; it may be a false detection.
+        """
+        key = (source, local_tag)
+        mapped = self._red_source_map.get(key)
+        candidates = []
+        free = []
+        other_local = "red2" if local_tag == "red1" else "red1"
+        other_mapped = self._red_source_map.get((source, other_local))
+        for tag in RED_TAGS:
+            if tag in self.core.eliminated or self.core.tracks[tag].elim_pending:
+                continue
+            tr = self.core.tracks[tag]
+            age = sample - tr.t_obs
+            if tr.t_obs < 0.0 or age > RED_ASSOC_FRESH_S:
+                free.append(tag)
+                if tr.t_obs < 0.0 or age > RED_ASSOC_ANCHOR_S:
+                    continue
+            # Use a short, bounded prediction only for association.  Long
+            # velocity projections near a crossing swap the two identities.
+            dt = max(0.0, min(age, 0.35)) if age <= RED_ASSOC_FRESH_S else 0.0
+            distance = math.hypot(x - (tr.x + tr.vx * dt),
+                                  y - (tr.y + tr.vy * dt))
+            if distance <= RED_ASSOC_GATE_M:
+                candidates.append((distance, tag))
+        candidates.sort()
+        if candidates:
+            # A detector cannot assign its two simultaneous local slots to
+            # one global person.  Keep the other mapping only while recent.
+            other_sample = self._last_source_sample.get((source, other_local), -1e18)
+            if sample - other_sample <= 1.0:
+                candidates = [c for c in candidates if c[1] != other_mapped]
+            if candidates:
+                chosen = candidates[0][1]
+                # Preserve a source's identity when both candidates are
+                # almost equally close during a brief crossing.
+                for distance, tag in candidates:
+                    if tag == mapped and distance <= candidates[0][0] + 0.35:
+                        chosen = tag
+                        break
+                self._red_source_map[key] = chosen
+                return chosen
+        if free:
+            # Prefer the previous mapping if its track went stale; otherwise
+            # use the same-named empty slot for deterministic startup.
+            chosen = mapped if mapped in free else (
+                local_tag if local_tag in free else free[0])
+            if chosen != other_mapped or sample - self._last_source_sample.get(
+                    (source, other_local), -1e18) > 1.0:
+                self._red_source_map[key] = chosen
+                return chosen
+        return None
+
     def _report_cb(self, msg):
         try:
             tag, x, y, conf, rng = parse_report(msg.data)
-            self.core.report(self._now(), tag, x, y, conf, rng)
+            payload = json.loads(msg.data)
+            now = self._now()
+            sample = float(payload.get("sample_s", now))
+            if not math.isfinite(sample) or sample <= 0.0 or sample > now + 0.05 or now - sample > 0.8:
+                raise ValueError("图像时间戳过期或非法")
+            source = str(payload.get("source_uav", "legacy"))
+            key = (source, tag)
+            if sample <= self._last_source_sample.get(key, -1e18):
+                return
+            self._last_source_sample[key] = sample
+            if tag in RED_TAGS:
+                assigned = self._associate_red(source, tag, sample, x, y)
+                if assigned is None:
+                    return
+                tag = assigned
+            if self._visual_is_rejected(tag, x, y, now):
+                return
+            before_t = self.core.tracks[tag].t_obs
+            self.core.report(sample, tag, x, y, conf, rng,
+                             official_ok=payload.get('official_view_ok', True) is True)
+            # Preserve the camera that actually saw this person. The manager's
+            # geometric /swarm/detection echoes cannot identify that camera.
+            tr = self.core.tracks[tag]
+            if tr.t_obs == sample and sample > before_t and source != 'legacy':
+                pub = getattr(self, 'source_pub', None)
+                if pub is not None:
+                    pub.publish(_msg_string_cls()(data=json.dumps({
+                        'target_id': TAG_TO_TID[tag], 'source_uav': source,
+                        'sample_s': sample, 'x': x, 'y': y})))
         except ValueError as exc:
             self._rospy.logwarn_throttle(5, "丢弃 target_report：%s", exc)
 
@@ -592,7 +857,7 @@ class YoloTargetBridge(object):
         best_tag, best_rng = cands[0][2], cands[0][1]
         if self._red_focus is None:
             self._red_focus = best_tag
-            self._rospy.loginfo("[bridge] 红球双流：焦点锁定 %s(t%s)，两条 red 流同发",
+            self._rospy.loginfo("[bridge] 红球诊断焦点锁定 %s(t%s)，两条 red 流独立播报",
                                 best_tag, TAG_TO_TID[best_tag])
         elif best_tag != self._red_focus:
             cur = [c for c in cands if c[2] == self._red_focus]
@@ -609,11 +874,7 @@ class YoloTargetBridge(object):
         return self._red_focus
 
     def _note_red_left(self, remaining):
-        """官方 /left_actors 少了一个红球号 ⇒ 我们正盯的那个球已被消除 ⇒ 切到另一个球。
-
-        不需要知道被删的是 actor_4 还是 actor_5：双流同发时，被删的那个必是
-        "我们正在盯的球"（另一条流一直不匹配，不会触发消除）。
-        """
+        """Retire only the visual red trajectory supported by judge feedback."""
         if remaining is None:
             return
         cur = set(v for v in remaining if v in RED_ACTOR_IDS)
@@ -621,11 +882,50 @@ class YoloTargetBridge(object):
         self._red_prev_ids = cur
         if prev is None or len(cur) >= len(prev):
             return
-        if self._red_focus is not None:
-            self._red_consumed.add(self._red_focus)
-            self._rospy.loginfo("[bridge] 官方已消除一个红衣人（剩 red=%s）⇒ 红球焦点 %s 作废",
-                                sorted(cur), self._red_focus)
-            self._red_focus = None
+        removed = prev - cur
+        now = self._now()
+        tag = None
+        if len(removed) == 1:
+            binding = getattr(self, '_red_find_binding', {}).get(next(iter(removed)))
+            if binding is not None and 0.0 <= now - binding[1] <= 30.0:
+                tag = binding[0]
+        if tag is None:
+            # A single recently publishing visual red track is the one just
+            # removed.  When both tracks are active, leave identity unknown.
+            active = [name for name in RED_TAGS
+                      if name not in self.core.eliminated and
+                      0.0 <= now - self._pub_last.get(name, -1e18) <= 2.0]
+            if len(active) == 1:
+                tag = active[0]
+        if tag is not None and tag not in self.core.eliminated:
+            self.core.tracks[tag].elim_pending = True
+            self._red_consumed.add(tag)
+            self._gate_live.pop(tag, None)
+            self._pub_last.pop(tag, None)
+            for key, mapped in list(self._red_source_map.items()):
+                if mapped == tag:
+                    self._red_source_map.pop(key, None)
+            self._rospy.loginfo("[bridge] 官方红目标 %s 已删除；回收视觉轨 %s，保留另一红轨",
+                                next(iter(removed)), tag)
+        else:
+            self._rospy.loginfo("[bridge] 官方红目标数减少（剩 red=%s）；两轨归属不明，等待新观测",
+                                sorted(cur))
+        self._red_focus = None
+
+    def _find_red_cb(self, msg, actor_id):
+        """Correlate a judge find event with our last uniquely timed red pub."""
+        now = self._now()
+        self._red_recent_pub = [item for item in self._red_recent_pub
+                                if now - item[0] <= 1.0]
+        candidates = sorted((now - t, tag) for t, tag in self._red_recent_pub
+                            if 0.0 <= now - t <= 0.35)
+        if not candidates:
+            return
+        best_dt, best_tag = candidates[0]
+        if any(tag != best_tag and dt <= best_dt + 0.08
+               for dt, tag in candidates[1:]):
+            return  # simultaneous red streams: identity is ambiguous
+        self._red_find_binding[actor_id] = (best_tag, now)
 
     def _left_cb(self, msg):
         self._note_red_left(parse_left_actors(msg.data))
@@ -691,7 +991,10 @@ class YoloTargetBridge(object):
         # 2026-10-06 修：哨兵从 0.0 改为 None —— 用 0.0 兜底会把"仿真时间
         # 恰好为 0（离线自测的冻结时钟）"的首帧发布也拦掉。
         _last_pub = self._pub_last.get(tag)
-        if _last_pub is not None and now - _last_pub < PUB_MIN_INTERVAL:
+        tr = self.core.tracks.get(tag)
+        _track_speed = (math.hypot(tr.vx, tr.vy) if tr is not None else 0.0)
+        _interval = FAST_PUB_INTERVAL if _track_speed >= FAST_PUB_SPEED else PUB_MIN_INTERVAL
+        if _last_pub is not None and now - _last_pub < _interval:
             return
         if RED_DUAL and tag in RED_TAGS:
             # B3（2026-10-09）：双红球各轨独立播报，red1 只喂 red1 流，
@@ -699,6 +1002,9 @@ class YoloTargetBridge(object):
             # 若把两球坐标同发到两条流，交替坐标会清除对方流的累计状态。
             self._actor_pubs[tag].publish(am)
             self._pub_last[tag] = now
+            self._red_recent_pub = [item for item in self._red_recent_pub
+                                    if now - item[0] <= 1.0]
+            self._red_recent_pub.append((now, tag))
             self._note_pub(tag, now)
             return
         self._actor_pubs[tag].publish(am)
@@ -707,7 +1013,10 @@ class YoloTargetBridge(object):
 
     def _emit(self, ev):
         m = self._TargetState()
-        m.header.stamp = self._rospy.Time.now()
+        # TargetState 时间戳表示最后一次真实视觉观测。桥接可短时保活，
+        # 但保活帧不能伪装为新检测，否则 agent/manager 会无限追冻结位置。
+        _sample = ev.get("sample_s", self._now())
+        m.header.stamp = self._rospy.Time.from_sec(_sample) if _sample > 0 else self._rospy.Time.now()
         m.header.frame_id = "map"
         m.target_id = ev["tid"]
         m.x, m.y = ev["x"], ev["y"]
@@ -724,6 +1033,27 @@ class YoloTargetBridge(object):
         if tag is None or tag not in self._actor_pubs or ev["eliminated"]:
             return
         if ev.get("state", 0) == 3:
+            return
+        if ev.get("official_x") is None or ev.get("official_y") is None:
+            _dbg_now = self._now()
+            _dbg_key = "official_hold_" + tag
+            if _dbg_now - _BRIDGE_DBG_LAST.get(_dbg_key, -1e18) >= 5.0:
+                _BRIDGE_DBG_LAST[_dbg_key] = _dbg_now
+                _tr = self.core.tracks.get(tag)
+                self._rospy.loginfo(
+                    "[OFFICIAL_HOLD] tag=%s range=%s real_obs_age=%.2fs "
+                    "eligible_xy=(%.2f,%.2f): no recent fully valid view",
+                    tag,
+                    ("%.1fm" % _tr.range_m) if _tr is not None and
+                    _tr.range_m is not None else "None",
+                    _dbg_now - _tr.good_t if _tr is not None else float('inf'),
+                    ev["x"], ev["y"])
+            return
+        official_sample = ev.get("official_sample_s", _sample)
+        # 红衣人移动且两条本地 red 槽会交叉。旧坐标继续向裁判播 8s 会
+        # 把另一条正确红流刚建立的 15s 计时反复清零。队内轨迹仍保留供重捕获，
+        # 官方播报只接受近期真实图像支撑的位置。
+        if tag in RED_TAGS and self._now() - official_sample > RED_OFFICIAL_FRESH_S:
             return
         if not self._pub_gate_ok(tag):
             # 2026-10-06 闸门拦截遥测：v9 三轮"裁判零输入"时这里完全静默，
@@ -742,7 +1072,7 @@ class YoloTargetBridge(object):
                     bool(self._gate_live.get(tag, False)),
                     ACTOR_PUB_MAX_RANGE_M, ACTOR_PUB_HOLD_RANGE_M)
             return
-        self._publish_actor(tag, ev["x"], ev["y"])
+        self._publish_actor(tag, ev["official_x"], ev["official_y"])
 
     def _keepalive(self, now):
         """播报保持器（2026-10-03 新增）。
@@ -763,25 +1093,67 @@ class YoloTargetBridge(object):
                 continue
             # B3：非焦点红球也走保持器（双流独立后不再拦截）
             tr = self.core.tracks.get(tag)
-            if tr is None or not tr.alive:
+            if tr is None:
                 continue
+            age = now - tr.good_t
+            if tr.good_x is None or age < 0.0 or age > DROP_TIME:
+                continue
+            if tag in RED_TAGS and age > RED_OFFICIAL_FRESH_S:
+                continue
+            # The old age>0.9 guard above silently disabled the documented
+            # coast path below.  Only use a longer hold when several recent
+            # camera observations show a stationary target; moving targets
+            # retain a short prediction horizon to protect the judge's 1 m
+            # accuracy rule.  The hold never creates a new visual sample.
+            stable = stable_official_point(tr.good_history, tr.good_t)
+            if age > (min(DROP_TIME, 4.0) if stable is not None else 1.5):
+                continue
+            # R6（2026-10-09）：观测断流但 track 尚未死透（gap<DROP_TIME）时，
+            # keepalive 不再硬跳。v26 t5 确认 87%→lost reset×4 的直接原因：贴脸期
+            # YOLO 短暂丢目标（actor 走出视野/被机身遮）→ 观测 gap 1.5~3s 但 track
+            # 未到 DROP_TIME → 保持器却因 ACTOR_KEEPALIVE_MAX_T=2.2s 硬跳 → 播报断
+            # >1s → 官方 _reset_detection 清零重来。消除链最后一公里必须做到
+            # "观测断、播报不断"。仍受 EXTRAP_MAX_D 限幅保护（0.5m），
+            # 不会报必然 >1m 的假坐标。
+            if age > DROP_TIME:
+                continue                    # 彻底死透：不硬撑，等真实观测回来
             last = self._pub_last.get(tag, 0.0)
             dt = now - last
-            if dt < ACTOR_KEEPALIVE_DT:
+            _track_speed = math.hypot(tr.vx, tr.vy)
+            _interval = (min(ACTOR_KEEPALIVE_DT, FAST_PUB_INTERVAL)
+                         if _track_speed >= FAST_PUB_SPEED else ACTOR_KEEPALIVE_DT)
+            if dt < _interval:
                 continue
-            if dt > ACTOR_KEEPALIVE_MAX_T:
+            # R6：放宽超时闸——只要 track 未死透，就撑到接近 DROP_TIME。
+            # 官方判据「断流 >1s 清零」的代价是"清零重来 15s 全窗口"；
+            # 而限幅 0.5m 外推撑 3s 的代价是"偶尔一次 >1m 误差"（也只清零一次）。
+            # 宁多撑不断流——断流必清零，误差超限是概率性事件。
+            max_t = max(ACTOR_KEEPALIVE_MAX_T, DROP_TIME - 1.0)
+            if dt > max_t:
                 continue                    # 太久没观测：不硬撑，等真实观测回来
             # v24b：补发外推同样限幅 EXTRAP_MAX_D（0.5m）——dt 可达 1.3s，
             # 速度 2.2m/s 时无限幅外推 2.86m，必被裁判 far_dist 清零。
             _vx = getattr(tr, "vx", 0.0) or 0.0
             _vy = getattr(tr, "vy", 0.0) or 0.0
-            _d = math.hypot(_vx * dt, _vy * dt)
-            if _d > EXTRAP_MAX_D and _d > 1e-6:
-                _s = EXTRAP_MAX_D / _d
-                _vx *= _s
-                _vy *= _s
-            x = tr.x + _vx * dt
-            y = tr.y + _vy * dt
+            if stable is not None:
+                self._publish_actor(tag, stable[0], stable[1])
+                continue
+            motion = coherent_official_velocity(tr.good_history, tr.good_t)
+            if motion is not None:
+                _vx, _vy = motion
+                _horizon = age + EXTRAP_DELAY
+                _max_d = 1.2
+            else:
+                _horizon = age
+                _max_d = EXTRAP_MAX_D
+            _dx, _dy = _vx * _horizon, _vy * _horizon
+            _d = math.hypot(_dx, _dy)
+            if _d > _max_d and _d > 1e-6:
+                _s = _max_d / _d
+                _dx *= _s
+                _dy *= _s
+            x = tr.good_x + _dx
+            y = tr.good_y + _dy
             self._publish_actor(tag, x, y)
 
     def _tick(self, _evt):
@@ -865,8 +1237,10 @@ def _self_test():
     _t_last = 0.1                               # 最后观测时刻
     assert len(c3.tick(_t_last + 0.5 * DROP_TIME)) == 1     # 半窗内 coast 保持
     assert c3.tick(_t_last + DROP_TIME + 0.5) == []         # 超窗停发
-    c3.report(_t_last + DROP_TIME + 1.0, "green", 4.0, 0.0, 0.9)  # 重新出现 → 复活
-    assert len(c3.tick(_t_last + DROP_TIME + 1.0)) == 1
+    c3.report(_t_last + DROP_TIME + 1.0, "green", 4.0, 0.0, 0.9)
+    assert c3.tick(_t_last + DROP_TIME + 1.0) == []  # long gap resets validation
+    c3.report(_t_last + DROP_TIME + 1.2, "green", 4.1, 0.0, 0.9)
+    assert len(c3.tick(_t_last + DROP_TIME + 1.2)) == 1
     print("3) coast/drop/复活 OK")
 
     # 4) 官方消除：补发 eliminated 一次，鬼影不复活
@@ -924,9 +1298,14 @@ class _FakeRos(object):
         def now():
             return 0.0
 
+        @staticmethod
+        def from_sec(value):
+            return float(value)
+
     def loginfo(self, *a, **k):
         pass
 
+    logwarn = loginfo
     logwarn_throttle = loginfo
 
 
@@ -947,6 +1326,11 @@ def _mk_bridge():
     b._red_focus = None
     b._red_consumed = set()
     b._red_prev_ids = None
+    b._red_recent_pub = []
+    b._red_find_binding = {}
+    b._red_source_map = {}
+    b._last_source_sample = {}
+    b._rejected_visual = {}
     # 2026-10-06 修：可推进的假时钟 —— PUB_MIN_INTERVAL 节流需要时间前进
     # 才能连续发布（_advance 由自测在每次期望发布前调用）。
     _clock = {"t": 0.0}
@@ -981,7 +1365,8 @@ def _red_dual_selftest():
     # B3：red1 / t5 只发对应 red1 流，避免污染 red2 流
     b._advance(1.0)                             # 推进假时钟，越过节流窗
     b._emit(dict(tag="red1", tid="t5", x=10.0, y=0.0, vx=0.0, vy=0.0,
-                 state=0, eliminated=False))
+                 state=0, eliminated=False, official_x=10.0,
+                 official_y=0.0, official_sample_s=0.6))
     assert len(b._actor_pubs["red1"].msgs) == 1
     assert len(b._actor_pubs["red2"].msgs) == 0, "red1 不得污染 red2 流"
     assert b._actor_pubs["red1"].msgs[0].cls == "red"
@@ -990,7 +1375,8 @@ def _red_dual_selftest():
     # red2 / t4 只发对应 red2 流，不因当前焦点仍是 red1 而静默
     n1 = len(b._actor_pubs["red1"].msgs)
     b._emit(dict(tag="red2", tid="t4", x=40.0, y=0.0, vx=0.0, vy=0.0,
-                 state=0, eliminated=False))
+                 state=0, eliminated=False, official_x=40.0,
+                 official_y=0.0, official_sample_s=0.6))
     assert len(b._actor_pubs["red1"].msgs) == n1, "red2 不得污染 red1 流"
     assert len(b._actor_pubs["red2"].msgs) == 1
     assert b._actor_pubs["red2"].msgs[0].x == 40.0
@@ -1001,11 +1387,12 @@ def _red_dual_selftest():
     assert b._red_focus == "red1"
     b.core.report(1.0, "red2", 40.0, 0.0, 0.9, range_m=6.0)   # red2 变近、过闸门
     b._note_red_left({0, 1, 2, 3, 4})
-    assert b._red_focus is None and b._red_consumed == {"red1"}, (b._red_focus, b._red_consumed)
+    assert b._red_focus is None and not b._red_consumed, (b._red_focus, b._red_consumed)
     assert b._pick_red_focus() == "red2", b._red_focus
     b._advance(1.0)                             # 推进假时钟，越过节流窗
     b._emit(dict(tag="red2", tid="t4", x=40.0, y=0.0, vx=0.0, vy=0.0,
-                 state=0, eliminated=False))
+                 state=0, eliminated=False, official_x=40.0,
+                 official_y=0.0, official_sample_s=1.0))
     assert b._actor_pubs["red1"].msgs[-1].x == 10.0   # red1 流保持旧坐标
     assert b._actor_pubs["red2"].msgs[-1].x == 40.0
     print("10) 消除后红球焦点自动切换 OK（两个红球可依次拿分）")
@@ -1013,7 +1400,8 @@ def _red_dual_selftest():
     # 非红球不受双流影响：green 只发自己的话题，cls='green'
     _activate(b, "green", 0.0, 5.0, 7.0)
     b._emit(dict(tag="green", tid="t0", x=0.0, y=5.0, vx=0.0, vy=0.0,
-                 state=0, eliminated=False))
+                 state=0, eliminated=False, official_x=0.0,
+                 official_y=5.0, official_sample_s=2.0))
     assert len(b._actor_pubs["green"].msgs) == 1
     assert b._actor_pubs["green"].msgs[0].cls == "green"
     assert len(b._actor_pubs["red1"].msgs) == 1         # 未被 green 追加
