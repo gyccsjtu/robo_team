@@ -1,0 +1,15 @@
+{
+  "original_positive_train": 792,
+  "original_positive_val": 340,
+  "original_negative_train": 80,
+  "original_negative_val": 34,
+  "legacy_sequence_groups_known": false,
+  "legacy_note": "Original labelImg train/val split retained; original recording groups unavailable, so adjacent-frame isolation cannot be independently established for inherited data.",
+  "new_groups": {
+    "house_a": "train",
+    "mixed_all_c": "train",
+    "mixed_all_b": "val",
+    "mixed_all_d": "test"
+  },
+  "independent_test_frames": 10
+}

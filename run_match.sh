@@ -37,7 +37,11 @@ ROBO_DIR="$XTDRONE_DIR/robocup"
 PERC_DIR="$REPO_ROOT/perception"
 RADAR_DIR="$REPO_ROOT/radar"
 ENV_SCRIPT="$PERC_DIR/scripts/env_robocup.sh"
-WEIGHTS="$REPO_ROOT/weights/best_yolo11n_bino_v1.pt"
+# One resolved path for preflight, the run manifest and all perception nodes.
+# Keep v1 as the baseline until a candidate has passed the offline/live gates.
+WEIGHTS="${PR_WEIGHTS:-$REPO_ROOT/weights/best_yolo11n_bino_v1.pt}"
+case "$WEIGHTS" in /*) ;; *) WEIGHTS="$PWD/$WEIGHTS" ;; esac
+export PR_WEIGHTS="$WEIGHTS"
 OFFICIAL_WORLD="$PX4_ROOT/Tools/sitl_gazebo/worlds/robocup.world"
 MAP_GENERATOR="$ROBO_DIR/map_generator.py"
 ACTOR_MODEL_DIR="$XTDRONE_DIR/sitl_config/models/actor"
@@ -456,7 +460,12 @@ preflight(){
     # black_box.txt / obstacle.txt 只供官方环境节点使用，参赛启动器不读取。
     check_hard "actor 模型目录"          "[ -d '$ACTOR_MODEL_DIR' ]"
     check_soft "地图生成器 map_generator.py（重新出图时才需要）" "[ -f '$MAP_GENERATOR' ]"
-    check_hard "YOLO 权重 v1（双目）"    "[ -f '$WEIGHTS' ]"
+    if [ -f "$WEIGHTS" ]; then
+        ok "YOLO 权重（六机共用）: $WEIGHTS"
+    else
+        err "YOLO 权重缺失: $WEIGHTS"
+        hard_miss=$((hard_miss+1))
+    fi
     check_hard "感知主节点"              "[ -f '$PERC_DIR/perception_real.py' ]"
     # 双目相机补丁：感知订阅 /<uav>/stereo_camera/left/image_raw，原厂 typhoon_h480
     # 只有 cgo3 云台相机、无 stereo_camera → 不打补丁则话题发布者为空、整局零检测。

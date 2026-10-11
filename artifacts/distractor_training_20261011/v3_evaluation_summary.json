@@ -1,0 +1,970 @@
+{
+  "actor_recall_within_one_percentage_point": true,
+  "usable_actor_recall_within_one_percentage_point": true,
+  "image_decoy_gate": true,
+  "image_acceptance": false,
+  "candidate_provenance": {
+    "path": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/training_provenance.json",
+    "sha256": "ec6b4fc5c0faa2439758ef45676548bea1e59215137175f7e904551550b28f92",
+    "independent_test": true,
+    "input_audit_timing": "during_training"
+  },
+  "runtime_instance_predicate_source_sha256": "1380bfb9b87464dd2fffa2dd0d1f9a6818b3d962c52aae9699183eeaf3d91451",
+  "temporal_tracking_acceptance": "not_tested",
+  "official_match_acceptance": "not_tested",
+  "original_negative_validation": {
+    "baseline": {
+      "weights": "weights/best_yolo11n_bino_v1.pt",
+      "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+      "images": 34,
+      "false_decoy_frames": 0,
+      "partial_decoy_frames": 0,
+      "empty_negative_false_frames": 0,
+      "recall": {
+        "red": null,
+        "green": null,
+        "blue": null,
+        "white": null,
+        "brown": null,
+        "distractor_person": null
+      },
+      "usable_actor_recall": {
+        "red": null,
+        "green": null,
+        "blue": null,
+        "white": null,
+        "brown": null
+      },
+      "totals": {
+        "red": 0,
+        "green": 0,
+        "blue": 0,
+        "white": 0,
+        "brown": 0,
+        "distractor_person": 0
+      },
+      "frames": [
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00000_B_a0_d24_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00003_D_a0_d06_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00043_A_a0_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00072_C_a0_d12_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00102_B_a0_d18_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00134_A_a0_d12_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00166_A_a0_d12_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00200_A_a1_d12_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00218_E_a1_d04_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00268_D_a1_d06_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00290_C_a1_d08_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00319_B_a1_d18_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00369_B_a1_d24_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00400_C_a2_d16_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00426_C_a2_d26_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00462_D_a2_d06_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00497_C_a2_d20_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00539_A_a2_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00580_A_a2_d12_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00601_E_a3_d04_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00632_A_a3_d12_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00667_C_a3_d12_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00696_B_a3_d18_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00753_D_a3_d06_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00770_B_a3_d24_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00789_A_a3_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00844_E_a4_d04_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00868_C_a4_d16_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00929_D_a4_d09_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00951_A_a4_d12_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00985_D_a5_d06_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_01021_A_a5_d12_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_01057_A_a5_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_01083_A_a5_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        }
+      ]
+    },
+    "candidate": {
+      "weights": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/weights/best.pt",
+      "sha256": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7",
+      "images": 34,
+      "false_decoy_frames": 0,
+      "partial_decoy_frames": 0,
+      "empty_negative_false_frames": 0,
+      "recall": {
+        "red": null,
+        "green": null,
+        "blue": null,
+        "white": null,
+        "brown": null,
+        "distractor_person": null
+      },
+      "usable_actor_recall": {
+        "red": null,
+        "green": null,
+        "blue": null,
+        "white": null,
+        "brown": null
+      },
+      "totals": {
+        "red": 0,
+        "green": 0,
+        "blue": 0,
+        "white": 0,
+        "brown": 0,
+        "distractor_person": 0
+      },
+      "frames": [
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00000_B_a0_d24_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00003_D_a0_d06_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00043_A_a0_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00072_C_a0_d12_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00102_B_a0_d18_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00134_A_a0_d12_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00166_A_a0_d12_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00200_A_a1_d12_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00218_E_a1_d04_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00268_D_a1_d06_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00290_C_a1_d08_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00319_B_a1_d18_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00369_B_a1_d24_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00400_C_a2_d16_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00426_C_a2_d26_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00462_D_a2_d06_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00497_C_a2_d20_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00539_A_a2_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00580_A_a2_d12_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00601_E_a3_d04_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00632_A_a3_d12_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00667_C_a3_d12_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00696_B_a3_d18_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00753_D_a3_d06_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00770_B_a3_d24_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00789_A_a3_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00844_E_a4_d04_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00868_C_a4_d16_low.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00929_D_a4_d09_level.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00951_A_a4_d12_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_00985_D_a5_d06_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_01021_A_a5_d12_top.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_01057_A_a5_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        },
+        {
+          "image": "/home/gycc/桌面/robocup-yolo/dist/negatives/images/val/neg_01083_A_a5_d12_high.jpg",
+          "group": "legacy_original_val",
+          "false_actor_boxes_on_decoy": [],
+          "partial_actor_boxes_on_decoy": [],
+          "actor_distractor_conflicts": [],
+          "actor_boxes_in_empty_negative": [],
+          "matched": {},
+          "usable": {},
+          "labels": {}
+        }
+      ]
+    },
+    "false_frames_not_increased": true
+  },
+  "baseline": {
+    "weights": "weights/best_yolo11n_bino_v1.pt",
+    "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+    "images": 10,
+    "false_decoy_frames": 3,
+    "partial_decoy_frames": 0,
+    "empty_negative_false_frames": 0,
+    "recall": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0,
+      "white": 1.0,
+      "brown": 1.0,
+      "distractor_person": 0.0
+    },
+    "usable_actor_recall": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0,
+      "white": 1.0,
+      "brown": 1.0
+    },
+    "totals": {
+      "red": 10,
+      "green": 10,
+      "blue": 10,
+      "white": 10,
+      "brown": 10,
+      "distractor_person": 10
+    }
+  },
+  "candidate": {
+    "weights": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/weights/best.pt",
+    "sha256": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7",
+    "images": 10,
+    "false_decoy_frames": 0,
+    "partial_decoy_frames": 0,
+    "empty_negative_false_frames": 0,
+    "recall": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0,
+      "white": 1.0,
+      "brown": 1.0,
+      "distractor_person": 1.0
+    },
+    "usable_actor_recall": {
+      "red": 1.0,
+      "green": 1.0,
+      "blue": 1.0,
+      "white": 1.0,
+      "brown": 1.0
+    },
+    "totals": {
+      "red": 10,
+      "green": 10,
+      "blue": 10,
+      "white": 10,
+      "brown": 10,
+      "distractor_person": 10
+    }
+  },
+  "original_validation": {
+    "provenance": {
+      "path": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/training_provenance.json",
+      "sha256": "ec6b4fc5c0faa2439758ef45676548bea1e59215137175f7e904551550b28f92",
+      "independent_test": false,
+      "input_audit_timing": "during_training"
+    },
+    "actor_recall_within_one_percentage_point": false,
+    "usable_actor_recall_within_one_percentage_point": false,
+    "image_decoy_gate": true,
+    "image_acceptance": false,
+    "limitation": "Checkpoint-selection validation, not an independent test",
+    "baseline": {
+      "weights": "weights/best_yolo11n_bino_v1.pt",
+      "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+      "images": 340,
+      "false_decoy_frames": 0,
+      "partial_decoy_frames": 0,
+      "empty_negative_false_frames": 0,
+      "recall": {
+        "red": 0.9934640522875817,
+        "green": 0.9859154929577465,
+        "blue": 0.9894736842105263,
+        "white": 0.967391304347826,
+        "brown": 1.0,
+        "distractor_person": null
+      },
+      "usable_actor_recall": {
+        "red": 0.9934640522875817,
+        "green": 0.9859154929577465,
+        "blue": 0.9894736842105263,
+        "white": 0.967391304347826,
+        "brown": 1.0
+      },
+      "totals": {
+        "red": 153,
+        "green": 71,
+        "blue": 95,
+        "white": 92,
+        "brown": 56,
+        "distractor_person": 0
+      }
+    },
+    "candidate": {
+      "weights": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/weights/best.pt",
+      "sha256": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7",
+      "images": 340,
+      "false_decoy_frames": 0,
+      "partial_decoy_frames": 0,
+      "empty_negative_false_frames": 0,
+      "recall": {
+        "red": 1.0,
+        "green": 0.9436619718309859,
+        "blue": 0.9789473684210527,
+        "white": 0.9565217391304348,
+        "brown": 1.0,
+        "distractor_person": null
+      },
+      "usable_actor_recall": {
+        "red": 1.0,
+        "green": 0.9436619718309859,
+        "blue": 0.9789473684210527,
+        "white": 0.9565217391304348,
+        "brown": 1.0
+      },
+      "totals": {
+        "red": 153,
+        "green": 71,
+        "blue": 95,
+        "white": 92,
+        "brown": 56,
+        "distractor_person": 0
+      }
+    }
+  },
+  "full_evaluation_sha256": "0c9bd3ccea155944c17925e946a3c8b47e4b1fc4a0b32f95662df528aa6c792e"
+}
