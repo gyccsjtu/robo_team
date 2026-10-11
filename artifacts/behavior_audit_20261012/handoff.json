@@ -1,0 +1,14 @@
+{
+  "source_commit": "7bdc05f",
+  "branch": "codex/observation-repair-20261012",
+  "simulation_running": false,
+  "last_complete_gui_runtime": "4e5d837",
+  "last_complete_gui_eliminated": 6,
+  "last_complete_gui_seconds": 493.736,
+  "latest_appearance_patch_full_gui_validated": false,
+  "validation": "440 broader tests followed by 71 discovery/recovery tests; suites overlap",
+  "startup_blocker": "Only failed preflight item: available log filesystem 1786 MiB < 2048 MiB. Other hard-dependency checks pass.",
+  "preservation": "No ULog, camera recording, source, weights or training dataset deleted. Closed logs/crash reports losslessly compressed; byte hashes verified. Historical .log paths may now have .gz suffix.",
+  "remaining": "Repeat a complete GUI trial after freeing disk space; verify decoy retries, normal moving-actor recall and 6/6 completion. Stable 3–4 minute performance is not established.",
+  "wall": 1791756717.8534777
+}
