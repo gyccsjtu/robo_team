@@ -198,6 +198,84 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
         self.assertLess(target-own, 8.6)
         self.assertAlmostEqual(velocity, 1., delta=.02)
 
+    def test_late_stationary_discovery_keeps_available_emergency_braking(self):
+        # Full approach-cap -> pre-ORCA preference -> orbit entry -> send_vel
+        # -> position-output chain. The flight state advances kinematically;
+        # this reproduces late discovery without claiming PX4 dynamics.
+        a = self.agent(distance=12.)
+        a.targets['t1'] = (62., 20., 0., 0.)
+        a._target_to_orbit = (62., 20.)
+        a._orbit_target = None
+        a._confirm_close, a._confirm_close_tid = False, None
+        a._last_cmd_v = a._last_flight_v = (6., 0.)
+        a._escape_spent, a._spend_mode, a._flee_run_t = {'t1'}, set(), {}
+        a._giveup_until, a._stale_search_until = {}, {}
+        a._world_trusted = lambda: True
+        a._need_replan_track = lambda *args, **kw: False
+        a._pick_local_goal = lambda: (62., 20.)
+        a._adaptive_speed = lambda x, y: (x, y)
+        a._orbit_stale = lambda: False
+        a._obstructed_view_goal = lambda *args, **kw: None
+        a._reobserve_goal = lambda *args: None
+        a._update_orbit = a._publish_claim = lambda: None
+        a._visual_observations = {}
+        a.los = NS(visible=lambda *args: True)
+        a._last_csv_t, a._last_orca_v, a._csv = 0., (0., 0.), Mock()
+        self.assertEqual(a._approach_cap('t1', 12.), 6.)
+        trace = []
+        for _ in range(90):
+            self.refresh(a)
+            with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'):
+                a._control()
+            p = a.pos_pub.publish.call_args.args[0].pose.position
+            velocity = (p.x-a.local_xy[0])/sa.POS_SP_LEAD
+            self.assertAlmostEqual(velocity, a._last_flight_v[0])
+            if not trace:
+                row = a._csv.write.call_args.kwargs
+                self.assertFalse(row['visual_slew'])
+                self.assertTrue(row['view_brake_fallback'])
+                self.assertAlmostEqual(row['view_brake_room'], 3.75)
+                self.assertAlmostEqual(row['view_brake_need'], 15.3)
+            a.local_xy = (a.local_xy[0]+velocity*.05, 20.)
+            trace.append((62.-a.local_xy[0], velocity))
+            self.now += .05
+        self.assertLessEqual(trace[0][1], 6.-sa.MAX_ACC/sa.CTRL_RATE+1e-9,
+                             'late fresh imagery must not weaken the available brake')
+        self.assertGreaterEqual(min(r for r, _ in trace), 7.5)
+        self.assertLess(abs(trace[-1][1]), .2)
+
+    def test_brake_budget_accounts_for_target_motion_and_one_control_step(self):
+        room, need = sa.view_braking_distances((3., 0.), 0., 0., 12., 0., 0., 0.)
+        self.assertAlmostEqual(room, 3.75)
+        self.assertAlmostEqual(need, 3.9)  # Continuous stop fits; one step does not.
+        self.assertGreater(need, room)
+        room, need = sa.view_braking_distances((3., 0.), 0., 0., 12., 0., 2., 0.)
+        self.assertAlmostEqual(need, 1./2.4+.05)
+        self.assertLess(need, room)
+        _, approaching = sa.view_braking_distances((3., 0.), 0., 0., 12., 0., -2., 0.)
+        self.assertGreater(approaching, room)
+
+    def test_late_tangent_request_cannot_hide_previous_inward_speed(self):
+        a = self.agent(distance=12.)
+        a.targets['t1'] = (62., 20., 0., 0.)
+        a._orbit_target, a._confirm_close = None, False
+        a._last_cmd_v = (6., 0.)
+        a._send_vel(0., 2.)
+        # Desired radial speed is zero, but last command still needs 15.3 m.
+        self.assertAlmostEqual(math.dist((6., 0.), a._last_flight_v),
+                               sa.MAX_ACC/sa.CTRL_RATE)
+
+    def test_outward_speed_and_target_translation_retain_soft_slew(self):
+        for previous, desired, target_v in ((-6., -5., 0.), (3., 2.5, 2.)):
+            with self.subTest(previous=previous, target_v=target_v):
+                a = self.agent(distance=12.)
+                a.targets['t1'] = (62., 20., target_v, 0.)
+                a._orbit_target, a._confirm_close = None, False
+                a._last_cmd_v = (previous, 0.)
+                a._send_vel(desired, 0.)
+                self.assertAlmostEqual(abs(a._last_flight_v[0]-previous),
+                                       sa.VIEW_MAX_ACC/sa.CTRL_RATE)
+
     def test_four_meter_height_replay_satisfies_both_camera_constraints(self):
         state, altitude = None, 4.
         for i in range(80):

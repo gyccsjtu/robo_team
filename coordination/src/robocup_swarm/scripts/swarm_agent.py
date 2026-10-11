@@ -460,6 +460,23 @@ def view_approach_velocity(vx, vy, wx, wy, tx, ty, tvx, tvy, radius=8.0):
     return vx, vy
 
 
+def view_braking_distances(last_v, wx, wy, tx, ty, tvx, tvy, radius=8.0):
+    """Return available/required radial room for the softer visual brake.
+
+    Use the preceding final command, never the newly capped preference: a
+    late image must not hide momentum already commanded toward the target.
+    Reserve one control interval in addition to continuous stopping distance.
+    """
+    distance = math.hypot(tx-wx, ty-wy)
+    room = max(0., distance-radius-VIEW_BRAKE_MARGIN)
+    if distance < 1e-6:
+        return room, float('inf')
+    closing = max(0., ((last_v[0]-tvx)*(tx-wx)+
+                       (last_v[1]-tvy)*(ty-wy))/distance)
+    need = closing*closing/(2.*min(MAX_ACC, VIEW_MAX_ACC))+closing/CTRL_RATE
+    return room, need
+
+
 def observation_ring_goal(wx, wy, tx, ty, radius, bounds, margin=2.5):
     """Choose an in-bounds observation point when the radial point is outside.
 
@@ -950,7 +967,8 @@ class SwarmAgent(object):
             "capture_threshold_m", "is_captured", "orca_vx", "orca_vy",
             "orca_vz", "cmd_vx", "cmd_vy", "cmd_vz", "source",
             "visual_slew", "horizontal_stop", "view_sample_s",
-            "view_needs_space", "view_range_floor"])
+            "view_needs_space", "view_range_floor", "view_brake_room",
+            "view_brake_need", "view_brake_fallback"])
         self._look_at = None         # 机头需持续对准的世界点 (x,y)；None=不控偏航
         # 2026-10-05 国家一等奖：缓存到点前的最后一个 local_goal，dwell 期冻结视野
         self._last_local_goal = None
@@ -3325,6 +3343,8 @@ class SwarmAgent(object):
         # 最高优先级：越界主动回收，绕过其他守卫（界外无障碍）。
         rec = self._bounds_recovery_velocity()
         visual_slew = False
+        view_brake_room = view_brake_need = None
+        view_brake_fallback = False
         if rec is not None:
             vx, vy = rec
             rospy.logerr_throttle(2.0,
@@ -3358,11 +3378,22 @@ class SwarmAgent(object):
             # Safety interventions retain their existing response. The softer
             # visual envelope is only for an ordinary, clear-space command.
             now_view = rospy.Time.now().to_sec()
+            view_context = self._view_motion_context(now_view) if vz is None else None
             visual_slew = (vz is None and
-                self._view_motion_context(now_view) is not None and
+                view_context is not None and
                 not self._radar_strict and not self._radar_retreating and
                 math.hypot(vx-before_guard[0], vy-before_guard[1]) < 1e-8 and
                 not self._view_friend_conflict(now_view))
+            last_v = getattr(self, '_last_cmd_v', None)
+            if visual_slew and last_v is not None:
+                view_brake_room, view_brake_need = view_braking_distances(
+                    last_v, *view_context['own'], *view_context['target'],
+                    *view_context['velocity'], radius=view_context['radius'])
+                # Fresh imagery can arrive at 6 m/s only 12 m from an actor.
+                # When 1.2 m/s² cannot stop within the remaining ring margin,
+                # preserve the existing ordinary/close emergency brake.
+                view_brake_fallback = view_brake_need > view_brake_room
+                visual_slew = not view_brake_fallback
 
         guard_stop = math.hypot(vx, vy) < 0.05
 
@@ -3550,7 +3581,10 @@ class SwarmAgent(object):
                 horizontal_stop=math.hypot(cmd.twist.linear.x, cmd.twist.linear.y) < .05,
                 view_sample_s=_view_log.get('sample_s'),
                 view_needs_space=_view_log.get('needs_space'),
-                view_range_floor=_view_log.get('range_floor'))
+                view_range_floor=_view_log.get('range_floor'),
+                view_brake_room=view_brake_room,
+                view_brake_need=view_brake_need,
+                view_brake_fallback=view_brake_fallback)
             self._last_csv_t = _now
         # === 2026-09-29 P1-3：坠地检测 ===
         # 原来没有任何姿态/坠机检测，坠机后 landed_state 仍报 IN_AIR，系统完全不知情。
