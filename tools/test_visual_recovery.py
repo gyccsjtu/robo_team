@@ -254,6 +254,16 @@ class VisualRecoveryTests(unittest.TestCase):
         with patch.object(swarm_agent, 'flight_bounds', return_value=(0, 60, 0, 40)):
             self.assertFalse(a._safe_reobserve_segment((58.0, 20.0), (62.0, 20.0)))
 
+    def test_control_only_image_does_not_veto_safe_reimaging_of_bad_coordinates(self):
+        a = self.agent()
+        a.assignment = SimpleNamespace(task_type=1, target_id='t0')
+        a._tracking_image = dict(target_id='t0', sample_s=100., geometry_ok=True,
+                                report_ok=False, box=(300., 200., 340., 300.),
+                                height=480., width=752.)
+        self.assertIsNotNone(a._reobserve_goal(50., 20., 100.))
+        a._tracking_image['report_ok'] = True
+        self.assertIsNone(a._reobserve_goal(50., 20., 100.))
+
     def test_stale_team_target_or_close_blind_zone_does_not_trigger_side_move(self):
         a = self.agent()
         a._t_seen['t0'] = 90.0

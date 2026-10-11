@@ -344,6 +344,19 @@ def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2):
             1.1 <= height / max(width, 1.0) <= 4.0)
 
 
+def cue_body_height(box, camera_z, rotation):
+    """Optional full-box geometry for attention; abstain on crops/shallow rays."""
+    x1, y1, x2, y2 = box
+    if (not 2.0 <= camera_z <= 6.0 or x1 < 6. or x2 > IMG_W-6. or
+            y1 < 6. or y2 > IMG_H-6. or y2-y1 < 40.):
+        return None
+    ray = rotation @ M_OPT2LINK @ np.array([
+        ((x1+x2)/2.-CX)/FX, (y2-.05*(y2-y1)-CY)/FY, 1.])
+    if not np.isfinite(ray).all() or -ray[2]/np.linalg.norm(ray) < .30:
+        return None
+    return projected_body_height((-camera_z/ray[2])*ray, y1, rotation)
+
+
 class PixelCueTracker:
     """Associate fresh YOLO boxes by world bearing before ground range is known."""
 
@@ -351,8 +364,10 @@ class PixelCueTracker:
         self.tracks = []
         self.next_id = 0
         self.last_frame = -1.0
+        self.rejections = []
 
     def update(self, sample_s, boxes):
+        self.rejections = []
         if sample_s <= self.last_frame:
             return []
         self.last_frame = sample_s
@@ -421,7 +436,10 @@ class PixelCueTracker:
                         cam_x=box.get('cam_x', float('nan')),
                         cam_y=box.get('cam_y', float('nan')))
             best['history'] = [p for p in best['history'] if sample_s - p[0] <= 1.1]
-            best['history'].append((sample_s, box['conf']))
+            height_m = box.get('body_height_m')
+            contradiction = (height_m is not None and math.isfinite(height_m) and
+                             (height_m < H_MIN or height_m > H_MAX_L))
+            best['history'].append((sample_s, box['conf'], contradiction))
             used.add(best['id'])
             # Select by elapsed image time, not a fixed last-N frame count.
             recent = best['history']
@@ -431,6 +449,15 @@ class PixelCueTracker:
                     break
                 first = start
             recent = recent[first:]
+            # Three independent full-body estimates contradicting human size
+            # stop a hydrant from repeatedly interrupting search. Missing or
+            # clipped geometry abstains; stationary people are never excluded
+            # because they stand still, and one bad frame cannot veto a cue.
+            if (len(recent) >= 3 and recent[-1][0]-recent[0][0] >= .3-1e-9 and
+                    all(p[2] for p in recent)):
+                self.rejections.append(dict(cls=box['cls'], box=box.get('box'),
+                    confidence=box['conf'], height_m=height_m))
+                continue
             # All clothing colours need this image-only entry. Requiring
             # .85 before association discarded .48-.76 nearby blue boxes
             # while the aircraft continued its search route.
@@ -531,6 +558,42 @@ def official_view_ok(uv, wh, width=752, height=480, range_m=None,
     # Preserve the decision, but guarantee the wire field is a native bool.
     return bool(clipped_stable and range_m is not None and 0.0 < range_m <= 6.0 and
                 h >= FEET_CLIP_MIN_PX and y2 <= height + 2.0)
+
+
+def continuation_view_ok(track, detection, sample_s, residual_m):
+    """Keep camera control during a brief gait/confidence change of one track.
+
+    Admission of a NEW person still uses strict geometry/appearance. A known
+    person's changing width is not evidence that its visible foot ray moved.
+    Crops, shallow rays, implausible height, old images and spatial jumps do
+    not receive this continuation. Strict evidence expires independently;
+    accepting a continuation cannot renew its own identity evidence. Replay
+    found extra >1m errors when used for official qualification: it is ONLY
+    camera-control geometry, never permission to report a coordinate.
+    """
+    if detection.get('loc_ok', False):
+        return True
+    try:
+        gap = sample_s - track.observed_s
+        since_strict = sample_s - track.last_strict_s
+        u, v = detection['uv']
+        w, h = detection['wh']
+        return bool(
+            track.hits >= CONFIRM_HITS and not track.loc_suspect and
+            detection['cls'] == track.cls and
+            track.appearance_status == detection['appearance_status'] == 'actor' and
+            0.0 < gap <= .7 and 0.0 <= since_strict <= 2.0 and
+            detection['range_method'] == 'foot_ground' and
+            0.0 < detection['range'] <= 12.0 and
+            .30 <= detection['sin_down'] <= 1.0 and
+            H_MIN <= detection['h'] <= H_MAX and
+            detection['conf'] >= (WHITE_CONF if track.cls == 'white' else CONF) and
+            h >= 60.0 and w > 0.0 and AR_MIN_L <= h/w <= 3.2 and
+            math.isfinite(residual_m) and 0.0 <= residual_m <= min(1.0, .6 + 1.5*gap) and
+            official_view_ok((u, v), (w, h), IMG_W, IMG_H,
+                             detection['range'], clipped_stable=False))
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
 
 
 def blue_white_torso_vote(image, xyxy):
@@ -1221,6 +1284,9 @@ class Track(object):
         self.h = h                      # 归一化身高 (m)
         self.loc_suspect = not loc_ok
         self.observation_loc_ok = bool(loc_ok)
+        self.observation_view_ok = bool(loc_ok)
+        self.last_strict_s = self.observed_s if loc_ok else -float('inf')
+        self.world_ready = False
         self.range_method = range_method
         self.position_uncertainty_m = position_uncertainty_m
         self.loc_good_streak = 3 if loc_ok else 0
@@ -1300,13 +1366,16 @@ class Track(object):
             self._pub_result = (px, py)
         return self._pub_result
 
-    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None):
+    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None, view_ok=None):
         """更新track状态，可选更新外观特征用于多层次关联"""
         sample_s = t if observation_s is None else observation_s
         if t <= self.t or sample_s <= self.observed_s or dt <= 0.0:
             return False
         self.observed_s = sample_s
         self.observation_loc_ok = bool(loc_ok)
+        self.observation_view_ok = bool(loc_ok if view_ok is None else view_ok)
+        if loc_ok:
+            self.last_strict_s = sample_s
         self.appearance_status = appearance_status
         self.distractor_confidence = float(distractor_confidence)
         self.range_method = range_method
@@ -1356,6 +1425,29 @@ class Track(object):
                     not self.loc_suspect and official_view_ok(
                         self.uv, self.wh, IMG_W, IMG_H, self.rng,
                         clipped_stable=self.clipped_report_stable()))
+
+    def world_candidate_ready(self):
+        """Establish one real image sequence before the first world dispatch.
+
+        Lifetime hits can include isolated boxes seconds apart. The 17:32
+        scaffold false track reached three hits this way and claimed a UAV.
+        Established tracks retain identity across brief occlusion; this check
+        never grants current-frame geometry or official reporting eligibility.
+        """
+        if self.world_ready:
+            return True
+        samples = []
+        for item in reversed(self.recent_observed_xy):
+            if self.observed_s-item[0] > 1.1 or (samples and samples[-1][0]-item[0] > .7):
+                break
+            samples.append(item)
+        samples.reverse()
+        if (len(samples) >= 3 and samples[-1][0]-samples[0][0] >= .3-1e-9 and
+                all(0. < b[0]-a[0] <= .7 and
+                    math.hypot(b[1]-a[1], b[2]-a[2]) <= .6+2.5*(b[0]-a[0])
+                    for a, b in zip(samples, samples[1:]))):
+            self.world_ready = True
+        return self.world_ready
 
     def clipped_report_stable(self):
         """Only trust a cropped head ray after a stationary, sustained view."""
@@ -1635,7 +1727,8 @@ def report_candidate_frame(entries, source, sample, session, observer_xy,
     candidates = []
     for cls, slot, track in entries:
         if (track.miss or track.observed_s != sample or track.hits < MIN_HITS or
-                getattr(track, 'appearance_status', 'actor') == 'distractor'):
+                getattr(track, 'appearance_status', 'actor') == 'distractor' or
+                not track.world_candidate_ready()):
             continue
         x, y = track.observation_xy()
         tag = 'red%d' % (slot+1) if cls == 'red' else cls
@@ -1667,7 +1760,8 @@ def discovery_candidate_frame(entries, source, sample, session):
                 not track.observation_loc_ok or track.loc_suspect or
                 track.conf < .55 or track.hits < 4 or not 0. < track.rng <= 12. or
                 track.observed_s-track.t0 < .5 or
-                getattr(track, 'appearance_status', 'actor') == 'distractor'):
+                getattr(track, 'appearance_status', 'actor') == 'distractor' or
+                not track.world_candidate_ready()):
             continue
         x, y = track.observation_xy()
         candidates.append(dict(
@@ -1981,9 +2075,17 @@ def main():
                             appearance_status=b.appearance_status,
                             appearance_confidence=b.appearance_confidence,
                             distractor_confidence=b.distractor_confidence,
+                            body_height_m=cue_body_height(
+                                (bx1, by1, bx2, by2), pz, R),
                             width=IMG_W, height=IMG_H,
                             camera_tilt=math.acos(max(-1., min(1., float(R[2, 2]))))))
                     frame_cues = cue_tracker.update(frame_stamp, raw_cue_boxes)
+                    for rejection in cue_tracker.rejections:
+                        _CSV.write(ros_time=rospy.Time.now().to_sec(),
+                            event='candidate_geometry_reject',
+                            class_name=rejection['cls'], confidence=rejection['confidence'],
+                            height_m=rejection['height_m'], image_stamp=frame_stamp,
+                            image_age_s=frame_age, source='three_full_body_contradictions')
                     # 遍历过滤后的boxes
                     for b in filtered_boxes:
                         cid = int(b.cls)
@@ -2102,6 +2204,7 @@ def main():
                                      "h": round(impl_h, 2),
                                      "strict": strict,
                                      "loc_ok": strict_base,
+                                     "sin_down": float(sin_down),
                                      # Geometry sensitivity is a source ranking metric,
                                      # not a certified absolute error bound. No quality
                                      # takeover is enabled for assumed-height crops.
@@ -2199,10 +2302,21 @@ def main():
                 if appear_feat is not None:
                     _stat["n_appear_feat"] = _stat.get("n_appear_feat", 0) + 1
                 # v4：传递外观特征用于后续关联
+                view_ok = continuation_view_ok(
+                    tk, d, frame_stamp,
+                    math.hypot(d['xyz'][0] - tx, d['xyz'][1] - ty))
+                if view_ok and not d.get('loc_ok', False):
+                    _CSV.write(ros_time=now, event='tracking_view_continuation',
+                               class_name=tk.cls, confidence=d['conf'],
+                               track_id=tk.id, hits=tk.hits,
+                               image_stamp=frame_stamp, image_age_s=frame_age,
+                               target_x=d['xyz'][0], target_y=d['xyz'][1],
+                               source='confirmed_full_body_shape_change')
                 tk.update(d["xyz"][0], d["xyz"][1], dt, d["conf"],
                           d["uv"], d["wh"], d["range"], d["h"], now, uav,
                           appearance_feat=appear_feat, observation_s=frame_stamp,
-                          loc_ok=d.get('loc_ok', True), range_method=d['range_method'],
+                          loc_ok=d.get('loc_ok', False), view_ok=view_ok,
+                          range_method=d['range_method'],
                           appearance_status=d['appearance_status'],
                           distractor_confidence=d['distractor_confidence'],
                           position_uncertainty_m=d.get('position_uncertainty_m'))
@@ -2365,7 +2479,8 @@ def main():
                     confidence=float(tk.conf), hits=tk.hits, box=box,
                     width=IMG_W, height=IMG_H, fy=FY,
                     camera_tilt=math.acos(max(-1., min(1., float(R[2, 2])))),
-                    geometry_ok=bool(tk.observation_loc_ok),
+                    geometry_ok=bool(tk.observation_view_ok),
+                    report_ok=bool(tk.can_report_image()),
                     bearing=image_world_bearing(u, v, R), x=ox, y=oy,
                     **appearance_fields(tk)))))
                 view_csv.write(ros_time=rospy.Time.now().to_sec(), sample_s=tk.observed_s,

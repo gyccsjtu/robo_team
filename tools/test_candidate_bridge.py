@@ -339,6 +339,7 @@ class CandidateBridgeTests(unittest.TestCase):
             tr = NS(id=identity, cls='blue', miss=0, hits=20, conf=.9, rng=8.,
                     observed_s=100., appearance_status='actor',
                     observation_xy=lambda x=x: (x, 0.),
+                    world_candidate_ready=lambda: True,
                     verdict=lambda *a, **kw: (True, 'eligible'), can_report_image=lambda: True)
             tracks.append(('blue', 0, tr))
         for k in range(6):

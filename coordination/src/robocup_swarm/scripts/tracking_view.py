@@ -24,13 +24,15 @@ def parse_tracking_view(data, source, tid, now):
             not 0.0 <= now-sample <= .5 or sample <= 0. or
             width <= 0 or height <= 0 or fy <= 0 or
             not (0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height) or
-            confidence < .45 or confidence > 1. or int(data['hits']) < 3):
+            confidence < (.30 if tid == 't3' else .40) or
+            confidence > 1. or int(data['hits']) < 3):
         raise ValueError('stale or invalid tracking image')
     return dict(sample_s=sample, target_id=tid, track_id=int(data['track_id']),
                 width=width, height=height, fy=fy, box=(x1, y1, x2, y2),
                 bearing=bearing, x=x, y=y, camera_tilt=tilt,
                 candidate_id=data.get('candidate_id'), position_sample_s=sample,
-                geometry_ok=data.get('geometry_ok') is True)
+                geometry_ok=data.get('geometry_ok') is True,
+                report_ok=data.get('report_ok') is True)
 
 
 def bound_pixel_candidate(cues, cls, box):
@@ -66,6 +68,22 @@ def bind_red_view(view, evidence, assigned_tid):
     return dict(view, local_target_id=view['target_id'], target_id=assigned_tid)
 
 
+def bind_red_instance_view(view, instance, binding, assigned_tid, now):
+    """Continue an already mapped camera track between coordination reports.
+
+    The immutable session/track ID, not its red slot or spatial proximity,
+    supplies identity. This only controls the camera and never refreshes the
+    bridge binding, target position cache, or official observation evidence.
+    """
+    if (not instance or binding is None or assigned_tid not in ('t4', 't5') or
+            view['target_id'] not in ('t4', 't5') or
+            instance != binding.get('candidate_id') or
+            not 0. <= now-binding['sample_s'] <= 1. or
+            not 0. < view['sample_s']-binding['sample_s'] <= .5):
+        return None
+    return dict(view, local_target_id=view['target_id'], target_id=assigned_tid)
+
+
 def retain_pixel_view(previous, data, source, tid, now):
     """At most 2s of yaw-only continuity for an explicitly bound image track.
 
@@ -85,7 +103,7 @@ def retain_pixel_view(previous, data, source, tid, now):
             return None
         payload = dict(data, target_id=tid, track_id=previous['track_id'],
                        x=previous['x'], y=previous['y'], fy=previous['fy'],
-                       geometry_ok=False)
+                       geometry_ok=False, report_ok=False)
         view = parse_tracking_view(payload,source,tid,now)
         if (view['width'] != previous['width'] or view['height'] != previous['height'] or
                 abs(math.atan2(math.sin(view['bearing']-previous['bearing']),

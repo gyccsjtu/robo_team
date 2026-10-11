@@ -36,10 +36,11 @@ from robocup_navigation.astar import load_metadata, GridMap, plan
 from slam_grid import SlamGrid
 from flight_execution import bounded_step
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
+from search_observation import cell_points, in_view, observable_points, next_heading
 from csv_logger import logger
 from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
-                           bind_red_view,
+                           bind_red_view, bind_red_instance_view,
                            retain_pixel_view)
 from camera_attention import approach_image, candidate_velocity, candidate_decision, candidate_reposition
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
@@ -170,7 +171,7 @@ CAMERA_HANDOFF_HOLD_S = 4.0
 CAMERA_CUE_RETRY_S = 2.0
 SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
 SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
-SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '16.0'))
+SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '4.0'))
 PUB_RATE        = 10.0    # 状态发布频率 Hz
 CTRL_RATE       = 20.0    # 控制频率 Hz
 DETECT_RATE     = float(os.environ.get('DETECT_RATE', '3.0'))   # 规则 §2.5(10)：连续 15s 正确广播 → 3Hz × 15s = 45 个采样，远高于裁判认定的连续窗口
@@ -1847,7 +1848,11 @@ class SwarmAgent(object):
                 key = (local_tid, view['sample_s'])
                 with self.__dict__.setdefault('_red_view_lock', threading.RLock()):
                     binding = getattr(self, '_red_view_bindings', {}).get(key)
-                    if binding is None:
+                    continued = (bind_red_instance_view(
+                        view, raw.get('world_candidate_id'),
+                        getattr(self, '_camera_instance', {}).get(tid), tid, now)
+                        if binding is None else None)
+                    if binding is None and continued is None:
                         # Camera feedback is published before the bridge handles
                         # that image. Preserve this order without guessing identity.
                         pending = {k: v for k, v in
@@ -1857,7 +1862,7 @@ class SwarmAgent(object):
                         self._pending_red_views = dict(
                             sorted(pending.items(), key=lambda item: item[0][1])[-16:])
                         return
-                view = bind_red_view(view, binding, tid)
+                view = continued if continued is not None else bind_red_view(view, binding, tid)
                 if view is None:
                     return
             else:
@@ -1988,7 +1993,7 @@ class SwarmAgent(object):
         return False
 
     def _processed_camera_frame_cb(self, msg):
-        """Credit a scan heading only after fresh YOLO processing at this view."""
+        """Credit cell subpoints using the manager's actual camera footprint."""
         try:
             data = json.loads(msg.data)
             assignment = getattr(self, 'assignment', None)
@@ -1997,32 +2002,45 @@ class SwarmAgent(object):
                     assignment is None or assignment.task_type != 0 or
                     getattr(self, '_search_scan_key', None) is None):
                 return
-            sample, x, y, yaw = (float(data[k]) for k in
-                                 ('sample_s', 'x', 'y', 'yaw'))
+            sample, x, y, yaw, altitude, down_pitch = (float(data[k]) for k in
+                ('sample_s', 'x', 'y', 'yaw', 'z', 'down_pitch'))
             now = rospy.Time.now().to_sec()
-            if (not all(math.isfinite(v) for v in (sample, x, y, yaw)) or
+            if (not all(math.isfinite(v) for v in (sample, x, y, yaw, altitude, down_pitch)) or
+                    altitude <= 0.0 or
                     not -0.05 <= now - sample <= 0.5 or
-                    sample <= getattr(self, '_search_last_frame', 0.0) or
-                    math.hypot(x - assignment.target_x,
-                               y - assignment.target_y) > 2.5):
+                    sample <= getattr(self, '_search_last_frame', 0.0)):
                 return
             self._search_last_frame = sample
+            self._search_camera_pose = (sample, x, y, yaw, altitude, down_pitch)
+            if math.hypot(x-assignment.target_x, y-assignment.target_y) > 2.5:
+                return
+            points = self._search_observable_points(x, y, altitude, down_pitch)
             seen = getattr(self, '_search_scan_seen', None)
             if seen is None:
                 seen = self._search_scan_seen = set()
             first = getattr(self, '_search_scan_first', None)
             if first is None:
                 first = self._search_scan_first = {}
-            for sector in range(4):
-                desired = sector * math.pi / 2.0
-                err = (yaw - desired + math.pi) % (2.0 * math.pi) - math.pi
-                if abs(err) > SEARCH_SCAN_YAW_TOL or sector in seen:
+            for point, xy in points.items():
+                if point in seen or not in_view(x, y, yaw, *xy, altitude, down_pitch):
                     continue
-                since = first.setdefault(sector, sample)
-                if sample - since >= SEARCH_SCAN_HOLD_S:
-                    seen.add(sector)
+                prior = first.get(point)
+                if prior is None or sample-prior[1] > .7:
+                    first[point] = (sample, sample)
+                    continue
+                first[point] = (prior[0], sample)
+                if sample-prior[0] >= SEARCH_SCAN_HOLD_S:
+                    seen.add(point)
         except (ValueError, KeyError, TypeError, AttributeError):
             return
+
+    def _search_observable_points(self, x, y, altitude, down_pitch):
+        key = self._search_scan_key[:2]
+        cell = self.cov_grid.cell(key)
+        if cell is None:
+            return {}
+        return observable_points(cell_points(self.cov_grid, cell), x, y,
+                                 altitude, down_pitch, self.los.visible)
 
     def _hold_camera_candidate(self):
         cue = getattr(self, '_camera_cue', None)
@@ -4065,7 +4083,13 @@ class SwarmAgent(object):
                          wy + 10.0 * math.sin(heading))
 
     def _search_scan_step(self):
-        """Fill only headings not already imaged on the approach to this cell."""
+        """Look only at observable missing subpoints; do not scan blind ground.
+
+        A transit waypoint directly over its cell cannot image that cell with
+        a forward camera. Release the visit instead of spending 16 seconds on
+        four headings; the manager retains its missing coverage and side-view
+        revisit. Neither a visit nor this bounded look grants coverage credit.
+        """
         assignment = getattr(self, 'assignment', None)
         if (assignment is None or getattr(assignment, 'task_type', None) != 0 or
                 self._search_scan_key is None):
@@ -4082,25 +4106,31 @@ class SwarmAgent(object):
             return
         if now - self._search_scan_started_t > SEARCH_SCAN_TIMEOUT_S:
             self._search_scan_failed = True
-            rospy.logwarn('[%s] 搜索格转向超时，拒绝标记已观察: %s',
+            rospy.logwarn('[%s] 搜索视角补看超时，保留未覆盖部分: %s',
                           self.uav_id, self._search_scan_key)
             self._send_vel(0.0, 0.0)
             return
-        # Four absolute headings represent the 360-degree view. A direction
-        # counts only when two processed frames at that heading were received.
-        missing = [i for i in range(4)
-                   if i not in getattr(self, '_search_scan_seen', set())]
+        camera = getattr(self, '_search_camera_pose', None)
+        if camera is None or not 0.0 <= now-camera[0] <= .5:
+            self._send_vel(0.0, 0.0)
+            return
+        _sample, x, y, _yaw, altitude, down_pitch = camera
+        if math.hypot(x-self.world_xy[0], y-self.world_xy[1]) > 1.0:
+            self._send_vel(0.0, 0.0)
+            return
+        points = self._search_observable_points(x, y, altitude, down_pitch)
+        missing = {i: p for i, p in points.items()
+                   if i not in getattr(self, '_search_scan_seen', set())}
         if not missing:
             self._search_scan_done = True
-            rospy.loginfo('[%s] 搜索格图像四向观察完成: %s',
-                          self.uav_id, self._search_scan_key)
+            rospy.loginfo('[SEARCH_VISIT] uav=%s cell=%s imaged=%d observable=%d; '
+                          'coverage credited by processed images only',
+                          self.uav_id, self._search_scan_key,
+                          len(getattr(self, '_search_scan_seen', set())), len(points))
             self._send_vel(0.0, 0.0)
             return
-        if self._search_scan_phase not in missing:
-            self._search_scan_phase = min(missing, key=lambda sector: abs(
-                (sector * math.pi / 2.0 - self.yaw + math.pi) %
-                (2.0 * math.pi) - math.pi))
-        self._set_search_heading(self._search_scan_phase * math.pi / 2.0)
+        desired = next_heading(missing, x, y, self.yaw)
+        self._set_search_heading(desired)
         self._send_vel(0.0, 0.0)
 
     def _search_start_cap(self, vx, vy):
@@ -4784,6 +4814,7 @@ class SwarmAgent(object):
         forced = request is not None and request[0] == tid and now < request[1]
         image = self._fresh_tracking_view(now)
         if (not forced and image is not None and image.get('geometry_ok') and
+                image.get('report_ok', image.get('geometry_ok')) and
                 not view_needs_space(image)):
             # A pixel-only view cannot veto a request to recover geometry.
             self._reobserve_view = None

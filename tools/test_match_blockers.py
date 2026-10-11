@@ -1386,43 +1386,37 @@ class MatchBlockers(unittest.TestCase):
         self.assertEqual(agent._look_at, (3.0, 0.0))
         self.assertEqual(speeds, [(0.0, 0.0)])
 
-    def test_search_cell_requires_four_observed_headings(self):
+    def test_search_visit_ends_without_faking_coverage_of_ground_below(self):
         agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
         agent.uav_id = 'typhoon_h480_0'
-        agent.local_xy = (0.0, 0.0)
-        agent.offset = (0.0, 0.0)
-        agent.local_z = 3.0
+        agent.local_xy, agent.offset, agent.local_z = (0., 0.), (0., 0.), 4.
+        agent.yaw = 0.
         agent.state = SimpleNamespace(connected=True, armed=True, mode='OFFBOARD')
         agent._takeoff_done = True
-        agent.assignment = SimpleNamespace(task_type=0, cell_ix=2, cell_iy=3,
-                                           target_x=0.0, target_y=0.0)
-        agent.cov_grid = SimpleNamespace(world_to_cell=lambda *_args: (2, 3))
-        agent.status_pub = SimpleNamespace(publish=lambda st: statuses.append(st))
-        agent._search_scan_key = (2, 3, 0.0, 0.0)
+        agent.assignment = SimpleNamespace(task_type=0, cell_ix=0, cell_iy=0,
+                                           target_x=0., target_y=0.)
+        agent.cov_grid = swarm_task.CoverageGrid(-3.5, 3.5, -3.5, 3.5, cell_m=7.)
+        agent.los = SimpleNamespace(visible=lambda *args: True)
+        agent._search_scan_key = (0, 0, 0., 0.)
         agent._search_scan_yaw0 = None
-        agent._search_scan_phase = 0
-        agent._search_scan_settle_t = None
         agent._search_scan_started_t = None
-        agent._search_scan_done = False
-        agent._search_scan_failed = False
-        agent._send_vel = lambda vx, vy: speeds.append((vx, vy))
+        agent._search_scan_done = agent._search_scan_failed = False
         statuses, speeds = [], []
-        for phase in range(4):
-            agent.yaw = phase * math.pi / 2.0
-            for t in (100.0 + phase, 100.3 + phase):
-                with patch.object(swarm_agent.rospy.Time, 'now',
-                                  return_value=swarm_agent.rospy.Time(t)):
-                    agent._processed_camera_frame_cb(SimpleNamespace(data=json.dumps({
-                        'source_uav': agent.uav_id, 'sample_s': t,
-                        'x': 0.0, 'y': 0.0, 'yaw': agent.yaw,
-                        'processed': True})))
-                    agent._search_scan_step()
-                    agent._publish_status()
-            if phase < 3:
-                self.assertEqual(statuses[-1].confidence, 0.0)
+        agent.status_pub = SimpleNamespace(publish=statuses.append)
+        agent._send_vel = lambda vx, vy: speeds.append((vx, vy))
+        with patch.object(swarm_agent.rospy.Time, 'now',
+                          return_value=swarm_agent.rospy.Time(100.)):
+            agent._processed_camera_frame_cb(SimpleNamespace(data=json.dumps({
+                'source_uav': agent.uav_id, 'sample_s': 100.,
+                'x': 0., 'y': 0., 'yaw': 0., 'z': 4., 'down_pitch': 0.,
+                'processed': True})))
+            agent._search_scan_step()
+            agent._publish_status()
         self.assertTrue(agent._search_scan_done)
-        self.assertEqual(statuses[-1].confidence, 1.0)
-        self.assertTrue(all(v == (0.0, 0.0) for v in speeds))
+        self.assertEqual(statuses[-1].confidence, 1.)  # visit, not coverage
+        self.assertEqual(agent._search_scan_seen, set())
+        self.assertNotEqual(agent.cov_grid.cell((0, 0)).state, swarm_task.STATE_COVERED)
+        self.assertEqual(speeds, [(0., 0.)])
 
     def test_pixel_cue_survives_unreliable_ground_range_but_needs_three_images(self):
         tracker = vision.PixelCueTracker()
@@ -1534,21 +1528,29 @@ class MatchBlockers(unittest.TestCase):
     def test_search_scan_uses_only_fresh_processed_images_at_its_waypoint(self):
         agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
         agent.uav_id = 'typhoon_h480_0'
-        agent.assignment = SimpleNamespace(task_type=0, target_x=0.0, target_y=0.0)
-        agent._search_scan_key = (0, 0, 0.0, 0.0)
-        agent._search_scan_seen = set()
-        agent._search_scan_first = {}
-        for sample, x, yaw in ((100.0, 0.0, 0.0),
-                               (100.3, 5.0, 0.0),
-                               (100.4, 0.0, math.pi / 2.0),
-                               (100.5, 0.0, 0.0),
-                               (100.7, 0.0, 0.0)):
+        agent.assignment = SimpleNamespace(task_type=0, target_x=0., target_y=0.)
+        agent.cov_grid = swarm_task.CoverageGrid(5., 12., -3.5, 3.5, cell_m=7.)
+        agent.los = SimpleNamespace(visible=lambda *args: True)
+        agent._search_scan_key = (0, 0, 0., 0.)
+        agent._search_scan_seen, agent._search_scan_first = set(), {}
+        def image(sample, x=0., yaw=0., now=None, processed=True):
             with patch.object(swarm_agent.rospy.Time, 'now',
-                              return_value=swarm_agent.rospy.Time(sample)):
+                              return_value=swarm_agent.rospy.Time.from_sec(sample if now is None else now)):
                 agent._processed_camera_frame_cb(SimpleNamespace(data=json.dumps({
                     'source_uav': agent.uav_id, 'sample_s': sample,
-                    'x': x, 'y': 0.0, 'yaw': yaw, 'processed': True})))
-        self.assertEqual(agent._search_scan_seen, {0})
+                    'x': x, 'y': 0., 'z': 4., 'down_pitch': 0.,
+                    'yaw': yaw, 'processed': processed})))
+        image(100.)
+        image(100.3, x=5.)  # not at assigned observation point
+        image(100.4, yaw=math.pi)  # looked away
+        self.assertFalse(agent._search_scan_seen)
+        image(100.5, now=102.)  # stale
+        image(100.5, processed=False)
+        self.assertFalse(agent._search_scan_seen)
+        image(100.5)
+        self.assertEqual(agent._search_scan_seen, {4})  # central subpoint at 8.5m
+        image(100.5, yaw=math.pi)  # duplicate cannot change evidence
+        self.assertEqual(agent._search_scan_seen, {4})
 
     def test_transit_coverage_requires_two_processed_frames_with_los(self):
         manager = swarm_manager.SwarmManager.__new__(swarm_manager.SwarmManager)

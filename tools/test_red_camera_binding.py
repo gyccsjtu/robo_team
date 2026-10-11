@@ -111,6 +111,29 @@ class RedCameraBindingTests(unittest.TestCase):
         self.assertFalse(a._visual_observations['t5']['eligible'])
         self.assertEqual(getattr(a, '_eligible_observations', {}), {})
 
+    def test_bound_instance_fills_skipped_report_frame_without_new_evidence(self):
+        a = self.agent()
+        a._visual_source_cb(self.evidence(candidate_id='session:7'))
+        a._tracking_view_cb(self.view(world_candidate_id='session:7'))
+        with patch.object(sa.rospy.Time, 'now', return_value=sa.rospy.Time.from_sec(100.3)):
+            a._tracking_view_cb(self.view(sample_s=100.2, world_candidate_id='session:7',
+                                           x=8.2, bearing=-.1))
+        self.assertEqual(a._tracking_image['sample_s'], 100.2)
+        self.assertEqual(a._tracking_image['bearing'], -.1)
+        self.assertEqual(a._visual_observations['t5']['sample_s'], 100.)
+        self.assertEqual(a._camera_instance['t5']['sample_s'], 100.)
+        self.assertEqual((a._confirm_start, a._last_confirm_t), (0., 0.))
+
+    def test_instance_continuation_cannot_bind_other_red_or_renew_forever(self):
+        for instance, sample in [('session:8', 100.2), ('new-session:7', 100.2),
+                                  ('session:7', 100.6), (None, 100.2)]:
+            with self.subTest(instance=instance, sample=sample):
+                a = self.agent()
+                a._visual_source_cb(self.evidence(candidate_id='session:7'))
+                with patch.object(sa.rospy.Time, 'now', return_value=sa.rospy.Time.from_sec(sample+.05)):
+                    a._tracking_view_cb(self.view(sample_s=sample, world_candidate_id=instance))
+                self.assertIsNone(getattr(a, '_tracking_image', None))
+
     def test_bound_red_ray_reaches_flight_yaw_while_radar_stops_translation(self):
         a = self.agent()
         a._visual_source_cb(self.evidence())

@@ -39,6 +39,7 @@ from visual_evidence import parse_visual_evidence
 
 # 地图（用于过滤「格中心落在建筑内」的格子，与 agent 的 A* 膨胀判定一致）
 from robocup_navigation.astar import load_metadata, GridMap, plan
+from search_observation import cell_points, in_view
 
 # ============================ 参数 ============================
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -698,6 +699,12 @@ class SwarmManager(object):
                                              normal[1] - cell.cy) > 1.0:
             return None
         old = getattr(self, '_blind_viewpoints', {}).get(key)
+        now = rospy.Time.now().to_sec()
+        seen = getattr(self, '_camera_point_seen', {})
+        grid = self._g_infl
+        los = LineOfSight(lambda ix, iy: not grid.is_free((ix, iy)),
+                          grid.resolution, grid.origin)
+        points = cell_points(self.grid, cell)
         candidates = []
         for i in range(8):
             angle = i * math.pi / 4.0
@@ -707,16 +714,23 @@ class SwarmManager(object):
                 continue
             repeated = old is not None and math.hypot(
                 point[0] - old[0], point[1] - old[1]) < 1.0
-            # Cardinal views align exactly with the agent's four scan yaws;
-            # prefer the nearest safe one, then change side after a failure.
+            # Choose a view of the missing subpoints, not a convenient compass
+            # heading that repeatedly images the already observed cell centre.
+            gain = sum(now-seen.get((key, j), -1e18) > 30. and
+                       self._in_processed_view(*point,
+                           math.atan2(py-point[1], px-point[0]), px, py, 4., 0.) and
+                       los.visible(*point, px, py)
+                       for j, (px, py) in enumerate(points))
+            if not gain:
+                continue
             travel = math.hypot(point[0] - observer_xy[0],
                                 point[1] - observer_xy[1])
-            candidates.append((repeated, i % 2 != 0, travel, i, point))
+            candidates.append((-gain, repeated, travel, i, point))
         if not candidates:
             return None
         # A clear camera ray alone does not mean the aircraft can fly there.
         # Use the same inflated grid and no-corner-cutting A* as the agent.
-        for _repeat, _diagonal, _travel, _index, point in sorted(candidates):
+        for _gain, _repeat, _travel, _index, point in sorted(candidates):
             if plan(self._g_infl, observer_xy, point,
                     max_expansions=3000).success:
                 return point
@@ -840,15 +854,7 @@ class SwarmManager(object):
 
     @staticmethod
     def _in_processed_view(ux, uy, yaw, cx, cy, altitude=None, down_pitch=None):
-        dx, dy = cx - ux, cy - uy
-        distance = math.hypot(dx, dy)
-        if distance > 9.0 or distance < 0.5:
-            return False
-        if altitude is not None and down_pitch is not None:
-            if abs(math.atan2(altitude, distance) - down_pitch) > math.radians(27.0):
-                return False
-        bearing = math.atan2(dy, dx)
-        return abs((bearing - yaw + math.pi) % (2.0 * math.pi) - math.pi) <= math.radians(45.0)
+        return in_view(ux, uy, yaw, cx, cy, altitude, down_pitch)
 
     def _processed_camera_frame_cb(self, msg):
         """Credit nine subpoints only after actual processed images and LOS."""
@@ -898,33 +904,27 @@ class SwarmManager(object):
                 if math.hypot(cx-ux, cy-uy) > 9.+half*math.sqrt(2.):
                     continue
                 required = []
-                for iy in range(3):
-                    for ix in range(3):
-                        px = max(self.grid.x_min+.01, min(self.grid.x_max-.01,
-                                 cx+(ix-1)*(half-.01)))
-                        py = max(self.grid.y_min+.01, min(self.grid.y_max-.01,
-                                 cy+(iy-1)*(half-.01)))
-                        point = iy*3+ix
-                        # Known solid obstacle interiors are not search space.
-                        if (hasattr(grid_map, 'world_to_cell') and
-                                not grid_map.is_free(grid_map.world_to_cell((px, py)))):
-                            continue
-                        required.append(point)
-                        if (not self._in_processed_view(ux, uy, yaw, px, py,
-                                                       altitude, down_pitch) or
-                                not los.visible(ux, uy, px, py)):
-                            continue
-                        ek = (uid, key, point)
-                        prior = evidence.get(ek)
-                        if prior is None or sample-prior[1] > .7:
-                            evidence[ek] = (sample, sample)
-                            continue
-                        first, last = prior
-                        if sample <= last:
-                            continue
-                        evidence[ek] = (first, sample)
-                        if sample-first >= .2-1e-6:
-                            seen[(key, point)] = sample
+                for point, (px, py) in enumerate(cell_points(self.grid, cell)):
+                    # Known solid obstacle interiors are not search space.
+                    if (hasattr(grid_map, 'world_to_cell') and
+                            not grid_map.is_free(grid_map.world_to_cell((px, py)))):
+                        continue
+                    required.append(point)
+                    if (not self._in_processed_view(ux, uy, yaw, px, py,
+                                                   altitude, down_pitch) or
+                            not los.visible(ux, uy, px, py)):
+                        continue
+                    ek = (uid, key, point)
+                    prior = evidence.get(ek)
+                    if prior is None or sample-prior[1] > .7:
+                        evidence[ek] = (sample, sample)
+                        continue
+                    first, last = prior
+                    if sample <= last:
+                        continue
+                    evidence[ek] = (first, sample)
+                    if sample-first >= .2-1e-6:
+                        seen[(key, point)] = sample
                 if not required or any((key, p) not in seen for p in required):
                     continue
                 owner = cell.owner if cell.state == STATE_ASSIGNED else None
@@ -3045,9 +3045,8 @@ class SwarmManager(object):
                 _wp = flight_waypoint(*_wp)
                 _d = math.hypot(st.x - _wp[0], st.y - _wp[1])
                 if _d < COVER_ARRIVE_M and getattr(st, 'confidence', 0.0) >= 1.0:
-                    # Completion means that four camera headings were
-                    # processed, not that the ground directly beneath the
-                    # aircraft was in a horizontal camera. Cell coverage is
+                    # Completion means the bounded visit ended, not that
+                    # the ground beneath the aircraft was in its camera. Cell coverage is
                     # credited only by _processed_camera_frame_cb, which
                     # checks the vertical/horizontal view and SLAM LOS.
                     observed = self.grid.cell(key).state == STATE_COVERED

@@ -80,6 +80,18 @@ class TrackingViewTests(unittest.TestCase):
         self.assertEqual(a._visual_observations, {})
         self.assertEqual((a._confirm_start, a._last_confirm_t), (0., 0.))
 
+    def test_assigned_white_keeps_camera_control_at_detector_threshold(self):
+        for confidence in (.30, .35, .44):
+            a = self.agent()
+            self.send(a, self.payload(confidence=confidence, report_ok=False))
+            self.assertIsNotNone(a._tracking_image)
+            self.assertFalse(a._tracking_image['report_ok'])
+            self.assertEqual(a._visual_observations, {})
+        with self.assertRaises(ValueError):
+            parse_tracking_view(self.payload(confidence=.29), 'u0', 't3', 100.1)
+        with self.assertRaises(ValueError):
+            parse_tracking_view(self.payload(confidence=.35, target_id='t1'), 'u0', 't1', 100.1)
+
     def test_repeat_frame_cannot_integrate_altitude_error_again(self):
         a = self.agent()
         self.send(a)

@@ -331,15 +331,17 @@ class AttentionPriorityTests(unittest.TestCase):
         self.assertEqual(self.commands[-1], (-.4, .1))
         self.assertAlmostEqual(math.atan2(self.a._look_at[1], self.a._look_at[0]), .2)
 
-    def test_missing_sector_scan_begins_near_current_view(self):
+    def test_missing_subpoint_scan_begins_near_current_view(self):
         a = self.a
         a.yaw = math.pi
         a._search_scan_yaw0 = None
         a._search_scan_done = a._search_scan_failed = False
         a._search_scan_seen = {1}
+        a._search_camera_pose = (self.now, 0., 0., math.pi, 4., 0.)
+        a._search_observable_points = lambda *args: {1: (0., 8.), 2: (-8., 0.), 3: (8., 0.)}
         a._search_scan_step()
-        self.assertEqual(a._search_scan_phase, 2)
         self.assertAlmostEqual(a._search_heading[1], math.pi)
+        self.assertFalse(a._search_scan_done)
 
     def test_unassigned_peer_image_cannot_establish_local_or_owner_evidence(self):
         self.image(source='u1')
