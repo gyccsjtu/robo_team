@@ -1,0 +1,276 @@
+{
+  "run": "logs_20261011_154716",
+  "runtime_commit": "beb82fd1080c752b33bb0273bfd4ffd6d0b204e5",
+  "restored_from": "9061195cda8a8445c935b0606c44fe21ae2163e0",
+  "finished": true,
+  "official_completion_s": 486.5519999999997,
+  "fresh_random_map_generated": false,
+  "actors": {
+    "0": {
+      "color": "green",
+      "official_completion_s": 486.5519999999997,
+      "deletion_ros_bracket": [
+        2937.516,
+        2937.76
+      ],
+      "window_start_ros": 2922.708,
+      "start_xy": [
+        128.08660174789034,
+        48.88088607869848
+      ],
+      "end_xy": [
+        128.11860174789027,
+        48.880886077881655
+      ],
+      "path_m": 0.8720000005218367,
+      "net_displacement_m": 0.03199999999992543,
+      "fraction_within_3m_of_geometric_edge": 1.0,
+      "fraction_nearest_uav_inside_7m": 0.0
+    },
+    "1": {
+      "color": "blue",
+      "official_completion_s": 243.32799999999997,
+      "deletion_ros_bracket": [
+        2694.184,
+        2694.704
+      ],
+      "window_start_ros": 2679.204,
+      "start_xy": [
+        128.8825988769555,
+        27.31564208612738
+      ],
+      "end_xy": [
+        128.8825988769555,
+        42.29564208612324
+      ],
+      "path_m": 14.979999999995858,
+      "net_displacement_m": 14.979999999995858,
+      "fraction_within_3m_of_geometric_edge": 1.0,
+      "fraction_nearest_uav_inside_7m": 0.35526315789473684
+    },
+    "2": {
+      "color": "brown",
+      "official_completion_s": 185.5319999999997,
+      "deletion_ros_bracket": [
+        2636.368,
+        2636.844
+      ],
+      "window_start_ros": 2621.404,
+      "start_xy": [
+        115.25153059299498,
+        32.288342028162766
+      ],
+      "end_xy": [
+        104.25703586041759,
+        22.137402099313068
+      ],
+      "path_m": 14.963978582112631,
+      "net_displacement_m": 14.96397326460413,
+      "fraction_within_3m_of_geometric_edge": 0.0,
+      "fraction_nearest_uav_inside_7m": 0.039473684210526314
+    },
+    "3": {
+      "color": "white",
+      "official_completion_s": 343.94799999999987,
+      "deletion_ros_bracket": [
+        2794.912,
+        2795.28
+      ],
+      "window_start_ros": 2780.108,
+      "start_xy": [
+        128.13009191541198,
+        41.80511387921305
+      ],
+      "end_xy": [
+        128.13592745006696,
+        40.795678235695746
+      ],
+      "path_m": 10.806693893211065,
+      "net_displacement_m": 1.0094525109523027,
+      "fraction_within_3m_of_geometric_edge": 1.0,
+      "fraction_nearest_uav_inside_7m": 0.0
+    },
+    "4": {
+      "color": "red",
+      "official_completion_s": 275.7439999999997,
+      "deletion_ros_bracket": [
+        2726.712,
+        2727.012
+      ],
+      "window_start_ros": 2711.712,
+      "start_xy": [
+        127.27454384298719,
+        32.673963272594705
+      ],
+      "end_xy": [
+        127.34501589308773,
+        30.738874469163378
+      ],
+      "path_m": 14.620508623033942,
+      "net_displacement_m": 1.9363716035437673,
+      "fraction_within_3m_of_geometric_edge": 0.35526315789473684,
+      "fraction_nearest_uav_inside_7m": 0.9210526315789473
+    },
+    "5": {
+      "color": "red",
+      "official_completion_s": 221.22800000000007,
+      "deletion_ros_bracket": [
+        2672.232,
+        2672.536
+      ],
+      "window_start_ros": 2657.244,
+      "start_xy": [
+        124.44143072059175,
+        18.13481330871621
+      ],
+      "end_xy": [
+        128.87463378919574,
+        29.25245606209245
+      ],
+      "path_m": 14.971511162201484,
+      "net_displacement_m": 11.968929352251143,
+      "fraction_within_3m_of_geometric_edge": 0.8289473684210527,
+      "fraction_nearest_uav_inside_7m": 0.0
+    }
+  },
+  "method": "Offline read-only diagnostic truth, never published to competition nodes. Last-15-second windows end at the last successful actor sample before deletion. Path length is sampled, not exact. Geometric edge metric uses x=-50/130,y=-50/50 for diagnosis, not a legal flight boundary. UAV distance uses nearest sample within 0.65s. Report error uses bracketed truth interpolation within 0.6s; red is matched to nearest surviving physical red, not proof of persistent identity.",
+  "diagnostic_cutoff_ros": 2937.76,
+  "flight_extent_before_finish": {
+    "0": {
+      "min_x": -42.55106547524532,
+      "max_x": 42.75068308444277,
+      "min_y": -47.306293506940015,
+      "max_y": -2.995674110796177,
+      "max_z": 4.762352148141227,
+      "samples_outside_restored_envelope": 0
+    },
+    "1": {
+      "min_x": -4.323772649713105,
+      "max_x": 143.455399502762,
+      "min_y": -53.19917555983672,
+      "max_y": -2.989948751696961,
+      "max_z": 3.326095707982788,
+      "samples_outside_restored_envelope": 0
+    },
+    "2": {
+      "min_x": -42.13395080566297,
+      "max_x": 0.06524572060787202,
+      "min_y": -4.340062516769423,
+      "max_y": 22.40775405628023,
+      "max_z": 4.081495509723886,
+      "samples_outside_restored_envelope": 0
+    },
+    "3": {
+      "min_x": 2.961878809374016,
+      "max_x": 142.6813412355203,
+      "min_y": -0.29711424867708847,
+      "max_y": 36.54496286559531,
+      "max_z": 4.440720229431197,
+      "samples_outside_restored_envelope": 0
+    },
+    "4": {
+      "min_x": -42.574153920599194,
+      "max_x": 46.26561651768654,
+      "min_y": 2.8146118029261467,
+      "max_y": 50.961672298761094,
+      "max_z": 4.930758258117196,
+      "samples_outside_restored_envelope": 0
+    },
+    "5": {
+      "min_x": 2.997706019420122,
+      "max_x": 123.62388086164404,
+      "min_y": 2.9970173405106633,
+      "max_y": 50.69750174485616,
+      "max_z": 3.463921252015704,
+      "samples_outside_restored_envelope": 0
+    }
+  },
+  "minimum_sampled_uav_distance": {
+    "distance_m": 2.845003042069447,
+    "uavs": [
+      3,
+      1
+    ],
+    "ros": 2473.808
+  },
+  "safety_limit": "About 1 Hz pose samples; does not certify absence of collision/contact.",
+  "reports": {
+    "white": {
+      "count": 105,
+      "first_ros": 2489.284,
+      "last_ros": 2794.952
+    },
+    "blue": {
+      "count": 71,
+      "first_ros": 2574.016,
+      "last_ros": 2823.416
+    },
+    "brown": {
+      "count": 48,
+      "first_ros": 2612.352,
+      "last_ros": 2637.016
+    },
+    "red1": {
+      "count": 84,
+      "first_ros": 2634.352,
+      "last_ros": 2726.752
+    },
+    "green": {
+      "count": 20,
+      "first_ros": 2922.352,
+      "last_ros": 2937.552
+    }
+  },
+  "runtime_sources_checked": 43,
+  "runtime_sources_changed_since_start": [],
+  "environment": {
+    "world": {
+      "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/worlds/robocup.world",
+      "sha256": "84a7e1c7f47339069376e30331c651789990ebe34558f506636e5a7f2fcc696d",
+      "modified_local": "2026-10-10T23:59:54.895627+08:00"
+    },
+    "black_box": {
+      "path": "/home/gycc/XTDrone/robocup/black_box.txt",
+      "sha256": "d403e50369786bb03c61b84b0c6350db35f1111a9493273c6a793015db9dc862",
+      "modified_local": "2026-10-10T23:59:54.883627+08:00"
+    },
+    "obstacle": {
+      "path": "/home/gycc/XTDrone/robocup/obstacle.txt",
+      "sha256": "e2e5adb7ebcd7ab64d65361f693fef2b1320382468d1bf2a8777e1e85b7fb0da",
+      "modified_local": "2026-10-10T23:59:54.903627+08:00"
+    },
+    "control_actor.py": {
+      "path": "/home/gycc/XTDrone/robocup/control_actor.py",
+      "sha256": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7",
+      "modified_local": "2026-10-10T10:53:16.262790+08:00"
+    },
+    "score_cal.py": {
+      "path": "/home/gycc/XTDrone/robocup/score_cal.py",
+      "sha256": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+      "modified_local": "2026-10-10T23:01:31.024012+08:00"
+    }
+  },
+  "official_sources_unchanged_since_start": {
+    "score_cal.py": true,
+    "control_actor.py": true
+  },
+  "evidence": {
+    "/home/gycc/桌面/RoboCup_Team/artifacts/run_audit_20261011_rollback_beb82fd/read_only_accuracy.jsonl": {
+      "bytes": 5814895,
+      "sha256": "e8dfb3db65cbc1d562e296527ecb5bcfd924219f43978675c38e7c790db269b9"
+    },
+    "/home/gycc/桌面/RoboCup_Team/artifacts/run_audit_20261011_rollback_beb82fd/read_only_attention.jsonl": {
+      "bytes": 747,
+      "sha256": "bd55c7af2374ce4515534a25c2d08a66bb3355385a9d6bcae555d2df81c94a94"
+    },
+    "/home/gycc/桌面/RoboCup_Team/logs/logs_20261011_154716/03_judge.log": {
+      "bytes": 651,
+      "sha256": "8123b00cc89d8ba102173bc19b2beb1bb1e53e64a271c19f8f8d00727ededa7a"
+    },
+    "/home/gycc/robocup_distractor_data/flight_rollback_beb82fd/frames.jsonl": {
+      "bytes": 231776,
+      "sha256": "432935af6bf653a3f096d1920a42a8a44eb21128b0fb41e354dc6b59f8a3b8fa"
+    }
+  },
+  "native_images_saved": 287
+}

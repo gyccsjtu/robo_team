@@ -1,0 +1,31 @@
+truth_samples {0: 2437, 1: 1221, 2: 932, 3: 1724, 4: 1383, 5: 1111} reports 328
+blue n 42 under_1m 30 p50 0.385 p90 160.174 max 164.388 actors {1: 42} last (2693.884, 0.19742866892019256, 1)
+brown n 46 under_1m 46 p50 0.313 p90 0.583 max 0.756 actors {2: 46} last (2635.952, 0.31316451251271715, 2)
+green n 19 under_1m 19 p50 0.268 p90 0.499 max 0.643 actors {0: 19} last (2936.752, 0.49883185856562834, 0)
+red1 n 82 under_1m 81 p50 0.343 p90 0.562 max 1.018 actors {5: 54, 4: 28} last (2726.284, 0.2790310200914782, 4)
+white n 104 under_1m 94 p50 0.618 p90 0.978 max 1.308 actors {3: 104} last (2794.152, 0.2887271673857246, 3)
+last_bad [{'event': 'report', 'wall': 1791705147.4517307, 'ros': 2724.352, 'tag': 'white', 'x': 127.3010025024414, 'y': 34.79499816894531, 'cls': 'white', 'error': 1.212337555779576, 'actor': 3}, {'event': 'report', 'wall': 1791705154.4009805, 'ros': 2731.284, 'tag': 'white', 'x': 129.05799865722656, 'y': 35.9630012512207, 'cls': 'white', 'error': 1.0515164096708105, 'actor': 3}, {'event': 'report', 'wall': 1791705177.084687, 'ros': 2753.952, 'tag': 'white', 'x': 128.54100036621094, 'y': 42.81800079345703, 'cls': 'white', 'error': 1.1084894780681642, 'actor': 3}, {'event': 'report', 'wall': 1791705181.087222, 'ros': 2757.952, 'tag': 'white', 'x': 128.58999633789062, 'y': 42.16999816894531, 'cls': 'white', 'error': 1.3082288695669875, 'actor': 3}, {'event': 'report', 'wall': 1791705183.4893148, 'ros': 2760.352, 'tag': 'white', 'x': 128.55799865722656, 'y': 42.26100158691406, 'cls': 'white', 'error': 1.0518582063522566, 'actor': 3}, {'event': 'report', 'wall': 1791705185.0912247, 'ros': 2761.952, 'tag': 'white', 'x': 128.63699340820312, 'y': 42.07600021362305, 'cls': 'white', 'error': 1.16158810251072, 'actor': 3}]
+raw ('blue', 'typhoon_h480_2', False) n 10 p50 158.94 p90 163.85
+raw ('blue', 'typhoon_h480_2', True) n 19 p50 160.2 p90 161.06
+raw ('blue', 'typhoon_h480_3', False) n 19 p50 0.45 p90 0.68
+raw ('blue', 'typhoon_h480_3', True) n 12 p50 0.32 p90 0.51
+raw ('blue', 'typhoon_h480_4', False) n 19 p50 157.71 p90 164.37
+raw ('blue', 'typhoon_h480_4', True) n 13 p50 127.95 p90 164.32
+raw ('blue', 'typhoon_h480_5', False) n 3 p50 0.47 p90 0.47
+raw ('blue', 'typhoon_h480_5', True) n 53 p50 0.31 p90 0.49
+raw ('brown', 'typhoon_h480_3', False) n 10 p50 0.56 p90 0.8
+raw ('brown', 'typhoon_h480_3', True) n 4 p50 0.26 p90 0.26
+raw ('brown', 'typhoon_h480_5', False) n 15 p50 0.98 p90 1.23
+raw ('brown', 'typhoon_h480_5', True) n 70 p50 0.27 p90 0.53
+raw ('green', 'typhoon_h480_5', False) n 1 p50 0.38 p90 0.38
+raw ('green', 'typhoon_h480_5', True) n 61 p50 0.3 p90 0.51
+raw ('red1', 'typhoon_h480_3', False) n 95 p50 0.41 p90 0.75
+raw ('red1', 'typhoon_h480_3', True) n 111 p50 0.3 p90 0.53
+raw ('red1', 'typhoon_h480_5', False) n 23 p50 0.34 p90 0.69
+raw ('red1', 'typhoon_h480_5', True) n 56 p50 0.45 p90 0.63
+raw ('white', 'typhoon_h480_1', False) n 13 p50 1.58 p90 1.68
+raw ('white', 'typhoon_h480_1', True) n 14 p50 1.01 p90 1.14
+raw ('white', 'typhoon_h480_3', False) n 28 p50 0.93 p90 1.31
+raw ('white', 'typhoon_h480_3', True) n 158 p50 0.75 p90 1.05
+raw ('white', 'typhoon_h480_5', False) n 15 p50 0.29 p90 0.53
+raw ('white', 'typhoon_h480_5', True) n 136 p50 0.34 p90 0.61
