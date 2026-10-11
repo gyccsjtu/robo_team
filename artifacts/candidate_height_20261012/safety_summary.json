@@ -1,0 +1,127 @@
+{
+  "source": "artifacts/candidate_height_20261012/sensors.jsonl.gz",
+  "complete_file": false,
+  "ros_interval": [
+    1946.1,
+    2382.58
+  ],
+  "aircraft": {
+    "0": {
+      "samples": 4172,
+      "modes": {
+        "OFFBOARD": 4172
+      },
+      "min_scan_m": 1.8410427570343018,
+      "max_tilt_deg": 26.58708088298204,
+      "max_local_z": 4.589706897735596,
+      "min_xy": [
+        -39.933319091796875,
+        -49.413814544677734
+      ],
+      "max_xy": [
+        45.911136627197266,
+        -2.8544085174798965
+      ],
+      "max_speed_mps": 2.7148299973194647
+    },
+    "1": {
+      "samples": 4167,
+      "modes": {
+        "OFFBOARD": 4167
+      },
+      "min_scan_m": 2.7103140354156494,
+      "max_tilt_deg": 31.136346498832662,
+      "max_local_z": 4.009997367858887,
+      "min_xy": [
+        3.016199653968215,
+        -52.15550994873047
+      ],
+      "max_xy": [
+        140.74851989746094,
+        18.932741165161133
+      ],
+      "max_speed_mps": 2.7361883696672713
+    },
+    "2": {
+      "samples": 4163,
+      "modes": {
+        "OFFBOARD": 4163
+      },
+      "min_scan_m": 1.350515604019165,
+      "max_tilt_deg": 29.60964281102682,
+      "max_local_z": 4.2568745613098145,
+      "min_xy": [
+        -0.16011668741703033,
+        -21.59575080871582
+      ],
+      "max_xy": [
+        127.41293334960938,
+        45.97293472290039
+      ],
+      "max_speed_mps": 2.7215755196393783
+    },
+    "3": {
+      "samples": 4152,
+      "modes": {
+        "OFFBOARD": 4152
+      },
+      "min_scan_m": 1.5195953845977783,
+      "max_tilt_deg": 38.737717954381594,
+      "max_local_z": 4.138060569763184,
+      "min_xy": [
+        3.0806283950805664,
+        -14.284024238586426
+      ],
+      "max_xy": [
+        135.95584106445312,
+        50.62596893310547
+      ],
+      "max_speed_mps": 2.717425539907011
+    },
+    "4": {
+      "samples": 4147,
+      "modes": {
+        "OFFBOARD": 4147
+      },
+      "min_scan_m": 1.8553664684295654,
+      "max_tilt_deg": 29.885206307531195,
+      "max_local_z": 4.630810260772705,
+      "min_xy": [
+        -44.646995544433594,
+        -39.318992614746094
+      ],
+      "max_xy": [
+        43.66359329223633,
+        51.73055648803711
+      ],
+      "max_speed_mps": 2.8004990294261605
+    },
+    "5": {
+      "samples": 4139,
+      "modes": {
+        "OFFBOARD": 4139
+      },
+      "min_scan_m": 2.7258107662200928,
+      "max_tilt_deg": 27.77433923670865,
+      "max_local_z": 3.7133073806762695,
+      "min_xy": [
+        3.079736828804016,
+        3.063300274312496
+      ],
+      "max_xy": [
+        130.00880432128906,
+        48.150360107421875
+      ],
+      "max_speed_mps": 2.6853562431461637
+    }
+  },
+  "estimated_min_separation": {
+    "ros": 1970.62,
+    "uavs": [
+      "0",
+      "2"
+    ],
+    "distance_m": 2.7413800578591263
+  },
+  "limits": "Estimated MAVROS poses plus fixed spawn offsets, not ground truth. Front/side 2D scan excludes rear airframe echoes and cannot prove absence of contact. An optional end time excludes test shutdown. Mode counts are sampled records, not durations."
+}
