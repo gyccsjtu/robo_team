@@ -101,6 +101,47 @@ def _resolve_weights():
     # 两处都没有：返回首选路径，让报错信息直接指向应该放权重的地方
     return os.path.abspath(cands[0])
 
+def parse_cpu_thread_count(value):
+    """Reject invalid thread settings before starting perception publishers."""
+    message = "PR_TORCH_THREADS must be a positive integer; got %r" % (value,)
+    if isinstance(value, bool) or not isinstance(value, (str, int)):
+        raise ValueError(message)
+    try:
+        count = int(value)
+    except ValueError:
+        raise ValueError(message) from None
+    if count < 1:
+        raise ValueError(message)
+    return count
+
+
+def configure_cpu_inference_threads(model, count):
+    """Cap CPU work after Ultralytics select_device resets PyTorch's threads."""
+    count = parse_cpu_thread_count(count)
+    import torch
+    logged = False
+
+    def on_predict_start(predictor):
+        nonlocal logged
+        if predictor.device.type != 'cpu':
+            return
+        before = torch.get_num_threads()
+        if before != count:
+            torch.set_num_threads(count)
+        actual = torch.get_num_threads()
+        if actual != count:
+            raise RuntimeError("PR_TORCH_THREADS=%d did not take effect; actual=%d" %
+                               (count, actual))
+        if not logged:
+            print('[pr] CPU_THREADS uav=%s configured=%d actual=%d before=%d' %
+                  (UAV, count, actual, before), flush=True)
+            logged = True
+
+    model.add_callback('on_predict_start', on_predict_start)
+    return on_predict_start
+
+
+TORCH_THREADS = parse_cpu_thread_count(os.environ.get("PR_TORCH_THREADS", "2"))
 WEIGHTS = os.environ.get("PR_WEIGHTS") or _resolve_weights()
 CONF = float(os.environ.get("PR_CONF", "0.40"))
 # 白衣人历史真检置信度常在 0.34～0.40；统一 0.40 推理阈值会在建轨前
@@ -1649,6 +1690,7 @@ def main():
     print("[pr] 类别顺序 %s" % CLASSES, flush=True)
     from ultralytics import YOLO
     _model = YOLO(WEIGHTS)
+    configure_cpu_inference_threads(_model, TORCH_THREADS)
     class_mapping = target_class_mapping(_model.names)
     print('[pr] CLASS_MAP names=%s canonical=%s; non-target classes excluded' %
           (_model.names, class_mapping), flush=True)

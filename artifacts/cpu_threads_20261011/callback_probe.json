@@ -1,0 +1,16 @@
+{
+  "initial": 1,
+  "callbacks": [
+    {
+      "before": 8,
+      "after": 2,
+      "device": "cpu"
+    },
+    {
+      "before": 2,
+      "after": 2,
+      "device": "cpu"
+    }
+  ],
+  "final": 2
+}

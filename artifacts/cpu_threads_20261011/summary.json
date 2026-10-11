@@ -1,0 +1,78 @@
+{
+  "cpu": "AMD Ryzen 9 9955HX",
+  "physical_cores": 16,
+  "logical_cpus": 32,
+  "python": "3.8.10",
+  "torch": "2.4.1+cu121",
+  "ultralytics": "8.4.168",
+  "processes": 6,
+  "inputs": {
+    "weights": {
+      "path": "/home/gycc/\u684c\u9762/RoboCup_Team/weights/best_yolo11n_bino_v1.pt",
+      "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2"
+    },
+    "image": {
+      "path": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/run_audit_20261011_102820/uav2_static_blue.png",
+      "sha256": "2850c334769b3181cec262bc58e8df0ba2ee385a8c41437565a7d6f5c8dda68c"
+    }
+  },
+  "summary": [
+    {
+      "phase": "threads1",
+      "threads_per_process": 1,
+      "samples": 120,
+      "median_ms": 45.78646050504176,
+      "p95_ms": 56.37050134828314,
+      "max_ms": 61.687514011282474,
+      "over_800ms": 0
+    },
+    {
+      "phase": "threads2",
+      "threads_per_process": 2,
+      "samples": 120,
+      "median_ms": 34.66127399588004,
+      "p95_ms": 39.607550743676256,
+      "max_ms": 46.34203200112097,
+      "over_800ms": 0
+    },
+    {
+      "phase": "threads4",
+      "threads_per_process": 4,
+      "samples": 120,
+      "median_ms": 35.57391299545998,
+      "p95_ms": 41.40551915115793,
+      "max_ms": 51.642222999362275,
+      "over_800ms": 0
+    },
+    {
+      "phase": "default8",
+      "threads_per_process": 8,
+      "samples": 120,
+      "median_ms": 90.99399300612276,
+      "p95_ms": 555.6453191486069,
+      "max_ms": 1262.116938989493,
+      "over_800ms": 4
+    }
+  ],
+  "environment_probe": {
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "before_select_device": 1,
+    "after_select_device": 8,
+    "interop": 32
+  },
+  "test_conditions": "CPU-only; SCHED_IDLE and nice19; training had finished; separate GPU model evaluation could run; no Gazebo, ROS or six-UAV flight load",
+  "timing": "Full model.predict wall latency on in-memory 752x480 fixed image; ten timed calls per worker/configuration/run after two untimed calls; two reversed orders",
+  "limitations": "One image and one v1 weight; this is a CPU concurrency benchmark, not match acceptance or proof of the entire cause of earlier late frames.",
+  "reproduction_script": "#!/usr/bin/env python3\n\"\"\"Temporary six-process CPU-only fixed-frame latency experiment.\"\"\"\nimport json\nimport multiprocessing as mp\nimport os\nfrom pathlib import Path\nimport statistics\nimport time\nimport traceback\n\nROOT = Path('/home/gycc/\u684c\u9762/RoboCup_Team')\nOUT = Path('/tmp/robocup_cpu_threads')\nIMAGE = ROOT/'artifacts/run_audit_20261011_102820/uav2_static_blue.png'\nWEIGHTS = ROOT/'weights/best_yolo11n_bino_v1.pt'\nPHASES = [('threads1', 1), ('default8', 8), ('threads2', 2), ('threads4', 4)]\nif os.environ.get('BENCH_REVERSE') == '1':\n    PHASES = list(reversed(PHASES))\n\ndef worker(worker_id, barrier, queue):\n    try:\n        os.nice(19)\n        os.sched_setscheduler(0, os.SCHED_IDLE, os.sched_param(0))\n        import cv2\n        import torch\n        import ultralytics\n        from ultralytics import YOLO\n        from ultralytics.utils.torch_utils import select_device\n        frame = cv2.imread(str(IMAGE))\n        if frame is None:\n            raise ValueError('missing sample')\n        model = YOLO(str(WEIGHTS))\n        initial_threads = torch.get_num_threads()\n        model.predict(frame, device='cpu', conf=.30, agnostic_nms=False, verbose=False, save=False)\n        after_first_prediction = torch.get_num_threads()\n        records = []\n        for name, requested in PHASES:\n            select_device('cpu', verbose=False)\n            after_select = torch.get_num_threads()\n            if name != 'default8':\n                torch.set_num_threads(requested)\n            for _ in range(2):\n                model.predict(frame, device='cpu', conf=.30, agnostic_nms=False, verbose=False, save=False)\n            barrier.wait(timeout=90)\n            started = time.time()\n            elapsed, inference_ms, observed_threads = [], [], []\n            for _ in range(10):\n                t = time.perf_counter()\n                result = model.predict(frame, device='cpu', conf=.30, agnostic_nms=False, verbose=False, save=False)[0]\n                elapsed.append((time.perf_counter()-t)*1000)\n                inference_ms.append(result.speed['inference'])\n                observed_threads.append(torch.get_num_threads())\n            records.append(dict(phase=name, requested=requested, after_select=after_select,\n                                observed_threads=observed_threads, started=started, finished=time.time(),\n                                elapsed_ms=elapsed, inference_ms=inference_ms))\n            barrier.wait(timeout=90)\n        queue.put(dict(worker=worker_id, initial_threads=initial_threads,\n                       after_first_prediction=after_first_prediction,\n                       interop=torch.get_num_interop_threads(), final_os_threads=len(list(Path('/proc/self/task').iterdir())),\n                       shape=list(frame.shape), torch=torch.__version__, ultralytics=ultralytics.__version__,\n                       scheduler=os.sched_getscheduler(0), records=records))\n    except BaseException:\n        queue.put(dict(worker=worker_id, error=traceback.format_exc()))\n        try:\n            barrier.abort()\n        except Exception:\n            pass\n\ndef percentile(values, p):\n    ordered = sorted(values)\n    idx = (len(ordered)-1)*p\n    lo = int(idx)\n    hi = min(lo+1, len(ordered)-1)\n    return ordered[lo] + (ordered[hi]-ordered[lo])*(idx-lo)\n\ndef main():\n    os.environ.update(CUDA_VISIBLE_DEVICES='', PYTHONDONTWRITEBYTECODE='1',\n                      ROBOCUP_LOG_DIR=str(OUT), YOLO_CONFIG_DIR=str(OUT/'yolo_config'))\n    (OUT/'yolo_config'/'Ultralytics').mkdir(parents=True, exist_ok=True)\n    ctx = mp.get_context('spawn')\n    queue = ctx.Queue()\n    barrier = ctx.Barrier(6)\n    started = time.time()\n    processes = [ctx.Process(target=worker, args=(i, barrier, queue)) for i in range(6)]\n    for proc in processes:\n        proc.start()\n    try:\n        rows = [queue.get(timeout=180) for _ in processes]\n    finally:\n        for proc in processes:\n            proc.join(timeout=2)\n            if proc.is_alive():\n                proc.terminate()\n                proc.join(timeout=2)\n    summary = []\n    if not any('error' in row for row in rows):\n        for name, count in PHASES:\n            phases = [record for row in rows for record in row['records'] if record['phase']==name]\n            values = [t for record in phases for t in record['elapsed_ms']]\n            inf = [t for record in phases for t in record['inference_ms']]\n            summary.append(dict(phase=name, threads=count, samples=len(values), median_ms=statistics.median(values),\n                                p95_ms=percentile(values,.95), max_ms=max(values), mean_ms=statistics.mean(values),\n                                inference_median_ms=statistics.median(inf),\n                                wall_s=max(r['finished'] for r in phases)-min(r['started'] for r in phases),\n                                over_800ms=sum(t>800 for t in values)))\n    result = dict(start_wall=started,end_wall=time.time(), logical_cpus=os.cpu_count(),\n                  weights=str(WEIGHTS),image=str(IMAGE),processes=6,\n                  note='SCHED_IDLE / nice19, CPU-only; no simulation or production changes',\n                  rows=rows,summary=summary)\n    (OUT/os.environ.get('BENCH_RESULT','benchmark.json')).write_text(json.dumps(result,indent=2))\n    print(json.dumps(dict(summary=summary,errors=[r for r in rows if 'error' in r]),indent=2),flush=True)\n\nif __name__=='__main__':\n    main()\n",
+  "reproduction_script_sha256": "2c2bf1ec4440887e316f10424797a4f2ddb4b7fc8e4ddc7186b849b83284655e",
+  "reproduction_commands": [
+    "PYTHONDONTWRITEBYTECODE=1 CUDA_VISIBLE_DEVICES='' python3 /tmp/robocup_cpu_threads/benchmark.py",
+    "PYTHONDONTWRITEBYTECODE=1 CUDA_VISIBLE_DEVICES='' BENCH_REVERSE=1 BENCH_RESULT=benchmark_reverse.json python3 /tmp/robocup_cpu_threads/benchmark.py"
+  ],
+  "evidence_sha256": {
+    "benchmark.json": "7185cf3dd8718e43c1c054b97ae29382177f0d5dc302210b51d94e1198c260e0",
+    "benchmark_reverse.json": "64f5ead7e2bae0b5ffb93dfe507366d06d343c4d07293988c9a6ac49d191753e",
+    "callback_probe.json": "a69f5446de05b4a253c8ce49fd3eaf1fedaad0be877c60da7ac776e8f20bf2fe"
+  }
+}
