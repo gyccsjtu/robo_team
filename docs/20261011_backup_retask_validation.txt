@@ -1,0 +1,51 @@
+17:59 GUI trial and camera-owning backup dispatch repair
+
+Completed trial: logs/logs_20261011_175916, running commit d9406ea.
+Official judge: all six eliminated, Mission finished, 300.740 s,
+score 2271.152. Actor 5/0/2/4/1/3 elimination times:
+75.924 / 161.052 / 194.916 / 231.768 / 262.668 / 300.740 s.
+The preceding 997cfa0 trial on the same officially generated world timed
+out at 4/6. Flight interaction changes actor trajectories, so this is not
+a deterministic paired benchmark or evidence of repeatable 180 s completion.
+
+Saved evidence: artifacts/run_audit_20261011_175916 contains source/world
+manifests, per-run CSVs, original images and external read-only motion audit.
+Five actors moved about 15 m in their last 15 s; white's net displacement
+was 0.032 m. The completed moving-target eliminations refute the claim that
+every elimination requires a frozen actor. White remains the slowest case.
+No team runtime node received actor truth or judge feedback, and no manual
+flight or target assignment command was issued during the run.
+
+Confirmed dispatch defect, reproduced before changing code:
+At ROS 2142.768, UAV 3 was backing up brown (primary UAV 5), and had three
+qualified original images of new red at 2141.056/2141.856/2142.456.
+The red owner UAV 2 was about 65 m away without a current camera view.
+Both brown views were stale. The existing busy filter excluded UAV 3,
+preventing handoff until old-task release/cooldown, despite its useful view.
+tools/fixtures/backup_new_person_175916.json uses only team camera evidence
+and the team's own control positions; no Gazebo truth is a test input.
+
+Repair: the continuous-image handoff can borrow an existing backup when
+the old primary remains available. Protect the backup when it is the only
+fresh camera for the old person. All primary assignments remain protected;
+the new target's current seeing owner is never interrupted. Existing image
+age, three-frame, 0.4 s span, spatial agreement, airborne, health and cooldown
+checks remain mandatory. Clear the old backup lease and observer, reserve
+new ownership, publish the new task, then send target-scoped cancellations.
+Failed-view cooldown also applies to this handoff.
+
+Validation: seven focused regressions, including the recorded situation,
+single/stale/future/wrong-place images, sole-view protection, primary
+protection and unavailable old primary. Two failed before the patch; all
+seven pass after. Full tools suite: 656 tests pass. This dispatch patch was
+not loaded in the completed 6/6 trial; a new GUI trial must validate it.
+
+Remaining issues, not claimed fixed:
+- White: UAV 3 had 352 shallow-ray localization rejections, many despite
+  confidence above 0.8. UAV 5 first delivered dispatchable white evidence
+  at 2228.572 and received ownership at 2228.868 (0.296 s). Late usable
+  localization, rather than slow dispatch after localization, dominated.
+- A real static blue decoy still produced an erroneous blue report near
+  (-27.66, 13.29). Continuous geometry is insufficient to distinguish that
+  human-shaped distractor. Do not claim complete false-positive removal.
+- Repeatability and 180 s completion remain unproven.

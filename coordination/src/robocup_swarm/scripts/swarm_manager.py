@@ -1499,6 +1499,27 @@ class SwarmManager(object):
         candidates = self._camera_candidates(tid, tx, ty, now, busy)
         return candidates[0] if candidates else None
 
+    def _redeployable_backup(self, uid, new_tid, now):
+        """A redundant reacquisition cannot block a qualified new camera view.
+
+        Preserve every primary, and preserve the backup if it alone still
+        sees the old person. No judge state or inferred elimination is used.
+        The caller must separately verify continuous images of the new person.
+        """
+        if uid in self._tracking.values():
+            return None
+        old_tid = next((tid for tid, backup in self._backup.items()
+                        if backup == uid and tid != new_tid), None)
+        if old_tid is None:
+            return None
+        primary = self._tracking.get(old_tid)
+        if not self._tracking_uav_available(primary, now):
+            return None
+        if (self._recent_eligible(old_tid, now, 1., uid) and
+                not self._recent_eligible(old_tid, now, 1., primary)):
+            return None
+        return old_tid
+
     def _free_camera_backup_for_new_target(self, tid, tx, ty, now):
         """Let a backup pursue a new person that its own camera just saw.
 
@@ -1943,9 +1964,14 @@ class SwarmManager(object):
             return
         busy = set(self._tracking.values()) | set(self._backup.values())
         best, best_d = None, float(os.environ.get("HANDOFF_NEAR_M", "20.0"))
+        borrowed_from = None
         now = rospy.Time.now()
         for uid, st in self.status.items():
-            if uid in busy or not self._tracking_uav_available(uid, now.to_sec()):
+            if not self._tracking_uav_available(uid, now.to_sec()):
+                continue
+            old_backup_tid = (self._redeployable_backup(uid, tid, now.to_sec())
+                              if uid in busy else None)
+            if uid in busy and old_backup_tid is None:
                 continue
             image = self._last_eligible(uid, tid)
             if (image is None or not 0.0 <= now.to_sec() - image['sample_s'] <= 1.0 or
@@ -1957,11 +1983,20 @@ class SwarmManager(object):
                 continue
             if now < self._release_cooldown.get(uid, rospy.Time(0)):
                 continue
+            if not self._failed_view_dispatch_ok(tid, tx, ty, now.to_sec(), uid=uid):
+                continue
             d = math.hypot(st.x - tx, st.y - ty)
             if d < best_d:  # A continuous new image beats a blind incumbent, even nearby.
                 best, best_d = uid, d
+                borrowed_from = old_backup_tid
         if best is None:
             return
+        if borrowed_from is not None:
+            self._backup.pop(borrowed_from, None)
+            getattr(self, '_backup_approach_leases', {}).pop(borrowed_from, None)
+            previous = self.tracker.targets.get(borrowed_from)
+            if previous is not None:
+                previous.observers.discard(best)
         self._tracking[tid] = best
         self._record_approach(tid, best, tx, ty, now.to_sec())
         self._tracking_since[tid] = now.to_sec()
@@ -1976,6 +2011,14 @@ class SwarmManager(object):
         new_msg.cell_ix = new_msg.cell_iy = -1
         new_msg.target_x, new_msg.target_y = flight_waypoint(tx, ty)
         self.assign_pub.publish(new_msg)
+        if borrowed_from is not None:
+            # New ownership is already reserved and its task sent. The
+            # target-scoped cancellation cannot erase the new camera task.
+            self._publish_target_cancel(best, borrowed_from, now.to_sec())
+            rospy.loginfo('[BACKUP_RETASK] uav=%s old=%s new=%s '
+                          'old_primary=%s image=%.3f; 连续新视角接棒，保留原主追',
+                          best, borrowed_from, tid, self._tracking.get(borrowed_from),
+                          self._last_eligible(best, tid)['sample_s'])
         msg = SearchAssignment()
         msg.header.stamp = now
         msg.uav_id = old
