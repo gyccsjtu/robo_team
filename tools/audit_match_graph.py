@@ -155,6 +155,25 @@ def audit_graph(state, topic_types):
             for node in sorted(nodes):
                 if node != JUDGE_NODE and not OFFICIAL_NODE.fullmatch(node):
                     failures.append("%s subscribes to forbidden topic %s" % (node, topic))
+    for topic, nodes in sorted(publishers.items()):
+        actor = re.fullmatch(r'/actor_([0-5])/cmd_motion', topic)
+        if actor:
+            allowed = '/actor_' + actor.group(1)
+            for node in sorted(nodes):
+                if node != allowed:
+                    failures.append('%s publishes forbidden environment command %s' % (node, topic))
+        elif re.fullmatch(r'/gazebo/(set_model_state|set_link_state)', topic):
+            for node in sorted(nodes):
+                if node != '/gazebo':
+                    failures.append('%s publishes forbidden environment command %s' % (node, topic))
+    # Master registrations expose service providers, not callers. This catches
+    # replaced environment services; it cannot certify absence of client calls.
+    services = _connections(state[2], 'services')
+    for service, nodes in services.items():
+        if service.startswith('/gazebo/'):
+            for node in sorted(nodes):
+                if node != '/gazebo':
+                    failures.append('%s provides forbidden environment service %s' % (node, service))
     return failures
 
 
@@ -184,7 +203,7 @@ def main(argv=None):
         for failure in failures:
             print("[graph-audit] FAIL %s" % failure, file=sys.stderr)
         return 1
-    print("[graph-audit] PASS six ActorInfo channels, target source, judge subscription, and all-node truth/feedback audit")
+    print("[graph-audit] PASS six ActorInfo channels, target source, judge subscription, truth/feedback subscriptions and environment command publishers (service clients/files not observable)")
     return 0
 
 

@@ -4,7 +4,10 @@
 #
 # 用法:
 #   ./run_match.sh preflight          # 只做赛前体检（不启动任何东西，安全）
-#   ./run_match.sh start              # 按 ①~⑥ 顺序启动全场（默认）
+#   ./run_match.sh start              # 开发环境：启动全场（默认）
+#   ./run_match.sh start-team         # 已有官方环境：只启动队伍程序
+#   ./run_match.sh stop-team          # 只停止本入口登记的队伍进程
+#   ./run_match.sh prepare-map        # 开发环境准备：官方随机新图，仿真必须已停止
 #   ./run_match.sh start --gui        # 同上，强制 GAZEBO_GUI=true（复盘看 actor / 视觉）
 #   ./run_match.sh start --no-gui     # 显式关闭图形界面
 #   ./run_match.sh status             # 查看各组件与关键话题健康
@@ -97,6 +100,7 @@ GAZEBO_GUI="${GAZEBO_GUI:-true}"
 # 高级用户要 "6 机同步起步" 可手动启 GAZEBO_START_PAUSED=1 + unpause 会同步调。
 START_PAUSED="${GAZEBO_START_PAUSED:-0}"
 GATE_TIMEOUT="${GATE_TIMEOUT:-180}"
+TEAM_ONLY=0
 # 1=由 swarm_agent 消费 /scan 并在唯一速度控制器内做雷达安全层；
 # 0=启动旧版 radar_avoid 独立位置控制器（仅用于单独雷达实验）。
 RADAR_GUARD="${RADAR_GUARD:-1}"
@@ -625,6 +629,28 @@ preflight(){
     fi
 }
 
+# Existing official environment: no local world/plugin/actor ownership.
+team_preflight(){
+    local file nodes
+    for file in "$ROS_SETUP" "$WS_SETUP" "$COORD_WS_SETUP" "$WEIGHTS" \
+                "$PERC_DIR/perception_real.py" "$BRIDGE_SCRIPT" "$COMM_BRIDGE" \
+                "$SWARM_SCRIPTS/swarm_agent.py" "$SWARM_SCRIPTS/swarm_manager.py"; do
+        [ -f "$file" ] || { err "队伍依赖缺失: $file"; return 1; }
+    done
+    [ "${PR_UAV_ARR[*]}" = "${UAVS[*]}" ] && [ "$YOLO_BRIDGE" = 1 ] && \
+        [ "$REQUIRE_SWARM" = 1 ] && [ "$SKIP_RADAR" = 2 ] && [ "$MATCH_HARD_CAP" = 0 ] \
+        || { err "队伍入口要求六机、视觉桥、协同与雷达，禁止环境硬停计时器"; return 1; }
+    ros_env
+    python3 "$BB2MD" --verify "$FORMAL_METADATA_FILE" || return 1
+    nodes="$(timeout 8s rosnode list 2>/dev/null)" || { err "官方ROS环境未就绪"; return 1; }
+    if printf '%s\n' "$nodes" | grep -Eq '^/(swarm_manager|swarm_agent_[0-5]|yolo_target_bridge)$'; then
+        err "已有队伍节点，拒绝同名覆盖；先用对应入口停止队伍程序"; return 1
+    fi
+    python3 -c 'import cv2, numpy, ultralytics; from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo' \
+        || return 1
+    ok "队伍依赖就绪；沿用官方场景和裁判"
+}
+
 # ============================ 启动全场 ======================================
 do_start(){
     local match_started_wall
@@ -638,7 +664,9 @@ do_start(){
             err "已有一场比赛在跑（$REG）。先 ./run_match.sh stop，或 FORCE=1 强制。"; exit 1
         fi
     fi
-    preflight >"$RUN_DIR/preflight.out" 2>&1 || { cat "$RUN_DIR/preflight.out"; exit 2; }
+    local check=preflight
+    [ "$TEAM_ONLY" = 1 ] && check=team_preflight
+    "$check" >"$RUN_DIR/preflight.out" 2>&1 || { cat "$RUN_DIR/preflight.out"; exit 2; }
     # A failed preflight must not erase the previous registry: stop needs its
     # process groups to clean up a half-finished or timed-out match.
     : > "$REG"
@@ -668,6 +696,7 @@ do_start(){
     }
 
     # ---------------- ① 场景：Gazebo + 6×PX4 + MAVROS ----------------
+    if [ "$TEAM_ONLY" != 1 ]; then
     step "① 起场景 $SCENE_LAUNCH (gui=$GAZEBO_GUI paused=$START_PAUSED)"
     if [ ! -f "$SCENE_LAUNCH" ]; then
         partial_fail "场景 launch 文件不存在：$SCENE_LAUNCH"
@@ -699,6 +728,7 @@ do_start(){
         fi
     fi
 
+    fi  # TEAM_ONLY never starts/unpauses/resets Gazebo.
     timeout 305s python3 -u "$READY_SCRIPT" --kind state --timeout 300 \
         --uavs "${UAVS[@]}" \
         || partial_fail "六机 MAVROS 未全部连接；检查上面的缺失机清单及 $LOGDIR/01_scene.log"
@@ -706,7 +736,16 @@ do_start(){
     # ---------------- ② XTDrone 通信桥 + 6 个恐怖分子 ----------------
     step "② 起 XTDrone 通信桥 + control_actors"
     if [ -f "$COMM_BRIDGE" ]; then
+        local existing_nodes=""
+        if [ "$TEAM_ONLY" = 1 ]; then
+            existing_nodes="$(timeout 8s rosnode list 2>/dev/null)" \
+                || partial_fail "读取通信桥注册失败"
+        fi
         for i in 0 1 2 3 4 5; do
+            if [ "$TEAM_ONLY" = 1 ] && printf '%s\n' "$existing_nodes" \
+                    | grep -qx "/typhoon_h480_${i}_communication"; then
+                info "沿用官方通信桥 $i"; continue
+            fi
             start_group "comm_$i" "$LOGDIR/02_comm_$i.log" \
                 python3 -u "$COMM_BRIDGE" typhoon_h480 "$i"
             sleep 0.3
@@ -718,6 +757,7 @@ do_start(){
 
     # PYTHONUNBUFFERED=1：control_actors.sh 内 python 无 -u，块缓冲导致 02_actors.log
     # 整局空白（只能等崩溃 flush 才有内容），排查 actor 不动时两眼一抹黑。
+    if [ "$TEAM_ONLY" != 1 ]; then
     start_group actors "$LOGDIR/02_actors.log" bash -c "cd '$ROBO_DIR' && PYTHONUNBUFFERED=1 ./control_actors.sh"
     actors_ready(){
         [ "$(count_pattern '[c]ontrol_actor.py')" -ge 6 ]
@@ -728,10 +768,11 @@ do_start(){
     # ---------------- ③ 裁判计分 ----------------
     step "③ 起裁判 score_cal.py typhoon_h480"
     start_group judge "$LOGDIR/03_judge.log" bash -c \
-        "cd '$ROBO_DIR' && python3 -u score_cal.py typhoon_h480"
+        "cd '$ROBO_DIR' && python3 -u score_cal.py typhoon_h480 _mono_cam:=1 _stereo_cam:=1 _laser2d:=1 _gimbal:=1"
     wait_gate "裁判发布者就绪" 30 topic_publisher_match /score score_cal \
         || partial_fail "裁判没起来，看 $LOGDIR/03_judge.log"
 
+    fi  # official actors and judge belong to the organizer in team mode.
     # ---------------- ④ 感知（CPU 模式） ----------------
     step "④ 起感知 perception_real.py（CUDA_VISIBLE_DEVICES 置空，CPU 推理）"
     # 国家一等奖优化（2026-10-04 复盘）：
@@ -828,10 +869,14 @@ do_start(){
             alive_pgid "$(group_pgid "pr_$u")" || return 1
             grep -q '\[pr\] FIRST_INFERENCE ' "$LOGDIR/04_perception_$u.log" \
                 2>/dev/null || return 1
+            if [ "${PR_HEIGHT_CALIBRATE:-1}" = 1 ]; then
+                grep -q '\[pr\] HEIGHT_DATUM ' "$LOGDIR/04_perception_$u.log" \
+                    2>/dev/null || return 1
+            fi
         done
     }
-    wait_gate "六路 YOLO 首次推理完成" 120 perception_inference_ready \
-        || partial_fail "感知尚未完成首次推理；检查 $LOGDIR/04_perception_*.log"
+    wait_gate "六路 YOLO 首次推理与地面高度基准就绪" 120 perception_inference_ready \
+        || partial_fail "首次推理或未解锁地面高度采样未就绪；检查 FIRST_INFERENCE / HEIGHT_DATUM：$LOGDIR/04_perception_*.log"
     n_extra_yolo="$(count_pattern 'yolo_v11')"
     [ "$n_extra_yolo" = "0" ] && ok "无多余 YOLO 节点抢 CPU" \
         || warn "发现独立 yolo_v11 节点，会抢 CPU 拖垮发布频率"
@@ -1029,28 +1074,37 @@ do_start(){
     # 不订阅尚未发现目标的 ActorInfo 消息，也不读取裁判反馈内容。
     if timeout 12s python3 -u "$GRAPH_AUDIT_SCRIPT" --timeout 8 \
             >"$LOGDIR/07_graph_audit.log" 2>&1; then
-        ok "正式 ROS 图审计通过：六路 ActorInfo 与全部节点数据源合规"
+        ok "ROS 注册审计通过：六路 ActorInfo、禁用数据订阅与环境指令发布；文件/服务客户端另行审查"
     else
         cat "$LOGDIR/07_graph_audit.log" >&2
         partial_fail "正式 ROS 图审计失败；检查 $LOGDIR/07_graph_audit.log"
     fi
     info "实际播报数量请在运行中用 status 查看；启动时目标未发现，不等待六路消息"
-    for _component in judge actors yolo_bridge swarm_manager \
+    local -a required_components=(yolo_bridge swarm_manager)
+    [ "$TEAM_ONLY" = 1 ] || required_components+=(judge actors)
+    for _component in "${required_components[@]}" \
             swarm_agent_0 swarm_agent_1 swarm_agent_2 \
             swarm_agent_3 swarm_agent_4 swarm_agent_5; do
         alive_pgid "$(group_pgid "$_component")" \
             || partial_fail "启动验收时 $_component 已退出；检查 $LOGDIR 日志"
     done
-    [ "$(count_pattern '[c]ontrol_actor.py')" -ge 6 ] \
-        || partial_fail "启动验收时 actor 控制器不足六个；检查 $LOGDIR/02_actors.log"
+    if [ "$TEAM_ONLY" != 1 ]; then
+        [ "$(count_pattern '[c]ontrol_actor.py')" -ge 6 ] \
+            || partial_fail "启动验收时 actor 控制器不足六个；检查 $LOGDIR/02_actors.log"
+    fi
 
     # ============================ 完成横幅 ==================================
     echo
     echo "${C_G}==============================================================${C_0}"
     ok "比赛栈编排完成。日志目录: $LOGDIR （也可在 /tmp/robocup_match/latest）"
     echo
-    echo "  健康总览:    $0 status"
-    echo "  停全场:      $0 stop"
+    if [ "$TEAM_ONLY" = 1 ]; then
+        echo "  队伍状态:    $0 status-team"
+        echo "  停止队伍:    $0 stop-team"
+    else
+        echo "  健康总览:    $0 status"
+        echo "  停全场:      $0 stop"
+    fi
     echo "${C_G}==============================================================${C_0}"
 
     # ---- 比赛墙钟 hard cap：MATCH_HARD_CAP 秒后自动调 stop_group 全杀 ----
@@ -1138,6 +1192,15 @@ do_status(){
 
 # ============================ 停止 ==========================================
 do_stop(){
+    if [ "$TEAM_ONLY" = 1 ]; then
+        # Only groups started by this entry; no pkill, judge or scene cleanup.
+        if [ -s "$REG" ]; then
+            while IFS=$'\t' read -r name pgid logf; do stop_group "$name"; done < <(tac "$REG")
+            mv "$REG" "$REG.stopped.$STAMP"
+        fi
+        ok "已停止本队登记进程；官方环境继续运行"
+        return
+    fi
     # A failed start in older versions could truncate components.tsv before
     # preflight rejected stale Gazebo/ROS processes.  Clean named residuals
     # even when there are no registered process groups.
@@ -1200,9 +1263,26 @@ while [ $# -gt 0 ]; do
 done
 
 case "$_subcmd" in
+    start-team|stop-team|status-team)
+        TEAM_ONLY=1
+        export ROBOCUP_TEAM_ONLY=1
+        RUN_DIR="$RUN_DIR/team"
+        REG="$RUN_DIR/components.tsv"
+        LOGDIR="$RUN_DIR/logs_$STAMP"
+        ;;
+esac
+case "$_subcmd" in
+    prepare-map)
+        python3 "$REPO_ROOT/tools/prepare_official_map.py" --apply \
+            --xtdrone-root "$XTDRONE_DIR" --world "$OFFICIAL_WORLD" \
+            --official-ref "${ROBOCUP_OFFICIAL_REF:-2783bdb32e43b6c656df9445dd2a855855bc24cd}"
+        ;;
+    start-team) do_start ;;
+    stop-team) do_stop ;;
+    status-team) do_status ;;
     preflight) preflight ;;
     start)    do_start ;;
     status)   do_status ;;
     stop)     do_stop ;;
-    *) err "未知子命令: $_subcmd（支持 preflight | start | status | stop）"; exit 2 ;;
+    *) err "未知子命令: $_subcmd（支持 preflight | start | status | stop | start-team | status-team | stop-team | prepare-map）"; exit 2 ;;
 esac

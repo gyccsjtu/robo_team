@@ -82,6 +82,16 @@ class GraphAuditTests(unittest.TestCase):
         self.assertEqual(failures, [
             "/team/actor_0 subscribes to forbidden topic /left_actors"])
 
+    def test_team_cannot_publish_actor_commands_or_replace_environment_service(self):
+        state, types = valid_graph()
+        state[0].extend([['/actor_0/cmd_motion', ['/actor_0', '/team_bad']],
+                         ['/gazebo/set_model_state', ['/swarm_agent_0']]])
+        state[2].append(['/gazebo/reset_world', ['/team_bad']])
+        failures = audit.audit_graph(state, types)
+        self.assertEqual(len(failures), 3)
+        self.assertTrue(any('/team_bad publishes' in f for f in failures))
+        self.assertTrue(any('/team_bad provides' in f for f in failures))
+
     def test_malformed_master_response_is_error(self):
         with self.assertRaises(audit.GraphError):
             audit.audit_graph([[], []], [])

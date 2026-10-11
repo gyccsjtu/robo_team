@@ -20,6 +20,7 @@ weights = {
     "bino_cam": 1000,
 }
 import subprocess, json
+defaults = dict(mono_cam=1, stereo_cam=0, laser1d=0, laser2d=1, laser3d=0, gimbal=1, bino_cam=0)
 total = 0
 out = {}
 for k, w in weights.items():
@@ -30,10 +31,10 @@ for k, w in weights.items():
     try:
         vi = int(v)
     except Exception:
-        vi = 0
-    out[k] = (vi, w, vi * w)
+        vi = defaults[k]
+    out[k] = dict(count=vi, cost=w, total=vi*w, source='official_default' if not v else 'parameter')
     total += vi * w
 print(json.dumps(out, indent=2, ensure_ascii=False))
 print(f"sensor_cost = {total}")
-print(f"初始 -score (pub Int16) ≈ -{total * 0.003:.3f} (即 score ≈ {-total * 0.003:.3f})")
+print(f"传感器扣分项 = {total * 0.003:.3f}；不读取裁判分数，数量口径由正式裁判确认")
 PY

@@ -39,7 +39,9 @@ def main():
         git_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=str(root),text=True).strip(),
         source_sha256={str(p.relative_to(root)):digest(p) for p in paths if p.is_file()},
         official_sha256={name:digest(args.official/name)
-                         for name in ('score_cal.py','control_actor.py')},
+                         for name in ('score_cal.py','control_actor.py')
+                         if (args.official/name).is_file()},
+        team_only=os.environ.get('ROBOCUP_TEAM_ONLY') == '1',
         weights={'path':str(chosen),'sha256':digest(chosen)} if chosen else None,
         note='Disk snapshot before process startup; includes dirty working-tree content. '
              'Effective process parameters are logged by each node. No runtime reload is implied.')
