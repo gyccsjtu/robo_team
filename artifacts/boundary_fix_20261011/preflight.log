@@ -1,0 +1,50 @@
+================ RoboCup 赛前体检 ================
+[+] ROS Noetic setup
+[+] catkin 工作空间 setup
+[+] 正式感知列表为官方六机全量
+[+] 正式场景使用官方地图和六机激光 launch
+[+] 正式导航仅使用固定空图元数据
+[+] 位置输出与统一场地边界一致（不使用人物活动范围或传感器扩展图）
+[+] ROS 本机网络接口可访问
+[+] 官方地图 robocup.world
+[+] XTDrone 控制脚本
+[+] 官方裁判 score_cal.py
+[+] 官方 control_actor.py
+[+] 裁判 ActorInfo 类型契约：ros_actor_cmd_pose_plugin_msgs/ActorInfo
+[+] 裁判与人物控制代码符合本地官方 origin/master
+[+] 日志文件系统可用空间 2762MB（门槛 2048MB）
+[+] actor 模型目录
+[+] 地图生成器 map_generator.py（重新出图时才需要）
+[+] YOLO 权重（六机共用）: /home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_v1.pt
+[+] 感知主节点
+[+] 双目相机补丁已装：typhoon_h480_laser（INSTALLED）
+[+] python 软链 -> Python 3.8.10
+[+] 可用图形显示 DISPLAY=:0（裁判计分窗 / 相机渲染）
+[+] GAZEBO_MODEL_PATH 含 XTDrone 模型目录
+[+] GAZEBO_PLUGIN_PATH 含 catkin_ws/devel/lib（移动插件）
+[+] actor 移动插件 libros_actor_cmd_pose_plugin.so
+[+] actor 插件源码、编译产物和 Gazebo 加载文件一致
+[+] GAZEBO_PLUGIN_PATH 含 PX4 build_gazebo（SITL 模型插件）
+[+] XTDrone 通信桥（actor 躲避反应依赖它）
+[+] 协同层工作空间（robocup_swarm 消息）
+[+] YOLO→swarm 桥 yolo_target_bridge.py
+[+] 多机消息就绪检查工具
+[+] 正式 ROS 图审计工具
+[+] 合规空图元数据 robocup_base.json
+[+] pyquaternion 已安装（multirotor_communication 依赖）
+[+] 场景 launch（/home/gycc/桌面/RoboCup_Team/launch/robocup_with_laser.launch）
+[spawn] PASS 六机出生点、世界偏移和地图元数据均为官方固定阵列
+[+] 官方固定出生点与坐标偏移一致
+[+] 2D 激光模型 typhoon_h480_laser（PX4 侧）
+[+] 2D 激光模型 typhoon_h480_laser（XTDrone 镜像）
+[sensor] PASS 双目光学参数与 2D Hokuyo 扫描参数符合 XTDrone
+[+] 双目与 2D 激光参数符合 XTDrone 原生传感器
+[+] ROS 可见 px4 包
+[+] ActorInfo 消息包就位
+
+---- 运行时仍会强制卡关的验证 ----
+[*] A. /typhoon_h480_N/scan：待场景启动后并行验证六机真实帧
+[*] B. /swarm/target_states：待第④步由 yolo_target_bridge 从 YOLO 检测喂入（当前不计缺失）
+      （启动后校验发布者身份；第⑥步后自动做节点订阅合规审计）。
+
+[+] 启动检查全部通过。

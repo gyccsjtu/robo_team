@@ -44,41 +44,29 @@ from robocup_navigation.astar import load_metadata, GridMap, plan
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 
-# Search coverage comes from metadata x[-55,155], y[-65,65].  Waypoints are
-# kept inside the actor plugin's reachable XY envelope with room to brake.
-FLIGHT_X_MIN = float(os.environ.get('FLIGHT_X_MIN', '-50.0'))
-FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
-FLIGHT_Y_MIN = float(os.environ.get('FLIGHT_Y_MIN', '-60.0'))
-FLIGHT_Y_MAX = float(os.environ.get('FLIGHT_Y_MAX', '60.0'))
-FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
+from flight_boundary import (FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN,
+                             FLIGHT_Y_MAX, FLIGHT_INSET, flight_bounds,
+                             flight_waypoint, inside_flight, FlightGrid)
 SEARCH_BOUNDARY_INSET_M = max(FLIGHT_INSET, float(
     os.environ.get('SEARCH_BOUNDARY_INSET_M', '8.5')))
 
 
-def flight_waypoint(x, y, inset=FLIGHT_INSET):
-    inset = max(0.0, min(inset, (FLIGHT_X_MAX - FLIGHT_X_MIN) / 4.0,
-                         (FLIGHT_Y_MAX - FLIGHT_Y_MIN) / 4.0))
-    return (min(max(x, FLIGHT_X_MIN + inset), FLIGHT_X_MAX - inset),
-            min(max(y, FLIGHT_Y_MIN + inset), FLIGHT_Y_MAX - inset))
-
-
 def search_viewpoint(x, y):
-    """Prefer search viewpoints outside the boundary guard's slow band.
-
-    Shifted cells need an 8.5 m camera standoff, not an overhead scan. Outer
-    cells/corners that cannot be viewed from the preferred inset retain their
-    close-boundary viewpoint: flight guards and real image coverage still
-    apply. Tracking uses flight_waypoint directly and is unaffected.
-    """
+    """Observe boundary cells from an interior point on an 8.5 m view ring."""
     px, py = flight_waypoint(x, y, inset=SEARCH_BOUNDARY_INSET_M)
-    if math.hypot(px - x, py - y) > 9.0:
-        px, py = flight_waypoint(x, y)
-    dx, dy = px - x, py - y
-    distance = math.hypot(dx, dy)
-    if distance < 1e-6 or distance >= 8.5:
-        return px, py
-    scale = 8.5 / distance
-    return flight_waypoint(x + dx * scale, y + dy * scale)
+    if math.hypot(px-x, py-y) < 1e-6:
+        return x, y
+    candidates = []
+    preferred = math.atan2(py-y, px-x)
+    for angle in [preferred] + [i*math.pi/16 for i in range(32)]:
+        vx, vy = x+8.5*math.cos(angle), y+8.5*math.sin(angle)
+        if not inside_flight(vx, vy, FLIGHT_INSET):
+            continue
+        clearance = min(vx-FLIGHT_X_MIN, FLIGHT_X_MAX-vx,
+                        vy-FLIGHT_Y_MIN, FLIGHT_Y_MAX-vy)
+        candidates.append((-min(clearance, SEARCH_BOUNDARY_INSET_M),
+                           math.hypot(vx-px, vy-py), vx, vy))
+    return min(candidates)[2:] if candidates else flight_waypoint(x, y)
 # 2026-09-28：默认必须与 swarm_task.py 一致（那边已是 7.0）。
 # 10.0 vs 7.0 会导致 manager 的栅格与 task 的拍卖栅格错位（不传 env 时必踩）。
 GRID_SIZE_M = float(os.environ.get("GRID_SIZE_M", "7.0"))   # 搜索格边长（与 swarm_task 必须一致，都读同一个环境变量）
@@ -113,7 +101,6 @@ SEED_TRUTH = int(os.environ.get("SEED_TRUTH", "0"))
 # 正式模式中的 /swarm/target_states 来自本队 YOLO 桥：允许用新鲜视觉候选
 # 提前派机接近，但绝不把该坐标作为裁判真值或内部误差校验基准。
 VISUAL_DISPATCH = int(os.environ.get("VISUAL_DISPATCH", "1"))
-MAP_BOUNDS_FROM_META = os.environ.get("MAP_BOUNDS_FROM_META", "1") not in ("0", "false", "False")
 # 覆盖记忆：把各机当前位置探测半径内的格子标记为已覆盖。
 # COVER_MARK=0 关闭（复现旧行为）；比例可调（1.0 = 用满 DETECT_RADIUS）
 COVER_MARK = float(os.environ.get("COVER_MARK", "1.0"))
@@ -270,26 +257,8 @@ def inflate_grid(grid, inflation_m):
 
 
 def _search_bounds():
-    """搜索栅格的边界。
-
-    硬编码的 ±100/±50 与官方 actor 可达范围（control_actor.py 写死的
-    x[-50,130] / y[-60,60]）不一致：
-      - x>100、y<-50、y>50 这三块 actor 真的会去的地方**永远不会被搜索**；
-      - x[-100,-50] 那 5000 m² actor 根本到不了，却每轮都白扫。
-    栅格元数据 robocup_base.json 的 bounds 就是按官方 actor 活动范围生成的，
-    直接用它。读不到就退回硬编码。
-    """
-    if not MAP_BOUNDS_FROM_META:
-        return MAP_X_MIN, MAP_X_MAX, MAP_Y_MIN, MAP_Y_MAX
-    try:
-        with open(METADATA_PATH) as _f:
-            b = json.load(_f).get("bounds")
-        if b:
-            return (float(b["x_min"]), float(b["x_max"]),
-                    float(b["y_min"]), float(b["y_max"]))
-    except Exception as _exc:
-        print("[manager] 读元数据 bounds 失败，用硬编码边界: %s" % _exc)
-    return MAP_X_MIN, MAP_X_MAX, MAP_Y_MIN, MAP_Y_MAX
+    """Search the city, not padded sensor storage or the actor motion clamp."""
+    return flight_bounds()
 
 
 def joint_target_assignment(costs):
@@ -352,7 +321,7 @@ class SwarmManager(object):
         _bx0, _bx1, _by0, _by1 = _search_bounds()
         rospy.loginfo("[manager] 搜索栅格边界 x[%.0f,%.0f] y[%.0f,%.0f]（%s）",
                       _bx0, _bx1, _by0, _by1,
-                      "元数据" if MAP_BOUNDS_FROM_META else "硬编码")
+                      "统一场地边界；传感器扩展图不参与任务划分")
         self.grid = CoverageGrid(_bx0, _bx1, _by0, _by1, GRID_SIZE_M, len(uav_ids))
         self.allocator = TaskAllocator(self.grid, W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE,
                                        w_distance=W_DISTANCE, w_zone=W_ZONE, cruise_speed=CRUISE_SPEED)
@@ -687,7 +656,7 @@ class SwarmManager(object):
         # A clear camera ray alone does not mean the aircraft can fly there.
         # Use the same inflated grid and no-corner-cutting A* as the agent.
         for _repeat, _diagonal, _travel, _index, point in sorted(candidates):
-            if plan(self._g_infl, observer_xy, point,
+            if plan(FlightGrid(self._g_infl), observer_xy, point,
                     max_expansions=3000).success:
                 return point
         return None

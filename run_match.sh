@@ -385,12 +385,8 @@ preflight(){
         hard_miss=$((hard_miss+1))
     fi
     if [ "${FLIGHT_OUTPUT:-pos}" = "pos" ] && \
-            [ "${FLIGHT_X_MIN:--50.0}" = "-50.0" ] && \
-            [ "${FLIGHT_X_MAX:-150.0}" = "150.0" ] && \
-            [ "${FLIGHT_Y_MIN:--60.0}" = "-60.0" ] && \
-            [ "${FLIGHT_Y_MAX:-60.0}" = "60.0" ] && \
-            [ "${FLIGHT_INSET:-2.0}" = "2.0" ]; then
-        ok "位置输出与官方人物活动范围护栏固定"
+            python3 "$REPO_ROOT/coordination/src/robocup_swarm/scripts/flight_boundary.py" >/dev/null; then
+        ok "位置输出与统一场地边界一致（不使用人物活动范围或传感器扩展图）"
     else
         err "正式启动禁用 FLIGHT_OUTPUT 或 FLIGHT_[XY] 边界参数覆盖"
         hard_miss=$((hard_miss+1))
@@ -645,8 +641,10 @@ do_start(){
     grep -E '^\[!\]|^----|无法' "$RUN_DIR/preflight.out" || true
     ros_env
     # 正式执行的环境与 preflight 核对值保持一致，防止外部 shell 配置渗入子进程。
-    export FLIGHT_OUTPUT=pos FLIGHT_X_MIN=-50.0 FLIGHT_X_MAX=150.0
-    export FLIGHT_Y_MIN=-60.0 FLIGHT_Y_MAX=60.0 FLIGHT_INSET=2.0
+    local flight_limits
+    flight_limits="$(python3 "$REPO_ROOT/coordination/src/robocup_swarm/scripts/flight_boundary.py")" || return 2
+    read -r FLIGHT_X_MIN FLIGHT_X_MAX FLIGHT_Y_MIN FLIGHT_Y_MAX FLIGHT_INSET <<< "$flight_limits"
+    export FLIGHT_OUTPUT=pos FLIGHT_X_MIN FLIGHT_X_MAX FLIGHT_Y_MIN FLIGHT_Y_MAX FLIGHT_INSET
     # ros_env 才加载 robocup_swarm 的生成消息；此处用运行时实际导入的类核对类型名和 MD5。
     if ! python3 -c 'from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo; print("%s %s" % (ActorInfo._type, ActorInfo._md5sum))' \
         >"$RUN_DIR/actorinfo_contract.txt" 2>&1; then

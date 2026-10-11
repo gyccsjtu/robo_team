@@ -124,8 +124,12 @@ class CoverageGrid(object):
         self.cells = {}
         for ix in range(self.nx):
             for iy in range(self.ny):
-                c = SearchCell(self.x_min + (ix + 0.5) * self.cell_m,
-                               self.y_min + (iy + 0.5) * self.cell_m)
+                # The final row/column may be narrower than cell_m. Its
+                # center must not extend beyond the actual search rectangle.
+                left = self.x_min + ix * self.cell_m
+                bottom = self.y_min + iy * self.cell_m
+                c = SearchCell((left + min(left+self.cell_m, self.x_max))/2.0,
+                               (bottom + min(bottom+self.cell_m, self.y_max))/2.0)
                 self.cells[(ix, iy)] = c
 
         # ---- 区域分割：把地图分成 num_uavs 个区域 ----
@@ -140,6 +144,8 @@ class CoverageGrid(object):
 
     # ---- 坐标 ↔ 格索引 ----
     def world_to_cell(self, x, y):
+        if not (self.x_min <= x < self.x_max and self.y_min <= y < self.y_max):
+            return None
         ix = int(math.floor((x - self.x_min) / self.cell_m))
         iy = int(math.floor((y - self.y_min) / self.cell_m))
         if 0 <= ix < self.nx and 0 <= iy < self.ny:
