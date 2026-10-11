@@ -1,0 +1,40 @@
+{
+  "code": "4176bc1d4401ee8bf4360c4e9be5174f5b40f50b",
+  "search_segments": "1",
+  "judge_complete": true,
+  "eliminations": [
+    {
+      "actor": "actor_0",
+      "judge_s": 119.12000000000012
+    },
+    {
+      "actor": "actor_3",
+      "judge_s": 172.26
+    },
+    {
+      "actor": "actor_2",
+      "judge_s": 182.16000000000008
+    },
+    {
+      "actor": "actor_1",
+      "judge_s": 262.31600000000003
+    },
+    {
+      "actor": "actor_5",
+      "judge_s": 265.51199999999994
+    },
+    {
+      "actor": "actor_4",
+      "judge_s": 317.91200000000003
+    }
+  ],
+  "elapsed_wall_log_proxy_s": 355.1935360431671,
+  "manager_ends": {
+    "local_GOAL_OCCUPIED": 19,
+    "complete": 88,
+    "released_for_new_task": 18,
+    "blocked_viewpoint": 1,
+    "timeout_or_unavailable": 9
+  },
+  "limits": "One run, same existing map, actor motion not seeded. Log-write wall clock proxy includes startup. No contact ground truth recorded; absence of CRASH is not proof of no collision."
+}

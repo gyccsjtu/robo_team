@@ -149,6 +149,24 @@ class ManagerSegmentTests(unittest.TestCase):
         msg=self.m.assign_pub.publish.call_args.args[0]
         self.assertEqual((msg.task_type,msg.search_task_id,msg.search_revision),(255,t.task_id,1))
 
+    def test_real_image_coverage_callback_keeps_whole_segment_ownership(self):
+        import json
+        t=self.reserve();m=self.m
+        m._slam_lock=threading.Lock()
+        m._merged_grid=Mock(return_value=m._g_infl)
+        m._in_processed_view=Mock(return_value=True)
+        # Two processed camera samples cover first cell; they do not represent
+        # flight completion and must not free this aircraft or its later cells.
+        for now in (100.,100.3):
+            self.now=now
+            m._processed_camera_frame_cb(NS(data=json.dumps(dict(processed=True,
+                source_uav=self.uid,sample_s=now,x=-3.5,y=3.5,yaw=0.,z=3.,down_pitch=0.))))
+        self.assertEqual(m.grid.cell((0,0)).state,tasklib.STATE_COVERED)
+        self.assertIs(m._segments.tasks[self.uid],t)
+        self.assertEqual(t.index,0)
+        self.assertEqual(set(m._segments.reserved),{(0,0),(1,0),(2,0)})
+        self.assertEqual(m._idle_uavs(),[])
+
     def test_old_revision_completion_does_not_complete_revised_route(self):
         t=self.reserve();old=t.revision
         self.m._revise_segment(t,[(0,0)],[(3.5,4.5)],100.,'test')
