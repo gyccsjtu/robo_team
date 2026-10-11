@@ -1,0 +1,28 @@
+FF
+======================================================================
+FAIL: test_repeated_failed_view_cannot_renew_or_move_job_after_id_colour_change (tools.test_search_view_hint.SearchViewIntegrationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gycc/桌面/RoboCup_Team/tools/test_search_view_hint.py", line 192, in test_repeated_failed_view_cannot_renew_or_move_job_after_id_colour_change
+    self.assertEqual(m.allocator.revisit_jobs,original)
+AssertionError: {('un[14 chars], 0)): (108.2, 135.0), ('unconfirmed', (0, 1)): (111.2, 138.0)} != {('un[14 chars], 0)): (108.2, 135.0)}
+- {('unconfirmed', (0, 0)): (108.2, 135.0),
+?                                         ^
+
++ {('unconfirmed', (0, 0)): (108.2, 135.0)}
+?                                         ^
+
+-  ('unconfirmed', (0, 1)): (111.2, 138.0)}
+
+======================================================================
+FAIL: test_failed_direction_budget_allows_a_different_direction_and_later_retry (tools.test_search_view_hint.SearchViewIntegrationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gycc/桌面/RoboCup_Team/tools/test_search_view_hint.py", line 203, in test_failed_direction_budget_allows_a_different_direction_and_later_retry
+    self.assertEqual(m.allocator.queue_revisit.called,expected)
+AssertionError: True != False
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.002s
+
+FAILED (failures=2)

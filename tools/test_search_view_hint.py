@@ -179,6 +179,29 @@ class SearchViewIntegrationTests(unittest.TestCase):
             m._publish_assignment('u0',(0,0),m.grid.cell((0,0)))
         m._search_view_hint_pub.publish.assert_not_called()
 
+    def test_repeated_failed_view_cannot_renew_or_move_job_after_id_colour_change(self):
+        m=self.manager();key=self.enqueue(m)
+        original=dict(m.allocator.revisit_jobs)
+        original_view=dict(m._search_view_jobs[key])
+        # The original observation point has just been reserved. Previously
+        # queue_revisit picked the adjacent free cell for the same failed look.
+        m.grid.cell(key).owner='u0';m.grid.cell(key).state=swarm_task.STATE_ASSIGNED
+        repeated=dict(message(image=103.,sent=103.2),color='blue',candidate_id='blue:88')
+        with patch.object(rospy.Time,'now',return_value=rospy.Time.from_sec(103.2)):
+            m._visual_candidate_missed_cb(NS(data=json.dumps(repeated)))
+        self.assertEqual(m.allocator.revisit_jobs,original)
+        self.assertEqual(m._search_view_jobs[key],original_view)
+
+    def test_failed_direction_budget_allows_a_different_direction_and_later_retry(self):
+        m=self.manager();self.enqueue(m)
+        m.allocator.queue_revisit=Mock(return_value=None)
+        for now,bearing,expected in [(104.,.72,False),(105.,1.5,True),(161.,.7,True)]:
+            m.allocator.queue_revisit.reset_mock()
+            data=message(image=now-.2,sent=now,bearing=bearing)
+            with patch.object(rospy.Time,'now',return_value=rospy.Time.from_sec(now)):
+                m._visual_candidate_missed_cb(NS(data=json.dumps(data)))
+            self.assertEqual(m.allocator.queue_revisit.called,expected)
+
     def test_agent_hint_only_looks_and_holds_without_target_or_coverage_changes(self):
         state=SearchViewInbox();state.assign(assignment(),109.);state.offer(hint(),'u0',109.)
         a=NS(assignment=assignment(),_search_view_inbox=state,world_xy=(-3.3,-3.1),

@@ -1,0 +1,51 @@
+{
+  "code": "08e2a408be923b388e5591773a6fe91366b2b02e",
+  "logdir": "logs/logs_20261012_011345",
+  "flags": {
+    "motion_safety": "1",
+    "search_segments": "1",
+    "south_patrol": "1"
+  },
+  "official_completed": [
+    {
+      "actor": "actor_3",
+      "judge_s": 187.82000000000016
+    },
+    {
+      "actor": "actor_5",
+      "judge_s": 231.22800000000007
+    },
+    {
+      "actor": "actor_1",
+      "judge_s": 284.72800000000007
+    },
+    {
+      "actor": "actor_0",
+      "judge_s": 348.4200000000001
+    },
+    {
+      "actor": "actor_4",
+      "judge_s": 371.31600000000026
+    },
+    {
+      "actor": "actor_2",
+      "judge_s": 402.81600000000026
+    }
+  ],
+  "mission_finished": true,
+  "operator_flight_commands": false,
+  "end": {
+    "wall": 1791739314.7709112,
+    "ros": 2393.488,
+    "reason": "Official Mission finished at 402.816s; freeze completed trial for evidence, then shutdown. No in-match flight intervention."
+  },
+  "flight_fault_lines": [
+    "Traceback (most recent call last):",
+    "Traceback (most recent call last):",
+    "Traceback (most recent call last):",
+    "Traceback (most recent call last):",
+    "Traceback (most recent call last):",
+    "Traceback (most recent call last):"
+  ],
+  "limits": "One full GUI match on the existing map. No contact truth; UAV0 single 1.543m lidar return needs separate review. No claim of collision absence, repeated 6/6, or 3-4 minute performance. The later failed-view-budget patch was not running in this match."
+}

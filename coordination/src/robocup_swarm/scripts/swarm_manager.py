@@ -40,7 +40,7 @@ from visual_evidence import parse_visual_evidence
 # 地图（用于过滤「格中心落在建筑内」的格子，与 agent 的 A* 膨胀判定一致）
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from search_observation import cell_points, in_view
-from search_view_hint import parse_failed_view, make_hint
+from search_view_hint import parse_failed_view, make_hint, ViewRevisitBudget
 from search_segments import SegmentBook
 from search_segment_manager import SearchSegmentManager
 from boundary_patrol import SouthPatrol
@@ -944,11 +944,18 @@ class SwarmManager(SearchSegmentManager):
             ttl = view['expires_s']-now if view is not None else 35.0
             if ttl <= 8.0:
                 return  # the existing cooldown would outlive the real image evidence
+            budget = self.__dict__.setdefault('_search_view_budget', ViewRevisitBudget())
+            if view is not None and not budget.allows(view, now):
+                rospy.loginfo_throttle(2., '[FAILED_VIEW_DEFER] uav=%s candidate=%s '
+                    'same camera place/direction already queued; new detections remain active',
+                    uid, view['candidate_id'])
+                return
             key = self.allocator.queue_revisit(
                 'unconfirmed', x, y, now=now, delay_s=8.0, ttl_s=ttl,
                 blocked=self._blocked_cells)
             if key is not None:
                 if view is not None:
+                    budget.remember(view, now)
                     jobs = self.__dict__.setdefault('_search_view_jobs', {})
                     old = jobs.get(key)
                     if old is None or view['image_sample_s'] > old['image_sample_s']:

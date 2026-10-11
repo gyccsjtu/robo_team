@@ -1,0 +1,438 @@
+{
+  "failed_view_requests": 35,
+  "new_budget_allows": 29,
+  "new_budget_defers": 6,
+  "deferred": [
+    {
+      "ros": 1987.26,
+      "source": "typhoon_h480_2",
+      "candidate": "white:7",
+      "xy": [
+        -10.337392028151024,
+        9.69150313075357
+      ],
+      "bearing": 2.8930032176427414
+    },
+    {
+      "ros": 2000.056,
+      "source": "typhoon_h480_2",
+      "candidate": "blue:14",
+      "xy": [
+        -14.929066777496658,
+        13.375523689934992
+      ],
+      "bearing": 3.133279265246125
+    },
+    {
+      "ros": 2042.456,
+      "source": "typhoon_h480_2",
+      "candidate": "white:35",
+      "xy": [
+        -24.06177230054327,
+        6.977671799463727
+      ],
+      "bearing": 1.9633151915691311
+    },
+    {
+      "ros": 2054.856,
+      "source": "typhoon_h480_2",
+      "candidate": "blue:43",
+      "xy": [
+        -22.945517743325166,
+        7.076924767805009
+      ],
+      "bearing": 2.1062312835819124
+    },
+    {
+      "ros": 2120.256,
+      "source": "typhoon_h480_0",
+      "candidate": "white:19",
+      "xy": [
+        -20.75171019400017,
+        9.648296478430083
+      ],
+      "bearing": 2.5645701775271412
+    },
+    {
+      "ros": 2264.808,
+      "source": "typhoon_h480_5",
+      "candidate": "green:10",
+      "xy": [
+        118.77118684965268,
+        40.67832239820053
+      ],
+      "bearing": 0.7125287581029945
+    }
+  ],
+  "matched_candidate_offers": [
+    {
+      "uav": "typhoon_h480_0",
+      "candidate": "blue:2",
+      "offer_ros": 2039.408,
+      "record_ros": 2039.408,
+      "image_ros": 2039.34,
+      "image_to_offer_s": 0.06799999999998363
+    },
+    {
+      "uav": "typhoon_h480_0",
+      "candidate": "white:7",
+      "offer_ros": 2090.404,
+      "record_ros": 2090.404,
+      "image_ros": 2090.328,
+      "image_to_offer_s": 0.07600000000002183
+    },
+    {
+      "uav": "typhoon_h480_0",
+      "candidate": "blue:18",
+      "offer_ros": 2116.004,
+      "record_ros": 2116.004,
+      "image_ros": 2115.912,
+      "image_to_offer_s": 0.09200000000009823
+    },
+    {
+      "uav": "typhoon_h480_0",
+      "candidate": "white:19",
+      "offer_ros": 2118.208,
+      "record_ros": 2118.208,
+      "image_ros": 2118.124,
+      "image_to_offer_s": 0.0840000000002874
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "candidate": "blue:5",
+      "offer_ros": 2146.092,
+      "record_ros": 2146.092,
+      "image_ros": 2145.996,
+      "image_to_offer_s": 0.09600000000000364
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "candidate": "blue:6",
+      "offer_ros": 2150.092,
+      "record_ros": 2150.092,
+      "image_ros": 2149.98,
+      "image_to_offer_s": 0.11200000000008004
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "candidate": "red:10",
+      "offer_ros": 2152.288,
+      "record_ros": 2152.288,
+      "image_ros": 2152.176,
+      "image_to_offer_s": 0.11200000000008004
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "candidate": "blue:19",
+      "offer_ros": 2192.288,
+      "record_ros": 2192.288,
+      "image_ros": 2192.224,
+      "image_to_offer_s": 0.06399999999985084
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "candidate": "red:22",
+      "offer_ros": 2289.488,
+      "record_ros": 2289.488,
+      "image_ros": 2289.404,
+      "image_to_offer_s": 0.08399999999983265
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "candidate": "brown:23",
+      "offer_ros": 2295.688,
+      "record_ros": 2295.688,
+      "image_ros": 2295.616,
+      "image_to_offer_s": 0.07200000000011642
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "candidate": "brown:23",
+      "offer_ros": 2322.288,
+      "record_ros": 2322.288,
+      "image_ros": 2322.188,
+      "image_to_offer_s": 0.09999999999990905
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "candidate": "brown:23",
+      "offer_ros": 2328.492,
+      "record_ros": 2328.492,
+      "image_ros": 2328.42,
+      "image_to_offer_s": 0.07200000000011642
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "candidate": "brown:23",
+      "offer_ros": 2332.488,
+      "record_ros": 2332.492,
+      "image_ros": 2332.396,
+      "image_to_offer_s": 0.09199999999964348
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "blue:4",
+      "offer_ros": 1981.84,
+      "record_ros": 1981.84,
+      "image_ros": 1981.764,
+      "image_to_offer_s": 0.07600000000002183
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "white:7",
+      "offer_ros": 1985.244,
+      "record_ros": 1985.244,
+      "image_ros": 1985.164,
+      "image_to_offer_s": 0.07999999999992724
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "blue:10",
+      "offer_ros": 1988.84,
+      "record_ros": 1988.84,
+      "image_ros": 1988.764,
+      "image_to_offer_s": 0.07600000000002183
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "white:11",
+      "offer_ros": 1991.044,
+      "record_ros": 1991.044,
+      "image_ros": 1990.964,
+      "image_to_offer_s": 0.08000000000015461
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "blue:14",
+      "offer_ros": 1998.04,
+      "record_ros": 1998.04,
+      "image_ros": 1997.964,
+      "image_to_offer_s": 0.07600000000002183
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "white:15",
+      "offer_ros": 2000.252,
+      "record_ros": 2000.252,
+      "image_ros": 2000.164,
+      "image_to_offer_s": 0.08799999999996544
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "blue:31",
+      "offer_ros": 2033.84,
+      "record_ros": 2033.84,
+      "image_ros": 2033.764,
+      "image_to_offer_s": 0.07600000000002183
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "blue:34",
+      "offer_ros": 2039.244,
+      "record_ros": 2039.244,
+      "image_ros": 2039.144,
+      "image_to_offer_s": 0.09999999999990905
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "white:35",
+      "offer_ros": 2040.444,
+      "record_ros": 2040.444,
+      "image_ros": 2040.352,
+      "image_to_offer_s": 0.09199999999987085
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "blue:43",
+      "offer_ros": 2052.84,
+      "record_ros": 2052.84,
+      "image_ros": 2052.752,
+      "image_to_offer_s": 0.08800000000019281
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "brown:48",
+      "offer_ros": 2314.844,
+      "record_ros": 2314.844,
+      "image_ros": 2314.768,
+      "image_to_offer_s": 0.07600000000002183
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "candidate": "brown:50",
+      "offer_ros": 2344.444,
+      "record_ros": 2344.444,
+      "image_ros": 2344.368,
+      "image_to_offer_s": 0.07600000000002183
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:2",
+      "offer_ros": 1964.892,
+      "record_ros": 1964.892,
+      "image_ros": 1964.74,
+      "image_to_offer_s": 0.15200000000004366
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:3",
+      "offer_ros": 1986.092,
+      "record_ros": 1986.092,
+      "image_ros": 1986.032,
+      "image_to_offer_s": 0.060000000000172804
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "white:7",
+      "offer_ros": 2004.296,
+      "record_ros": 2004.296,
+      "image_ros": 2004.216,
+      "image_to_offer_s": 0.08000000000015461
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "white:9",
+      "offer_ros": 2008.492,
+      "record_ros": 2008.492,
+      "image_ros": 2008.432,
+      "image_to_offer_s": 0.05999999999994543
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "red:10",
+      "offer_ros": 2022.892,
+      "record_ros": 2022.892,
+      "image_ros": 2022.816,
+      "image_to_offer_s": 0.07600000000002183
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "red:14",
+      "offer_ros": 2026.888,
+      "record_ros": 2026.888,
+      "image_ros": 2026.824,
+      "image_to_offer_s": 0.06399999999985084
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "white:19",
+      "offer_ros": 2079.892,
+      "record_ros": 2079.892,
+      "image_ros": 2079.8,
+      "image_to_offer_s": 0.09199999999964348
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:47",
+      "offer_ros": 2170.296,
+      "record_ros": 2170.296,
+      "image_ros": 2170.184,
+      "image_to_offer_s": 0.11199999999962529
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:58",
+      "offer_ros": 2212.296,
+      "record_ros": 2212.296,
+      "image_ros": 2212.196,
+      "image_to_offer_s": 0.09999999999990905
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:61",
+      "offer_ros": 2216.096,
+      "record_ros": 2216.096,
+      "image_ros": 2216.0,
+      "image_to_offer_s": 0.09600000000000364
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:66",
+      "offer_ros": 2219.892,
+      "record_ros": 2219.892,
+      "image_ros": 2219.812,
+      "image_to_offer_s": 0.07999999999992724
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:71",
+      "offer_ros": 2224.692,
+      "record_ros": 2224.692,
+      "image_ros": 2224.596,
+      "image_to_offer_s": 0.09600000000000364
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:87",
+      "offer_ros": 2331.292,
+      "record_ros": 2331.292,
+      "image_ros": 2331.224,
+      "image_to_offer_s": 0.06799999999975626
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:95",
+      "offer_ros": 2354.892,
+      "record_ros": 2354.892,
+      "image_ros": 2354.82,
+      "image_to_offer_s": 0.07199999999966167
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "candidate": "blue:100",
+      "offer_ros": 2357.696,
+      "record_ros": 2357.696,
+      "image_ros": 2357.612,
+      "image_to_offer_s": 0.08399999999983265
+    },
+    {
+      "uav": "typhoon_h480_5",
+      "candidate": "white:3",
+      "offer_ros": 2115.4,
+      "record_ros": 2115.4,
+      "image_ros": 2115.308,
+      "image_to_offer_s": 0.09200000000009823
+    },
+    {
+      "uav": "typhoon_h480_5",
+      "candidate": "blue:7",
+      "offer_ros": 2156.192,
+      "record_ros": 2156.192,
+      "image_ros": 2156.104,
+      "image_to_offer_s": 0.08800000000019281
+    },
+    {
+      "uav": "typhoon_h480_5",
+      "candidate": "green:9",
+      "offer_ros": 2250.796,
+      "record_ros": 2250.796,
+      "image_ros": 2250.708,
+      "image_to_offer_s": 0.08799999999973807
+    },
+    {
+      "uav": "typhoon_h480_5",
+      "candidate": "green:10",
+      "offer_ros": 2258.796,
+      "record_ros": 2258.796,
+      "image_ros": 2258.724,
+      "image_to_offer_s": 0.07199999999966167
+    },
+    {
+      "uav": "typhoon_h480_5",
+      "candidate": "green:11",
+      "offer_ros": 2266.8,
+      "record_ros": 2266.8,
+      "image_ros": 2266.724,
+      "image_to_offer_s": 0.07600000000002183
+    },
+    {
+      "uav": "typhoon_h480_5",
+      "candidate": "green:11",
+      "offer_ros": 2273.196,
+      "record_ros": 2273.196,
+      "image_ros": 2273.132,
+      "image_to_offer_s": 0.06399999999985084
+    }
+  ],
+  "limits": "Offline replay of supplementary revisit budget only, not a new flight. Requests may also fail other scheduler gates. Candidate latency covers matched logged admissions, not all visible actors or all rejected detections."
+}

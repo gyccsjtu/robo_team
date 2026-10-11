@@ -1,0 +1,34 @@
+............................................[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.20,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+............../opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[u0] search segment blocked leg=2/3 point=(10.50,0.00) reason=GOAL_OCCUPIED
+..............................
+----------------------------------------------------------------------
+Ran 106 tests in 0.185s
+
+OK

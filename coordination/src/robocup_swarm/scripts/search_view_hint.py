@@ -8,6 +8,32 @@ ARRIVAL_M = 2.0
 COLORS = ('red', 'green', 'blue', 'brown', 'white')
 
 
+class ViewRevisitBudget:
+    """One supplementary revisit per camera place/direction in sixty seconds.
+
+    Only failed, unlocalized look requests use this budget. New detections,
+    localized person tasks and judge reports never consult it. A renamed or
+    recoloured cue cannot move the same request into an adjacent free cell.
+    """
+    def __init__(self):
+        self.views = []
+
+    def allows(self, view, now):
+        self.views = [v for v in self.views if 0. <= now-v['queued_s'] < 60.]
+        for old in self.views:
+            angle = math.atan2(math.sin(view['bearing']-old['bearing']),
+                               math.cos(view['bearing']-old['bearing']))
+            if (math.hypot(view['x']-old['x'], view['y']-old['y']) <= 2. and
+                    abs(angle) <= math.radians(15.)):
+                return False
+        return True
+
+    def remember(self, view, now):
+        self.views.append(dict(x=view['x'], y=view['y'], bearing=view['bearing'],
+                               queued_s=now))
+        self.views = self.views[-128:]
+
+
 def finite(*values):
     try:
         return all(math.isfinite(float(v)) for v in values)
