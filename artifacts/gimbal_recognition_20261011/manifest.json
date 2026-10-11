@@ -1,0 +1,50 @@
+{
+  "scope": "Controlled recognition benchmark, NOT competition run or elimination proof",
+  "source_world": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/worlds/robocup.world",
+  "source_world_sha256": "dad42ec5640a43ed8221a93a923455fa78cd10a03f00e6806c9d2d15ef0eb714",
+  "actors": {
+    "actor_0": {
+      "color": "green",
+      "x": 16,
+      "y_center": -7.5
+    },
+    "actor_1": {
+      "color": "blue",
+      "x": 16,
+      "y_center": -5.7
+    },
+    "actor_2": {
+      "color": "brown",
+      "x": 16,
+      "y_center": -3.9
+    },
+    "actor_3": {
+      "color": "white",
+      "x": 16,
+      "y_center": -2.0999999999999996
+    },
+    "actor_4": {
+      "color": "red",
+      "x": 16,
+      "y_center": -0.2999999999999998
+    },
+    "actor_5": {
+      "color": "red",
+      "x": 16,
+      "y_center": 1.5
+    }
+  },
+  "motion": "Open-loop lateral walking +/-0.75 m about each center; official plugin unchanged",
+  "cameras": "Unmodified native stereo and CGO3 from typhoon_h480_laser",
+  "flight": "Single aircraft, own MAVROS pose only; empty corridor; land after sampling",
+  "decoys": {
+    "casual_female": [
+      16,
+      4
+    ],
+    "fire_hydrant_81": [
+      16,
+      -10
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "counts": {
+    "stereo/actors_16m_level": 22,
+    "gimbal/actors_16m_level": 22,
+    "stereo/actors_16m_aim": 23,
+    "gimbal/actors_16m_aim": 23,
+    "stereo/actors_12m_level": 24,
+    "gimbal/actors_12m_level": 23,
+    "stereo/actors_12m_aim": 24,
+    "gimbal/actors_12m_aim": 23,
+    "stereo/actors_8m_level": 24,
+    "gimbal/actors_8m_level": 24,
+    "stereo/actors_8m_aim": 23,
+    "gimbal/actors_8m_aim": 23,
+    "stereo/actors_5m_level": 23,
+    "gimbal/actors_5m_level": 23,
+    "stereo/actors_5m_aim": 23,
+    "gimbal/actors_5m_aim": 23,
+    "stereo/statue_8m_forward": 24,
+    "gimbal/statue_8m_forward": 24,
+    "stereo/hydrant_8m_forward": 24,
+    "gimbal/hydrant_8m_forward": 24
+  },
+  "camera_info": {
+    "stereo": {
+      "width": 752,
+      "height": 480,
+      "K": [
+        375.9986188774177,
+        0.0,
+        376.0,
+        0.0,
+        375.9986188774177,
+        240.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "D": [
+        -0.1,
+        0.01,
+        5e-05,
+        -0.0001,
+        0.0
+      ]
+    },
+    "gimbal": {
+      "width": 640,
+      "height": 360,
+      "K": [
+        205.46963709898583,
+        0.0,
+        320.5,
+        0.0,
+        205.46963709898583,
+        180.5,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "D": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "weight": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt",
+  "weight_sha256": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+  "conf": 0.25,
+  "imgsz": 640,
+  "scope": "Raw network outputs; no production geometric gates or judge reports"
+}

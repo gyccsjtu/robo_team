@@ -25,7 +25,9 @@
     <env name="PX4_ESTIMATOR" value="$(arg est)" />
     <arg name="mavlink_udp_port" default="14560"/>
     <arg name="mavlink_tcp_port" default="4560"/>
-    <arg name="udp_gimbal_port" default="13030"/>
+    <!-- PX4 px4-rc.mavlink listens on 13030 + px4_instance. Each simulated
+         gimbal must connect to its own FCU; a shared 13030 strands UAVs 1-5. -->
+    <arg name="udp_gimbal_port" default="$(eval 13030 + int(arg('ID')))"/>
     <!-- 串行化延迟（秒）：外层逐机传 0/5/10/15/20/25 -->
     <arg name="spawn_delay" default="0"/>
     <param name="robotNamespace" value="$(arg vehicle)_$(arg ID)"/>

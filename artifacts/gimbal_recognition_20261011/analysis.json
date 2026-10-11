@@ -1,0 +1,72 @@
+{
+  "gimbal_centered_view": {
+    "actors_16m_aim": {
+      "frames": 23,
+      "actor_region_x": [
+        240,
+        400
+      ],
+      "complete_row_at_025": 4,
+      "complete_row_at_040": 0
+    },
+    "actors_12m_aim": {
+      "frames": 23,
+      "actor_region_x": [
+        218,
+        432
+      ],
+      "complete_row_at_025": 17,
+      "complete_row_at_040": 13
+    },
+    "actors_8m_aim": {
+      "frames": 23,
+      "actor_region_x": [
+        165,
+        478
+      ],
+      "complete_row_at_025": 22,
+      "complete_row_at_040": 19
+    },
+    "actors_5m_aim": {
+      "frames": 23,
+      "actor_region_x": [
+        75,
+        567
+      ],
+      "complete_row_at_025": 22,
+      "complete_row_at_040": 20
+    }
+  },
+  "offline_16m_same_frame_variants": {
+    "full_640": {
+      "frames": 23,
+      "complete_row_at_025": 4,
+      "complete_row_at_040": 0,
+      "median_warm_inference_ms": 11.077695000039967
+    },
+    "full_960": {
+      "frames": 23,
+      "complete_row_at_025": 23,
+      "complete_row_at_040": 23,
+      "median_warm_inference_ms": 18.78414549992158
+    },
+    "center_crop_640": {
+      "frames": 23,
+      "complete_row_at_025": 23,
+      "complete_row_at_040": 23,
+      "median_warm_inference_ms": 15.226568000343832
+    }
+  },
+  "total_images": 466,
+  "gimbal_images": 232,
+  "camera_inference_ms": {
+    "gimbal": 13.654185000632424,
+    "stereo": 19.0630279994366
+  },
+  "limitations": [
+    "Single controlled layout; short correlated samples; no statistical generalization",
+    "Manual actor regions and ordered detection diagnostic are not full human bounding-box annotations",
+    "No coordinate accuracy, moving pursuit, six-UAV throughput or elimination validation",
+    "Cloud view contains own landing gear; cropping loses peripheral view"
+  ]
+}
