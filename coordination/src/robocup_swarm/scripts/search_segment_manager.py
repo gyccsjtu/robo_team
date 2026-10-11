@@ -144,8 +144,14 @@ class SearchSegmentManager:
 
     def _start_search_segment(self, uid, cells, points, stamp, purpose='coverage', publish=True):
         """Single reservation/lease entry for internal and boundary search."""
+        evidence_deadlines=[expires for (kind,key),(ready,expires) in
+            self.allocator.revisit_jobs.items() if key in cells and
+            kind in ('lost','unconfirmed') and ready<=stamp<expires]
+        max_hold=self._segment_max_hold
+        if evidence_deadlines:
+            max_hold=min(max_hold,min(evidence_deadlines)-stamp)
         look = [(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
-        task = self._segments.reserve(uid,cells,points,stamp,20.,self._segment_max_hold,
+        task = self._segments.reserve(uid,cells,points,stamp,min(20.,max_hold),max_hold,
                                       purpose=purpose, look_points=look)
         if task is None:
             return None

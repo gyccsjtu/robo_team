@@ -29,7 +29,7 @@ from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDe
 from std_msgs.msg import String
 
 # 直接 import 同目录的纯逻辑模块（scripts 目录已加进 PYTHONPATH）
-from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager,
+from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager, coverage_bounds,
                         STATE_FREE, STATE_ASSIGNED, STATE_COVERED, STATE_REVIEW,
                         W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE, W_DISTANCE, W_ZONE, LEASE_DURATION,
                         CONFIRM_TIME, EVADE_TIME, DETECT_RADIUS, DETECT_RADIUS_MARGIN)
@@ -49,8 +49,8 @@ from boundary_patrol import SouthPatrol
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 
-# Search coverage comes from metadata x[-55,155], y[-65,65].  Waypoints are
-# kept inside the actor plugin's reachable XY envelope with room to brake.
+# Coverage intersects the metadata with the team's engineering flight limits.
+# Observed person positions remain independent from aircraft waypoints.
 FLIGHT_X_MIN = float(os.environ.get('FLIGHT_X_MIN', '-50.0'))
 FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
 FLIGHT_Y_MIN = float(os.environ.get('FLIGHT_Y_MIN', '-60.0'))
@@ -275,26 +275,17 @@ def inflate_grid(grid, inflation_m):
 
 
 def _search_bounds():
-    """搜索栅格的边界。
-
-    硬编码的 ±100/±50 与官方 actor 可达范围（control_actor.py 写死的
-    x[-50,130] / y[-60,60]）不一致：
-      - x>100、y<-50、y>50 这三块 actor 真的会去的地方**永远不会被搜索**；
-      - x[-100,-50] 那 5000 m² actor 根本到不了，却每轮都白扫。
-    栅格元数据 robocup_base.json 的 bounds 就是按官方 actor 活动范围生成的，
-    直接用它。读不到就退回硬编码。
-    """
-    if not MAP_BOUNDS_FROM_META:
-        return MAP_X_MIN, MAP_X_MAX, MAP_Y_MIN, MAP_Y_MAX
-    try:
-        with open(METADATA_PATH) as _f:
-            b = json.load(_f).get("bounds")
-        if b:
-            return (float(b["x_min"]), float(b["x_max"]),
-                    float(b["y_min"]), float(b["y_max"]))
-    except Exception as _exc:
-        print("[manager] 读元数据 bounds 失败，用硬编码边界: %s" % _exc)
-    return MAP_X_MIN, MAP_X_MAX, MAP_Y_MIN, MAP_Y_MAX
+    """Same clipped coverage extent as every agent; never shrink the sensor map."""
+    bounds=(MAP_X_MIN,MAP_X_MAX,MAP_Y_MIN,MAP_Y_MAX)
+    if MAP_BOUNDS_FROM_META:
+        try:
+            with open(METADATA_PATH) as stream:
+                b=json.load(stream).get('bounds')
+            if b:
+                bounds=tuple(float(b[k]) for k in ('x_min','x_max','y_min','y_max'))
+        except (OSError,ValueError,KeyError,TypeError) as exc:
+            print('[manager] map bounds unavailable, intersecting fallback with flight limits: %s'%exc)
+    return coverage_bounds(bounds,(FLIGHT_X_MIN,FLIGHT_X_MAX,FLIGHT_Y_MIN,FLIGHT_Y_MAX))
 
 
 def joint_target_assignment(costs):

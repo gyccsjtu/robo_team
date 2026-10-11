@@ -36,13 +36,13 @@ from robocup_navigation.astar import load_metadata, GridMap, plan
 from slam_grid import SlamGrid
 from flight_execution import bounded_step
 from motion_safety import braking_cap, boundary_constraints, scan_constraints, HeightClearanceHold
-from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
+from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M, coverage_bounds
 from search_observation import cell_points, in_view, observable_points, next_heading
 from csv_logger import logger
 from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
                            bind_red_view, bind_red_instance_view,
-                           retain_pixel_view)
+                           retain_pixel_view, ReportViewWindow)
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
@@ -64,8 +64,8 @@ def serialized_visual_task(method):
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 
-# The search grid extends beyond the actors so edge targets remain observable.
-# Keep UAV flight inside the official actor plugin's reachable XY envelope;
+# Search coverage and flight use the same envelope; sensed maps can be wider.
+# Keep UAV flight inside the team's configured engineering XY envelope;
 # these are engineering flight limits, not a judge XY penalty threshold.
 FLIGHT_X_MIN = float(os.environ.get('FLIGHT_X_MIN', '-50.0'))
 FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
@@ -1003,10 +1003,10 @@ class SwarmAgent(SearchSegmentAgent):
         # ---- 覆盖栅格（与 manager 一致，10m 格）----
         # 覆盖格与 manager 使用同一份 metadata 边界；固定 ±100 的旧边界
         # 会让 x>100 的扫描状态 confidence 恒为 0，边缘格永远无法完成。
-        self.cov_grid = CoverageGrid(
+        _coverage_bounds=coverage_bounds((
             _b.get("x_min", MAP_X_MIN), _b.get("x_max", MAP_X_MAX),
-            _b.get("y_min", MAP_Y_MIN), _b.get("y_max", MAP_Y_MAX),
-            GRID_SIZE_M)
+            _b.get("y_min", MAP_Y_MIN), _b.get("y_max", MAP_Y_MAX)),flight_bounds())
+        self.cov_grid = CoverageGrid(*_coverage_bounds,cell_m=GRID_SIZE_M)
 
         # ---- 目标检测（规则3 几何判定：距离 + 视线遮挡）----
         # 用**未膨胀**的原始 SLAM 栅格做 LOS 判定（膨胀是给飞行留裕度的，
@@ -1968,6 +1968,8 @@ class SwarmAgent(SearchSegmentAgent):
             view['needs_space'] = self._tracking_altitude.get('needs_space', False)
             view['range_floor'] = self._tracking_altitude.get('range_floor', 0.)
             self._tracking_image = view
+            quality=self.__dict__.setdefault('_report_view_window',ReportViewWindow())
+            quality.observe(view)
             rospy.loginfo_throttle(2.0,
                 '[TRACK_VIEW] uav=%s tid=%s image=%.3f centre_v=%.1f bottom=%.1f '
                 'alt_goal=%.2f range=%.2f local_tid=%s needs_space=%s range_floor=%.2f',
@@ -3937,7 +3939,7 @@ class SwarmAgent(SearchSegmentAgent):
                 self._climb_t0=self._climb_latch_z=None
             else:
                 return min(vz,0.)
-        if vz <= .2 or z <= 1.5:
+        if vz <= .2+1e-6 or z <= 1.5:
             self._climb_t0=None
         elif getattr(self,'_climb_t0',None) is None or now < self._climb_t0:
             self._climb_t0,self._climb_z0=now,z
@@ -5092,7 +5094,7 @@ class SwarmAgent(SearchSegmentAgent):
             return
 
     def _reobserve_goal(self, tx, ty, now):
-        """Try one nearby safe view after loss; never disturb fresh imagery.
+        """Try one bounded safe view after loss or sustained poor report quality.
 
         Camera evidence owns this watchdog. Team coordinates only locate the
         observation ring; they do not establish that this camera sees a person.
@@ -5100,8 +5102,10 @@ class SwarmAgent(SearchSegmentAgent):
         tid = self._orbit_target
         request = getattr(self, '_reobserve_forced', None)
         forced = request is not None and request[0] == tid and now < request[1]
+        quality=getattr(self,'_report_view_window',None)
+        degraded=quality is not None and quality.degraded(tid,now)
         image = self._fresh_tracking_view(now)
-        if (not forced and image is not None and image.get('geometry_ok') and
+        if (not forced and not degraded and image is not None and image.get('geometry_ok') and
                 image.get('report_ok', image.get('geometry_ok')) and
                 not view_needs_space(image)):
             # A pixel-only view cannot veto a request to recover geometry.
@@ -5113,7 +5117,7 @@ class SwarmAgent(SearchSegmentAgent):
             last = max(last, evidence['sample_s'])
         forced = getattr(self, '_reobserve_forced', None)
         forced = forced is not None and forced[0] == tid and now < forced[1]
-        if 0.0 <= now - last <= 3.0 and not forced:
+        if 0.0 <= now - last <= 3.0 and not forced and not degraded:
             self._reobserve_view = None
             return None
         entered = getattr(self, '_orbit_entered_t', now)
@@ -5143,8 +5147,8 @@ class SwarmAgent(SearchSegmentAgent):
                 continue
             self._reobserve_view = dict(tid=tid, goal=goal, tx=tx, ty=ty, until=now+6.0)
             rospy.logwarn('[VIEW_REOBSERVE] uav=%s tid=%s goal=(%.2f,%.2f) '
-                          'last_good_image=%.3f; 保持朝向、限时侧移补看',
-                          self.uav_id, tid, goal[0], goal[1], last)
+                          'last_good_image=%.3f sparse_qualified_view=%s; 保持朝向、限时侧移补看',
+                          self.uav_id, tid, goal[0], goal[1], last,degraded)
             return goal
         return None
 

@@ -1,0 +1,32 @@
+.FF
+======================================================================
+FAIL: test_processed_ground_coverage_does_not_hide_pending_person_revisit (tools.test_reacquire_coverage_priority.ReacquireCoveragePriorityTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gycc/桌面/RoboCup_Team/tools/test_reacquire_coverage_priority.py", line 22, in test_processed_ground_coverage_does_not_hide_pending_person_revisit
+    self.assertEqual(assigned['u0'],key)
+AssertionError: Tuples differ: (2, 0) != (4, 0)
+
+First differing element 0:
+2
+4
+
+- (2, 0)
+?  ^
+
++ (4, 0)
+?  ^
+
+
+======================================================================
+FAIL: test_started_revisit_keeps_original_image_deadline (tools.test_reacquire_coverage_priority.ReacquireSegmentDeadlineTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gycc/桌面/RoboCup_Team/tools/test_reacquire_coverage_priority.py", line 37, in test_started_revisit_keeps_original_image_deadline
+    self.assertEqual(task.deadline,108.)
+AssertionError: 190.0 != 108.0
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.009s
+
+FAILED (failures=2)

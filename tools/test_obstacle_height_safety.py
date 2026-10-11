@@ -147,11 +147,22 @@ class ObstacleHeightSafetyTests(unittest.TestCase):
             with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(t)):
                 self.assertEqual(a._guard_executed_climb(vz,4.1,True),vz)
         self.assertFalse(a._climb_latch)
+
         with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(106)):
             self.assertEqual(a._guard_executed_climb(.6,4.1,True),0.)
         a.local_z=3.85
         self.assertEqual(a._guard_executed_climb(.4,4.1,True),.4)
         self.assertFalse(a._climb_latch)
+
+    def test_position_roundtrip_at_minimum_vz_is_not_above_stall_threshold(self):
+        a=self.output_agent()
+        a.local_z=3.9
+        encoded=(a.local_z+.2*sa.POS_SP_LEAD-a.local_z)/sa.POS_SP_LEAD
+        for t in range(100,106):
+            with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(t)):
+                a._guard_executed_climb(encoded,4.1,True)
+        self.assertFalse(a._climb_latch)
+        self.assertEqual(a._alt_sag,0.)
 
     def test_stale_pose_hold_cannot_trigger_failed_climb_or_lower_layer(self):
         a=self.output_agent()

@@ -1,0 +1,50 @@
+{
+  "code": "94b6a95",
+  "log": "logs/logs_20261012_014056",
+  "gui": true,
+  "official": [
+    {
+      "actor": 0,
+      "judge_elapsed_s": 186.31600000000003
+    },
+    {
+      "actor": 3,
+      "judge_elapsed_s": 268.7160000000001
+    },
+    {
+      "actor": 1,
+      "judge_elapsed_s": 353.60000000000014
+    },
+    {
+      "actor": 2,
+      "judge_elapsed_s": 371.59600000000023
+    },
+    {
+      "actor": 4,
+      "judge_elapsed_s": 500.59600000000023
+    },
+    {
+      "actor": 5,
+      "judge_elapsed_s": 512.5400000000002
+    }
+  ],
+  "mission_finished": true,
+  "judge_elapsed_s": 512.5400000000002,
+  "script_to_judge_log_mtime_s": 553.3485634326935,
+  "sampled_finish_ros": 2455.992,
+  "cutoff_basis": "Nearest own-sensor sample to judge-file final-write wall time; approximate only. Independent evaluator, never fed to flight.",
+  "report_policy": "fresh",
+  "features": [
+    "motion_safety",
+    "search_segments",
+    "south_patrol"
+  ],
+  "manual_flight_intervention": false,
+  "coordinate_truth_error_measured": false,
+  "statue_false_positive_confirmed": true,
+  "limitations": [
+    "Same existing official world, not a new randomized-map test.",
+    "Six eliminated in 512.540 judge seconds: slower than 402.816 prior run; not a speed acceptance.",
+    "Fresh policy remains opt-in; differences in route/quality/loss prevent causal attribution to report policy alone."
+  ]
+}

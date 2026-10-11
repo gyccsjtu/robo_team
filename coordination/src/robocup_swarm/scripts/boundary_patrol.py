@@ -49,6 +49,7 @@ class SouthPatrol:
         if grid is None:
             return None
         keys = []
+        viewpoints = {}
         ymin = self.bounds[2]
         for key, cell in manager.grid.cells.items():
             if (abs(cell.cy-ymin) > manager.grid.cell_m*.5 or
@@ -59,6 +60,9 @@ class SouthPatrol:
                         manager.allocator.failed_novelty_ttl):
                 continue
             point = manager._segment_point(key)
+            # A clipped last/first coverage row may be narrower than 7m.
+            # Keep an observable standoff instead of flying over its centre.
+            point=(point[0],max(point[1],cell.cy+8.))
             # Preserve an interior standoff and observe the cell from there.
             # If the live map cannot supply this viewpoint, leave a blind job
             # to the ordinary allocator rather than camping on a wall.
@@ -66,6 +70,7 @@ class SouthPatrol:
                     not manager._search_point_free(point)):
                 continue
             keys.append(key)
+            viewpoints[key]=point
         pairs = []
         for uid in idle:
             if self.uid is not None and uid != self.uid:
@@ -76,7 +81,7 @@ class SouthPatrol:
                     not all(math.isfinite(v) for v in (s.x, s.y))):
                 continue
             for key in keys:
-                point = manager._segment_point(key)
+                point = viewpoints[key]
                 if self.direction and self.direction*(point[0]-s.x) < -1.:
                     continue
                 pairs.append((math.dist((s.x, s.y), point), uid, key, point))
@@ -111,7 +116,7 @@ class SouthPatrol:
                 nxt = (ks[-1][0]+direction, ks[-1][1])
                 if nxt not in keys:
                     break
-                p = manager._segment_point(nxt)
+                p = viewpoints[nxt]
                 if not .6*manager.grid.cell_m <= math.dist(ps[-1], p) <= 1.6*manager.grid.cell_m:
                     break
                 if not clear_line(grid, ps[-1], p):

@@ -1,0 +1,83 @@
+{
+  "interval_ros": [
+    2410,
+    2456
+  ],
+  "image_candidates": [
+    {
+      "source": "typhoon_h480_5",
+      "local_id": "red1",
+      "n": 107,
+      "qualified": 44
+    },
+    {
+      "source": "typhoon_h480_5",
+      "local_id": "red2",
+      "n": 44,
+      "qualified": 16
+    },
+    {
+      "source": "typhoon_h480_2",
+      "local_id": "red1",
+      "n": 9,
+      "qualified": 7
+    },
+    {
+      "source": "typhoon_h480_2",
+      "local_id": "red2",
+      "n": 47,
+      "qualified": 22
+    },
+    {
+      "source": "typhoon_h480_3",
+      "local_id": "red1",
+      "n": 10,
+      "qualified": 8
+    },
+    {
+      "source": "typhoon_h480_4",
+      "local_id": "red1",
+      "n": 4,
+      "qualified": 3
+    },
+    {
+      "source": "typhoon_h480_0",
+      "local_id": "red1",
+      "n": 9,
+      "qualified": 2
+    }
+  ],
+  "owners": [
+    {
+      "uav": "typhoon_h480_5",
+      "target": "t5",
+      "first_s": 2420.196
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "target": "t4",
+      "first_s": 2422.896
+    },
+    {
+      "uav": "typhoon_h480_3",
+      "target": "t5",
+      "first_s": 2425.0
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "target": "t4",
+      "first_s": 2428.1
+    }
+  ],
+  "official_publish": {
+    "red2": {
+      "n": 23,
+      "max_gap": 3.968000000000302
+    },
+    "red1": {
+      "n": 34,
+      "max_gap": 5.2280000000000655
+    }
+  },
+  "limits": "Camera local red labels differ from team target identities. Image qualification does not prove <1m absolute error."
+}

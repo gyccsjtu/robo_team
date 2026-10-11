@@ -3,6 +3,14 @@ import math
 
 
 def cell_points(grid, cell):
+    if hasattr(grid, 'cell_bounds'):
+        key=grid.world_to_cell(cell.cx,cell.cy)
+        if key is None:
+            return []
+        x0,x1,y0,y1=grid.cell_bounds(key)
+        mx,my=min(.01,(x1-x0)*.1),min(.01,(y1-y0)*.1)
+        return [(x,y) for y in (y0+my,(y0+y1)*.5,y1-my)
+                for x in (x0+mx,(x0+x1)*.5,x1-mx)]
     half = grid.cell_m * .5
     return [(max(grid.x_min+.01, min(grid.x_max-.01, cell.cx+(ix-1)*(half-.01))),
              max(grid.y_min+.01, min(grid.y_max-.01, cell.cy+(iy-1)*(half-.01))))

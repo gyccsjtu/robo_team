@@ -2,6 +2,40 @@
 import math
 
 
+class ReportViewWindow:
+    """Own-camera quality over capture time; never grants reporting eligibility."""
+    def __init__(self):
+        self.identity=None
+        self.samples=[]
+
+    def observe(self, view):
+        identity=(view['target_id'],view.get('world_candidate_id') or view.get('track_id'))
+        sample=view['sample_s']
+        if identity != self.identity:
+            self.identity=identity
+            self.samples=[]
+        if self.samples and sample <= self.samples[-1][0]:
+            return
+        good=bool(view.get('geometry_ok') and view.get('report_ok'))
+        self.samples=[p for p in self.samples if sample-p[0] <= 4.]+[(sample,good)]
+        self.samples=self.samples[-160:]
+
+    def degraded(self, tid, now):
+        points=self.samples
+        if (not points or self.identity[0]!=tid or
+                not 0. <= now-points[-1][0] <= .5 or
+                points[-1][0]-points[0][0] < 3.-1e-6):
+            return False
+        duration=good_duration=0.
+        for a,b in zip(points,points[1:]):
+            dt=b[0]-a[0]
+            if dt > .7:
+                return False  # Actual image loss uses the existing lost-view watchdog.
+            duration+=dt
+            good_duration+=dt*int(a[1])
+        return duration>0. and good_duration/duration < .60
+
+
 def box_from_foot(uv, wh):
     """Undo perception's 5 percent foot inset; uv[1] is NOT box centre."""
     u, v = uv

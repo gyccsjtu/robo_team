@@ -111,6 +111,18 @@ class SearchCell(object):
         self.covered_t = 0.0  # COVERED 状态进入时刻（仿真钟，供 reopen）
 
 
+def coverage_bounds(map_bounds, flight_bounds):
+    """Coverage jobs stay in the configured flight envelope; sensor map stays wide."""
+    if not all(math.isfinite(v) for v in tuple(map_bounds)+tuple(flight_bounds)):
+        raise ValueError('search and flight bounds must be finite')
+    xmin,xmax,ymin,ymax=map_bounds
+    fx0,fx1,fy0,fy1=flight_bounds
+    bounds=(max(xmin,fx0),min(xmax,fx1),max(ymin,fy0),min(ymax,fy1))
+    if not all(math.isfinite(v) for v in bounds) or bounds[0]>=bounds[1] or bounds[2]>=bounds[3]:
+        raise ValueError('search and flight bounds must have a finite intersection')
+    return bounds
+
+
 class CoverageGrid(object):
     """200×100 覆盖栅格：20×10 个 10×10 m 搜索格。"""
 
@@ -118,14 +130,17 @@ class CoverageGrid(object):
         self.x_min, self.x_max = float(x_min), float(x_max)
         self.y_min, self.y_max = float(y_min), float(y_max)
         self.cell_m = float(cell_m)
+        if (not all(math.isfinite(v) for v in (self.x_min,self.x_max,self.y_min,self.y_max,self.cell_m))
+                or self.cell_m<=0 or self.x_min>=self.x_max or self.y_min>=self.y_max):
+            raise ValueError('invalid coverage grid extent or resolution')
         self.nx = int(math.ceil((self.x_max - self.x_min) / self.cell_m))
         self.ny = int(math.ceil((self.y_max - self.y_min) / self.cell_m))
         self.num_uavs = num_uavs
         self.cells = {}
         for ix in range(self.nx):
             for iy in range(self.ny):
-                c = SearchCell(self.x_min + (ix + 0.5) * self.cell_m,
-                               self.y_min + (iy + 0.5) * self.cell_m)
+                x0,x1,y0,y1=self.cell_bounds((ix,iy))
+                c = SearchCell((x0+x1)*.5,(y0+y1)*.5)
                 self.cells[(ix, iy)] = c
 
         # ---- 区域分割：把地图分成 num_uavs 个区域 ----
@@ -140,11 +155,19 @@ class CoverageGrid(object):
 
     # ---- 坐标 ↔ 格索引 ----
     def world_to_cell(self, x, y):
+        if not (self.x_min <= x < self.x_max and self.y_min <= y < self.y_max):
+            return None
         ix = int(math.floor((x - self.x_min) / self.cell_m))
         iy = int(math.floor((y - self.y_min) / self.cell_m))
         if 0 <= ix < self.nx and 0 <= iy < self.ny:
             return (ix, iy)
         return None
+
+    def cell_bounds(self, key):
+        ix,iy=key
+        x0=self.x_min+ix*self.cell_m
+        y0=self.y_min+iy*self.cell_m
+        return x0,min(x0+self.cell_m,self.x_max),y0,min(y0+self.cell_m,self.y_max)
 
     def cell_index(self, key):
         return key
@@ -692,7 +715,7 @@ class TaskAllocator(object):
             return 0.0
         return risk_map.get((cell.cx, cell.cy), 0.0)
 
-    def utility(self, uav_id, uav_x, uav_y, cell_key, assigned_positions, risk_map=None, task_counts=None, other_uavs=None, other_executing=None):
+    def utility(self, uav_id, uav_x, uav_y, cell_key, assigned_positions, risk_map=None, task_counts=None, other_uavs=None, other_executing=None, person_revisit=False):
         """单机对单格效用 U_{i,c}。收益：未搜索=1，需复查=0.5。
 
         U = w1·gain - w2·flight_time - w3·overlap - w4·risk + w5·balance - w6·distance_penalty
@@ -702,7 +725,9 @@ class TaskAllocator(object):
         cell = self.grid.cell(cell_key)
         if cell is None:
             return float("-inf")
-        gain = 1.0 if cell.state == STATE_FREE else (0.5 if cell.state == STATE_REVIEW else 0.0)
+        review = cell.state == STATE_REVIEW or (person_revisit and
+                 cell.state == STATE_COVERED and cell.owner is None)
+        gain = 1.0 if cell.state == STATE_FREE else (0.5 if review else 0.0)
         if gain == 0.0:
             return float("-inf")   # 已覆盖/执行中不可再分配
         ft = self._flight_time(uav_x, uav_y, cell)
@@ -1063,6 +1088,18 @@ class TaskAllocator(object):
                      if key not in blocked and
                      (key not in self.failed_visit or
                       now - self.failed_visit[key] >= self.failed_novelty_ttl)}
+        # A processed ground image establishes coverage, not reacquisition of
+        # a missing person. Keep explicit fresh revisit jobs eligible even if
+        # another camera has since covered the cell. Ownership/obstacles and
+        # failed-waypoint safety cooldowns still apply.
+        for (kind,key),(ready,expires) in self.revisit_jobs.items():
+            cell=self.grid.cell(key)
+            if (kind in ('lost','unconfirmed') and ready<=now<expires and
+                    cell is not None and cell.state!=STATE_ASSIGNED and
+                    cell.owner is None and key not in blocked and
+                    (key not in self.failed_visit or
+                     now-self.failed_visit[key]>=self.failed_novelty_ttl)):
+                remaining.add(key)
         takeover = self._orphaned_zone_takeovers(uavs, remaining, now)
         support = self._slow_zone_support(uavs, remaining, now, takeover)
         # Boundary cells remain in the first-pass candidate pool. A camera
@@ -1183,7 +1220,9 @@ class TaskAllocator(object):
                         # return: rejoin at the nearest unfinished segment.
                         candidates = [nearest]
             for key in candidates:
-                u = self.utility(uav_id, ux, uy, key, assigned_positions, risk_map, task_counts, other_uavs, other_executing) + self._priority_bonus(key, n_prio, uav_id=uav_id)
+                u = self.utility(uav_id, ux, uy, key, assigned_positions, risk_map,
+                                 task_counts, other_uavs, other_executing,
+                                 person_revisit=key in urgent) + self._priority_bonus(key, n_prio, uav_id=uav_id)
                 if u > best_u:
                     best_u = u
                     best_key = key

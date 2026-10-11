@@ -1,0 +1,119 @@
+{
+  "source": "artifacts/tracking_phase2_20261012/chain.jsonl.gz",
+  "complete_file": true,
+  "ros_interval": [
+    1947.576,
+    2455.972
+  ],
+  "events": {
+    "discovery": 15249,
+    "image_report": 12202,
+    "processed_frame": 15249,
+    "status": 29579,
+    "candidate": 3244,
+    "assignment": 9922,
+    "candidate_missed": 65,
+    "tracking_view": 1403,
+    "report": 385
+  },
+  "first_geometric_visual_detection": {
+    "t3": {
+      "sample_s": 2001.856,
+      "source": "typhoon_h480_2"
+    },
+    "t0": {
+      "sample_s": 2107.004,
+      "source": "typhoon_h480_3"
+    },
+    "t1": {
+      "sample_s": 2151.084,
+      "source": "typhoon_h480_4"
+    },
+    "t2": {
+      "sample_s": 2234.804,
+      "source": "typhoon_h480_3"
+    }
+  },
+  "search_motion": {
+    "typhoon_h480_0": {
+      "sampled_seconds": 432.37199999999757,
+      "stopped_seconds": 28.136000000000195,
+      "stopped_fraction": 0.06507359403476717,
+      "distance_m": 647.3413335026158,
+      "state_seconds": {
+        "1": 391.5359999999971,
+        "2": 15.93600000000174,
+        "5": 9.647999999998774,
+        "3": 15.251999999999953
+      }
+    },
+    "typhoon_h480_1": {
+      "sampled_seconds": 443.1800000000005,
+      "stopped_seconds": 36.83600000000024,
+      "stopped_fraction": 0.08311746919987409,
+      "distance_m": 722.6353713042851,
+      "state_seconds": {
+        "1": 376.04000000000065,
+        "4": 4.448000000000093,
+        "2": 29.899999999999636,
+        "5": 10.892000000000053,
+        "3": 21.90000000000009
+      }
+    },
+    "typhoon_h480_3": {
+      "sampled_seconds": 316.64000000000055,
+      "stopped_seconds": 36.49600000000055,
+      "stopped_fraction": 0.11526023244062811,
+      "distance_m": 356.5401273428175,
+      "state_seconds": {
+        "4": 1.4440000000001874,
+        "1": 244.55200000000104,
+        "2": 8.7999999999995,
+        "5": 4.948000000000093,
+        "3": 56.89599999999973
+      }
+    },
+    "typhoon_h480_2": {
+      "sampled_seconds": 389.04799999999864,
+      "stopped_seconds": 40.18799999999919,
+      "stopped_fraction": 0.1032983076638341,
+      "distance_m": 595.3040384542142,
+      "state_seconds": {
+        "1": 320.9799999999991,
+        "4": 3.951999999999998,
+        "2": 18.011999999999716,
+        "3": 37.052000000000135,
+        "5": 9.05199999999968
+      }
+    },
+    "typhoon_h480_4": {
+      "sampled_seconds": 413.935999999999,
+      "stopped_seconds": 21.74800000000073,
+      "stopped_fraction": 0.05253952301805299,
+      "distance_m": 552.6950311849706,
+      "state_seconds": {
+        "3": 20.35199999999986,
+        "1": 358.8760000000011,
+        "2": 10.499999999999318,
+        "4": 18.707999999999174,
+        "5": 5.499999999999545
+      }
+    },
+    "typhoon_h480_5": {
+      "sampled_seconds": 270.096,
+      "stopped_seconds": 86.79600000000119,
+      "stopped_fraction": 0.3213524080327039,
+      "distance_m": 283.38921055863085,
+      "state_seconds": {
+        "4": 0.6440000000000055,
+        "1": 151.8559999999993,
+        "3": 94.55199999999991,
+        "2": 17.943999999999505,
+        "5": 4.700000000001182,
+        "6": 0.40000000000009095
+      }
+    }
+  },
+  "observed_reservation_conflicts": [],
+  "limits": "Only the captured interval is evaluated. Local-colour IDs are not six verified identities. Stop fraction uses reported pose, not command or truth. This record alone cannot prove collision absence or coverage."
+}
