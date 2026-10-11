@@ -113,14 +113,16 @@ class CooperativeTarget(object):
     def __init__(self, target_id, t0=0.0, confirm_time=CONFIRM_TIME,
                  evade_time=EVADE_TIME, obs_ttl=OBS_TTL,
                  err_tol=ERR_TOL, gap_tol=GAP_TOL,
-                 confirm_grace=CONFIRM_GRACE_S, official_only=False):
+                 confirm_grace=CONFIRM_GRACE_S, official_only=False, strict_samples=False):
         self.target_id = target_id
+        self._created_t = t0
         self.confirm_time = confirm_time
         self.evade_time = evade_time
         self.obs_ttl = obs_ttl
         self.err_tol = err_tol
         self.gap_tol = gap_tol
         self.confirm_grace = confirm_grace
+        self.strict_samples = strict_samples
 
         self.observers = set()     # 当前注册的观察员
         self.last_obs = {}         # uav_id -> TargetObservation（各自最新一条）
@@ -164,11 +166,15 @@ class CooperativeTarget(object):
         """记录一条观测。非观察员的观测不计入（防止无关机刷计时）。
 
         truth: 该时刻目标真值 (tx, ty)，仅仿真/诊断用于算误差；真实 YOLO 时传 None，
-               此时不做误差判定（退化为「看得见即合格」，与旧版同口径）。
+               此时误差未知，仅记录视觉连续性，不可视为裁判合格。
         """
         if self.eliminated:
             return
         if self.observers and uav_id not in self.observers:
+            return
+        old = self.last_obs.get(uav_id)
+        if (not all(math.isfinite(v) for v in (t, x, y)) or
+                (old is not None and t <= old.t)):
             return
         self.last_obs[uav_id] = TargetObservation(uav_id, t, x, y, los, sigma, truth)
 
@@ -176,14 +182,14 @@ class CooperativeTarget(object):
     def covered(self, now):
         """当前是否有**有效**观测：任一观察员在 obs_ttl 内报告过且 LOS 通畅。"""
         for ob in self.last_obs.values():
-            if now - ob.t <= self.obs_ttl and ob.los:
+            if 0.0 <= now - ob.t <= self.obs_ttl and ob.los:
                 return True
         return False
 
     def live_observers(self, now):
         """当前有效观测的观察员 id 列表（用于诊断/可视化）。"""
         return [ob.uav_id for ob in self.last_obs.values()
-                if now - ob.t <= self.obs_ttl and ob.los]
+                if 0.0 <= now - ob.t <= self.obs_ttl and ob.los]
 
     def n_live(self, now):
         """当前有效观测的路数（多机共视程度）。"""
@@ -219,7 +225,7 @@ class CooperativeTarget(object):
         返回 (x, y)，无可用观测时返回 None。
         """
         obs = [o for o in self.last_obs.values()
-               if now - o.t <= self.obs_ttl and o.los]
+               if 0.0 <= now - o.t <= self.obs_ttl and o.los]
         if not obs:
             return None
         sw = 0.0
@@ -230,14 +236,16 @@ class CooperativeTarget(object):
             sx += w * o.x
             sy += w * o.y
         mx, my = sx / sw, sy / sw
-        self._fuse_update(mx, my, now)
+        sample = max(o.t for o in obs) if self.strict_samples else now
+        if not self.strict_samples or self.t_fuse is None or sample > self.t_fuse:
+            self._fuse_update(mx, my, sample)
         return (self.fx, self.fy)
 
     def _truth_now(self, now):
         """取最新的真值（用于算上报误差）。无真值返回 None。"""
         best, bt = None, -1e18
         for o in self.last_obs.values():
-            if o.truth is not None and o.t > bt and now - o.t <= self.obs_ttl:
+            if o.truth is not None and o.t > bt and 0.0 <= now - o.t <= self.obs_ttl:
                 best, bt = o.truth, o.t
         return best
 
@@ -250,6 +258,9 @@ class CooperativeTarget(object):
 
         dt = max(0.0, now - self._t_last) if self._t_last is not None else 0.0
         self._t_last = now
+
+        if self.strict_samples:
+            return self._update_samples(now)
 
         cov = self.covered(now)
 
@@ -315,6 +326,54 @@ class CooperativeTarget(object):
             return "evade"
         return None
 
+    def _update_samples(self, now):
+        """Visual streak, advanced only by independent image timestamps.
+
+        Unknown absolute error remains unknown; this streak never establishes
+        judge success. Formal operation supplies only qualified camera samples.
+        """
+        live = [o for o in self.last_obs.values()
+                if o.los and 0.0 <= now - o.t <= self.obs_ttl]
+        event = None
+        if not live:
+            if self.confirm_since is not None:
+                self.resets += 1
+                event = 'reset'
+            self.confirm_since = self.last_ok_t = None
+            self.confirmation_pending = False
+        else:
+            sample = max(o.t for o in live)
+            if self.last_ok_t is None or sample > self.last_ok_t:
+                if self.last_ok_t is not None and sample - self.last_ok_t > self.gap_tol:
+                    self.resets += 1
+                    self.confirm_since = None
+                    self.confirmation_pending = False
+                    event = 'reset'
+                # Fuse at sample time once; polling cached images must not feed
+                # the temporal filter or manufacture velocity/confirmation.
+                self.fused(sample)
+                truth = self._truth_now(sample)
+                self.last_err = (math.hypot(self.fx-truth[0], self.fy-truth[1])
+                                 if truth is not None else None)
+                if self.last_err is not None and self.last_err > self.err_tol:
+                    self.rejects += 1
+                    self.confirm_since = self.last_ok_t = None
+                    self.confirmation_pending = False
+                    return 'reset'
+                if self.confirm_since is None:
+                    self.confirm_since = sample
+                self.last_ok_t = sample
+                if (sample-self.confirm_since >= self.confirm_time and
+                        not self.confirmation_pending):
+                    self.confirmation_pending = True
+                    event = 'confirmed'
+        # Only /find_actor_N establishes the official escape timer in this mode.
+        if (not self._evade_fired and self._first_confirm_t is not None and
+                now - self._first_confirm_t >= self.evade_time):
+            self.evaded = self._evade_fired = True
+            return 'evade'
+        return event
+
     def relocate(self, t0):
         """目标瞬移后重置（观察员需由分配层重新指定）。"""
         self.evaded = False
@@ -324,7 +383,7 @@ class CooperativeTarget(object):
         self.resets = 0
         self.rejects = 0
         self._first_confirm_t = None   # 瞬移后裁判会重新发 /find_actor_N，计时从新开始
-        self._t_last = t0
+        self._t_last = self._created_t = t0
         self.last_obs.clear()
         self.t_fuse = None
 
@@ -334,7 +393,8 @@ class CooperativeTarget(object):
             return 1.0
         if self.confirm_since is None:
             return 0.0
-        return min(1.0, (now - self.confirm_since) / self.confirm_time)
+        end = self.last_ok_t if self.strict_samples else now
+        return min(1.0, max(0.0, (end - self.confirm_since) / self.confirm_time))
 
 
 class CooperativeTracker(object):
@@ -342,13 +402,14 @@ class CooperativeTracker(object):
 
     def __init__(self, confirm_time=CONFIRM_TIME, evade_time=EVADE_TIME,
                  obs_ttl=OBS_TTL, err_tol=ERR_TOL, gap_tol=GAP_TOL,
-                 official_only=False):
+                 official_only=False, strict_samples=False):
         self.confirm_time = confirm_time
         self.evade_time = evade_time
         self.obs_ttl = obs_ttl
         self.err_tol = err_tol
         self.gap_tol = gap_tol
         self.official_only = official_only
+        self.strict_samples = strict_samples
         self.targets = {}     # target_id -> CooperativeTarget
         self.eliminated = []  # 已消除的目标 id（按时间顺序）
 
@@ -357,7 +418,7 @@ class CooperativeTracker(object):
             target_id, t0=now, confirm_time=self.confirm_time,
             evade_time=self.evade_time, obs_ttl=self.obs_ttl,
             err_tol=self.err_tol, gap_tol=self.gap_tol,
-            official_only=self.official_only)
+            official_only=self.official_only, strict_samples=self.strict_samples)
         return self.targets[target_id]
 
     def assign_observers(self, target_id, uav_ids):
@@ -428,6 +489,9 @@ class CooperativeTracker(object):
                 continue
             if t.resets >= reset_thresh:
                 out.append((tid, "resets=%d" % t.resets))
+            elif (t.strict_samples and t.last_ok_t is None and
+                  now - t._created_t >= stall_thresh):
+                out.append((tid, "no_camera=%.1fs" % (now-t._created_t)))
             elif t.confirm_since is not None and t.last_ok_t is not None and \
                     (now - t.last_ok_t) >= stall_thresh:
                 out.append((tid, "stall=%.1fs" % (now - t.last_ok_t)))

@@ -85,7 +85,6 @@ VIS_ENABLE     = os.environ.get("VIS_ENABLE", "1") not in ("0", "false", "False"
 W_VIS          = float(os.environ.get("W_VIS", "1.5"))       # 可见增益权重（0=关闭）
 VIS_STALE      = float(os.environ.get("VIS_STALE", "60.0"))  # 陈旧饱和时间 s
 VIS_RADIUS     = float(os.environ.get("VIS_RADIUS", "10.0")) # 视点可见半径 m（2026-10-05: 20→10，与 DETECT_RADIUS 对齐，避免评分偏差）
-VIS_COMMIT     = os.environ.get("VIS_COMMIT", "1") not in ("0", "false", "False", "")
 VIS_GAIN_SAT   = float(os.environ.get("VIS_GAIN_SAT", "12.0"))  # 增益饱和格数：看得再多也不超过 1.0（中位可见 10 格）
 TARGET_WALK_SPEED = 1.0    # 规则2：未感知无人机时的随机走动速度 m/s
 TARGET_FLEE_SPEED = 2.0    # 规则3：感知到无人机后的逃跑速度 m/s
@@ -337,7 +336,7 @@ def _envf(name, default):
 _PRIORITY_ON = os.environ.get('PRIORITY_CORNER', '1') not in ('0', 'false', 'False', '')
 SEARCH_HARD_HOME_ZONE = os.environ.get('SEARCH_HARD_HOME_ZONE', '1') not in ('0', 'false', 'False', '')
 SEARCH_HOME_HARD_S = float(os.environ.get('SEARCH_HOME_HARD_S', '120.0'))
-SEARCH_Y_EDGE_DEFER_M = float(os.environ.get('SEARCH_Y_EDGE_DEFER_M', '7.0'))
+SEARCH_Y_EDGE_DEFER_M = float(os.environ.get('SEARCH_Y_EDGE_DEFER_M', '7.0'))  # 内排软偏置，外排仍可派
 _PRIORITY_DECAY = _envf('PRIORITY_DECAY', 300.0)
 # 2026-10-05 国家一等奖修复：_PRIORITY_RADIUS 30→22.0。原 30m 在 (-35,-28) 单点偏置
 # 下,优先级区是 x[-65,-5]×y[-58,2] 200×60=12000 m²,actor 聚集区
@@ -391,12 +390,41 @@ class TaskAllocator(object):
         self.novelty_horizon = max(1.0, novelty_horizon)
         self.flight_cap = flight_cap
         self.task_count = {}  # 跟踪每架飞机的任务数
-        self.visit_time = {}  # cell_key -> 上次被派位的时刻（wall），用于「最久未访问优先」
+        self.visit_time = {}  # cell_key -> 完成扫描或真实图像观察的仿真时刻
         # v13（2026-10-07）：派了但没飞到的格子（租约过期释放）记录——
         # agent_1 派 (1,5) 32 次 / agent_3 派 22 次的根因：追踪任务反复打断搜索，
         # 格子租约 90s 过期回 FREE，novelty 又涨满 → 同格无限续派。
         # expire() 写入此表，utility() 对 60s 内失败格把 novelty 压到 0.2 倍。
         self.failed_visit = {}  # cell_key -> 失败时刻（wall）
+        # A sector keeps one stable route. The cursor records *completed*
+        # viewpoints, never merely assigned ones. A pursuit interruption thus
+        # leaves its unfinished search point available to the next aircraft.
+        self.route_cursor = {}
+        self.route_order = {}
+        self.route_rank = {}
+        for zone, keys in self.grid.zone_cells.items():
+            columns = {}
+            for key in keys:
+                columns.setdefault(key[0], []).append(key)
+            ordered = []
+            for j, ix in enumerate(sorted(columns)):
+                ordered.extend(sorted(columns[ix], key=lambda k: k[1],
+                                      reverse=bool(j % 2)))
+            # Safe inner viewpoints come first, but the outer strip remains in
+            # this first-pass route. A processed camera frame may cover those
+            # outer cells before any aircraft has to fly to the boundary.
+            def outer_row(key):
+                cy = self.grid.cell(key).cy
+                return (cy < self.grid.y_min + SEARCH_Y_EDGE_DEFER_M or
+                        cy > self.grid.y_max - SEARCH_Y_EDGE_DEFER_M)
+            ordered = ([key for key in ordered if not outer_row(key)] +
+                       [key for key in ordered if outer_row(key)])
+            self.route_order[zone] = ordered
+            self.route_rank[zone] = {key: rank for rank, key in enumerate(ordered)}
+        # Evidence-backed revisit requests. They select at most one viewpoint
+        # per event; an unconfirmed static decoy cannot hold several aircraft.
+        self.revisit_jobs = {}  # (kind, cell_key) -> (ready_s, expires_s)
+        self.revisit_last_served = {}  # (kind, cell_key) -> completed simulation time
         self.failed_novelty_ttl = float(os.environ.get("FAILED_NOVELTY_TTL", "60.0"))
         # v13：近距离惩罚——飞机刚覆盖完脚下，脚下格（ft 很小）不该再拿高分。
         # 破「72% 派格 x=-44.5 / y 全 ≤-5.5」的 spawn 区锁死。
@@ -437,12 +465,102 @@ class TaskAllocator(object):
         self.w_vis = W_VIS
         self.vis_stale = max(1.0, VIS_STALE)
         self.vis_radius = VIS_RADIUS
-        self.vis_commit = VIS_COMMIT
         self.vis_gain_sat = max(1.0, VIS_GAIN_SAT)
         self.visible_set = {}   # cell_key -> [从该视点可见的 cell_key]
-        self.last_seen = {}     # cell_key -> 上次被真正看见（有 LOS）的 wall time
+        self.last_seen = {}     # cell_key -> 上次真实处理图像可见的仿真时刻
         self._los = None        # LineOfSight 实例，由 manager 注入
         self.last_allocation = []  # 本轮最终分配诊断，供 manager 落盘
+        # An aircraft that crashes or pursues a target can leave its whole
+        # search sector unattended.  Do not make neighboring searchers finish
+        # every old edge strip before they can cover that first-pass gap.
+        self.orphan_min_new = max(1, int(float(os.environ.get(
+            "ORPHAN_SEARCH_MIN_NEW_CELLS", "8"))))
+        self.orphan_debt_ratio = max(1.0, float(os.environ.get(
+            "ORPHAN_SEARCH_DEBT_RATIO", "1.5")))
+        self.orphan_max_distance = max(0.0, float(os.environ.get(
+            "ORPHAN_SEARCH_MAX_DISTANCE_M", "55.0")))
+
+    def observed_cell(self, cell_key, now=None):
+        """Record a real processed camera view, never a geometric promise."""
+        if self.grid.cell(cell_key) is None:
+            return
+        if now is None:
+            now = _now()
+        self.visit_time[cell_key] = now
+        self.last_seen[cell_key] = now
+
+    def complete_waypoint(self, uav_id, cell_key, observed=False, now=None):
+        """Commit one route step after a completed scan or camera observation.
+
+        A missed view can be left as REVIEW by the manager; advancing the
+        route still prevents an immediate repeat of the same failed viewpoint.
+        REVIEW remains eligible for a later, evidence-based blind-spot pass.
+        """
+        if self.grid.cell(cell_key) is None:
+            return
+        if now is None:
+            now = _now()
+        self.visit_time[cell_key] = now
+        if observed:
+            self.last_seen[cell_key] = now
+        zone = self.grid.get_zone_id(cell_key)
+        rank = self.route_rank.get(zone, {}).get(cell_key)
+        if rank is not None:
+            self.route_cursor[zone] = rank
+        for job in list(self.revisit_jobs):
+            if job[1] == cell_key:
+                self.revisit_jobs.pop(job, None)
+                self.revisit_last_served[job] = now
+
+    def queue_revisit(self, kind, x, y, now=None, delay_s=0.0,
+                      ttl_s=30.0, blocked=()):
+        """Ask one free aircraft to re-image a precise location once.
+
+        Lost tracks and unconfirmed image cues are short-lived location jobs,
+        not global color bans or permanent region priorities. A covered cell
+        is reopened as REVIEW; hard-blocked cells remain excluded.
+        """
+        if kind not in ('lost', 'unconfirmed', 'blind') or not all(
+                math.isfinite(v) for v in (x, y)):
+            return None
+        if now is None:
+            now = _now()
+        blocked = set(blocked)
+        available = [(math.hypot(cell.cx - x, cell.cy - y), key)
+                     for key, cell in self.grid.cells.items()
+                     if key not in blocked and cell.state != STATE_ASSIGNED]
+        if not available:
+            return None
+        distance, key = min(available)
+        if distance > max(14.0, 2.0 * self.grid.cell_m):
+            return None
+        cell = self.grid.cell(key)
+        # Only a fresh person/candidate sighting can reopen a genuinely
+        # imaged cell. A blind-spot request is valid only for REVIEW cells.
+        if kind == 'blind' and cell.state != STATE_REVIEW:
+            return None
+        cooldown = 15.0 if kind == 'lost' else 60.0
+        served = self.revisit_last_served.get((kind, key), -1e18)
+        if now - served < cooldown:
+            return None
+        if cell.state == STATE_COVERED:
+            self.grid.mark_review(key, 0.0)
+        self.revisit_jobs[(kind, key)] = (now + max(0.0, delay_s),
+                                          now + max(1.0, ttl_s))
+        return key
+
+    def _active_revisit(self, now, eligible):
+        """Return urgent jobs in priority order, discarding expired requests."""
+        ranked = []
+        order = {'lost': 0, 'unconfirmed': 1, 'blind': 2}
+        for job, (ready, expires) in list(self.revisit_jobs.items()):
+            if now >= expires:
+                self.revisit_jobs.pop(job, None)
+                continue
+            if now >= ready and job[1] in eligible:
+                ranked.append((order[job[0]], ready, job[1]))
+        ranked.sort()
+        return [item[2] for item in ranked]
 
     # ---------------- NBV：LOS 感知的可见增益 ----------------
     def set_visibility(self, visible_set):
@@ -473,39 +591,6 @@ class TaskAllocator(object):
     def clear_hot_target(self, x, y):
         key = (round(x, 1), round(y, 1))
         self._hot_targets.pop(key, None)
-
-    def mark_seen(self, x, y, now=None):
-        """飞机在 (x,y) 时真正看见（有 LOS）的格，刷新 last_seen。返回刷新格数。"""
-        if not self.vis_enable or self._los is None:
-            return 0
-        if now is None:
-            now = _now()
-        n = 0
-        for k, c in self.grid.cells.items():
-            if math.hypot(c.cx - x, c.cy - y) > self.vis_radius:
-                continue
-            if not self._los.visible(x, y, c.cx, c.cy):
-                continue
-            self.last_seen[k] = now
-            n += 1
-        return n
-
-    def commit_visible(self, cell_key, now=None):
-        """派单即承诺：把该视点可见集的 last_seen 刷成 now。
-
-        次模贪心的关键一步 —— 别的机再看同一片区域增益≈0，队形自动散开，
-        不会像 W_EDGE 那样把 6 架吸到同一批格子上。
-        """
-        if not self.vis_enable or not self.vis_commit:
-            return 0
-        if now is None:
-            now = _now()
-        keys = self.visible_set.get(cell_key)
-        if not keys:
-            return 0
-        for k in keys:
-            self.last_seen[k] = now
-        return len(keys)
 
     def vis_gain(self, cell_key, now=None):
         """从该视点能看见多少「久未见」的区域。
@@ -711,6 +796,16 @@ class TaskAllocator(object):
         if ft < self.min_flight_s:
             near_pen = self.near_penalty * (1.0 - ft / self.min_flight_s)
 
+        # The safe inner strip is usually the better camera viewpoint for a
+        # boundary row, but an unseen outer row must remain assignable in the
+        # first pass. SEARCH_Y_EDGE_DEFER_M is now a soft preference, not a
+        # map-wide exclusion until every interior cell is finished.
+        outer_pen = 0.0
+        if SEARCH_Y_EDGE_DEFER_M > 0.0 and (
+                cell.cy < self.grid.y_min + SEARCH_Y_EDGE_DEFER_M or
+                cell.cy > self.grid.y_max - SEARCH_Y_EDGE_DEFER_M):
+            outer_pen = 0.4
+
         return (self.w_gain * gain
                 + self.w_novelty * novelty
                 - self.w_flight * ft
@@ -724,7 +819,8 @@ class TaskAllocator(object):
                 + vis_term
                 + target_bonus
                 + early_close_bonus
-                - near_pen)
+                - near_pen
+                - outer_pen)
 
     def _in_priority(self, key):
         c = self.grid.cell(key)
@@ -778,6 +874,51 @@ class TaskAllocator(object):
                     best = b
         return best * (1.0 - age / _PRIORITY_DECAY)
 
+    def _orphaned_zone_takeovers(self, uavs, remaining, now):
+        """Give one nearby free UAV each unattended first-pass sector.
+
+        A sector is attended when an idle aircraft belongs to it or an active
+        search lease points into it.  A pursuing/failed aircraft has no search
+        lease, so its unobserved cells become eligible for a neighbor.  The
+        debt ratio prevents this from pulling aircraft out of equally unseen
+        home sectors during the initial six-way spread.
+        """
+        if (not uavs or not remaining or
+                (SEARCH_HARD_HOME_ZONE and self.mission_start is not None and
+                 now - self.mission_start < SEARCH_HOME_HARD_S)):
+            return {}
+        fresh = {zone: [] for zone in self.grid.zone_cells}
+        for key in remaining:
+            cell = self.grid.cell(key)
+            if (cell is not None and cell.state == STATE_FREE and
+                    self.visit_time.get(key, 0.0) <= 0.0):
+                fresh[self.grid.get_zone_id(key)].append(key)
+        attended = {self.grid.get_uav_zone(uid) for uid in uavs}
+        for key, cell in self.grid.cells.items():
+            if cell.state == STATE_ASSIGNED and cell.owner is not None:
+                attended.add(self.grid.get_zone_id(key))
+        orphaned = [zone for zone, keys in fresh.items()
+                    if zone not in attended and len(keys) >= self.orphan_min_new]
+        orphaned.sort(key=lambda zone: len(fresh[zone]), reverse=True)
+        takeover = {}
+        for zone in orphaned:
+            choices = []
+            for uid, (ux, uy) in uavs.items():
+                if uid in takeover:
+                    continue
+                home = self.grid.get_uav_zone(uid)
+                if len(fresh[zone]) < self.orphan_debt_ratio * max(
+                        1, len(fresh.get(home, ()))):
+                    continue
+                distance = min(math.hypot(self.grid.cell(key).cx - ux,
+                                          self.grid.cell(key).cy - uy)
+                               for key in fresh[zone])
+                if distance <= self.orphan_max_distance:
+                    choices.append((distance, uid))
+            if choices:
+                takeover[min(choices)[1]] = zone
+        return takeover
+
     def allocate(self, uavs, risk_map=None):
         """集中式分配一轮。uavs: {id: (x,y)}，返回 {id: cell_key 或 None}。
 
@@ -792,19 +933,17 @@ class TaskAllocator(object):
             if c.state == STATE_ASSIGNED and c.owner in task_counts:
                 task_counts[c.owner] += 1
 
-        remaining = set(self.grid.uncovered_cells())
-        # A camera one cell inside the north/south border still sees across
-        # that border (the visual search radius is 10 m).  The previous
-        # allocator sent UAV5 alternately to y=57.5 and y=64.5 for ~200 s,
-        # while blue/white actors at y=33..37 remained unseen. Defer the
-        # outer row until interior candidates are exhausted; keep x-edge
-        # cells because actors can stop against the east/west boundary.
-        if SEARCH_Y_EDGE_DEFER_M > 0.0:
-            inner = {key for key in remaining
-                     if self.grid.y_min + SEARCH_Y_EDGE_DEFER_M <= self.grid.cell(key).cy <=
-                     self.grid.y_max - SEARCH_Y_EDGE_DEFER_M}
-            if inner:
-                remaining = inner
+        now = _now()
+        # A failed cell is temporarily ineligible, not just lower-scored. The
+        # old novelty penalty still won beside a wall and reassigned the same
+        # unreachable waypoint immediately after every stall timeout.
+        remaining = {key for key in self.grid.uncovered_cells()
+                     if key not in self.failed_visit or
+                     now - self.failed_visit[key] >= self.failed_novelty_ttl}
+        takeover = self._orphaned_zone_takeovers(uavs, remaining, now)
+        # Boundary cells remain in the first-pass candidate pool. A camera
+        # frame from an inner row may cover them; if it does not, they are
+        # still reachable by a later route waypoint.
         assigned = {}          # uav_id -> cell_key
         assigned_positions = []  # [(cx,cy)] 已分配格中心，供重复率计算
         self.last_allocation = []
@@ -840,7 +979,82 @@ class TaskAllocator(object):
             home_zone = self.grid.get_uav_zone(uav_id)
             home = [key for key in remaining
                     if self.grid.get_zone_id(key) == home_zone]
-            candidates = home if hard_home and home else remaining
+            home_new = [key for key in home
+                        if self.grid.cell(key).state == STATE_FREE and
+                        self.visit_time.get(key, 0.0) <= 0.0]
+            candidates = home if hard_home and home_new else remaining
+            rescue_zone = takeover.get(uav_id)
+            if rescue_zone is not None:
+                candidates = [key for key in remaining
+                              if self.grid.get_zone_id(key) == rescue_zone]
+            # A short, position-specific revisit can interrupt ordinary
+            # search. Limit it to one nearby aircraft; normal coarse coverage
+            # remains the priority for distant searchers.
+            urgent = self._active_revisit(now, remaining)
+            urgent = [key for key in urgent if math.hypot(
+                self.grid.cell(key).cx - ux, self.grid.cell(key).cy - uy) <= 28.0 and
+                (self.grid.cell(key).state != STATE_REVIEW or
+                 any(job[1] == key and job[0] in ('lost', 'unconfirmed')
+                     for job in self.revisit_jobs))]
+            if urgent:
+                candidates = [urgent[0]]
+            # First sweep genuinely new FREE viewpoints in route order. A
+            # processed view may cover several cells at once, so those are
+            # skipped naturally; a coarse index mask used to force jumps
+            # past unseen neighbors and break the continuous search path.
+            first = [key for key in candidates
+                     if self.grid.cell(key).state == STATE_FREE and
+                     self.visit_time.get(key, 0.0) <= 0.0]
+            if first and not urgent:
+                candidates = first
+            elif not urgent:
+                # The first pass has already supplied new viewpoints; now
+                # explicitly revisit image blind spots before routine stale
+                # patrol of old free cells.
+                blind = [key for key in candidates
+                         if self.grid.cell(key).state == STATE_REVIEW]
+                if blind:
+                    candidates = blind
+            if not urgent and candidates:
+                # Keep one ordered route per sector. When the home route is
+                # much farther after a pursuit, a nearby aircraft can take
+                # over another sector's unfinished route segment.
+                home_sector = [key for key in candidates
+                               if self.grid.get_zone_id(key) == home_zone]
+                if home_sector:
+                    home_d = min(math.hypot(self.grid.cell(k).cx - ux,
+                                            self.grid.cell(k).cy - uy)
+                                 for k in home_sector)
+                    any_d = min(math.hypot(self.grid.cell(k).cx - ux,
+                                           self.grid.cell(k).cy - uy)
+                                for k in candidates)
+                    if hard_home or home_d <= any_d + 20.0:
+                        candidates = home_sector
+                if candidates:
+                    def entry_cost(key):
+                        cell = self.grid.cell(key)
+                        distance = math.hypot(cell.cx - ux, cell.cy - uy)
+                        if SEARCH_Y_EDGE_DEFER_M > 0.0 and (
+                                cell.cy < self.grid.y_min + SEARCH_Y_EDGE_DEFER_M or
+                                cell.cy > self.grid.y_max - SEARCH_Y_EDGE_DEFER_M):
+                            distance += SEARCH_Y_EDGE_DEFER_M + 1.0
+                        return distance
+                    nearest = min(candidates, key=entry_cost)
+                    route_zone = self.grid.get_zone_id(nearest)
+                    sector = [key for key in candidates
+                              if self.grid.get_zone_id(key) == route_zone]
+                    rank = self.route_rank.get(route_zone, {})
+                    prev = self.route_cursor.get(route_zone)
+                    ahead = sorted((key for key in sector
+                                    if prev is not None and rank[key] > prev),
+                                   key=lambda key: rank[key])
+                    if ahead and math.hypot(self.grid.cell(ahead[0]).cx - ux,
+                                            self.grid.cell(ahead[0]).cy - uy) <= 30.0:
+                        candidates = ahead[:1]
+                    else:
+                        # Initial entry, wrapped route, or far-away pursuit
+                        # return: rejoin at the nearest unfinished segment.
+                        candidates = [nearest]
             for key in candidates:
                 u = self.utility(uav_id, ux, uy, key, assigned_positions, risk_map, task_counts, other_uavs, other_executing) + self._priority_bonus(key, n_prio, uav_id=uav_id)
                 if u > best_u:
@@ -848,8 +1062,6 @@ class TaskAllocator(object):
                     best_key = key
             if best_key is not None:
                 assigned[uav_id] = best_key
-                self.visit_time[best_key] = _now()
-                self.commit_visible(best_key)
                 c = self.grid.cell(best_key)
                 c.state = STATE_ASSIGNED
                 c.owner = uav_id

@@ -20,7 +20,7 @@ import json
 
 import rospy
 from std_msgs.msg import Int16, String
-from robocup_swarm.msg import ActorInfo
+from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
 
 SCORE_TOPIC = "/score"
 TIME_TOPIC = "/time_usage"

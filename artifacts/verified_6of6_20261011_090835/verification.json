@@ -1,0 +1,17 @@
+{
+  "run": "logs_20261011_090835",
+  "manifest_matched_source_count": 43,
+  "official_eliminated": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "last_elimination_sim_s": 457.92,
+  "score": 2116.9,
+  "flight_fix_loaded": true,
+  "takeoff_recovery_triggered": false,
+  "method": "Read-only shared-file observation; no manual flight, assignments or actor reports by this agent."
+}

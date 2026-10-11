@@ -7,18 +7,18 @@
       裸 JSON：{"target_id","frame_id":"world_enu","xyz":[x,y,z],
                 "confidence","observation_id"}
       target_id ∈ green / blue / brown / white / red1 / red2
-  /left_actors  std_msgs/String，官方裁判发布的剩余 actor 清单（权威消除信号）。
-
 输出：
   /swarm/target_states  robocup_swarm/TargetState
       下游 swarm_manager / swarm_agent 只认本消息，不感知数据来源，
       因此本桥替换 target_sim / official_target_bridge 后二者零算法改动。
+  /swarm/report_telemetry  std_msgs/String，记录本队实际发布的 ActorInfo。
+      仅供队内估计播报连续性；发布成功不代表裁判收到或确认消除。
 
-身份映射与官方裁判一致（score_cal.py:16）：
-  green→t0(actor_0) blue→t1 brown→t2 white→t3 red1→t4 red2→t5
+颜色已知的四条流对应 actor_0..3。red1/red2 只是队内两条独立视觉槽，
+不能据此判断它们分别是官方 actor_4 还是 actor_5。
 
-合规说明：本节点不订阅 /gazebo/model_states、/gazebo/link_states，
-不读 obstacle.txt / black_box.txt，不启动 target_sim。
+合规说明：正式节点只订阅本队视觉与协同话题，不订阅裁判反馈、
+Gazebo 真值，不读 obstacle.txt / black_box.txt，不启动 target_sim。
 
 设计：纯逻辑内核 TargetBridgeCore 不依赖 rospy（只依赖 math/json），
 ROS 包装只做话题收发，内核可离线单测。
@@ -31,30 +31,23 @@ import re
 import statistics
 import sys
 
-# ---- 身份映射（对齐 ~/XTDrone/robocup/score_cal.py 的 actor_id_dict）----
-# 官方约定（score_cal.py:22 + 275-276 行话题绑定）：
-#   /actor_green_info->actor_0  blue->1  brown->2  white->3
-#   /actor_red2_info ->actor_4  /actor_red1_info->actor_5   ← red 是反的！
-# 团队约定（swarm_viz.py:17、detection_to_official.py:78-83）：tN ↔ actor_N。
-# ⚠ 2026-10-03 修正：原表把 red1→t4 / red2→t5，与团队约定相反，
-#   连带 ACTOR_INDEX_OF_TAG 反了 ⇒ set_left() 会把"红球消除"记到错的那条流上，
-#   导致桥向飞行器补发错误的 eliminated（活着的球被摘掉）。
+# ---- 身份映射 ----
+# 四个不同颜色的官方身份固定。红色在队内使用两个稳定的视觉槽，
+# t4/t5 仅用于现有任务消息接口；它们不能证明 actor_4/5 的对应关系。
 TAG_TO_TID = {
     "green": "t0",
     "blue": "t1",
     "brown": "t2",
     "white": "t3",
-    "red1": "t5",   # red1 = actor_5
-    "red2": "t4",   # red2 = actor_4
+    "red1": "t5",   # 内部红色视觉槽 1
+    "red2": "t4",   # 内部红色视觉槽 2
 }
 TID_TO_TAG = dict((v, k) for k, v in TAG_TO_TID.items())
 ACTOR_INDEX_OF_TAG = dict((tag, int(tid[1:])) for tag, tid in TAG_TO_TID.items())
 
 # ---- ActorInfo.cls 必须是官方 actor_id_dict 的**键** ----
 # score_cal.py:22  actor_id_dict = {'green':[0],'blue':[1],'brown':[2],'white':[3],'red':[4,5]}
-# score_cal.py:175-179
-#   /actor_red1_info -> actor_info1_callback：cls=='red' 才处理，只判 actor_5
-#   /actor_red2_info -> actor_info2_callback：cls=='red' 才处理，只判 actor_4
+# 官方两条 red 输入都要求 cls='red'；当前裁判实现分别对两名红衣人交叉匹配。
 # 🔴 曾经写成 cls='red1'/'red2' ⇒ 两个 red 回调都返回空列表 ⇒ **红球永远 0 分**。
 OFFICIAL_CLS_OF_TAG = {
     "green": "green", "blue": "blue", "brown": "brown", "white": "white",
@@ -76,10 +69,17 @@ RED_FOCUS_HYST_M = float(os.environ.get("BRIDGE_RED_FOCUS_HYST", "3.0"))
 # red observation must not pull the other person's official report off target.
 RED_ASSOC_GATE_M = float(os.environ.get("BRIDGE_RED_ASSOC_GATE", "2.4"))
 RED_ASSOC_FRESH_S = float(os.environ.get("BRIDGE_RED_ASSOC_FRESH", "2.0"))
-# A detector's local red1/red2 label can swap after an occlusion.  Keep a
-# short position anchor beyond the freshness window so a stationary person
-# cannot take the other person's stale slot merely because both aged 2 s.
-RED_ASSOC_ANCHOR_S = float(os.environ.get("BRIDGE_RED_ASSOC_ANCHOR", "6.0"))
+# A detector's local red1/red2 label can swap after an occlusion.  Border
+# actors often stop for >10 s; keep their distinct spatial anchors through
+# that gap, while still allowing an unambiguous new binding after 30 s.
+RED_ASSOC_ANCHOR_S = float(os.environ.get("BRIDGE_RED_ASSOC_ANCHOR", "15.0"))
+# Two local slots less than this far apart can be duplicate tracks of one
+# actor.  Never push the second box into the other global red trajectory if
+# its old anchor is far away.  The small threshold avoids suppressing two
+# independently resolved people merely because both fit the 2.4 m gate.
+RED_LOCAL_DUP_M = 0.8
+RED_LOCAL_DUP_S = 1.0
+RED_LOCAL_DUP_MIN_CONF = 0.7
 
 # ---- 融合 / 计时参数 ----
 OBS_WINDOW = 0.6        # 多感知节点近帧融合窗 s（2Hz/节点 × 最多 6 节点）
@@ -115,7 +115,8 @@ ACTOR_PUB_HOLD_RANGE_M = float(os.environ.get("BRIDGE_PUB_HOLD_RANGE", "15.0"))
 # 补齐，把静默压在 1s 以内。外推超过 KEEPALIVE_MAX_T 就不再硬撑（宁可断，
 # 也不报一个必然 >1m 的假位置 —— 误差超 1m 同样清零）。
 ACTOR_KEEPALIVE_DT = float(os.environ.get("BRIDGE_KEEPALIVE_DT", "0.75"))
-ACTOR_KEEPALIVE_MAX_T = float(os.environ.get("BRIDGE_KEEPALIVE_MAX_T", "2.2"))
+OFFICIAL_IMAGE_MAX_AGE = 0.6  # modelled reports; never extended by a publish callback
+OFFICIAL_UNMODELLED_MAX_AGE = 0.35
 # 2026-10-06 六轮复盘核心修复：官方判据「相邻广播间隔 <=1.0s」（score_cal DETECTION_INTERVAL）
 # 只约束不超 1s，不要求高频。广播 3Hz 时 15s streak 需 45 次连乘全过（单次失败率 20% ->
 # 成功率 0.8^45≈8e-6，必然 0 消除）；节流到 0.75s 一次后 15s 只需 20 次连乘（0.8^20=1.2%），
@@ -142,6 +143,20 @@ RED_OFFICIAL_FRESH_S = float(os.environ.get("RED_OFFICIAL_FRESH_S", "1.0"))
 # t4，全队盘旋假目标并广播假消除。已激活轨不受此限（延续观测允许低置信度）。
 NEW_TRACK_CONF = float(os.environ.get("BRIDGE_NEW_TRACK_CONF", "0.7"))
 
+# One fixed object in the 22:45 match was seen by UAV3 as blue and then white
+# at (-27.1, 13.2).  It passed the ordinary geometry and stationary-person
+# gates, so the bridge sent both identities to the judge and to dispatch.
+# Quarantine only that small *location* when two independently timed, usable
+# views of each conflicting color came from the same camera.  A real actor
+# which moves away can immediately report again; an isolated stationary actor
+# never meets this cross-color condition.
+COLOR_CONFLICT_HISTORY_S = float(os.environ.get("BRIDGE_COLOR_CONFLICT_HISTORY_S", "9.0"))
+COLOR_CONFLICT_MATCH_M = float(os.environ.get("BRIDGE_COLOR_CONFLICT_MATCH_M", "0.75"))
+COLOR_CONFLICT_SWITCH_GAP_S = float(os.environ.get("BRIDGE_COLOR_CONFLICT_SWITCH_GAP_S", "0.8"))
+COLOR_CONFLICT_RADIUS_M = float(os.environ.get("BRIDGE_COLOR_CONFLICT_RADIUS_M", "1.0"))
+COLOR_CONFLICT_TTL_S = float(os.environ.get("BRIDGE_COLOR_CONFLICT_TTL_S", "12.0"))
+COLOR_CONFLICT_MIN_CONF = float(os.environ.get("BRIDGE_COLOR_CONFLICT_MIN_CONF", "0.55"))
+
 # ---- 国家一等奖标准改进：多帧验证 + 自适应参数 ----
 # 多帧验证：新轨迹需要连续 N 帧高置信度观测才能激活
 NEW_TRACK_FRAMES = int(os.environ.get("BRIDGE_NEW_TRACK_FRAMES", "2"))  # 国家一等奖改进：2 帧激活（从 3 降），2Hz 单节点下 1s 即可激活，避免 actor 1.5m/s 移动时延迟累计 >1m 误差导致确认反复归零
@@ -151,28 +166,10 @@ COLOR_SIMILARITY_THRESHOLD = float(os.environ.get("BRIDGE_COLOR_SIMILARITY", "0.
 MOTION_CONSISTENCY_WINDOW = float(os.environ.get("BRIDGE_MOTION_WINDOW", "2.0"))
 
 FLEE_SPEED = 2.0        # state 粗估：超过即给 FLEE（下游不依赖该字段），规则要求 2m/s
-# ---- 上报时延补偿（误差压制）----
-# 裁判判定要求上报坐标与 actor 真值误差 <1m 连续 15s。感知链路固有滞后：
-# 图像采集+YOLO 推理+传输 (~0.35s) + 感知端内部 EMA + 桥接 0.6s 融合窗加权
-# ≈ 0.65s。官方规则 actor 逃跑 2 m/s（±20% 即 2.4），滞后 ≈1.3m，叠加 12m 处测距噪声 ~0.9m
-# 总误差可超 1m → 裁判计数
-# 反复归零（03_judge.log 大量重复 find actor_N）。上报前按估计速度外推（DELAY 补满全链路滞后）：
-#   te = min(gap, EXTRAP_MAX_T) + EXTRAP_DELAY
-# 距离限幅 EXTRAP_MAX_D 防速度估计被 YOLO 跳变污染时外推飞掉。
-EXTRAP_DELAY  = float(os.environ.get("BRIDGE_EXTRAP_DELAY", "0.45"))
-# 2026-10-08 消除 actor 冲刺：EXTRAP_MAX_T 0.5→1.5（让最近 obs 多走 1s 进 strict 限幅），
-# EXTRAP_MAX_D 3.0→2.0（双重保护：外推距离 < 2m，仍在裁判 1m 误差阈值的 2× 内留余量）。
-# v22-D（2026-10-09）：EXTRAP_DELAY 0.65→0.45 + EXTRAP_MAX_D 2.0→1.2 —— v21 RESET_DBG
-# 实证贴脸播报误差稳定 1.39~1.58m（差 0.4m 达标，77 次 reset 全是 far_dist）：
-# actor 正常游走 1.5m/s（control_actor velocity=1.5，非逃跑），外推过冲
-# （msg 移动 1.5m/s vs true 1.07m/s）+ EXTRAP_MAX_D=2.0 打满 → 误差 1.5m。
-# 限幅 1.2m 把最坏误差压进 1m 阈值附近；欠外推 0.3s 好过过冲 0.5s（游走会转弯，
-# 过冲方向错 = 双倍罚，欠外推只罚延迟差）。
-EXTRAP_MAX_T  = float(os.environ.get("BRIDGE_EXTRAP_MAX_T", "1.5"))
-# v24b：EXTRAP_MAX_D 1.2→0.5 —— v24b 实测外推过冲 1.4~3.0m（速度被跳变拉飞时
-# 0.75s 双重前推飞掉）。0.5m 限幅 + 观测误差 0.3m = 最坏 0.8m < 1m 阈值。
-# 正常速度（1m/s）下前推需求 0.65m——0.5m 略欠外推，欠 0.15s 好过过冲（游走会转弯）。
-EXTRAP_MAX_D  = float(os.environ.get("BRIDGE_EXTRAP_MAX_D", "0.5"))
+# Pursuit-only extrapolation bounds. Judge coordinates use official_point_at
+# and actual image age, with no fixed delay and no stale saturated prediction.
+EXTRAP_MAX_T = float(os.environ.get("BRIDGE_EXTRAP_MAX_T", "1.5"))
+EXTRAP_MAX_D = float(os.environ.get("BRIDGE_EXTRAP_MAX_D", "0.5"))
 
 # ---- 国家一等奖标准改进：自适应外推 ----
 # 自适应外推：根据速度估计质量动态调整外推参数
@@ -215,54 +212,183 @@ def stable_official_point(history, now):
     because a median of their past positions would lag behind them.
     """
     recent = [p for p in history if 0.0 <= now - p[0] <= 2.0]
-    if len(recent) < 4 or recent[-1][0] - recent[0][0] < 0.8:
+    if len(recent) < 4 or recent[-1][0] - recent[0][0] < 1.2 - 1e-6:
         return None
-    half = len(recent) // 2
-    early = (statistics.median(p[1] for p in recent[:half]),
-             statistics.median(p[2] for p in recent[:half]))
-    late = (statistics.median(p[1] for p in recent[half:]),
-            statistics.median(p[2] for p in recent[half:]))
-    if math.hypot(late[0] - early[0], late[1] - early[1]) > 0.65:
+    # A fixed displacement between two half-windows labelled .5–1m/s walks
+    # as stationary. Use robust velocity with its actual time baseline.
+    slopes = [((b[1]-a[1])/(b[0]-a[0]), (b[2]-a[2])/(b[0]-a[0]))
+              for i, a in enumerate(recent) for b in recent[i+1:]
+              if b[0]-a[0] >= 0.4-1e-6]
+    if not slopes or math.hypot(statistics.median(v[0] for v in slopes),
+                               statistics.median(v[1] for v in slopes)) > 0.15:
         return None
     center = (statistics.median(p[1] for p in recent),
               statistics.median(p[2] for p in recent))
+    deviations = sorted(math.hypot(p[1]-center[0], p[2]-center[1]) for p in recent)
+    if deviations[int(0.8*(len(deviations)-1))] > 0.35:
+        return None
     if math.hypot(recent[-1][1] - center[0],
                   recent[-1][2] - center[1]) > 1.25:
         return None  # likely a different person or a genuine position change
     return center
 
 
-def coherent_official_velocity(history, now):
-    """Fit motion only when recent full-frame positions form a straight track.
+def _robust_official_fit(history, now):
+    """Fit one camera's trajectory; retain the time of the last inlier image.
 
-    This guards the longer judge-side latency compensation against one-frame
-    monocular depth jumps and identity switches.
+    Ordinary least squares followed by raw fallback amplified isolated depth
+    errors. Estimate velocity and intercept robustly first, then fit only the
+    agreeing images. A rejected last image cannot extend report freshness.
     """
     points = [p for p in history if 0.0 <= now - p[0] <= 2.0]
-    if len(points) < 3 or points[-1][0] - points[0][0] < 0.7:
+    if len(points) < 3 or points[-1][0] - points[0][0] < 0.7 - 1e-6:
         return None
-    times = [p[0] for p in points]
+    slopes = [((b[1]-a[1])/(b[0]-a[0]), (b[2]-a[2])/(b[0]-a[0]))
+              for i, a in enumerate(points) for b in points[i+1:]
+              if b[0]-a[0] >= .4-1e-6]
+    if not slopes:
+        return None
+    vx, vy = (statistics.median(v[k] for v in slopes) for k in (0, 1))
+    x = statistics.median(p[1]+vx*(now-p[0]) for p in points)
+    y = statistics.median(p[2]+vy*(now-p[0]) for p in points)
+    inliers = [p for p in points if math.hypot(
+        p[1]+vx*(now-p[0])-x, p[2]+vy*(now-p[0])-y) <= .35]
+    if (len(inliers) < max(3, math.ceil(.75*len(points))) or
+            inliers[-1][0]-inliers[0][0] < .7-1e-6):
+        return None
+    times = [p[0] for p in inliers]
     mean_t = sum(times) / len(times)
     den = sum((t - mean_t) ** 2 for t in times)
     if den < 1e-6:
         return None
-    mean_x = sum(p[1] for p in points) / len(points)
-    mean_y = sum(p[2] for p in points) / len(points)
-    vx = sum((p[0] - mean_t) * (p[1] - mean_x) for p in points) / den
-    vy = sum((p[0] - mean_t) * (p[2] - mean_y) for p in points) / den
+    mean_x = sum(p[1] for p in inliers) / len(inliers)
+    mean_y = sum(p[2] for p in inliers) / len(inliers)
+    vx = sum((p[0] - mean_t) * (p[1] - mean_x) for p in inliers) / den
+    vy = sum((p[0] - mean_t) * (p[2] - mean_y) for p in inliers) / den
     speed = math.hypot(vx, vy)
-    if not 0.7 <= speed <= 2.3:
+    if speed > 2.3:
         return None
     worst = max(math.hypot(p[1] - (mean_x + vx * (p[0] - mean_t)),
                            p[2] - (mean_y + vy * (p[0] - mean_t)))
-                for p in points)
-    return (vx, vy) if worst <= 0.35 else None
+                for p in inliers)
+    if worst > .35:
+        return None
+    return (mean_x+vx*(now-mean_t), mean_y+vy*(now-mean_t), vx, vy,
+            inliers[-1][0], inliers[-1][0] == points[-1][0])
+
+
+def _official_motion_fit(history, now):
+    fit = _robust_official_fit(history, now)
+    if fit is None or not fit[5] or math.hypot(*fit[2:4]) < .15:
+        return None
+    return fit[:4]
+
+
+def coherent_official_velocity(history, now):
+    fit = _official_motion_fit(history, now)
+    return fit[2:] if fit is not None else None
+
+
+def _confirmed_official_segment(history):
+    """Three new images can establish a turn, one possible step cannot.
+
+    Callers pass only images after the last accepted anchor. Including old
+    inliers would let two old stationary images plus one depth spike look
+    like a coherent new trajectory at a slower camera cadence.
+    """
+    points = history[-3:]
+    if (len(points) < 3 or points[-1][0]-points[0][0] < .3-1e-6 or
+            any(not 0. < b[0]-a[0] <= 1.+1e-6
+                for a, b in zip(points, points[1:]))):
+        return None
+    mean_t = sum(p[0] for p in points)/3.
+    den = sum((p[0]-mean_t)**2 for p in points)
+    mean_x, mean_y = (sum(p[k] for p in points)/3. for k in (1, 2))
+    vx, vy = (sum((p[0]-mean_t)*(p[k]-mean) for p in points)/den
+              for k, mean in ((1, mean_x), (2, mean_y)))
+    if (math.hypot(vx, vy) > 2.3 or
+            max(math.hypot(p[1]-mean_x-vx*(p[0]-mean_t),
+                           p[2]-mean_y-vy*(p[0]-mean_t)) for p in points) > .2):
+        return None
+    return points
+
+
+def camera_motion_velocity(histories, now):
+    """Estimate derivatives within each camera, never between camera biases.
+
+    One vote per fresh camera prevents a higher-rate source dominating. This
+    velocity is for following only and never qualifies a judge coordinate.
+    """
+    velocities = []
+    for history in histories.values():
+        points = [p for p in history if 0. <= now-p[0] <= 1.5]
+        if len(points) < 3 or now-points[-1][0] > .6 or points[-1][0]-points[0][0] < .6-1e-6:
+            continue
+        slopes = [((b[1]-a[1])/(b[0]-a[0]), (b[2]-a[2])/(b[0]-a[0]))
+                  for i,a in enumerate(points) for b in points[i+1:]
+                  if b[0]-a[0] >= .4-1e-6]
+        if not slopes:
+            continue
+        vx, vy = (statistics.median(v[k] for v in slopes) for k in (0,1))
+        x = statistics.median(p[1]+vx*(now-p[0]) for p in points)
+        y = statistics.median(p[2]+vy*(now-p[0]) for p in points)
+        errors = sorted(math.hypot(p[1]+vx*(now-p[0])-x,
+                                  p[2]+vy*(now-p[0])-y) for p in points)
+        if errors[int(.8*(len(errors)-1))] <= .5 and math.hypot(vx,vy) <= 2.5:
+            velocities.append((vx,vy))
+    if not velocities:
+        return 0., 0.
+    return tuple(statistics.median(v[k] for v in velocities) for k in (0,1))
+
+
+def official_point_at(track, now):
+    """One report policy for regular and keepalive paths, measured from image time.
+
+    Fits describe position at the last image, then advance only to now. A
+    displacement cap must not silently turn an expired prediction into a
+    plausible-looking but lagging report; expired imagery produces no report.
+    """
+    age = now - track.good_t
+    if (track.good_x is None or not 0.0 <= age <= OFFICIAL_IMAGE_MAX_AGE or
+            (track.tag in RED_TAGS and age > RED_OFFICIAL_FRESH_S)):
+        return None
+    fit = _robust_official_fit(track.good_history, track.good_t)
+    if fit is not None:
+        x, y, vx, vy, last_inlier, latest_ok = fit
+        limit = OFFICIAL_IMAGE_MAX_AGE if latest_ok else OFFICIAL_UNMODELLED_MAX_AGE
+        if not 0. <= now-last_inlier <= limit:
+            return None
+        return x + vx*age, y + vy*age
+    stable = stable_official_point(track.good_history, track.good_t)
+    if stable is not None:
+        inliers = [p for p in track.good_history if 0. <= track.good_t-p[0] <= 2.
+                   and math.hypot(p[1]-stable[0], p[2]-stable[1]) <= .35]
+        limit = (OFFICIAL_IMAGE_MAX_AGE if inliers[-1][0] == track.good_t
+                 else OFFICIAL_UNMODELLED_MAX_AGE)
+        return stable if 0. <= now-inliers[-1][0] <= limit else None
+    # An isolated jump must not destroy a good fit and then acquire more
+    # authority through raw fallback. A changed trajectory needs independent
+    # fresh images before _accept_official_sample starts its new segment.
+    previous = track.good_history[:-1]
+    if previous:
+        model = _robust_official_fit(previous, previous[-1][0])
+        if model is not None:
+            dt = track.good_t-previous[-1][0]
+            expected = (model[0]+model[2]*dt, model[1]+model[3]*dt)
+            if math.hypot(track.good_x-expected[0], track.good_y-expected[1]) > .45+.35*dt:
+                return None
+    if age <= OFFICIAL_UNMODELLED_MAX_AGE:
+        return track.good_x, track.good_y
+    return None
 
 
 class _Track(object):
     __slots__ = ("tag", "obs", "x", "y", "vx", "vy", "conf",
                  "t_obs", "alive", "elim_pending", "range_m",
                  "good_x", "good_y", "good_t", "good_history",
+                 "official_source", "source_history", "official_rejects",
+                 "accepted_source_samples",
+                 "pursuit_history",
                  "_last_fx", "_last_fy", "_last_ft",
                  "_high_conf_count", "_motion_history", "_last_vel_mag")
 
@@ -277,6 +403,11 @@ class _Track(object):
         # 2026-10-03 我方补：最近一次观测的水平距离（m），播报闸门用。
         # None = 发布端没给（兼容旧发布端）⇒ 闸门不限距离。
         self.range_m = None
+        self.official_source = None
+        self.source_history = {}
+        self.accepted_source_samples = {}
+        self.pursuit_history = {}
+        self.official_rejects = 0
         self.good_x = None
         self.good_y = None
         self.good_t = -1e18
@@ -362,6 +493,88 @@ def parse_left_actors(raw):
     return ids
 
 
+class CrossColorLocationGuard(object):
+    """Short, spatial quarantine for a camera that changes a fixed object's color.
+
+    This is evidence of an ambiguous *visual object*, not proof that all
+    stationary people or all reports of either color are false.  Keep the
+    judge gate separate from the pursuit tracks so another location remains
+    available for a genuine actor with the same color.
+    """
+
+    def __init__(self):
+        self.history = {}     # (camera, color) -> [(image time, x, y)]
+        self.blocks = []      # {x, y, tags, until}
+
+    @staticmethod
+    def _stable_recent(points):
+        if len(points) < 2 or points[-1][0] - points[0][0] < 0.2:
+            return None
+        xs = [p[1] for p in points[-4:]]
+        ys = [p[2] for p in points[-4:]]
+        cx, cy = statistics.median(xs), statistics.median(ys)
+        if max(math.hypot(x-cx, y-cy) for x, y in zip(xs, ys)) > 0.55:
+            return None
+        return cx, cy
+
+    def blocked(self, tag, x, y, now):
+        self.blocks = [b for b in self.blocks if now < b['until']]
+        return any(tag in b['tags'] and
+                   math.hypot(x-b['x'], y-b['y']) <= COLOR_CONFLICT_RADIUS_M
+                   for b in self.blocks)
+
+    def observe(self, sample, source, tag, x, y, visual_conf, view_ok):
+        """Return a new conflict event, or None, using only fresh image facts."""
+        if (tag in RED_TAGS or not view_ok or not math.isfinite(visual_conf) or
+                visual_conf < COLOR_CONFLICT_MIN_CONF):
+            return None
+        for key in list(self.history):
+            self.history[key] = [p for p in self.history[key]
+                                 if 0.0 <= sample-p[0] <= COLOR_CONFLICT_HISTORY_S]
+            if not self.history[key]:
+                del self.history[key]
+        key = (source, tag)
+        points = self.history.setdefault(key, [])
+        if points and sample <= points[-1][0]:
+            return None
+        points.append((sample, x, y))
+        center = self._stable_recent(points)
+        if center is None:
+            return None
+        for (other_source, other_tag), other_points in self.history.items():
+            if other_source != source or other_tag == tag or other_tag in RED_TAGS:
+                continue
+            other_center = self._stable_recent(other_points)
+            if other_center is None or sample-other_points[-1][0] > COLOR_CONFLICT_HISTORY_S:
+                continue
+            # Two real actors of different colors may stand shoulder to
+            # shoulder.  A camera that sees both in overlapping image times
+            # is not changing the label of one fixed object.  Require one
+            # color's observed run to finish before the other's begins.
+            sequential = (other_points[-1][0] + COLOR_CONFLICT_SWITCH_GAP_S <= points[0][0] or
+                          points[-1][0] + COLOR_CONFLICT_SWITCH_GAP_S <= other_points[0][0])
+            if not sequential:
+                continue
+            if math.hypot(center[0]-other_center[0], center[1]-other_center[1]) > COLOR_CONFLICT_MATCH_M:
+                continue
+            cx = (center[0]+other_center[0])/2.0
+            cy = (center[1]+other_center[1])/2.0
+            tags = sorted((tag, other_tag))
+            if any(set(tags).issubset(b['tags']) and sample < b['until'] and
+                   math.hypot(cx-b['x'], cy-b['y']) <= COLOR_CONFLICT_RADIUS_M
+                   for b in self.blocks):
+                return None
+            self.blocks.append({'x': cx, 'y': cy, 'tags': set(tags),
+                                'until': sample+COLOR_CONFLICT_TTL_S})
+            return {'x': round(cx, 3), 'y': round(cy, 3),
+                    'tags': tags, 'target_ids': [TAG_TO_TID[t] for t in tags],
+                    'source_uav': source, 'sample_s': sample,
+                    'ttl_s': COLOR_CONFLICT_TTL_S,
+                    'radius_m': COLOR_CONFLICT_RADIUS_M,
+                    'reason': 'same_source_cross_color_same_place'}
+        return None
+
+
 class TargetBridgeCore(object):
     """纯逻辑桥（无 rospy）。"""
 
@@ -369,9 +582,93 @@ class TargetBridgeCore(object):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
 
+    def _accept_official_sample(self, tr, t, source, x, y, range_m):
+        """Keep a live report source; validate other cameras independently.
+
+        Agreement qualifies a camera's own view for task health, but is not a
+        reason to reset the judge motion fit on every alternating camera frame.
+        The incumbent expires on image time, never on keepalive publication.
+        """
+        if source is not None and not self._official_source_ok(tr, t, source, x, y):
+            return
+        tr.accepted_source_samples[source] = float(t)
+        if (source != tr.official_source and tr.good_x is not None and
+                0. <= t-tr.good_t <= OFFICIAL_IMAGE_MAX_AGE):
+            return
+        if source != tr.official_source or t-tr.good_t > 2.0:
+            tr.good_history = []
+        elif source is not None:
+            segment = _confirmed_official_segment(
+                [p for p in tr.source_history.get(source, []) if p[0] > tr.good_t])
+            if segment is not None:
+                # A new coherent corner/reacquisition supersedes the old fit;
+                # never fit a straight line through both sides of the turn.
+                tr.good_history = segment[:-1]
+        tr.official_source = source
+        tr.good_x, tr.good_y, tr.good_t = x, y, float(t)
+        tr.good_history = [p for p in tr.good_history if 0. <= t-p[0] <= 2.0]
+        tr.good_history.append((float(t), x, y))
+        if range_m is not None:
+            tr.range_m = float(range_m)
+
+    def _official_source_ok(self, tr, t, source, x, y):
+        """Protect the judge stream against camera handoff and single-frame jumps.
+
+        Tracking still consumes rejected samples. This gate uses camera history
+        only; it cannot establish the absolute one-metre error without truth.
+        """
+        history = tr.source_history.get(source, [])
+        history = [p for p in history if 0.0 <= t - p[0] <= 2.4]
+        if not history or t > history[-1][0]:
+            history.append((float(t), x, y))
+        tr.source_history[source] = history
+        age = t - tr.good_t
+        has_sequence = (len(history) >= 3 and
+                        history[-1][0] - history[-3][0] >= 0.3)
+        if has_sequence:
+            has_sequence = all(
+                0. < b[0]-a[0] <= 1.0+1e-6 and
+                math.hypot(b[1]-a[1], b[2]-a[2]) <=
+                VEL_MAX*(b[0]-a[0]) + 0.5
+                for a, b in zip(history[-3:], history[-2:]))
+        model = _robust_official_fit(tr.good_history, tr.good_t)
+        if model is not None:
+            ax, ay = model[0]+model[2]*age, model[1]+model[3]*age
+        else:
+            stationary = stable_official_point(tr.good_history, tr.good_t)
+            ax, ay = stationary if stationary is not None else (tr.good_x, tr.good_y)
+        if tr.good_x is not None and source == tr.official_source and 0.0 <= age <= 2.0:
+            # Physical reachability is not a coordinate-quality check: at
+            # .8 s it allowed a lone 1.6 m error to refresh the judge stream.
+            accepted = math.hypot(x - ax, y - ay) <= 0.45 + VEL_MAX * age
+            candidate_fit = _robust_official_fit(
+                tr.good_history + [(float(t), x, y)], t)
+            if (candidate_fit is not None and not candidate_fit[5] and
+                    math.hypot(x-candidate_fit[0], y-candidate_fit[1]) > .75 and
+                    math.hypot(x-tr.good_x, y-tr.good_y) > .75):
+                accepted = False
+            if not accepted:
+                accepted = _confirmed_official_segment(
+                    [p for p in history if p[0] > tr.good_t]) is not None
+        elif tr.good_x is not None and source != tr.official_source and 0.0 <= age <= 2.0:
+            # A disagreeing second camera in the 00:36 match was 2 m away
+            # from the trusted blue stream.  Its three smooth frames alone
+            # cannot prove which monocular range is right.  Hold the old
+            # anchor for a short bounded prediction window, then allow a
+            # fresh three-image reacquisition rather than locking it forever.
+            gate = 0.75 + 0.35 * age
+            accepted = has_sequence and math.hypot(x - ax, y - ay) <= gate
+        else:
+            # No trustworthy anchor remains.  Reacquisition starts a new
+            # confirmation segment after three independent smooth images.
+            accepted = has_sequence
+        if not accepted:
+            tr.official_rejects += 1
+        return accepted
+
     # ---- 感知输入 ----
     def report(self, t, target_id, x, y, conf, range_m=None,
-               official_ok=True):
+               official_ok=True, source_uav=None):
         """吸收一条 YOLO 观测。非法参数抛 ValueError。"""
         tag = str(target_id)
         if tag not in self.tracks:
@@ -380,7 +677,13 @@ class TargetBridgeCore(object):
             return                      # 已消除目标的残余观测，不复活
         tr = self.tracks[tag]
         if t < tr.t_obs - 0.05:
-            return  # 多机消息乱序时不能让旧图像倒退轨迹时间
+            # A newer, rejected camera must not starve a trusted camera with
+            # slightly older images. Preserve global pursuit time, but allow
+            # independent fresh official evidence to update its own anchor.
+            if (source_uav is not None and official_ok and t > tr.good_t and
+                    tr.t_obs-t <= OBS_WINDOW):
+                self._accept_official_sample(tr, t, source_uav, x, y, range_m)
+            return
         # The activation counter describes consecutive *fresh* reports.
         # Keeping it across a long visual gap lets one unrelated detection
         # reactivate a dead track and immediately reach the judge stream.
@@ -424,20 +727,24 @@ class TargetBridgeCore(object):
                 return
         # 超过 COAST_TIME：真·重捕获，允许任意位置。
         tr.obs.append((float(t), x, y, w, conf))
-        if official_ok:
-            tr.good_x, tr.good_y, tr.good_t = x, y, float(t)
-            tr.good_history = [p for p in tr.good_history if t - p[0] <= 2.0]
-            tr.good_history.append((float(t), x, y))
-            if range_m is not None:
-                tr.range_m = float(range_m)
+        if official_ok and t >= tr.good_t:
+            self._accept_official_sample(tr, t, source_uav, x, y, range_m)
 
         sw = sum(o[3] for o in tr.obs)
         fx = sum(o[1] * o[3] for o in tr.obs) / sw
         fy = sum(o[2] * o[3] for o in tr.obs) / sw
         tr.conf = max(o[4] for o in tr.obs)
 
-        # 速度差分 + EMA（用融合位置，保证平滑）
-        if tr._last_fx is not None:
+        # Camera offsets change the fused centroid when source rates change.
+        # Differentiating that centroid created fictitious chase/brake pulses.
+        if source_uav is not None:
+            history = [p for p in tr.pursuit_history.get(source_uav, [])
+                       if 0. <= t-p[0] <= 1.5]
+            if not history or t > history[-1][0]:
+                history.append((float(t), x, y))
+            tr.pursuit_history[source_uav] = history[-16:]
+            tr.vx, tr.vy = camera_motion_velocity(tr.pursuit_history, t)
+        elif tr._last_fx is not None:
             dt = t - tr._last_ft
             if dt >= VEL_DT_MIN:
                 tr.vx = _vel_ema(tr.vx, (fx - tr._last_fx) / dt)
@@ -495,7 +802,7 @@ class TargetBridgeCore(object):
                 tr._high_conf_count = 0
         # 已激活轨迹不受此限（延续观测允许低置信度）
 
-    # ---- 裁判输入 ----
+    # ---- 离线裁判日志回放接口；正式节点不订阅或调用 ----
     def set_left(self, t, raw):
         """处理一条 /left_actors。返回本次标记消除的 tag 列表。"""
         remaining = parse_left_actors(raw)
@@ -570,7 +877,7 @@ class TargetBridgeCore(object):
                 extrap_factor = 1.0
             
             # 时延补偿外推：见 EXTRAP_* 注释。coast 期 te 封顶，位置不漂移。
-            te = (min(gap, EXTRAP_MAX_T) + EXTRAP_DELAY) * extrap_factor
+            te = min(max(gap, 0.0), EXTRAP_MAX_T) * extrap_factor
             ex, ey = tr.vx * te, tr.vy * te
             ed = math.hypot(ex, ey)
             # 自适应距离限幅
@@ -602,31 +909,8 @@ class TargetBridgeCore(object):
             #   state=1；DROP_TIME 之外停止发布（alive=False 上方已拦掉），不再误判。
             # 这把「被观测到」与「逃跑态」绑定，与规则表述 100% 对齐。
             state = 1
-            good_age = t - tr.good_t
-            official_x = official_y = None
-            if (tr.good_x is not None and 0.0 <= good_age <= 0.9):
-                # The official report must use the last fully visible box;
-                # keep edge-clipped detections only for search and pursuit.
-                stable = stable_official_point(tr.good_history, tr.good_t)
-                if stable is not None:
-                    official_x, official_y = stable
-                else:
-                    motion = coherent_official_velocity(tr.good_history,
-                                                        tr.good_t)
-                    if motion is not None:
-                        gvx, gvy = motion
-                        horizon = good_age + EXTRAP_DELAY
-                        max_good_d = 1.2
-                    else:
-                        gvx, gvy = tr.vx, tr.vy
-                        horizon = good_age
-                        max_good_d = EXTRAP_MAX_D
-                    gex, gey = gvx * horizon, gvy * horizon
-                    gd = math.hypot(gex, gey)
-                    if gd > max_good_d and gd > 0.0:
-                        gex *= max_good_d / gd
-                        gey *= max_good_d / gd
-                    official_x, official_y = tr.good_x + gex, tr.good_y + gey
+            point = official_point_at(tr, t)
+            official_x, official_y = point if point is not None else (None, None)
             out.append(dict(tag=tr.tag, tid=TAG_TO_TID[tr.tag],
                             x=tr.x + ex, y=tr.y + ey, vx=tr.vx, vy=tr.vy,
                             state=state, eliminated=False, sample_s=tr.t_obs,
@@ -641,11 +925,8 @@ class YoloTargetBridge(object):
     def __init__(self):
         import rospy
         from robocup_swarm.msg import TargetState
-        # 国家一等奖 v3 (2026-10-06): 改用 robocup_swarm.ActorInfo (5字段 Header+cls+x+y+z)
-        # 原 ros_actor_cmd_pose_plugin_msgs.ActorInfo (3字段 cls+x+y, float32) 与
-        # score_cal.py 的订阅端 `from robocup_swarm.msg import ActorInfo` md5 不匹配
-        # -> ROS 拒绝连接 -> /actor_*_info 永远收不到 -> /left_actors 永远是 [0..5]
-        from robocup_swarm.msg import ActorInfo
+        # 裁判官方接口仅有 cls/x/y 三字段；内部 TargetState 仍使用本队消息。
+        from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
         self._rospy = rospy
         self._TargetState = TargetState
         self._ActorInfo = ActorInfo
@@ -653,6 +934,8 @@ class YoloTargetBridge(object):
 
         self.pub = rospy.Publisher("/swarm/target_states", TargetState, queue_size=30)
         self.source_pub = rospy.Publisher("/swarm/visual_source", _msg_string_cls(), queue_size=30)
+        self.conflict_pub = rospy.Publisher("/swarm/visual_conflict", _msg_string_cls(), queue_size=10)
+        self.conflict_guard = CrossColorLocationGuard()
         # 同时向官方话题发布 ActorInfo：用多机融合坐标，保证 10Hz 上报连续，
         # 避免单机 track 断流导致上报间隔 >1s 被官方重置。
         self._actor_pubs = {}
@@ -665,27 +948,21 @@ class YoloTargetBridge(object):
         # 验证官方「相邻播报间隔 ≤1s」判据的桥端证据）
         self._pub_stats = {}
         self._pub_dbg_last = 0.0
-        # 2026-10-03 我方补：红球双流焦点（见 RED_DUAL 注释）
+        # 双红只按各自视觉轨迹发布，焦点用于队内诊断。
         self._red_focus = None        # 当前正在盯的红球 tag（'red1'/'red2'）
-        self._red_consumed = set()    # 已被官方消除的红球 tag，不再选为焦点
-        self._red_prev_ids = None     # 上一帧 /left_actors 里的红球 actor 号集合
-        self._red_recent_pub = []     # (sim time, visual tag), correlate official find
-        self._red_find_binding = {}   # official actor id -> (visual tag, find time)
+        self._red_consumed = set()    # 仅供离线裁判回放；正式运行不填充
         self._last_source_sample = {}
         self._red_source_map = {}   # (source, local red slot) -> global red track
-        self._rejected_visual = {}  # tag -> (x, y, expiry); public judge find never arrived
+        self._red_source_observations = {}  # accepted local slot -> (image time, x, y)
+        self._rejected_visual = {}  # tag -> (x, y, expiry); 本队视觉冲突位置冷却
+        self._String = _msg_string_cls()
+        self.report_pub = rospy.Publisher("/swarm/report_telemetry",
+                                          self._String, queue_size=30)
         for tag in TAG_TO_TID:
             self._actor_pubs[tag] = rospy.Publisher(
                 "/actor_%s_info" % tag, ActorInfo, queue_size=3)
         rospy.Subscriber("/coordination/target_report",
                          _msg_string_cls(), self._report_cb, queue_size=50)
-        rospy.Subscriber("/left_actors", _msg_string_cls(),
-                         self._left_cb, queue_size=5)
-        from std_msgs.msg import Float32
-        for actor_id in RED_ACTOR_IDS:
-            rospy.Subscriber("/find_actor_%d" % actor_id, Float32,
-                             lambda msg, aid=actor_id: self._find_red_cb(msg, aid),
-                             queue_size=5)
         rospy.Subscriber("/swarm/rejected_visual", _msg_string_cls(),
                          self._rejected_visual_cb, queue_size=5)
 
@@ -739,11 +1016,58 @@ class YoloTargetBridge(object):
         global tracks are fresh; it may be a false detection.
         """
         key = (source, local_tag)
+        # Some offline replay harnesses instantiate the bridge without its
+        # ROS constructor; keep association state available in both paths.
+        observations = self.__dict__.setdefault('_red_source_observations', {})
         mapped = self._red_source_map.get(key)
         candidates = []
         free = []
         other_local = "red2" if local_tag == "red1" else "red1"
         other_mapped = self._red_source_map.get((source, other_local))
+        other_sample = self._last_source_sample.get((source, other_local))
+        other_obs = observations.get((source, other_local))
+        # Both local slots can be observed less often than once per second on
+        # a loaded CPU.  Keep them mutually exclusive for the same freshness
+        # window used by the global red tracks; the old 1 s check let two
+        # still-live local slots collapse onto one judge stream.
+        other_active = (other_mapped in RED_TAGS and
+                        other_mapped not in self.core.eliminated and
+                        other_sample is not None and
+                        abs(sample - other_sample) <= RED_ASSOC_FRESH_S)
+        if other_active and other_obs is not None and \
+                RED_LOCAL_DUP_S < sample-other_obs[0] <= RED_ASSOC_FRESH_S:
+            other_track = self.core.tracks[other_mapped]
+            distinct_tag = next(tag for tag in RED_TAGS if tag != other_mapped)
+            distinct_track = self.core.tracks[distinct_tag]
+            # A lost local track can reappear in the camera's other slot.
+            # Its old slot is not a simultaneous second person. Rebind only
+            # when this existing global anchor matches and no independent
+            # second anchor matches; keep close, resolved pairs distinct.
+            if (0. <= sample-other_track.t_obs <= RED_ASSOC_FRESH_S and
+                    math.hypot(x-other_track.x, y-other_track.y) <= RED_ASSOC_GATE_M and
+                    (distinct_track.t_obs < 0. or
+                     math.hypot(x-distinct_track.x, y-distinct_track.y) > RED_ASSOC_GATE_M)):
+                self._red_source_map.pop((source, other_local), None)
+                observations.pop((source, other_local), None)
+                self._red_source_map[key] = other_mapped
+                observations[key] = (sample, x, y)
+                return other_mapped
+        if other_active and other_obs is not None and \
+                0.0 <= sample - other_obs[0] <= RED_LOCAL_DUP_S and \
+                math.hypot(x - other_obs[1], y - other_obs[2]) <= RED_LOCAL_DUP_M:
+            other_track = self.core.tracks[other_mapped]
+            distinct_tag = next(tag for tag in RED_TAGS if tag != other_mapped)
+            distinct_track = self.core.tracks[distinct_tag]
+            distinct_dist = (math.hypot(x - distinct_track.x, y - distinct_track.y)
+                             if distinct_track.t_obs >= 0.0 else float('inf'))
+            # The other local slot already has a confident, nearby global
+            # anchor, while the only other global person is elsewhere.
+            # This is a duplicate local track, not evidence of two people.
+            if (other_track.conf >= RED_LOCAL_DUP_MIN_CONF and
+                    0.0 <= sample - other_track.t_obs <= RED_ASSOC_FRESH_S and
+                    math.hypot(x - other_track.x, y - other_track.y) <= RED_LOCAL_DUP_M and
+                    distinct_dist > RED_ASSOC_GATE_M):
+                return None
         for tag in RED_TAGS:
             if tag in self.core.eliminated or self.core.tracks[tag].elim_pending:
                 continue
@@ -763,9 +1087,8 @@ class YoloTargetBridge(object):
         candidates.sort()
         if candidates:
             # A detector cannot assign its two simultaneous local slots to
-            # one global person.  Keep the other mapping only while recent.
-            other_sample = self._last_source_sample.get((source, other_local), -1e18)
-            if sample - other_sample <= 1.0:
+            # one global person while the other local slot is still active.
+            if other_active:
                 candidates = [c for c in candidates if c[1] != other_mapped]
             if candidates:
                 chosen = candidates[0][1]
@@ -776,15 +1099,26 @@ class YoloTargetBridge(object):
                         chosen = tag
                         break
                 self._red_source_map[key] = chosen
+                observations[key] = (sample, x, y)
                 return chosen
         if free:
+            # A camera-local name cannot reassign a still-anchored global
+            # track after only a few seconds without spatial evidence.  Wait
+            # for a compatible view or for the anchors to expire.
+            anchors = [self.core.tracks[tag] for tag in RED_TAGS
+                       if tag not in self.core.eliminated and
+                       not self.core.tracks[tag].elim_pending]
+            if (len(anchors) == 2 and all(
+                    RED_ASSOC_FRESH_S < sample - tr.t_obs <= RED_ASSOC_ANCHOR_S
+                    for tr in anchors)):
+                return None
             # Prefer the previous mapping if its track went stale; otherwise
             # use the same-named empty slot for deterministic startup.
             chosen = mapped if mapped in free else (
                 local_tag if local_tag in free else free[0])
-            if chosen != other_mapped or sample - self._last_source_sample.get(
-                    (source, other_local), -1e18) > 1.0:
+            if chosen != other_mapped or not other_active:
                 self._red_source_map[key] = chosen
+                observations[key] = (sample, x, y)
                 return chosen
         return None
 
@@ -793,10 +1127,14 @@ class YoloTargetBridge(object):
             tag, x, y, conf, rng = parse_report(msg.data)
             payload = json.loads(msg.data)
             now = self._now()
-            sample = float(payload.get("sample_s", now))
+            if payload.get("real_detection") is not True:
+                raise ValueError("缺少真实检测标志")
+            sample = float(payload["sample_s"])
             if not math.isfinite(sample) or sample <= 0.0 or sample > now + 0.05 or now - sample > 0.8:
                 raise ValueError("图像时间戳过期或非法")
-            source = str(payload.get("source_uav", "legacy"))
+            source = str(payload["source_uav"])
+            if not source or source == "legacy":
+                raise ValueError("缺少相机来源")
             key = (source, tag)
             if sample <= self._last_source_sample.get(key, -1e18):
                 return
@@ -808,19 +1146,44 @@ class YoloTargetBridge(object):
                 tag = assigned
             if self._visual_is_rejected(tag, x, y, now):
                 return
+            try:
+                visual_conf = float(payload.get('visual_confidence', conf))
+            except (TypeError, ValueError):
+                visual_conf = 0.0  # malformed optional evidence must not drop a target
+            conflict = self.conflict_guard.observe(
+                sample, source, tag, x, y, visual_conf,
+                payload.get('official_view_ok') is True)
+            if conflict is not None:
+                self._rospy.logwarn('[COLOR_CONFLICT] camera=%s tags=%s '
+                                    'xy=(%.2f,%.2f) ttl=%.1fs',
+                                    source, '/'.join(conflict['tags']),
+                                    conflict['x'], conflict['y'], conflict['ttl_s'])
+                self.conflict_pub.publish(_msg_string_cls()(data=json.dumps(conflict)))
             before_t = self.core.tracks[tag].t_obs
             self.core.report(sample, tag, x, y, conf, rng,
-                             official_ok=payload.get('official_view_ok', True) is True)
+                             official_ok=(payload.get('official_view_ok') is True and
+                                          rng is not None and rng > 0.0),
+                             source_uav=source)
+            tr = self.core.tracks[tag]
+            source_accepted = tr.accepted_source_samples.get(source) == sample
+            if tr.t_obs == sample and not source_accepted and payload.get('official_view_ok') is True:
+                self._rospy.logwarn_throttle(1, '[OFFICIAL_GUARD] tag=%s source=%s '
+                    'image=%.3f xy=(%.3f,%.3f) trusted_source=%s good_age=%.3f rejects=%d',
+                    tag, source, sample, x, y, tr.official_source,
+                    sample-tr.good_t, tr.official_rejects)
             # Preserve the camera that actually saw this person. The manager's
             # geometric /swarm/detection echoes cannot identify that camera.
             tr = self.core.tracks[tag]
-            if tr.t_obs == sample and sample > before_t and source != 'legacy':
+            if tr.alive and ((tr.t_obs == sample and sample > before_t) or source_accepted):
                 pub = getattr(self, 'source_pub', None)
                 if pub is not None:
                     pub.publish(_msg_string_cls()(data=json.dumps({
                         'target_id': TAG_TO_TID[tag], 'source_uav': source,
-                        'sample_s': sample, 'x': x, 'y': y})))
-        except ValueError as exc:
+                        'sample_s': sample, 'x': x, 'y': y,
+                        'real_detection': True, 'confidence': conf,
+                        'range_m': rng,
+                        'official_view_ok': source_accepted})))
+        except (ValueError, KeyError, TypeError) as exc:
             self._rospy.logwarn_throttle(5, "丢弃 target_report：%s", exc)
 
     # ---- 红球双流：焦点选择 ----
@@ -874,7 +1237,7 @@ class YoloTargetBridge(object):
         return self._red_focus
 
     def _note_red_left(self, remaining):
-        """Retire only the visual red trajectory supported by judge feedback."""
+        """Offline referee-log replay only; the competition node never calls this."""
         if remaining is None:
             return
         cur = set(v for v in remaining if v in RED_ACTOR_IDS)
@@ -905,6 +1268,7 @@ class YoloTargetBridge(object):
             for key, mapped in list(self._red_source_map.items()):
                 if mapped == tag:
                     self._red_source_map.pop(key, None)
+                    self._red_source_observations.pop(key, None)
             self._rospy.loginfo("[bridge] 官方红目标 %s 已删除；回收视觉轨 %s，保留另一红轨",
                                 next(iter(removed)), tag)
         else:
@@ -913,7 +1277,7 @@ class YoloTargetBridge(object):
         self._red_focus = None
 
     def _find_red_cb(self, msg, actor_id):
-        """Correlate a judge find event with our last uniquely timed red pub."""
+        """Offline referee-log replay only; the competition node never calls this."""
         now = self._now()
         self._red_recent_pub = [item for item in self._red_recent_pub
                                 if now - item[0] <= 1.0]
@@ -928,6 +1292,7 @@ class YoloTargetBridge(object):
         self._red_find_binding[actor_id] = (best_tag, now)
 
     def _left_cb(self, msg):
+        """Offline referee-log replay only; never registered as a ROS callback."""
         self._note_red_left(parse_left_actors(msg.data))
         newly = self.core.set_left(self._now(), msg.data)
         for tag in newly:
@@ -977,14 +1342,19 @@ class YoloTargetBridge(object):
         """
         if tag not in self._actor_pubs:
             return
+        now = self._now()
+        if self.conflict_guard.blocked(tag, x, y, now):
+            _key = 'color_conflict_hold_' + tag
+            if now - _BRIDGE_DBG_LAST.get(_key, -1e18) >= 5.0:
+                _BRIDGE_DBG_LAST[_key] = now
+                self._rospy.logwarn('[COLOR_CONFLICT_HOLD] tag=%s xy=(%.2f,%.2f)',
+                                    tag, x, y)
+            return
         am = self._ActorInfo()
         am.cls = OFFICIAL_CLS_OF_TAG.get(tag, tag)
         am.x = round(float(x), 3)
         am.y = round(float(y), 3)
-        am.z = 0.0
-        am.header.stamp = self._rospy.Time.now()
-        am.header.frame_id = "world_enu"
-        now = self._now()
+        tr = self.core.tracks[tag]
         # 官方 streak 判据下的节流闸门：距上次发布 <0.75s 直接跳过。
         # 间隔落在 [0.75, ~0.95] 区间，既满足官方 <=1.0s 的连续性判据，
         # 又把 15s 窗口内的连乘次数从 ~45 次压到 ~20 次。
@@ -996,20 +1366,34 @@ class YoloTargetBridge(object):
         _interval = FAST_PUB_INTERVAL if _track_speed >= FAST_PUB_SPEED else PUB_MIN_INTERVAL
         if _last_pub is not None and now - _last_pub < _interval:
             return
-        if RED_DUAL and tag in RED_TAGS:
-            # B3（2026-10-09）：双红球各轨独立播报，red1 只喂 red1 流，
-            # red2 只喂 red2 流。官方每条流内部都会匹配 actor_4/5；
-            # 若把两球坐标同发到两条流，交替坐标会清除对方流的累计状态。
-            self._actor_pubs[tag].publish(am)
-            self._pub_last[tag] = now
-            self._red_recent_pub = [item for item in self._red_recent_pub
-                                    if now - item[0] <= 1.0]
-            self._red_recent_pub.append((now, tag))
-            self._note_pub(tag, now)
-            return
+        self._rospy.loginfo('[REPORT_POINT] tag=%s source=%s image=%.3f '
+                           'age=%.3f xy=(%.3f,%.3f) rejected=%d',
+                           tag, tr.official_source, tr.good_t,
+                           now-tr.good_t, am.x, am.y, tr.official_rejects)
+        # red1/red2 remain separate judge streams.  Their internal names do
+        # not assert which official red actor was observed.
         self._actor_pubs[tag].publish(am)
         self._pub_last[tag] = now
         self._note_pub(tag, now)
+        self._publish_report_telemetry('published', tag, now, tr, am.x, am.y)
+
+    def _publish_report_telemetry(self, event, tag, now, tr, x, y):
+        """Expose our own publish/vision evidence without reading judge state."""
+        pub = getattr(self, 'report_pub', None)
+        if pub is None:
+            return
+        sample = float(getattr(tr, 'good_t', -1.0))
+        payload = {
+            'event': event,
+            'target_id': TAG_TO_TID[tag],
+            'tag': tag,
+            'report_s': float(now),
+            'sample_s': sample,
+            'fresh_image': 0.0 <= now - sample <= 1.0,
+            'source_uav': getattr(tr, 'official_source', None) or '',
+            'x': float(x), 'y': float(y),
+        }
+        pub.publish(self._String(data=json.dumps(payload, separators=(',', ':'))))
 
     def _emit(self, ev):
         m = self._TargetState()
@@ -1075,93 +1459,53 @@ class YoloTargetBridge(object):
         self._publish_actor(tag, ev["official_x"], ev["official_y"])
 
     def _keepalive(self, now):
-        """播报保持器（2026-10-03 新增）。
-
-        官方那条 "相邻播报间隔 ≤1.0s" 是硬判据（score_cal.py:137），断一次就
-        _reset_detection 清零；而清零后重新对上又会重发一次 /find_actor_N，
-        等于把 actor 的 25s 瞬移倒计时再往未来叠一份 —— 代价是双重的。
-        融合层偶发空 tick（coast 中 / 多帧验证未达 NEW_TRACK_FRAMES / 窗内无新观测）
-        会造成 >1s 静默，这里按最低频率补齐，把静默压在 1s 以内。
-        位置用「最后融合位置 + 速度 × dt」外推；外推超过 KEEPALIVE_MAX_T 就放弃
-        （宁可断流，也不报一个必然 >1m 的假坐标 —— 误差超 1m 照样清零）。
-        """
+        """Fill publish gaps only while the same image-time policy permits it."""
         for tag in list(self._gate_live):
             if not self._gate_live.get(tag):
                 continue
             if tag not in self._actor_pubs or tag in self.core.eliminated:
                 self._gate_live[tag] = False
                 continue
-            # B3：非焦点红球也走保持器（双流独立后不再拦截）
             tr = self.core.tracks.get(tag)
             if tr is None:
                 continue
-            age = now - tr.good_t
-            if tr.good_x is None or age < 0.0 or age > DROP_TIME:
+            point = official_point_at(tr, now)
+            if point is None:
                 continue
-            if tag in RED_TAGS and age > RED_OFFICIAL_FRESH_S:
+            speed = math.hypot(tr.vx, tr.vy)
+            interval = (min(ACTOR_KEEPALIVE_DT, FAST_PUB_INTERVAL)
+                        if speed >= FAST_PUB_SPEED else ACTOR_KEEPALIVE_DT)
+            if now - self._pub_last.get(tag, -1e18) < interval:
                 continue
-            # The old age>0.9 guard above silently disabled the documented
-            # coast path below.  Only use a longer hold when several recent
-            # camera observations show a stationary target; moving targets
-            # retain a short prediction horizon to protect the judge's 1 m
-            # accuracy rule.  The hold never creates a new visual sample.
-            stable = stable_official_point(tr.good_history, tr.good_t)
-            if age > (min(DROP_TIME, 4.0) if stable is not None else 1.5):
+            if not self._pub_gate_ok(tag):
                 continue
-            # R6（2026-10-09）：观测断流但 track 尚未死透（gap<DROP_TIME）时，
-            # keepalive 不再硬跳。v26 t5 确认 87%→lost reset×4 的直接原因：贴脸期
-            # YOLO 短暂丢目标（actor 走出视野/被机身遮）→ 观测 gap 1.5~3s 但 track
-            # 未到 DROP_TIME → 保持器却因 ACTOR_KEEPALIVE_MAX_T=2.2s 硬跳 → 播报断
-            # >1s → 官方 _reset_detection 清零重来。消除链最后一公里必须做到
-            # "观测断、播报不断"。仍受 EXTRAP_MAX_D 限幅保护（0.5m），
-            # 不会报必然 >1m 的假坐标。
-            if age > DROP_TIME:
-                continue                    # 彻底死透：不硬撑，等真实观测回来
-            last = self._pub_last.get(tag, 0.0)
-            dt = now - last
-            _track_speed = math.hypot(tr.vx, tr.vy)
-            _interval = (min(ACTOR_KEEPALIVE_DT, FAST_PUB_INTERVAL)
-                         if _track_speed >= FAST_PUB_SPEED else ACTOR_KEEPALIVE_DT)
-            if dt < _interval:
-                continue
-            # R6：放宽超时闸——只要 track 未死透，就撑到接近 DROP_TIME。
-            # 官方判据「断流 >1s 清零」的代价是"清零重来 15s 全窗口"；
-            # 而限幅 0.5m 外推撑 3s 的代价是"偶尔一次 >1m 误差"（也只清零一次）。
-            # 宁多撑不断流——断流必清零，误差超限是概率性事件。
-            max_t = max(ACTOR_KEEPALIVE_MAX_T, DROP_TIME - 1.0)
-            if dt > max_t:
-                continue                    # 太久没观测：不硬撑，等真实观测回来
-            # v24b：补发外推同样限幅 EXTRAP_MAX_D（0.5m）——dt 可达 1.3s，
-            # 速度 2.2m/s 时无限幅外推 2.86m，必被裁判 far_dist 清零。
-            _vx = getattr(tr, "vx", 0.0) or 0.0
-            _vy = getattr(tr, "vy", 0.0) or 0.0
-            if stable is not None:
-                self._publish_actor(tag, stable[0], stable[1])
-                continue
-            motion = coherent_official_velocity(tr.good_history, tr.good_t)
-            if motion is not None:
-                _vx, _vy = motion
-                _horizon = age + EXTRAP_DELAY
-                _max_d = 1.2
-            else:
-                _horizon = age
-                _max_d = EXTRAP_MAX_D
-            _dx, _dy = _vx * _horizon, _vy * _horizon
-            _d = math.hypot(_dx, _dy)
-            if _d > _max_d and _d > 1e-6:
-                _s = _max_d / _d
-                _dx *= _s
-                _dy *= _s
-            x = tr.good_x + _dx
-            y = tr.good_y + _dy
-            self._publish_actor(tag, x, y)
+            self._publish_actor(tag, *point)
 
     def _tick(self, _evt):
         now = self._now()
         if RED_DUAL:
             self._pick_red_focus()
+        was_alive = {tag: tr.alive for tag, tr in self.core.tracks.items()}
         for ev in self.core.tick(now):
             self._emit(ev)
+        for tag, active in was_alive.items():
+            tr = self.core.tracks[tag]
+            if not active or tr.alive or tag in self.core.eliminated:
+                continue
+            # An expired image track is only lost, never officially removed.
+            # Release its report gate and stale local red-slot bindings so a
+            # new real sighting can claim this visual slot again.
+            self._gate_live.pop(tag, None)
+            self._pub_last.pop(tag, None)
+            if tag in RED_TAGS:
+                if self._red_focus == tag:
+                    self._red_focus = None
+                for key, mapped in list(self._red_source_map.items()):
+                    if mapped == tag:
+                        self._red_source_map.pop(key, None)
+                        self._red_source_observations.pop(key, None)
+            self._publish_report_telemetry('visual_lost', tag, now,
+                                           tr, tr.x, tr.y)
         self._keepalive(now)
         # 2026-10-06 播报连续性遥测：每 5s 汇总一次实际发布间隔。
         # 官方判据「相邻播报间隔 ≤1s」—— max_gap>1.0 即存在断流窗口。
@@ -1292,6 +1636,22 @@ class _FakeMsg(object):
         self.header = type("H", (), {"stamp": None, "frame_id": ""})()
 
 
+class _FakeString(object):
+    def __init__(self, data=""):
+        self.data = data
+
+
+class _FakeActorInfo(object):
+    """Mirror the official three-field ROS message in bridge self-tests."""
+    __slots__ = ("cls", "x", "y")
+    _type = "ros_actor_cmd_pose_plugin_msgs/ActorInfo"
+
+    def __init__(self):
+        self.cls = ""
+        self.x = 0.0
+        self.y = 0.0
+
+
 class _FakeRos(object):
     class Time(object):
         @staticmethod
@@ -1314,9 +1674,13 @@ def _mk_bridge():
     b = object.__new__(YoloTargetBridge)
     b._rospy = _FakeRos()
     b._TargetState = _FakeMsg
-    b._ActorInfo = _FakeMsg
+    b._ActorInfo = _FakeActorInfo
     b.core = TargetBridgeCore()
     b.pub = _FakePub()
+    b._String = _FakeString
+    b.report_pub = _FakePub()
+    b.conflict_pub = _FakePub()
+    b.conflict_guard = CrossColorLocationGuard()
     b._actor_pubs = dict((t, _FakePub()) for t in TAG_TO_TID)
     b._gate_live = {}
     b._pub_last = {}
@@ -1329,6 +1693,7 @@ def _mk_bridge():
     b._red_recent_pub = []
     b._red_find_binding = {}
     b._red_source_map = {}
+    b._red_source_observations = {}
     b._last_source_sample = {}
     b._rejected_visual = {}
     # 2026-10-06 修：可推进的假时钟 —— PUB_MIN_INTERVAL 节流需要时间前进
@@ -1352,7 +1717,7 @@ def _red_dual_selftest():
                                   "white": 3, "red2": 4, "red1": 5}, ACTOR_INDEX_OF_TAG
     assert OFFICIAL_CLS_OF_TAG["red1"] == "red" and OFFICIAL_CLS_OF_TAG["red2"] == "red"
     assert OFFICIAL_CLS_OF_TAG["white"] == "white"
-    print("7) 身份映射/官方 cls OK（red1→actor_5，cls 统一为 'red'）")
+    print("7) 内部红色槽位/官方 cls OK（红色物理身份未绑定，cls='red'）")
 
     b = _mk_bridge()
     # 2026-10-06 修：闸门默认已从 12m 收紧到 8m（ACTOR_PUB_MAX_RANGE_M），
@@ -1382,7 +1747,7 @@ def _red_dual_selftest():
     assert b._actor_pubs["red2"].msgs[0].x == 40.0
     print("9) red2 只发 red2 流 OK")
 
-    # 官方删掉一个红衣人（actor_5）⇒ red1 作废，焦点切到可用的 red2
+    # 仅离线回放：已知红人离场时，检查红色焦点可转到另一条视觉轨。
     b._note_red_left({0, 1, 2, 3, 4, 5})      # 先建立 baseline（首帧不作差集）
     assert b._red_focus == "red1"
     b.core.report(1.0, "red2", 40.0, 0.0, 0.9, range_m=6.0)   # red2 变近、过闸门
@@ -1395,7 +1760,7 @@ def _red_dual_selftest():
                  official_y=0.0, official_sample_s=1.0))
     assert b._actor_pubs["red1"].msgs[-1].x == 10.0   # red1 流保持旧坐标
     assert b._actor_pubs["red2"].msgs[-1].x == 40.0
-    print("10) 消除后红球焦点自动切换 OK（两个红球可依次拿分）")
+    print("10) 离线回放红色焦点切换 OK")
 
     # 非红球不受双流影响：green 只发自己的话题，cls='green'
     _activate(b, "green", 0.0, 5.0, 7.0)

@@ -1,0 +1,1115 @@
+{
+  "note": "Original camera reports through 2568; image eligibility joined by original sample time and track ID.",
+  "reports": [
+    {
+      "t": 2503.68,
+      "tag": "red1",
+      "x": 11.55,
+      "y": -9.24,
+      "conf": 1.0,
+      "range_m": 6.1,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2503.88,
+      "tag": "red1",
+      "x": 11.67,
+      "y": -9.08,
+      "conf": 1.0,
+      "range_m": 5.89,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2504.288,
+      "tag": "red1",
+      "x": 12.02,
+      "y": -8.8,
+      "conf": 1.0,
+      "range_m": 5.53,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2504.488,
+      "tag": "red1",
+      "x": 12.18,
+      "y": -9.06,
+      "conf": 1.0,
+      "range_m": 5.78,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2504.684,
+      "tag": "red1",
+      "x": 12.83,
+      "y": -7.46,
+      "conf": 1.0,
+      "range_m": 4.13,
+      "official_ok": false,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2504.892,
+      "tag": "red1",
+      "x": 12.88,
+      "y": -7.68,
+      "conf": 1.0,
+      "range_m": 4.45,
+      "official_ok": false,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2505.296,
+      "tag": "red1",
+      "x": 12.98,
+      "y": -9.0,
+      "conf": 1.0,
+      "range_m": 6.1,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2505.464,
+      "tag": "red1",
+      "x": 13.1,
+      "y": -9.05,
+      "conf": 1.0,
+      "range_m": 6.29,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2505.676,
+      "tag": "red1",
+      "x": 13.24,
+      "y": -9.06,
+      "conf": 1.0,
+      "range_m": 6.47,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2506.072,
+      "tag": "red1",
+      "x": 13.64,
+      "y": -9.08,
+      "conf": 1.0,
+      "range_m": 6.73,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2506.288,
+      "tag": "red1",
+      "x": 13.71,
+      "y": -8.93,
+      "conf": 1.0,
+      "range_m": 6.7,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2506.472,
+      "tag": "red1",
+      "x": 14.01,
+      "y": -9.05,
+      "conf": 1.0,
+      "range_m": 6.9,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2506.652,
+      "tag": "red1",
+      "x": 14.19,
+      "y": -9.43,
+      "conf": 1.0,
+      "range_m": 7.34,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2507.076,
+      "tag": "red1",
+      "x": 14.58,
+      "y": -8.98,
+      "conf": 1.0,
+      "range_m": 6.96,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2507.296,
+      "tag": "red1",
+      "x": 14.74,
+      "y": -8.98,
+      "conf": 1.0,
+      "range_m": 7.02,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2507.484,
+      "tag": "red1",
+      "x": 14.94,
+      "y": -8.87,
+      "conf": 1.0,
+      "range_m": 6.96,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2507.66,
+      "tag": "red1",
+      "x": 15.21,
+      "y": -8.76,
+      "conf": 1.0,
+      "range_m": 6.9,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2508.056,
+      "tag": "red1",
+      "x": 15.53,
+      "y": -8.86,
+      "conf": 1.0,
+      "range_m": 7.13,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2508.252,
+      "tag": "red1",
+      "x": 15.78,
+      "y": -8.85,
+      "conf": 1.0,
+      "range_m": 7.19,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2508.464,
+      "tag": "red1",
+      "x": 15.86,
+      "y": -8.82,
+      "conf": 1.0,
+      "range_m": 7.24,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2508.656,
+      "tag": "red1",
+      "x": 16.13,
+      "y": -8.76,
+      "conf": 1.0,
+      "range_m": 7.25,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2509.06,
+      "tag": "red1",
+      "x": 16.46,
+      "y": -9.05,
+      "conf": 1.0,
+      "range_m": 7.7,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2509.264,
+      "tag": "red1",
+      "x": 16.7,
+      "y": -8.75,
+      "conf": 1.0,
+      "range_m": 7.47,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2509.472,
+      "tag": "red1",
+      "x": 16.91,
+      "y": -8.86,
+      "conf": 1.0,
+      "range_m": 7.63,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2509.672,
+      "tag": "red1",
+      "x": 17.14,
+      "y": -8.66,
+      "conf": 1.0,
+      "range_m": 7.48,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2510.072,
+      "tag": "red1",
+      "x": 17.54,
+      "y": -8.57,
+      "conf": 1.0,
+      "range_m": 7.45,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2510.268,
+      "tag": "red1",
+      "x": 17.69,
+      "y": -8.72,
+      "conf": 1.0,
+      "range_m": 7.62,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2510.488,
+      "tag": "red1",
+      "x": 17.89,
+      "y": -8.77,
+      "conf": 1.0,
+      "range_m": 7.72,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2510.688,
+      "tag": "red1",
+      "x": 17.97,
+      "y": -8.86,
+      "conf": 1.0,
+      "range_m": 7.86,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2511.072,
+      "tag": "red1",
+      "x": 18.42,
+      "y": -8.82,
+      "conf": 1.0,
+      "range_m": 7.98,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2511.26,
+      "tag": "red1",
+      "x": 18.38,
+      "y": -8.63,
+      "conf": 1.0,
+      "range_m": 7.8,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2511.456,
+      "tag": "red1",
+      "x": 18.63,
+      "y": -8.73,
+      "conf": 1.0,
+      "range_m": 7.94,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2511.692,
+      "tag": "red1",
+      "x": 18.85,
+      "y": -8.65,
+      "conf": 1.0,
+      "range_m": 7.86,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2512.092,
+      "tag": "red1",
+      "x": 19.2,
+      "y": -8.7,
+      "conf": 1.0,
+      "range_m": 7.91,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2512.3,
+      "tag": "red1",
+      "x": 19.41,
+      "y": -8.7,
+      "conf": 1.0,
+      "range_m": 7.94,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2512.696,
+      "tag": "red1",
+      "x": 19.71,
+      "y": -8.77,
+      "conf": 1.0,
+      "range_m": 8.04,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2512.884,
+      "tag": "red1",
+      "x": 19.86,
+      "y": -8.69,
+      "conf": 1.0,
+      "range_m": 7.97,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2513.284,
+      "tag": "red1",
+      "x": 20.36,
+      "y": -8.62,
+      "conf": 1.0,
+      "range_m": 7.95,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2513.5,
+      "tag": "red1",
+      "x": 20.52,
+      "y": -8.7,
+      "conf": 1.0,
+      "range_m": 8.01,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2514.096,
+      "tag": "red1",
+      "x": 21.06,
+      "y": -8.74,
+      "conf": 1.0,
+      "range_m": 8.03,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2514.268,
+      "tag": "red1",
+      "x": 21.16,
+      "y": -8.64,
+      "conf": 1.0,
+      "range_m": 7.9,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2514.5,
+      "tag": "red1",
+      "x": 21.47,
+      "y": -8.74,
+      "conf": 1.0,
+      "range_m": 8.02,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2514.7,
+      "tag": "red1",
+      "x": 21.51,
+      "y": -8.85,
+      "conf": 1.0,
+      "range_m": 8.02,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2515.08,
+      "tag": "red1",
+      "x": 21.97,
+      "y": -8.9,
+      "conf": 1.0,
+      "range_m": 8.12,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2515.492,
+      "tag": "red1",
+      "x": 22.32,
+      "y": -8.88,
+      "conf": 1.0,
+      "range_m": 8.1,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2515.704,
+      "tag": "red1",
+      "x": 22.49,
+      "y": -8.85,
+      "conf": 1.0,
+      "range_m": 8.05,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2516.096,
+      "tag": "red1",
+      "x": 22.84,
+      "y": -8.87,
+      "conf": 1.0,
+      "range_m": 8.03,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2543.988,
+      "tag": "red1",
+      "x": 53.83,
+      "y": 6.94,
+      "conf": 1.0,
+      "range_m": 7.84,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2544.564,
+      "tag": "red1",
+      "x": 53.7,
+      "y": 6.58,
+      "conf": 1.0,
+      "range_m": 7.75,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2544.784,
+      "tag": "red1",
+      "x": 53.77,
+      "y": 6.32,
+      "conf": 1.0,
+      "range_m": 7.85,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2545.184,
+      "tag": "red1",
+      "x": 53.79,
+      "y": 5.9,
+      "conf": 1.0,
+      "range_m": 7.93,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2545.372,
+      "tag": "red1",
+      "x": 53.92,
+      "y": 5.85,
+      "conf": 1.0,
+      "range_m": 8.08,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2545.588,
+      "tag": "red1",
+      "x": 53.82,
+      "y": 5.62,
+      "conf": 1.0,
+      "range_m": 8.03,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2545.792,
+      "tag": "red1",
+      "x": 53.67,
+      "y": 5.44,
+      "conf": 1.0,
+      "range_m": 7.91,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2545.988,
+      "tag": "red1",
+      "x": 53.64,
+      "y": 5.31,
+      "conf": 1.0,
+      "range_m": 7.89,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2546.384,
+      "tag": "red1",
+      "x": 53.55,
+      "y": 4.89,
+      "conf": 1.0,
+      "range_m": 7.82,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2546.58,
+      "tag": "red1",
+      "x": 53.48,
+      "y": 4.69,
+      "conf": 1.0,
+      "range_m": 7.77,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2546.784,
+      "tag": "red1",
+      "x": 53.35,
+      "y": 4.45,
+      "conf": 1.0,
+      "range_m": 7.67,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2547.18,
+      "tag": "red1",
+      "x": 53.58,
+      "y": 4.12,
+      "conf": 1.0,
+      "range_m": 7.98,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2547.584,
+      "tag": "red1",
+      "x": 53.23,
+      "y": 3.74,
+      "conf": 1.0,
+      "range_m": 7.78,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2547.968,
+      "tag": "red1",
+      "x": 52.95,
+      "y": 3.3,
+      "conf": 1.0,
+      "range_m": 7.62,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2548.172,
+      "tag": "red1",
+      "x": 52.98,
+      "y": 3.23,
+      "conf": 1.0,
+      "range_m": 7.68,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2548.572,
+      "tag": "red1",
+      "x": 52.87,
+      "y": 2.7,
+      "conf": 1.0,
+      "range_m": 7.73,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2548.792,
+      "tag": "red1",
+      "x": 51.9,
+      "y": 2.88,
+      "conf": 1.0,
+      "range_m": 6.79,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2548.992,
+      "tag": "red1",
+      "x": 52.07,
+      "y": 2.52,
+      "conf": 1.0,
+      "range_m": 7.08,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2549.792,
+      "tag": "red1",
+      "x": 52.36,
+      "y": 1.71,
+      "conf": 1.0,
+      "range_m": 7.87,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2550.592,
+      "tag": "red1",
+      "x": 51.98,
+      "y": 1.04,
+      "conf": 1.0,
+      "range_m": 7.94,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2550.792,
+      "tag": "red1",
+      "x": 51.63,
+      "y": 0.97,
+      "conf": 1.0,
+      "range_m": 7.6,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2550.992,
+      "tag": "red1",
+      "x": 51.87,
+      "y": 0.6,
+      "conf": 1.0,
+      "range_m": 7.91,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2551.592,
+      "tag": "red1",
+      "x": 51.78,
+      "y": 0.18,
+      "conf": 1.0,
+      "range_m": 7.96,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2551.796,
+      "tag": "red1",
+      "x": 51.74,
+      "y": -0.11,
+      "conf": 1.0,
+      "range_m": 8.04,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2552.192,
+      "tag": "red1",
+      "x": 51.35,
+      "y": -0.3,
+      "conf": 1.0,
+      "range_m": 7.76,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2552.392,
+      "tag": "red1",
+      "x": 51.33,
+      "y": -0.62,
+      "conf": 1.0,
+      "range_m": 7.83,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2552.592,
+      "tag": "red1",
+      "x": 51.36,
+      "y": -0.84,
+      "conf": 1.0,
+      "range_m": 7.91,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2552.792,
+      "tag": "red1",
+      "x": 51.49,
+      "y": -0.96,
+      "conf": 1.0,
+      "range_m": 8.05,
+      "official_ok": false,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2553.588,
+      "tag": "red1",
+      "x": 51.12,
+      "y": -1.83,
+      "conf": 1.0,
+      "range_m": 8.01,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2554.576,
+      "tag": "red1",
+      "x": 50.89,
+      "y": -2.71,
+      "conf": 1.0,
+      "range_m": 7.99,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2554.776,
+      "tag": "red1",
+      "x": 50.52,
+      "y": -2.7,
+      "conf": 1.0,
+      "range_m": 7.6,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2555.376,
+      "tag": "red1",
+      "x": 50.58,
+      "y": -3.43,
+      "conf": 1.0,
+      "range_m": 7.87,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2556.58,
+      "tag": "red1",
+      "x": 50.37,
+      "y": -4.55,
+      "conf": 1.0,
+      "range_m": 8.06,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2556.788,
+      "tag": "red1",
+      "x": 49.96,
+      "y": -4.39,
+      "conf": 1.0,
+      "range_m": 7.56,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2557.784,
+      "tag": "red1",
+      "x": 50.04,
+      "y": -5.6,
+      "conf": 1.0,
+      "range_m": 8.09,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2558.376,
+      "tag": "red1",
+      "x": 49.68,
+      "y": -6.01,
+      "conf": 1.0,
+      "range_m": 7.92,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2558.576,
+      "tag": "red1",
+      "x": 49.22,
+      "y": -5.89,
+      "conf": 1.0,
+      "range_m": 7.4,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2558.78,
+      "tag": "red1",
+      "x": 49.53,
+      "y": -6.56,
+      "conf": 1.0,
+      "range_m": 7.96,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2559.18,
+      "tag": "red1",
+      "x": 49.63,
+      "y": -6.97,
+      "conf": 1.0,
+      "range_m": 8.25,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2559.388,
+      "tag": "red1",
+      "x": 49.45,
+      "y": -7.03,
+      "conf": 1.0,
+      "range_m": 8.15,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2559.78,
+      "tag": "red1",
+      "x": 49.21,
+      "y": -7.27,
+      "conf": 1.0,
+      "range_m": 8.06,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2559.996,
+      "tag": "red1",
+      "x": 49.07,
+      "y": -7.36,
+      "conf": 1.0,
+      "range_m": 7.94,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2560.376,
+      "tag": "red1",
+      "x": 49.01,
+      "y": -7.88,
+      "conf": 1.0,
+      "range_m": 8.05,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2560.572,
+      "tag": "red1",
+      "x": 48.97,
+      "y": -7.98,
+      "conf": 1.0,
+      "range_m": 8.01,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2560.772,
+      "tag": "red1",
+      "x": 48.96,
+      "y": -8.09,
+      "conf": 1.0,
+      "range_m": 8.0,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2561.396,
+      "tag": "red1",
+      "x": 48.83,
+      "y": -8.77,
+      "conf": 1.0,
+      "range_m": 8.19,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2561.996,
+      "tag": "red1",
+      "x": 48.61,
+      "y": -9.27,
+      "conf": 1.0,
+      "range_m": 8.16,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2562.596,
+      "tag": "red1",
+      "x": 48.41,
+      "y": -9.88,
+      "conf": 1.0,
+      "range_m": 8.15,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2562.796,
+      "tag": "red1",
+      "x": 48.3,
+      "y": -10.01,
+      "conf": 1.0,
+      "range_m": 8.07,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2563.704,
+      "tag": "red1",
+      "x": 48.29,
+      "y": -11.95,
+      "conf": 1.0,
+      "range_m": 7.42,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2563.9,
+      "tag": "red1",
+      "x": 48.34,
+      "y": -12.0,
+      "conf": 1.0,
+      "range_m": 7.37,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2564.296,
+      "tag": "red1",
+      "x": 48.32,
+      "y": -12.0,
+      "conf": 1.0,
+      "range_m": 7.17,
+      "official_ok": false,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2564.504,
+      "tag": "red1",
+      "x": 48.13,
+      "y": -12.28,
+      "conf": 1.0,
+      "range_m": 6.83,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2564.676,
+      "tag": "red1",
+      "x": 48.14,
+      "y": -12.45,
+      "conf": 1.0,
+      "range_m": 6.7,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2564.892,
+      "tag": "red1",
+      "x": 47.02,
+      "y": -12.69,
+      "conf": 1.0,
+      "range_m": 5.49,
+      "official_ok": false,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2565.2,
+      "tag": "red1",
+      "x": 48.23,
+      "y": -11.08,
+      "conf": 1.0,
+      "range_m": 8.0,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2565.28,
+      "tag": "red1",
+      "x": 46.82,
+      "y": -12.61,
+      "conf": 1.0,
+      "range_m": 5.36,
+      "official_ok": false,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2565.376,
+      "tag": "red1",
+      "x": 48.27,
+      "y": -11.2,
+      "conf": 1.0,
+      "range_m": 8.05,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2565.48,
+      "tag": "red1",
+      "x": 47.05,
+      "y": -12.61,
+      "conf": 1.0,
+      "range_m": 5.66,
+      "official_ok": false,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2565.564,
+      "tag": "red1",
+      "x": 47.95,
+      "y": -11.16,
+      "conf": 1.0,
+      "range_m": 7.73,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2565.788,
+      "tag": "red1",
+      "x": 48.07,
+      "y": -11.12,
+      "conf": 1.0,
+      "range_m": 7.76,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2566.0,
+      "tag": "red1",
+      "x": 48.43,
+      "y": -11.42,
+      "conf": 1.0,
+      "range_m": 8.24,
+      "official_ok": true,
+      "source": "typhoon_h480_5"
+    },
+    {
+      "t": 2567.056,
+      "tag": "red2",
+      "x": 48.29,
+      "y": -12.31,
+      "conf": 1.0,
+      "range_m": 8.01,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    },
+    {
+      "t": 2567.26,
+      "tag": "red2",
+      "x": 48.35,
+      "y": -12.24,
+      "conf": 1.0,
+      "range_m": 8.17,
+      "official_ok": true,
+      "source": "typhoon_h480_1"
+    }
+  ]
+}

@@ -20,12 +20,13 @@ import rospy
 import math
 import time
 import threading
+from functools import wraps
 from swarm_task import LineOfSight
 import re
 import traceback
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
-from std_msgs.msg import String, Float32
+from std_msgs.msg import String
 
 # 直接 import 同目录的纯逻辑模块（scripts 目录已加进 PYTHONPATH）
 from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager,
@@ -34,13 +35,46 @@ from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager,
                         CONFIRM_TIME, EVADE_TIME, DETECT_RADIUS, DETECT_RADIUS_MARGIN)
 from cooperative_tracker import CooperativeTracker, CONFIRM_HOLD_TIMEOUT
 from csv_logger import logger
+from visual_evidence import parse_visual_evidence
 
 # 地图（用于过滤「格中心落在建筑内」的格子，与 agent 的 A* 膨胀判定一致）
-from robocup_navigation.astar import load_metadata, GridMap
+from robocup_navigation.astar import load_metadata, GridMap, plan
 
 # ============================ 参数 ============================
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
+
+# Search coverage comes from metadata x[-55,155], y[-65,65].  Waypoints are
+# kept inside the actor plugin's reachable XY envelope with room to brake.
+FLIGHT_X_MIN = float(os.environ.get('FLIGHT_X_MIN', '-50.0'))
+FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
+FLIGHT_Y_MIN = float(os.environ.get('FLIGHT_Y_MIN', '-60.0'))
+FLIGHT_Y_MAX = float(os.environ.get('FLIGHT_Y_MAX', '60.0'))
+FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
+
+
+def flight_waypoint(x, y, inset=FLIGHT_INSET):
+    inset = max(0.0, min(inset, (FLIGHT_X_MAX - FLIGHT_X_MIN) / 4.0,
+                         (FLIGHT_Y_MAX - FLIGHT_Y_MIN) / 4.0))
+    return (min(max(x, FLIGHT_X_MIN + inset), FLIGHT_X_MAX - inset),
+            min(max(y, FLIGHT_Y_MIN + inset), FLIGHT_Y_MAX - inset))
+
+
+def search_viewpoint(x, y):
+    """Observe an outer search cell from camera range inside the flight box.
+
+    Clamping its center just 2 m inside the boundary puts a horizontal
+    camera almost above the cell, below its vertical field of view. Only
+    search cells outside the safe flight inset get a standoff viewpoint;
+    tracking keeps the original flight_waypoint behavior.
+    """
+    px, py = flight_waypoint(x, y)
+    dx, dy = px - x, py - y
+    distance = math.hypot(dx, dy)
+    if distance < 1e-6 or distance >= 8.5:
+        return px, py
+    scale = 8.5 / distance
+    return flight_waypoint(x + dx * scale, y + dy * scale)
 # 2026-09-28：默认必须与 swarm_task.py 一致（那边已是 7.0）。
 # 10.0 vs 7.0 会导致 manager 的栅格与 task 的拍卖栅格错位（不传 env 时必踩）。
 GRID_SIZE_M = float(os.environ.get("GRID_SIZE_M", "7.0"))   # 搜索格边长（与 swarm_task 必须一致，都读同一个环境变量）
@@ -70,11 +104,8 @@ SEARCH_RESERVE_MAX = int(os.environ.get("SEARCH_RESERVE_MAX", "2"))
 BACKUP_MAX_DIST = float(os.environ.get("BACKUP_MAX_DIST", "20.0"))  # 远机留给附近新目标
                                                                     # （飞过去的时间比等还久，净亏损）
 
-# ---- 真值播种开关 ----
-# 1=把官方 actor 真值直接播种给 tracker（现状，等于"上帝视角"直接派机）
-# 0=只能靠 /swarm/detection（飞机自己的观测）发现目标 —— 这才是接 YOLO 后的真实链路
-# 关掉它才能量出协同搜索算法的真实能力，否则覆盖栅格/拍卖/分区全是摆设。
-SEED_TRUTH = int(os.environ.get("SEED_TRUTH", "1"))
+# 正式节点绝不接收仿真真值。保留环境变量仅用于拒绝旧启动配置。
+SEED_TRUTH = int(os.environ.get("SEED_TRUTH", "0"))
 # 正式模式中的 /swarm/target_states 来自本队 YOLO 桥：允许用新鲜视觉候选
 # 提前派机接近，但绝不把该坐标作为裁判真值或内部误差校验基准。
 VISUAL_DISPATCH = int(os.environ.get("VISUAL_DISPATCH", "1"))
@@ -105,23 +136,38 @@ EDGE_NEAR     = float(os.environ.get("EDGE_NEAR", "2.0"))    # 距障碍 <= 此�
 # 派追踪机用的目标位置缓存有效期 s：agent /swarm/detection 上报后，
 # 若超过此时长无新检测，认为目标已跟丢，不再用过期坐标派机（防追鬼）。
 TRUTH_TTL = float(os.environ.get("TRUTH_TTL", "3.0"))  # 几何上报停止后及时撤销旧派机坐标
-OFFICIAL_REACQUIRE_HOLD_S = float(os.environ.get("OFFICIAL_REACQUIRE_HOLD_S", "12.0"))
 VISUAL_REACQUIRE_HOLD_S = float(os.environ.get("VISUAL_REACQUIRE_HOLD_S", "8.0"))
 UNVERIFIED_VIEW_S = float(os.environ.get("UNVERIFIED_VIEW_S", "25.0"))
-UNVERIFIED_COOLDOWN_S = float(os.environ.get("UNVERIFIED_COOLDOWN_S", "600.0"))
+UNVERIFIED_VISUAL_GRACE_S = float(os.environ.get(
+    "UNVERIFIED_VISUAL_GRACE_S", "3.0"))
 UNVERIFIED_RADIUS_M = float(os.environ.get("UNVERIFIED_RADIUS_M", "8.0"))
+VISUAL_STREAK_MAX_HOLD_S = float(os.environ.get(
+    "VISUAL_STREAK_MAX_HOLD_S", "45.0"))
+VISUAL_RETRY_COOLDOWN_S = float(os.environ.get(
+    "VISUAL_RETRY_COOLDOWN_S", "8.0"))
+TRACKING_MAX_TENURE_S = float(os.environ.get(
+    "TRACKING_MAX_TENURE_S", "90.0"))
+VIEW_RECOVERY_S = float(os.environ.get("VIEW_RECOVERY_S", "20.0"))
+
+
+def visual_streak_should_release(done_t, now, fresh,
+                                 min_hold=CONFIRM_HOLD_TIMEOUT,
+                                 max_fresh_hold=VISUAL_STREAK_MAX_HOLD_S):
+    """A team image streak never proves removal; release its lease on timeout."""
+    elapsed = now - done_t
+    return elapsed >= min_hold and (
+        not fresh or elapsed >= max(min_hold, max_fresh_hold))
 # 格中心落在建筑里时，去这些半径的环上找可达的替代航点（m）
 WAYPOINT_RING = (2.0, 3.5, 5.0)
 CLEARANCE_MAX = float(os.environ.get("CLEARANCE_MAX", "24.0"))  # 距离场最大计算范围 m
 
 # ---- LOS 感知 next-best-view（2026-09-28）----
 # 与 W_EDGE 的区别：EDGE 是静态的「贴楼加分」（实测成共同吸引子，6 架挤一起）；
-# NBV 是动态的「从这个视点能看见多少久未见的区域」，且派单即承诺 → 次模贪心自动分散。
+# NBV 用真实处理图像记录久未见区域；派位本身不产生覆盖证据。
 VIS_ENABLE = os.environ.get("VIS_ENABLE", "1") not in ("0", "false", "False", "")
 VIS_RADIUS = float(os.environ.get("VIS_RADIUS", "10.0"))   # 与 DETECT_RADIUS 一致（2026-10-05: 20→10，同步收紧）
 EDGE_COVER_STRIP_M = float(os.environ.get("EDGE_COVER_STRIP_M", "14.0"))
 EDGE_COVER_RADIUS_M = float(os.environ.get("EDGE_COVER_RADIUS_M", "5.5"))
-VIS_COMMIT = os.environ.get("VIS_COMMIT", "1") not in ("0", "false", "False", "")
 # 飞机抵达分配格的判定半径：距格代表点 < 此值即认为已搜索该格，
 # 标记可视域覆盖并释放租约。太小会在格边来回振荡不释放，太大则还没飞到就算覆盖。
 COVER_ARRIVE_M = float(os.environ.get("COVER_ARRIVE_M", "4.0"))  # 减小到达判定半径，适应7m格子
@@ -242,8 +288,45 @@ def _search_bounds():
     return MAP_X_MIN, MAP_X_MAX, MAP_Y_MIN, MAP_Y_MAX
 
 
+def joint_target_assignment(costs):
+    """Exact small matching: maximize staffed targets, then minimize total cost.
+
+    Six aircraft need at most 64 occupancy masks; no planner or ROS calls.
+    costs maps target IDs to {available UAV ID: finite cost}.
+    """
+    uids = sorted({uid for edges in costs.values() for uid in edges})
+    bits = {uid: 1 << i for i, uid in enumerate(uids)}
+    states = {0: (0.0, ())}
+    for tid in sorted(costs):
+        next_states = dict(states)
+        for mask, (cost, pairs) in states.items():
+            for uid, extra in sorted(costs[tid].items()):
+                if mask & bits[uid] or not math.isfinite(extra):
+                    continue
+                key = mask | bits[uid]
+                candidate = (cost + extra, pairs + ((tid, uid),))
+                if key not in next_states or candidate < next_states[key]:
+                    next_states[key] = candidate
+        states = next_states
+    _, pairs = min(states.values(), key=lambda item: (-len(item[1]), item[0], item[1]))
+    return dict(pairs)
+
+
+def serialized_tasks(method):
+    """ROS callbacks and the scheduler must not allocate the same UAV twice."""
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        lock = getattr(self, '_task_lock', None)
+        if lock is None:
+            lock = self.__dict__.setdefault('_task_lock', threading.RLock())
+        with lock:
+            return method(self, *args, **kwargs)
+    return call
+
+
 class SwarmManager(object):
     def __init__(self, uav_ids):
+        self._task_lock = threading.RLock()
         self.uav_ids = uav_ids
         # 每机最新状态
         self.status = {}          # uav_id -> UavStatus
@@ -284,6 +367,7 @@ class SwarmManager(object):
         self._slam_dirty = False
         self._slam_rebuild_t = 0.0
         self._cell_waypoint = {}   # cell_key -> (wx,wy) 楼边格的可达代表点
+        self._blind_viewpoints = {}  # 未成像格复查时的侧向观察航点
         self._cell_edge = {}       # cell_key -> 0~1 临楼度
         self._blocked_cells = self._find_blocked_cells()
         # 把「临楼度」交给拍卖器做效用偏置
@@ -308,34 +392,32 @@ class SwarmManager(object):
                 self._vis_set = {}
 
         # ---- 目标确认/消除（规则4/5）----
-        self.tracker = CooperativeTracker(official_only=True)
-        self._truth_cache = {}     # target_id -> (x, y, t) 缓存，t 为检测上报时间，超 TRUTH_TTL 作废
-        self._truth_pos = {}      # target_id -> (x, y) 仅真值源写入（SEED_TRUTH=1），tracker 误差门槛用
+        self.tracker = CooperativeTracker(official_only=True, strict_samples=True, obs_ttl=1.0, gap_tol=1.0)
+        if SEED_TRUTH:
+            raise RuntimeError("SEED_TRUTH=1 被正式节点禁用；只能使用本队视觉观测")
+        self._truth_cache = {}     # 历史字段名：仅存本队视觉估计 (x, y, 图像时间)
         self._cur_targets = {}    # target_id -> 本周期是否有检测（用于 lose 判定）
         self._eliminated = set()
         # 确认期冗余备份机：tid -> uav_id（见 _dispatch_backup）
         self._backup = {}
         # v18：confirm 超时黑名单（tid -> 黑名单截止仿真秒），期内不重派追踪机
         self._confirm_timeout_bl = {}
-        self._official_find_t = {}
         self._visual_candidate = {}  # tid -> (first_seen, x, y)
+        self._visual_observations = {}
+        self._eligible_observations = {}  # last accepted image, never refreshed by a bad frame
+        self._view_recovery = {}          # bounded recovery from unusable imagery
+        self._last_detection_sample = {}
         self._visual_source = {}     # tid -> (camera uid, image time, x, y)
         self._visual_near_seen = {}  # tid -> (x, y, t) observed within 12m by a real UAV
         self._visual_quarantine = {}  # tid -> (x, y, expires)
+        self._visual_conflict_sites = []  # (x, y, radius, expires, affected IDs)
         # tid -> 最近一次收到 /swarm/detection 的 wall 时刻（断流检测用）
         self._last_detect = {}
-        # tid -> 官方 /find_actor_N 首次发布时刻（= 进入 15s 确认期）
-        self._confirm_since = {}
-        # tid -> 团队侧已连续确认 15s 的时刻（"规则5 团队侧已确认"）
-        # 区别于 _confirm_since：后者是"官方 find_actor_N 进入 15s 倒计时";
-        # 前者是"我们已经按误差<1m+间隔<1s 持续报满 15s,可向官方申请消除"。
-        # 关键修复（2026-10-05 击毁 0 分 bug）：不在这里立刻调 _release_tracker
-        # 也不再发 "eliminate:%s" 给 target_sim_node，而是等官方 /left_actors 真
-        # 确认后由 _left_cb → _release_finished 统一释放。详见 _update_targets
-        # "confirmed" 分支的注释。
+        # 本队真实图像连续观测时长仅用于维持视角，不代表裁判确认。
         self._confirm_done_t = {}
         self._backup_noted = set()  # 已提示过「无近机可派」的 tid（避免刷屏）
         self._tracking = {}       # target_id -> assigned_uav_id 当前追踪任务
+        self._tracking_since = {} # target_id -> 首次派追踪机的仿真时刻
         # 2026-10-03 改进 2：actor 移动预测——每目标最近 N 次检测轨迹 (x,y,stamp)
         # 飞机抵达延迟（lead_s）内 actor 预计位置 ≈ 当前 + lead_s * 速度向量。
         from collections import deque
@@ -355,33 +437,24 @@ class SwarmManager(object):
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._status_cb)
         rospy.Subscriber("/swarm/detection", TargetDetection, self._detection_cb)
         rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb)
+        self._discovery_state_pub = rospy.Publisher(
+            '/swarm/discovery_states', TargetState, queue_size=12)
+        rospy.Subscriber("/swarm/discovery_observation", String,
+                         self._discovery_cb, queue_size=30)
+        rospy.Subscriber("/swarm/visual_conflict", String,
+                         self._visual_conflict_cb, queue_size=6)
+        rospy.Subscriber("/swarm/visual_candidate_missed", String,
+                         self._visual_candidate_missed_cb, queue_size=6)
+        rospy.Subscriber("/swarm/processed_camera_frame", String,
+                         self._processed_camera_frame_cb, queue_size=30)
         # 合规 SLAM：各 agent 的雷达占用栅格快照（RLE JSON），合并成全局地图
         rospy.Subscriber("/swarm/occupancy_grid", String, self._occ_grid_cb, queue_size=6)
         self.assign_pub = rospy.Publisher("/swarm/assignment", SearchAssignment, queue_size=10)
-        # 消除指令发给 target_sim_node（"eliminate:<target_id>"）
-        self.cmd_pub = rospy.Publisher("/swarm/target_command", String, queue_size=10)
-        # 任务完成广播
-        self.finish_pub = rospy.Publisher("/swarm/finish", String, queue_size=10)
-        # 2026-10-06 国家一等奖: 「团队侧已确认」贴脸模式广播
-        # swarm_agent 收到且匹配自己 _orbit_target == tid 时, 把
-        # ORBIT_RADIUS 从 6m 切到 2m, ORBIT_SPEED 从 0.13 切到 0.05 rad/s,
-        # 让 yolo 误差 < 1m 持续 15s, 触发官方 score_cal.py:122-168 的
-        # err_threshold=1m 判定 → +100 消除分 (官方"未完成计分"公式).
-        self.confirm_pub = rospy.Publisher("/swarm/confirmed", String, queue_size=10)
-        self.visual_reject_pub = rospy.Publisher("/swarm/rejected_visual", String, queue_size=10)
+        # 本队连续图像仅提示保持观察，不证明官方精度或消除。
+        self.confirm_pub = rospy.Publisher("/swarm/visual_streak", String, queue_size=10)
+        self.reobserve_pub = rospy.Publisher("/swarm/reobserve", String, queue_size=6)
 
-        # 官方裁判的剩余 actor 清单（权威）。
-        # 用途：兜住「提前收工」死结 —— manager 的 tracker 只在收到 /swarm/detection 后
-        # 才登记目标，于是「一个都还没发现」时 remaining_targets 恒为空，格子一刷完就
-        # 广播 MISSION_FINISHED、全体降落，从此再也不可能发现任何目标。
-        self._left_actors = []
-        self._left_seen = False   # 是否已收到过第一条 /left_actors（防空清单误释放）
-        rospy.Subscriber("/left_actors", String, self._left_cb, queue_size=5)
-        # 官方 /find_actor_N（Float32）：首次发布 = 该 actor 进入 15s 连续确认期
-        for _i in range(6):
-            rospy.Subscriber("/find_actor_%d" % _i, Float32,
-                             self._make_find_cb(_i), queue_size=5)
-        # 官方 actor 真值（official_target_bridge 从 /gazebo/model_states 转发）
+        # 仅接本队 YOLO 桥输出；启动脚本审计此话题的唯一发布者。
         rospy.Subscriber("/swarm/target_states", TargetState, self._truth_cb, queue_size=30)
 
         self._last_alloc_t = rospy.Time.now()
@@ -418,14 +491,23 @@ class SwarmManager(object):
             if EDGE_ENABLE:
                 clearance = _ClearanceField(g)
                 for key, c in self.grid.cells.items():
-                    ctr = g.world_to_cell((c.cx, c.cy))
-                    wp = (c.cx, c.cy) if (ctr is not None and g.is_free(ctr)) else None
+                    # Edge coverage cells may be outside the UAV flight box.
+                    # Observe them from the nearest interior point instead.
+                    px, py = search_viewpoint(c.cx, c.cy)
+                    view_x, view_y = px, py
+                    outer = math.hypot(px - c.cx, py - c.cy) > 0.5
+                    ctr = g.world_to_cell((px, py))
+                    wp = (px, py) if (ctr is not None and g.is_free(ctr)) else None
                     if wp is None:
                         for r in WAYPOINT_RING:
                             for a in range(12):
                                 th = a * math.pi / 6.0
-                                px = c.cx + r * math.cos(th)
-                                py = c.cy + r * math.sin(th)
+                                px, py = flight_waypoint(
+                                    view_x + r * math.cos(th),
+                                    view_y + r * math.sin(th))
+                                if outer and not 7.8 <= math.hypot(
+                                        px - c.cx, py - c.cy) <= 9.0:
+                                    continue
                                 pc = g.world_to_cell((px, py))
                                 if pc is not None and g.is_free(pc):
                                     # 取离建筑尽量远的候选点（留足旋翼余量）
@@ -449,7 +531,7 @@ class SwarmManager(object):
                         edge[key] = (EDGE_RANGE - d) / (EDGE_RANGE - EDGE_NEAR)
             else:
                 for key, c in self.grid.cells.items():
-                    cell = g.world_to_cell((c.cx, c.cy))
+                    cell = g.world_to_cell(search_viewpoint(c.cx, c.cy))
                     if cell is None or not g.is_free(cell):
                         blocked.add(key)
         except Exception as exc:
@@ -539,7 +621,81 @@ class SwarmManager(object):
         except Exception as exc:
             rospy.logwarn("[manager] SLAM 阻塞格重建失败: %s", exc)
 
+    def _blind_viewpoint_valid(self, cell, point):
+        """Require a free flight point and a clear camera ray to this cell."""
+        g = getattr(self, '_g_infl', None)
+        safe_point = flight_waypoint(*point)
+        if (g is None or math.hypot(point[0] - safe_point[0],
+                                    point[1] - safe_point[1]) > 1e-6):
+            return False
+        d = math.hypot(point[0] - cell.cx, point[1] - cell.cy)
+        if not 8.0 <= d <= 9.0:
+            return False
+        # Keep a metre of additional clearance beyond the 2 m inflated map.
+        for dx, dy in ((0.0, 0.0), (1.0, 0.0), (-1.0, 0.0),
+                       (0.0, 1.0), (0.0, -1.0),
+                       (0.7, 0.7), (0.7, -0.7),
+                       (-0.7, 0.7), (-0.7, -0.7)):
+            pc = g.world_to_cell((point[0] + dx, point[1] + dy))
+            if pc is None or not g.is_free(pc):
+                return False
+        yaw = math.atan2(cell.cy - point[1], cell.cx - point[0])
+        if not self._in_processed_view(*point, yaw, cell.cx, cell.cy,
+                                       altitude=4.0, down_pitch=0.0):
+            return False
+        los = LineOfSight(lambda ix, iy: not g.is_free((ix, iy)),
+                          g.resolution, g.origin)
+        return los.visible(point[0], point[1], cell.cx, cell.cy)
+
+    def _choose_blind_viewpoint(self, key, cell, observer_xy):
+        """Move the next visit 8.5 m aside so the fixed front camera sees ground.
+
+        Only an inner, reachable cell whose completed scan lacked processed
+        image coverage enters here. Obstacle checks use the inflated lidar map;
+        no map means we cannot safely choose a new flight point.
+        """
+        if (search_viewpoint(cell.cx, cell.cy) != (cell.cx, cell.cy) or
+                getattr(self, '_g_infl', None) is None):
+            return None
+        normal = self._cell_waypoint.get(key)
+        if normal is not None and math.hypot(normal[0] - cell.cx,
+                                             normal[1] - cell.cy) > 1.0:
+            return None
+        old = getattr(self, '_blind_viewpoints', {}).get(key)
+        candidates = []
+        for i in range(8):
+            angle = i * math.pi / 4.0
+            point = (cell.cx + 8.5 * math.cos(angle),
+                     cell.cy + 8.5 * math.sin(angle))
+            if not self._blind_viewpoint_valid(cell, point):
+                continue
+            repeated = old is not None and math.hypot(
+                point[0] - old[0], point[1] - old[1]) < 1.0
+            # Cardinal views align exactly with the agent's four scan yaws;
+            # prefer the nearest safe one, then change side after a failure.
+            travel = math.hypot(point[0] - observer_xy[0],
+                                point[1] - observer_xy[1])
+            candidates.append((repeated, i % 2 != 0, travel, i, point))
+        if not candidates:
+            return None
+        # A clear camera ray alone does not mean the aircraft can fly there.
+        # Use the same inflated grid and no-corner-cutting A* as the agent.
+        for _repeat, _diagonal, _travel, _index, point in sorted(candidates):
+            if plan(self._g_infl, observer_xy, point,
+                    max_expansions=3000).success:
+                return point
+        return None
+
+    def _search_waypoint(self, key, cell):
+        blind = getattr(self, '_blind_viewpoints', {}).get(key)
+        if blind is not None:
+            if self._blind_viewpoint_valid(cell, blind):
+                return blind
+            self._blind_viewpoints.pop(key, None)
+        return self._cell_waypoint.get(key) or search_viewpoint(cell.cx, cell.cy)
+
     # ---------------- 回调 ----------------
+    @serialized_tasks
     def _status_cb(self, msg):
         self.status[msg.uav_id] = msg
         self.last_report[msg.uav_id] = rospy.Time.now()
@@ -550,34 +706,14 @@ class SwarmManager(object):
         m = re.match(r'^t(\d+)$', str(tid))
         return int(m.group(1)) if m else None
 
-    def _make_find_cb(self, actor_id):
-        """官方 /find_actor_N 回调 → 对齐 CooperativeTracker 的规则4 计时起点。
-
-        manager 自己的 _confirm_since 字典已被 CooperativeTracker.targets[tid]._first_confirm_t
-        取代，后者才是规则4 真正用的计时起点。
-        """
-        def cb(msg):
-            now = rospy.Time.now().to_sec()
-            tid = "t%d" % actor_id
-            self._official_find_t[tid] = now
-            self.tracker.mark_confirmed(tid, now)
-            rospy.loginfo("[manager] 官方首次发现 %s → 规则4 计时起点对齐 %.1f", tid, now)
-        return cb
-
-    def _official_find_for_visual(self, tid):
-        """Return a find time usable for retaining this visual track.
-
-        The judge cross-matches both red topics against both red actors, so
-        visual t4/t5 is not a fixed actor_4/actor_5 identity.  This timestamp
-        is only used to keep an observer through occlusion or avoid wrongly
-        quarantining a real sighting; it does not declare either actor gone.
-        """
-        if tid in ('t4', 't5'):
-            return max(self._official_find_t.get('t4', -1e18),
-                       self._official_find_t.get('t5', -1e18))
-        return self._official_find_t.get(tid, -1e18)
-
     def _quarantined_visual(self, tid, x, y, now):
+        sites = getattr(self, '_visual_conflict_sites', [])
+        if sites:
+            sites[:] = [site for site in sites if now < site[3]]
+            if (not self._has_eligible_visual(tid, now) and
+                    any(tid in ids and math.hypot(x - sx, y - sy) <= radius
+                        for sx, sy, radius, _, ids in sites)):
+                return True
         q = self._visual_quarantine.get(tid)
         if q is None:
             return False
@@ -585,6 +721,78 @@ class SwarmManager(object):
             self._visual_quarantine.pop(tid, None)
             return False
         return math.hypot(x - q[0], y - q[1]) <= UNVERIFIED_RADIUS_M
+
+    @serialized_tasks
+    def _visual_conflict_cb(self, msg):
+        """Briefly isolate one contradictory location, never an entire color.
+
+        The bridge emits this only after temporally separated camera samples
+        from the same UAV classified the same static place as two colors.
+        A recent eligible independent camera track retains its observer.
+        """
+        try:
+            data = json.loads(msg.data)
+            x, y, sample = (float(data[k]) for k in ('x', 'y', 'sample_s'))
+            radius = min(2.0, max(0.3, float(data.get('radius_m', 1.0))))
+            ttl = min(20.0, max(1.0, float(data.get('ttl_s', 12.0))))
+            now = rospy.Time.now().to_sec()
+            ids = set(data['target_ids'])
+            if (not all(math.isfinite(v) for v in (x, y, sample)) or
+                    not 0.0 <= now - sample <= 2.0 or
+                    len(ids) < 2 or not ids.issubset({'t0', 't1', 't2', 't3'})):
+                return
+            sites = getattr(self, '_visual_conflict_sites', None)
+            if sites is None:
+                sites = self._visual_conflict_sites = []
+            affected = {tid for tid in ids
+                        if not self._has_eligible_visual(tid, now)}
+            if not affected:
+                return
+            sites.append((x, y, radius, now + ttl, affected))
+            for tid in affected:
+                # Keep any independently imaged eligible track.
+                position = self._get_target_pos(tid, now)
+                if position[0] is None or math.hypot(position[0] - x,
+                                                     position[1] - y) > radius + 0.5:
+                    continue
+                if tid in self._tracking or tid in self._backup:
+                    self._release_tracker(tid, reason='visual_conflict')
+                self.tracker.targets.pop(tid, None)
+                self._truth_cache.pop(tid, None)
+                self._cur_targets.pop(tid, None)
+                self._visual_candidate.pop(tid, None)
+                self._visual_source.pop(tid, None)
+                self._target_hist.pop(tid, None)
+            rospy.logwarn('[manager] 视觉颜色冲突 (%.1f,%.1f) %s：位置隔离 %.0fs',
+                          x, y, sorted(affected), ttl)
+        except (ValueError, KeyError, TypeError, AttributeError):
+            return
+
+    def _visual_candidate_missed_cb(self, msg):
+        """Queue a short re-image of the aircraft viewpoint after failed cue.
+
+        This coordinate is the aircraft position, not an estimated person
+        position, and must never enter target tracking or judge reporting.
+        """
+        try:
+            data = json.loads(msg.data)
+            uid = data['source_uav']
+            x, y, sample = (float(data[k]) for k in ('x', 'y', 'sample_s'))
+            now = rospy.Time.now().to_sec()
+            st = self.status.get(uid)
+            if (uid not in self.uav_ids or st is None or
+                    not getattr(st, 'connected', False) or
+                    not all(math.isfinite(v) for v in (x, y, sample)) or
+                    not 0.0 <= now - sample <= 2.0 or
+                    math.hypot(st.x - x, st.y - y) > 5.0):
+                return
+            key = self.allocator.queue_revisit(
+                'unconfirmed', x, y, now=now, delay_s=8.0, ttl_s=35.0,
+                blocked=self._blocked_cells)
+            if key is not None:
+                rospy.loginfo('[manager] 候选补看失败：格 %s 进入一次性视角复查', key)
+        except (ValueError, KeyError, TypeError, AttributeError):
+            return
 
     def _camera_cover_reachable(self, ux, uy, cx, cy):
         """Do not mark an outer cell observed from beyond usable camera range."""
@@ -594,19 +802,127 @@ class SwarmManager(object):
             return True
         return math.hypot(cx - ux, cy - uy) <= EDGE_COVER_RADIUS_M
 
+    @staticmethod
+    def _in_processed_view(ux, uy, yaw, cx, cy, altitude=None, down_pitch=None):
+        dx, dy = cx - ux, cy - uy
+        distance = math.hypot(dx, dy)
+        if distance > 9.0 or distance < 0.5:
+            return False
+        if altitude is not None and down_pitch is not None:
+            if abs(math.atan2(altitude, distance) - down_pitch) > math.radians(27.0):
+                return False
+        bearing = math.atan2(dy, dx)
+        return abs((bearing - yaw + math.pi) % (2.0 * math.pi) - math.pi) <= math.radians(45.0)
+
+    def _processed_camera_frame_cb(self, msg):
+        """Credit cells imaged twice during transit, after the actual YOLO pass."""
+        try:
+            data = json.loads(msg.data)
+            if data.get('processed') is not True:
+                return
+            uid = data['source_uav']
+            if uid not in self.uav_ids:
+                return
+            sample, ux, uy, yaw, altitude, down_pitch = (float(data[k]) for k in
+                ('sample_s', 'x', 'y', 'yaw', 'z', 'down_pitch'))
+            now = rospy.Time.now().to_sec()
+            st = self.status.get(uid)
+            if (st is None or not getattr(st, 'connected', False) or
+                    float(getattr(st, 'z', 0.0) or 0.0) < 2.0 or
+                    not all(math.isfinite(v) for v in
+                            (sample, ux, uy, yaw, altitude, down_pitch)) or
+                    altitude <= 0.0 or
+                    not -0.05 <= now - sample <= 0.5 or
+                    math.hypot(ux - st.x, uy - st.y) > 5.0):
+                return
+            if not hasattr(self, '_slam_lock'):
+                return
+            grid_map = self._merged_grid()
+            if grid_map is None:
+                return
+            los = LineOfSight(lambda ix, iy: not grid_map.is_free((ix, iy)),
+                              grid_map.resolution,
+                              (grid_map.origin[0], grid_map.origin[1]))
+            evidence = getattr(self, '_camera_cell_evidence', None)
+            if evidence is None:
+                evidence = self._camera_cell_evidence = {}
+            for key, cell in self.grid.cells.items():
+                cx, cy = cell.cx, cell.cy
+                # Actual image direction and LOS allow observing the outer
+                # strip from the safe inner row. The older 5.5 m edge rule
+                # applies only to geometry-based arrival coverage.
+                if (not self._in_processed_view(ux, uy, yaw, cx, cy,
+                                                altitude, down_pitch) or
+                        not los.visible(ux, uy, cx, cy)):
+                    continue
+                prior = evidence.get((uid, key))
+                if prior is None:
+                    evidence[(uid, key)] = (sample, sample)
+                    continue
+                first, last = prior
+                if sample <= last:
+                    continue
+                if sample - last > 0.7:
+                    first = sample
+                evidence[(uid, key)] = (first, sample)
+                if sample - first < 0.2:
+                    continue
+                owner = cell.owner if cell.state == STATE_ASSIGNED else None
+                newly_observed = cell.state != STATE_COVERED
+                if newly_observed:
+                    self.grid.is_covered(cx, cy, 0.01)
+                else:
+                    cell.covered_t = sample
+                if hasattr(self.allocator, 'observed_cell'):
+                    self.allocator.observed_cell(key, sample)
+                else:
+                    self.allocator.visit_time[key] = sample
+                    self.allocator.last_seen[key] = sample
+                audit = getattr(self, '_csv', None)
+                if newly_observed and audit is not None:
+                    # Flight/assignment logs cannot reconstruct camera
+                    # coverage. Record only actual two-image + LOS credits,
+                    # separately from scan completion and dispatched cells.
+                    audit.write(ros_time=sample, event='camera_coverage',
+                                target_id='cell_%d_%d' % key,
+                                target_x=cx, target_y=cy, uav_id=uid,
+                                uav_x=ux, uav_y=uy, uav_z=altitude,
+                                covered=True, source='processed_camera_frame')
+                getattr(self, '_blind_viewpoints', {}).pop(key, None)
+                if owner is not None:
+                    if hasattr(self.allocator, 'complete_waypoint'):
+                        self.allocator.complete_waypoint(
+                            owner, key, observed=True, now=sample)
+                    if self._active_leases.get(owner) == key:
+                        self._active_leases.pop(owner, None)
+                        self._lease_hold_since.pop((owner, key), None)
+                        self._lease_motion.pop(owner, None)
+                evidence.pop((uid, key), None)
+        except (ValueError, KeyError, TypeError, AttributeError, RuntimeError):
+            return
+
     def _remember_visual_candidate(self, tid, x, y, now):
         candidate = self._visual_candidate.get(tid)
         if candidate is None or math.hypot(x - candidate[1], y - candidate[2]) > UNVERIFIED_RADIUS_M:
             self._visual_candidate[tid] = (now, x, y)
 
     def _release_unverified_visuals(self, now):
-        """Free a close observer if its visual location never earns a judge find."""
+        """Free an observer with prolonged unusable imagery, then revisit soon.
+
+        A real stationary actor can produce cropped boxes, so absence of any
+        external confirmation must never blacklist the place for the match.
+        """
         for tid, (first, x, y) in list(self._visual_candidate.items()):
-            if now - first < UNVERIFIED_VIEW_S:
+            attempt_age = now - first
+            if attempt_age < UNVERIFIED_VIEW_S:
                 continue
-            if self._official_find_for_visual(tid) >= first:
-                continue
+            # Brief gaps get the recovery budget below. Occasional accepted
+            # frames cannot reset that entire budget; a sustained local view
+            # can. Neither outcome classifies the person as a decoy.
             uid = self._tracking.get(tid)
+            if self._stable_owner_view(uid, tid, now):
+                getattr(self, '_view_recovery', {}).pop(tid, None)
+                continue
             st = self.status.get(uid) if uid is not None else None
             near = getattr(self, '_visual_near_seen', {}).get(tid)
             close_witness = (near is not None and near[2] >= first and
@@ -619,81 +935,15 @@ class SwarmManager(object):
             # after its only nearby observer had already left for a red backup.
             if not close_witness or st is None or math.hypot(st.x - x, st.y - y) > 12.0:
                 continue
-            self._visual_quarantine[tid] = (x, y, now + UNVERIFIED_COOLDOWN_S)
+            if self._recover_tracking_view(tid, now, 'unverified_visual'):
+                continue
+            # Bad imagery is not evidence of a decoy. Revisit this view, but
+            # never suppress all cameras' reports at this world position.
             self._release_tracker(tid, reason="unverified_visual")
-            self.tracker.targets.pop(tid, None)
-            self._truth_cache.pop(tid, None)
-            self._cur_targets.pop(tid, None)
             self._confirm_done_t.pop(tid, None)
             self._visual_candidate.pop(tid, None)
-            getattr(self, '_visual_near_seen', {}).pop(tid, None)
-            self._target_hist.pop(tid, None)
-            self.visual_reject_pub.publish(String(json.dumps({
-                "target_id": tid, "x": x, "y": y,
-                "duration_s": UNVERIFIED_COOLDOWN_S})))
-            rospy.logwarn("[manager] %s 在 (%.1f,%.1f) 近距观察 %.0fs 无官方发现；"
-                          "冷却该视觉位置 %.0fs 并恢复搜索", tid, x, y,
-                          now - first, UNVERIFIED_COOLDOWN_S)
-
-    def _release_finished(self, left_ids):
-        """官方已确认并从场上删除的 actor → 立刻释放它的追踪机。
-
-        背景（第六轮实测故障）：agent 连续确认满 15s 后只在自己日志里打印
-        「目标 t5 已连续确认，可消除」，manager 的 tracker 却没有把它推进
-        _eliminated。后果是 _tracking 里 t3/t4/t5（早已被官方删掉的 actor）
-        一直占着飞机 —— 而 _idle_uavs() 把「正在追踪」的机视为不空闲，
-        这些机永远拿不到新任务，只能对着旧坐标空转；唯一剩下的 actor_1
-        （/left_actors="[1]"）反倒没有飞机去追，官方收不到检测，任务卡到超时。
-
-        国家一等奖改进（2026-10-03）：统一走 _release_tracker 发布取消
-        指令（含 cancel msg + hot target 清理），让 agent 立刻转回搜索
-        任务，而不是继续对旧坐标盘旋。
-        """
-        for tid in list(set(self._tracking) | set(self._backup)):
-            aid = self._tid_to_actor(tid)
-            if aid is None or aid in left_ids:
-                continue
-            if aid in (4, 5) and (4 in left_ids or 5 in left_ids):
-                continue  # 红视觉槽位不能按 actor_4/5 编号推断身份
-            self._eliminated.add(tid)
-            t = self.tracker.targets.get(tid)
-            if t is not None:
-                t.eliminated = True
-            # 统一释放（pop + cancel msg + hot target 清理）
-            self._release_tracker(tid, reason="left_actors=%s" % list(left_ids))
-            # 官方已确认 → 清掉团队侧的"等官方"时间戳,避免超时兜底再次触发
-            self._confirm_done_t.pop(tid, None)
-        # 顺带把 tracker 里同样已消除、但当时没派机的目标也标掉
-        for tid in list(self.tracker.targets.keys()):
-            aid = self._tid_to_actor(tid)
-            if aid is not None and aid not in left_ids:
-                if aid in (4, 5) and (4 in left_ids or 5 in left_ids):
-                    continue
-                self._eliminated.add(tid)
-                self.tracker.targets[tid].eliminated = True
-                self._confirm_done_t.pop(tid, None)
-
-    def _left_cb(self, msg):
-        """官方裁判发布的剩余 actor：'[]' 或 '[0, 2, 5]'。"""
-        raw = str(msg.data).strip()
-        if raw.startswith('range('):
-            nums = [int(x) for x in re.findall(r'-?\d+', raw)]
-            if len(nums) != 2:
-                return
-            ids = list(range(nums[0], nums[1]))
-        elif raw.startswith('[') and raw.endswith(']'):
-            ids = [int(x) for x in re.findall(r'-?\d+', raw)]
-        else:
-            return
-        if any(aid < 0 or aid >= 6 for aid in ids):
-            return
-        if ids != self._left_actors:
-            rospy.loginfo("[manager] 官方剩余 actor: %s", ids)
-        self._left_actors = ids
-        # 第一条之前不动作：空清单不等于「全部已消除」
-        if not self._left_seen:
-            self._left_seen = True
-        self._release_finished(ids)
+            rospy.logwarn("[manager] %s 在 (%.1f,%.1f) 补看仍失败；"
+                          "保留候选等待其他视角，不屏蔽上报", tid, x, y)
 
     def _build_visibility(self):
         """预计算「从每个候选视点能看见哪些格」（20m 半径 + LOS 不穿楼）。
@@ -715,7 +965,7 @@ class SwarmManager(object):
         vis = {}
         r2 = VIS_RADIUS * VIS_RADIUS
         for k in keys:
-            wp = self._cell_waypoint.get(k) or (cells[k].cx, cells[k].cy)
+            wp = self._search_waypoint(k, cells[k])
             out = []
             for k2 in keys:
                 c2 = cells[k2]
@@ -728,7 +978,7 @@ class SwarmManager(object):
             vis[k] = out
         return vis
 
-    def _reopen_covered_cells(self):
+    def _reopen_covered_cells(self, force=False):
         """所有格都已标记覆盖、但目标还没找全时，把覆盖状态重置重新扫一遍。
 
         不加这一步的话：日志会说"继续搜索"，但没有未覆盖格可分配，
@@ -743,7 +993,7 @@ class SwarmManager(object):
         # Keep working through genuinely unvisited cells before reopening old
         # ones.  The previous every-second reopen while tracking repeatedly
         # sent aircraft over the same near cells and left distant zones unseen.
-        if any(c.state in (STATE_FREE, STATE_REVIEW)
+        if not force and any(c.state in (STATE_FREE, STATE_REVIEW)
                for key, c in self.grid.cells.items()
                if key not in self._blocked_cells):
             return 0
@@ -772,39 +1022,144 @@ class SwarmManager(object):
                           n_cov, n_rev, len(near))
         return n_cov + n_rev
 
-    def _visual_source_cb(self, msg):
-        """Remember the originating camera for a fresh, bridge-accepted image."""
+    @serialized_tasks
+    def _discovery_cb(self, msg):
+        """Finite visual hypotheses for dispatch only; no official output path."""
         try:
-            data = json.loads(msg.data)
-            tid = str(data['target_id'])
-            uid = str(data['source_uav'])
-            sample = float(data['sample_s'])
-            x, y = float(data['x']), float(data['y'])
             now = rospy.Time.now().to_sec()
-            if (tid not in ('t0', 't1', 't2', 't3', 't4', 't5') or
-                    uid not in self.uav_ids or
-                    not all(math.isfinite(v) for v in (sample, x, y)) or
-                    sample <= 0.0 or sample > now + 0.05 or now - sample > 1.0):
+            raw = json.loads(msg.data)
+            if (raw.get('purpose') != 'discovery_only' or
+                    raw.get('geometry_ok') is not True or
+                    raw.get('official_view_ok') is not False or
+                    int(raw.get('hits', 0)) < 4):
                 return
-            old = self._visual_source.get(tid)
-            if old is None or sample > old[1]:
-                self._visual_source[tid] = (uid, sample, x, y)
+            data = parse_visual_evidence(msg.data, now, self.uav_ids)
+            tid, uid = data['target_id'], data['source_uav']
+            rng = float(raw['range_m'])
+            if (tid not in ('t0', 't1', 't2', 't3') or
+                    not math.isfinite(rng) or not 0. < rng <= 12. or
+                    data['confidence'] < .55):
+                return
+            pool = {k:v for k,v in getattr(self, '_discovery_pool', {}).items()
+                    if 0. <= now-v['sample_s'] <= 1.}
+            key = (tid, uid, str(raw['candidate_id']))
+            prior = pool.get(key)
+            if prior is not None and data['sample_s'] <= prior['sample_s']:
+                return
+            pool[key] = dict(data, range_m=rng)
+            # All retained hypotheses remain distinct. Cap memory even if a
+            # noisy detector continuously changes IDs during a single second.
+            pool = dict(sorted(pool.items(), key=lambda kv: kv[1]['sample_s'])[-72:])
+            self._discovery_pool = pool
+            anchor = self._get_target_pos(tid, now)
+            anchored = anchor is not None and anchor[0] is not None
+            active = tid in self._tracking
+            candidates = []
+            for (target, _, _), item in pool.items():
+                if target != tid:
+                    continue
+                dx = (math.hypot(item['x']-anchor[0], item['y']-anchor[1])
+                      if anchored else float('inf'))
+                if active and (not anchored or dx > 3.):
+                    continue  # another same-colour person cannot steal a live task
+                if (self._quarantined_visual(tid, item['x'], item['y'], now) or
+                        not self._failed_view_dispatch_ok(tid, item['x'], item['y'], now)):
+                    continue
+                candidates.append((0 if dx <= 3. else 1, -item['sample_s'],
+                                   -item['confidence'], item['range_m'], item['source_uav'], item))
+            if not candidates:
+                return
+            selected = min(candidates, key=lambda x:x[:-1])[-1]
+            # Do not overwrite fresh report-qualified evidence with exploratory
+            # data, or use one cached image repeatedly to extend a task lease.
+            precise = self._visual_observations.get((selected['source_uav'], tid))
+            if (precise is not None and precise.get('eligible') and
+                    0. <= now-precise['sample_s'] <= .5):
+                return
+            samples = getattr(self, '_discovery_selected_s', None)
+            if samples is None:
+                samples = self._discovery_selected_s = {}
+            if selected['sample_s'] <= samples.get(tid, -1e18):
+                return
+            samples[tid] = selected['sample_s']
+            payload = dict(selected, real_detection=True, official_view_ok=False)
+            self._visual_source_cb(String(data=json.dumps(payload)))
+            state = TargetState()
+            state.header.stamp = rospy.Time.from_sec(selected['sample_s'])
+            state.target_id, state.x, state.y = tid, selected['x'], selected['y']
+            state.vx = state.vy = 0.
+            state.state, state.eliminated = 0, False
+            self._discovery_state_pub.publish(state)
+        except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
+            return
+
+    @serialized_tasks
+    def _visual_source_cb(self, msg):
+        """Dispatch directly from accepted camera samples, including distant ones."""
+        try:
+            now = rospy.Time.now().to_sec()
+            data = parse_visual_evidence(msg.data, now, self.uav_ids)
+            tid, uid, sample = data['target_id'], data['source_uav'], data['sample_s']
+            if self._quarantined_visual(tid, data['x'], data['y'], now):
+                return
+            key = (uid, tid)
+            old = self._visual_observations.get(key)
+            if old is not None:
+                upgrade = (sample == old['sample_s'] and data['eligible'] and
+                           not old['eligible'] and
+                           math.hypot(data['x']-old['x'], data['y']-old['y']) <= .02)
+                if sample <= old['sample_s'] and not upgrade:
+                    return
+            self._visual_observations[key] = data
+            if data['eligible']:
+                if not hasattr(self, '_seen_target_slots'):
+                    self._seen_target_slots = set()
+                self._seen_target_slots.add(tid)
+                accepted = getattr(self, '_eligible_observations', None)
+                if accepted is None:
+                    accepted = self._eligible_observations = {}
+                prev = accepted.get(key)
+                continuous = prev is not None and 0.0 < sample - prev['sample_s'] <= 1.0
+                accepted[key] = dict(data, hits=prev.get('hits', 1) + 1 if continuous else 1,
+                                     since_s=prev.get('since_s', prev['sample_s'])
+                                     if continuous else sample)
+            old_source = self._visual_source.get(tid)
+            if old_source is None or sample > old_source[1]:
+                self._visual_source[tid] = (uid, sample, data['x'], data['y'])
+            detection = TargetDetection()
+            detection.header.stamp = rospy.Time.from_sec(sample)
+            detection.uav_id, detection.target_id = uid, tid
+            detection.x, detection.y = data['x'], data['y']
+            detection.confidence, detection.source = data['confidence'], 1
+            self._detection_cb(detection)
         except (ValueError, KeyError, TypeError, AttributeError):
             return
 
+    def _camera_candidates(self, tid, tx, ty, now, busy):
+        """Keep every fresh source, so a busy latest camera hides no free one."""
+        sources = {uid: (d['sample_s'], d['x'], d['y'])
+                   for (uid, target), d in
+                   getattr(self, '_visual_observations', {}).items() if target == tid}
+        latest = getattr(self, '_visual_source', {}).get(tid)
+        if latest is not None:
+            uid, sample, sx, sy = latest
+            sources.setdefault(uid, (sample, sx, sy))
+        candidates = []
+        for uid, (sample, sx, sy) in sources.items():
+            if (uid in busy or not -0.05 <= now - sample <= 1.5 or
+                    not self._tracking_uav_available(uid, now) or
+                    now < getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec() or
+                    math.hypot(sx - tx, sy - ty) > 4.0):
+                continue
+            st = self.status[uid]
+            distance = math.hypot(st.x - tx, st.y - ty)
+            if distance <= 20.0:
+                candidates.append((uid, distance))
+        return sorted(candidates, key=lambda pair: (pair[1], pair[0]))
+
     def _preferred_camera(self, tid, tx, ty, now, busy):
-        """Use the actual seeing aircraft when it is nearly as close as any free UAV."""
-        source = getattr(self, '_visual_source', {}).get(tid)
-        if source is None or now - source[1] > 1.5 or source[1] > now + 0.05:
-            return None
-        uid, _, sx, sy = source
-        st = self.status.get(uid)
-        if st is None or not getattr(st, 'connected', False) or uid in busy:
-            return None
-        if math.hypot(sx - tx, sy - ty) > 4.0:
-            return None
-        d = math.hypot(st.x - tx, st.y - ty)
-        return (uid, d) if d <= 20.0 else None
+        candidates = self._camera_candidates(tid, tx, ty, now, busy)
+        return candidates[0] if candidates else None
 
     def _free_camera_backup_for_new_target(self, tid, tx, ty, now):
         """Let a backup pursue a new person that its own camera just saw.
@@ -815,119 +1170,73 @@ class SwarmManager(object):
         dispatcher instead selected a searcher 60 m away.  Brown's 15-second
         judge window then began too late.
         """
-        source = getattr(self, '_visual_source', {}).get(tid)
-        if source is None or now - source[1] > 1.5 or source[1] > now + 0.05:
-            return False
-        uid, _, sx, sy = source
-        if math.hypot(sx - tx, sy - ty) > 4.0:
-            return False
-        st = self.status.get(uid)
-        if st is None or not getattr(st, 'connected', False):
-            return False
-        if math.hypot(st.x - tx, st.y - ty) > 12.0:
-            return False
-        old_tid = next((other for other, bid in self._backup.items()
-                        if bid == uid and other != tid), None)
-        if old_tid is None:
-            return False
-        old_main = self.status.get(self._tracking.get(old_tid))
-        if old_main is None or not getattr(old_main, 'connected', False):
-            return False
-        old_xy = self._get_target_pos(old_tid, now)
-        if old_xy[0] is None or math.hypot(old_main.x - old_xy[0],
-                                             old_main.y - old_xy[1]) > 12.0:
-            return False
-        busy = set(self._tracking.values()) | set(self._backup.values())
+        busy = set(self._tracking.values()) | set(getattr(self, '_backup', {}).values())
         for free_uid, free_st in self.status.items():
-            if free_uid not in busy and getattr(free_st, 'connected', False) and \
-                    math.hypot(free_st.x - tx, free_st.y - ty) <= 20.0:
+            if (free_uid not in busy and self._tracking_uav_available(free_uid, now) and
+                    now >= getattr(self, '_release_cooldown', {}).get(free_uid, rospy.Time(0)).to_sec() and
+                    math.hypot(free_st.x - tx, free_st.y - ty) <= 20.0):
                 return False
-        self._backup.pop(old_tid, None)
-        old_ct = self.tracker.targets.get(old_tid)
-        if old_ct is not None:
-            old_ct.observers.discard(uid)
-        rospy.loginfo('[manager] 相机 %s 发现新目标 %s，解除 %s 的备份占用；'
-                      '原主追机继续确认', uid, tid, old_tid)
-        return True
+        # Examine all seeing backups, not just the most recent publisher.
+        for uid, distance in self._camera_candidates(tid, tx, ty, now, set(self._tracking.values())):
+            if distance > 12.0:
+                continue
+            old_tid = next((other for other, bid in getattr(self, '_backup', {}).items()
+                            if bid == uid and other != tid), None)
+            if old_tid is None:
+                continue
+            main = self._tracking.get(old_tid)
+            if (not self._tracking_uav_available(main, now) or
+                    not self._recent_eligible(old_tid, now, 1.0, main)):
+                continue
+            self._backup.pop(old_tid, None)
+            old_ct = self.tracker.targets.get(old_tid)
+            if old_ct is not None:
+                old_ct.observers.discard(uid)
+            # A freed backup may not win the batch; cancel its old task now.
+            msg = SearchAssignment()
+            msg.header.stamp = rospy.Time.from_sec(now)
+            msg.uav_id, msg.target_id, msg.task_type = uid, old_tid, 255
+            msg.cell_ix = msg.cell_iy = -1
+            self.assign_pub.publish(msg)
+            rospy.loginfo('[manager] 相机 %s 发现新目标 %s，解除 %s 备份占用；'
+                          '原主追机仍有新鲜图像', uid, tid, old_tid)
+            return True
+        return False
 
+    @serialized_tasks
     def _truth_cb(self, msg):
-        """actor 位置（真值桥或 YOLO 桥）→ 缓存位置 + 给 CooperativeTracker 播种目标 ID。
+        """兼容旧回调名；只缓存本队 YOLO 桥的新鲜图像目标位置。
 
-        P0 修复（2026-10-01）：SEED_TRUTH 开关此前定义了但在此未生效 —— 无论开关
-        如何都无条件播种 + 缓存位置，等于"上帝视角"直接派机，覆盖栅格/拍卖/NBV
-        全部沦为摆设。现在：
-
-        - SEED_TRUTH=1（开发/仿真）：行为不变 —— 播种目标 + 缓存真值位置，
-          _truth_pos 供 CooperativeTracker 做误差门槛（规则5 的 1m 判定）。
-        - SEED_TRUTH=0：仅把本队 YOLO 桥的新鲜视觉结果用于派机接近。
-          几何确认仍由 agent 10m+LOS 检测上报；不写 _truth_pos，
-          消除仍只以官方 /left_actors 为权威。
-
-        CooperativeTracker 不存目标位置（它只管融合和计时），位置缓存在
-        self._truth_cache 里，派追踪机时用。确认计时仍然只有 UAV 真的
-        观测到才累计（规则 5 的连续 15s）。
+        视觉槽 t4/t5 是两条轨迹，不等同于官方 actor_4/5 身份。
+        TargetState.eliminated 不能证明裁判已消除任何目标。
         """
+        if not VISUAL_DISPATCH or msg.eliminated:
+            return
         tid = str(msg.target_id)
         now = rospy.Time.now().to_sec()
-        if not SEED_TRUTH:
-            if not VISUAL_DISPATCH:
-                return
-            if msg.eliminated:
-                # Bridge emits this only after the official remaining-actor
-                # list shrinks.  For red it has correlated the departed
-                # visual trajectory; release that task now instead of keeping
-                # a deleted red person's location while the other survives.
-                self._truth_cache.pop(tid, None)
-                self._eliminated.add(tid)
-                tracked = self.tracker.targets.get(tid)
-                if tracked is not None:
-                    tracked.eliminated = True
-                self._release_tracker(tid, reason='official red visual departure')
-                self._confirm_done_t.pop(tid, None)
-                return
-            if tid in self._eliminated:
-                return
-            if self._quarantined_visual(tid, msg.x, msg.y, now):
-                return
-            sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
-            if sample <= 0.0 or sample > now + 0.05 or now - sample > 1.0:
-                return  # 桥的保活帧不可冒充新视觉发现
-            prev = self._truth_cache.get(tid)
-            if prev is not None and sample <= prev[2]:
-                return
-            self._truth_cache[tid] = (msg.x, msg.y, sample)
-            self._remember_visual_candidate(tid, msg.x, msg.y, now)
-            if tid not in self.tracker.targets:
-                self.tracker.add_target(tid, now)
-                rospy.loginfo("[manager] 新鲜视觉候选 %s @ (%.1f, %.1f)，提前派机接近",
-                              tid, msg.x, msg.y)
+        if self._quarantined_visual(tid, msg.x, msg.y, now):
             return
-        self._truth_cache[tid] = (msg.x, msg.y, now)
-        self._truth_pos[tid] = (msg.x, msg.y)
-        if msg.eliminated:
-            self._truth_cache.pop(tid, None)
-            self._truth_pos.pop(tid, None)
+        sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
+        if sample <= 0.0 or sample > now + 0.05 or now - sample > 1.0:
+            return  # 桥的保活帧不可冒充新视觉发现
+        prev = self._truth_cache.get(tid)
+        if prev is not None and sample <= prev[2]:
             return
-        if tid in self._eliminated:
-            return
+        self._truth_cache[tid] = (msg.x, msg.y, sample)
+        self._remember_visual_candidate(tid, msg.x, msg.y, now)
         if tid not in self.tracker.targets:
-            now = rospy.Time.now().to_sec()
             self.tracker.add_target(tid, now)
-            rospy.loginfo("[manager] 真值播种目标 %s @ (%.1f, %.1f)", tid, msg.x, msg.y)
+            rospy.loginfo("[manager] 新鲜视觉候选 %s @ (%.1f, %.1f)，提前派机接近",
+                          tid, msg.x, msg.y)
 
     def _get_target_pos(self, tid, now=None):
-        """取目标最新位置：优先真值缓存 → 退回 CooperativeTracker 融合估计。"""
+        """取本队视觉估计位置，过期后退回新鲜融合估计。"""
         if tid in self._truth_cache:
             x, y, t = self._truth_cache[tid]
             if now is None or (now - t) <= TRUTH_TTL:
                 return (x, y)
-            # 缓存过期：pop 掉避免堆积，回退到 CooperativeTracker 融合估计。
-            # _truth_pos 必须同步过期：它只由 _truth_cb 写入，若长留，tracker
-            # 的误差门槛会拿过期坐标当"真值"——agent 几何检测上报的正是同一
-            # 过期坐标，err≈0 恒通过，形成自洽的幽灵确认循环
-            # （2026-10-01 22:41 局 t3 实测：resets 17→20、进度卡 7%）。
+            # 缓存过期后不能把旧坐标伪装成新检测。
             self._truth_cache.pop(tid, None)
-            self._truth_pos.pop(tid, None)
         ct = self.tracker.targets.get(tid)
         if ct is not None:
             fx = ct.fused(now) if now is not None else None
@@ -935,27 +1244,184 @@ class SwarmManager(object):
                 return fx
         return None, None
 
+    def _last_eligible(self, uid, tid):
+        accepted = getattr(self, '_eligible_observations', {}).get((uid, tid))
+        latest = getattr(self, '_visual_observations', {}).get((uid, tid))
+        if latest and latest.get('eligible') and (
+                accepted is None or latest['sample_s'] > accepted['sample_s']):
+            return latest
+        return accepted
+
+    def _recent_eligible(self, tid, now, ttl=1.0, uid=None):
+        keys = (set(getattr(self, '_eligible_observations', {})) |
+                set(getattr(self, '_visual_observations', {})))
+        for key in keys:
+            if key[1] != tid or (uid is not None and uid != key[0]):
+                continue
+            image = self._last_eligible(*key)
+            if image is not None and 0.0 <= now - image['sample_s'] <= ttl:
+                return True
+        return False
+
     def _has_fresh_visual(self, tid, now):
-        """True only for a recent camera sample, not a bridge keepalive."""
-        seen = self._truth_cache.get(tid)
-        return seen is not None and 0.0 <= now - seen[2] <= 1.5
+        """Last eligible original image; an intervening bad box cannot erase it."""
+        return self._recent_eligible(tid, now)
 
-    def _hold_recent_official_target(self, tid, now):
-        """Keep a close assigned observer through a brief visual occlusion.
+    def _stable_owner_view(self, uid, tid, now):
+        image = self._last_eligible(uid, tid)
+        return (image is not None and 0.0 <= now-image['sample_s'] <= 1.0 and
+                image.get('hits', 0) >= 4 and
+                image['sample_s']-image.get('since_s', image['sample_s']) >= 3.0)
 
-        A judge find proves that the target was real.  Releasing its observer
-        after the 3 s position TTL lets a new target claim that aircraft just
-        before the original person reappears in its camera.  This hold never
-        fabricates a new position or an official report.
+    def _defer_failed_view(self, tid, owners, now, max_age=4.0):
+        """Back off a failed visual location, never suppress its detections."""
+        source = getattr(self, '_visual_source', {}).get(tid)
+        if source is None or not 0.0 <= now-source[1] <= max_age:
+            return
+        x, y = source[2:4]
+        if not all(math.isfinite(v) for v in (x, y)):
+            return
+        records = getattr(self, '_failed_views', None)
+        if records is None:
+            records = self._failed_views = {}
+        old = records.get(tid)
+        repeated = (old is not None and now-old['failed_s'] <= 180.0 and
+                    math.hypot(x-old['x'], y-old['y']) <= 3.0)
+        attempts = min(3, old['attempts']+1) if repeated else 1
+        sources = set(old['sources']) if repeated else set()
+        sources.update(uid for uid in owners if uid is not None)
+        delay = 15.0 * 2**(attempts-1)
+        records[tid] = dict(x=x, y=y, failed_s=now, until=now+delay,
+                            attempts=attempts, sources=sources)
+        rospy.logwarn('[VIEW_RETRY_DEFER] tid=%s xy=(%.2f,%.2f) retry=%.0fs '
+                      'attempt=%d; 暂缓同点重派，保留观测和其他新位置',
+                      tid, x, y, delay, attempts)
+
+    def _failed_view_dispatch_ok(self, tid, x, y, now, uid=None):
+        old = getattr(self, '_failed_views', {}).get(tid)
+        if (old is None or now >= old['until'] or
+                math.hypot(x-old['x'], y-old['y']) > 3.0):
+            return True
+        # A different camera may rescue a genuine stationary person, but a
+        # replayed frame or the same failed source cannot immediately restart.
+        for (camera_uid, key_tid), image in getattr(self, '_eligible_observations', {}).items():
+            if (key_tid == tid and (uid is None or uid == camera_uid) and
+                    camera_uid not in old['sources'] and
+                    image.get('since_s', -1e18) >= old['failed_s'] and
+                    self._stable_owner_view(camera_uid, tid, now) and
+                    math.hypot(image.get('x', float('inf'))-x,
+                               image.get('y', float('inf'))-y) <= 3.0):
+                return True
+        return False
+
+    def _note_lost_view(self, tid, now):
+        """Repeated short failed looks get the same bounded retry as timeouts.
+
+        This is a place-specific scheduling delay, not a decoy classification.
+        A single occlusion or a moving candidate must remain reacquirable.
         """
-        if tid not in self._tracking:
+        uid = self._tracking.get(tid)
+        source = getattr(self, '_visual_source', {}).get(tid)
+        st = self.status.get(uid)
+        if (source is None or st is None or not 0. <= now-source[1] <= 10. or
+                math.hypot(st.x-source[2], st.y-source[3]) > 15.):
+            return
+        records = getattr(self, '_lost_view_attempts', None)
+        if records is None:
+            records = self._lost_view_attempts = {}
+        old = records.get(tid)
+        repeated = (old is not None and now-old[0] <= 90. and
+                    math.hypot(source[2]-old[1], source[3]-old[2]) <= 3.)
+        records[tid] = (now, source[2], source[3])
+        if repeated:
+            self._defer_failed_view(tid, (uid, self._backup.get(tid)), now, max_age=10.)
+
+    def _recover_tracking_view(self, tid, now, reason):
+        """Keep contact through a timeout; hand off only after backup images.
+
+        This is task health, not judge accuracy or elimination. No synthetic
+        observations are generated and a totally unusable view is time bounded.
+        """
+        main = self._tracking.get(tid)
+        if main is None:
             return False
-        found = self._official_find_for_visual(tid)
-        detected = self._last_detect.get(tid)
-        if detected is None:
-            return False
-        return (0.0 <= now - found <= 30.0 and
-                0.0 <= now - detected <= OFFICIAL_REACQUIRE_HOLD_S)
+        bounded_tenure = reason in ('tracking_tenure', 'confirm_hold_timeout')
+        recovery_name = '_tenure_recovery' if bounded_tenure else '_view_recovery'
+        recovery = getattr(self, recovery_name, None)
+        if recovery is None:
+            recovery = {}
+            setattr(self, recovery_name, recovery)
+        backup = getattr(self, '_backup', {}).get(tid)
+        first = recovery.setdefault(tid, now)
+        exhausted = now-first >= VIEW_RECOVERY_S
+        main_seen = self._recent_eligible(tid, now, UNVERIFIED_VISUAL_GRACE_S, main)
+        other = self._last_eligible(backup, tid)
+        ready = (backup is not None and self._tracking_uav_available(backup, now) and
+                 other is not None and 0.0 <= now - other['sample_s'] <= 1.0 and
+                 other.get('hits', 0) >= 3 and
+                 other['sample_s'] - other.get('since_s', other['sample_s']) >= 0.4)
+        ct = self.tracker.targets.get(tid)
+        fragmented_primary = (
+            reason == 'unverified_visual' and getattr(ct, 'resets', 0) >= 3 and
+            now-self._tracking_since.get(tid, now) >= self.tracker.confirm_time+BACKUP_AFTER and
+            not self._stable_owner_view(main, tid, now) and
+            self._stable_owner_view(backup, tid, now))
+        if ready and (not main_seen or bounded_tenure or fragmented_primary):
+            self._tracking[tid] = backup
+            self._backup.pop(tid, None)
+            self._tracking_since[tid] = now
+            self._cancel_unavailable_owner(main, tid, now)
+            self.tracker.assign_observers(tid, [backup])
+            recovery.pop(tid, None)
+            getattr(self, '_view_recovery', {}).pop(tid, None)
+            getattr(self, '_tenure_recovery', {}).pop(tid, None)
+            rospy.logwarn('[VIEW_HANDOFF] tid=%s old=%s new=%s reason=%s '
+                          'image=%.3f; 新机已连续见人，旧机才释放',
+                          tid, main, backup, reason, other['sample_s'])
+            return True
+        if main_seen and not exhausted:
+            # A single accepted frame every few seconds must not renew an
+            # unsuccessful observation attempt forever. Hard tenure also
+            # remains bounded even when the classifier keeps seeing a decoy.
+            if not bounded_tenure and self._stable_owner_view(main, tid, now):
+                recovery.pop(tid, None)
+            # Prolonged image continuity does not prove coordinate accuracy.
+            # Reimage from a different safe angle while retaining ownership.
+            pub = getattr(self, 'reobserve_pub', None)
+            sent = getattr(self, '_reobserve_sent', None)
+            if sent is None:
+                sent = self._reobserve_sent = {}
+            if pub is not None and now - sent.get(tid, -1e18) >= VISUAL_STREAK_MAX_HOLD_S:
+                pub.publish(String(json.dumps(dict(
+                    target_id=tid, uav_id=main, sample_s=now, reason=reason))))
+                sent[tid] = now
+            # Do not reset image continuity or manufacture a new observation.
+            return True
+        if main_seen and not bounded_tenure and self._stable_owner_view(main, tid, now):
+            recovery.pop(tid, None)
+            return True
+        if (exhausted and self._tracking_uav_available(backup, now) and
+                self._has_fresh_visual(tid, now) and
+                self._hold_approaching_target(tid, now, backup=True)):
+            # A remote relief aircraft needs its finite travel budget. Do not
+            # cancel it at the original observer's 20-second recovery deadline.
+            return True
+        if now - first < VIEW_RECOVERY_S:
+            rospy.logwarn_throttle(5.0, '[VIEW_RECOVERY] tid=%s main=%s backup=%s '
+                                  'reason=%s elapsed=%.1f; 保持目标补看，等待可靠接力',
+                                  tid, main, backup, reason, now - first)
+            return True
+        recovery.pop(tid, None)
+        source = getattr(self, '_visual_source', {}).get(tid)
+        if (source and 0.0 <= now - source[1] <= 3.0 and
+                hasattr(self.allocator, 'queue_revisit')):
+            self.allocator.queue_revisit('lost', source[2], source[3], now=now,
+                                        ttl_s=25.0, blocked=self._blocked_cells)
+        return False
+
+    def _has_eligible_visual(self, tid, now):
+        """Retain tracks only while an actual camera still sees this target."""
+        return self._has_fresh_visual(tid, now)
 
     def _hold_near_visual_target(self, tid, now):
         """Give a nearby observer time to back out of a cropped/occluded view.
@@ -976,6 +1442,7 @@ class SwarmManager(object):
                 0.0 <= now - detected <= VISUAL_REACQUIRE_HOLD_S and
                 math.hypot(observer.x - near[0], observer.y - near[1]) <= 12.0)
 
+    @serialized_tasks
     def _dispatch_pending_targets(self):
         """给「已知但未消除」的目标派追踪机（只派一次，已在追的只更新位置）。
 
@@ -989,6 +1456,7 @@ class SwarmManager(object):
           并 publish cancel_msg = -1 → agent 立即转入新拍卖分配。
         """
         now = rospy.Time.now().to_sec()
+        pending = []
         for tid in list(self.tracker.targets.keys()):
             if tid in self._eliminated:
                 continue
@@ -1005,7 +1473,7 @@ class SwarmManager(object):
             if tx is None:
                 # 目标已跟丢（缓存过期 + 融合无观测）：释放追踪/备份机去搜别的，
                 # 避免飞机继续追一个不存在的过期坐标。
-                if (self._hold_recent_official_target(tid, now) or
+                if (self._hold_approaching_target(tid, now) or
                         self._hold_near_visual_target(tid, now)):
                     continue
                 if tid in self._tracking or tid in self._backup:
@@ -1021,56 +1489,8 @@ class SwarmManager(object):
                 self._handoff_distant_tracker(tid, tx, ty, ct)
                 self._update_tracker_position(tid, tx, ty)
                 continue
-            self._free_camera_backup_for_new_target(tid, tx, ty, now)
-            busy = set(self._tracking.values()) | set(self._backup.values())
-            best, best_d = None, None
-            for uid, st in self.status.items():
-                if not getattr(st, "connected", False) or uid in busy:
-                    continue
-                d = math.hypot(st.x - tx, st.y - ty)
-                if best_d is None or d < best_d:
-                    best, best_d = uid, d
-            if best is None:
-                continue
-            camera = self._preferred_camera(tid, tx, ty, now, busy)
-            if camera is not None and camera[1] <= best_d + 3.0:
-                best, best_d = camera
-            # v24（2026-10-09）：派机距离门槛放宽。原阈值 DETECT_RADIUS+MARGIN=13m
-            # 存在「鸡生蛋」死结——飞机不派过去就不会接近目标，不接近就永远够不到
-            # 13m。实测 white 在 (57.6,-8.2) 距最近空闲机仅 19.5m 仍被「暂不派遣」
-            # 拦下直到 5min 结束从未消除。放宽到 DISPATCH_FAR_LIMIT=60m（搜索巡航
-            # 3m/s 下 20s 可达）：目标一经发现/播种，立即派最近空闲机去接近确认；
-            # 接近后仍无观测由 TRACK_CONFIRM_TIMEOUT 超时释放兜底，不浪费机。
-            _disp_limit = float(os.environ.get("DISPATCH_FAR_LIMIT", "60.0"))
-            if best_d >= _disp_limit:
-                rospy.loginfo_throttle(5.0,
-                    "[manager] 目标 %s 最近机 %s 距 %.1fm ≥ 派遣阈值 %.1fm，暂不派遣",
-                    tid, best, best_d, _disp_limit)
-                continue
-            self._tracking[tid] = best
-            self._free_search_lease(best)
-            # CooperativeTracker 的协同关键：派出去的追踪机必须登记为 observer，
-            # 否则它看到的观测会被忽略（规则5 需要多机接力 + 误差/间隔判定）。
-            existing = list(ct.observers)
-            if best not in existing:
-                self.tracker.assign_observers(tid, existing + [best])
-            # actor 真值可能落在栅格外（官方 actor 可达 y[-60,60]，栅格可能更小）
-            # 直接派出去会让 A* 报 GOAL_OUT_OF_BOUNDS 原地打转，先 clamp 到栅格内
-            tx_c = min(max(tx, self.grid.x_min + 0.5), self.grid.x_max - 0.5)
-            ty_c = min(max(ty, self.grid.y_min + 0.5), self.grid.y_max - 0.5)
-            msg = SearchAssignment()
-            msg.header.stamp = rospy.Time.now()
-            msg.uav_id = best
-            msg.cell_ix = -1
-            msg.cell_iy = -1
-            msg.target_x = tx_c
-            msg.target_y = ty_c
-            if hasattr(msg, "target_id"):
-                msg.target_id = tid
-            msg.task_type = 1  # 目标确认/追踪
-            self.assign_pub.publish(msg)
-            rospy.loginfo("[manager] 派追踪：%s → 目标 %s @ (%.1f, %.1f), 距离 %.1fm",
-                          best, tid, tx_c, ty_c, best_d)
+            pending.append((tid, tx, ty))
+        self._dispatch_target_batch(pending, now)
 
     def _handoff_distant_tracker(self, tid, tx, ty, ct):
         """已追踪目标旁出现更近的空闲机时，及时接棒远处的主追机。
@@ -1084,13 +1504,20 @@ class SwarmManager(object):
         if old_st is None:
             return
         old_d = math.hypot(old_st.x - tx, old_st.y - ty)
-        if old_d <= 25.0:
+        if old_d <= 25.0 or self._recent_eligible(
+                tid, rospy.Time.now().to_sec(), 1.0, old):
             return
         busy = set(self._tracking.values()) | set(self._backup.values())
         best, best_d = None, float(os.environ.get("HANDOFF_NEAR_M", "20.0"))
         now = rospy.Time.now()
         for uid, st in self.status.items():
-            if uid in busy or not getattr(st, "connected", False):
+            if uid in busy or not self._tracking_uav_available(uid, now.to_sec()):
+                continue
+            image = self._last_eligible(uid, tid)
+            if (image is None or not 0.0 <= now.to_sec() - image['sample_s'] <= 1.0 or
+                    image.get('hits', 0) < 3 or
+                    image['sample_s'] - image.get('since_s', image['sample_s']) < 0.4 - 1e-6 or
+                    math.hypot(image['x'] - tx, image['y'] - ty) > 4.0):
                 continue
             if float(getattr(st, "z", 0.0) or 0.0) < 1.0:
                 continue
@@ -1102,10 +1529,18 @@ class SwarmManager(object):
         if best is None:
             return
         self._tracking[tid] = best
+        self._record_approach(tid, best, tx, ty, now.to_sec())
+        self._tracking_since[tid] = now.to_sec()
         self._free_search_lease(best)
         self._release_cooldown[old] = now + rospy.Duration(1.0)
         ct.observers.discard(old)
         ct.observers.add(best)
+        new_msg = SearchAssignment()
+        new_msg.header.stamp = now
+        new_msg.uav_id, new_msg.target_id, new_msg.task_type = best, tid, 1
+        new_msg.cell_ix = new_msg.cell_iy = -1
+        new_msg.target_x, new_msg.target_y = flight_waypoint(tx, ty)
+        self.assign_pub.publish(new_msg)
         msg = SearchAssignment()
         msg.header.stamp = now
         msg.uav_id = old
@@ -1119,14 +1554,69 @@ class SwarmManager(object):
         rospy.loginfo("[manager] 近机接棒 %s：%s(%.1fm) → %s(%.1fm)",
                       tid, old, old_d, best, best_d)
 
+    def _record_approach(self, tid, uid, tx, ty, now, backup=False):
+        """Travel budget is separate from visual freshness and judge evidence."""
+        name = '_backup_approach_leases' if backup else '_approach_leases'
+        if not hasattr(self, name):
+            setattr(self, name, {})
+        if not hasattr(self, '_tracking_since'):
+            self._tracking_since = {}
+        if not backup:
+            self._tracking_since.setdefault(tid, now)
+            getattr(self, '_view_recovery', {}).pop(tid, None)
+            getattr(self, '_tenure_recovery', {}).pop(tid, None)
+        st = self.status[uid]
+        distance = math.hypot(st.x - tx, st.y - ty)
+        speed = max(0.5, float(os.environ.get('SEARCH_CRUISE_SPEED', '3.0')))
+        budget = min(90.0, max(6.0, distance / speed + 6.0))
+        getattr(self, name)[tid] = dict(uid=uid, x=tx, y=ty,
+            until=now + budget, progress_s=now, anchor=(st.x, st.y))
+
+    def _hold_approaching_target(self, tid, now, backup=False):
+        leases = '_backup_approach_leases' if backup else '_approach_leases'
+        owners = self._backup if backup else self._tracking
+        lease = getattr(self, leases, {}).get(tid)
+        if lease is None or owners.get(tid) != lease['uid']:
+            return False
+        st = self.status.get(lease['uid'])
+        if st is None or not getattr(st, 'connected', False) or now >= lease['until']:
+            return False
+        if math.hypot(st.x - lease['x'], st.y - lease['y']) <= 12.0:
+            close_since = lease.setdefault('close_s', now)
+            return now - close_since <= 4.0  # allow the first full camera view
+        ax, ay = lease['anchor']
+        if math.hypot(st.x - ax, st.y - ay) >= 1.0:
+            lease['anchor'], lease['progress_s'] = (st.x, st.y), now
+        return 0.0 <= now - lease['progress_s'] <= 5.0
+
     def _release_tracker(self, tid, reason=""):
         """国家一等奖：明确释放追踪/备份机，立即 publish cancel (-1)。
 
         原实现分散在两处（_dispatch_pending_targets 内部和 _check_lost_targets
         间接路径），删除时容易遗漏。统一从这一处发布。
         """
+        if reason == 'lost':
+            # A recently imaged actor may have moved during occlusion. Keep
+            # one short search viewpoint near the *last image*, not a frozen
+            # tracking coordinate, and never reserve multiple aircraft for it.
+            source = getattr(self, '_visual_source', {}).get(tid)
+            now_s = rospy.Time.now().to_sec()
+            self._note_lost_view(tid, now_s)
+            if (source is not None and 0.0 <= now_s - source[1] <= 4.0 and
+                    hasattr(self.allocator, 'queue_revisit')):
+                self.allocator.queue_revisit(
+                    'lost', source[2], source[3], now=now_s,
+                    ttl_s=25.0, blocked=self._blocked_cells)
+        if reason in ('unverified_visual', 'tracking_tenure', 'confirm_hold_timeout'):
+            self._defer_failed_view(tid, (self._tracking.get(tid), self._backup.get(tid)),
+                                    rospy.Time.now().to_sec())
         uid = self._tracking.pop(tid, None)
         buid = self._backup.pop(tid, None)
+        getattr(self, '_tracking_since', {}).pop(tid, None)
+        getattr(self, '_approach_leases', {}).pop(tid, None)
+        getattr(self, '_backup_approach_leases', {}).pop(tid, None)
+        getattr(self, '_view_recovery', {}).pop(tid, None)
+        getattr(self, '_tenure_recovery', {}).pop(tid, None)
         # v18（2026-10-07）：backup 机也必须收到 cancel + 冷却。旧实现 uid=None
         # 时直接 return —— backup 被 pop 却收不到 cancel，agent 侧永远停在追踪
         # assignment（v17 实测 agent_2/agent_5 脱管追 t3 直到比赛结束）。
@@ -1175,41 +1665,50 @@ class SwarmManager(object):
                           [r for r in (uid, buid) if r], tid, reason)
 
     def _free_search_lease(self, uid):
-        key = self._active_leases.pop(uid, None)
-        self._lease_motion.pop(uid, None)
+        key = getattr(self, '_active_leases', {}).pop(uid, None)
+        getattr(self, '_lease_motion', {}).pop(uid, None)
         if key is not None:
             self.lease.force_expire(uid, key)
             self._lease_hold_since.pop((uid, key), None)
 
     # ---------------- 目标检测与消除（规则4/5） ----------------
+    @serialized_tasks
     def _detection_cb(self, msg):
         """收到某机对某目标的检测 → 喂给 CooperativeTracker。
 
-        CooperativeTracker 内部维护多机融合 + 三门槛（误差 1m / 间隔 1s / 连续 15s）
-        计时，_update_targets 周期性调 update() 统一处理规则 4/5 事件。
+        只维护本队真实图像的连续性和融合；没有真值，无法判定裁判的
+        1 米误差门限。_update_targets 周期更新任务健康，不宣布官方消除。
         """
-        if msg.target_id in self._eliminated:
+        # Geometry echoes and predicted states are never camera observations.
+        if msg.source != 1 or msg.target_id in self._eliminated:
             return
-        tid = msg.target_id
-        now = rospy.Time.now().to_sec()
+        tid, now = msg.target_id, rospy.Time.now().to_sec()
+        sample = msg.header.stamp.to_sec()
+        key = (msg.uav_id, tid)
+        evidence = self._visual_observations.get(key)
+        previous_sample = self._last_detection_sample.get(key, -1e18)
+        qualified = getattr(self, '_qualified_detection_sample', {})
+        upgrade = (evidence is not None and evidence['eligible'] and
+                   sample == previous_sample and sample > qualified.get(key, -1e18))
+        if (evidence is None or not all(math.isfinite(v) for v in
+                                        (sample, msg.x, msg.y, msg.confidence)) or
+                abs(sample-evidence['sample_s']) > 1e-6 or
+                not 0.0 <= now-sample <= 1.0 or
+                math.hypot(msg.x-evidence['x'], msg.y-evidence['y']) > 0.02 or
+                (sample <= previous_sample and not upgrade)):
+            return
+        self._last_detection_sample[key] = sample
         if self._quarantined_visual(tid, msg.x, msg.y, now):
             return
         self._remember_visual_candidate(tid, msg.x, msg.y, now)
-        self._last_detect[tid] = now
+        self._last_detect[tid] = max(sample, self._last_detect.get(tid, -1e18))
         observer = self.status.get(msg.uav_id)
         if observer is not None and math.hypot(observer.x - msg.x,
                                                 observer.y - msg.y) <= 12.0:
-            self._visual_near_seen[tid] = (msg.x, msg.y, now)
-        # 国家一等奖 v2 修复（2026-10-05）：_truth_cache[tid] = (msg.x, msg.y, now)
-        # 这一行会让派机坐标 = 看到目标的飞机的坐标 → 飞机追自己 → 永远'接近'但不动。
-        # 改为仅在 CooperativeTracker 还没产生 fused 估计前, 用上报位置做兜底。
-        if tid not in self.tracker.targets:
-            self._truth_cache[tid] = (msg.x, msg.y, now)
-        else:
-            ct = self.tracker.targets[tid]
-            fx = ct.fused(now) if hasattr(ct, "fused") else None
-            if fx is not None:
-                self._truth_cache[tid] = (fx[0], fx[1], now)
+            self._visual_near_seen[tid] = (msg.x, msg.y, sample)
+        cached = self._truth_cache.get(tid)
+        if cached is None or sample > cached[2]:
+            self._truth_cache[tid] = (msg.x, msg.y, sample)
 
         # CooperativeTracker 还不知道这个目标？登记
         if tid not in self.tracker.targets:
@@ -1222,85 +1721,19 @@ class SwarmManager(object):
         if msg.uav_id not in ct.observers:
             self.tracker.assign_observers(tid, list(ct.observers) + [msg.uav_id])
 
-        # 喂观测 → CooperativeTracker 内部做 alpha-beta 融合 + 三门槛判定。
-        # truth 只在 SEED_TRUTH=1（真值源在跑）时提供：_truth_cache 里掺着检测
-        # 位置（派机用），拿它当真值会让 last_err=|fused-检测|≈0，误差门槛
-        # 恒通过 —— 等于从后门绕过 cooperative_tracker 的 B3 修复。
-        # SEED_TRUTH=0 时传 None，tracker 退化为「看得见即合格」口径（无真值）。
-        tp = self._truth_pos.get(tid)
-        truth = tp if (SEED_TRUTH and tp is not None) else None
-        self.tracker.report(msg.uav_id, tid, now, msg.x, msg.y, truth=truth)
+        # Only a fresh eligible original camera sample feeds visual continuity.
+        # Absolute positioning error is unknown to this node.
+        if evidence["eligible"]:
+            qualified[key] = sample
+            self._qualified_detection_sample = qualified
+            self.tracker.report(msg.uav_id, tid, sample, msg.x, msg.y, truth=None)
         self._cur_targets[tid] = (msg.x, msg.y, msg.uav_id)
 
-        # 已在追踪？更新盘旋位置；否则立刻派遣。
-        # 2026-10-03 国家一等奖：首见即派（DISPATCH_ON_FIRST_HIT=1），
-        # 不再等确认 3 击才派，否则首击→首派延迟 6-9s，确认窗口吃掉 1/3 预算。
+        # 已有负责人立即更新目标位置；无负责人的目标进入快速联合派遣。
         if tid in self._tracking:
             self._update_tracker_position(tid, msg.x, msg.y)
-        else:
-            self._dispatch_tracker(msg.target_id, msg.x, msg.y)
-            # 改进 4：派机后若发现机距 > 派遣备份阈值，立刻就近派一架备份机。
-            # 不等 BACKUP_AFTER（3s）——直接派，避免中途 2s 漏检即"跟丢→确认清零"。
-            self._maybe_dispatch_immediate_backup(tid, msg)
-
-    def _maybe_dispatch_immediate_backup(self, tid, msg):
-        """首击即加派备份机（改进 4）—— 不等 3s 停滞。
-
-        立即派机的依据：首见检测机的位置（msg.uav_id 自己坐标）若距目标
-        > DISPATCH_BACKUP_DIST，则另派一架更近的机立即飞过去做"接棒观察"。
-        双机即接力的状态可用 100%，单架断流/被建筑遮挡也维持确认进度条。
-        """
-        if not BACKUP_ENABLE or not DISPATCH_ON_FIRST_HIT:
-            return
-        if tid in self._backup:
-            return  # 已有备份
-        if tid in self._eliminated:
-            return
-        if not self._backup_search_capacity():
-            return
-        # 派完主追后主追机本身可能不空闲 → 直接计算"第二近的机"
-        main = self._tracking.get(tid)
-        if main is None:
-            return
-        main_st = self.status.get(main)
-        if main_st is None:
-            return
-        main_d = math.hypot(main_st.x - msg.x, main_st.y - msg.y)
-        if main_d <= DISPATCH_BACKUP_DIST:
-            return  # 主追机本身已经在 40m 内，单机足够
-        # 选第二近的空闲机做备份
-        busy = set(self._tracking.values()) | set(self._backup.values())
-        best = None
-        best_d = float('inf')
-        for uid, st in self.status.items():
-            if not getattr(st, "connected", False) or uid == main or uid in busy:
-                continue
-            d = math.hypot(st.x - msg.x, st.y - msg.y)
-            if d < best_d:
-                best, best_d = uid, d
-        if best is None or best_d >= DETECT_RADIUS:
-            return
-        # 登记为 observer + 派任务
-        self._backup[tid] = best
-        self._free_search_lease(best)
-        ct = self.tracker.targets.get(tid)
-        if ct is not None and best not in ct.observers:
-            self.tracker.assign_observers(tid, list(ct.observers) + [best])
-        tx_c = min(max(msg.x, self.grid.x_min + 0.5), self.grid.x_max - 0.5)
-        ty_c = min(max(msg.y, self.grid.y_min + 0.5), self.grid.y_max - 0.5)
-        m = SearchAssignment()
-        m.header.stamp = rospy.Time.now()
-        m.uav_id = best
-        m.cell_ix = -1
-        m.cell_iy = -1
-        m.target_x = tx_c
-        m.target_y = ty_c
-        if hasattr(m, "target_id"):
-            m.target_id = tid
-        m.task_type = 1
-        self.assign_pub.publish(m)
-        rospy.loginfo("[manager] 即时增派备份：%s → 目标 %s (主追 %s 距 %.1fm，备份距 %.1fm)",
-                      best, tid, main, main_d, best_d)
+        # Unowned detections wait at most one 0.2 s batch period. The seeing
+        # agent holds its own camera while the manager compares all people.
 
     def _sanitize_dispatch_xy(self, tx, ty, target_id=""):
         """派机坐标硬护栏：超界坐标夹回地图内。
@@ -1326,151 +1759,74 @@ class SwarmManager(object):
             return None
         # 轻微越界 -> 夹回
         if (tx < bx0 or tx > bx1 or ty < by0 or ty > by1):
-            cx = min(max(tx, bx0 + 1.0), bx1 - 1.0)
-            cy = min(max(ty, by0 + 1.0), by1 - 1.0)
+            cx, cy = flight_waypoint(tx, ty)
             rospy.logwarn_throttle(2.0,
-                "[manager] 目标 %s 坐标 (%.1f, %.1f) 越界，夹到 (%.1f, %.1f)",
+                "[manager] 目标 %s 坐标 (%.1f, %.1f) 越过搜索范围，飞行航点夹到 (%.1f, %.1f)",
                 target_id, tx, ty, cx, cy)
             return (cx, cy)
-        return (tx, ty)
+        # A target may be visible in the wider search grid, but the aircraft
+        # assigned to it must receive an interior flight waypoint.
+        return flight_waypoint(tx, ty)
 
+    @serialized_tasks
     def _dispatch_tracker(self, target_id, tx, ty):
-        """派遣最近空闲机去追踪目标（盘旋确认）
+        # Kept as a single-target entry for tools; runtime discoveries are
+        # batched by the scheduler before backup allocation.
+        self._dispatch_target_batch([(target_id, tx, ty)], rospy.Time.now().to_sec())
 
-        如果没有空闲机，则中断一台正在搜索的飞机（避免目标因无人确认而瞬移）。
-        """
-        # === 2026-10-05 比赛规则硬约束：派机坐标硬护栏 ===
-        _san = self._sanitize_dispatch_xy(tx, ty, target_id)
-        if _san is None:
-            return
-        tx, ty = _san
-        # P1 修复：检查目标是否已被追踪
-        if target_id in self._tracking:
-            existing_uav = self._tracking[target_id]
-            rospy.loginfo("[manager] 目标 %s 已被 %s 追踪，跳过派遣", target_id, existing_uav)
-            return
-
-        if getattr(self, '_visual_source', {}).get(target_id) is not None:
-            self._free_camera_backup_for_new_target(
-                target_id, tx, ty, rospy.Time.now().to_sec())
-
-        idle = self._idle_uavs()
-
-        # 优先用空闲机
-        best_uav = None
-        best_dist = float('inf')
-        for uid in idle:
-            if uid not in self.status:
+    @serialized_tasks
+    def _dispatch_target_batch(self, pending, now):
+        positions = {}
+        for tid, tx, ty in pending:
+            if tid in self._tracking:
                 continue
-            ux, uy = self.status[uid].x, self.status[uid].y
-            dist = math.hypot(tx - ux, ty - uy)
-            if dist < best_dist:
-                best_dist = dist
-                best_uav = uid
-
-        # 没有空闲机？中断正在搜索的飞机
-        if best_uav is None:
-            rospy.loginfo("[manager] 无空闲机，尝试中断搜索机去追踪 %s", target_id)
-            # 找正在执行搜索任务的飞机，优先选预计到达时间 ≤ 15s 的
-            candidate_uavs = []
-            for uid in self.uav_ids:
-                if uid not in self.status or not self.status[uid].connected:
+            clean = self._sanitize_dispatch_xy(tx, ty, tid)
+            if clean is not None and self._failed_view_dispatch_ok(tid, *clean, now):
+                positions[tid] = clean
+        for tid, (tx, ty) in positions.items():
+            self._free_camera_backup_for_new_target(tid, tx, ty, now)
+        busy = set(self._tracking.values()) | set(getattr(self, '_backup', {}).values())
+        available = [uid for uid in self.uav_ids
+                     if uid not in busy and self._tracking_uav_available(uid, now)
+                     and now >= getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec()]
+        # The whole legal arena is dispatchable. Distance is a cost, not a
+        # permanent veto on west-side aircraft helping an east-side target.
+        limit = float(os.environ.get('DISPATCH_FAR_LIMIT', '0.0'))
+        speed = max(.5, float(os.environ.get('SEARCH_CRUISE_SPEED', '3.0')))
+        costs = {}
+        for tid, (tx, ty) in positions.items():
+            cameras = {uid for uid, _ in self._camera_candidates(tid, tx, ty, now, busy)}
+            edges = {}
+            for uid in available:
+                if not self._failed_view_dispatch_ok(tid, tx, ty, now, uid=uid):
                     continue
-                # 跳过已在追踪的
-                if uid in self._tracking.values():
-                    continue
-                # 找有搜索任务的
-                has_search_task = False
-                for c in self.grid.cells.values():
-                    if c.state == STATE_ASSIGNED and c.owner == uid:
-                        has_search_task = True
-                        break
-                if not has_search_task:
-                    continue
-                # 计算预计到达时间
-                ux, uy = self.status[uid].x, self.status[uid].y
-                dist = math.hypot(tx - ux, ty - uy)
-                flight_time = dist / CRUISE_SPEED  # 用 CRUISE_SPEED 估算
-                candidate_uavs.append((uid, dist, flight_time))
-
-            if candidate_uavs:
-                # 按飞行时间排序，选最快的（15s 内能到的优先）
-                candidate_uavs.sort(key=lambda x: x[2])
-                best_uav, best_dist, flight_time = candidate_uavs[0]
-            else:
-                rospy.loginfo("[manager] 无可中断的搜索机，无法派遣追踪 %s", target_id)
-                return
-
-        if best_uav is None:
-            return
-
-        camera = None
-        if getattr(self, '_visual_source', {}).get(target_id) is not None:
-            camera = self._preferred_camera(target_id, tx, ty,
-                                            rospy.Time.now().to_sec(),
-                                            set(self._tracking.values()) |
-                                            set(self._backup.values()))
-        if camera is not None and camera[1] <= best_dist + 3.0:
-            best_uav, best_dist = camera
-
-        # v26 修复：派遣距离门槛统一为 DISPATCH_FAR_LIMIT（与 _dispatch_pending_targets
-        # 一致）。旧值 DETECT_RADIUS - DISPATCH_MARGIN = 8m 只在"最近空闲机距目标
-        # <8m"时派机——但首击时检测机自身正在执行搜索任务不空闲，第二近的空闲机
-        # 往往落在 8~60m 区间，被 8m 门槛拦下后整轮只能等周期兜底派机（白白推迟
-        # 一个调度周期）。放宽后目标一经检测立即派机接近确认，接近后无观测由
-        # TRACK_CONFIRM_TIMEOUT 超时释放兜底，不浪费机。
-        _disp_limit = float(os.environ.get("DISPATCH_FAR_LIMIT", "60.0"))
-        if best_dist >= _disp_limit:
-            rospy.loginfo(
-                "[manager] 目标 %s 最近机 %s 距 %.1fm ≥ 派遣阈值 %.1fm，暂不派遣",
-                target_id, best_uav, best_dist, _disp_limit)
-            return
-
-        # 只有真正决定派机后才回收搜索租约。先回收再检查距离会让远处
-        # 目标每帧取消一架搜索机的格，随后又因超过门槛拒绝派遣。
-        if best_uav not in idle:
-            rospy.loginfo("[manager] 中断 %s 的搜索任务去追踪 %s（预计 %.1fs）",
-                          best_uav, target_id, best_dist / CRUISE_SPEED)
-            for key, c in self.grid.cells.items():
-                if c.state == STATE_ASSIGNED and c.owner == best_uav:
-                    self.lease.force_expire(best_uav, key)
-                    if self._active_leases.get(best_uav) == key:
-                        self._active_leases.pop(best_uav, None)
-                    self._lease_hold_since.pop((best_uav, key), None)
-                    self._lease_motion.pop(best_uav, None)
-
-        # 发布追踪任务（task_type=1）
-        # 2026-10-01 修复：① target_id 必须填上——agent 侧 _orbit_target 靠它
-        # 对齐真实目标（消除广播后正确清盘旋），空值会让 agent 退到 "tracking"
-        # 占位符；② 真值可能落在栅格外（actor 官方可达 y[-60,60]），不 clamp
-        # 会让 agent 的 A* 报 GOAL_OUT_OF_BOUNDS 原地打转（对齐 _dispatch_pending_targets）。
-        tx_c = min(max(tx, self.grid.x_min + 0.5), self.grid.x_max - 0.5)
-        ty_c = min(max(ty, self.grid.y_min + 0.5), self.grid.y_max - 0.5)
-        msg = SearchAssignment()
-        msg.header.stamp = rospy.Time.now()
-        msg.uav_id = best_uav
-        msg.cell_ix = -1
-        msg.cell_iy = -1
-        msg.target_x = tx_c
-        msg.target_y = ty_c
-        if hasattr(msg, "target_id"):
-            msg.target_id = target_id
-        msg.task_type = 1  # 目标确认/追踪
-        self.assign_pub.publish(msg)
-        # 记录追踪任务
-        self._tracking[target_id] = best_uav
-        # === 算法层日志：派遣时的目标/无人机/距离/阈值/捕获判定 ===
-        # 重点：打印「算法内部计算的距离」，排查坐标系/单位错位导致的不消除。
-        _ux, _uy = self.status[best_uav].x, self.status[best_uav].y
-        _dist = math.hypot(tx - _ux, ty - _uy)
-        _captured = _dist < DETECT_RADIUS
-        rospy.loginfo(
-            "[ALGO] dispatch target=%s pos=(%.2f,%.2f) | uav=%s pos=(%.2f,%.2f) "
-            "| dist=%.3fm | detect_radius=%.1fm | is_captured=%s | flight_time_est=%.1fs",
-            target_id, tx, ty, best_uav, _ux, _uy, _dist,
-            DETECT_RADIUS, _captured, best_dist / CRUISE_SPEED)
-        rospy.loginfo("[manager] 派遣 %s 追踪目标 %s @ (%.1f, %.1f), 距离 %.1fm",
-                      best_uav, target_id, tx_c, ty_c, best_dist)
+                st = self.status[uid]
+                distance = math.hypot(tx - st.x, ty - st.y)
+                if math.isfinite(distance) and (limit <= 0. or distance < limit):
+                    # One second preference for a camera already seeing this
+                    # person. Travel is an estimate; agents still plan safely.
+                    edges[uid] = distance / speed + (0.0 if uid in cameras else 1.0)
+            costs[tid] = edges
+        chosen = joint_target_assignment(costs)
+        for tid, uid in sorted(chosen.items()):
+            tx, ty = positions[tid]
+            # Reserve ownership before publishing; callbacks cannot observe
+            # an unreserved aircraft between assignment messages.
+            self._tracking[tid] = uid
+            self._record_approach(tid, uid, tx, ty, now)
+            self._free_search_lease(uid)
+            tracker = getattr(self, 'tracker', None)
+            ct = tracker.targets.get(tid) if tracker is not None else None
+            if ct is not None:
+                ct.observers.add(uid)
+            msg = SearchAssignment()
+            msg.header.stamp = rospy.Time.from_sec(now)
+            msg.uav_id, msg.target_id, msg.task_type = uid, tid, 1
+            msg.cell_ix = msg.cell_iy = -1
+            msg.target_x, msg.target_y = flight_waypoint(tx, ty)
+            self.assign_pub.publish(msg)
+            rospy.loginfo('[DISPATCH_BATCH] target=%s owner=%s cost_s=%.2f '
+                          'pending=%d; 一机一主追', tid, uid, costs[tid][uid], len(positions))
 
     def _predict_target(self, tid, tx, ty, lead_s):
         """基于过去 1.5 秒位置差分估算 lead_s 秒后 actor 位置。
@@ -1548,8 +1904,7 @@ class SwarmManager(object):
         msg.uav_id = uid
         msg.cell_ix = -1
         msg.cell_iy = -1
-        msg.target_x = tx
-        msg.target_y = ty
+        msg.target_x, msg.target_y = flight_waypoint(tx, ty)
         if hasattr(msg, "target_id"):
             msg.target_id = target_id
         msg.task_type = 1  # 目标确认/追踪
@@ -1562,21 +1917,17 @@ class SwarmManager(object):
             msg2.uav_id = bid
             msg2.cell_ix = -1
             msg2.cell_iy = -1
-            msg2.target_x = tx
-            msg2.target_y = ty
+            msg2.target_x, msg2.target_y = flight_waypoint(tx, ty)
             if hasattr(msg2, "target_id"):
                 msg2.target_id = target_id
             msg2.task_type = 1
             self.assign_pub.publish(msg2)
 
     def _dispatch_backup(self):
-        """确认期冗余派机：用 CooperativeTracker.needs_backup() 定向增派。
+        """按本队图像断流、反复短观察及补看超时请求第二视角。
 
-        CooperativeTracker 自己维护了两个精确判据（替换掉旧版 manager 自己算的 stale/stuck）：
-          (a) resets >= reset_thresh 次：被裁判多次重置，单机扛不住；
-          (b) confirm_since 停滞 >= stall_thresh 秒：进度条卡住。
-
-        两机只要有一架保持可见，上报链就不中断 —— 这正是「协同追踪」真正要落地的地方。
+        CooperativeTracker 的 resets/confirm_since 是本队任务健康指标，
+        不是裁判计时或坐标准确性的证据；正式节点不读取裁判反馈。
         """
         if not BACKUP_ENABLE:
             return
@@ -1585,6 +1936,10 @@ class SwarmManager(object):
         needs = self.tracker.needs_backup(now,
                                           reset_thresh=1,
                                           stall_thresh=BACKUP_AFTER)
+        recovering = (set(getattr(self, '_view_recovery', {})) |
+                      set(getattr(self, '_tenure_recovery', {})))
+        needs += [(tid, 'view_recovery') for tid in recovering
+                  if tid not in {item[0] for item in needs}]
         if not needs:
             return
 
@@ -1598,25 +1953,22 @@ class SwarmManager(object):
             # v18：confirm 超时黑名单期内不冗余派机
             if now < self._confirm_timeout_bl.get(tid, 0.0):
                 continue
-            aid = self._tid_to_actor(tid)
-            if self._left_seen and aid is not None and aid not in self._left_actors:
-                continue
             ct = self.tracker.targets.get(tid)
             if ct is None or ct.eliminated:
                 continue
-            # A historical reset must not pull a second aircraft into the
-            # same 8m observation circle while the primary is reporting now.
-            # In the 10:09 run that crowding made ORCA reverse the primary's
-            # pursuit velocity and broke the judge's 15s streak.
             main = self._tracking.get(tid)
-            main_st = self.status.get(main) if main is not None else None
-            if main_st is not None and ct.last_ok_t is not None:
-                target_xy = self._get_target_pos(tid, now)
-                if (target_xy[0] is not None and
-                        now - ct.last_ok_t < 2.0 and
-                        math.hypot(main_st.x - target_xy[0],
-                                   main_st.y - target_xy[1]) < 15.0):
-                    continue
+            if main is None:
+                continue  # 先派主追，不能给无主目标占第二架机
+            primary = self._last_eligible(main, tid)
+            last_primary = self._tracking_since.get(tid, now)
+            if primary is not None and primary.get('eligible'):
+                last_primary = max(last_primary, primary['sample_s'])
+            # Fresh images are not evidence of successful coordinate reports.
+            # Several *current* short failed streaks warrant a second angle;
+            # one old reset must never pull a healthy searcher off its route.
+            relief = self._camera_view_needs_relief(tid, now)
+            if now - last_primary < BACKUP_STALE and not relief:
+                continue
             if len(self._backup) >= BACKUP_MAX:
                 continue
             tx, ty = self._get_target_pos(tid, now)
@@ -1628,30 +1980,36 @@ class SwarmManager(object):
                 continue
             tx, ty = _san
 
-            best, best_d = None, None
+            best, best_d, best_seen = None, None, False
             for uid, st in self.status.items():
-                if not getattr(st, "connected", False) or uid in busy:
+                if not self._tracking_uav_available(uid, now) or uid in busy:
+                    continue
+                if now < getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec():
                     continue
                 d = math.hypot(st.x - tx, st.y - ty)
-                if best_d is None or d < best_d:
-                    best, best_d = uid, d
+                if (self._sole_first_pass_zone_searcher(uid, busy) and
+                        not (relief and d <= BACKUP_MAX_DIST)):
+                    continue
+                if (d > BACKUP_MAX_DIST and
+                        (len(self._observed_target_slots()) < 6 or
+                         not self._has_fresh_visual(tid, now))):
+                    continue
+                visual = self._last_eligible(uid, tid)
+                seen = bool(visual is not None and visual.get('eligible') and
+                            0.0 <= now - visual['sample_s'] <= 2.0)
+                if best_d is None or (seen and not best_seen) or \
+                        (seen == best_seen and d < best_d):
+                    best, best_d, best_seen = uid, d, seen
             if best is None:
-                continue
-            if best_d > BACKUP_MAX_DIST:
-                if tid not in self._backup_noted:
-                    self._backup_noted.add(tid)
-                    rospy.loginfo("[manager] %s 确认受阻（%s），但最近空闲机 %.1fm "
-                                  "> BACKUP_MAX_DIST=%.0fm，暂不冗余派机",
-                                  tid, reason, best_d, BACKUP_MAX_DIST)
                 continue
 
             # 关键：backup 机也必须登记为 observer，否则 CooperativeTracker 会忽略它的观测
             ct.observers.add(best)
             self._backup[tid] = best
+            self._record_approach(tid, best, tx, ty, now, backup=True)
             self._free_search_lease(best)
             busy.add(best)
-            tx_c = min(max(tx, self.grid.x_min + 0.5), self.grid.x_max - 0.5)
-            ty_c = min(max(ty, self.grid.y_min + 0.5), self.grid.y_max - 0.5)
+            tx_c, ty_c = flight_waypoint(tx, ty)
             msg = SearchAssignment()
             msg.header.stamp = rospy.Time.now()
             msg.uav_id = best
@@ -1668,12 +2026,36 @@ class SwarmManager(object):
                           best, tid, tx_c, ty_c, best_d, reason,
                           ",".join(sorted(ct.observers)))
 
+    def _camera_view_needs_relief(self, tid, now):
+        """Only own-image task health; never read judge success or actor truth."""
+        if tid in getattr(self, '_view_recovery', {}) or tid in getattr(self, '_tenure_recovery', {}):
+            return True
+        started = getattr(self, '_tracking_since', {}).get(tid, now)
+        ct = self.tracker.targets.get(tid)
+        if ct is None or now-started < self.tracker.confirm_time+BACKUP_AFTER:
+            return False
+        since, last = ct.confirm_since, ct.last_ok_t
+        # The strict tracker uses accepted original camera timestamps. Its
+        # progress is merely a health metric and cannot declare elimination.
+        span = 0. if since is None or last is None else max(0., last-since)
+        return ct.resets >= 3 and span < BACKUP_AFTER
+
+    def _observed_target_slots(self):
+        """Camera-qualified slots seen this run; not official actor identities.
+
+        Losing a view does not make it a never-discovered target again. Keep
+        this allocation history separate from all live reporting timestamps.
+        """
+        known = getattr(self, '_seen_target_slots', set())
+        for book in ('_eligible_observations', '_visual_observations'):
+            known.update(tid for (_, tid), image in getattr(self, book, {}).items()
+                         if image.get('eligible') and tid in ('t0','t1','t2','t3','t4','t5'))
+        self._seen_target_slots = known
+        return known
+
     def _backup_search_capacity(self):
-        """尚有未发现的存活 actor 时，备份机不能耗尽搜索力量。"""
-        known = {self._tid_to_actor(tid) for tid in self.tracker.targets}
-        known.discard(None)
-        remaining = set(self._left_actors) if self._left_seen else set(range(6))
-        unknown_count = len(remaining - known)
+        """Reserve searchers for slots never observed, not temporarily out of view."""
+        unknown_count = 6 - len(self._observed_target_slots())
         reserve = min(max(0, SEARCH_RESERVE_MAX), unknown_count)
         busy = set(self._tracking.values()) | set(self._backup.values())
         searching = sum(1 for uid, st in self.status.items()
@@ -1681,11 +2063,100 @@ class SwarmManager(object):
                         and float(getattr(st, "z", 0.0) or 0.0) >= 1.0)
         return searching > reserve
 
+    def _sole_first_pass_zone_searcher(self, uid, busy):
+        """Do not borrow the only searcher of an unseen sector for redundancy."""
+        grid = getattr(self, 'grid', None)
+        if grid is None or not hasattr(grid, 'zone_cells'):
+            return False
+        # Once all six visual slots have supplied eligible camera images,
+        # searchers can travel farther to provide another view. Slot history
+        # does not establish six official identities or any elimination.
+        if len(self._observed_target_slots()) == 6:
+            return False
+        zone = grid.get_uav_zone(uid)
+        visit = getattr(self.allocator, 'visit_time', {})
+        grid_visit = getattr(grid, 'visit_time', {})
+        active = {u for u, st in self.status.items()
+                  if u not in busy and getattr(st, 'connected', False)}
+        if any(other != uid and grid.get_uav_zone(other) == zone
+               for other in active):
+            return False
+        for key in grid.zone_cells.get(zone, ()):
+            if key in self._blocked_cells:
+                continue
+            cell = grid.cell(key)
+            if cell is None or cell.state == STATE_COVERED:
+                continue
+            if cell.state == STATE_ASSIGNED and cell.owner in active \
+                    and cell.owner != uid:
+                return False
+            if max(visit.get(key, 0.0), grid_visit.get(key, 0.0)) <= 0.0:
+                return True
+        return False
+
+    def _tracking_uav_available(self, uid, now):
+        """A position-faulted or silent aircraft cannot own a target."""
+        if uid is None:
+            return False
+        st = self.status.get(uid)
+        if st is None or not getattr(st, 'connected', False):
+            return False
+        last = self.last_report.get(uid)
+        return last is not None and 0.0 <= now - last.to_sec() < 3.0
+
+    def _cancel_unavailable_owner(self, uid, tid, now):
+        """Cancel one failed owner without interrupting a healthy backup."""
+        if uid is None:
+            return
+        self._free_search_lease(uid)
+        self._release_cooldown[uid] = rospy.Time(now) + rospy.Duration(6.0)
+        msg = SearchAssignment()
+        msg.header.stamp = rospy.Time(now)
+        msg.uav_id = uid
+        msg.cell_ix = -1
+        msg.cell_iy = -1
+        msg.target_x = 0.0
+        msg.target_y = 0.0
+        if hasattr(msg, 'target_id'):
+            msg.target_id = tid
+        msg.task_type = 255
+        self.assign_pub.publish(msg)
+
+    def _release_unavailable_trackers(self, now):
+        """Free dead tracking owners before the next dispatch in this tick."""
+        for tid in set(self._tracking) | set(self._backup):
+            main = self._tracking.get(tid)
+            backup = self._backup.get(tid)
+            main_ok = self._tracking_uav_available(main, now)
+            backup_ok = self._tracking_uav_available(backup, now)
+            if main_ok and (backup is None or backup_ok):
+                continue
+            if not main_ok and backup_ok:
+                self._tracking[tid] = backup
+                self._backup.pop(tid, None)
+                self._tracking_since[tid] = now
+                getattr(self, '_view_recovery', {}).pop(tid, None)
+                getattr(self, '_tenure_recovery', {}).pop(tid, None)
+                self._cancel_unavailable_owner(main, tid, now)
+                self.tracker.assign_observers(tid, [backup])
+                rospy.logwarn('[manager] %s 主追机 %s 失信，备份机 %s 接管',
+                              tid, main, backup)
+            elif main_ok:
+                self._backup.pop(tid, None)
+                self._cancel_unavailable_owner(backup, tid, now)
+                self.tracker.assign_observers(tid, [main])
+                rospy.logwarn('[manager] %s 备份机 %s 失信，主追机 %s 继续',
+                              tid, backup, main)
+            else:
+                self._release_tracker(tid, reason='uav_unavailable')
+
+    @serialized_tasks
     def _update_targets(self):
         """按周期更新每个目标的确认计时，处理规则4/5。"""
         now = rospy.Time.now().to_sec()
+        self._release_unavailable_trackers(now)
         self._release_unverified_visuals(now)
-        # 先给「已知但未消除」的目标派追踪机（真值播种后才有这一步）
+        # 先给已知视觉目标分配主追，再考虑备份。
         self._dispatch_pending_targets()
         # 确认期断流/卡住 → 加派第二架协同确认
         self._dispatch_backup()
@@ -1713,13 +2184,12 @@ class SwarmManager(object):
             if _tpos is not None and _tpos[0] is not None and _st is not None:
                 _dist = math.sqrt((_st.x - _tpos[0]) ** 2 +
                                   (_st.y - _tpos[1]) ** 2 + _st.z ** 2)
-            _captured = (ct.confirm_since is not None and
-                         (ct.last_err is None or ct.last_err <= ct.err_tol))
-            _error_ok = ct.last_err is None or ct.last_err <= ct.err_tol
+            _captured = False  # Only official removal establishes success.
+            _error_ok = None if ct.last_err is None else ct.last_err <= ct.err_tol
             _gap_s = ((now - ct.last_ok_t) if ct.last_ok_t is not None else None)
-            _gap_ok = ct.last_ok_t is None or _gap_s <= ct.gap_tol
+            _gap_ok = ct.last_ok_t is not None and 0.0 <= _gap_s <= ct.gap_tol
             self._csv.write(
-                ros_time=now, event="capture", auction_cycle=self._auction_cycle,
+                ros_time=now, event="visual_streak", auction_cycle=self._auction_cycle,
                 target_id=tid,
                 target_x=_tpos[0] if _tpos is not None and _tpos[0] is not None else None,
                 target_y=_tpos[1] if _tpos is not None and _tpos[1] is not None else None,
@@ -1741,26 +2211,8 @@ class SwarmManager(object):
                 source="cooperative_tracker")
 
             if ev == "confirmed":
-                aid = self._tid_to_actor(tid)
-                # 国家一等奖修复（2026-10-05 击毁积分 0 分 bug）：
-                # 之前这里直接调 `_release_tracker` + `cmd_pub.publish("eliminate:%s" % tid)`，
-                # 这两步会让官方 score_cal 永远拿不到消除信号：
-                #   1) 释放追踪机 ⇒ 所有机离开该目标 ⇒ /coordination/target_report
-                #      停止上报 ⇒ yolo_target_bridge 的 _emit 因 ev["eliminated"]=True
-                #      停发 /actor_<color>_info
-                #   2) 发 eliminate 给 target_sim_node ⇒ 仿真把该 actor 从 Gazebo 删除
-                #      ⇒ score_cal 的 actors_pos[aid] 变成 None ⇒ _reset_detection 清零
-                # 官方 score_cal.py 不订阅任何消除指令,消除唯一入口是「/actor_<color>_info
-                # 持续 15s 误差<1m 且间隔≤1s 的上报」(score_cal.py:122-168)。我们必须
-                # 让飞机继续上报,直到官方真的从 /left_actors 里把它去掉 (→ _left_cb)。
-                # 新策略:
-                #   · 仅把 tid 标 _eliminated、记 confirm_done_t (供超时兜底);
-                #   · **不**调 _release_tracker (飞机继续绕目标 8m 盘旋);
-                #   · **不**给 target_sim_node 发 eliminate (Gazebo 模型留着,
-                #     score_cal 才能用真值做 err_threshold=1m 的判定);
-                #   · 等 _left_cb → _release_finished 触发释放（官方真消除的权威信号）;
-                #   · 超时兜底：CONFIRM_HOLD_TIMEOUT 默认 30s —— 比官方 15s 多一倍，
-                #     防止上报链路偶发断流超 15s 后仍然无消除,我们不能无限占着飞机。
+                # 这只是本队连续图像样本，绝不等同裁判通过；有新鲜视觉
+                # 就继续稳定视角和上报，失去视觉后限时释放飞机补搜。
                 self._confirm_done_t[tid] = now
                 # 2026-10-06 国家一等奖: 通知 swarm_agent 切贴脸模式
                 # (只有当前 _orbit_target == tid 的那架 UAV 会响应)
@@ -1768,9 +2220,9 @@ class SwarmManager(object):
                     self.confirm_pub.publish(String("tid:%s" % tid))
                 except Exception as e:
                     rospy.logwarn("[manager] confirm_pub.publish 失败: %s", e)
-                rospy.loginfo("[manager] 规则5：目标 %s 团队侧连续确认 %.0fs，"
-                              "保留追踪机继续上报直到官方 /left_actors 确认 (aid=%s)",
-                              tid, CONFIRM_TIME, aid)
+                rospy.loginfo("[manager] 目标 %s 独立图像连续观测 %.0fs（绝对定位误差未验证），"
+                              "保留追踪机继续上报，视觉过期后再释放",
+                              tid, CONFIRM_TIME)
                 # 写一行 CSV 方便复盘
                 try:
                     self._csv.write(
@@ -1787,7 +2239,7 @@ class SwarmManager(object):
                         capture_threshold_m=ct.err_tol,
                         estimation_error_m=ct.last_err,
                         detect_radius_m=DETECT_RADIUS,
-                        is_captured=True,
+                        is_captured=False,
                         assignment="tracking" if _uid else "none",
                         tracker_event=ev or "none", progress=ct.progress(now),
                         resets=ct.resets, rejects=ct.rejects, covered=ct.covered(now),
@@ -1798,9 +2250,7 @@ class SwarmManager(object):
                     pass
                 continue
             if ev == "evade":
-                # PDF 描述 30s 后躲藏，但当前 XTDrone 上游控制器收到
-                # /find_actor_N 后只触发逃跑，没有 set_model_state 瞬移。
-                # 计时到点只是「可能换位」；仍有新鲜视觉就继续追踪。
+                # 位置变化事件仍以新鲜视觉为准；不能猜测裁判内部状态。
                 if self._has_fresh_visual(tid, now):
                     rospy.loginfo("[manager] 目标 %s 发现后 %.0fs 仍有新鲜视觉，"
                                   "继续按观测追踪", tid, EVADE_TIME)
@@ -1812,59 +2262,40 @@ class SwarmManager(object):
                 continue
             if ev == "reset":
                 rospy.loginfo_throttle(3,
-                    "[manager] 目标 %s 规则5 被重置（误差或间隔超限）→ confirm_since 清零", tid)
+                    "[manager] 目标 %s 本队合格图像连续性中断 → confirm_since 清零；"
+                    "官方误差与消除结果未知", tid)
 
             prog = ct.progress(now)
             if prog > 0:
                 cs = ct.confirm_since
-                cs_elapsed = (now - cs) if cs is not None else 0.0
+                cs_elapsed = ct.last_ok_t - cs if cs is not None and ct.last_ok_t is not None else 0.0
                 rospy.loginfo_throttle(5,
-                    "[manager] 目标 %s 确认进度 %.0f%% "
+                    "[manager] 目标 %s 真实图像连续观测进度 %.0f%% "
                     "(confirm_since=%.1fs, resets=%d, rejects=%d, observers=%s)",
                     tid, prog * 100, cs_elapsed, ct.resets, ct.rejects,
                     ",".join(sorted(ct.observers)))
 
-        # === 国家一等奖修复（2026-10-05 击毁 0 分 bug）===
-        # 超时兜底：团队侧已确认满 15s 但官方 /left_actors 还没把它去掉（说明上报链路
-        # 出问题了: 误差偶发>1m、间隔>1s、飞机跑出视场等）,超过 CONFIRM_HOLD_TIMEOUT
-        # (默认 30s) 还没消除 → 不能无限占着飞机。
-        # 此时:
-        #   1) ~~给 target_sim_node 发 "eliminate:%s" 让仿真把这个 actor 移走~~ (已废)
-        #      (原设计：官方 score_cal 也只有此时才能从 /left_actors 把它去掉 —— 模型不在了
-        #      get_model_state 返回 success=False,score_cal 内层逻辑会跟着停判)
-        #      国家一等奖 v3 (2026-10-06): 上述"反向污染"路径违反「消除必须裁判系统说了算」
-        #      原则——manager 删 Gazebo 模型 → score_cal 拿不到 actor → 自动从 /left_actors
-        #      移除 → GUI 显示 LEFT TARGET,但这不是裁判判的!真实判定权被 manager 偷走。
-        #      修正: 仅释放追踪机回搜索, Gazebo 模型和 /left_actors 一律保留,等待
-        #      真正的裁判权威信号到达 (_left_cb → _release_finished)。
-        #   2) 释放追踪机回搜索 (保留 — 不让一架飞机永远占着一个团队侧已确认的目标)
-        # 这是次优路径(不指望真打 100 分,只求不为这个目标把全队卡死)。
+        # 内部 15s 图像连续不建立消除事实。图像断流后释放租约继续搜，
+        # 同一视觉槽再次出现时可重新派机，红色两个槽也独立处理。
         for tid in list(self._confirm_done_t.keys()):
             done_t = self._confirm_done_t.get(tid)
             if done_t is None:
                 continue
-            if now - done_t < CONFIRM_HOLD_TIMEOUT:
+            fresh = ((tid in self._tracking or tid in self._backup) and
+                     self._has_fresh_visual(tid, now))
+            # A healthy view gets time to finish the judge's 15 s window,
+            # but even a decoy or persistently inaccurate report cannot own
+            # an aircraft forever. Rotate/reimage after a bounded tenure.
+            if not visual_streak_should_release(done_t, now, fresh):
                 continue
-            aid = self._tid_to_actor(tid)
-            # 如果官方已经确认,只是 manager 这边还没收到(竞争窗口),直接跳过
-            if self._left_seen and aid is not None and aid not in self._left_actors:
+            if self._recover_tracking_view(tid, now, 'confirm_hold_timeout'):
                 continue
-            # A live, assigned camera can still complete the official 15 s
-            # streak.  The team's internal timer is no evidence of removal;
-            # releasing that aircraft here repeatedly broke the streak.
-            if (tid in self._tracking or tid in self._backup) and \
-                    self._has_fresh_visual(tid, now):
-                continue
-            rospy.logwarn("[manager] 规则5超时兜底：%s 团队侧确认后 %.0fs 仍未被官方消除,"
-                          "视觉已断，释放追踪机回搜索；等待 /left_actors 裁判权威 (aid=%s)",
-                          tid, now - done_t, aid)
-            # 国家一等奖 v3 (2026-10-06): 不再发 cmd_pub.publish("eliminate:%s")
-            # —— 让 Gazebo 模型保留, score_cal 才能继续用真值做 15s 误差<1m 的
-            # 判定。manager 只负责内部清理 + 释放飞机:
-            #   · _eliminated.add: 防 _dispatch_pending_targets 重复派机(协同必需)
-            #   · t.eliminated=True: 防 tracker 再累加 confirm_since(协同必需)
-            #   · _release_tracker: 释放飞机回搜索任务
-            #   · 等 _left_cb 裁判权威到达 → _release_finished 真正收尾
+            if fresh:
+                self._confirm_timeout_bl[tid] = now + VISUAL_RETRY_COOLDOWN_S
+            released_uavs = (self._tracking.get(tid), self._backup.get(tid))
+            rospy.logwarn("[manager] %s 视觉观察持有 %.0fs，%s；释放追踪机补搜",
+                          tid, now - done_t,
+                          "超过单轮观察时限" if fresh else "图像已断流")
             t = self.tracker.targets.get(tid)
             if t is not None:
                 t.confirmation_pending = False
@@ -1875,11 +2306,39 @@ class SwarmManager(object):
                 self._release_tracker(tid, reason="confirm_hold_timeout")
             except Exception:
                 pass
+            if fresh:
+                # Give another camera a chance to reimage from a different
+                # angle; do not assign the same nearby UAV right back.
+                for uid in released_uavs:
+                    if uid is not None:
+                        self._release_cooldown[uid] = (
+                            rospy.Time.now() +
+                            rospy.Duration(VISUAL_RETRY_COOLDOWN_S + 4.0))
             # 清理内部状态,避免下一周期重复触发
             self._confirm_done_t.pop(tid, None)
             self._truth_cache.pop(tid, None)
-            self._truth_pos.pop(tid, None)
             self._cur_targets.pop(tid, None)
+
+        # A visible but intermittently unusable person/decoy may never reach
+        # the 15 s local streak. Bound that task as well and rotate the view.
+        for tid, start in list(getattr(self, '_tracking_since', {}).items()):
+            if tid not in self._tracking and tid not in self._backup:
+                self._tracking_since.pop(tid, None)
+                continue
+            if tid in self._confirm_done_t or now - start < TRACKING_MAX_TENURE_S:
+                continue
+            if self._recover_tracking_view(tid, now, 'tracking_tenure'):
+                continue
+            self._confirm_timeout_bl[tid] = now + VISUAL_RETRY_COOLDOWN_S
+            released_uavs = (self._tracking.get(tid), self._backup.get(tid))
+            self._release_tracker(tid, reason="tracking_tenure")
+            for uid in released_uavs:
+                if uid is not None:
+                    self._release_cooldown[uid] = (
+                        rospy.Time.now() +
+                        rospy.Duration(VISUAL_RETRY_COOLDOWN_S + 4.0))
+            rospy.logwarn("[manager] %s 追踪 %.0fs 未形成持续可用图像，"
+                          "轮换观察机并继续搜索", tid, now - start)
 
         # === v18（2026-10-07）confirming 永不收敛超时释放 ===
         # v17 实测：t3 从 116s、t1 从 186s 进入 confirming，直到 436s 比赛结束
@@ -1898,6 +2357,8 @@ class SwarmManager(object):
                 continue
             if (tid in self._tracking or tid in self._backup) and \
                     self._has_fresh_visual(tid, now):
+                continue
+            if self._recover_tracking_view(tid, now, 'confirm_timeout'):
                 continue
             rospy.logwarn("[manager] 目标 %s 首次确认后 %.0fs 仍未消除（超时 %.0fs）"
                           "→ 视觉已断，释放追踪机并等待重新发现", tid, now - _fct, _cto)
@@ -1983,6 +2444,7 @@ class SwarmManager(object):
                 idle.append(uid)
         return idle
 
+    @serialized_tasks
     def _allocate(self):
         """只给空闲机拍卖分配未搜索格 → 授租约 → 发布 assignment。"""
         now = rospy.Time.now()
@@ -2014,27 +2476,9 @@ class SwarmManager(object):
 
         uavs = {uid: (self.status[uid].x, self.status[uid].y) for uid in idle}
 
-        # last_seen 必须来自真正完成过的相机扫描。原先任一在飞机的位置
-        # 都被当作 360° 已观察，连飞过但镜头背对的蓝/白目标活动区也压低
-        # 搜索优先级。追踪机和未完成扫描的搜索机不得刷新观察时间。
-        if VIS_ENABLE:
-            try:
-                # 国家一等奖 v3（2026-10-07）：关键修复 —— 不要传 wall clock！
-                # 之前写 _tn = time.time() 会让 mark_seen 写入的 visit_time 与
-                # score_cell 读取用的 _now() = rospy.get_time()（仿真钟）不同源，
-                # novelty = (仿真钟 - 墙钟) / 90s ≈ 极大负数 → clamp 到 0 → 全图
-                # novelty 都被压低 → (1,5) 等 spawn 区格反复被派 32 次。修复：不传
-                # now，让 mark_seen 内部用 _now()（仿真钟），与 score_cell 一致。
-                for _uid, _st in self.status.items():
-                    if not getattr(_st, "connected", False):
-                        continue
-                    if getattr(_st, 'confidence', 0.0) < 1.0:
-                        continue
-                    if now.to_sec() - self.last_report.get(_uid, now).to_sec() > 3.0:
-                        continue
-                    self.allocator.mark_seen(_st.x, _st.y)
-            except Exception:
-                pass
+        # Visibility is credited only by _processed_camera_frame_cb. A UAV
+        # status or completed scan has no camera yaw/pitch evidence, so using
+        # its XY position here would falsely erase unseen building sides.
 
         # 拍卖（每机取剩余格中自身效用最大者，不重复）
         assign = self.allocator.allocate(uavs)
@@ -2073,7 +2517,7 @@ class SwarmManager(object):
             # 授租约（自适应时长：飞行时间 × 1.5 + 10s 缓冲）
             uav_pos = uavs[uid]
             cell = self.grid.cell(key)
-            _wp0 = self._cell_waypoint.get(key) or (cell.cx, cell.cy)
+            _wp0 = self._search_waypoint(key, cell)
             dist = math.hypot(_wp0[0] - uav_pos[0], _wp0[1] - uav_pos[1])
             duration = max(10.0, dist / float(os.environ.get("LEASE_CRUISE_SPEED", "5.0")) * 1.5 + 10.0)  # LEASE_CRUISE_SPEED 默认 5.0（与 agent MAX_SPEED 对齐：原 3.0 把租约算长 67%, 接力损耗严重）
             self.lease.grant(uid, key, now.to_sec(), duration)
@@ -2084,66 +2528,22 @@ class SwarmManager(object):
                           uid, key[0], key[1], dist, duration)
             self._publish_assignment(uid, key, cell)
 
-        # === 终局行为 ===
+        # 无裁判反馈时，视觉槽全消失也不能证明六名 actor 已消除。
+        # 无格可分时重开已观察区域，持续补漏直到裁判终止比赛。
         if not all_assigned:
-            # 没有更多搜索格可用，检查是否有未消除的目标
-            remaining_targets = [t for t in self.tracker.targets if t not in self._eliminated]
-            n_left = len(self._left_actors)
-            if n_left > 0 and not remaining_targets:
-                # tracker 空 + 裁判说还有 actor = 一个都没搜到，绝不能收工
-                rospy.loginfo_throttle(
-                    15, "[manager] tracker 无目标，但官方裁判还剩 %d 个 actor %s "
-                        "—— 判定为未发现，继续巡逻", n_left, self._left_actors)
-                remaining_targets = ['official_left:%d' % n_left]
-            if remaining_targets:
-                # 有未消除目标：继续搜索，不要 RTL
-                # 原因：20m 半径覆盖可能有盲区，目标可能未被"偶遇"
-                rospy.loginfo("[manager] 搜索格已覆盖完毕，剩余目标 %d 个，继续搜索",
-                              len(remaining_targets))
-                # 不返回，继续分配搜索任务（让飞机继续巡逻）
-                # 下次分配会重新扫描所有未覆盖格子 —— 但此时已经「没有未覆盖格」了，
-                # 所以必须显式把覆盖状态重置，否则飞机拿不到任务只能待命。
-                # 只有在没有追踪任务时才重开：否则「重开→拍卖又选最近的脚下那格」
-                # 会让 6 架飞机原地打转（实测 136 次派位全是同一批格子）
-                # 以前只在"没有追踪任务"时才重开，怕重开后飞机又回原地打转。
-                # 现在重开会跳过脚下的格（见 _reopen_covered_cells），可以无条件重开 ——
-                # 否则只要有一架在追踪（无播种时一发现目标就是这样），格子又都覆盖了，
-                # 剩下的机就彻底没任务可做（实测 32 次派位后停摆到 600s 超时）。
-                self._reopen_covered_cells()
-            else:
-                # 全部完成，发布降落
-                # 2026-09-28：实测这里误判过 —— tracker 瞬间为空 + _left_actors 还没到
-                # 就被当成「搜完了」，把空闲机降下来，一架落地就再也救不回来（见
-                # patch_guard2）。默认不再自动降落，宁可继续巡逻。
-                # 国家一等奖 v2（2026-10-05）：双保险 —— REQUIRE_LEFT_FOR_FINISH=1 时
-                # 必须官方剩余清单确认空 + tracker 已空 才发 MISSION_FINISHED，
-                # 防止 tracker 偶发空导致 agent 全部退出搜索循环（_finish_cb 会 break）。
-                _require_left = int(os.environ.get("REQUIRE_LEFT_FOR_FINISH", "1"))
-                if _require_left and (not self._left_seen or self._left_actors):
-                    rospy.loginfo_throttle(
-                        20, "[manager] tracker 空但官方剩余清单未确认（_left_seen=%s, _left_actors=%s），"
-                            "不发 MISSION_FINISHED，继续巡逻",
-                            self._left_seen, self._left_actors)
-                else:
-                    if not AUTO_LAND:
-                        rospy.loginfo_throttle(
-                            20, "[manager] 疑似全部完成（tracker 空且剩余 0），但 AUTO_LAND=0"
-                                " → 继续巡逻，不降落")
-                    else:
-                        rospy.loginfo("[manager] 全部任务完成，各机降落")
-                        self._publish_land(idle)
-                    # 广播任务完成消息
-                    self.finish_pub.publish(String(data="MISSION_FINISHED"))
+            rospy.loginfo_throttle(
+                20, "[manager] 暂无可分配搜索格；无裁判反馈可证明任务完成，继续复查")
+            self._reopen_covered_cells(force=True)
 
         self._last_alloc_t = now
 
     # ---------------- 续租 ----------------
+    @serialized_tasks
     def _renew_leases(self):
         """对持续上报的机续租（防误判到期）。
 
-        若飞机已抵达分配格（距格代表点 < COVER_ARRIVE_M），则把该格可视域
-        标记为 STATE_COVERED 并释放租约，使飞机重回空闲池拿下一格。
-        否则租约永不到期 → 全部飞机拿到首格后死锁（实测 5min+ 无新调度）。
+        Arrival and completed scan release the lease. Only actual processed
+        camera footprints may mark cells covered; unseen cells stay in review.
         """
         now = rospy.Time.now()
         for uid in self.uav_ids:
@@ -2181,62 +2581,63 @@ class SwarmManager(object):
                               uid, key[0], key[1])
                 continue
             # 到达判定：用格的可达代表点（楼边格中心可能在建筑内）
-            _wp = self._cell_waypoint.get(key)
+            # Normal reachable waypoints need no cell lookup. In particular,
+            # status-only lease checks can run before the coverage grid is
+            # ready; a blind revisit always has a real coverage cell.
+            _wp = (None if key in getattr(self, '_blind_viewpoints', {})
+                   else self._cell_waypoint.get(key))
             if _wp is None:
                 _c = self.grid.cell(key)
-                _wp = (_c.cx, _c.cy) if _c is not None else None
+                _wp = self._search_waypoint(key, _c) if _c is not None else None
             if _wp is not None and st is not None:
+                _wp = flight_waypoint(*_wp)
                 _d = math.hypot(st.x - _wp[0], st.y - _wp[1])
                 if _d < COVER_ARRIVE_M and getattr(st, 'confidence', 0.0) >= 1.0:
-                    # 只覆盖雷达 SLAM 中从当前位置确实有视线的格；圆形距离
-                    # 不能穿过建筑。未拿到雷达地图时保守地只认脚下格。
-                    _current_cell = self.grid.cell(key)
-                    _is_current = lambda x, y: (_current_cell is not None and
-                                                  abs(x - _current_cell.cx) < 1e-6 and
-                                                  abs(y - _current_cell.cy) < 1e-6)
-                    _camera_reachable = lambda x, y: self._camera_cover_reachable(
-                        st.x, st.y, x, y)
-                    _raw_grid = self._merged_grid() if hasattr(self, '_slam_lock') else None
-                    if _raw_grid is not None:
-                        _los = LineOfSight(
-                            lambda ix, iy: not _raw_grid.is_free((ix, iy)),
-                            _raw_grid.resolution,
-                            (_raw_grid.origin[0], _raw_grid.origin[1]))
-                        _visible = lambda x, y: (_camera_reachable(x, y) and
-                                                  (_is_current(x, y) or
-                                                   _los.visible(st.x, st.y, x, y)))
-                    else:
-                        _visible = lambda x, y: (_is_current(x, y) and
-                                                  _camera_reachable(x, y))
-                    # is_covered 会把格 state 置为 STATE_COVERED、owner 清空，
-                    # 因此无需再调 lease.release（该方法不存在）。
-                    n_cov = self.grid.is_covered(st.x, st.y, VIS_RADIUS, _visible)
-                    # v18：把覆盖格同步进 allocator.visit_time —— score_cell 读的是
-                    # TaskAllocator.visit_time（与 CoverageGrid.visit_time 是两个
-                    # 独立对象），不同步则「覆盖即刷新 novelty」永不生效，spawn 区
-                    # 格 reopen 后 novelty 恒 1.0 反复被派（v12 根因之一）。
-                    try:
-                        _t_now = now.to_sec()
-                        for _ck in (n_cov or []):
-                            self.allocator.visit_time[_ck] = _t_now
-                    except Exception:
-                        pass
+                    # Completion means that four camera headings were
+                    # processed, not that the ground directly beneath the
+                    # aircraft was in a horizontal camera. Cell coverage is
+                    # credited only by _processed_camera_frame_cb, which
+                    # checks the vertical/horizontal view and SLAM LOS.
+                    observed = self.grid.cell(key).state == STATE_COVERED
+                    self.lease.force_expire(uid, key)
+                    if not observed:
+                        self.grid.mark_review(key, 0.0)
+                        side = self._choose_blind_viewpoint(
+                            key, self.grid.cell(key), (st.x, st.y))
+                        if side is not None:
+                            if not hasattr(self, '_blind_viewpoints'):
+                                self._blind_viewpoints = {}
+                            self._blind_viewpoints[key] = side
+                            rospy.loginfo('[manager] 格 %s 未成像：下一次从侧向 (%.1f,%.1f) 补看',
+                                          key, side[0], side[1])
+                    allocator = getattr(self, 'allocator', None)
+                    if hasattr(allocator, 'complete_waypoint'):
+                        allocator.complete_waypoint(
+                            uid, key, observed=observed, now=now.to_sec())
+                    if not observed and hasattr(allocator, 'queue_revisit'):
+                        cell = self.grid.cell(key)
+                        allocator.queue_revisit(
+                            'blind', cell.cx, cell.cy, now=now.to_sec(),
+                            delay_s=8.0, ttl_s=90.0,
+                            blocked=self._blocked_cells)
                     self._active_leases.pop(uid, None)
                     self._lease_hold_since.pop((uid, key), None)
                     getattr(self, '_lease_motion', {}).pop(uid, None)
-                    rospy.loginfo("[manager] %s 抵达格 (%s,%s)，覆盖 %s 格，释放租约",
-                                  uid, key[0], key[1], len(n_cov))
+                    rospy.loginfo("[manager] %s 完成格 (%s,%s) 扫描，图像覆盖=%s，释放租约",
+                                  uid, key[0], key[1], observed)
                     continue
-            # A distant assignment needs its full flight time, but a drone that
-            # makes no measurable progress near a wall must not occupy its cell
-            # for the entire 90 s lease cap.  Measure displacement from the
-            # last progress anchor rather than resetting on centimetre jitter.
+            # A distant assignment needs its full flight time, but a drone
+            # circling a wall must not hold its sector for the entire 90 s cap.
+            # Displacement alone is not progress: a 2 m sideways/backward
+            # move used to reset this timer indefinitely. Require the
+            # remaining distance to the reachable waypoint to shrink.
             motion = getattr(self, '_lease_motion', None)
             if motion is not None and _wp is not None:
                 sample = motion.get(uid)
                 if sample is None or sample[0] != key:
                     motion[uid] = (key, now.to_sec(), st.x, st.y)
-                elif math.hypot(st.x - sample[2], st.y - sample[3]) >= LEASE_STALL_PROGRESS_M:
+                elif (math.hypot(sample[2] - _wp[0], sample[3] - _wp[1]) -
+                      _d >= LEASE_STALL_PROGRESS_M):
                     motion[uid] = (key, now.to_sec(), st.x, st.y)
                 elif now.to_sec() - sample[1] >= LEASE_STALL_S:
                     self.lease.force_expire(uid, key)
@@ -2244,7 +2645,7 @@ class SwarmManager(object):
                     self._lease_hold_since.pop((uid, key), None)
                     motion.pop(uid, None)
                     self.allocator.failed_visit[key] = now.to_sec()
-                    rospy.logwarn('[manager] %s 搜索格 (%s,%s) %.0fs 位移不足 %.1fm，提前回收重派',
+                    rospy.logwarn('[manager] %s 搜索格 (%s,%s) %.0fs 未向航点推进 %.1fm，提前回收重派',
                                   uid, key[0], key[1], LEASE_STALL_S, LEASE_STALL_PROGRESS_M)
                     continue
             # 2026-10-07 v12: 最长持有时限 —— 到达判定只放行"真到了"的机，
@@ -2284,11 +2685,8 @@ class SwarmManager(object):
         msg.uav_id = uid
         msg.cell_ix = key[0]
         msg.cell_iy = key[1]
-        _wp = self._cell_waypoint.get(key)
-        if _wp is None:
-            _wp = (cell.cx, cell.cy)
-        msg.target_x = _wp[0]
-        msg.target_y = _wp[1]
+        _wp = self._search_waypoint(key, cell)
+        msg.target_x, msg.target_y = flight_waypoint(*_wp)
         msg.task_type = 0  # 搜索
         self.assign_pub.publish(msg)
         rospy.loginfo("[manager] 分配 %s → 格 (%d,%d) 中心 (%.1f,%.1f)",
@@ -2351,6 +2749,10 @@ class SwarmManager(object):
                 if (now - self._last_lease_t).to_sec() >= LEASE_CHECK_PERIOD:
                     self._renew_leases()
 
+                if now.to_sec() - getattr(self, '_last_dispatch_s', -1e18) >= 0.2:
+                    self._dispatch_pending_targets()
+                    self._last_dispatch_s = now.to_sec()
+
                 # 目标确认计时（规则4/5）
                 if (now - self._last_target_t).to_sec() >= TARGET_CHECK_PERIOD:
                     self._update_targets()
@@ -2372,20 +2774,14 @@ class SwarmManager(object):
                 if (now - self._dbg_last_t).to_sec() >= 10.0:
                     self._dbg_last_t = now
                     try:
-                        # Red visual slots have no stable actor_4/5 identity.
-                        # Report the referee count from /left_actors instead
-                        # of presenting the internal visual-slot set as score.
-                        official_removed = (sorted(set(range(6)) - set(self._left_actors))
-                                            if self._left_seen else [])
-                        # tracker.targets 是 dict: target_id -> CaptureTarget
+                        # These are only internal visual slots, not judge score.
                         _tu = self.tracker.targets if hasattr(self, "tracker") and self.tracker is not None else {}
-                        confirming_tids = sorted([tid for tid, t in _tu.items()
-                                                  if not getattr(t, "eliminated", False)])
-                        rospy.loginfo("[DEBUG-10s] sim=%.1f official_removed=%d(%s) "
-                                      "visual_slots_done=%s confirming=%s total=%d",
-                                      now.to_sec(),
-                                      len(official_removed), official_removed,
-                                      sorted(self._eliminated), confirming_tids, len(_tu))
+                        active_tids = sorted([tid for tid in _tu
+                                              if self._has_fresh_visual(tid, now.to_sec())])
+                        rospy.loginfo("[DEBUG-10s] sim=%.1f visual_active=%s "
+                                      "tracked=%s total_visual_slots=%d",
+                                      now.to_sec(), active_tids,
+                                      sorted(self._tracking), len(_tu))
                     except Exception as _e:
                         rospy.logwarn("[DEBUG-10s] 复盘日志出错: %s", _e)
             except Exception as e:

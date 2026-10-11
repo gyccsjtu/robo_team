@@ -1,0 +1,25 @@
+{
+  "created_utc": "2026-10-11T01:56:01.348805+00:00",
+  "source_sha256": {
+    "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py": "d5bd30e22ac57ef2bce15198fb1c49137b2ecf47eb9a89becb5f86684b3d62b8",
+    "coordination/src/robocup_swarm/scripts/swarm_manager.py": "796a10732fb8db5785f9dbb82de9bd87bf49c14431a82ba55065736012c4de63",
+    "tools/test_robust_coordinate_report.py": "61c13a51f10dfb4f6f43aa52cd3b528cc6cfeea50fc0ad589c864a932dd797ed",
+    "tools/test_coordinate_time.py": "3aafff8d8d711d38429be45f883a4f73b2b6776ff420508baf8d8dde805d817a",
+    "tools/test_bridge_judge_independence.py": "427db3e9c1e05788ae749952bd9ac975fd6a0254a1ad86a9754128aaac1c9857",
+    "tools/test_visual_recovery.py": "aa010424c3c3f96c3177dedd19096dd95153845910876d9fc5296dacbfa5bcd3",
+    "tools/fixtures/red_slot_rename_093017.json": "6a51a2a1bdd07c422838f1a364a8e93b5ce9ae41c44c94511bac138ef598d610",
+    "tools/test_joint_dispatch.py": "5ab2cd59dbd8d54f40c98107d0cc348c3f9e6ca35c56459b906f174a64684399"
+  },
+  "changed_production_files": [
+    "coordination/src/robocup_swarm/scripts/swarm_manager.py",
+    "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py"
+  ],
+  "tests": 410,
+  "tests_passed": true,
+  "simulation_tested": false,
+  "official_unchanged": true,
+  "run_official_result": "5/6; mission timed out",
+  "note": "Current processes started from code/ snapshot. candidate_code/ is for next process startup, not hot loaded.",
+  "updated_utc": "2026-10-11T02:06:45.853821+00:00",
+  "red_search_replay": "111 recorded camera reports through bridge and actual manager evidence/tracker callbacks; baseline creates ghost t4, candidate preserves search capacity for missing second red person."
+}

@@ -1,0 +1,9 @@
+{
+  "source_files": 43,
+  "all_startup_hashes_verified": true,
+  "current_disk_changes_since_start": [
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py"
+  ],
+  "baseline_result": "official 6/6; 576.232 sim seconds; score 1998.648",
+  "safety_patch_note": "Current workspace UAV obstacle safety changes were NOT loaded in this successful run."
+}

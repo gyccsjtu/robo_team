@@ -5,11 +5,11 @@
 合规重构（2026-10-07，规则 §2.4/§2.5「无预读随机地图」）：
   旧实现解析官方 black_box.txt（每局随机化的建筑矩形真值）生成障碍图 +
   占用栅格 —— 比赛启动前预读地图 = 违规。
-  新实现：本脚本生成**静态空图**，只含规则定值与队自定常量：
+  新实现：本脚本生成**静态空图**，只含规则定值与固定常量：
     - bounds        : 覆盖演员插件的固定边界（x[-50,150] y[-50,50]）并留 5m 裕量
     - grid          : 全自由栅格（420x260 @0.5m，无任何占用）
     - obstacles     : 恒为空 []
-    - spawn         : 队自定固定起飞区（城外西侧 x=-50 一线）
+    - spawn         : 官方 robocup.launch 六机固定起飞阵列的中心
     - goal_candidates: 队自定训练目标点（与真值无关）
   真实占用栅格由各 swarm_agent 在比赛中用 2D 雷达实时 SLAM 构建
   （slam_grid.py：扫到→mark occupied），经 /swarm/occupancy_grid 汇总
@@ -32,9 +32,8 @@ import sys
 BOUNDS = {"x_min": -55.0, "x_max": 155.0, "y_min": -65.0, "y_max": 65.0}
 GRID_RES = 0.5
 
-# 队自定固定起飞区：城外西侧 x=-50 一线（避开固定灯柱 x>=-45；
-# 房屋每局随机化，无法也不允许预读规避 —— 由 SLAM 建图 + 雷达守卫兜底）
-SPAWN_CENTER = [-50.0, 0.0]
+# 官方固定 2×3 起飞阵列 x∈{0,3}、y∈{-3,0,3} 的中心。
+SPAWN_CENTER = [1.5, 0.0]
 
 # 队自定训练目标点（覆盖训练用，与比赛真值无关）
 GOAL_CANDIDATES = [
@@ -79,8 +78,8 @@ def build_metadata():
         "spawn": {
             "center": list(SPAWN_CENTER),
             "clearance_m": 2.0,
-            "mode": "fixed_team_choice",
-            "radius_m": 1.5,
+            "mode": "fixed",
+            "radius_m": 4.0,
             "yaw": 0.0,
         },
         "goal_candidates": [dict(g, expected_valid=True, outdoors=True,
@@ -90,7 +89,7 @@ def build_metadata():
         "safety": {"inflate_m": 1.0, "min_clearance_m": 1.0},
         "generator": {
             "name": "black_box_to_metadata.py (compliant empty map)",
-            "source": "rule constants + team-chosen spawn (no black_box.txt)",
+            "source": "rule constants + official fixed spawn (no black_box.txt)",
         },
     }
 

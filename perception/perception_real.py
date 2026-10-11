@@ -62,14 +62,11 @@ import cv2
 import numpy as np
 import rospy
 from cv_bridge import CvBridge
-from gazebo_msgs.srv import GetLinkState
+from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import Image
-# 2026-10-06 fix：score_cal.py 订阅 robocup_swarm/ActorInfo（带 header + float64 + z）。
-#   原 import 的 ros_actor_cmd_pose_plugin_msgs/ActorInfo 无 header + float32 + 无 z，
-#   md5sum 与裁判不匹配，导致 6 个 /actor_<color>_info 全部 inbound connection 被拒，
-#   整场比赛 score_cal 一条消息都收不到、0 击杀。
-#   改用 robocup_swarm.ActorInfo，并在发布处补 header.stamp + z=0.0。
-from robocup_swarm.msg import ActorInfo
+# 官方裁判订阅 ros_actor_cmd_pose_plugin_msgs/ActorInfo（cls、float32 x/y）。
+# 这里的直发出口仅用于独立感知验收；正式比赛由桥接器融合后上报。
+from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
 from std_msgs.msg import String
 # 集中指派消息 + 目标融合状态（coordination 工作区）。导入失败时退化为仅距离闸门。
 try:
@@ -84,6 +81,8 @@ _CSV_HELPER = os.path.abspath(os.path.join(
 if _CSV_HELPER not in sys.path:
     sys.path.insert(0, _CSV_HELPER)
 from csv_logger import logger
+from tracking_view import box_from_foot, bound_pixel_candidate
+from camera_attention import ImagePublishClock
 
 # ---------------- 参数 ----------------
 # 权重查找顺序（本仓库自包含优先，找不到才退回部署位置）：
@@ -110,9 +109,9 @@ UAV = os.environ.get("PR_UAV", "typhoon_h480_0")
 # ---- 2026-09-19 双目改造 ----
 # 相机不再走 cgo3（单目 640x360 云台相机），改成平台上双目相机的**左目**
 # （752x480, fx=fy=376, HFOV=90°，本节内参来自 sdf 里的 <Fx>/<Cx> 实测值）。
-# 这台相机是直接塞进 base_link 的 <sensor>（没有独立 link 也没有云台），
-# 所以取位姿只能取 base_link，再自己补上相机在 base_link 系里的固定偏移。
-CAM_LINK = os.environ.get("PR_CAM_LINK", "typhoon_h480_0::base_link")
+# 这台相机是直接塞进 base_link 的 <sensor>（没有独立 link 也没有云台）。
+# 飞机世界位姿由本机 MAVROS 局部 ENU 位姿 + 官方固定出生点取得。
+POSE_TOPIC = os.environ.get("PR_POSE_TOPIC", "/%s/mavros/local_position/pose" % UAV)
 CAM_OFF_BL = np.array([float(x) for x in
                        os.environ.get("PR_CAM_OFF_BL", "0.12,0.06,-0.05").split(",")])
 # ---- 我方 10-03：相机高度标定系数（乘在 pz 上）----
@@ -132,6 +131,46 @@ MAX_RANGE = float(os.environ.get("PR_MAX_RANGE", "60"))
 # 旧版这里是 ["green","blue","brown","white","red","red"]（单目 v6 模型的顺序 + red 双槽）。
 # 顺序错位不会报错，只会让所有颜色系统性认反 —— 换权重时必须同步改这里。
 CLASSES = ["red", "green", "blue", "white", "brown"]
+
+
+def target_class_mapping(names):
+    """Resolve detector IDs by label, never by an assumed training order.
+
+    All five actor appearances must be present. Additional labels (for
+    example distractor_person) have no actor identity and are discarded
+    before pixel attention, ground projection or target tracking.
+    """
+    if isinstance(names, (list, tuple)):
+        names = dict(enumerate(names))
+    if not isinstance(names, dict):
+        raise ValueError('Detector weights must expose class names')
+    mapping, seen = {}, set()
+    for key, label in names.items():
+        cid = int(key)
+        name = str(label).strip().lower()
+        if cid < 0 or cid in mapping:
+            raise ValueError('Invalid or duplicate detector class ID')
+        mapping[cid] = None
+        if name in CLASSES:
+            if name in seen:
+                raise ValueError('Duplicate actor class: ' + name)
+            mapping[cid] = CLASSES.index(name)
+            seen.add(name)
+    missing = set(CLASSES) - seen
+    if missing:
+        raise ValueError('Weights missing actor labels: ' + ', '.join(sorted(missing)))
+    return mapping
+
+
+def target_boxes_only(boxes, mapping):
+    """Adapt boxes without modifying Ultralytics tensors or their class IDs."""
+    from types import SimpleNamespace
+    targets = []
+    for box in boxes:
+        cid = mapping.get(int(box.cls))
+        if cid is not None:
+            targets.append(SimpleNamespace(cls=cid, conf=box.conf, xyxy=box.xyxy))
+    return targets
 
 # --- 人体几何门限（diag_geom.py 实测标定）---
 # 严格档：用于**新建** track（误检从 2.6 m 起步，真人 1.7~2.1 m）
@@ -161,6 +200,134 @@ RED_REPORT_HITS = int(os.environ.get("PR_RED_REPORT_HITS", "6"))
 
 def report_ready_hits(cls, hits):
     return hits >= (RED_REPORT_HITS if cls == "red" else CONFIRM_HITS)
+
+
+def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2):
+    """Admit a box for image association, not for world-coordinate reporting."""
+    if (cls not in CLASSES or
+            not all(math.isfinite(q) for q in (confidence, x1, y1, x2, y2)) or
+            not .45 <= confidence <= 1.0):
+        return False
+    width, height = x2 - x1, y2 - y1
+    return (y2 >= ROI_TOP and y1 <= ROI_BOT and width >= 9.0 and
+            height >= 40.0 and y1 >= 4.0 and
+            1.1 <= height / max(width, 1.0) <= 4.0)
+
+
+class PixelCueTracker:
+    """Associate fresh YOLO boxes by world bearing before ground range is known."""
+
+    def __init__(self):
+        self.tracks = []
+        self.next_id = 0
+        self.last_frame = -1.0
+
+    def update(self, sample_s, boxes):
+        if sample_s <= self.last_frame:
+            return []
+        self.last_frame = sample_s
+        self.tracks = [tr for tr in self.tracks
+                       if sample_s - tr['sample_s'] <= 1.1]
+        used = set()
+        cues = []
+        for box in sorted(boxes, key=lambda b: b['conf'], reverse=True):
+            best, best_d = None, float('inf')
+            for tr in self.tracks:
+                if tr['id'] in used or tr['cls'] != box['cls']:
+                    continue
+                # Pixel u can sweep across the whole frame as the UAV yaws.
+                # The world-frame ray stays near the same person. Keep a
+                # vertical/size gate so two same-colour people on one bearing
+                # cannot be merged solely by azimuth.
+                if (math.isfinite(box.get('bearing', float('nan'))) and
+                        math.isfinite(tr.get('bearing', float('nan')))):
+                    angle = abs(math.atan2(
+                        math.sin(box['bearing'] - tr['bearing']),
+                        math.cos(box['bearing'] - tr['bearing'])))
+                    dt = max(0.0, sample_s - tr['sample_s'])
+                    angle_gate = 0.12
+                    if all(math.isfinite(q) for q in (
+                            box.get('cam_x', float('nan')),
+                            box.get('cam_y', float('nan')),
+                            tr.get('cam_x', float('nan')),
+                            tr.get('cam_y', float('nan')))):
+                        # At 3 m/s a 0.4 s sideways flight changes the
+                        # bearing of a person 7.5 m away by 0.16 rad. Compare
+                        # with the ray expected from the new camera position
+                        # over a plausible depth interval instead of simply
+                        # widening the raw-angle gate (which merges people).
+                        depth = 2.0 * FY / max(tr['h'], 40.0)
+                        near = max(2.5, 0.55 * depth)
+                        far = min(20.0, 2.0 * depth)
+                        errors = []
+                        for i in range(9):
+                            r = near + (far - near) * i / 8.0
+                            expected = math.atan2(
+                                tr['cam_y'] + r * math.sin(tr['bearing']) - box['cam_y'],
+                                tr['cam_x'] + r * math.cos(tr['bearing']) - box['cam_x'])
+                            errors.append(abs(math.atan2(
+                                math.sin(box['bearing'] - expected),
+                                math.cos(box['bearing'] - expected))))
+                        angle = min(errors)
+                        angle_gate = 0.08 + 0.10 * min(dt, 0.8)
+                    vdiff = abs(box['v'] - tr['v'])
+                    ratio = box['h'] / max(tr['h'], 1.0)
+                    if (angle > angle_gate or vdiff > max(90.0, 0.8 * box['h']) or
+                            not 0.55 <= ratio <= 1.8):
+                        continue
+                    d = angle / angle_gate + vdiff / max(90.0, 0.8 * box['h'])
+                else:
+                    d = math.hypot(box['u'] - tr['u'], box['v'] - tr['v'])
+                    if d >= max(65.0, 1.2 * box['h']):
+                        continue
+                if d < best_d:
+                    best, best_d = tr, d
+            if best is None:
+                best = dict(id=self.next_id, cls=box['cls'], history=[])
+                self.next_id += 1
+                self.tracks.append(best)
+            best.update(sample_s=sample_s, u=box['u'], v=box['v'],
+                        h=box['h'], bearing=box.get('bearing', float('nan')),
+                        cam_x=box.get('cam_x', float('nan')),
+                        cam_y=box.get('cam_y', float('nan')))
+            best['history'] = [p for p in best['history'] if sample_s - p[0] <= 1.1]
+            best['history'].append((sample_s, box['conf']))
+            used.add(best['id'])
+            recent = best['history'][-4:]
+            # All clothing colours need this image-only entry. Requiring
+            # .85 before association discarded .48-.76 nearby blue boxes
+            # while the aircraft continued its search route.
+            bounded_attention = (len(recent) >= 3 and
+                                 min(p[1] for p in recent) >= 0.45 and
+                                 box['conf'] >= 0.55)
+            normal_cue = min(p[1] for p in recent) >= 0.85
+            if (len(recent) >= 3 and recent[-1][0] - recent[0][0] >= 0.3 and
+                    (normal_cue or bounded_attention)):
+                cues.append(dict(candidate_id='%s:%d' % (box['cls'], best['id']),
+                                 sample_s=sample_s, bearing=box['bearing'],
+                                 confidence=box['conf'], hits=len(recent),
+                                 u=box['u'], v=box['v'],
+                                 attention_only=not normal_cue))
+                for key in ('box', 'width', 'height', 'camera_tilt'):
+                    if key in box:
+                        cues[-1][key] = box[key]
+        return cues
+
+
+def pixel_promoted_strict(cues, cls, u, v, conf, rng, height_m,
+                          aspect, box_h, x1, x2, y1, image_width):
+    """Link an odd-shaped full-head box after image agreement; flag its range."""
+    if (not all(math.isfinite(q) for q in
+                (u, v, conf, rng, height_m, aspect, box_h, x1, x2, y1)) or
+            not H_MIN_L <= height_m <= H_MAX_L or
+            not 0.0 < rng <= 12.0 or conf < 0.85 or
+            box_h < 60.0 or not 1.1 <= aspect <= 4.0 or
+            x1 < 6.0 or x2 > image_width - 6.0 or y1 < 6.0):
+        return False
+    return any(c['candidate_id'].startswith(cls + ':') and
+               not c.get('attention_only', False) and
+               abs(c['u'] - u) < 20.0 and abs(c['v'] - v) < 30.0
+               for c in cues)
 
 
 def near_cropped_strict_ok(head_ground_used, range_m, conf, height_m, ar):
@@ -219,8 +386,11 @@ def official_view_ok(uv, wh, width=752, height=480, range_m=None,
     # visible head ray (clipped_head_ground).  Suppressing all such boxes kept
     # the exact, continuously observed red actor at the map edge invisible to
     # the judge for >20 s.  Reject distant/partial boxes and missing heads.
-    return (clipped_stable and range_m is not None and 0.0 < range_m <= 6.0 and
-            h >= FEET_CLIP_MIN_PX and y2 <= height + 2.0)
+    # Track geometry can return numpy.bool_.  Python's `and` returns that
+    # operand on a false branch; json.dumps then kills the entire camera node.
+    # Preserve the decision, but guarantee the wire field is a native bool.
+    return bool(clipped_stable and range_m is not None and 0.0 < range_m <= 6.0 and
+                h >= FEET_CLIP_MIN_PX and y2 <= height + 2.0)
 
 
 def blue_white_torso_vote(image, xyxy):
@@ -594,7 +764,8 @@ DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
 
 _lock = threading.Lock()
 _latest = {"img": None, "stamp": 0.0, "recv_wall": 0.0}
-_pose_history = []  # (ROS time, x, y, z, rotation matrix)
+_pose_history = []  # (pose header ROS time, world camera x/y/z, rotation matrix)
+_pose_fault = None  # in-flight EKF discontinuity: fail closed until node restart
 _model = None
 
 # 统计：几何门限拦下多少
@@ -611,6 +782,103 @@ def quat_to_R(x, y, z, w):
     ])
 
 
+def R_to_quat(rotation):
+    """Return a normalized xyzw quaternion for the interpolated camera pose."""
+    m = rotation
+    trace = float(np.trace(m))
+    if trace > 0.0:
+        s = 2.0 * math.sqrt(trace + 1.0)
+        q = ((m[2, 1] - m[1, 2]) / s,
+             (m[0, 2] - m[2, 0]) / s,
+             (m[1, 0] - m[0, 1]) / s, s / 4.0)
+    else:
+        i = int(np.argmax(np.diag(m)))
+        if i == 0:
+            s = 2.0 * math.sqrt(1.0 + m[0, 0] - m[1, 1] - m[2, 2])
+            q = (s / 4.0, (m[0, 1] + m[1, 0]) / s,
+                 (m[0, 2] + m[2, 0]) / s, (m[2, 1] - m[1, 2]) / s)
+        elif i == 1:
+            s = 2.0 * math.sqrt(1.0 + m[1, 1] - m[0, 0] - m[2, 2])
+            q = ((m[0, 1] + m[1, 0]) / s, s / 4.0,
+                 (m[1, 2] + m[2, 1]) / s, (m[0, 2] - m[2, 0]) / s)
+        else:
+            s = 2.0 * math.sqrt(1.0 + m[2, 2] - m[0, 0] - m[1, 1])
+            q = ((m[0, 2] + m[2, 0]) / s, (m[1, 2] + m[2, 1]) / s,
+                 s / 4.0, (m[1, 0] - m[0, 1]) / s)
+    norm = math.sqrt(sum(v * v for v in q))
+    return tuple(v / norm for v in q)
+
+
+def interpolate_rotation(first, second, alpha):
+    """Slerp avoids bearing error from linearly averaging yaw matrices."""
+    q0 = np.array(R_to_quat(first), dtype=float)
+    q1 = np.array(R_to_quat(second), dtype=float)
+    dot = float(np.dot(q0, q1))
+    if dot < 0.0:
+        q1, dot = -q1, -dot
+    dot = min(1.0, max(-1.0, dot))
+    if dot > 0.9995:
+        q = (1.0 - alpha) * q0 + alpha * q1
+    else:
+        theta = math.acos(dot)
+        q = (math.sin((1.0 - alpha) * theta) * q0 +
+             math.sin(alpha * theta) * q1) / math.sin(theta)
+    q /= np.linalg.norm(q)
+    return quat_to_R(*q)
+
+
+def camera_pose_from_local(msg, world_offset):
+    """Convert this aircraft's MAVROS local ENU pose to the left-camera world pose."""
+    p, o = msg.pose.position, msg.pose.orientation
+    values = (p.x, p.y, p.z, o.x, o.y, o.z, o.w) + tuple(world_offset)
+    if (not all(math.isfinite(float(v)) for v in values) or
+            sum(float(v) * float(v) for v in (o.x, o.y, o.z, o.w)) < 0.5):
+        raise ValueError("invalid MAVROS local pose")
+    rotation = quat_to_R(o.x, o.y, o.z, o.w)
+    camera_offset = rotation @ CAM_OFF_BL
+    xyz = (p.x + world_offset[0] + camera_offset[0],
+           p.y + world_offset[1] + camera_offset[1],
+           (p.z + world_offset[2] + camera_offset[2]) * PZ_SCALE)
+    return xyz + (rotation,)
+
+
+def on_pose(msg, world_offset):
+    global _pose_fault
+    stamp = msg.header.stamp.to_sec()
+    if stamp <= 0.0:
+        stamp = rospy.Time.now().to_sec()
+    if stamp <= 0.0:
+        return
+    try:
+        sample = (stamp,) + camera_pose_from_local(msg, world_offset)
+    except (TypeError, ValueError, OverflowError):
+        return
+    with _lock:
+        if _pose_fault is not None:
+            return
+        if _pose_history and stamp <= _pose_history[-1][0]:
+            return  # duplicate/out-of-order sample must never rewind the camera
+        if (_pose_history and stamp - _pose_history[0][0] >= 1.0 and
+                min(sample[3], _pose_history[-1][3]) > 1.0):
+            previous = _pose_history[-1]
+            dt = stamp - previous[0]
+            distance = math.sqrt(sum((sample[i] - previous[i]) ** 2
+                                     for i in (1, 2, 3)))
+            # A 0.8-2.4 m jump in one 30 ms EKF update was observed in the
+            # failed flight.  It must not turn into a fresh camera report.
+            # Allow ground estimator settling, then latch an in-flight fault.
+            if distance > max(0.55, 8.0 * dt):
+                _pose_fault = (stamp, distance, dt)
+                _pose_history.clear()
+                rospy.logerr("[pr] LOCALIZATION_FAULT pose jumped %.2fm in %.3fs; "
+                             "camera reports disabled until restart", distance, dt)
+                return
+        _pose_history.append(sample)
+        while len(_pose_history) > 2 and (
+                len(_pose_history) > 180 or stamp - _pose_history[0][0] > 3.0):
+            del _pose_history[0]
+
+
 def on_img(msg):
     try:
         img = CvBridge().imgmsg_to_cv2(msg, "bgr8")
@@ -624,28 +892,35 @@ def on_img(msg):
         _latest["recv_wall"] = time.time()
 
 
-def pose_at_stamp(stamp, fallback):
-    """Bind a camera pose to the image time; never use an unrelated live pose."""
-    if stamp <= 0.0 or not _pose_history:
+def pose_at_stamp(stamp, fallback=None):
+    """Interpolate a camera pose at image capture time, with <=50 ms endpoint slack."""
+    if stamp <= 0.0:
         return None
-    history = tuple(_pose_history)
+    with _lock:
+        if _pose_fault is not None:
+            return None
+        history = tuple(_pose_history)
+    if not history:
+        return None
     if len(history) == 1:
-        return fallback if abs(stamp - history[0][0]) <= 0.05 else None
-    first, second = history[-2:]
-    for earlier, later in zip(history, history[1:]):
-        if earlier[0] <= stamp <= later[0]:
-            first, second = earlier, later
-            break
+        return history[0][1:] if abs(stamp - history[0][0]) <= 0.05 else None
+    if stamp < history[0][0] - 0.05 or stamp > history[-1][0] + 0.05:
+        return None
+    if stamp < history[0][0]:
+        first, second = history[:2]
+    else:
+        first, second = history[-2:]
+        for earlier, later in zip(history, history[1:]):
+            if earlier[0] <= stamp <= later[0]:
+                first, second = earlier, later
+                break
     dt = second[0] - first[0]
-    if dt <= 1e-6 or stamp < first[0] - 0.25 or stamp > second[0] + 0.05:
+    if dt <= 1e-6:
         return None
     alpha = (stamp - first[0]) / dt
     xyz = tuple(first[i] + alpha * (second[i] - first[i]) for i in (1, 2, 3))
     # Rotation must refer to the same image time as translation.
-    blend = (1.0 - alpha) * first[4] + alpha * second[4]
-    left, _, right = np.linalg.svd(blend)
-    correction = np.diag([1.0, 1.0, np.linalg.det(left @ right)])
-    return xyz + (left @ correction @ right,)
+    return xyz + (interpolate_rotation(first[4], second[4], alpha),)
 
 
 def clipped_head_ground(u, y_top, px, py, pz, rotation):
@@ -745,7 +1020,7 @@ class Track(object):
     """alpha-beta 匀速跟踪器：状态 (x, y, vx, vy) + 身高 H + 外观特征（v4 新增多层次关联）。"""
     _seq = 0
 
-    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None):
+    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground'):
         """appearance_feat: 外观特征向量（颜色直方图/深度特征），用于外观关联"""
         Track._seq += 1
         self.id = Track._seq
@@ -760,6 +1035,10 @@ class Track(object):
         self.conf = conf
         self.uv, self.wh, self.rng = uv, wh, rng
         self.h = h                      # 归一化身高 (m)
+        self.loc_suspect = not loc_ok
+        self.observation_loc_ok = bool(loc_ok)
+        self.range_method = range_method
+        self.loc_good_streak = 3 if loc_ok else 0
         self.x0, self.y0, self.t0 = x, y, t   # 起点，用于算净位移速度
         self.sp = 0.0                   # 净位移速度 (m/s)：真人 ~1，静止误检 ~0
         self.max_disp = 0.0             # 生命期内最大位移 (m)：专治"走一段就停下的人"
@@ -771,6 +1050,8 @@ class Track(object):
         self.d_view = 0.0               # 相机自身视点变化量
         self.score = conf * person_likelihood(h) * MOTION_FLOOR
         self.score_ema = self.score     # 平滑后的打分，用于选轨（避免单帧抖动抢位）
+        self._pub_sample = None
+        self._pub_result = None
         self.pub_ema = None             # 对外发布坐标的 EMA（降低抖动，保 15s 连续<1m）
         # 只供裁判近距裁脚框使用。移动目标的头顶框抖动会造成 >1m
         # 深度误差；静止目标在边界仍需保留可上报的机会。
@@ -788,6 +1069,18 @@ class Track(object):
             return self.x + self.vx * _k * dt, self.y + self.vy * _k * dt
         return self.x + self.vx * dt, self.y + self.vy * dt
 
+    def observation_xy(self):
+        """Unshifted measurement at observed_s for the timestamped bridge input.
+
+        Association state may already have coasted to a processing-loop time;
+        pub_xy also applies legacy prediction/smoothing. Neither is a raw
+        camera measurement at the image timestamp.
+        """
+        stamp, x, y = self.recent_observed_xy[-1]
+        if stamp != self.observed_s:
+            raise ValueError('camera position and image timestamp disagree')
+        return float(x), float(y)
+
     def pub_xy(self):
         """**对外发布**用的世界坐标 —— 先按 LAG_COMP 沿速度前推，抵消链路相位滞后。
 
@@ -802,6 +1095,10 @@ class Track(object):
         实测 brown 坐标单帧跳 1.8m（(0.55,-40.13)→(-1.28,-40.35)），alpha-beta
         滤波后仍有残差；在出口处轻量 EMA 把抖动压到 <1m，避免 count_flag 反复重置。
         """
+        # Output frequency and coast callbacks cannot re-weight one image.
+        if self._pub_sample == self.observed_s:
+            return self._pub_result
+        self._pub_sample = self.observed_s
         if LAG_COMP > 0.0:
             px, py = self.predict(LAG_COMP)
         else:
@@ -813,15 +1110,19 @@ class Track(object):
                 ex, ey = self.pub_ema
                 self.pub_ema = (PUB_EMA * ex + (1.0 - PUB_EMA) * px,
                                 PUB_EMA * ey + (1.0 - PUB_EMA) * py)
-            return self.pub_ema
-        return px, py
+            self._pub_result = self.pub_ema
+        else:
+            self._pub_result = (px, py)
+        return self._pub_result
 
-    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None):
+    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground'):
         """更新track状态，可选更新外观特征用于多层次关联"""
         sample_s = t if observation_s is None else observation_s
         if t <= self.t or sample_s <= self.observed_s or dt <= 0.0:
             return False
         self.observed_s = sample_s
+        self.observation_loc_ok = bool(loc_ok)
+        self.range_method = range_method
         self.recent_observed_xy = [p for p in self.recent_observed_xy
                                    if sample_s - p[0] <= 2.5]
         self.recent_observed_xy.append((sample_s, zx, zy))
@@ -842,6 +1143,10 @@ class Track(object):
         self.score_ema = 0.7 * self.score_ema + 0.3 * self.score
         self.t, self.hits, self.miss = t, self.hits + 1, 0
         self.last_seen_t = t
+        if self.loc_suspect:
+            self.loc_good_streak = self.loc_good_streak + 1 if loc_ok else 0
+            if self.loc_good_streak >= 3:
+                self.loc_suspect = False
         if uav is not None:
             self.uav = uav
         # v4: 更新外观特征（使用滑动平均融合新特征，避免单帧噪声）
@@ -855,6 +1160,13 @@ class Track(object):
         self.remember_travel()
         self.remember_parallax()
         return True
+
+    def can_report_image(self):
+        """Track longevity cannot make this frame's bad geometry trustworthy."""
+        return bool(self.miss == 0 and self.observation_loc_ok and
+                    not self.loc_suspect and official_view_ok(
+                        self.uv, self.wh, IMG_W, IMG_H, self.rng,
+                        clipped_stable=self.clipped_report_stable()))
 
     def clipped_report_stable(self):
         """Only trust a cropped head ray after a stationary, sustained view."""
@@ -872,7 +1184,9 @@ class Track(object):
 
     def stationary_candidate_stable(self):
         """Short, tight observation series for dispatch, never for range repair."""
-        samples = self.recent_observed_xy
+        # Initial ranging jitter must age out of the short stability test;
+        # otherwise a 2.5-second history keeps rejecting a newly stable view.
+        samples = self.recent_observed_xy[-4:]
         if len(samples) < 4 or samples[-1][0] - samples[0][0] < 0.5:
             return False
         xs = [p[1] for p in samples]
@@ -899,6 +1213,13 @@ class Track(object):
     def attached_to_cam(self):
         """物体是不是"长在机身上"的（视差判据）。视点变化不够大时判不了，返回 False=不表态。"""
         if self.d_view < ATTACH_MIN_VIEW:
+            return False
+        # Nose-locked observation can keep a real, stationary person's image
+        # coordinates almost fixed while the aircraft moves around it.  Its
+        # independent world-space observations stay fixed, whereas a camera-
+        # attached false box moves through the world with the aircraft.  Use
+        # this independent evidence before applying the camera-relative gate.
+        if self.stationary_candidate_stable():
             return False
         return self.d_rel < ATTACH_FRAC * self.d_view
 
@@ -942,6 +1263,8 @@ class Track(object):
             max_coast = MAX_COAST_PUB
         if self.hits < CONFIRM_HITS:
             return False, "hits"
+        if self.loc_suspect:
+            return False, "localization"
         if self.miss > max_coast:
             return False, "coast"
         # 视差判据放在几何判据之前：它是"这东西长在机身上"的铁证，
@@ -1055,9 +1378,47 @@ def assign_slots(cands, slots, confirm_hits, slot_xy=None, sticky_r=0.0):
     return bound
 
 
+def image_world_bearing(u, v, rotation):
+    ray = rotation @ (M_OPT2LINK @ np.array([(u-CX)/FX, (v-CY)/FY, 1.]))
+    return math.atan2(ray[1], ray[0])
+
+
+def control_tracks(tracks, red_slots, sample):
+    """Image steering candidates, independent of world-report/person verdicts.
+
+    Keep same-colour alternatives; the assigned agent performs spatial
+    association. Red slot identity must already be established, never guessed.
+    """
+    result = []
+    for tr in tracks:
+        if (tr.miss or tr.observed_s != sample or tr.hits < 3 or
+                not .45 <= tr.conf <= 1.):
+            continue
+        if tr.cls == 'red':
+            if tr.id not in red_slots:
+                continue
+            slot = red_slots.index(tr.id)
+        else:
+            if tr.cls not in TID_OF_COLOR:
+                continue
+            slot = 0
+        result.append((tr.cls, slot, tr))
+    return result
+
+
 def main():
     global _model
     rospy.init_node("perception_real", anonymous=True)
+    try:
+        world_offset = tuple(float(os.environ[key]) for key in (
+            "PR_WORLD_OFFSET_X", "PR_WORLD_OFFSET_Y")) + (
+                float(os.environ.get("PR_WORLD_OFFSET_Z", "0.0")),)
+        if not all(math.isfinite(v) for v in world_offset):
+            raise ValueError("non-finite offset")
+    except (KeyError, ValueError) as exc:
+        raise RuntimeError(
+            "perception requires PR_WORLD_OFFSET_X/Y from the official UAV spawn "
+            "coordinates; refusing unanchored world reports (%s)" % exc)
 
     # ---- 官方话题发布仲裁状态：本机当前被指派追踪的目标 tid ----
     # 收到 task_type=1/2 且 target_id 非空 -> 持有发布权；
@@ -1089,22 +1450,30 @@ def main():
              "方案A(已确认才发1.0)" if COORD_CONF_ONE else "恒发1.0(旧)"), flush=True)
     if SearchAssignment is not None:
         rospy.Subscriber("/swarm/assignment", SearchAssignment, _arb_cb)
-        print("[pr] 官方话题仲裁开启：仅被指派追踪且目标<=%.0fm 时直发 /actor_*_info"
-              % ACTOR_PUB_RANGE, flush=True)
+        print("[pr] 指派订阅已连接；仲裁开关=%s，直发官方开关=%s"
+              % (bool(OFFICIAL_ARBITRATED), bool(DIRECT_ACTOR_INFO)), flush=True)
     else:
         print("[pr] WARN: 未导入 SearchAssignment（%s），官方话题仅过 %.0fm 距离闸门"
               % (_search_assign_import_err, ACTOR_PUB_RANGE), flush=True)
     if TargetState is not None:
         rospy.Subscriber("/swarm/target_states", TargetState, _tstate_cb)
-        print("[pr] 空间身份闸门开启：发布坐标须与融合估计一致(<=%.1fm, 新鲜<=%.0fs)"
-              % (IDENTITY_M, TSTATE_FRESH_S), flush=True)
+        print("[pr] 空间身份闸门=%s (<=%.1fm, 新鲜<=%.0fs)"
+              % (bool(IDENTITY_GATE), IDENTITY_M, TSTATE_FRESH_S), flush=True)
 
+    _load_wall = time.monotonic()
     print("[pr] 加载权重 %s" % WEIGHTS, flush=True)
-    print("[pr] v4.0 双目左目适配 | 相机 %s <- %s | 内参 fx=%.1f cx=%.1f cy=%.1f 图 %dx%d"
-          % (CAM_LINK, CAM_TOPIC, FX, CX, CY, IMG_W, IMG_H), flush=True)
+    print("[pr] 双目左目适配 | 图像 %s | 本机位姿 %s | 世界偏移 %s | "
+          "相机外参 %s | 内参 fx=%.1f cx=%.1f cy=%.1f 图 %dx%d"
+          % (CAM_TOPIC, POSE_TOPIC, world_offset, CAM_OFF_BL.tolist(),
+             FX, CX, CY, IMG_W, IMG_H), flush=True)
     print("[pr] 类别顺序 %s" % CLASSES, flush=True)
     from ultralytics import YOLO
     _model = YOLO(WEIGHTS)
+    class_mapping = target_class_mapping(_model.names)
+    print('[pr] CLASS_MAP names=%s canonical=%s; non-target classes excluded' %
+          (_model.names, class_mapping), flush=True)
+    print("[pr] MODEL_READY load_s=%.3f" % (time.monotonic() - _load_wall),
+          flush=True)
 
     # pubs[类][槽号]：单流类只有 1 个槽，red 有 2 个（red1/red2）
     # 2026-10-06 修：仅 PR_DIRECT_ACTOR_INFO=1 时才创建 /actor_*_info Publisher。
@@ -1120,6 +1489,14 @@ def main():
         pubs = None
     # 契约通道：一条消息 = 一个目标（形状见文件上方"协同上报"段）
     coord = rospy.Publisher("/coordination/target_report", String, queue_size=50)
+    cue_pub = rospy.Publisher("/swarm/visual_candidate", String, queue_size=6)
+    frame_pub = rospy.Publisher("/swarm/processed_camera_frame", String, queue_size=6)
+    view_pub = rospy.Publisher("/swarm/tracking_view", String, queue_size=6)
+    discovery_pub = rospy.Publisher("/swarm/discovery_observation", String, queue_size=30)
+    view_csv = logger('tracking_view_%s' % UAV, [
+        'ros_time', 'sample_s', 'target_id', 'track_id', 'x1', 'y1', 'x2', 'y2',
+        'camera_x', 'camera_y', 'camera_z', 'qx', 'qy', 'qz', 'qw',
+        'target_x', 'target_y', 'range_method', 'geometry_ok', 'report_ok'])
     # 调试通道：一帧一条、含全部 dets 的快照，供 rec_snap.py / analyze_snap.py 离线复盘
     dbg = rospy.Publisher(DEBUG_TOPIC, String, queue_size=5)
     # YOLO 实时视角（带检测框，调试可视化）
@@ -1127,8 +1504,8 @@ def main():
                      if YOLO_VIEW else None)
 
     rospy.Subscriber(CAM_TOPIC, Image, on_img, queue_size=1)
-    rospy.wait_for_service("/gazebo/get_link_state", timeout=90)
-    gls = rospy.ServiceProxy("/gazebo/get_link_state", GetLinkState)
+    rospy.Subscriber(POSE_TOPIC, PoseStamped, on_pose,
+                     callback_args=world_offset, queue_size=100)
 
     tracks = []
     # red 双流的槽位绑定：red_slots[i] = 该槽当前锁定的 track id（None = 空）。
@@ -1164,14 +1541,16 @@ def main():
     _t_live = 0.0            # 心跳上次打印墙钟（5s 一次，证明主线程活着）
     _last_live_loop = 0      # 实际循环频率；配置频率不能代表 CPU 满载时的吞吐
     _last_live_det = 0
-    _coord_t = 0.0            # 上次发协同上报的墙钟（COORD_HZ 节流用）
+    coord_clock = ImagePublishClock(COORD_HZ)
     _obs_seq = 0              # observation_id 单调序号（契约要求非空且不复用）
     annot_img = None          # 最近一次参与检测的图像，供标注帧使用
     annot_z = 0.0             # 该帧对应的相机高度
     frame_stamp = 0.0         # 当前检测图像的 ROS 采集时间
     processed_image_stamp = 0.0
+    cue_tracker = PixelCueTracker()
     frame_age = None
     inference_s = None
+    _first_inference_logged = False
     uav = (0.0, 0.0, 0.0)     # 最近一次取到的相机位姿 (x, y, 偏航)，供视差判据使用
     # 相机完整位姿 (x,y,z, qx,qy,qz,qw)：只写进调试快照，供**离线**复算
     # "真值目标本该出现在画面哪个像素"。为什么必须落盘：2026-09-15 brown 轮里
@@ -1200,6 +1579,9 @@ def main():
         n_loop += 1
         now = rospy.Time.now().to_sec()
         dets = []
+        raw_cue_boxes = []
+        frame_cues = []
+        frame_was_processed = False
 
         # ---------- 1) 检测 + 几何过滤 ----------
         if n_loop % DETECT_EVERY == 0:
@@ -1213,34 +1595,22 @@ def main():
                 processed_image_stamp = frame_stamp
             if img is not None:
                 try:
-                    ls = gls(CAM_LINK, "world").link_state
-                    px, py, pz = ls.pose.position.x, ls.pose.position.y, ls.pose.position.z
-                    o = ls.pose.orientation
-                    R = quat_to_R(o.x, o.y, o.z, o.w)
-                    # 双目左目是塞在 base_link 里的 <sensor>（没有独立 link、没有云台），
-                    # get_link_state 只能返回 base_link 原点 ⇒ 自己补上相机在机体系里的固定偏移。
-                    # 相机 pose rpy=0 ⇒ 轴向与 base_link 完全一致，直接用同一个 R 旋转偏移量。
-                    _off = R @ CAM_OFF_BL
-                    px, py, pz = px + _off[0], py + _off[1], pz + _off[2]
-                    # 相机高度标定（见 PZ_SCALE 处）：rng 与 pz 成正比，实测 pz 偏大
-                    # 会让测距系统性偏长、位置误差骑在裁判 1m 门限上。
-                    pz *= PZ_SCALE
+                    pose = pose_at_stamp(frame_stamp)
+                    if pose is None:
+                        raise ValueError("no MAVROS camera pose at image timestamp %.3f"
+                                         % frame_stamp)
+                    px, py, pz, R = pose
                     # 相机水平偏航（视差判据要用）：取旋转矩阵第一列的水平分量
-                    yaw_cam = math.atan2(R[1, 0], R[0, 0])
-                    _pose_history.append((now, px, py, pz, R))
-                    if len(_pose_history) > 20:
-                        del _pose_history[:-20]
-                    px, py, pz, R = pose_at_stamp(
-                        frame_stamp, (px, py, pz, R))
                     yaw_cam = math.atan2(R[1, 0], R[0, 0])
                     uav = (px, py, yaw_cam)
                     uav_last = (px, py)          # 供清理段判"离飞机过远"
+                    q = R_to_quat(R)
                     cam_full = [round(px, 3), round(py, 3), round(pz, 3),
-                                round(o.x, 5), round(o.y, 5), round(o.z, 5), round(o.w, 5)]
+                                *(round(v, 5) for v in q)]
                     # 位姿取到了才更新标注帧：与检测同帧，保证所见即所判
                     annot_img, annot_z = img, pz
                 except Exception as e:
-                    print("[pr] 取相机位姿失败: %s" % e, flush=True)
+                    rospy.logwarn_throttle(5.0, "[pr] 图像位姿同步失败: %s", str(e))
                     R, (px, py, pz) = None, (0, 0, 0)
                     uav = (0.0, 0.0, 0.0)
                     cam_full = None
@@ -1248,13 +1618,17 @@ def main():
                 if R is not None:
                     _infer_t0 = time.time()
                     res = _model(img, conf=min(CONF, WHITE_CONF), verbose=False)[0]
+                    frame_was_processed = True
                     inference_s = time.time() - _infer_t0
-                    # v4新增：时间戳同步优化 - 推理耗时补偿
-                    # 假设推理均匀分布在帧的两端，使用 frame_stamp - inference_s/2 作为更准确的时间戳
-                    detection_time = frame_stamp - inference_s * 0.5
+                    if not _first_inference_logged:
+                        print("[pr] FIRST_INFERENCE image_stamp=%.3f latency_s=%.3f"
+                              % (frame_stamp, inference_s), flush=True)
+                        _first_inference_logged = True
+                    # 几何、轨迹和上报共用图像采集时刻 frame_stamp；推理耗时
+                    # 只用于评估延迟，不能再从采集时间减去半个推理周期。
                     # v4新增：对同类别的检测结果做IOU去重（解决YOLO同一目标多次检测问题）
                     boxes_by_class = {}
-                    for b in res.boxes:
+                    for b in target_boxes_only(res.boxes, class_mapping):
                         cid = int(b.cls)
                         if cid not in boxes_by_class:
                             boxes_by_class[cid] = []
@@ -1291,6 +1665,27 @@ def main():
                     # white boxes in the 13:52 match.  Same-class NMS cannot
                     # remove them; use visible torso color only when decisive.
                     filtered_boxes = filter_blue_white_duplicate_boxes(img, filtered_boxes)
+                    # Associate boxes before ground projection: a cropped or
+                    # unusual person can be kept in sight without treating an
+                    # unstable ray as a dispatchable world coordinate.
+                    for b in filtered_boxes:
+                        cid = int(b.cls)
+                        conf = float(b.conf)
+                        if cid < 0 or cid >= len(CLASSES):
+                            continue
+                        bx1, by1, bx2, by2 = [float(v) for v in b.xyxy[0]]
+                        bw, bh = bx2 - bx1, by2 - by1
+                        if not pixel_cue_box_ok(CLASSES[cid], conf,
+                                               bx1, by1, bx2, by2):
+                            continue
+                        bu, bv = (bx1 + bx2) / 2.0, (by1 + by2) / 2.0
+                        raw_cue_boxes.append(dict(
+                            cls=CLASSES[cid], conf=conf, u=bu, v=bv,
+                            h=bh, bearing=image_world_bearing(bu, bv, R),
+                            cam_x=px, cam_y=py, box=[bx1, by1, bx2, by2],
+                            width=IMG_W, height=IMG_H,
+                            camera_tilt=math.acos(max(-1., min(1., float(R[2, 2]))))))
+                    frame_cues = cue_tracker.update(frame_stamp, raw_cue_boxes)
                     # 遍历过滤后的boxes
                     for b in filtered_boxes:
                         cid = int(b.cls)
@@ -1366,13 +1761,19 @@ def main():
                             impl_h = H_ASSUMED
                         # 远距离小框的 AR 上限单独放宽（见 AR_MAX_SMALL 处的实测记录）
                         _ar_max = AR_MAX_SMALL if h_px < SMALL_BOX_H_PX else AR_MAX
-                        strict = ((H_MIN <= impl_h <= H_MAX) and
+                        strict_base = ((H_MIN <= impl_h <= H_MAX) and
                                   (AR_MIN <= ar <= _ar_max)) or \
                                  near_cropped_strict_ok(t is None, rng, conf,
                                                         impl_h, ar) or \
                                  near_narrow_person_strict_ok(
                                      CLASSES[cid], rng, conf, impl_h, ar, h_px,
                                      x1, x2, y1, img.shape[1])
+                        cue_assisted = (not strict_base and
+                            pixel_promoted_strict(
+                                frame_cues, CLASSES[cid], u, (y1 + y2) / 2.0,
+                                conf, rng, impl_h, ar, h_px,
+                                x1, x2, y1, img.shape[1]))
+                        strict = strict_base or cue_assisted
                         loose = (H_MIN_L <= impl_h <= H_MAX_L) and (AR_MIN_L <= ar <= AR_MAX_L)
                         if not loose and not strict:        # 连获准的新建档都过不了 -> 纯噪声
                             _stat["n_geo_rej"] += 1
@@ -1394,6 +1795,8 @@ def main():
                                      "range": round(rng, 2),
                                      "h": round(impl_h, 2),
                                      "strict": strict,
+                                     "loc_ok": strict_base,
+                                     "range_method": 'head_height' if t is None else 'foot_ground',
                                      "score": round(conf * person_likelihood(impl_h), 3),
                                      "appearance": appearance_feat})
                         _CSV.write(
@@ -1405,6 +1808,27 @@ def main():
                             strict=strict, image_stamp=frame_stamp,
                             image_age_s=frame_age, inference_s=inference_s,
                             source="yolo_raw")
+
+        if frame_was_processed:
+            frame_pub.publish(String(data=json.dumps({
+                'source_uav': UAV, 'sample_s': frame_stamp,
+                'x': px, 'y': py, 'z': pz, 'yaw': yaw_cam,
+                'down_pitch': math.atan2(-R[2, 0],
+                    math.hypot(R[0, 0], R[1, 0])),
+                'processed': True})))
+            for cue in frame_cues:
+                cue.update(source_uav=UAV, real_detection=True,
+                           purpose='camera_reacquire')
+                cue_pub.publish(String(data=json.dumps(cue)))
+                _CSV.write(
+                    ros_time=rospy.Time.now().to_sec(), event='camera_candidate',
+                    class_name=cue['candidate_id'].split(':', 1)[0],
+                    confidence=cue['confidence'], bbox_u=cue['u'], bbox_v=cue['v'],
+                    bbox_w=cue['box'][2]-cue['box'][0] if 'box' in cue else '',
+                    bbox_h=cue['box'][3]-cue['box'][1] if 'box' in cue else '',
+                    track_id=cue['candidate_id'], hits=cue['hits'],
+                    image_stamp=frame_stamp, image_age_s=frame_age,
+                    source='pixel_attention_only')
 
         # ---------- 2) 关联（位置 + 身高 + 外观；v4新增多层次匹配）----------
         # 原理：先用位置粗关联，再用身高和外观精细筛选，解决密集目标串扰问题
@@ -1457,7 +1881,8 @@ def main():
                 # v4：传递外观特征用于后续关联
                 tk.update(d["xyz"][0], d["xyz"][1], dt, d["conf"],
                           d["uv"], d["wh"], d["range"], d["h"], now, uav,
-                          appearance_feat=appear_feat, observation_s=frame_stamp)
+                          appearance_feat=appear_feat, observation_s=frame_stamp,
+                          loc_ok=d.get('loc_ok', True), range_method=d['range_method'])
             else:
                 tk.coast(dt)
 
@@ -1471,7 +1896,9 @@ def main():
                 # v4：创建track时保存外观特征
                 tracks.append(Track(d["cls"], d["xyz"][0], d["xyz"][1], d["conf"],
                                     d["uv"], d["wh"], d["range"], d["h"], now, uav,
-                                    appearance_feat=d.get("appearance"), observation_s=frame_stamp))
+                                    appearance_feat=d.get("appearance"),
+                                    observation_s=frame_stamp,
+                                    loc_ok=d.get('loc_ok', True), range_method=d['range_method']))
 
         # ---------- 3) 清理 ----------
         # 原判据 math.hypot(tk.x, tk.y) 是"距世界原点"的距离，与飞机在哪无关：
@@ -1573,6 +2000,53 @@ def main():
         pub_list = [(cls, 0, tk) for cls, tk in best_of.items()] + \
                    [("red", si, tk) for si, tk in bound]
 
+        # Control sees all associated real images, before person/report verdicts
+        # and per-colour winner selection. The assigned agent associates by
+        # world position and keeps the nearest matching image for this frame.
+        control_views = control_tracks(tracks, red_slots, frame_stamp)
+        if frame_was_processed:
+            for cls, si, tk in control_views:
+                tid = TID_OF_RED_SLOT[si] if cls == 'red' else TID_OF_COLOR[cls]
+                box = box_from_foot(tk.uv, tk.wh)
+                # uv/wh are rounded diagnostics; restore and bound sub-pixel
+                # rounding at the image edge before the controller validates it.
+                box = [max(0., min(float(IMG_W if i % 2 == 0 else IMG_H), v))
+                       for i, v in enumerate(box)]
+                u, v = (box[0]+box[2])/2., (box[1]+box[3])/2.
+                ox, oy = tk.observation_xy()
+                # Discovery is not a judge report. Preserve same-colour
+                # hypotheses before best_of/verdict suppresses them. Red
+                # identity continues through the bridge's two-person matcher.
+                if (cls != 'red' and tk.observation_loc_ok and not tk.loc_suspect and
+                        tk.conf >= .55 and tk.hits >= 4 and 0. < tk.rng <= 12. and
+                        tk.observed_s-tk.t0 >= .5):
+                    discovery_pub.publish(String(data=json.dumps(dict(
+                        source_uav=UAV, target_id=tid, candidate_id=str(tk.id),
+                        real_detection=True, sample_s=tk.observed_s,
+                        confidence=float(tk.conf), hits=tk.hits, x=ox, y=oy,
+                        range_m=float(tk.rng), geometry_ok=True,
+                        official_view_ok=False, purpose='discovery_only'))))
+                    _CSV.write(ros_time=rospy.Time.now().to_sec(),event='discovery_report',
+                        target_id=tid,class_name=cls,confidence=tk.conf,
+                        bbox_u=tk.uv[0],bbox_v=tk.uv[1],bbox_w=tk.wh[0],bbox_h=tk.wh[1],
+                        target_x=ox,target_y=oy,range_m=tk.rng,track_id=tk.id,hits=tk.hits,
+                        image_stamp=tk.observed_s,source='discovery_only')
+                view_pub.publish(String(data=json.dumps(dict(
+                    source_uav=UAV, target_id=tid, track_id=tk.id,
+                    candidate_id=bound_pixel_candidate(frame_cues,cls,box),
+                    real_detection=True, sample_s=tk.observed_s,
+                    confidence=float(tk.conf), hits=tk.hits, box=box,
+                    width=IMG_W, height=IMG_H, fy=FY,
+                    camera_tilt=math.acos(max(-1., min(1., float(R[2, 2])))),
+                    geometry_ok=bool(tk.observation_loc_ok),
+                    bearing=image_world_bearing(u, v, R), x=ox, y=oy))))
+                view_csv.write(ros_time=rospy.Time.now().to_sec(), sample_s=tk.observed_s,
+                    target_id=tid, track_id=tk.id, x1=box[0], y1=box[1], x2=box[2], y2=box[3],
+                    camera_x=cam_full[0], camera_y=cam_full[1], camera_z=cam_full[2],
+                    qx=cam_full[3], qy=cam_full[4], qz=cam_full[5], qw=cam_full[6],
+                    target_x=ox, target_y=oy, range_method=tk.range_method,
+                    geometry_ok=tk.observation_loc_ok, report_ok=tk.can_report_image())
+
         # ---- 官方话题闸门：指派仲裁 + 近距离 + 空间身份一致 ----
         # 未过闸不发布 ActorInfo（在进入内部调试快照链路前剔除）。
         with arb_lock:
@@ -1602,10 +2076,8 @@ def main():
         pub_list = gated_list
 
         snap = []
-        _pub_xy_cache = {}  # 一轮内视觉报告与诊断必须使用同一次平滑结果
         for cls, si, tk in pub_list:
             px, py = tk.pub_xy()          # 补偿后的对外坐标（见 LAG_COMP / Track.pub_xy）
-            _pub_xy_cache[id(tk)] = (px, py)
             # 2026-10-01: 本机不再直发 /actor_<color>_info，改由 yolo_target_bridge
             # 用多机融合坐标统一发布（单一仲裁者，避免 6 机同色位置冲突让裁判反复重置）。
             # 2026-10-02: 由 PR_DIRECT_ACTOR_INFO 控制（默认 0=交给 bridge；
@@ -1629,9 +2101,7 @@ def main():
                         k = PUB_MAX_STEP / _d
                         _sx, _sy = _prev[0] + _dx * k, _prev[1] + _dy * k
                     _pub_smooth[_key] = (_sx, _sy)
-                # 2026-10-06 fix：补 header.stamp + z=0.0（robocup_swarm/ActorInfo 必填字段）
-                m = ActorInfo(cls=cls, x=round(_sx, 2), y=round(_sy, 2), z=0.0)
-                m.header.stamp = rospy.Time.now()
+                m = ActorInfo(cls=cls, x=round(_sx, 2), y=round(_sy, 2))
                 pubs[cls][si].publish(m)
             tag = ("%s%d" % (cls, si + 1)) if NSLOTS[cls] > 1 else cls
             snap.append({"cls": cls, "slot": si, "tag": tag, "conf": round(tk.conf, 3),
@@ -1715,14 +2185,16 @@ def main():
         # 6 条/帧会把它堆成积压（queue_size=50 + 无界 deque），既不加分也拖延迟。
         # 队友替身用的就是 2 Hz。
         if COORD_ON and any(tk.miss == 0 and tk.observed_s == frame_stamp
-                                for _, _, tk in pub_list) and (now - _coord_t) >= 1.0 / max(0.1, COORD_HZ):
-            _coord_t = now
+                                for _, _, tk in pub_list) and coord_clock.ready(frame_stamp):
             for _cls, _si, _tk in pub_list:
                 if _tk.miss != 0 or _tk.observed_s != frame_stamp:
                     continue
                 _tag = ("%s%d" % (_cls, _si + 1)) if NSLOTS[_cls] > 1 else _cls
                 _obs_seq += 1
-                _cx, _cy = _pub_xy_cache[id(_tk)]
+                # The bridge alone estimates the report-time position. Send
+                # the actual measurement at sample_s, not pub_xy's .3s lead
+                # plus EMA labelled with an older image timestamp.
+                _cx, _cy = _tk.observation_xy()
                 # 2026-10-03 我方补：水平距离（m）= 本机位置到上报点的水平距离。
                 # 单目测距误差随距离放大（实测 34.7m 真实测成 21.3m，误差 13m），
                 # 而官方"误差<1m 连续 15s"的判据在远距离根本达不到。
@@ -1744,18 +2216,35 @@ def main():
                     "frame_id": "world_enu",
                     "xyz": [round(_cx, 2), round(_cy, 2), TARGET_Z],
                     "confidence": _coord_conf,
+                    # Keep the original YOLO confidence separate from the
+                    # coordination protocol's confirmed-track value (1.0).
+                    # The bridge uses it only to verify a same-camera,
+                    # cross-color conflict at one fixed world location.
+                    "visual_confidence": round(float(_tk.conf), 3),
                     "sample_s": float(_tk.observed_s),
                     "source_uav": UAV,
+                    "real_detection": True,
+                    "track_hits": int(_tk.hits),
                     "range_m": round(float(_rng_h), 2),
-                    "official_view_ok": official_view_ok(_tk.uv, _tk.wh,
-                                                           IMG_W, IMG_H,
-                                                           _tk.rng,
-                                                           clipped_stable=_tk.clipped_report_stable()),
+                    "official_view_ok": _tk.can_report_image(),
                     # 2026-10-02 我方补：observation_id 必须六机全局唯一。
                     # 队友原版是 "obs-{tag}-{seq}"，seq 是每机本地计数 ⇒ 六机会
                     # 出现同名 observation_id，触发协调核心的 OBSERVATION_CONFLICT
                     # （同 key 不同内容直接拒收整条观测）。加 UAV 前缀即可。
                     "observation_id": "obs-%s-%s-%d" % (UAV, _tag, _obs_seq)})))
+                # Record actual coordination messages separately from per-loop
+                # track diagnostics, which also contain coasting/repeated images.
+                _CSV.write(
+                    ros_time=now_secs, event="coord_report", target_id=_tag,
+                    class_name=_cls, confidence=_coord_conf,
+                    bbox_u=_tk.uv[0], bbox_v=_tk.uv[1],
+                    bbox_w=_tk.wh[0], bbox_h=_tk.wh[1],
+                    target_x=round(_cx, 2), target_y=round(_cy, 2),
+                    target_z=TARGET_Z, range_m=round(float(_rng_h), 2),
+                    height_m=_tk.h, strict=True, track_id=_tk.id, hits=_tk.hits,
+                    image_stamp=_tk.observed_s,
+                    image_age_s=now_secs-_tk.observed_s, inference_s=inference_s,
+                    source="coordination/target_report")
                 # === 仿真环境日志：YOLO 检测输出 + ROS 时间戳 ===
                 # 排查感知延迟/位置滞后：同时打检测框(uv)、世界坐标(xyz)、置信度、时间戳
                 _uv = getattr(_tk, 'uv', (None, None))

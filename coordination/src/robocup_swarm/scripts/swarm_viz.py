@@ -166,8 +166,7 @@ class SwarmViz(object):
             rospy.logwarn("[swarm_viz] 无法订阅 target_states: %s", exc)
 
         try:
-            # 2026-10-06：v4 修复 — 与 detection_to_official.py / yolo_bridge 对齐使用 robocup_swarm.msg.ActorInfo (5字段)
-            from robocup_swarm.msg import ActorInfo
+            from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
             # 官方映射，注意红的两个序号是反的
             m = {"green": 0, "blue": 1, "brown": 2, "white": 3, "red2": 4, "red1": 5}
             if ok:

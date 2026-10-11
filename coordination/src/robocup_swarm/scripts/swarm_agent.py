@@ -3,7 +3,7 @@
 """集群搜索单机节点（每架无人机跑一个实例，自建实现）。
 
 职责（步骤 1：两机共享状态）：
-  1. 从 /gazebo/model_states 读自身模型的世界坐标（地图系，与生成器 metadata 一致），
+  1. 从 MAVROS 本地位姿加固定起飞点偏移计算世界坐标，
      从 /uav_N/mavros/local_position/pose 读高度与连接状态；
   2. 发布 /swarm/uav_status（UavStatus 自建消息）给集中式管理器；
   3. 订阅 /swarm/assignment（SearchAssignment），过滤出指派给自己的搜索格，
@@ -24,24 +24,48 @@ import threading
 import rospy
 import math
 import traceback
-from gazebo_msgs.msg import ModelStates
 from geometry_msgs.msg import PoseStamped, TwistStamped
 from sensor_msgs.msg import LaserScan
 from mavros_msgs.msg import State
 from mavros_msgs.srv import CommandBool, SetMode, ParamSet
-from std_msgs.msg import String, Float32
+from std_msgs.msg import String
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from slam_grid import SlamGrid
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from csv_logger import logger
+from visual_evidence import parse_visual_evidence
+from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
+                           retain_pixel_view)
+from camera_attention import approach_image, candidate_velocity
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
+
+# The search grid extends beyond the actors so edge targets remain observable.
+# Keep UAV flight inside the official actor plugin's reachable XY envelope;
+# these are engineering flight limits, not a judge XY penalty threshold.
+FLIGHT_X_MIN = float(os.environ.get('FLIGHT_X_MIN', '-50.0'))
+FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
+FLIGHT_Y_MIN = float(os.environ.get('FLIGHT_Y_MIN', '-60.0'))
+FLIGHT_Y_MAX = float(os.environ.get('FLIGHT_Y_MAX', '60.0'))
+FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
+
+
+def flight_bounds():
+    return FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN, FLIGHT_Y_MAX
+
+
+def flight_waypoint(x, y, inset=FLIGHT_INSET):
+    xmin, xmax, ymin, ymax = flight_bounds()
+    inset = max(0.0, min(inset, (xmax - xmin) / 4.0,
+                         (ymax - ymin) / 4.0))
+    return (min(max(x, xmin + inset), xmax - inset),
+            min(max(y, ymin + inset), ymax - inset))
 
 
 def estimated_world_hard_bounds(grid, margin_fraction=0.25):
@@ -125,8 +149,12 @@ MAX_SPEED       = float(os.environ.get('MAX_SPEED', '6.0'))   # 巡航速度上�
 POS_KP          = 0.8     # 位置 P 控制增益
 ARRIVE_TOL      = 0.8     # 到达格中心判定半径 m（< 此值视为已到，开始原地搜索）
 SEARCH_ARRIVE_TOL = float(os.environ.get('SEARCH_ARRIVE_TOL', '2.0'))
-SEARCH_SWEEP_DEG = float(os.environ.get('SEARCH_SWEEP_DEG', '35.0'))
-SEARCH_SWEEP_PERIOD_S = float(os.environ.get('SEARCH_SWEEP_PERIOD_S', '6.0'))
+SEARCH_SWEEP_DEG = float(os.environ.get('SEARCH_SWEEP_DEG', '20.0'))
+SEARCH_SWEEP_PERIOD_S = float(os.environ.get('SEARCH_SWEEP_PERIOD_S', '12.0'))
+SEARCH_HEADING_RATE = math.radians(25.0)
+CAMERA_CUE_HOLD_S = 2.0
+CAMERA_HANDOFF_HOLD_S = 4.0
+CAMERA_CUE_RETRY_S = 2.0
 SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
 SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
 SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '16.0'))
@@ -315,7 +343,7 @@ CRASH_RECOVER_VZ = float(os.environ.get('CRASH_RECOVER_VZ', '1.5'))  # 坠机恢
 # 之前用 AUTO.LAND，但实测（logs_20261005_200254）切 LAND 后飞机仍卡在某位姿
 # 持续触发 EKF 雪崩，5/6 架"看似悬停实则卡住"，只 1 架正常真飞。RTL 让 PX4
 # 不依赖本地估计直接飞回 home，更可靠。
-EST_FROZEN_N        = int(os.environ.get('EST_FROZEN_N', '50'))    # 累计 50 拍 ≈ 5s@10Hz 仍未恢复即熔断
+EST_FROZEN_N        = int(os.environ.get('EST_FROZEN_N', '50'))    # 累计 50 拍 ≈ 2.5s@20Hz 后 LAND
 EST_FROZEN_HOLD_S   = float(os.environ.get('EST_FROZEN_HOLD_S', '0.5'))  # 熔断后 RTL 持续多久才允许重试起飞
 # 2026-09-27：原来是 FRIEND_SAFE_DIST*3 = 30m。6 架同场几乎恒有友机落在
 # 30m 内 → 全程只有 3.0 m/s，搜索吞吐被腰斩。收到 14m，其余时间跑满。
@@ -331,21 +359,18 @@ DANGER_3D       = float(os.environ.get('DANGER_3D', '3.0'))    # 低于此间距
 ALT_NARROW      = 3.5       # 窄通道高度 m
 BUILDING_DIST    = 5.0      # 建筑判定距离 m（小于此值视为建筑附近）
 
-# ---- 目标盘旋确认 ----
+# ---- 目标定距观察 ----
 # 国家一等奖标准修复（2026-10-04）：
 #   旧 ORBIT_RADIUS=5.0 + ORBIT_SPEED=0.19 → 线速度 = 0.19×5 = 0.95 m/s，**刚好压在 1.0 m/s
 #   触发线上**。一旦 EKF 抖动或位置控制超调，飞机瞬时速度就会突破 1.0 m/s → actor 触发逃跑。
 # 官方 control_actor.py 在无人机距演员 <7m 时会持续把演员推走。
 # 下载目录的六目标开发场景快照采用 8m 观察圈；留 1m 缓冲，同时保持
 # 在本队 9.5m 的近距裁判播报门内。
-ORBIT_RADIUS    = 8.0     # 盘旋半径 m（> actor uav_push_radius=7.0）
-# 线速度 = ORBIT_SPEED * ORBIT_RADIUS，必须严格 < 1.0 m/s（防触发逃跑判定）。
-ORBIT_SPEED     = 0.11    # r=8m 时切向 0.88m/s，保留逃跑阈值余量
+ORBIT_RADIUS    = 8.0     # 观察距离 m（> actor uav_push_radius=7.0）
 # 近距观察半径：09:15 本轮 red1 在 2.5~4.5m 时框中心落到 480px
 # 图像的 y=466~477，随后失去真实观测、官方坐标误差持续扩大。8m 使人
 # 保持在画面内部且位于 7m 驱离区之外，仍低于 9.5m 播报进入距离门。
 ORBIT_RADIUS_CLOSE = float(os.environ.get('ORBIT_RADIUS_CLOSE', '8.0'))
-ORBIT_SPEED_CLOSE  = 0.05
 # 近处压低以免脚部出画面；8m 观察圈则保留搜索高度附近的视线。
 # 21:03 局绿色在 8m 处由 3.4m 降至约 2.2m 后连续丢失真实视觉，
 # 地图几何 LOS 却一直为 True，裁判确认被反复重置。
@@ -431,24 +456,32 @@ def observation_ring_goal(wx, wy, tx, ty, radius, bounds, margin=2.5):
         cost = math.sqrt(length_sq) + cut_penalty
         if best is None or cost < best[0]:
             best = (cost, gx, gy)
-    return (best[1], best[2]) if best is not None else preferred
+    # The actor can be exactly on a corner: the requested radius may have no
+    # legal point.  Still choose the closest interior view, never the old
+    # out-of-bounds preferred point.
+    if best is not None:
+        return best[1], best[2]
+    return (min(max(preferred[0], xmin), xmax),
+            min(max(preferred[1], ymin), ymax))
 
 
-def close_follow_velocity(err_x, err_y, target_vx, target_vy, observation_age):
-    """近距跟随速度：位置纠偏加目标速度前馈，最终低于逃跑触发线。"""
+def close_follow_velocity(err_x, err_y, target_vx, target_vy, observation_age,
+                          speed_cap=CLOSE_TRANSIT_SPEED):
+    """Follow the moving observation point with the selected pursuit cap."""
     vx, vy = POS_KP * err_x, POS_KP * err_y
     if (0.0 <= observation_age <= TARGET_TTL and
             math.isfinite(target_vx) and math.isfinite(target_vy)):
         target_speed = math.hypot(target_vx, target_vy)
-        if target_speed > 1.2:
-            target_vx *= 1.2 / target_speed
-            target_vy *= 1.2 / target_speed
+        feedforward_cap = 2.5 if speed_cap > CLOSE_TRANSIT_SPEED else 1.2
+        if target_speed > feedforward_cap:
+            target_vx *= feedforward_cap / target_speed
+            target_vy *= feedforward_cap / target_speed
         vx += target_vx
         vy += target_vy
     speed = math.hypot(vx, vy)
-    if speed > CLOSE_TRANSIT_SPEED:
-        vx *= CLOSE_TRANSIT_SPEED / speed
-        vy *= CLOSE_TRANSIT_SPEED / speed
+    if speed > speed_cap:
+        vx *= speed_cap / speed
+        vy *= speed_cap / speed
     return vx, vy
 
 
@@ -467,7 +500,8 @@ def close_target_is_receding(dist, old_dist, elapsed, observation_age,
 
 
 def ring_standoff_velocity(vx, vy, wx, wy, tx, ty, radius,
-                           target_vx=0.0, target_vy=0.0):
+                           target_vx=0.0, target_vy=0.0,
+                           speed_cap=CLOSE_TRANSIT_SPEED):
     """Give a too-close camera a definite outward command, even with feedforward."""
     dx, dy = wx - tx, wy - ty
     dist = math.hypot(dx, dy)
@@ -486,9 +520,9 @@ def ring_standoff_velocity(vx, vy, wx, wy, tx, ty, radius,
         vx += (0.35 - outward) * ux
         vy += (0.35 - outward) * uy
     speed = math.hypot(vx, vy)
-    if speed > CLOSE_TRANSIT_SPEED:
-        vx *= CLOSE_TRANSIT_SPEED / speed
-        vy *= CLOSE_TRANSIT_SPEED / speed
+    if speed > speed_cap:
+        vx *= speed_cap / speed
+        vy *= speed_cap / speed
     return vx, vy
 
 
@@ -542,7 +576,7 @@ SEARCH_CRUISE_SPEED = float(os.environ.get('SEARCH_CRUISE_SPEED', '3.0'))
 SEARCH_DECEL_M      = float(os.environ.get('SEARCH_DECEL_M', '2.0'))
 # v23 重定标（2026-10-09，规则 PDF 深挖 + 官方 master e9e4ef8 代码核对）：
 # 官方 control_actor.py 逃跑机制实为「一次性闩锁」——
-#   1) 触发是瞬时判定：reported（官方首次有效播报 /find_actor_N）且任意 UAV
+#   1) 触发是瞬时判定：reported（官方已收到有效目标报告）且任意 UAV
 #      <20m 且地速>1.0m/s → 立即逃跑（无「持续 2s」判定，v21 注释有误）；
 #   2) escape_triggered 置位后全场无任何复位点 → 每个 actor 全场至多逃一次，
 #      跑完路线后回 1m/s 随机走且永远不会再逃；
@@ -551,8 +585,8 @@ SEARCH_DECEL_M      = float(os.environ.get('SEARCH_DECEL_M', '2.0'))
 # 正是 v20/v21 confirming lost 的根因）。新策略：
 #   - 真在逃（观测速度≥ESCAPE_RUN_SPEED）→ 全速咬住，14m 内切牧羊 pace；
 #   - 逃跑跑完=「已花掉」→ 解除一切压速护栏，全速贴脸消除；
-#   - 未武装（/find_actor_N 从未发布）目标不会逃 → 全速接近到播报闸门外缘；
-#   - 反复确认被拒 → 主动花掉逃跑（SPEND_ENABLE），变永久温顺目标后从容消除。
+#   - 正式节点不读取裁判触发状态，所有已见目标按可能武装控速；
+#   - 从本队视觉速度判断逃跑并咬住目标。
 FLEE_CHASE_SPEED  = float(os.environ.get('FLEE_CHASE_SPEED', '6.0'))
 # 国家一等奖标准修复（2026-10-04）：bridge 已把 state 语义对齐「被观测即逃跑」，
 # FLEE_STATE_FRESH 不应只 3s（3s 后就回到 SPOOK_SPEED=0.5 慢速又被甩开）。
@@ -604,7 +638,7 @@ TARGET_STALE    = float(os.environ.get("TARGET_STALE", "6.0"))    # 给 bridge/�
 # v15 实测（agent_0 追 t1）：接近阶段 _orbit_target=None 使 _orbit_stale() 形同
 # 虚设，朝冻结位置飞 56s；到圈瞬间 gap=56.6s>TARGET_STALE 立即放弃——白飞。
 # actor 静止时冻结位置即真实位置，到圈后应盘旋改变视角给 YOLO 重捕获窗口。
-STALE_SEARCH_GRACE = float(os.environ.get("STALE_SEARCH_GRACE", "25.0"))
+STALE_SEARCH_GRACE = float(os.environ.get("STALE_SEARCH_GRACE", "12.0"))
 # 接近阶段 stale 拦截的距离门槛：远于此值才因 stale 悬停，已在途中放行
 STALE_ABORT_DIST_M = float(os.environ.get("STALE_ABORT_DIST_M", "40.0"))
 # 国家一等奖优化：满 15s 后官方这么久还没消除 → 放弃 s（原 30s）
@@ -646,7 +680,7 @@ SLAM_PUB_SEC    = float(os.environ.get('SLAM_PUB_SEC', '2.0'))     # 占用栅�
 SLAM_TILT_RAD   = math.radians(float(os.environ.get('SLAM_TILT_DEG', '5.0')))
 LOOKAHEAD       = 3.0     # 路径跟踪前瞻距离 m（> 刹停距离 v²/2a=2.25m）
 # === 国家一等奖（2026-10-05）：搜索阶段机头持续对准「下一引导点」 ===
-# 背景：官方相机是前视广角 114.6°，4 个 typhoon 机型逐一读过，都只有一个相机。
+# 背景：本队 YOLO 使用官方前视双目左目，HFOV=90°（±45°）。
 #       若到点 dwell 期机头"随便指" = 相机视野对到哪算哪，跟队友多点方案脱节。
 # 行为：
 #   - 飞行段：复用 _pick_local_goal() 的 LOOKAHEAD 点作为 _look_at（机头预摆）
@@ -654,6 +688,8 @@ LOOKAHEAD       = 3.0     # 路径跟踪前瞻距离 m（> 刹停距离 v²/2a=2
 # 关闭（=0）：保持原行为，到点交回 PX4 自管偏航。
 DWELL_LOOKAHEAD = os.environ.get("DWELL_LOOKAHEAD", "1") not in ("0", "false", "False", "")
 STABLE_NEEDED   = 40      # EKF 稳定判定：连续多少次 20Hz 采样高度达标（40 = 2s）
+OFFBOARD_PRESTREAM_S = 2.0  # 与定位稳定检查重叠，按仿真时间累计连续零速输出
+OFFBOARD_PRESTREAM_MAX_GAP_S = 0.25  # 输出间隔过大时重新预热
 # EKF 局部原点跳变判定阈值 m：单帧 local_xy 位移超过此值（且超过物理速度上限）
 # 判定为 EKF 原点重置而非真实运动，触发 offset 重锚定保持 world_xy 连续。
 EKF_JUMP_MIN_M  = float(os.environ.get('EKF_JUMP_MIN_M', '3.0'))
@@ -712,6 +748,75 @@ def smooth_path(points, samples_per_segment=6):
     return out
 
 
+def remaining_path_blocked(grid, path, position):
+    """Whether the planned route ahead now crosses an inflated occupied cell.
+
+    Laser rays change cells all over the local map.  Replanning every time any
+    cell changes causes six A* workers to repeat whole-map searches even when
+    their current routes remain clear.  Only points from the closest route
+    point onward matter; the already traversed prefix can be blocked safely.
+    """
+    if not path or position is None:
+        return False
+    px, py = position
+    first = min(range(len(path)),
+                key=lambda i: (path[i][0] - px) ** 2 + (path[i][1] - py) ** 2)
+    own_cell = grid.world_to_cell(position)
+    # A side wall can put the aircraft itself inside the 2.5 m inflation
+    # margin while its raw cell is free.  Repeatedly declaring the first
+    # metre of that same safe route invalid creates a NO_PATH/replan loop.
+    # Only this local inflated pocket is exempt; raw hits and every farther
+    # route point still invalidate the route.  The laser guard protects the
+    # actual near-field flight direction independently.
+    local_inflation = (getattr(grid, '_inflate_r', 0) * grid.resolution
+                       if own_cell is not None and
+                       not grid.is_free(own_cell) and
+                       hasattr(grid, 'is_free_raw') and
+                       grid.is_free_raw(own_cell) else 0.0)
+    last_cell = None
+    for waypoint in path[first:]:
+        cell = grid.world_to_cell(waypoint)
+        if cell is None:
+            return True
+        if cell != last_cell:
+            if not grid.is_free(cell):
+                local_margin = (local_inflation > 0.0 and
+                                (waypoint[0] - px) ** 2 +
+                                (waypoint[1] - py) ** 2 <=
+                                local_inflation ** 2 and
+                                grid.is_free_raw(cell))
+                if not local_margin:
+                    return True
+            last_cell = cell
+    return False
+
+
+def cap_inward_close_speed(vx, vy, wx, wy, tx, ty,
+                           stop_radius=5.5, slow_radius=7.0):
+    """Slow a command toward a person before it enters the camera blind zone.
+
+    Scaling keeps the direction already vetted by radar, map, and ORCA.  A
+    forced outward command here could instead fly into a wall or another UAV.
+    Outward and tangential commands are unchanged.
+    """
+    dx, dy = tx - wx, ty - wy
+    dist = math.hypot(dx, dy)
+    if dist >= slow_radius:
+        return vx, vy
+    if dist < 1e-6:
+        return 0.0, 0.0
+    inward = (vx * dx + vy * dy) / dist
+    if inward <= 0.0:
+        return vx, vy
+    allowed = CLOSE_TRANSIT_SPEED * max(
+        0.0, min(1.0, (dist - stop_radius) /
+                 max(1e-6, slow_radius - stop_radius)))
+    if inward <= allowed:
+        return vx, vy
+    scale = allowed / inward
+    return vx * scale, vy * scale
+
+
 class SwarmAgent(object):
     def __init__(self, uav_id, model_name):
         self.uav_id = uav_id
@@ -728,8 +833,9 @@ class SwarmAgent(object):
         # ---- 状态 ----
         self.local_xy = None        # (x, y) MAVROS 局部坐标（轻量、高频）
         self.offset = None          # 局部->世界 的恒定平移 (dx, dy)，启动时标定一次
-        self._offset_param = None   # 注入的起飞点世界坐标（EKF 重锚定基准）
-        self._anchor_done = False   # EKF 稳定锚定完成后才启用跳变检测
+        self._offset_param = None   # 官方固定出生点；运行中绝不按 EKF 漂移修改
+        self._anchor_done = False   # 起飞前的稳定门；完成后监测局部位姿异常
+        self._localization_fault = False  # 粘滞故障，须重启并重新建立合法坐标系
         self._local_prev_t = 0.0    # 上一帧 local_position 的 ROS 时间（跳变检测）
         self.local_z = None         # 高度（来自 local_position）
         # v14 Fix D：P 控制连续爬升卡死闩锁状态（EKF z 卡低防真值冲红线）
@@ -747,6 +853,10 @@ class SwarmAgent(object):
         self._scan_t = 0.0           # 最近雷达帧的 ROS 时间
         self.state = State()
         self.assignment = None      # SearchAssignment 当前任务
+        self._team_tracks = {}      # target_id -> assigned aircraft (main/backup)
+        self._team_visual = {}      # (source, target) -> recent accepted image streak
+        self._camera_cue = None
+        self._camera_cue_retry_after = {}
         self._search_scan_key = None
         self._search_scan_yaw0 = None
         self._search_scan_phase = 0
@@ -754,6 +864,9 @@ class SwarmAgent(object):
         self._search_scan_started_t = None
         self._search_scan_done = False
         self._search_scan_failed = False
+        self._search_scan_seen = set()
+        self._search_scan_first = {}
+        self._search_last_frame = 0.0
 
         # ---- A* 避障（合规重构 2026-10-07：雷达 SLAM 实时建图）----
         # metadata 只提供规则定值（bounds/frame/spawn），障碍恒为空；
@@ -784,6 +897,7 @@ class SwarmAgent(object):
         # 改为后台守护线程：主循环只投递请求、立即继续发速度；规划好后原子提交路径。
         self._plan_lock = threading.Lock()
         self._plan_pending = None    # 最新待规划目标 (x, y)（旧请求被新请求覆盖合并）
+        self._plan_epoch = 0         # 换任务后拒绝旧规划线程迟到的路径
         self._plan_event = threading.Event()
         self._plan_fail_t = 0.0      # 上次规划失败时刻（失败后 2s 冷却，避免刷屏）
         self._takeoff_done = False   # 是否已完成起飞垂直爬升
@@ -827,10 +941,9 @@ class SwarmAgent(object):
 
         # ---- 目标盘旋确认 ----
         self._orbit_target = None    # 当前盘旋目标 ID
-        # 2026-10-06 国家一等奖: 团队侧已确认 → 切贴脸 2m / 0.05rad/s
-        # 让 yolo 误差 < 1m 持续 15s 触发官方 score_cal +100 消除分.
-        # 收到 manager 的 /swarm/confirmed 且 tid 匹配自己 _orbit_target 时,
-        # _confirm_close=True; _orbit_target 切换或 /left_actors 离场时清回 False.
+        # 团队图像连续只用于提示保持观察；不能证明定位精度或消除。
+        # 收到 manager 的 /swarm/visual_streak 且 tid 匹配自己 _orbit_target 时,
+        # _confirm_close=True; 目标切换或视觉过期时清回 False.
         self._confirm_close = False
         self._confirm_close_tid = None
         self._confirm_close_t0 = 0.0
@@ -842,7 +955,14 @@ class SwarmAgent(object):
         self._last_track_plan_t = 0.0  # 追踪时上次 A* 规划时刻
         self._plan_fallback_n = 0  # A* 失败退化直飞的次数
         self._orbit_center = None    # 盘旋中心 (x, y)
-        self._confirm_start = 0.0   # 连续确认开始时间
+        self._visual_observations = {}
+        self._eligible_observations = {}
+        self._last_eligible_image = {}
+        self._reobserve_view = None
+        self._reobserve_forced = None
+        self._reobserve_next = 0.0
+        self._orbit_entered_t = 0.0
+        self._confirm_start = 0.0   # 本机真实图像连续观测开始时间
         self._last_confirm_t = 0.0   # 上次确认时间
         self._los_lost_t = 0.0      # LOS 宽容窗口起算时刻（2026-10-09 修复：
                                     # 之前在 __init__ 缺失，agent 首次进入
@@ -855,14 +975,7 @@ class SwarmAgent(object):
         self._stale_search_until = {}  # v16: tid -> 到圈后 stale 宽限搜索截止时刻
         self._alt_sag = 0.0        # v16: Fix D 自适应降层量（EKF z 病态时保底可用高度）
         self._claims = {}          # tid -> (uav_id, 时刻) 别机正在确认的目标
-        self._left_seen = False    # 是否已收到过有效的 /left_actors
         self._last_claim_t = 0.0   # 认领广播节流
-        self._find_t = {}           # actor 下标 -> 官方 /find_actor_N 最近的时间戳
-        self._reset_n = {}          # actor 下标 -> 已观测到的官方重置次数
-        self._reset_t = {}          # actor 下标 -> 最近一次重置的时刻
-        for _i in range(6):
-            rospy.Subscriber('/find_actor_%d' % _i, Float32,
-                             self._find_cb, callback_args=_i, queue_size=5)
 
         # ---- 友机避碰 ----
         self._friend_positions = {}  # 其他无人机位置 {uav_id: (x, y, z)}
@@ -874,13 +987,8 @@ class SwarmAgent(object):
         self.param_srv = rospy.ServiceProxy("/%s/mavros/param/set" % uav_id, ParamSet)
 
         # ---- 订阅 ----
-        # 注意：**不订阅 /gazebo/model_states**。它是 250Hz × 687 模型 × 6.4MB/s 的
-        # 巨型消息，每个 agent 都要用 Python 反序列化，实测每机吃掉 ~37% CPU
-        # （比 PX4 还高），6 机时是灾难。改为只订阅轻量的 MAVROS local_position，
-        # 启动时用一次 model_states 标定「局部->世界」的恒定平移即可。
+        # 正式节点只用 MAVROS 本地位置和固定官方起飞点参数；不读取仿真真值。
         rospy.Subscriber("/%s/mavros/state" % uav_id, State, self._state_cb)
-        # 官方剩余 actor 清单：权威的「谁还在场上」，用来剔掉已被删除的目标
-        rospy.Subscriber("/left_actors", String, self._left_actors_cb, queue_size=5)
         # 别机认领广播：防止多架机扎堆确认同一个目标
         rospy.Subscriber("/swarm/orbit_claim", String, self._claim_cb, queue_size=20)
         self._claim_pub = rospy.Publisher("/swarm/orbit_claim", String, queue_size=10)
@@ -889,14 +997,22 @@ class SwarmAgent(object):
                  queue_size=1)
         rospy.Subscriber("/swarm/assignment", SearchAssignment, self._assign_cb)
         rospy.Subscriber("/swarm/target_states", TargetState, self._target_cb)
-        rospy.Subscriber("/swarm/finish", String, self._finish_cb)
+        rospy.Subscriber("/swarm/discovery_states", TargetState, self._discovery_state_cb)
+        rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb, queue_size=30)
+        rospy.Subscriber("/swarm/visual_candidate", String, self._visual_candidate_cb, queue_size=6)
+        rospy.Subscriber("/swarm/tracking_view", String, self._tracking_view_cb, queue_size=6)
+        rospy.Subscriber("/swarm/processed_camera_frame", String,
+                         self._processed_camera_frame_cb, queue_size=6)
         # 2026-10-06 国家一等奖: 团队侧已确认广播
-        rospy.Subscriber("/swarm/confirmed", String, self._confirmed_cb, queue_size=10)
+        rospy.Subscriber("/swarm/visual_streak", String, self._confirmed_cb, queue_size=10)
+        rospy.Subscriber("/swarm/reobserve", String, self._reobserve_cb, queue_size=6)
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._friend_status_cb)
 
         # ---- 发布 ----
         self.status_pub = rospy.Publisher("/swarm/uav_status", UavStatus, queue_size=5)
         self.detect_pub = rospy.Publisher("/swarm/detection", TargetDetection, queue_size=10)
+        self._candidate_missed_pub = rospy.Publisher(
+            "/swarm/visual_candidate_missed", String, queue_size=10)
         # 合规 SLAM 栅格共享：manager 合并多机占用并集（RLE JSON）
         self.occ_pub = rospy.Publisher("/swarm/occupancy_grid", String, queue_size=1)
         self.vel_pub = rospy.Publisher("/%s/mavros/setpoint_velocity/cmd_vel" % uav_id,
@@ -931,129 +1047,56 @@ class SwarmAgent(object):
 
     @property
     def world_xy(self):
-        """世界坐标 = 局部坐标 + 标定偏移（偏移未标定好前返回 None）。
+        """Read-only conversion using the official fixed spawn offset.
 
-        === 2026-10-05 比赛规则硬约束（修复撞墙/越界）===
-        即使 _local_cb 做了 EKF 漂移重锚定，仍可能存在以下情形导致 world_xy
-        偏离物理真实位置（>1.5 倍地图半径）：
-          - 漂移重锚定时窗内极端跳变被错过
-          - 多次小幅漂移串行叠加 (dt=0.05s*1.2*6=0.36m 每帧不触发，但累积 30 帧 = 10m)
-          - 单帧 dt 异常 (例如 mavros 回调突发延迟 → dt=0.9s → single_th=6.5m 误放行 6m)
-        这里做「硬限位」：world_xy 超出地图 1.5 倍范围视为病态 → 返回 None。
-        调用方收到 None → 触发悬停/重锚定（防止把病态坐标送给 A* / 派机 / 护栏）。
+        A MAVROS EKF reset has no independent world anchor.  Altering this
+        offset made the agent and camera disagree, then turned a bad EKF pose
+        into a fictitious boundary excursion.  Quarantine that sortie instead.
         """
-        if self.local_xy is None or self.offset is None:
+        if (self.local_xy is None or self.offset is None or
+                getattr(self, '_localization_fault', False)):
             return None
         wx = self.local_xy[0] + self.offset[0]
         wy = self.local_xy[1] + self.offset[1]
-        # === v18（2026-10-07）EKF 慢漂移速度钳制（动态阈值） ===
-        # v17 实测 agent_2：EKF 以 2~7 m/s 持续漂移（低于单帧 3m 与累计 7.2m/s
-        # 重锚定阈值），world 被污染 +104m（真值 (7.3,-12.5) vs 估计 (111.8,-63.2)），
-        # SLAM 贡献错位、冗余确认全是垃圾数据。物理约束：world 隐含速度 ≈ 真实
-        # 飞行速度 + 漂移，其中真实速度受指令 _last_cmd_v 约束。动态阈值 =
-        # 底噪 1.2 + 指令速度峰值×1.3：悬停时阈值仅 1.2 → 7m/s 漂移立刻被钳；
-        # 全速飞行时阈值 ~9 → 正常飞行不触发。峰值按 1.5m/s 每秒衰减，防急减速
-        # 期间惯性位移被误钳。超限部分（漂移）从 offset 中抵消 —— world 连续
-        # 物理可控，EKF 假位移被丢弃。重锚定分支会清 _world_smooth 重置基准。
-        _clamp_base = float(os.environ.get("WORLD_VEL_CLAMP_BASE", "1.2"))
-        _cv = getattr(self, "_last_cmd_v", None)
-        _cmd_spd = math.hypot(_cv[0], _cv[1]) if _cv else 0.0
-        _tnow0 = rospy.Time.now().to_sec()
-        _peak = getattr(self, "_world_cmd_peak", 0.0)
-        _pdts = _tnow0 - getattr(self, "_world_cmd_peak_t", _tnow0)
-        _peak = max(_cmd_spd, _peak - 1.5 * max(_pdts, 0.0))
-        self._world_cmd_peak = _peak
-        self._world_cmd_peak_t = _tnow0
-        _clamp_v = _clamp_base + _peak * 1.3
-        _prev = getattr(self, "_world_smooth", None)
-        if _prev is not None and _clamp_v > 0:
-            _dt = _tnow0 - getattr(self, "_world_smooth_t", _tnow0)
-            if _dt > 0.01:
-                _dx, _dy = wx - _prev[0], wy - _prev[1]
-                _dist = math.hypot(_dx, _dy)
-                _max_step = _clamp_v * _dt
-                if _dist > _max_step:
-                    _s = _max_step / _dist
-                    _keep_x, _keep_y = _dx * _s, _dy * _s
-                    # 漂移部分从 offset 抵消（offset -= 截断向量）
-                    self.offset = (self.offset[0] - (_dx - _keep_x),
-                                   self.offset[1] - (_dy - _keep_y))
-                    wx, wy = _prev[0] + _keep_x, _prev[1] + _keep_y
-                    if _dist - _max_step >= WORLD_TRUST_CLAMP_EXCESS_M:
-                        self._world_trust_until = _tnow0 + WORLD_TRUST_HOLD_S
-                    rospy.logwarn_throttle(
-                        5.0, "[%s] EKF 慢漂移钳制：world 隐含速度 %.1fm/s > %.1f"
-                        "（cmd峰值%.1f），截断 %.2fm（offset 吸收）", self.uav_id,
-                        _dist / _dt, _clamp_v, _peak, _dist - _max_step)
-            self._world_smooth_t = _tnow0
-        self._world_smooth = (wx, wy)
-        # Judge map bounds come from metadata.  In the 13:35 match x_max=155,
-        # while fixed MAP_X_MAX=100 made valid x=150..155 trigger this gate.
         _grid = getattr(self, 'grid', None)
         if _grid is not None:
-            _hard_xmin, _hard_xmax, _hard_ymin, _hard_ymax = (
-                estimated_world_hard_bounds(_grid))
+            bounds = estimated_world_hard_bounds(_grid)
         else:
-            # Unit-test/minimal-agent construction before metadata load.
-            _hard_xmin, _hard_xmax = MAP_X_MIN * 1.5, MAP_X_MAX * 1.5
-            _hard_ymin, _hard_ymax = MAP_Y_MIN * 1.5, MAP_Y_MAX * 1.5
-        if not (_hard_xmin <= wx <= _hard_xmax and _hard_ymin <= wy <= _hard_ymax):
-            # 仅在错位刚发生时打一次，避免每秒刷屏
-            _now = rospy.Time.now().to_sec()
-            if not hasattr(self, '_world_bad_last_log') or (_now - self._world_bad_last_log) > 2.0:
-                self._world_bad_last_log = _now
-                rospy.logerr_throttle(2.0,
-                                      "[%s] world_xy=(%.1f,%.1f) 病态超界，拒用并触发重锚定",
-                                      self.uav_id, wx, wy)
-                # === v13（2026-10-07）修复重锚定负反馈循环 ===
-                # 旧逻辑：offset = _offset_param（起飞点）——但飞机飞行中 EKF 缓慢
-                # 漂移（每帧 < 阈值不触发跳变检测）把 local_xy 带到 (92,61) 时，
-                # offset 本来就是参数值 → 无操作 → world 恒超界恒 None →
-                # A*/派格/守卫全瘫。若 offset 曾被跳变检测改过，拉回起飞点则让
-                # world 瞬间跳变 → 派格全乱 → 负反馈。
-                # 新逻辑：重锚定到「最后可信 world」——offset = last_good - local_now，
-                # world 冻结在最后可信位置，后续 local 增量（真实运动）自然外推，
-                # world 连续且方向正确；无 last_good（启动期）才退回起飞点参数。
-                _lg = getattr(self, '_last_good_world', None)
-                if _lg is not None and self.local_xy is not None:
-                    self.offset = (_lg[0] - self.local_xy[0],
-                                   _lg[1] - self.local_xy[1])
-                    self._world_trust_until = rospy.Time.now().to_sec() + WORLD_TRUST_HOLD_S
-                    rospy.logwarn("[%s] EKF 病态重锚定：world 冻结回最后可信 (%.1f,%.1f)，"
-                                  "offset→(%.2f,%.2f)（外推模式）",
-                                  self.uav_id, _lg[0], _lg[1],
-                                  self.offset[0], self.offset[1])
-                elif self._offset_param is not None:
-                    self.offset = self._offset_param
-                self._ekf_window = None
-                # v18：重锚定后 world 基准已变，清速度钳制基准防误钳
-                self._world_smooth = None
+            bounds = (MAP_X_MIN * 1.5, MAP_X_MAX * 1.5,
+                      MAP_Y_MIN * 1.5, MAP_Y_MAX * 1.5)
+        xmin, xmax, ymin, ymax = bounds
+        if not (math.isfinite(wx) and math.isfinite(wy) and
+                xmin <= wx <= xmax and ymin <= wy <= ymax):
+            self._mark_localization_fault('fixed-frame pose outside plausible map')
             return None
-        # 合法 world：记录为最后可信位置（EKF 病态时的重锚定基准）
         self._last_good_world = (wx, wy)
         return (wx, wy)
 
     def _world_trusted(self):
-        """R2（2026-10-09）：世界坐标当前是否可信。
+        """位姿失信后保持禁止世界任务；短时观察窗口也不得做贴近判定。"""
+        return (not getattr(self, '_localization_fault', False) and
+                rospy.Time.now().to_sec() > getattr(self, "_world_trust_until", 0.0))
 
-        显著钳制/重锚定后 WORLD_TRUST_HOLD_S 内返回 False——防止用被污染的
-        world_xy 触发"到圈即贴脸"（v26 agent_0 距 t4 真身 48m 处假到达）。
-        返回 False 时调用方应悬停等世界坐标自愈，或只用保守的距离判据。
-        """
-        return rospy.Time.now().to_sec() > getattr(self, "_world_trust_until", 0.0)
+    def _mark_localization_fault(self, reason):
+        """Latch bad MAVROS positioning; never invent a replacement origin."""
+        if getattr(self, '_localization_fault', False):
+            return
+        self._localization_fault = True
+        self._last_cmd_v = (0.0, 0.0)
+        self._last_flight_v = (0.0, 0.0)
+        rospy.logerr('[%s] MAVROS 定位失信：%s；固定 offset=(%.2f,%.2f)，停止世界任务并安全降落',
+                     self.uav_id, reason, self.offset[0], self.offset[1])
 
     def _calibrate_offset(self):
         """确定局部→世界的恒定平移（世界系 = MAVROS 局部系 + offset）。
 
-        优先级：
-          1. 私有参数 ~world_offset_x / ~world_offset_y（合规路径）：
-             世界系与各机 MAVROS 局部系轴向平行、仅原点不同；PX4 SITL 各机
-             局部系原点即起飞点，故 offset 就是起飞世界坐标，由启动编排
-             （run_match.sh）按机号从 launch 注入。
-          2. SWARM_CALIB=truth（仅开发期）：用一次 /gazebo/model_states 实测；
-             该路径会订阅真值话题，正式比赛禁用（规则 §2.5.11）。
-          3. 二者皆无 → 失败退出，绝不带 None offset 起飞。
+        世界系与各机 MAVROS 局部系轴向平行、仅原点不同；偏移由
+        run_match.sh 根据官方固定起飞点注入。缺参即失败，不用仿真真值补偿。
         """
+        if os.environ.get("SWARM_CALIB") == "truth":
+            rospy.logerr("[%s] 禁止 SWARM_CALIB=truth：正式节点不读取仿真真值",
+                         self.uav_id)
+            return False
         ox = _param_float("~world_offset_x")
         oy = _param_float("~world_offset_y")
         if ox is not None and oy is not None:
@@ -1061,172 +1104,80 @@ class SwarmAgent(object):
             self._offset_param = (ox, oy)   # 锚定基准：起飞点世界坐标
             rospy.loginfo("[%s] 坐标系标定（参数）：offset=(%.2f, %.2f)",
                           self.uav_id, ox, oy)
-            if os.environ.get("SWARM_CALIB") == "truth":
-                measured = self._calibrate_with_model_states()
-                if measured is not None:
-                    rospy.loginfo("[%s] 真值比对：参数(%.2f,%.2f) 实测(%.2f,%.2f) "
-                                  "偏差=(%.2f,%.2f)", self.uav_id, ox, oy,
-                                  measured[0], measured[1],
-                                  measured[0] - ox, measured[1] - oy)
-            return True
-
-        if os.environ.get("SWARM_CALIB") == "truth":
-            measured = self._calibrate_with_model_states()
-            if measured is None:
-                return False
-            self.offset = measured
-            rospy.logwarn("[%s] 未提供 offset 参数，真值标定仅可用于开发期",
-                          self.uav_id)
             return True
 
         rospy.logerr(
             "[%s] 标定失败：未注入 ~world_offset_x/y 参数。正式链路请由启动脚本"
-            "按起飞点注入（开发期可 SWARM_CALIB=truth 临时实测）", self.uav_id)
+            "按起飞点注入", self.uav_id)
         return False
-
-    def _calibrate_with_model_states(self):
-        """用一次 /gazebo/model_states 实测 offset，返回 (dx,dy) 或 None。
-
-        世界系与各机 MAVROS 局部系轴向平行、仅原点不同，故偏移是常量
-        （实测两机分别恒定，误差 <0.01m）。只在显式开启时调用。
-        规则 §2.5(11) 审计红线：正式比赛严禁订阅 /gazebo/model_states；
-        本函数仅在 SWARM_CALIB=truth 开发自验模式下启用，启动期打印审计警告。
-        """
-        rospy.logwarn(
-            "[%s][AUDIT] SWARM_CALIB=truth 启用真值标定，订阅 /gazebo/model_states —— "
-            "违反规则 §2.5(11)，仅限开发自验，正式比赛严禁启用！",
-            self.uav_id)
-        try:
-            msg = rospy.wait_for_message("/gazebo/model_states", ModelStates, timeout=20.0)
-        except rospy.ROSException as exc:
-            rospy.logerr("[%s] 真值标定失败：取不到 model_states（%s）", self.uav_id, exc)
-            return None
-        try:
-            i = msg.name.index(self.model_name)
-        except ValueError:
-            rospy.logerr("[%s] 真值标定失败：model_states 里没有 %s", self.uav_id, self.model_name)
-            return None
-        # 等 local_xy 就绪
-        for _ in range(200):
-            if self.local_xy is not None:
-                break
-            self.ctrl_rate.sleep()
-        if self.local_xy is None:
-            rospy.logerr("[%s] 真值标定失败：local_position 无数据", self.uav_id)
-            return None
-        p = msg.pose[i].position
-        offset = (p.x - self.local_xy[0], p.y - self.local_xy[1])
-        rospy.loginfo("[%s] 真值标定完成：offset=(%.2f, %.2f)", self.uav_id,
-                      offset[0], offset[1])
-        return offset
 
     # ---------------- 回调 ----------------
     def _state_cb(self, msg):
+        previous = getattr(self, 'state', None)
+        fields = ('connected', 'armed', 'mode')
+        if previous is None or any(getattr(previous, k, None) != getattr(msg, k, None)
+                                   for k in fields):
+            rospy.loginfo('[FCU_STATE] uav=%s connected=%s armed=%s mode=%s z=%s',
+                          self.uav_id, msg.connected, msg.armed, msg.mode,
+                          getattr(self, 'local_z', None))
         self.state = msg
 
     def _local_cb(self, msg):
         self.local_z = msg.pose.position.z
         new_xy = (msg.pose.position.x, msg.pose.position.y)
         now = rospy.Time.now().to_sec()
-        # EKF 原点重置检测（方案 B 运行时半部分）：
-        # local_xy 单帧跳变 > max(EKF_JUMP_MIN_M, 物理速度上限) → 非真实运动，
-        # 平移 offset 吸收跳变，保持 world_xy 连续（否则越界护栏会把飞机锁死）。
-        # _anchor_done 之前（EKF 未稳定）不检测——预热阶段的抖动由起飞锚定兜底。
-        #
-        # === 2026-10-05 比赛规则硬约束（修复累计漂移）===
-        # 旧阈值 MAX_SPEED * dt * 3.0：dt=0.5s 时允许 9m/s，远超真实物理上限
-        # (官方恐怖分子 2m/s, 本机 MAX_SPEED 6m/s)，慢速 EKF 累计漂移 (实测
-        # uav_2 在 2s 内 world_xy 漂 24m) 无法被单帧跳变检测捕获。
-        # 改用 MAX_SPEED * dt * 1.2 + 累积窗口 1s 双重判定：
-        #   (a) 单帧 > MAX_SPEED*dt*1.2 (≈ 7.2m/s) 即触发 → 单帧跳变
-        #   (b) 滑动 1s 内位移 > MAX_SPEED*1.2 (7.2m) → 累计漂移
-        # 两者任一触发即吸收跳变重锚定 offset + 写 EKF_DRIFT_RESET 标记。
-        if self._anchor_done and self.local_xy is not None and self.offset is not None:
+        # The camera and the agent use the same official spawn offset. A pose
+        # jump has no legal independent world reference, so do not rewrite that
+        # offset to make an impossible MAVROS trajectory look continuous.
+        if (self._anchor_done and self.local_xy is not None and
+                not getattr(self, '_localization_fault', False)):
             dt = now - self._local_prev_t
             if 0.0 < dt < 1.0:
-                jump = math.hypot(new_xy[0] - self.local_xy[0],
+                step = math.hypot(new_xy[0] - self.local_xy[0],
                                   new_xy[1] - self.local_xy[1])
-                # (a) 单帧阈值：严格上限 = 物理速度上限 * dt * 1.2
-                single_th = max(EKF_JUMP_MIN_M, MAX_SPEED * dt * 1.2)
-                # (b) 累积阈值：滑动窗口 ≤ 1s 内位移 > 7.2m (MAX_SPEED*1.2)
-                cum_disp = jump
-                cum_dt = dt
-                cum_th_hit = False
-                _past = getattr(self, '_ekf_window', None)
-                if _past:
-                    # 拼接：(xy, t, offset_at_that_time) 队列；dt 累计不超过 1s
-                    while _past and (now - _past[0][1]) > 1.0:
-                        _past.pop(0)
-                    _past.append((new_xy, now, self.offset))
-                    self._ekf_window = _past
-                    # === 2026-10-05 国家一等奖修：累积判定要稳定窗口 ===
-                    # 原条件 len(_past) >= 2：只有 2 项时 cum_dt 极小（0.06s），
-                    # MAX_SPEED*0.06*1.2=0.4m，而 1.71m 单帧 EKF 抖动必然触发
-                    # → 起飞后 1s 内反复重锚定 → 坐标系雪崩 → 飞机永远悬停。
-                    # 改为：窗口至少 5 项（≈0.25s@20Hz）才做累积判定，确保
-                    # 跨多个采样帧的真实漂移，而不是单帧抖动。
-                    # v17：5→3 —— 窗口起点保持语义下触发=吸收漂移（不再固化），
-                    # 更短窗口让 world 锯齿从 ±5.4m 缩到 ±2m；cum_dt>0.10 仍保留
-                    # （等效 ≥4 项@30Hz），起飞抖动由吸收语义安全处理。
-                    EKF_CUM_MIN_N = int(os.environ.get('EKF_CUM_MIN_N', '3'))
-                    if len(_past) >= EKF_CUM_MIN_N:
-                        first_xy, first_t = _past[0][0], _past[0][1]
-                        cum_disp = math.hypot(new_xy[0] - first_xy[0],
-                                              new_xy[1] - first_xy[1])
-                        cum_dt = now - first_t
-                        if cum_dt > 0.10 and cum_disp > MAX_SPEED * cum_dt * 1.2:
-                            cum_th_hit = True
-                else:
-                    self._ekf_window = [(new_xy, now, self.offset)]
-
-                if jump > single_th or cum_th_hit:
-                    # === v17（2026-10-07）修复重锚定正反馈风暴 ===
-                    # 旧逻辑无论单帧/累积触发都用「当前帧 world」作保持目标。
-                    # EKF 原点持续漂移场景（v16 agent_5 原点 40m/s 雪崩）：
-                    # 窗口重置导致中间 N-1 帧漂移不被吸收，而「当前 world」已含
-                    # 这些未吸收漂移 → 每次重锚定把漂移固化进 world → world 以
-                    # 漂移速率飞涨（v16 实测 world +27→+74→瞬跳-79.5，越界 93m
-                    # 触发回收拉锯，8.6s 内冲到 -148）。
-                    # 修复：窗口 ≥2 项时保持「窗口起点 world」（first_xy+offset）
-                    # ——自上次重锚定以来的全部漂移一次性吸收，world 稳定在真值
-                    # 附近小幅锯齿。窗口内位移速率必超物理上限（累积阈值
-                    # 7.2m/s > MAX_SPEED），故窗口内变化全是漂移、无真实运动被误抹。
-                    # 防御（v17b）：窗口记录每帧当时的 offset；窗口起点 offset
-                    # ≠ 当前 offset → offset 被外部改过（world_xy 超界重锚定
-                    # v13 修复 2），窗口起点 world 已失效 → 退回当前帧保持
-                    # （当前 world = 新 offset 语义下的最新值，即 _last_good_world
-                    # 外推基线）。旧版用「cand-cur 差 >30m」检测——数学上 offset
-                    # 在差值中完全抵消，永远检测不到外改，已废弃。
-                    _win = getattr(self, '_ekf_window', None)
-                    _keep_cur = True
-                    _ext = False
-                    if _win and len(_win) >= 2:
-                        _fx, _ft, _foff = _win[0]
-                        if (abs(_foff[0] - self.offset[0]) < 0.01
-                                and abs(_foff[1] - self.offset[1]) < 0.01):
-                            wx = _fx[0] + self.offset[0]
-                            wy = _fx[1] + self.offset[1]
-                            _keep_cur = False
-                        else:
-                            _ext = True
-                    if _keep_cur:
-                        wx = self.local_xy[0] + self.offset[0]
-                        wy = self.local_xy[1] + self.offset[1]
-                    new_off = (wx - new_xy[0], wy - new_xy[1])
-                    rospy.logwarn("[%s] EKF 原点跳变 %.2fm（dt=%.3fs，单帧阈值=%.2fm；累积 %.2fm/%.2fs）"
-                                  "，offset 重锚定 (%.2f,%.2f)→(%.2f,%.2f)，world 保持 (%.2f,%.2f)%s",
-                                  self.uav_id, jump, dt, single_th, cum_disp, cum_dt,
-                                  self.offset[0], self.offset[1],
-                                  new_off[0], new_off[1], wx, wy,
-                                  "［窗口起点］" if not _keep_cur else
-                                  ("［offset外改退回］" if _ext else ""))
-                    self.offset = new_off
-                    # 重置累积窗口：避免同一次跳变被连续多帧反复触发
-                    self._ekf_window = [(new_xy, now, new_off)]
-                    # v18：重锚定后 world 基准已变，清速度钳制基准防误钳
-                    self._world_smooth = None
-                    # R2（2026-10-09）：原点跳变重锚定同样污染 world，短时不可信
-                    self._world_trust_until = now + WORLD_TRUST_HOLD_S
+                window = getattr(self, '_ekf_window', None)
+                if window is None:
+                    window = []
+                window.append((new_xy, now))
+                while len(window) > 2 and now - window[0][1] > 1.0:
+                    window.pop(0)
+                self._ekf_window = window
+                reason = None
+                single_limit = max(EKF_JUMP_MIN_M, MAX_SPEED * dt * 1.2)
+                if step > single_limit:
+                    reason = '单帧位移 %.2fm / %.3fs 超过 %.2fm' % (
+                        step, dt, single_limit)
+                elif len(window) >= 3:
+                    origin_xy, origin_t = window[0]
+                    window_dt = now - origin_t
+                    if window_dt > 0.10:
+                        window_dist = math.hypot(new_xy[0] - origin_xy[0],
+                                                 new_xy[1] - origin_xy[1])
+                        if window_dist > MAX_SPEED * window_dt * 1.2:
+                            reason = '累计位移 %.2fm / %.2fs 超过 %.1fm/s' % (
+                                window_dist, window_dt, MAX_SPEED * 1.2)
+                # Command-relative residual catches slower EKF drift before
+                # it reaches a plausible but wrong position at the boundary.
+                cmd = getattr(self, '_last_cmd_v', None)
+                cmd_speed = math.hypot(*cmd) if cmd is not None else 0.0
+                peak = getattr(self, '_world_cmd_peak', 0.0)
+                peak_t = getattr(self, '_world_cmd_peak_t', now)
+                peak = max(cmd_speed, peak - 1.5 * max(0.0, now - peak_t))
+                self._world_cmd_peak = peak
+                self._world_cmd_peak_t = now
+                allowed = (float(os.environ.get('WORLD_VEL_CLAMP_BASE', '1.2'))
+                           + 1.3 * peak) * dt
+                if step - allowed >= WORLD_TRUST_CLAMP_EXCESS_M:
+                    reason = '位姿位移超出指令物理上限 %.2fm（%.2fm / %.3fs）' % (
+                        step - allowed, step, dt)
+                if reason is not None:
+                    self._mark_localization_fault(reason)
+            elif dt >= 1.0:
+                # Callback gap is not a measurable velocity; the next fresh
+                # sequence starts a new window, while stale-pose gating holds.
+                self._ekf_window = [(new_xy, now)]
+        elif not getattr(self, '_anchor_done', False):
+            self._ekf_window = [(new_xy, now)]
         # 维护位置估计轨迹（EST_GUARD 闸门的数据源；必须在 anchor 闸门之外每帧调用，
         # 否则 _est_hist 恒为空 → _est_trustworthy 恒 False → 飞机永远悬停不走）
         self._est_track(new_xy, now)
@@ -1239,23 +1190,6 @@ class SwarmAgent(object):
         self.pitch = math.asin(max(-1.0, min(1.0, 2.0 * (q.w * q.y - q.z * q.x))))
         self.roll = math.atan2(2.0 * (q.w * q.x + q.y * q.z),
                                1.0 - 2.0 * (q.x * q.x + q.y * q.y))
-        # 跳变后估计重新可信 → 一次性校验 offset（修正量合理才采纳，见常量注释）
-        pend = getattr(self, '_est_jump_pending', None)
-        if pend is not None and self.offset is not None and self._est_trustworthy():
-            new_off = (pend[0] - new_xy[0], pend[1] - new_xy[1])
-            d = math.hypot(new_off[0] - self.offset[0],
-                           new_off[1] - self.offset[1])
-            if d <= EKF_REANCHOR_MAX_M:
-                rospy.logwarn("[%s] 估计已重新稳定，offset 校正 (%.2f,%.2f)→"
-                              "(%.2f,%.2f)，保持 world=(%.2f,%.2f)", self.uav_id,
-                              self.offset[0], self.offset[1],
-                              new_off[0], new_off[1], pend[0], pend[1])
-                self.offset = new_off
-            else:
-                rospy.logerr("[%s] 跳变修正量 %.2fm > %.1fm → 判为估计失控，"
-                             "不采纳 offset 修正，保持 (%.2f,%.2f)", self.uav_id, d,
-                             EKF_REANCHOR_MAX_M, self.offset[0], self.offset[1])
-            self._est_jump_pending = None
 
     def _est_track(self, xy, now):
         """维护最近 EST_WIN_S 秒的位置轨迹（判位置估计是否可信）。"""
@@ -1287,6 +1221,8 @@ class SwarmAgent(object):
         当前(63.2,-66.1)` 就是在追幻影。判据只用"近窗口内位移是否物理可能"，
         不依赖任何真值，合规。
         """
+        if getattr(self, '_localization_fault', False):
+            return False
         if not EST_GUARD:
             return True
         if not getattr(self, '_anchor_done', False):
@@ -1338,9 +1274,11 @@ class SwarmAgent(object):
         if marked <= 0:
             return
         self._slam_dirty = True
-        # 新障碍出现 → 当前路径可能穿障，重规划（节流 + 不覆盖 pending 请求）
+        # 只有当前路径前方被新栅格挡住时才失效重规划。雷达空闲射线清除
+        # 动态占用或地图其它区域更新，不能让六机每两秒重复全图 A*。
         if self.path and self.path_target is not None \
-                and now - self._slam_replan_t >= SLAM_REPLAN_SEC:
+                and now - self._slam_replan_t >= SLAM_REPLAN_SEC \
+                and remaining_path_blocked(self.grid, self.path, self.world_xy):
             with self._plan_lock:
                 pending = self._plan_pending is not None
             if not pending:
@@ -1362,17 +1300,60 @@ class SwarmAgent(object):
             except Exception:
                 pass
 
+    def _discard_old_plan(self):
+        """Stop the previous task now; a late planner result must not revive it."""
+        with self._plan_lock:
+            self._plan_epoch += 1
+            self._plan_pending = None
+            self.path = []
+            self.path_target = None
+            self._plan_fail_t = 0.0
+        self._last_local_goal = None
+        self._last_flight_v = (0.0, 0.0)
+
     def _assign_cb(self, msg):
+        # Every agent sees the shared assignment topic. Remember ownership so
+        # another aircraft's active target does not repeatedly stop searchers
+        # for image-only cues of the same blue/white/green/brown person.
+        roles = getattr(self, '_team_tracks', None)
+        if roles is None:
+            roles = self._team_tracks = {}
+        tid = getattr(msg, 'target_id', '')
+        if msg.task_type == 1 and tid:
+            # Each aircraft has one task. A handoff or reassignment can arrive
+            # before the cancellation of its old target; do not retain a ghost
+            # owner that suppresses another searcher's camera cue.
+            for key in list(roles):
+                if key != tid:
+                    roles[key].discard(msg.uav_id)
+                    if not roles[key]:
+                        roles.pop(key, None)
+            roles.setdefault(tid, set()).add(msg.uav_id)
+        elif msg.task_type in (0, 255):
+            for key in list(roles):
+                if msg.task_type == 255 and tid and key != tid:
+                    continue
+                roles[key].discard(msg.uav_id)
+                if not roles[key]:
+                    roles.pop(key, None)
         if msg.uav_id != self.uav_id:
             return
         if msg.task_type == 255:
             old_tid = getattr(self, '_track_assigned_id', None)
             if old_tid and msg.target_id and msg.target_id != old_tid:
                 return
+            self._discard_old_plan()
             self.assignment = None
+            self._tracking_image = None
+            self._tracking_altitude = None
+            self._observation_detour = None
+            self._tracking_blocked_since = None
             self._search_scan_key = None
             self._search_scan_done = False
             self._search_scan_failed = False
+            self._search_scan_seen = set()
+            self._search_scan_first = {}
+            self._camera_cue = None
             self._track_assigned_id = None
             self._target_to_orbit = None
             self._orbit_target = None
@@ -1385,16 +1366,14 @@ class SwarmAgent(object):
             self._confirm_close_until = 0.0
             self._look_at = None
             self._last_local_goal = None
-            self.path = []
-            self.path_target = None
-            self._last_flight_v = (0.0, 0.0)
-            with self._plan_lock:
-                self._plan_pending = None
             return
         if msg.task_type == 0:
             scan_key = (msg.cell_ix, msg.cell_iy,
                         round(msg.target_x, 2), round(msg.target_y, 2))
             if scan_key != self._search_scan_key:
+                self._discard_old_plan()
+                # A new search waypoint cannot cancel a bounded look at a
+                # person. Keep the latest assignment for resumption afterwards.
                 self._search_scan_key = scan_key
                 self._search_scan_yaw0 = None
                 self._search_scan_phase = 0
@@ -1402,10 +1381,25 @@ class SwarmAgent(object):
                 self._search_scan_started_t = None
                 self._search_scan_done = False
                 self._search_scan_failed = False
+                self._search_scan_seen = set()
+                self._search_scan_first = {}
         else:
             self._search_scan_key = None
             self._search_scan_done = False
             self._search_scan_failed = False
+        # Remove the search path BEFORE exposing the new pursuit assignment to
+        # the control loop. A planner result already in flight is invalidated
+        # by the epoch, and _stream_last_v can only repeat zero while replanning.
+        same_track = (tid and tid == getattr(self, '_track_assigned_id', None))
+        if msg.task_type == 1 and not same_track:
+            self._discard_old_plan()
+            self._camera_cue = None
+        if msg.task_type != 1 or not same_track:
+            self._tracking_image = None
+            self._tracking_altitude = None
+            self._observation_detour = None
+            self._observation_detour_next = 0.0
+            self._tracking_blocked_since = None
         self.assignment = msg
         # 处理特殊任务类型
         if msg.task_type == 1:  # 目标确认/追踪
@@ -1420,6 +1414,13 @@ class SwarmAgent(object):
                 # _control 又进入对已丢失目标的盘旋/追踪，与放弃分支形成 20Hz 死循环。
                 if rospy.Time.now().to_sec() < self._giveup_until.get(tid, 0.0):
                     return
+                sample = self._t_seen.get(tid, 0.0)
+                if (self._target_to_orbit is None and sample and
+                        rospy.Time.now().to_sec() - sample >=
+                        TARGET_STALE + STALE_SEARCH_GRACE):
+                    return  # 等新的真实图像，不沿 manager 的旧坐标复飞
+                if self._target_to_orbit is None:
+                    self._discard_old_plan()
                 self._target_to_orbit = (msg.target_x, msg.target_y)
                 return
             self._track_assigned_id = tid if tid else None
@@ -1446,38 +1447,62 @@ class SwarmAgent(object):
             # 搜索任务（task_type=0）：此前的追踪指派已结束，清除去重标记，
             # 否则同一目标以后再次派给本机会被误判为重复而忽略。
             self._track_assigned_id = None
-
-    def _target_cb(self, msg):
-        """缓存恐怖分子真值位置（几何判定用；真机上是视觉/裁判给出的观测）。"""
-        if msg.eliminated:
-            self.targets.pop(msg.target_id, None)
-            self._target_state.pop(msg.target_id, None)
-            # BUGFIX: 目标消除后必须清除盘旋状态，否则飞机会卡在盘旋不动
-            if self._orbit_target == msg.target_id:
-                rospy.loginfo("[%s] 目标 %s 已消除，清除盘旋状态", self.uav_id, msg.target_id)
+            if msg.task_type == 0:
+                self._target_to_orbit = None
                 self._orbit_target = None
                 self._orbit_center = None
-                self._confirm_start = 0.0
-                # 2026-10-06 国家一等奖: 清贴脸标志
-                if self._confirm_close:
-                    self._confirm_close = False
-                    self._confirm_close_tid = None
-                    self._orbit_prev = None
-            # 同步解除追踪指派去重：该目标已不存在
-            if getattr(self, '_track_assigned_id', None) == msg.target_id:
-                self._track_assigned_id = None
-                self._target_to_orbit = None
+                self._confirm_start = self._last_confirm_t = 0.0
+                self._confirm_close = False
+                self._confirm_close_tid = None
+                self._close_range_ref = None
+
+    def _target_cb(self, msg):
+        """缓存本队视觉桥的目标观测；不采信其他节点宣称的消除状态。"""
+        if msg.eliminated:
+            # 裁判反馈不进入正式节点，单条团队消息不能证明官方已删除。
+            # 视觉断流由时间戳与 manager 的租约超时释放。
             return
-        self.targets[msg.target_id] = (msg.x, msg.y, msg.vx, msg.vy)
         now = rospy.Time.now().to_sec()
         # header.stamp 来自最后一次真实图像。bridge 的保活帧仍会到达，
         # 但不能重置目标新鲜度；否则 8s 内的冻结位置每帧都变成“新观测”。
         sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
         if sample <= 0.0 or sample > now:
             sample = now
+        previous = self._t_seen.get(msg.target_id, 0.0)
+        if sample < previous - 0.01:
+            return  # 倒序相机帧不能把追踪点拉回旧位置
+        if sample > previous + 1e-6:
+            getattr(self, '_stale_search_until', {}).pop(msg.target_id, None)
+        self.targets[msg.target_id] = (msg.x, msg.y, msg.vx, msg.vy)
         self._target_state[msg.target_id] = (int(msg.state), sample)
-        self._t_seen[msg.target_id] = sample
+        self._t_seen[msg.target_id] = max(previous, sample)
+        if not hasattr(self, '_report_state_sample'):
+            self._report_state_sample = {}
+        self._report_state_sample[msg.target_id] = sample
         self._escape_bookkeeping(msg.target_id)   # v23：观测速度 → 逃跑生命周期
+
+    def _discovery_state_cb(self, msg):
+        """Manager-selected exploratory position; never visual confirmation."""
+        now = rospy.Time.now().to_sec()
+        sample = msg.header.stamp.to_sec()
+        tid = str(msg.target_id)
+        if (tid not in ('t0', 't1', 't2', 't3') or msg.eliminated or
+                not all(math.isfinite(v) for v in (sample, msg.x, msg.y)) or
+                not 0. <= now-sample <= 1. or
+                sample <= self._t_seen.get(tid, -1e18)):
+            return
+        report_sample = getattr(self, '_report_state_sample', {}).get(tid, -1e18)
+        if 0. <= now-report_sample <= .5:
+            return  # preserve fresh bridge velocity instead of replacing it by zero
+        old = self.targets.get(tid)
+        if (getattr(getattr(self, 'assignment', None), 'target_id', None) == tid and
+                old is not None and now-self._t_seen.get(tid, 0.) <= 1. and
+                math.hypot(old[0]-msg.x, old[1]-msg.y) > 3.):
+            return
+        # This target-state cache steers approach only. Do not fill own-camera
+        # evidence, velocity, visual-streak counters, or report eligibility.
+        self.targets[tid] = (msg.x, msg.y, 0., 0.)
+        self._t_seen[tid] = sample
 
     def _friend_status_cb(self, msg):
         """接收友机位置和高度，用于避碰"""
@@ -1485,28 +1510,11 @@ class SwarmAgent(object):
             self._friend_positions[msg.uav_id] = (msg.x, msg.y, msg.z)
             self._friend_seen[msg.uav_id] = rospy.Time.now().to_sec()
 
-    def _finish_cb(self, msg):
-        """收到任务完成广播后退出搜索循环。"""
-        if msg.data == "MISSION_FINISHED":
-            rospy.loginfo("[%s] 收到任务完成广播", self.uav_id)
-            self._mission_finished = True
-            # 兜底：如果还没进入降落模式，则进入
-            if not self._landing and self.assignment is not None and getattr(self.assignment, 'task_type', 0) == 3:
-                self._landing = True
-
     def _confirmed_cb(self, msg):
-        """2026-10-06 国家一等奖: manager 团队侧连续确认 20s → 切贴脸模式.
+        """React to a team visual streak by stabilizing an assigned nearby view.
 
-        String 格式: \"tid:<target_id>\".
-        **关键修复 (2026-10-06 验证)**:
-        旧逻辑只匹配 self._orbit_target == tid, 但 manager 在 4 秒间隔同时
-        确认 t1/t2 时本机 _orbit_target 已被 reassign 切走 → 贴脸只持续 4s,
-        远不够官方 15s streak 触发消除. 现在改为:
-        - 匹配范围扩大到 (a) _orbit_target OR (b) _track_assigned_id OR
-          (c) 本机是该 tid 的 _claims 发布者 — 真正"在追这个目标"的所有 agent
-        - 锁定至少 30s (CONFIRM_LOCK_DURATION), 期间忽略新 confirm 切走逻辑
-          (即使 manager 接着确认其他 tid 也不退出)
-        - 仅在 (a) 30s 计时到 / (b) /left_actors 真离场 / (c) mission finished 才退出
+        This message is a flight-mode hint, not confirmation of accuracy or
+        elimination. The assigned-target and physical approach checks remain.
         """
         try:
             data = msg.data
@@ -1545,55 +1553,424 @@ class SwarmAgent(object):
                     self._confirm_close_until - rospy.Time.now().to_sec(),
                 )
 
-    # ---------------- 目标检测（规则3：几何判定） ----------------
-    def _detect_targets(self):
-        """对每个已知目标做「距离 + 视线遮挡」判定，命中则发布 TargetDetection。
+    def _stable_other_owner(self, tid, now, xy=None, bearing=None):
+        """Suppress duplicate attention only for a spatially matching person.
 
-        规则3 的几何判定：水平距离 < DETECT_RADIUS **且** 中间无建筑遮挡。
-        注意只用水平距离 —— 无人机在 6m 高度、目标在地面，垂直差恒定，
-        水平距才是决定「能否看到」的量（与比赛判定的平面几何一致）。
+        A colour slot is not an identity: a peer watching a blue distractor
+        on the other side of the map must not suppress a new blue candidate.
         """
+        for uid in tuple(getattr(self, '_team_tracks', {}).get(tid, set())):
+            if uid == self.uav_id:
+                continue
+            evidence = getattr(self, '_team_visual', {}).get((uid, tid))
+            if (evidence is not None and evidence.get('hits', 0) >= 3 and
+                    evidence['sample_s'] - evidence['since_s'] >= 0.4 - 1e-6 and
+                    0.0 <= now - evidence['sample_s'] <= 1.0):
+                ex, ey = evidence.get('x'), evidence.get('y')
+                if ex is None or ey is None:
+                    continue
+                if xy is not None:
+                    if math.hypot(ex-xy[0], ey-xy[1]) <= 3.0:
+                        return True
+                elif bearing is not None and self.world_xy is not None:
+                    wx, wy = self.world_xy
+                    # A bearing alone is ambiguous at long range. Only a
+                    # nearby peer observation on the same ray can take over.
+                    expected = math.atan2(ey-wy, ex-wx)
+                    error = abs(math.atan2(math.sin(expected-bearing),
+                                           math.cos(expected-bearing)))
+                    if math.hypot(ex-wx, ey-wy) <= 20.0 and error <= math.radians(15.):
+                        return True
+        return False
+
+    def _attention_attempt(self, color, bearing, xy, now):
+        """Bound retries by observed place/view, independently of detector IDs.
+
+        This stores camera-derived evidence only. It is a short retry budget,
+        never a static-person blacklist. A newly localized pixel cue can still
+        promote immediately; moving to a different view also gets a new look.
+        """
+        wx = self.world_xy
+        attempts = [a for a in getattr(self, '_camera_attention_attempts', [])
+                    if 0.0 <= now-a['started'] <= 60.0]
+        self._camera_attention_attempts = attempts[-32:]
+        for attempt in reversed(self._camera_attention_attempts):
+            if attempt['color'] != color:
+                continue
+            old_xy = attempt.get('xy')
+            if xy is not None and old_xy is not None:
+                same = math.hypot(xy[0]-old_xy[0], xy[1]-old_xy[1]) <= 3.0
+            else:
+                angle = abs(math.atan2(math.sin(bearing-attempt['bearing']),
+                                       math.cos(bearing-attempt['bearing'])))
+                same = (wx is not None and
+                        math.hypot(wx[0]-attempt['origin'][0],
+                                   wx[1]-attempt['origin'][1]) <= 3.0 and
+                        angle <= math.radians(15.))
+            if same:
+                # Reliable localization advances the candidate once, even
+                # when its pixel-only look has just exhausted its budget.
+                if xy is not None and old_xy is None:
+                    attempt['retry_at'] = now
+                return attempt
+        attempt = dict(color=color, bearing=bearing, xy=xy,
+                       origin=wx, started=now, count=0, retry_at=now)
+        self._camera_attention_attempts.append(attempt)
+        return attempt
+
+    def _offer_camera_attention(self, cid, color, bearing, sample, now,
+                                target_id=None, xy=None):
+        """Keep a bounded attention lease, independently of search waypoints.
+
+        New frames update where to look, never its absolute deadline. A
+        localized track may promote a pixel cue once while dispatch catches up.
+        """
+        assignment = getattr(self, 'assignment', None)
+        if assignment is not None and assignment.task_type != 0:
+            return  # tracking/reacquisition/landing always has priority
+        if target_id and self._stable_other_owner(target_id, now, xy, bearing):
+            return
+        cue = getattr(self, '_camera_cue', None)
+        if cue is not None and now >= cue['until']:
+            return  # control consumes expiry and records a missed-view revisit
+        if cue is not None and now < cue['until']:
+            if xy is not None and cue.get('xy') is not None:
+                dt = max(0.0, min(1.0, sample-cue.get('sample_s', sample)))
+                if math.hypot(xy[0]-cue['xy'][0], xy[1]-cue['xy'][1]) > 3.0+2.2*dt:
+                    return  # reusing a colour slot cannot pull this view across the map
+            same = (cue.get('candidate_id') == cid or
+                    (xy is not None and cue.get('xy') is not None and
+                     target_id is not None and cue.get('target_id') == target_id))
+            # Color alone cannot associate the two red people. Only promote
+            # a nearby bearing; a different candidate cannot steal attention.
+            if (not same and xy is not None and cue.get('xy') is None and
+                    cue.get('color') == color):
+                error = (bearing - cue['bearing'] + math.pi) % (2*math.pi) - math.pi
+                same = abs(error) <= math.radians(15.)
+            if not same or sample <= cue.get('sample_s', -1e18):
+                return
+            cue.update(bearing=bearing, sample_s=sample)
+            if xy is not None:
+                cue.update(xy=xy, target_id=target_id, candidate_id=cid,
+                           until=cue['started'] + CAMERA_HANDOFF_HOLD_S)
+                self._camera_cue_retry_after[cid] = cue['until'] + CAMERA_CUE_RETRY_S
+                attempt = cue.get('attempt')
+                if attempt is not None:
+                    attempt.update(xy=xy, bearing=bearing,
+                        retry_at=max(attempt['retry_at'],
+                                     cue['until'] + CAMERA_CUE_RETRY_S))
+            return
+        retry = getattr(self, '_camera_cue_retry_after', {})
+        if now < retry.get(cid, -1e18):
+            return
+        attempt = self._attention_attempt(color, bearing, xy, now)
+        if now < attempt['retry_at']:
+            return
+        hold = CAMERA_HANDOFF_HOLD_S if xy is not None else CAMERA_CUE_HOLD_S
+        attempt.update(started=now, bearing=bearing, xy=xy, origin=self.world_xy,
+                       count=attempt['count']+1)
+        cooldown = min(12.0, CAMERA_CUE_RETRY_S * 2**min(attempt['count']-1, 3))
+        attempt['retry_at'] = now + hold + cooldown
+        self._camera_cue_retry_after = {key: value for key, value in retry.items()
+                                       if value > now}
+        self._camera_cue_retry_after[cid] = now + hold + CAMERA_CUE_RETRY_S
+        self._camera_cue = dict(candidate_id=cid, color=color, bearing=bearing,
+                                sample_s=sample, started=now, until=now+hold,
+                                target_id=target_id, xy=xy, attempt=attempt)
+        rospy.loginfo('[%s] 人物优先补看 %s，最多 %.1fs；搜索暂挂，等待正式派遣',
+                      self.uav_id, cid, hold)
+
+    def _visual_candidate_cb(self, msg):
+        """Bounded own-camera attention; candidates grant no task or confirmation."""
+        try:
+            data = json.loads(msg.data)
+            now = rospy.Time.now().to_sec()
+            assignment = getattr(self, 'assignment', None)
+            if (getattr(assignment, 'task_type', None) == 1 and
+                    data.get('purpose') == 'camera_reacquire'):
+                view = retain_pixel_view(getattr(self, '_tracking_image', None),
+                                         data, self.uav_id, assignment.target_id, now)
+                if view is not None:
+                    self._tracking_image = view
+                    rospy.loginfo_throttle(2., '[PIXEL_VIEW] uav=%s tid=%s image=%.3f '
+                        'position_age=%.2f; yaw only, no coordinate refresh',
+                        self.uav_id, assignment.target_id, view['sample_s'],
+                        now-view['position_sample_s'])
+                return
+            if ((assignment is not None and assignment.task_type != 0) or
+                    data.get('purpose') != 'camera_reacquire' or
+                    data.get('source_uav') != self.uav_id or
+                    data.get('real_detection') is not True):
+                return
+            sample, bearing, confidence = (float(data[k]) for k in
+                ('sample_s', 'bearing', 'confidence'))
+            cid = str(data['candidate_id'])
+            # Three associated image samples can justify a bounded look for
+            # every clothing colour. Coordinate/report gates remain separate.
+            active = getattr(self, '_camera_cue', None)
+            updating = (active is not None and active.get('candidate_id') == cid and
+                        now < active['until'])
+            cue_conf = 0.45 if updating else 0.55
+            if (not all(math.isfinite(v) for v in (sample, bearing, confidence)) or
+                    not -0.05 <= now - sample <= 0.5 or
+                    not cue_conf <= confidence <= 1.0 or
+                    int(data['hits']) < 3):
+                return
+            if self.world_xy is None:
+                return
+            target_for_color = {'green': 't0', 'blue': 't1',
+                                'brown': 't2', 'white': 't3'}.get(cid.split(':', 1)[0])
+            self._offer_camera_attention(cid, cid.split(':', 1)[0], bearing,
+                                         sample, now, target_for_color)
+            cue = getattr(self, '_camera_cue', None)
+            if (cue is not None and cue['candidate_id'] == cid and
+                    cue['sample_s'] == sample and now < cue['until']):
+                # Invalid/clipped new frames clear permission to move at once.
+                cue['image'] = approach_image(data)
+                if (cue['image'] is not None and confidence >= .65 and
+                        cue.get('xy') is None and not cue.get('approach_started')):
+                    cue['approach_started'] = True
+                    cue['approach_origin'] = self.world_xy
+                    cue['until'] = cue['started'] + 6.
+                    if cue.get('attempt') is not None:
+                        cue['attempt']['retry_at'] = max(
+                            cue['attempt']['retry_at'], cue['until']+CAMERA_CUE_RETRY_S)
+        except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
+            return
+
+    def _tracking_view_cb(self, msg):
+        """Image control feedback never creates a detection or confirmation."""
+        assignment = getattr(self, 'assignment', None)
+        if (getattr(assignment, 'task_type', None) != 1 or
+                self.world_xy is None or self.local_z is None):
+            return
+        try:
+            now = rospy.Time.now().to_sec()
+            tid = assignment.target_id
+            view = parse_tracking_view(json.loads(msg.data), self.uav_id, tid, now)
+            previous = getattr(self, '_tracking_image', None)
+            if (previous is not None and previous['target_id'] == tid and
+                    view['sample_s'] < previous['sample_s']):
+                return
+            target = self.targets.get(tid)
+            if target is None:
+                return
+            error = math.hypot(view['x']-target[0], view['y']-target[1])
+            if error > 3.0:
+                return  # same-colour false candidate must not steer this assignment
+            if (previous is not None and previous['target_id'] == tid and
+                    view['sample_s'] == previous['sample_s'] and
+                    error >= previous.get('association_error', float('inf')) and
+                    not previous.get('pixel_only', False)):
+                return
+            view['association_error'] = error
+            wx, wy = self.world_xy
+            rng = math.hypot(target[0]-wx, target[1]-wy)
+            if not math.isfinite(rng) or not math.isfinite(self.local_z):
+                return
+            self._tracking_altitude = update_altitude_hold(
+                getattr(self, '_tracking_altitude', None), view,
+                self.local_z, rng, max(MIN_CRUISE_ALT, 2.6),
+                min(ALT_TARGET_CAP, ALT_HARD_CEIL-ALT_HARD_MARGIN))
+            view['altitude_goal'] = self._tracking_altitude['goal']
+            self._tracking_image = view
+            rospy.loginfo_throttle(2.0,
+                '[TRACK_VIEW] uav=%s tid=%s image=%.3f centre_v=%.1f bottom=%.1f '
+                'alt_goal=%.2f range=%.2f', self.uav_id, tid, view['sample_s'],
+                (view['box'][1]+view['box'][3])/2., view['box'][3],
+                view['altitude_goal'], rng)
+        except (ValueError, TypeError, KeyError, OverflowError):
+            return
+
+    def _fresh_tracking_view(self, now):
+        view = getattr(self, '_tracking_image', None)
+        assignment = getattr(self, 'assignment', None)
+        if (view is not None and getattr(assignment, 'task_type', None) == 1 and
+                assignment.target_id == view['target_id'] and
+                0.0 <= now-view['sample_s'] <= .5):
+            return view
+        return None
+
+    def _processed_camera_frame_cb(self, msg):
+        """Credit a scan heading only after fresh YOLO processing at this view."""
+        try:
+            data = json.loads(msg.data)
+            assignment = getattr(self, 'assignment', None)
+            if (data.get('source_uav') != self.uav_id or
+                    data.get('processed') is not True or
+                    assignment is None or assignment.task_type != 0 or
+                    getattr(self, '_search_scan_key', None) is None):
+                return
+            sample, x, y, yaw = (float(data[k]) for k in
+                                 ('sample_s', 'x', 'y', 'yaw'))
+            now = rospy.Time.now().to_sec()
+            if (not all(math.isfinite(v) for v in (sample, x, y, yaw)) or
+                    not -0.05 <= now - sample <= 0.5 or
+                    sample <= getattr(self, '_search_last_frame', 0.0) or
+                    math.hypot(x - assignment.target_x,
+                               y - assignment.target_y) > 2.5):
+                return
+            self._search_last_frame = sample
+            seen = getattr(self, '_search_scan_seen', None)
+            if seen is None:
+                seen = self._search_scan_seen = set()
+            first = getattr(self, '_search_scan_first', None)
+            if first is None:
+                first = self._search_scan_first = {}
+            for sector in range(4):
+                desired = sector * math.pi / 2.0
+                err = (yaw - desired + math.pi) % (2.0 * math.pi) - math.pi
+                if abs(err) > SEARCH_SCAN_YAW_TOL or sector in seen:
+                    continue
+                since = first.setdefault(sector, sample)
+                if sample - since >= SEARCH_SCAN_HOLD_S:
+                    seen.add(sector)
+        except (ValueError, KeyError, TypeError, AttributeError):
+            return
+
+    def _hold_camera_candidate(self):
+        cue = getattr(self, '_camera_cue', None)
+        if cue is None:
+            return False
+        if self.assignment is not None and self.assignment.task_type != 0:
+            self._camera_cue = None
+            return False
+        now = rospy.Time.now().to_sec()
+        if self._stable_other_owner(cue.get('target_id'), now,
+                                    cue.get('xy'), cue.get('bearing')):
+            # A verified handoff is not a failed look. If the peer later
+            # loses this person, local attention may resume immediately.
+            if cue.get('attempt') is not None:
+                cue['attempt'].update(retry_at=now, count=0)
+            getattr(self, '_camera_cue_retry_after', {}).pop(
+                cue.get('candidate_id'), None)
+            self._camera_cue = None
+            return False
+        if now >= cue['until']:
+            self._camera_cue = None
+            # Only a real own-camera localization resolves a pixel cue. If
+            # the 2 s look ended without one, remember this CAMERA POSITION
+            # for later review; no actor position is inferred or reported.
+            color_ids = {'green': ('t0',), 'blue': ('t1',),
+                         'brown': ('t2',), 'white': ('t3',),
+                         'red': ('t4', 't5')}
+            observations = getattr(self, '_visual_observations', {})
+            found = any(
+                observations.get(tid, {}).get('eligible', False) and
+                observations.get(tid, {}).get('sample_s', 0.0) >=
+                cue.get('started', now)
+                for tid in color_ids.get(cue.get('color'), ()))
+            wx = self.world_xy
+            if not found and wx is not None and self._world_trusted():
+                publisher = getattr(self, '_candidate_missed_pub', None)
+                if publisher is not None:
+                    publisher.publish(String(data=json.dumps({
+                        'x': wx[0], 'y': wx[1], 'yaw': self.yaw,
+                        'source_uav': self.uav_id, 'sample_s': now,
+                    })))
+            return False
+        wx = self.world_xy
+        if wx is None:
+            return False
+        # Pause scan time only while attention is actually controlling this
+        # aircraft. A waypoint change can reset that scan during the hold.
+        last = cue.get('last_hold_s', now)
+        if getattr(self, '_search_scan_started_t', None) is not None:
+            self._search_scan_started_t += max(0.0, min(now-last, 0.25))
+        cue['last_hold_s'] = now
+        self._look_at = cue.get('xy') or (
+            wx[0] + 10.0 * math.cos(cue['bearing']),
+            wx[1] + 10.0 * math.sin(cue['bearing']))
+        vx, vy = (candidate_velocity(cue, now, self.yaw, wx,
+                                    getattr(self, '_scan', None),
+                                    getattr(self, '_scan_t', -1e18))
+                  if cue.get('image') is not None and self._world_trusted() else (0., 0.))
+        if getattr(self, '_friend_positions', {}):
+            vx, vy = self._apply_friend_avoidance(vx, vy)
+        rospy.loginfo_throttle(2., '[CANDIDATE_APPROACH] uav=%s candidate=%s '
+                              'requested=(%.2f,%.2f) remaining=%.2f',
+                              self.uav_id, cue['candidate_id'], vx, vy,
+                              max(0., cue['until']-now))
+        self._send_vel(vx, vy)
+        return True
+
+    def _visual_source_cb(self, msg):
+        """Own images establish local vision; peer evidence only verifies owners."""
+        try:
+            now = rospy.Time.now().to_sec()
+            allowed = {self.uav_id}
+            for owners in list(getattr(self, '_team_tracks', {}).values()):
+                allowed.update(owners)
+            data = parse_visual_evidence(msg.data, now, allowed)
+            tid = data['target_id']
+            uid = data['source_uav']
+            history = getattr(self, '_team_visual', None)
+            if history is None:
+                history = self._team_visual = {}
+            key = (uid, tid)
+            previous = history.get(key)
+            if previous is not None and data['sample_s'] <= previous['sample_s']:
+                return
+            if data['eligible']:
+                continuous = (previous is not None and
+                              data['sample_s'] - previous['sample_s'] <= 1.0)
+                history[key] = dict(data,
+                    hits=previous['hits'] + 1 if continuous else 1,
+                    since_s=previous['since_s'] if continuous else data['sample_s'])
+            if uid != self.uav_id:
+                return  # no peer sample can be relabelled as our detection
+            old = self._visual_observations.get(tid)
+            if old is not None and data['sample_s'] <= old['sample_s']:
+                return
+            self._visual_observations[tid] = data
+            if data['eligible']:
+                if not hasattr(self, '_last_eligible_image'):
+                    self._last_eligible_image = {}
+                self._last_eligible_image[tid] = data['sample_s']
+                if not hasattr(self, '_eligible_observations'):
+                    self._eligible_observations = {}
+                self._eligible_observations[tid] = data
+                evidence = history[key]
+                wx = self.world_xy
+                if (wx is not None and evidence['hits'] >= 3 and
+                        data['sample_s'] - evidence['since_s'] >= 0.4 - 1e-6):
+                    color = {'t0': 'green', 't1': 'blue', 't2': 'brown',
+                             't3': 'white', 't4': 'red', 't5': 'red'}[tid]
+                    self._offer_camera_attention('target:' + tid, color,
+                        math.atan2(data['y'] - wx[1], data['x'] - wx[0]),
+                        data['sample_s'], now, tid, (data['x'], data['y']))
+            detection = TargetDetection()
+            detection.header.stamp = rospy.Time.from_sec(data['sample_s'])
+            detection.header.frame_id = 'world_enu'
+            detection.uav_id, detection.target_id = self.uav_id, tid
+            detection.x, detection.y = data['x'], data['y']
+            detection.confidence, detection.source = data['confidence'], 1
+            self.detect_pub.publish(detection)
+        except (ValueError, KeyError, TypeError, AttributeError):
+            return
+
+    def _detect_targets(self):
+        """Geometry diagnoses reachability; it does not publish detections."""
         wx = self.world_xy
         if wx is None:
             return
         now = rospy.Time.now().to_sec()
-        if now - self._last_detect_t < 1.0 / DETECT_RATE:
+        if now-self._last_detect_t < 1.0/DETECT_RATE:
             return
         self._last_detect_t = now
-
         for tid, (tx, ty, _vx, _vy) in list(self.targets.items()):
-            # 幽灵目标闸门：桥接停发超过 TARGET_TTL 的目标不再几何上报。
-            # 只跳过不 pop —— 盘旋放弃逻辑（_t_seen gap）依赖条目仍在。
-            if now - self._t_seen.get(tid, 0.0) > TARGET_TTL:
+            if now-self._t_seen.get(tid, 0.0) > TARGET_TTL:
                 continue
-            d = math.hypot(tx - wx[0], ty - wx[1])
-            _los_ok = self.los.visible(wx[0], wx[1], tx, ty)
-            _captured = d < DETECT_RADIUS and _los_ok
-            # === 算法层日志：几何检测的内部距离/阈值/捕获判定 ===
-            # 排查「画面看着近但算法不消除」：必须看代码算的 d，不是肉眼。
-            # 注意 rospy.loginfo_throttle 按调用点节流，循环里每秒只会打出
-            # 字典第一个目标（实测 agent_5 永远只显示 t4），改为按 target
-            # 分别节流，保证每个已知目标都有判定日志。
-            if now - self._detect_log_t.get(tid, 0.0) >= 1.0:
-                self._detect_log_t[tid] = now
-                rospy.loginfo(
-                    "[ALGO] detect uav=%s pos=(%.2f,%.2f) target=%s pos=(%.2f,%.2f) "
-                    "dist=%.3fm | detect_radius=%.1fm | los=%s | is_captured=%s | ts=%.3f",
-                    self.uav_id, wx[0], wx[1], tid, tx, ty, d,
-                    DETECT_RADIUS, _los_ok, _captured, now)
-            if d > DETECT_RADIUS:
+            if now-self._detect_log_t.get(tid, 0.0) < 1.0:
                 continue
-            if not _los_ok:
-                continue    # 隔着建筑，不算看到
-            m = TargetDetection()
-            m.header.stamp = rospy.Time.now()
-            m.header.frame_id = "map"
-            m.uav_id = self.uav_id
-            m.target_id = tid
-            m.x, m.y = tx, ty
-            m.confidence = 1.0
-            m.source = 0     # 0=几何判定
-            self.detect_pub.publish(m)
+            self._detect_log_t[tid] = now
+            distance = math.hypot(tx-wx[0], ty-wx[1])
+            evidence = self._visual_observations.get(tid)
+            seen = evidence is not None and 0.0 <= now-evidence['sample_s'] <= 1.0
+            rospy.loginfo('[GEOMETRY] uav=%s target=%s dist=%.3fm los=%s '
+                          'own_camera_seen=%s official_success=unknown ts=%.3f',
+                          self.uav_id, tid, distance,
+                          self.los.visible(wx[0], wx[1], tx, ty), seen, now)
 
     # ---------------- 参数与模式 ----------------
     def _set_param(self, param_id, value):
@@ -1655,18 +2032,28 @@ class SwarmAgent(object):
 
         # 重启协同层时飞机已在空中：跳过等待直接进 OFFBOARD
         if self.state.armed and self.state.mode == "OFFBOARD" and self.local_z is not None and self.local_z > 1.0:
-            rospy.loginfo("[%s] 已在空中 OFFBOARD（z=%.2f）→ 跳过起飞等待",
-                          self.uav_id, self.local_z)
-            # 已离地，无法用「起飞点=当前位置」重锚定，沿用参数 offset；
-            # 但仍启用跳变检测，EKF 飞行中原点重置时保持 world_xy 连续。
-            self._anchor_done = True
-            return True
+            rospy.logerr("[%s] 已在空中但没有合法的出生点局部位姿锚定；拒绝用固定出生偏移接管",
+                         self.uav_id)
+            return False
 
         stable = 0
+        stream_start = last_setpoint = None
         while not rospy.is_shutdown():
+            if getattr(self, '_localization_fault', False):
+                rospy.logerr('[%s] 起飞预热期间定位失信，终止起飞', self.uav_id)
+                return False
+            # EKF 等待同时完成预热；不能把断流或时钟回退前的时间算进去。
+            now = rospy.Time.now().to_sec()
+            if (last_setpoint is None or now < last_setpoint or
+                    now - last_setpoint > OFFBOARD_PRESTREAM_MAX_GAP_S):
+                stream_start = now
+                stable = 0
+            self._send_vel(0.0, 0.0, vz=0.0)
+            last_setpoint = now
             if self.local_z is not None and abs(self.local_z) < 1.5:
                 stable += 1
-                if stable >= STABLE_NEEDED:
+                if (stable >= STABLE_NEEDED and
+                        now - stream_start >= OFFBOARD_PRESTREAM_S):
                     break
             else:
                 if stable > 0:
@@ -1674,39 +2061,32 @@ class SwarmAgent(object):
                                            self.uav_id,
                                            self.local_z if self.local_z is not None else -999)
                 stable = 0
-            self._send_vel(0.0, 0.0, vz=0.0)
             self.ctrl_rate.sleep()
+        if rospy.is_shutdown():
+            return False
         rospy.loginfo("[%s] EKF 已稳定（z=%.2f，连续 %d 次采样达标）", self.uav_id,
                       self.local_z if self.local_z is not None else -999, stable)
+        rospy.loginfo('[%s] 零速预热完成（连续 %.2fs，与 EKF 检查并行）',
+                      self.uav_id, now - stream_start)
 
-        # ---- EKF 稳定时刻重锚定 offset（方案 B，2026-10-02）----
-        # 「offset=起飞点世界坐标」隐含假设 EKF 局部原点恰在起飞点（local_xy≈0）。
-        # 多机 SITL 下 EKF 在预热/解锁阶段仍可能重置局部原点（实测 uav_2 的
-        # world_xy 跳到 (203,-148) 越界锁死）。此刻飞机物理上就在起飞点 →
-        # 用稳定时刻的 local_xy 反推 offset，强制 world_xy=起飞点。
-        if self._offset_param is not None and self.local_xy is not None:
-            drift = math.hypot(self.local_xy[0], self.local_xy[1])
-            if drift > 0.5:
-                rospy.logwarn("[%s] EKF 稳定时 local_xy=(%.2f,%.2f) 偏离原点 %.2fm，"
-                              "offset 重锚定 (%.2f,%.2f)→(%.2f,%.2f)",
-                              self.uav_id, self.local_xy[0], self.local_xy[1], drift,
-                              self.offset[0], self.offset[1],
-                              self._offset_param[0] - self.local_xy[0],
-                              self._offset_param[1] - self.local_xy[1])
-            self.offset = (self._offset_param[0] - self.local_xy[0],
-                           self._offset_param[1] - self.local_xy[1])
-        self._anchor_done = True   # 此后 _local_cb 启用跳变重锚定
-
-        # 预热：持续发纯零速，让 OFFBOARD setpoint 生效（vz=0 而非爬升）
-        for _ in range(120):
-            self._send_vel(0.0, 0.0, vz=0.0)
-            self.ctrl_rate.sleep()
+        # Official launch coordinates are fixed. Both perception and agent
+        # must use the same local-to-world translation throughout the sortie.
+        # A nonzero local origin cannot be corrected independently in flight.
+        if (self.local_xy is None or
+                math.hypot(self.local_xy[0], self.local_xy[1]) > 1.0):
+            rospy.logerr("[%s] 出生点 MAVROS local_xy=%s 偏离固定原点，拒绝起飞",
+                         self.uav_id, self.local_xy)
+            return False
+        self._anchor_done = True   # 此后 _local_cb 监测异常位姿，偏移保持不变
 
         # 切 OFFBOARD：**持续重试直到成功**（多机 SITL 下 EKF 速度/姿态估计就绪
         # 时间不定，固定次数会误判放弃，导致必须重启整个 SITL。永不放弃 + 每次
         # 重试间隔继续发零速预热，EKF 稳了自然就进得去。）
         attempt = 0
         while not rospy.is_shutdown() and self.state.mode != "OFFBOARD":
+            if getattr(self, '_localization_fault', False):
+                rospy.logerr('[%s] OFFBOARD 等待期间定位失信，终止起飞', self.uav_id)
+                return False
             attempt += 1
             if not self.mode_srv(0, "OFFBOARD").mode_sent:
                 rospy.logwarn_throttle(10, "[%s] 切换 OFFBOARD 请求失败（第 %d 次）",
@@ -1775,6 +2155,15 @@ class SwarmAgent(object):
         # 2.6m（叠加 EKF 高度降层后实测约 2.2m）。相机是否真的看到
         # 人只能由视觉链确认，地图 LOS 不能替代图像。
         if self._orbit_target is not None:
+            hold = getattr(self, '_tracking_altitude', None)
+            if hold is not None and hold['target_id'] == self._orbit_target:
+                # _send_vel subtracts the old layer discount. This goal is
+                # already anchored to measured altitude; subtracting it again
+                # would descend every new image even with a centred person.
+                age = rospy.Time.now().to_sec()-hold['sample_s']
+                goal = hold['goal'] if 0. <= age <= 2. else self.local_z
+                return (goal-self.altitude_layer +
+                        getattr(self, '_alt_sag', 0.0))
             target = self.targets.get(self._orbit_target)
             rng = (math.hypot(target[0] - wx, target[1] - wy)
                    if target is not None else None)
@@ -1819,7 +2208,7 @@ class SwarmAgent(object):
         if not RADAR_GUARD or self._scan is None:
             return vx, vy
         now = rospy.Time.now().to_sec()
-        if now - self._scan_t > RADAR_FRESH_S:
+        if not 0. <= now - self._scan_t <= RADAR_FRESH_S:
             return 0.0, 0.0
         speed = math.hypot(vx, vy)
         if speed < 0.05:
@@ -1968,16 +2357,16 @@ class SwarmAgent(object):
             #      v5 修复：低速横滑 0.4 m/s 慢慢蹭出（不后退，避免扇区内净空被自挤压）
             #   5. 全程设 _radar_retreating=True 旁路加速度限幅（保留旧设计）
             if best_r >= 1.5:
-                advance = min(RADAR_BACKOFF_MAX, max(speed, 0.8))
+                advance = min(RADAR_BACKOFF_MAX, speed, 0.5)
                 advance_mode = '推进'
             elif best_r >= 1.0:
-                advance = 0.5
+                advance = min(speed, 0.5)
                 advance_mode = '横滑'
             elif best_r >= 0.5:
-                advance = 0.3
+                advance = min(speed, 0.3)
                 advance_mode = '慢滑'
             else:
-                advance = 0.4    # 极端贴墙（best_r<0.5）：低速横滑 0.4 m/s 脱离
+                advance = 0.0   # 没有可验证净空时停车，不以“脱困”为由蹭墙
                 advance_mode = '贴墙横滑'
             # B1 近障困局脱离（2026-10-09）：三面收窄持续超过阈值时，限时沿来路反向退出。
             # 反向后净空不再被机身自挤压（前进时雷达扫到建筑巷道内壁，扇区净空被压缩），
@@ -1996,10 +2385,11 @@ class SwarmAgent(object):
                         self._jam_escape_until = _now + RADAR_JAM_ESCAPE_S
                     if _now < self._jam_escape_until:
                         # 反向 = 沿机头反向（yaw 方向 180°），低速后退，避免撞墙
-                        _bx = RADAR_JAM_ESCAPE_SPD * math.cos(self.yaw + math.pi)
-                        _by = RADAR_JAM_ESCAPE_SPD * math.sin(self.yaw + math.pi)
+                        escape_speed = min(speed, RADAR_JAM_ESCAPE_SPD, 0.5)
+                        _bx = escape_speed * math.cos(self.yaw + math.pi)
+                        _by = escape_speed * math.sin(self.yaw + math.pi)
                         guarded = (_bx, _by)
-                        self._radar_retreating = True
+                        self._radar_retreating = False
                         self._radar_strict = True
                         rospy.logwarn_throttle(2.0,
                                                '[%s] 近障困局 %.0fs → 反向退出 %.0fs vout=(%.2f,%.2f)',
@@ -2015,7 +2405,7 @@ class SwarmAgent(object):
             cy, sy = math.cos(self.yaw), math.sin(self.yaw)
             guarded = (cy * body_x - sy * body_y,
                        sy * body_x + cy * body_y)
-            self._radar_retreating = True                          # 主流程旁路加速度限幅
+            self._radar_retreating = False  # 退出也受加速度约束，停车仍可立即生效
             self._radar_strict = True                              # R1：栅格守卫不得再改写方向
             rospy.logwarn_throttle(2.0,
                                    '[%s] 2D雷达三面堵死 front=%.2f left=%.2f right=%.2f '
@@ -2054,8 +2444,16 @@ class SwarmAgent(object):
         # 退出（远离障碍，故不受刹停约束；否则 v_cap=0 会把后退也一起夹成 0，
         # 飞机就永远顶死在墙上 —— 这正是 02:24 场的实况）。
         if front < RADAR_BACKOFF_R and RADAR_BACKOFF_SPD > 0.0:
-            guarded = (guarded[0] - cy * RADAR_BACKOFF_SPD,
-                       guarded[1] - sy * RADAR_BACKOFF_SPD)
+            backoff = min(speed, RADAR_BACKOFF_SPD, 0.5)
+            guarded = (guarded[0] - cy * backoff,
+                       guarded[1] - sy * backoff)
+        # UAV2: vin=(-.12,-.04) became a 1.5 m/s escape beside .50 m
+        # returns. A safety constraint may redirect or reduce a command, but
+        # must not amplify a slow command from tracking or inter-UAV avoidance.
+        output_cap = min(speed, 0.5) if d_min < RADAR_BACKOFF_R else speed
+        gspd = math.hypot(*guarded)
+        if gspd > output_cap and gspd > 1e-9:
+            guarded = (guarded[0]*output_cap/gspd, guarded[1]*output_cap/gspd)
         self._radar_strict = True   # R1：近障线性段强介入，栅格守卫不得改写
         rospy.logwarn_throttle(2.0,
                                '[%s] 2D雷达近障 front=%.2fm left=%.2f right=%.2f '
@@ -2071,7 +2469,7 @@ class SwarmAgent(object):
             return vx, vy
         now = rospy.Time.now().to_sec()
         scan = self._scan
-        if scan is None or now - self._scan_t > RADAR_FRESH_S:
+        if scan is None or not 0. <= now - self._scan_t <= RADAR_FRESH_S:
             return 0.0, 0.0
         body_angle = (math.atan2(vy, vx) - self.yaw + math.pi) % (2 * math.pi) - math.pi
         nearest = None
@@ -2083,7 +2481,12 @@ class SwarmAgent(object):
             r = float(raw)
             if math.isnan(r):
                 continue
-            if not math.isfinite(r) or r > scan.range_max or r < RADAR_SELF_ECHO_M:
+            # A valid close return is an obstacle at the execution boundary.
+            # The mapping self-echo floor must not erase a real post/wall as
+            # it approaches from 0.60 m to less than 0.50 m.
+            if math.isfinite(r) and r < scan.range_min:
+                continue
+            if not math.isfinite(r) or r > scan.range_max:
                 r = scan.range_max
             # 机尾 ±100..135° 的 0.50m 固定回波来自机身/桨架：六机在
             # 完全不同位置均反复出现，但 front/left/right 净空仍为数米。
@@ -2119,6 +2522,91 @@ class SwarmAgent(object):
             return vx * cap / speed, vy * cap / speed
         return vx, vy
 
+    def _guard_vertical_clearance(self, vz):
+        """Hold routine height changes beside obstacles seen by the 2D lidar.
+
+        The horizontal scan cannot establish clearance below an aircraft.
+        UAV4's horizontal stop therefore did not justify a -1 m/s descent
+        beside a scaffold. Takeoff, landing and the hard altitude protections
+        retain their own authority.
+        """
+        if (abs(vz) < .05 or not RADAR_GUARD or
+                not getattr(self, '_takeoff_done', False) or
+                getattr(self, '_landing', False)):
+            return vz
+        now = rospy.Time.now().to_sec()
+        scan = getattr(self, '_scan', None)
+        if scan is None or not 0. <= now-getattr(self, '_scan_t', -1e18) <= RADAR_FRESH_S:
+            rospy.logwarn_throttle(2., '[VERTICAL_CLEARANCE] uav=%s stale scan; hold routine height',
+                                   self.uav_id)
+            return 0.
+        nearest = scan.range_max
+        observed = False
+        for i, raw in enumerate(scan.ranges):
+            angle = scan.angle_min+i*scan.angle_increment
+            # Fixed rear airframe echoes are outside this observed sector.
+            if abs(angle) > math.radians(100.):
+                continue
+            r = float(raw)
+            if r == float('inf'):
+                observed = True  # valid no-return beam, unlike NaN
+            elif math.isfinite(r) and scan.range_min <= r <= scan.range_max:
+                observed = True
+                nearest = min(nearest, r)
+        if not observed:
+            rospy.logwarn_throttle(2., '[VERTICAL_CLEARANCE] uav=%s invalid scan; hold routine height',
+                                   self.uav_id)
+            return 0.
+        if nearest < RADAR_BACKOFF_R:
+            rospy.logwarn_throttle(2., '[VERTICAL_CLEARANCE] uav=%s near=%.2fm vz=%.2f -> 0; '
+                                   'move to clear observation space before changing height',
+                                   self.uav_id, nearest, vz)
+            return 0.
+        return vz
+
+    def _occupied_cell_exit(self, vx, vy):
+        """Leave an inflated cell slowly, through a lidar-checked raw-free route."""
+        speed = math.hypot(vx, vy)
+        wx = self.world_xy
+        if speed < .05 or wx is None or not RADAR_GUARD:
+            return 0., 0.
+        if not hasattr(self.grid, 'is_free_raw'):
+            return 0., 0.
+        own = self.grid.world_to_cell(wx)
+        heading = math.atan2(vy, vx)
+        exit_speed = min(.5, speed)
+        candidates = []
+        for degrees in (0, -30, 30, -60, 60, -90, 90, -120, 120, 180):
+            angle = heading+math.radians(degrees)
+            candidate = (exit_speed*math.cos(angle), exit_speed*math.sin(angle))
+            checked = self._final_scan_cap(*candidate)
+            if math.hypot(*checked) < exit_speed*.98:
+                continue
+            exit_distance = None
+            safe = True
+            for i in range(1, 13):
+                d = i*.25
+                point = (wx[0]+d*math.cos(angle), wx[1]+d*math.sin(angle))
+                cell = self.grid.world_to_cell(point)
+                if (cell is None or (cell != own and not self.grid.is_free_raw(cell)) or
+                        (exit_distance is not None and not self.grid.is_free(cell))):
+                    safe = False
+                    break
+                if exit_distance is None and self.grid.is_free(cell):
+                    exit_distance = d
+                if exit_distance is not None and d >= exit_distance+.5:
+                    break
+            if safe and exit_distance is not None:
+                candidates.append((abs(degrees), exit_distance, candidate))
+        if not candidates:
+            rospy.logwarn_throttle(2., '[GRID_EXIT_BLOCKED] uav=%s occupied cell; no safe exit',
+                                   self.uav_id)
+            return 0., 0.
+        chosen = min(candidates, key=lambda item:item[:2])[2]
+        rospy.logwarn_throttle(2., '[GRID_EXIT] uav=%s occupied cell; slow checked exit=(%.2f,%.2f)',
+                               self.uav_id, *chosen)
+        return chosen
+
     def _grid_blocked(self, wx, wy):
         """世界点在栅格上是否不可通行（障碍或越界；越界也视为墙，防冲出地图）。"""
         c = self.grid.world_to_cell((wx, wy))
@@ -2139,6 +2627,12 @@ class SwarmAgent(object):
         """
         if not GRID_GUARD:
             return vx, vy
+        wx = self.world_xy
+        if wx is None:
+            return vx, vy
+        own_cell = self.grid.world_to_cell(wx)
+        if own_cell is not None and not self.grid.is_free(own_cell):
+            return self._occupied_cell_exit(vx, vy)
         # R1（2026-10-09）：雷达近障强介入时，栅格守卫只做速度限幅、不再改写
         # 方向。v26 实证（agent_3）：雷达守卫把速度转向右侧避开前障 → 栅格守卫
         # 随即判定"前方被占→转向 -170°"，两守卫每 50ms 互相覆盖 → 原地打转
@@ -2157,19 +2651,8 @@ class SwarmAgent(object):
                         k = _cap / _sp
                         vx, vy = vx * k, vy * k
             return vx, vy
-        wx = self.world_xy
-        if wx is None:
-            return vx, vy
-        # ---- v11 复盘（2026-10-07）自身格占用豁免 ----
-        # 无人机自身所在格已被判占用（SLAM 自回波污染残留/贴墙膨胀区）时，
-        # 锥形前瞻必然全堵 → 旧逻辑「前方堵死 → 刹停」= 永久死锁
-        # （v11 六机各刹停 175 次全程 0 位移）。放行当前速度让飞机先离开
-        # 占用区：真实近障由雷达守卫兜底，逃出路径由 A* 最近自由格重试规划。
-        own_cell = self.grid.world_to_cell(wx)
-        if own_cell is not None and not self.grid.is_free(own_cell):
-            rospy.logwarn_throttle(5.0, '[%s] 栅格近障：自身格被占（膨胀区/污染残留）→ 豁免放行',
-                                   self.uav_id)
-            return vx, vy
+        # 自身格可能处于障碍膨胀区。只允许低速、雷达验证的原始自由路径退出；
+        # 无安全退出路径就停车，不能因为起点被占用而豁免整条运动指令。
         spd = math.hypot(vx, vy)
         if spd < 0.05:
             return vx, vy
@@ -2239,7 +2722,7 @@ class SwarmAgent(object):
                                self.uav_id, math.degrees(best), spd, safe_spd)
         return safe_spd * math.cos(best), safe_spd * math.sin(best)
 
-    def _oscillation_breakout(self, vx, vy):
+    def _oscillation_breakout(self, vx, vy, guard_changed=False):
         """R1（2026-10-09）：守卫交替振荡脱困。
 
         雷达/栅格守卫在"近障->转向"路径上互相覆盖（雷达转向右侧、栅格判前方占
@@ -2247,6 +2730,18 @@ class SwarmAgent(object):
         速度方向在窗口内频繁大角度翻转 → 强制沿最近一个目标航向直行，期间守卫
         只做速度限幅（由 _grid_guard_velocity 的互斥分支承载）。
         """
+        # A range controller legitimately reverses while holding a person in
+        # view. The 08:05 run classified those reversals as obstacle deadlocks
+        # and forced 1.2 m/s motion for two seconds, repeatedly cropping green.
+        # Tracking has a separate safe observation-point recovery planner.
+        task = getattr(getattr(self, 'assignment', None), 'task_type', None)
+        if (task == 1 or getattr(self, '_orbit_target', None) is not None or
+                getattr(self, '_camera_cue', None) is not None or
+                not guard_changed or math.hypot(vx, vy) < .05):
+            self._osc_prev = None
+            self._osc_flicks = 0
+            self._osc_win_t0 = self._osc_break_until = 0.0
+            return vx, vy
         _prev = getattr(self, "_osc_prev", None)
         _flicks = getattr(self, "_osc_flicks", 0)
         _win_t0 = getattr(self, "_osc_win_t0", 0.0)
@@ -2260,7 +2755,8 @@ class SwarmAgent(object):
             if getattr(self, "_radar_strict", False):
                 return vx, vy
             _hd = getattr(self, "_osc_break_hd", 0.0)
-            _sp = getattr(self, "_osc_break_sp", OSC_BREAKOUT_SPD)
+            _sp = min(math.hypot(vx, vy),
+                      getattr(self, "_osc_break_sp", OSC_BREAKOUT_SPD))
             return _sp * math.cos(_hd), _sp * math.sin(_hd)
 
         spd = math.hypot(vx, vy)
@@ -2287,14 +2783,14 @@ class SwarmAgent(object):
         if _win_span >= OSC_WATCH_S and _flicks >= OSC_SWITCH_N:
             # 锁定当前航向直行（脱困期保持恒定），重置检测状态
             self._osc_break_hd = hd
-            self._osc_break_sp = OSC_BREAKOUT_SPD
+            self._osc_break_sp = min(spd, OSC_BREAKOUT_SPD)
             self._osc_break_until = _now + OSC_BREAKOUT_S
             self._osc_prev = None
             self._osc_flicks = 0
             self._osc_win_t0 = 0.0
             rospy.logwarn('[%s] 守卫交替振荡 %.1fs/%d次 → 强制脱困直行 %.0fs',
                           self.uav_id, _win_span, _flicks, OSC_BREAKOUT_S)
-            return OSC_BREAKOUT_SPD * math.cos(hd), OSC_BREAKOUT_SPD * math.sin(hd)
+            return self._osc_break_sp * math.cos(hd), self._osc_break_sp * math.sin(hd)
         # 窗口横跨过长但翻转数不足（偶发转向/正常朝向调整）→ 重置窗口，
         # 避免"一次翻转 + 很久以后"误触发脱困。真振荡会持续翻转、窗口重开。
         if _win_span > max(OSC_WATCH_S, 3.0) * 2.0 and _flicks < OSC_SWITCH_N:
@@ -2304,7 +2800,7 @@ class SwarmAgent(object):
         return vx, vy
 
     def _map_guard_velocity(self, vx, vy):
-        """地图边界护栏：禁止速度把飞机继续带出 A* 栅格。
+        """飞行边界护栏；搜索栅格外圈只用于观察边缘目标。
 
         越界时锁死朝外分量；边界 MAP_GUARD_MARGIN 内禁止朝外；再往外扩
         MAP_GUARD_SOFT 一段做线性减速，避免高速贴边转弯时惯性冲出栅格
@@ -2313,9 +2809,7 @@ class SwarmAgent(object):
         wxy = self.world_xy
         if wxy is None:
             return vx, vy
-        xmin, ymin = self.grid.origin
-        xmax = xmin + self.grid.width * self.grid.resolution
-        ymax = ymin + self.grid.height * self.grid.resolution
+        xmin, xmax, ymin, ymax = flight_bounds()
         x, y = wxy
         if x < xmin or x > xmax or y < ymin or y > ymax:
             rospy.logerr_throttle(2.0,
@@ -2328,11 +2822,11 @@ class SwarmAgent(object):
         # 软减速带：进入 MAP_GUARD_MARGIN+MAP_GUARD_SOFT 带后把朝外分量压到 ≤0.5m/s
         soft = MAP_GUARD_MARGIN + MAP_GUARD_SOFT
         if x <= xmin + soft and vx < 0:
-            vx = min(vx, 0.5)
+            vx = max(vx, -0.5)
         elif x >= xmax - soft and vx > 0:
             vx = min(vx, 0.5)
         if y <= ymin + soft and vy < 0:
-            vy = min(vy, 0.5)
+            vy = max(vy, -0.5)
         elif y >= ymax - soft and vy > 0:
             vy = min(vy, 0.5)
         if x <= xmin + MAP_GUARD_MARGIN:
@@ -2360,13 +2854,11 @@ class SwarmAgent(object):
         wxy = self.world_xy
         if wxy is None:
             return None
-        xmin, ymin = self.grid.origin
-        xmax = xmin + self.grid.width * self.grid.resolution
-        ymax = ymin + self.grid.height * self.grid.resolution
+        xmin, xmax, ymin, ymax = flight_bounds()
         x, y = wxy
         if xmin <= x <= xmax and ymin <= y <= ymax:
             return None
-        inset = min(OOB_RECOVER_INSET,
+        inset = min(max(OOB_RECOVER_INSET, FLIGHT_INSET),
                     (xmax - xmin) * 0.25, (ymax - ymin) * 0.25)
         tx = min(max(x, xmin + inset), xmax - inset)
         ty = min(max(y, ymin + inset), ymax - inset)
@@ -2383,12 +2875,61 @@ class SwarmAgent(object):
         spd = min(spd, OOB_RECOVER_SPEED + 2.0)
         return spd * dx / d, spd * dy / d
 
+    def _close_range_final_guard(self, vx, vy):
+        """Keep a vetted final command from carrying the camera through a person.
+
+        Emergency radar retreat and close friend separation have higher
+        priority.  In the ordinary case this only scales an already checked
+        vector; it never invents an outward escape direction through a wall.
+        """
+        assignment = getattr(self, 'assignment', None)
+        tid = getattr(assignment, 'target_id', None)
+        if (getattr(assignment, 'task_type', None) != 1 or
+                tid != getattr(self, '_orbit_target', None) or
+                getattr(self, '_radar_strict', False) or
+                getattr(self, '_radar_retreating', False)):
+            return vx, vy
+        own = self.world_xy
+        target = getattr(self, 'targets', {}).get(tid)
+        if own is None or target is None:
+            return vx, vy
+        now = rospy.Time.now().to_sec()
+        seen = getattr(self, '_t_seen', {}).get(tid, 0.0)
+        if not 0.0 <= now - seen <= TARGET_TTL:
+            return vx, vy
+        my_alt = (self.local_z if self.local_z is not None
+                  else self.altitude_layer)
+        for fid, (fx, fy, fz) in getattr(self, '_friend_positions', {}).items():
+            if now - getattr(self, '_friend_seen', {}).get(fid, -1e18) > 1.0:
+                continue
+            friend_alt = my_alt if fz is None else fz
+            if math.hypot(math.hypot(fx - own[0], fy - own[1]),
+                          friend_alt - my_alt) < SAFE_3D:
+                return vx, vy
+        limited = cap_inward_close_speed(vx, vy, own[0], own[1],
+                                         target[0], target[1])
+        if limited != (vx, vy):
+            rospy.logwarn_throttle(
+                2.0, '[%s] 末级近距径向限速 tid=%s dist=%.2fm '
+                'vin=(%.2f,%.2f) vout=(%.2f,%.2f)',
+                self.uav_id, tid,
+                math.hypot(target[0] - own[0], target[1] - own[1]),
+                vx, vy, limited[0], limited[1])
+        return limited
+
     def _send_vel(self, vx, vy, vz=None):
         """下发 ENU 水平速度 + 自适应高度。
 
         vz=None 时按当前高度竖直 P 控制爬升到自适应高度；预热/悬停阶段显式传
         vz=0.0 发纯零速，避免 EKF 未收敛时带爬升速度导致 OFFBOARD 被拒。
         """
+        requested_speed = math.hypot(vx, vy)
+        if getattr(self, '_localization_fault', False):
+            # Neither crash recovery nor takeoff may override a lost position
+            # frame. Keep zero horizontal output until AUTO.LAND takes over.
+            vx = vy = 0.0
+            vz = None
+            self._crash_flagged = False
         # === 国家一等奖修（2026-10-05）：CRASH 优先级提到 EST_GUARD 之前 ===
         # 原顺序：先 EST_GUARD 判定不可信→悬停等待→CRASH 强制爬升永远发不出去。
         # 撞墙恢复是「物理救命」级，必须先发，绕开 EST_GUARD 闸门。
@@ -2550,6 +3091,7 @@ class SwarmAgent(object):
                 self._last_cmd_v = (vx, vy)
         else:
             # 雷达先修正水平速度，再经过统一的加速度限幅和高度护栏。
+            before_guard = (vx, vy)
             self._radar_retreating = False  # 重置标记
             self._radar_strict = False      # R1：每帧重置（雷达守卫内按需置 True）
             vx, vy = self._radar_guard_velocity(vx, vy)
@@ -2559,8 +3101,12 @@ class SwarmAgent(object):
             vx, vy = self._map_guard_velocity(vx, vy)
             # R1 振荡死锁检测：守卫交替反向（雷达/栅格对阵）持续太久 → 强制
             # 沿当前自由扇区直行 2s，期间两守卫只做速度限幅（v26 agent_3 例证）
-            if math.hypot(vx, vy) >= 0.05:
-                vx, vy = self._oscillation_breakout(vx, vy)
+            before_speed = math.hypot(*before_guard)
+            after_speed = math.hypot(vx, vy)
+            guard_changed = (before_speed >= .3 and after_speed >= .05 and
+                (vx*before_guard[0]+vy*before_guard[1]) <
+                math.cos(math.radians(45.))*before_speed*after_speed)
+            vx, vy = self._oscillation_breakout(vx, vy, guard_changed=guard_changed)
 
         guard_stop = math.hypot(vx, vy) < 0.05
 
@@ -2581,7 +3127,26 @@ class SwarmAgent(object):
         if guard_stop:
             vx, vy = 0.0, 0.0
         vx, vy = self._final_scan_cap(vx, vy)
+        # Breakout and slew limiting can reintroduce an outward command after
+        # the first guard.  Recheck the exact velocity that will be published.
+        vx, vy = self._map_guard_velocity(vx, vy)
+        if rec is None and vz is None:
+            # `_fly_orbit` protects the 8 m observation ring, but radar/grid
+            # detours, breakout and slew limiting may override its direction.
+            # Scale the *final* inward velocity before publishing.  Emergency
+            # radar and ORCA proximity still retain precedence in the helper.
+            vx, vy = self._close_range_final_guard(vx, vy)
         self._last_cmd_v = (vx, vy)
+        # A safe stop is correct, but the view planner must know that its
+        # observation point cannot be maintained. Never override this stop.
+        now_control = rospy.Time.now().to_sec()
+        obstructed = (getattr(self, '_orbit_target', None) is not None and
+                      requested_speed > .3 and math.hypot(vx, vy) < .2)
+        if obstructed:
+            if getattr(self, '_tracking_blocked_since', None) is None:
+                self._tracking_blocked_since = now_control
+        else:
+            self._tracking_blocked_since = None
 
         # === 高度最后防线（加速度限幅之后再裁，避免被限幅抵消）===
         _zn = self.local_z
@@ -2676,6 +3241,10 @@ class SwarmAgent(object):
                     self._climb_latch_z = None
                 else:
                     cmd.twist.linear.z = min(cmd.twist.linear.z, 0.0)
+        # Routine view/obstacle height changes cannot continue after a near
+        # horizontal obstacle stop. Emergency ceiling descent is applied next.
+        if vz is None:
+            cmd.twist.linear.z = self._guard_vertical_clearance(cmd.twist.linear.z)
         # === 高度硬护栏 ===
         # 官方 score_cal.py 判定 z > 6.0 直接 score=0 并 _finish() 终止任务，
         # 是一票否决。不能只依赖 P 控制不超调，这里无条件兜底强制下降。
@@ -2713,7 +3282,7 @@ class SwarmAgent(object):
                 uav_y=_wxy[1] if _wxy is not None else None,
                 uav_z=self.local_z, distance_m=_dist,
                 capture_threshold_m=DETECT_RADIUS,
-                is_captured=(_dist is not None and _dist <= DETECT_RADIUS),
+                is_captured=False,  # Geometry cannot establish judge success.
                 orca_vx=self._last_orca_v[0], orca_vy=self._last_orca_v[1],
                 cmd_vx=cmd.twist.linear.x, cmd_vy=cmd.twist.linear.y,
                 cmd_vz=cmd.twist.linear.z, source="swarm_agent")
@@ -2782,6 +3351,9 @@ class SwarmAgent(object):
         if self._look_at is not None and _wxy is not None:
             _bear = math.atan2(self._look_at[1] - _wxy[1],
                                self._look_at[0] - _wxy[0])
+            view = self._fresh_tracking_view(rospy.Time.now().to_sec())
+            if view is not None:
+                _bear = view['bearing']  # measured optical ray, not estimated depth
             _yerr = (_bear - self.yaw + math.pi) % (2.0 * math.pi) - math.pi
             _yr = YAW_KP * _yerr
             if _yr > YAW_RATE_MAX:
@@ -2834,6 +3406,19 @@ class SwarmAgent(object):
         sp.header.frame_id = 'map'
         sp.pose.position.x = lxy[0] + step_x
         sp.pose.position.y = lxy[1] + step_y
+        # Position mode is the default output.  Guard its actual setpoint in
+        # world coordinates as well as the upstream velocity; otherwise the
+        # one-second lead can place the PX4 target beyond the flight envelope.
+        off = getattr(self, 'offset', None)
+        if off is not None:
+            wpx = sp.pose.position.x + off[0]
+            wpy = sp.pose.position.y + off[1]
+            # During vertical takeoff retain the official spawn point; after
+            # takeoff, moving setpoints use the 2 m operational inset.
+            moving = math.hypot(vx, vy) > 0.05 and getattr(self, '_takeoff_done', False)
+            wpx, wpy = flight_waypoint(wpx, wpy, FLIGHT_INSET if moving else 0.0)
+            sp.pose.position.x = wpx - off[0]
+            sp.pose.position.y = wpy - off[1]
         # 位置模式也必须执行最终安全竖直速度，尤其是悬停、硬顶下降和坠机恢复。
         if self._landing:
             z = max(0.0, self.local_z - 0.6)
@@ -2968,7 +3553,7 @@ class SwarmAgent(object):
     def _request_plan(self, goal_xy):
         """投递一个规划请求并立即返回（不阻塞控制循环）。多次请求只保留最新目标。"""
         with self._plan_lock:
-            self._plan_pending = (float(goal_xy[0]), float(goal_xy[1]))
+            self._plan_pending = flight_waypoint(float(goal_xy[0]), float(goal_xy[1]))
         self._plan_event.set()
 
     def _planner_loop(self):
@@ -2980,6 +3565,7 @@ class SwarmAgent(object):
                 if goal is None:
                     self._plan_event.clear()
                     continue
+                epoch = self._plan_epoch
                 self._plan_pending = None
                 self._plan_event.clear()
             try:
@@ -2988,21 +3574,27 @@ class SwarmAgent(object):
                 rospy.logerr("[%s] 规划线程异常: %s\n%s",
                              self.uav_id, exc, traceback.format_exc())
                 ok = False
-            if ok:
-                # list/引用赋值在 GIL 下原子，主循环只会看到「旧路径」或「新路径」
-                self.path = path
-                self.path_target = target
-            else:
-                # 保留上一条已经通过 A* 的路径。移动目标或临时 GOAL_OCCUPIED
-                # 不应让速度每次规划失败都归零，否则会产生「短脉冲 + 长悬停」；
-                # 初始尚无安全路径时才悬停等待下一次规划。
-                _wxy = self.world_xy
-                _out = (_wxy is not None and
-                        self.grid.world_to_cell(_wxy) is None)
-                if not self.path or _out:
-                    self.path = []
-                    self._last_flight_v = (0.0, 0.0)
-                self._plan_fail_t = rospy.Time.now().to_sec()
+            with self._plan_lock:
+                if epoch != self._plan_epoch:
+                    # A new task arrived while A* computed; never commit its
+                    # previous route after the search/pursuit switch.
+                    continue
+                if ok:
+                    self.path = path
+                    self.path_target = target
+                else:
+                    # Keep an already safe route for the current task.  A
+                    # failed replan must not leave a newly blocked route
+                    # active; nor may its last nonzero command be streamed.
+                    _wxy = self.world_xy
+                    _out = (_wxy is not None and
+                            self.grid.world_to_cell(_wxy) is None)
+                    _blocked = remaining_path_blocked(
+                        self.grid, self.path, _wxy)
+                    if not self.path or _out or _blocked:
+                        self.path = []
+                        self._last_flight_v = (0.0, 0.0)
+                    self._plan_fail_t = rospy.Time.now().to_sec()
 
     def _stream_last_v(self):
         """规划未就绪时的兜底：继续发上一次水平速度（无则悬停）。
@@ -3035,6 +3627,8 @@ class SwarmAgent(object):
                 if not self.grid.is_free(cell):
                     continue
                 wx, wy = self.grid.cell_to_world(cell)
+                if flight_waypoint(wx, wy) != (wx, wy):
+                    continue
                 d = math.hypot(wx - cx, wy - cy)
                 if d < best_d:
                     best_d = d
@@ -3064,8 +3658,52 @@ class SwarmAgent(object):
             acc += seg
         return self.path[-1]
 
+    def _search_sweep_bearing(self, bearing, distance):
+        """A slow search-only look around the route, with no motion changes."""
+        now = rospy.Time.now().to_sec()
+        previous = getattr(self, '_search_sweep_state', None)
+        dt = now - previous[0] if previous is not None else 0.0
+        turn = abs(math.atan2(math.sin(bearing - previous[1]),
+                              math.cos(bearing - previous[1]))) if previous else 0.0
+        error = abs(math.atan2(math.sin(bearing - self.yaw),
+                               math.cos(bearing - self.yaw)))
+        clearance = getattr(self, '_radar_prev', None)
+        enabled = (SEARCH_SWEEP_DEG > 0.0 and SEARCH_SWEEP_PERIOD_S > 0.0 and
+                   getattr(getattr(self, 'assignment', None), 'task_type', None) == 0 and
+                   getattr(self, '_camera_cue', None) is None and
+                   getattr(self, '_orbit_target', None) is None and
+                   not getattr(self, '_radar_strict', False) and
+                   distance > SEARCH_DECEL_M and error < math.radians(35.) and
+                   turn < math.radians(5.) and 0.0 <= dt <= 0.5 and
+                   0.0 <= now - getattr(self, '_scan_t', -1e18) <= RADAR_FRESH_S and
+                   clearance is not None and min(clearance) >= 8.0)
+        phase = (previous[2] + dt if enabled and previous else 0.0)
+        self._search_sweep_state = (now, bearing, phase)
+        if not enabled:
+            return bearing
+        return bearing + math.radians(min(25.0, SEARCH_SWEEP_DEG)) * math.sin(
+            2.0 * math.pi * phase / SEARCH_SWEEP_PERIOD_S)
+
+    def _set_search_heading(self, desired):
+        """Slew search-only heading across replans; attention bypasses this."""
+        now = rospy.Time.now().to_sec()
+        previous = getattr(self, '_search_heading', None)
+        if previous is None or not 0.0 <= now - previous[0] <= 0.5:
+            heading = getattr(self, 'yaw', 0.0)
+            dt = 1.0 / CTRL_RATE
+        else:
+            heading = previous[1]
+            dt = now - previous[0]
+        error = (desired - heading + math.pi) % (2.0 * math.pi) - math.pi
+        limit = SEARCH_HEADING_RATE * dt
+        heading += max(-limit, min(limit, error))
+        self._search_heading = (now, heading)
+        wx, wy = self.world_xy
+        self._look_at = (wx + 10.0 * math.cos(heading),
+                         wy + 10.0 * math.sin(heading))
+
     def _search_scan_step(self):
-        """原地转满一圈，确认前视相机实际朝过四个方向后才报覆盖完成。"""
+        """Fill only headings not already imaged on the approach to this cell."""
         assignment = getattr(self, 'assignment', None)
         if (assignment is None or getattr(assignment, 'task_type', None) != 0 or
                 self._search_scan_key is None):
@@ -3075,7 +3713,7 @@ class SwarmAgent(object):
         if self._search_scan_yaw0 is None:
             self._search_scan_yaw0 = self.yaw
             self._search_scan_started_t = now
-            self._search_scan_phase = 0
+            self._search_scan_phase = None
             self._search_scan_settle_t = None
         if self._search_scan_done or self._search_scan_failed:
             self._send_vel(0.0, 0.0)
@@ -3086,24 +3724,21 @@ class SwarmAgent(object):
                           self.uav_id, self._search_scan_key)
             self._send_vel(0.0, 0.0)
             return
-        # 0/90/180/270 度，任意相邻两次视场有重叠；仅偏航，水平零速。
-        desired = self._search_scan_yaw0 + self._search_scan_phase * math.pi / 2.0
-        wx, wy = self.world_xy
-        self._look_at = (wx + 10.0 * math.cos(desired),
-                         wy + 10.0 * math.sin(desired))
-        err = (desired - self.yaw + math.pi) % (2.0 * math.pi) - math.pi
-        if abs(err) <= SEARCH_SCAN_YAW_TOL:
-            if self._search_scan_settle_t is None:
-                self._search_scan_settle_t = now
-            elif now - self._search_scan_settle_t >= SEARCH_SCAN_HOLD_S:
-                self._search_scan_phase += 1
-                self._search_scan_settle_t = None
-                if self._search_scan_phase >= 4:
-                    self._search_scan_done = True
-                    rospy.loginfo('[%s] 搜索格四向观察完成: %s',
-                                  self.uav_id, self._search_scan_key)
-        else:
-            self._search_scan_settle_t = None
+        # Four absolute headings represent the 360-degree view. A direction
+        # counts only when two processed frames at that heading were received.
+        missing = [i for i in range(4)
+                   if i not in getattr(self, '_search_scan_seen', set())]
+        if not missing:
+            self._search_scan_done = True
+            rospy.loginfo('[%s] 搜索格图像四向观察完成: %s',
+                          self.uav_id, self._search_scan_key)
+            self._send_vel(0.0, 0.0)
+            return
+        if self._search_scan_phase not in missing:
+            self._search_scan_phase = min(missing, key=lambda sector: abs(
+                (sector * math.pi / 2.0 - self.yaw + math.pi) %
+                (2.0 * math.pi) - math.pi))
+        self._set_search_heading(self._search_scan_phase * math.pi / 2.0)
         self._send_vel(0.0, 0.0)
 
     def _control(self):
@@ -3129,8 +3764,12 @@ class SwarmAgent(object):
         # 未爬到 CLIMB_DONE_ALT 之前，无论派到什么任务都只准垂直爬升，水平速度锁零。
         # 重启协同时若已在此高度之上（_arm_and_offboard 早退路径），首轮即放行。
         if not self._takeoff_done:
+            self._check_climb_progress()
+            if self._recover_stalled_takeoff():
+                return
             if self.local_z is not None and self.local_z >= CLIMB_DONE_ALT:
                 self._takeoff_done = True
+                self._climb_progress = None
                 rospy.loginfo("[%s] 已爬升到 %.1fm，开始水平机动",
                               self.uav_id, CLIMB_DONE_ALT)
             else:
@@ -3140,37 +3779,15 @@ class SwarmAgent(object):
                 return
 
         if self.world_xy is None:
-            # === 2026-10-05 比赛规则硬约束：EKF 病态时不能一直悬停 ===
-            # world_xy=None（EKF 漂移病态 / 偏移未标定）若持续 >1s，飞机将永久
-            # 停滞不前，整轮任务失败。这里强制尝试重锚定 offset → world 立即跳回
-            # 起飞点附近 → 下一帧世界坐标恢复正常 → 任务继续。
-            _now = rospy.Time.now().to_sec()
-            if (not hasattr(self, '_world_none_since') or
-                    self._world_none_since is None):
-                self._world_none_since = _now
-            elif (_now - self._world_none_since) > 1.0 and self._offset_param is not None:
-                # world_xy already reanchors to the last trusted world point.
-                # Replacing that offset with the launch offset every second
-                # undid recovery and trapped UAV1 in an x=150..155 loop.
-                _lg = getattr(self, '_last_good_world', None)
-                if _lg is not None and self.local_xy is not None:
-                    self.offset = (_lg[0] - self.local_xy[0],
-                                   _lg[1] - self.local_xy[1])
-                    rospy.logwarn_throttle(
-                        5.0, "[%s] world_xy 暂不可用 %.1fs，保持最后可信位置重锚定",
-                        self.uav_id, _now - self._world_none_since)
-                else:
-                    self.offset = self._offset_param
-                    rospy.logerr_throttle(
-                        5.0, "[%s] world_xy 暂不可用 %.1fs，无可信历史位置，回起飞锚点",
-                        self.uav_id, _now - self._world_none_since)
-                self._ekf_window = None
-                self._world_none_since = None
-                # 重锚定后世界坐标恢复 → 不悬停，继续主流程
+            # A lost world position cannot be repaired from the same drifting
+            # local pose. _send_vel keeps a safe stream and enters AUTO.LAND.
             self._send_vel(0.0, 0.0)
             return
-        # 健康时清零 None 计时器
-        self._world_none_since = None
+
+        # A real camera cue interrupts travel and scan immediately, even
+        # while the manager is changing the search waypoint or assigning work.
+        if self._hold_camera_candidate():
+            return
 
         if self.assignment is None:
             self.path = []
@@ -3206,6 +3823,21 @@ class SwarmAgent(object):
             if _track_id and not _in_cooldown:
                 _t_seen = self._t_seen.get(_track_id, 0.0)
                 if _t_seen and _now_s - _t_seen > TARGET_STALE:
+                    if _now_s - _t_seen >= TARGET_STALE + STALE_SEARCH_GRACE:
+                        # 接近途中也给冻结坐标绝对期限。旧逻辑只按 40m
+                        # 距离判定：35m 内可能一直沿过期点飞到建筑后面。
+                        tx0, ty0 = self._target_to_orbit
+                        self._discard_old_plan()
+                        self._target_to_orbit = None
+                        self._orbit_target = None
+                        self._confirm_close = False
+                        self._confirm_close_tid = None
+                        self._look_at = (tx0, ty0)
+                        rospy.logwarn('[%s] %s 接近中已 %.1fs 无真实位置，'
+                                      '停车等待新图像或管理器改派',
+                                      self.uav_id, _track_id, _now_s - _t_seen)
+                        self._send_vel(0.0, 0.0)
+                        return
                     tx0, ty0 = self._target_to_orbit
                     _d0 = math.hypot(tx0 - self.world_xy[0],
                                      ty0 - self.world_xy[1])
@@ -3214,8 +3846,17 @@ class SwarmAgent(object):
                 self._look_at = None
                 self._send_vel(0.0, 0.0)
                 return
-            tx, ty = self._target_to_orbit
-            self._look_at = (tx, ty)       # 接近阶段机头就对准目标
+            # Assignment coordinates may be the manager's future intercept,
+            # several metres ahead of the camera-derived target position.
+            # Using that future point for range/yaw broke an 8m observation
+            # ring whenever it crossed 9.5m, then A* rushed toward the actor.
+            # Keep the intercept exclusively for far-route planning; use the
+            # same visual position as _fly_orbit for mode changes and bearing.
+            approach_goal = self._target_to_orbit
+            visual_target = self.targets.get(_track_id)
+            tx, ty = (visual_target[:2] if visual_target is not None
+                      else approach_goal)
+            self._look_at = (tx, ty)
             dist = math.hypot(tx - self.world_xy[0], ty - self.world_xy[1])
             # Keep the close controller across small range-estimate changes.
             # The old exact 8 m switch ran A* pursuit whenever a walking
@@ -3258,8 +3899,8 @@ class SwarmAgent(object):
                     # 存真实 target_id
                     self._orbit_target = _want_target
                     self._stale_search_until.pop(self._orbit_target, None)  # v16: 全新宽限窗口
-                    self._confirm_start = rospy.Time.now().to_sec()
-                    self._last_confirm_t = self._confirm_start
+                    self._orbit_entered_t = rospy.Time.now().to_sec()
+                    self._confirm_start = self._last_confirm_t = 0.0
                     # 2026-10-07 五分钟冲刺: 到圈即贴脸, 不等 manager 团队确认 15s
                     if target_id:
                         self._enter_close_mode(target_id)
@@ -3269,10 +3910,10 @@ class SwarmAgent(object):
             else:
                 # 飞向目标（移动目标：A* 重规划节流）。异步投递，绝不阻塞指令流。
                 # 2026-10-04：传入 tid，追逃（FLEE）时自动收紧重规划节流。
-                if self._need_replan_track((tx, ty), tid=_track_id):
+                if self._need_replan_track(approach_goal, tid=_track_id):
                     if rospy.Time.now().to_sec() - self._plan_fail_t >= 2.0:
-                        self._request_plan((tx, ty))
-                        self._last_track_goal = (tx, ty)
+                        self._request_plan(approach_goal)
+                        self._last_track_goal = approach_goal
                         self._last_track_plan_t = rospy.Time.now().to_sec()
                 local_goal = self._pick_local_goal()
                 if local_goal is None:
@@ -3312,7 +3953,7 @@ class SwarmAgent(object):
             self._fly_orbit()
             return
         # === 2026-10-05 国家一等奖：到点 dwell 期机头冻结到「下一个原本要飞到的搜索点」 ===
-        # 原行为：_look_at = None → 交回 PX4 自管偏航 → 前视 114.6° 相机对到哪算哪。
+        # 原行为：_look_at = None → 交回 PX4 自管偏航 → 前视 90° 相机对到哪算哪。
         # 修复：DWELL_LOOKAHEAD=1 时复用 _pick_local_goal() 的 LOOKAHEAD 点，path
         #       清空时回退到 _last_local_goal（=到点前的下一个引导点）。
         if not DWELL_LOOKAHEAD:
@@ -3322,18 +3963,17 @@ class SwarmAgent(object):
         # 50m 内的搜索机私自改道，单个蓝色假目标曾吸走大半机队，
         # 导致真正未发现的目标活动区无人搜索。近距真实目标仍由
         # _update_orbit 接手；远距候选由 manager 按任务类型派追踪机。
-        goal = (self.assignment.target_x, self.assignment.target_y)
+        goal = flight_waypoint(self.assignment.target_x,
+                               self.assignment.target_y)
         dist = math.hypot(goal[0] - self.world_xy[0], goal[1] - self.world_xy[1])
 
         if dist < SEARCH_ARRIVE_TOL:
             # 前视相机只覆盖一个扇区。抵达格心并不等于看过周围；原来 manager
             # 立即把半径 10m 的圆判成已搜索，蓝/白目标因此整局漏检。
             self.path = []
-            self._check_start_orbit()
-            if self._orbit_target is not None:
-                self._fly_orbit()
-            else:
-                self._search_scan_step()
+            # 搜索机不可仅凭共享坐标/几何 LOS 自行抢目标。真实检测由 manager
+            # 立即改派 task_type=1；只有图像候选时只做有界补看。
+            self._search_scan_step()
             return
 
         # 目标变了 → 异步投递规划（非阻塞；失败后按 _plan_fail_t 冷却 2s 再试）
@@ -3352,28 +3992,18 @@ class SwarmAgent(object):
             self._stream_last_v()
             return
         # === 国家一等奖（2026-10-05）：飞行段机头持续对准下一引导点 ===
-        # 官方相机前视广角 114.6°（单相机），机头预摆可让到点瞬间就处于「即将
+        # YOLO 使用的官方左目相机前视 90°；机头预摆可让到点瞬间就处于「即将
         # 进入下一个搜索格」的方向，与队友多点方案脱节问题修复。
         # 到点 dwell 段 path 会被 _check_start_orbit 清空 → _pick_local_goal
         # 返回 None → 上一句 self._look_at = self._last_local_goal 兜底冻结。
         if DWELL_LOOKAHEAD:
-            # A forward camera sees only ±57°; a person beside the transit
-            # path can be between two aircraft yet outside both views.  Sweep
-            # the nose ±35° while keeping the same world-frame flight path.
-            # Stop sweeping close to the waypoint so the four-direction scan
-            # starts from a settled heading.  Radar and ORCA still constrain
-            # the final velocity in _send_vel.
-            if SEARCH_SWEEP_DEG > 0.0 and SEARCH_SWEEP_PERIOD_S > 0.0 \
-                    and math.hypot(local_goal[0] - self.world_xy[0],
-                                   local_goal[1] - self.world_xy[1]) > SEARCH_DECEL_M:
-                _bearing = math.atan2(local_goal[1] - self.world_xy[1],
-                                      local_goal[0] - self.world_xy[0])
-                _sweep = math.radians(SEARCH_SWEEP_DEG) * math.sin(
-                    2.0 * math.pi * rospy.Time.now().to_sec() / SEARCH_SWEEP_PERIOD_S)
-                self._look_at = (self.world_xy[0] + 10.0 * math.cos(_bearing + _sweep),
-                                 self.world_xy[1] + 10.0 * math.sin(_bearing + _sweep))
-            else:
-                self._look_at = local_goal
+            # Stable heading by default. An optional experimental sweep is
+            # still rate limited and never runs while attending to a person.
+            _bearing = math.atan2(local_goal[1] - self.world_xy[1],
+                                  local_goal[0] - self.world_xy[0])
+            _bearing = self._search_sweep_bearing(_bearing, math.hypot(
+                local_goal[0] - self.world_xy[0], local_goal[1] - self.world_xy[1]))
+            self._set_search_heading(_bearing)
             self._last_local_goal = local_goal
         err_x = local_goal[0] - self.world_xy[0]
         err_y = local_goal[1] - self.world_xy[1]
@@ -3439,16 +4069,8 @@ class SwarmAgent(object):
         return math.hypot(ent[2], ent[3])
 
     def _is_armed(self, tid):
-        """官方是否已首次有效播报该目标（/find_actor_N 曾发布 → actor 已武装可逃）。
-
-        官方 control_actor 的 reported 由 /find_actor_N 首次发布置位（一次性闩锁），
-        我方全员订阅该话题（_find_cb），故武装状态团队侧可见且一致。
-        解析失败按已武装处理（保守）。"""
-        try:
-            idx = int(str(tid)[1:])
-        except (IndexError, ValueError):
-            return True
-        return idx in self._find_t
+        """无法合法观察裁判的触发闩锁，按可能已触发保守控速。"""
+        return True
 
     def _escape_bookkeeping(self, tid):
         """基于观测速度推断「一次性逃跑」生命周期（每帧 /swarm/target_states 调用）。
@@ -3540,31 +4162,7 @@ class SwarmAgent(object):
             return SPOOK_SPEED
         return MAX_SPEED
 
-    # ---- 已消除目标清理 / 盘旋放弃 / 防扎堆（2026-09-27 新增）----
-    def _left_actors_cb(self, msg):
-        """官方 /left_actors：不在清单里的 actor = 已被官方确认并删除。
-
-        这是「飞机被已消除目标占死」的权威兜底。official_target_bridge 只转发
-        model_states，actor 被 del_model 后它就不再发该目标，而它发的
-        TargetState.eliminated 恒为 False —— 于是 agent 的 self.targets 永不清理，
-        _update_orbit 的「目标已消失」分支永远不触发，飞机对着一个已经不存在的
-        actor 盘旋到超时（实测 uav_5/uav_6 对 t1 盘旋 571.3s，4/6 架机全程空转）。
-        """
-        ids = set(int(x) for x in re.findall(r'-?\d+', str(msg.data)))
-        if not ids:
-            return                      # 空清单不采信（可能只是还没发布 / 任务已结束）
-        self._left_seen = True
-        for tid in list(self.targets.keys()):
-            m = re.match(r'^t(\d+)$', str(tid))
-            if m is None:
-                continue
-            if int(m.group(1)) not in ids:
-                self.targets.pop(tid, None)
-                self._t_seen.pop(tid, None)
-                self._giveup_until[tid] = float('inf')   # 已消除，永不追
-                if self._orbit_target == tid:
-                    self._abort_orbit('%s 已被官方消除，回归搜索' % tid)
-
+    # ---- 视觉过期时放弃盘旋 / 防扎堆 ----
     def _abort_orbit(self, reason, clear_path=True):
         """退出盘旋并回到搜索分支。
 
@@ -3583,8 +4181,16 @@ class SwarmAgent(object):
         """
         tid = self._orbit_target
         self._orbit_target = None
+        self._tracking_image = None
+        self._tracking_altitude = None
+        self._observation_detour = None
+        self._observation_detour_next = 0.0
+        self._tracking_blocked_since = None
+        if tid is not None:
+            getattr(self, '_stale_search_until', {}).pop(tid, None)
         self._orbit_center = None
-        self._confirm_start = 0.0
+        self._confirm_start = self._last_confirm_t = 0.0
+        self._orbit_entered_t = 0.0
         self._los_lost_t = 0.0
         self._target_to_orbit = None
         # 2026-10-06 国家一等奖: 退出盘旋时清贴脸标志, 防下一目标继承.
@@ -3610,67 +4216,6 @@ class SwarmAgent(object):
             return
         if uid != self.uav_id:
             self._claims[tid] = (uid, rospy.Time.now().to_sec())
-
-    def _find_cb(self, msg, actor_idx):
-        """官方 /find_actor_N：时间戳每变一次 = 官方刚刚重置了一次 15s 确认。
-
-        这是团队侧唯一能观测到「确认又断了」的权威信号。官方 _reset_detection()
-        把 count_flag 清零、find_time 归零，下一次有效上报又会
-        count_flag False->True 并重新 publish 一个新的时间戳。
-        """
-        t = float(msg.data)
-        old = self._find_t.get(actor_idx)
-        if old is not None and abs(t - old) < 1e-6:
-            return
-        self._find_t[actor_idx] = t
-        if old is None:
-            return                          # 首次发现，不算重置
-        self._reset_n[actor_idx] = self._reset_n.get(actor_idx, 0) + 1
-        self._reset_t[actor_idx] = rospy.Time.now().to_sec()
-        tid = 't%d' % actor_idx
-        rospy.logwarn('[%s] 官方重置了 %s 的确认（第 %d 次）',
-                      self.uav_id, tid, self._reset_n[actor_idx])
-        if self._orbit_target != tid:
-            return
-        # 镜像官方窗口：把自己的确认计时也归零，ORBIT_GIVEUP 的语义才成立
-        self._confirm_start = rospy.Time.now().to_sec()
-        self._last_confirm_t = self._confirm_start
-        # === 2026-10-03 我方补：先判"是不是根本够不着" ===
-        # 官方裁判判据是"误差<1m 连续 15s"，而我方 yolo_target_bridge 加了
-        # 距离闸门（默认 12m）：估计距离超出闸门时我们**故意不播报**，裁判自然
-        # 收不到消息 → 15s 计时反复清零 → /find_actor_N 反复重置。
-        # 这种"重置"不是"播报了但坐标错"，而是"还没飞到能看清的距离"。
-        # 旧逻辑会据此判定播报被拒 → 退避 60s 去搜别处，目标永远丢；
-        # 现在够不着就继续靠近（缩短 ORBIT 目标点、拉近观察距离），
-        # 让距离闸门自然放开，而不是放弃目标。
-        _wxy = self.world_xy
-        _tgt = self._orbit_center or self._target_to_orbit
-        if _wxy is not None and _tgt is not None:
-            _d = math.hypot(_tgt[0] - _wxy[0], _tgt[1] - _wxy[1])
-            if _d > CLOSE_ENOUGH_M:
-                rospy.loginfo_throttle(
-                    5.0,
-                    '[%s] %s 确认被重置：距目标 %.1fm > %.1fm（还没飞到看得清的距离，'
-                    '不放弃，继续靠近）',
-                    self.uav_id, tid, _d, CLOSE_ENOUGH_M)
-                self._reset_n[actor_idx] = 0      # 够不着不算"被拒绝"
-                return
-        if SPEND_ENABLE and self._reset_n[actor_idx] >= CONFIRM_RESET_MAX:
-            # v23：官方逃跑闩锁是一次性的——反复重置说明「温顺接近」路线失败。
-            # 主动花掉逃跑：全速冲进 20m 触发（一次性）逃跑 → 追至跑完 →
-            # 目标变永久温顺（永不再逃，别机路过也不再惊逃）→ 全速贴脸消除。
-            # 取代旧「退避 45s」：退避基于「逃跑可复位」的错误模型，且退避期间
-            # 目标仍可能被任意友机路过惊逃，streak 永远立不起来。
-            self._spend_mode.add(tid)
-            self._abort_orbit('官方已重置 %d 次确认 → 花掉一次性逃跑'
-                              '（全速触发+追至跑完+贴脸消除）'
-                              % self._reset_n[actor_idx],
-                              clear_path=False)
-        elif BACKOFF_ENABLE and self._reset_n[actor_idx] >= CONFIRM_RESET_MAX:
-            self._giveup_until[tid] = rospy.Time.now().to_sec() + BACKOFF_COOLDOWN
-            self._abort_orbit('官方已重置 %d 次确认，退避 %.0fs 去搜别处'
-                              % (self._reset_n[actor_idx], BACKOFF_COOLDOWN),
-                              clear_path=False)
 
     def _publish_claim(self):
         """每 0.5s 广播一次自己正在确认的目标，供别机避让（防多机扎堆）。"""
@@ -3708,83 +4253,31 @@ class SwarmAgent(object):
         return (rospy.Time.now().to_sec() - t_seen) > TARGET_STALE
 
     def _update_orbit(self):
-        """更新盘旋状态：检查目标是否可见，更新确认时间
-
-        国家一等奖标准改进（2026-10-03）：
-        - 旧实现：任何 LOS 失败瞬时重置 _confirm_start → 1s 遮挡
-          就能把累积 14s 的进度清零。修复：引入「LOS 宽容窗口」
-          CONFIRM_LOS_GRACE（默认 2.0s），期间不重置累计。
-        - 加入「视场对准」检查：相机水平 HFOV=90°（±45°），机头不
-          对准目标（默认 yaw 没控制）时目标可能早出视场而仍被几何
-          判定为可见。修复：检查 |target_bearing - yaw| ≤ 50°（略
-          大于 HFOV/2 留余量），否则也不算确认。
-        """
+        """Advance local visual streak from eligible own-camera timestamps only."""
         if self._orbit_target is None:
             return
-
-        wx = self.world_xy
-        if wx is None:
-            return
-
-        tid = self._orbit_target
-        if tid not in self.targets:
-            # 目标已消失，停止盘旋
-            self._orbit_target = None
-            self._orbit_center = None
-            return
-
-        tx, ty, _, _ = self.targets[tid]
-        dist = math.hypot(tx - wx[0], ty - wx[1])
-
         now = rospy.Time.now().to_sec()
-        # 检查是否能看到目标（距离 + LOS + 视场）
-        in_radius = dist < DETECT_RADIUS
-        in_los = in_radius and self.los.visible(wx[0], wx[1], tx, ty)
-        in_fov = True
-        if in_los:
-            # 国家一等奖 BUG 修复（2026-10-03）：原代码写 self._yaw 但实际
-            # _local_cb 把偏航角写入 self.yaw，结果 FOV 检查永远 None → 跳过
-            # → 目标在飞机后方时仍报「已确认」→ 进度条虚假累计 → 裁判判定消除
-            # 时坐标其实是被甩在身后的位置（实测 t3/t4 多机接力进度卡 30~40%）。
-            # 修复：用 self.yaw；如未设置则降级为 True（避免 EKF 未就绪时直接卡死）
-            # ---- 2026-10-03：再加强：yaw 未设置也不跳过 FOV 检查而是
-            # 用 True（默认目标在视场中），保证队首起飞阶段的早期确认不被误杀；
-            # yaw 就绪后仍走 50° 阈值判定。
-            _yaw = getattr(self, 'yaw', None)
-            if _yaw is not None:
-                target_bearing = math.atan2(ty - wx[1], tx - wx[0])
-                dy = target_bearing - _yaw
-                # wrap 到 [-pi, pi]
-                while dy > math.pi:
-                    dy -= 2 * math.pi
-                while dy < -math.pi:
-                    dy += 2 * math.pi
-                if abs(dy) > math.radians(50.0):
-                    in_fov = False
-        visible = in_radius and in_los and in_fov
-        if visible:
-            if self._confirm_start == 0.0:
-                self._confirm_start = now
-            self._last_confirm_t = now
-            self._los_lost_t = 0.0
-        else:
-            # 国家一等奖：LOS 宽容窗口（2.0s），期间不重置累计进度
-            if self._confirm_start != 0.0:
-                if self._los_lost_t == 0.0:
-                    self._los_lost_t = now
-                elif now - self._los_lost_t > CONFIRM_LOS_GRACE:
-                    # 超过宽容窗口才重置（避免被短时遮挡清零）
-                    self._confirm_start = 0.0
-                    self._los_lost_t = 0.0
+        evidence = self._visual_observations.get(self._orbit_target)
+        accepted = getattr(self, '_eligible_observations', {}).get(self._orbit_target)
+        if accepted is not None and (evidence is None or not evidence.get('eligible') or
+                                    accepted['sample_s'] > evidence['sample_s']):
+            evidence = accepted
+        if (evidence is None or not evidence['eligible'] or
+                not 0.0 <= now-evidence['sample_s'] <= 1.0):
+            self._confirm_start = self._last_confirm_t = 0.0
+            return
+        sample = evidence['sample_s']
+        if sample <= self._last_confirm_t:
+            return
+        if self._confirm_start == 0.0 or sample-self._last_confirm_t > 1.0:
+            self._confirm_start = sample
+        self._last_confirm_t = sample
 
     def _enter_close_mode(self, tid):
-        """2026-10-07 五分钟冲刺: 统一的贴脸模式入口.
+        """Enter the stable near-range flight mode; this proves no recognition.
 
-        到达 8m 观察圈即切稳定近距跟随，不再等 manager 团队确认 15s:
-        - 贴脸稳态误差 <0.5m 天然满足官方判据 (err<1m AND 间隔≤1s),
-          官方 15s 计时从贴脸首帧起算 → 每目标省 15s 串行等待.
-        - 平稳过渡期由 CLOSE_TRANSIT_SPEED=0.95 限速；失联趋势另行追赶。
-        - manager /swarm/confirmed 回调幂等 (已 True 不重复), 兜底仍在.
+        Keep the existing 0.95m/s transition cap. Camera samples establish
+        visual continuity, and official feedback alone establishes elimination.
         """
         if self._confirm_close and self._confirm_close_tid == tid:
             return
@@ -3793,17 +4286,21 @@ class SwarmAgent(object):
         self._confirm_close_t0 = rospy.Time.now().to_sec()
         self._confirm_close_until = self._confirm_close_t0 + CONFIRM_LOCK_DURATION
         self._close_range_ref = None
-        self._orbit_prev = None  # 清外推基线, 贴脸 angle 用当前位置重算
+        self._orbit_prev = None
         rospy.loginfo(
-            "[%s] 到达盘旋圈 → 直接切贴脸模式 (tid=%s) R=%.1fm/ω=%.3frad/s "
-            "(线速度=%.3fm/s, 过渡cap=%.2fm/s), 锁定 %.0fs",
-            self.uav_id, tid, ORBIT_RADIUS_CLOSE, ORBIT_SPEED_CLOSE,
-            ORBIT_RADIUS_CLOSE * ORBIT_SPEED_CLOSE, CLOSE_TRANSIT_SPEED,
+            "[%s] 到达观察圈 → 定点稳视角 (tid=%s) R=%.1fm "
+            "(速度cap=%.2fm/s), 锁定 %.0fs",
+            self.uav_id, tid, ORBIT_RADIUS_CLOSE, CLOSE_TRANSIT_SPEED,
             CONFIRM_LOCK_DURATION,
         )
 
     def _check_start_orbit(self):
-        """检查是否需要开始盘旋（发现可确认的目标）"""
+        """仅为本机明确获派的目标进入观察，不能从搜索中自行抢人。"""
+        assignment = getattr(self, 'assignment', None)
+        assigned_tid = (getattr(assignment, 'target_id', None)
+                        if getattr(assignment, 'task_type', None) == 1 else None)
+        if not assigned_tid:
+            return
         # R2（2026-10-09）：world 不可信（EKF 钳制/重锚定后）不开始新盘旋——
         # 检测距离判据基于被污染的 world_xy 会假到达/追错点
         if not self._world_trusted():
@@ -3813,6 +4310,8 @@ class SwarmAgent(object):
             return
 
         for tid, (tx, ty, _, _) in self.targets.items():
+            if tid != assigned_tid:
+                continue
             if rospy.Time.now().to_sec() - self._t_seen.get(tid, 0.0) > TARGET_TTL:
                 continue
             dist = math.hypot(tx - wx[0], ty - wx[1])
@@ -3822,22 +4321,13 @@ class SwarmAgent(object):
             # 放弃冷却期内不再自动追（刚放弃过的目标，别立刻又贴回去）
             if rospy.Time.now().to_sec() < self._giveup_until.get(tid, 0.0):
                 continue
-            # 距上次官方重置已久 → 清零计数（误差是时变的，回来值得再试一次）
-            _m = re.match(r'^t(\d+)$', str(tid))
-            if _m is not None:
-                _i = int(_m.group(1))
-                if rospy.Time.now().to_sec() - self._reset_t.get(_i, 0.0) > RESET_DECAY:
-                    self._reset_n[_i] = 0
-            # 别机已经在确认这个目标 → 不扎堆，继续搜自己的格
-            _other = self._claimed_by_other(tid)
-            if _other is not None:
-                continue
+            # manager 可以显式给同目标指定备机；旧 claim 不得推翻任务。
             # 开始盘旋确认
             self._orbit_target = tid
             self._orbit_center = (tx, ty)
             self._stale_search_until.pop(tid, None)  # v16: 全新宽限窗口
-            self._confirm_start = rospy.Time.now().to_sec()
-            self._last_confirm_t = self._confirm_start
+            self._orbit_entered_t = rospy.Time.now().to_sec()
+            self._confirm_start = self._last_confirm_t = 0.0
             # 检测半径是 10m，稳定观察圈是 8m。10m 处就限 0.95m/s
             # 会使尚在逃跑的 actor 以更快速度甩开本机。
             if dist <= ORBIT_RADIUS:
@@ -3845,15 +4335,182 @@ class SwarmAgent(object):
             rospy.loginfo("[%s] 开始盘旋确认目标 %s", self.uav_id, tid)
             break
 
-    def _fly_orbit(self):
-        """执行盘旋飞行：绕目标做圆周运动。
+    def _close_follow_cap(self, tid, observation_age):
+        """Respect pursuit decisions at ring entry without accelerating blind.
 
-        国家一等奖标准改进（2026-10-03）：actor 持续 2m/s 移动时旧实
-        现的圆心固定 → 飞机在轨道上 13s 跑一圈 actor 已跑 26m，
-        远超 20m 视野。修复：用最近两次 actor 位置差分估算速度，
-        把圆心提前 dt 秒外推到「飞机抵达时刻的 actor 位置」。
+        These are camera-derived control states, not knowledge of an official
+        escape latch. Quiet observation retains its original speed limit.
         """
+        pursuing = (tid in getattr(self, '_escape_spent', set()) or
+                    tid in getattr(self, '_spend_mode', set()) or
+                    tid in getattr(self, '_flee_run_t', {}))
+        if pursuing and 0.0 <= observation_age <= 1.0:
+            return min(FLEE_SHEPHERD_SPEED, MAX_SPEED)
+        return CLOSE_TRANSIT_SPEED
+
+    def _reobserve_cb(self, msg):
+        """A task-scoped request to change view; never grants detection credit."""
+        try:
+            data = json.loads(msg.data)
+            now = rospy.Time.now().to_sec()
+            assignment = getattr(self, 'assignment', None)
+            sample = float(data['sample_s'])
+            if (assignment is None or assignment.task_type != 1 or
+                    data.get('uav_id') != self.uav_id or
+                    data.get('target_id') != assignment.target_id or
+                    not math.isfinite(sample) or not 0.0 <= now-sample <= 1.0 or
+                    sample <= getattr(self, '_reobserve_request_sample', -1e18)):
+                return
+            self._reobserve_request_sample = sample
+            self._reobserve_forced = (assignment.target_id, now+6.0)
+        except (ValueError, KeyError, TypeError, AttributeError):
+            return
+
+    def _reobserve_goal(self, tx, ty, now):
+        """Try one nearby safe view after loss; never disturb fresh imagery.
+
+        Camera evidence owns this watchdog. Team coordinates only locate the
+        observation ring; they do not establish that this camera sees a person.
+        """
+        tid = self._orbit_target
+        image = self._fresh_tracking_view(now)
+        if (image is not None and (image.get('geometry_ok') or image.get('pixel_only')) and
+                not view_needs_space(image)):
+            # Bridge disagreement is not camera blindness. Even a forced
+            # manager request must not disturb a fresh complete local view.
+            self._reobserve_view = None
+            return None
+        last = getattr(self, '_last_eligible_image', {}).get(tid, -1e18)
+        evidence = getattr(self, '_visual_observations', {}).get(tid)
+        if evidence is not None and evidence.get('eligible'):
+            last = max(last, evidence['sample_s'])
+        forced = getattr(self, '_reobserve_forced', None)
+        forced = forced is not None and forced[0] == tid and now < forced[1]
+        if 0.0 <= now - last <= 3.0 and not forced:
+            self._reobserve_view = None
+            return None
+        entered = getattr(self, '_orbit_entered_t', now)
+        if now - entered < 3.0 or not 0.0 <= now - self._t_seen.get(tid, 0.0) <= TARGET_TTL:
+            return None
+        wx, wy = self.world_xy
+        if not 6.5 <= math.hypot(wx - tx, wy - ty) <= 10.0:
+            return None  # first regain range; do not sweep through the close blind zone
+        view = getattr(self, '_reobserve_view', None)
+        if view is not None and view['tid'] == tid:
+            if now < view['until'] and math.hypot(tx-view['tx'], ty-view['ty']) <= 2.0:
+                goal = view['goal']
+                if self._safe_reobserve_segment((wx, wy), goal):
+                    return goal
+            self._reobserve_view = None
+        if now < getattr(self, '_reobserve_next', 0.0):
+            return None
+        self._reobserve_next = now + 10.0
+        angle = math.atan2(wy - ty, wx - tx)
+        sign = getattr(self, '_reobserve_sign', 1)
+        self._reobserve_sign = -sign
+        for offset in (sign * math.pi/6.0, -sign * math.pi/6.0):
+            goal = (tx + ORBIT_RADIUS_CLOSE * math.cos(angle + offset),
+                    ty + ORBIT_RADIUS_CLOSE * math.sin(angle + offset))
+            if (not self._safe_reobserve_segment((wx, wy), goal) or
+                    not self.los.visible(goal[0], goal[1], tx, ty)):
+                continue
+            self._reobserve_view = dict(tid=tid, goal=goal, tx=tx, ty=ty, until=now+6.0)
+            rospy.logwarn('[VIEW_REOBSERVE] uav=%s tid=%s goal=(%.2f,%.2f) '
+                          'last_good_image=%.3f; 保持朝向、限时侧移补看',
+                          self.uav_id, tid, goal[0], goal[1], last)
+            return goal
+        return None
+
+    def _safe_reobserve_segment(self, start, goal):
+        """Check the whole short move against inflated lidar grid and bounds."""
+        xmin, xmax, ymin, ymax = flight_bounds()
+        n = max(1, int(math.ceil(math.hypot(goal[0]-start[0], goal[1]-start[1]) / 0.2)))
+        for i in range(n+1):
+            x = start[0] + (goal[0]-start[0]) * i/n
+            y = start[1] + (goal[1]-start[1]) * i/n
+            if not (xmin+MAP_GUARD_MARGIN <= x <= xmax-MAP_GUARD_MARGIN and
+                    ymin+MAP_GUARD_MARGIN <= y <= ymax-MAP_GUARD_MARGIN):
+                return False
+            cell = self.grid.world_to_cell((x, y))
+            if cell is None or not self.grid.is_free(cell):
+                return False
+        return True
+
+    def _obstructed_view_goal(self, tx, ty, tvx, tvy, now, desired_velocity=None):
+        """Choose a short safe side move BEFORE obstacle stopping loses the view.
+
+        Candidate routes use only the team's lidar map. Every output still
+        passes the ordinary final radar/altitude/boundary safety constraints.
+        """
+        if (self.world_xy is None or
+                not 0.0 <= now-getattr(self, '_scan_t', -1e18) <= RADAR_FRESH_S):
+            return None
+        wx, wy = self.world_xy
+        mvx, mvy = desired_velocity if desired_velocity is not None else (tvx, tvy)
+        motion_speed = math.hypot(mvx, mvy)
+        # A wall elsewhere in the scan must not make a well-held view orbit.
+        # Look ahead only along the intended motion, including backward flight.
+        near_obstacle = False
+        if motion_speed > .2:
+            probe = (wx+3.5*mvx/motion_speed, wy+3.5*mvy/motion_speed)
+            near_obstacle = not self._safe_reobserve_segment((wx, wy), probe)
+        blocked_since = getattr(self, '_tracking_blocked_since', None)
+        blocked = blocked_since is not None and now-blocked_since >= .4
+        distance = math.hypot(wx-tx, wy-ty)
+        if not 2.0 <= distance <= 12.0:
+            return None
+        cached = getattr(self, '_observation_detour', None)
+        if cached is not None and cached['tid'] == self._orbit_target and now < cached['until']:
+            goal = (tx+ORBIT_RADIUS_CLOSE*math.cos(cached['angle']),
+                    ty+ORBIT_RADIUS_CLOSE*math.sin(cached['angle']))
+            if (math.hypot(goal[0]-wx, goal[1]-wy) <= 6.0 and
+                    self._safe_reobserve_segment((wx, wy), goal) and
+                    self.los.visible(goal[0], goal[1], tx, ty)):
+                return goal
+            self._observation_detour = None
+        if not (near_obstacle or blocked):
+            return None
+        if now < getattr(self, '_observation_detour_next', 0.):
+            return None
+        self._observation_detour_next = now+.5
+        angle = math.atan2(wy-ty, wx-tx)
+        speed = math.hypot(tvx, tvy)
+        candidates = []
+        for degrees in (-20, 20, -40, 40, -60, 60, -90, 90):
+            a = angle+math.radians(degrees)
+            goal = (tx+ORBIT_RADIUS_CLOSE*math.cos(a), ty+ORBIT_RADIUS_CLOSE*math.sin(a))
+            travel = math.hypot(goal[0]-wx, goal[1]-wy)
+            if travel > 6.0 or not self._safe_reobserve_segment((wx, wy), goal):
+                continue
+            if not self.los.visible(goal[0], goal[1], tx, ty):
+                continue
+            # Prefer side/rear views when equally reachable; never force a
+            # circuit through buildings just to get behind a walking actor.
+            ahead = max(0., (math.cos(a)*tvx+math.sin(a)*tvy)/max(speed, .1))
+            candidates.append((travel+2.*ahead, a, goal))
+        if not candidates:
+            rospy.logwarn_throttle(2., '[VIEW_BLOCKED] uav=%s tid=%s range=%.2f; '
+                                  'no safe short observation move',
+                                  self.uav_id, self._orbit_target, distance)
+            return None
+        _, angle, goal = min(candidates)
+        self._observation_detour = dict(tid=self._orbit_target, angle=angle, until=now+3.)
+        rospy.logwarn_throttle(2., '[VIEW_DETOUR] uav=%s tid=%s goal=(%.2f,%.2f) '
+                              'obstacle=%s stopped=%s image_margin=%s',
+                              self.uav_id, self._orbit_target, *goal,
+                              near_obstacle, blocked, False)
+        return goal
+
+    def _fly_orbit(self):
+        """Keep a safe, inward observation point and face the assigned actor."""
         if self._orbit_target is None:
+            self._send_vel(0.0, 0.0)
+            return
+        assignment = getattr(self, 'assignment', None)
+        expected_tid = getattr(assignment, 'target_id', None) or 'tracking'
+        if (assignment is None or getattr(assignment, 'task_type', None) != 1 or
+                expected_tid != self._orbit_target):
+            self._abort_orbit('管理器追踪指派已结束')
             self._send_vel(0.0, 0.0)
             return
 
@@ -3868,32 +4525,26 @@ class SwarmAgent(object):
             self._send_vel(0.0, 0.0)
             return
 
-        # 目标长时间没有位置更新才判定已删除；短时遮挡要给 bridge/备份机接力窗口。
-        # === v16 修复：到圈后 stale 宽限搜索 ===
-        # v15 实测（agent_0 追 t1）：到圈瞬间 gap=56.6s 立即放弃——白飞 56s。
-        # actor 静止时冻结位置即真实位置，首次 stale 不放弃，进入
-        # STALE_SEARCH_GRACE 宽限窗口：继续用冻结位置盘旋（机头指向目标，
-        # 视角变化可脱离楼体遮挡），YOLO 重捕获则 _t_seen 刷新自然退出本分支；
-        # 窗口结束仍 stale 才放弃（原逻辑）。
+        # 短时遮挡时允许有界重获。截止点从最后真实样本计算，而非从
+        # "终于飞到冻结位置"的时刻计算；否则远途路程可再白耗一轮宽限。
         if self._orbit_stale():
             tid0 = self._orbit_target
             _now_s = rospy.Time.now().to_sec()
             gap = _now_s - self._t_seen.get(tid0, 0.0)
-            _grace = self._stale_search_until.get(tid0, 0.0)
-            if _grace == 0.0:
-                self._stale_search_until[tid0] = _now_s + STALE_SEARCH_GRACE
-                rospy.logwarn('[%s] 目标 %s 已 %.1fs 无更新 → %.0fs 宽限搜索'
-                              '（actor 静止假设，盘旋重捕获）',
-                              self.uav_id, tid0, gap, STALE_SEARCH_GRACE)
-            elif _now_s >= _grace:
+            _deadline = (self._t_seen.get(tid0, 0.0) + TARGET_STALE +
+                         STALE_SEARCH_GRACE)
+            if _now_s >= _deadline:
                 self.targets.pop(tid0, None)
                 self._giveup_until[tid0] = _now_s + GIVEUP_COOLDOWN
                 self._stale_search_until.pop(tid0, None)
-                # 保留路径：目标点未变，重算结果完全相同，纯浪费 CPU。
                 self._abort_orbit('已 %.1fs 无位置更新，暂退避等待接力' % gap,
                                   clear_path=False)
                 return
-            # 宽限期内：targets 里仍有冻结位置，走正常盘旋流程
+            if tid0 not in self._stale_search_until:
+                self._stale_search_until[tid0] = _deadline
+                rospy.logwarn('[%s] 目标 %s 已 %.1fs 无更新 → 剩余 %.1fs '
+                              '有界补看；不续算冻结坐标',
+                              self.uav_id, tid0, gap, _deadline - _now_s)
 
         # 用最新目标位置更新盘旋中心
         if self._orbit_target == "tracking" and self._target_to_orbit is not None:
@@ -3942,10 +4593,6 @@ class SwarmAgent(object):
                         (orbit_dist - ref[2]) / (now - ref[1]), orbit_dist)
                 self._close_range_ref = (self._orbit_target, now, orbit_dist,
                                          tx, ty, wx, wy)
-        chase_close = (self._confirm_close and
-                       getattr(self, '_close_chase_tid', None) == self._orbit_target and
-                       now < getattr(self, '_close_chase_until', 0.0) and
-                       obs_age <= 1.0 and orbit_dist > 6.0)
         # The close cap is below a walking actor's nominal 1m/s speed.  If
         # that actor walks away, a 30s close-mode latch makes reacquisition
         # mathematically impossible.  Let the normal one-shot escape policy
@@ -3965,45 +4612,38 @@ class SwarmAgent(object):
                 self.los.visible(wx, wy, tx, ty)):
             self._enter_close_mode(self._orbit_target)
 
-        # 国家一等奖：actor 速度估计 + 圆心外推到飞机飞行 dt 后
-        prev = getattr(self, "_orbit_prev", None)
-        if prev is None or prev[0] != self._orbit_target:
-            self._orbit_prev = (self._orbit_target, tx, ty, now)
-            prev_vx_t, prev_vy_t = 0.0, 0.0
+        # Bridge 的速度按真实图像时间估计。旧代码每 50ms 对重复发布的
+        # 相同坐标再作差分，目标下一帧一跳就产生虚假的 2.5m/s 脉冲。
+        # 仅用新鲜速度作一个控制周期的小预测；过期则停在有界补看点。
+        tvx, tvy = self.targets.get(self._orbit_target, (0, 0, 0, 0))[2:4]
+        if (not 0.0 <= obs_age <= TARGET_TTL or
+                not math.isfinite(tvx) or not math.isfinite(tvy)):
+            tvx = tvy = 0.0
         else:
-            _tid, _px, _py, _pt = prev
-            _dt_t = max(now - _pt, 0.05)
-            prev_vx_t = (tx - _px) / _dt_t
-            prev_vy_t = (ty - _py) / _dt_t
-            _sp = math.hypot(prev_vx_t, prev_vy_t)
-            if _sp > 2.5:
-                prev_vx_t *= 2.5 / _sp
-                prev_vy_t *= 2.5 / _sp
-            self._orbit_prev = (self._orbit_target, tx, ty, now)
-        # 计算当前相对于目标的角度（用外推后位置）
+            tv_speed = math.hypot(tvx, tvy)
+            if tv_speed > 2.5:
+                tvx *= 2.5 / tv_speed
+                tvy *= 2.5 / tv_speed
         dt = 1.0 / CTRL_RATE
-        tx_c = tx + prev_vx_t * dt
-        ty_c = ty + prev_vy_t * dt
+        tx_c = tx + tvx * dt
+        ty_c = ty + tvy * dt
         angle = math.atan2(wy - ty_c, wx - tx_c)
 
-        xmin, ymin = self.grid.origin
-        xmax = xmin + self.grid.width * self.grid.resolution
-        ymax = ymin + self.grid.height * self.grid.resolution
+        xmin, xmax, ymin, ymax = flight_bounds()
         _ring_bounds = (xmin, xmax, ymin, ymax)
 
-        # 更新角度（顺时针盘旋）
-        # 近距模式维持 8m 观察距离：裁判判的是上报世界坐标精度，
-        # 不要求无人机压到演员头顶；压进 7m 会触发演员驱离，反而断流。
+        # 维持 8m 观察距离；静止人前无需持续绕圈，边界一律选场内侧
+        # 的观察点。移动人的平移由后面的新鲜速度前馈承担。
+        inward_view = False
         if self._confirm_close:
-            # 小角速度让相机稳定对准演员，减少图像框和测距抖动。
             _radius = ORBIT_RADIUS_CLOSE
-            _speed  = ORBIT_SPEED_CLOSE
             # 这里的 angle 只决定观察方向；移动目标的平移由速度前馈负责。
             angle = math.atan2(wy - ty_c, wx - tx_c)
             target_x = tx_c + _radius * math.cos(angle)
             target_y = ty_c + _radius * math.sin(angle)
             if not (xmin + MAP_GUARD_MARGIN <= target_x <= xmax - MAP_GUARD_MARGIN and
                     ymin + MAP_GUARD_MARGIN <= target_y <= ymax - MAP_GUARD_MARGIN):
+                inward_view = True
                 target_x, target_y = observation_ring_goal(
                     wx, wy, tx_c, ty_c, _radius,
                     _ring_bounds, MAP_GUARD_MARGIN + 0.5)
@@ -4012,11 +4652,6 @@ class SwarmAgent(object):
             target_y = wy + 0.3 * (target_y - wy)
         else:
             _radius = ORBIT_RADIUS
-            _speed  = ORBIT_SPEED
-            angle += _speed * dt
-            if angle > math.pi:
-                angle -= 2 * math.pi
-            # 目标位置（用外推后圆心，确保飞机真的"绕到 actor 未来位置上"）
             target_x = tx_c + _radius * math.cos(angle)
             target_y = ty_c + _radius * math.sin(angle)
             if not (xmin + MAP_GUARD_MARGIN <= target_x <= xmax - MAP_GUARD_MARGIN and
@@ -4025,40 +4660,51 @@ class SwarmAgent(object):
                     wx, wy, tx_c, ty_c, _radius,
                     _ring_bounds, MAP_GUARD_MARGIN + 0.5)
 
+        detour = self._obstructed_view_goal(
+            tx, ty, tvx, tvy, now,
+            desired_velocity=(POS_KP*(target_x-wx)+tvx, POS_KP*(target_y-wy)+tvy))
+        if detour is not None:
+            target_x, target_y = detour
+            inward_view = True  # radial correction must not cancel the safe side move
+        else:
+            reobserve = self._reobserve_goal(tx, ty, now)
+            if reobserve is not None:
+                target_x, target_y = reobserve
+                inward_view = True
+
         # P 控制飞向盘旋点
         err_x = target_x - wx
         err_y = target_y - wy
         vx = POS_KP * err_x
         vy = POS_KP * err_y
-        # 近距确认时，目标仍会以约 1 m/s 行走。仅靠经过 0.3 缩放的
-        # 位置误差产生约 0.2~0.5 m/s，飞机必然逐渐落后并丢失画面。
-        # 使用桥接轨迹的速度作前馈，再统一限到逃跑触发线以下；观测
-        # 过期时停用前馈，避免沿冻结速度继续追鬼影。
+        # Carry the existing pursuit decision through every close-mode cap.
+        # Previously _approach_cap allowed pursuit, but these three stages
+        # clamped back to .95 m/s as soon as the UAV entered the ring.
+        follow_cap = self._close_follow_cap(self._orbit_target, obs_age)
         _urgent_backoff = False
-        if self._confirm_close and not chase_close:
-            _tvx, _tvy = (self.targets[self._orbit_target][2:4]
-                          if self._orbit_target in self.targets else (0.0, 0.0))
+        if self._confirm_close:
+            _tvx, _tvy = tvx, tvy
             vx, vy = close_follow_velocity(
                 err_x, err_y, _tvx, _tvy,
-                now - self._t_seen.get(self._orbit_target, 0.0))
-            vx, vy = ring_standoff_velocity(
-                vx, vy, wx, wy, tx, ty, ORBIT_RADIUS_CLOSE,
-                _tvx if now - self._t_seen.get(self._orbit_target, 0.0) <= TARGET_TTL else 0.0,
-                _tvy if now - self._t_seen.get(self._orbit_target, 0.0) <= TARGET_TTL else 0.0)
-            vx, vy, _urgent_backoff = urgent_close_backoff_velocity(
-                vx, vy, wx, wy, tx, ty, _tvx, _tvy)
-        elif chase_close:
-            # The ring point is behind a retreating actor.  Follow the actual
-            # line of sight until the range closes; all radar, map and friend
-            # guards still run through _send_vel below.
-            vx = FLEE_SHEPHERD_SPEED * (tx - wx) / orbit_dist
-            vy = FLEE_SHEPHERD_SPEED * (ty - wy) / orbit_dist
+                now - self._t_seen.get(self._orbit_target, 0.0),
+                speed_cap=follow_cap)
+            if not inward_view:
+                # At a map edge the radial "back off" direction can point
+                # outside the arena and fight the inward observation goal.
+                vx, vy = ring_standoff_velocity(
+                    vx, vy, wx, wy, tx, ty, ORBIT_RADIUS_CLOSE,
+                    _tvx, _tvy, speed_cap=follow_cap)
+                vx, vy, _urgent_backoff = urgent_close_backoff_velocity(
+                    vx, vy, wx, wy, tx, ty, _tvx, _tvy)
+        else:
+            # 8m 外圈也维持固定观察方位，不为产生角速度而绕人。
+            # 对移动目标用最近真实图像轨迹作前馈；随后仍统一限速、
+            # 避友机并经过 _send_vel 的雷达/地图/加速度安全链。
+            vx += tvx
+            vy += tvy
         spd = math.hypot(vx, vy)
-        # 近距稳定观察时速度上限 0.95 m/s；离圈后由追赶策略重新定速。
-        # 严格低于官方逃跑触发阈值 1.0 m/s (机速>1.0 且 <20m 持续 2s → actor 逃跑).
-        _v_cap = (FLEE_SHEPHERD_SPEED if chase_close else
-                  CLOSE_BACKOFF_SPEED if _urgent_backoff else
-                  CLOSE_TRANSIT_SPEED if self._confirm_close else
+        _v_cap = (CLOSE_BACKOFF_SPEED if _urgent_backoff else
+                  follow_cap if self._confirm_close else
                   self._approach_cap(self._orbit_target, orbit_dist))
         if spd > _v_cap:
             vx *= _v_cap / spd
@@ -4069,35 +4715,49 @@ class SwarmAgent(object):
 
         self._send_vel(vx, vy)
 
-        # 检查确认时间
-        # ⚠ v22-A 回滚（2026-10-09 04:52）：加 _confirm_start>0 防御后，目标不可见时
-        # confirm_duration=0 → 永不触发放弃 → 飞机卡死盘旋态（v22 仿真实证：6 机全卡、
-        # manager 70s 后 0 分配、score 464.9→44.9 崩溃）。v21 的"sim 时间戳误判"实际是
-        # 逃生阀：不可见时快速放弃回搜索池。保留原逻辑，不可见退出的正确修法是
-        # stale→宽限→放弃链路（v16 已有），不动这里。
-        confirm_duration = now - self._confirm_start
-        # 2026-10-06 国家一等奖: 贴脸锁定时长到期检查
+        self._update_orbit()
+        confirm_duration = (self._last_confirm_t-self._confirm_start
+                            if self._confirm_start > 0.0 else 0.0)
+        # Reacquisition watchdog has a separate residence clock. A zero visual
+        # timer must neither imply huge confirmation time nor lock the UAV forever.
+        if getattr(self, '_orbit_entered_t', 0.0) <= 0.0:
+            self._orbit_entered_t = now
+        evidence = self._visual_observations.get(self._orbit_target)
+        own_seen = evidence is not None and 0.0 <= now-evidence['sample_s'] <= 1.0
+        image = getattr(self, '_tracking_image', None)
+        if image is not None and image['target_id'] == self._orbit_target:
+            own_seen = own_seen or 0. <= now-image['sample_s'] <= .5
+        # The loss budget starts at the last real OWN image, not at ring
+        # entry. Team updates, predictions and replayed samples cannot renew
+        # it. A 1.01 s camera gap after 20 s of healthy tracking is recoverable.
+        last_own_image = self._orbit_entered_t
+        if evidence is not None and evidence['sample_s'] <= now:
+            last_own_image = max(last_own_image, evidence['sample_s'])
+        if (image is not None and image['target_id'] == self._orbit_target and
+                image['sample_s'] <= now):
+            last_own_image = max(last_own_image, image['sample_s'])
+        lost_for = now-last_own_image
+        if lost_for >= ORBIT_GIVEUP and not own_seen:
+            self._giveup_until[self._orbit_target] = now+GIVEUP_COOLDOWN
+            self._abort_orbit('重捕获超时，无本机真实图像，释放任务', clear_path=False)
+            return
+        # A residence timer must not interrupt a still-visible assigned actor.
+        # Lost-image recovery and task cancellation retain their own deadlines.
         if self._confirm_close and now >= self._confirm_close_until:
-            self._confirm_close = False
-            self._confirm_close_tid = None
-            self._orbit_prev = None
-            rospy.loginfo("[%s] 贴脸锁定 %.0fs 到期, 退出贴脸模式",
-                          self.uav_id, CONFIRM_LOCK_DURATION)
+            if own_seen:
+                self._confirm_close_until = now + CONFIRM_LOCK_DURATION
+            else:
+                self._confirm_close = False
+                self._confirm_close_tid = None
+                self._orbit_prev = None
+                rospy.loginfo("[%s] 观察锁定到期且无本机新图像，转限时重获",
+                              self.uav_id)
         self._publish_claim()
 
         if confirm_duration >= CONFIRM_TIME:
             rospy.loginfo_throttle(
-                5.0, "[%s] 目标 %s 驻留观察 %.1fs，等待官方消除反馈",
+                5.0, "[%s] 目标 %s 本机真实图像连续观测 %.1fs，继续跟踪上报；官方消除未知",
                 self.uav_id, self._orbit_target, confirm_duration)
-            # 团队侧已满足 15s，官方却迟迟没消除 = 官方链路断了（坐标过期 / 遮挡 / 它在逃跑）。
-            # 继续死等只会把飞机锁死（实测 571s），不如放弃、让 manager 重新派活。
-            if confirm_duration >= ORBIT_GIVEUP:
-                self._giveup_until[self._orbit_target] = (
-                    rospy.Time.now().to_sec() + GIVEUP_COOLDOWN)
-                self._abort_orbit('确认 %.0fs 官方仍未消除，放弃（%.0fs 内不再追）'
-                                  % (confirm_duration, GIVEUP_COOLDOWN),
-                                  clear_path=False)
-
     def _adaptive_speed(self, vx, vy):
         """根据场景自适应速度：搜索快、确认慢、避障稳"""
         # 基础速度
@@ -4180,12 +4840,11 @@ class SwarmAgent(object):
             self._last_orca_v = (vx, vy)
             return vx, vy  # 无冲突直接返回
 
-        # 当前速度
+        # 保留期望速度作为避碰优化目标。不能为候选评分强制抬高速度：
+        # 悬停时也可能需要友机避让，但不得无故变成全速机动。
+        desired_vx, desired_vy = vx, vy
         v_current = math.hypot(vx, vy)
-        # ====== BUG 2: 速度衰减后无法恢复 - 始终保持最小速度 ======
-        MIN_SPEED = MAX_SPEED * 0.3  # 最小巡航速度 0.9 m/s
-        if v_current < MIN_SPEED:
-            v_current = MIN_SPEED
+        MIN_SPEED = MAX_SPEED * 0.3
 
         # ORCA 半平面集合
         orca_halfplanes = []
@@ -4206,23 +4865,12 @@ class SwarmAgent(object):
             if d3 > SAFE_3D:
                 continue
 
-            # ====== BUG 3: 对称死锁 - 用 ID 做 tie-break ======
-            # 奇数 ID 往左，偶数 ID 往右
-            uav_num = int(self.uav_id.split('_')[-1]) if '_' in self.uav_id else 0
-            bias_dir = 1 if uav_num % 2 == 1 else -1  # 1=右, -1=左
-
             if dist < FRIEND_SAFE_DIST * 3:
                 px, py = fx - wx, fy - wy
                 if dist > 0.01:
-                    # 半平面要求 v·n 为正，n 必须指向远离友机的一侧。
+                    # 半平面必须沿真实径向远离友机。旧版给 n 的 x/y 各
+                    # 加固定偏置后，某些侧向候选虽满足半平面却仍朝友机前进。
                     nx, ny = -px / dist, -py / dist
-                    # 加 bias 让对称情况不反复横跳
-                    nx += bias_dir * 0.3
-                    ny += bias_dir * 0.3
-                    # 归一化
-                    n_len = math.hypot(nx, ny)
-                    if n_len > 0.01:
-                        nx, ny = nx / n_len, ny / n_len
 
                     # 2026-09-27：用三维距离（分层高度也算进去）+ 近距加大增益。
                     # 原来的水平距离 + 固定 /2.0，同层贴近时才够强，来不及分离。
@@ -4268,38 +4916,50 @@ class SwarmAgent(object):
             best_vx, best_vy = vx, vy
             best_score = -float('inf')
 
+            def consider(cand_vx, cand_vy):
+                nonlocal best_vx, best_vy, best_score
+                speed = math.hypot(cand_vx, cand_vy)
+                if speed > MAX_SPEED + 1e-6:
+                    return
+                for nx, ny, min_vel in orca_halfplanes:
+                    if cand_vx * nx + cand_vy * ny < min_vel - 1e-6:
+                        return
+                # 最接近上层轨迹的安全速度优先；同等偏差时低速更安全。
+                score = -((cand_vx - desired_vx) ** 2
+                          + (cand_vy - desired_vy) ** 2) - 1e-4 * speed ** 2
+                if score > best_score:
+                    best_score = score
+                    best_vx, best_vy = cand_vx, cand_vy
+
+            consider(desired_vx, desired_vy)
+            # 单个约束时这是最近的可行速度；多个约束时仍由 consider
+            # 校验全部半平面，再与全向采样结果比较。
+            for nx, ny, min_vel in orca_halfplanes:
+                deficit = min_vel - (desired_vx * nx + desired_vy * ny)
+                if deficit > 0.0:
+                    consider(desired_vx + deficit * nx,
+                             desired_vy + deficit * ny)
+
             # 2026-09-27：候选改为全向。原来只在 [v_angle±1.5rad] 采样，
             # 相向接近时必须大转向才能满足半平面 → 无解 → 退化到强制排斥，
             # 实测贴到 0.70m。全向采样保证只要几何上存在安全方向就找得到。
             _nang = max(8, AVOID_ANGLES)
-            _angles = [v_angle]   # 先放当前朝向，评分相同时保持惯性
+            _angles = [v_angle]
             for _k in range(_nang):
                 _angles.append(v_angle + 2.0 * math.pi * _k / _nang)
+            speeds = [0.0, min(v_current, MAX_SPEED),
+                      min(0.5, MAX_SPEED), MIN_SPEED,
+                      MAX_SPEED * 0.5, MAX_SPEED * 0.7, MAX_SPEED]
             for angle in _angles:
-                for speed in [MIN_SPEED, MAX_SPEED * 0.5, MAX_SPEED * 0.7, MAX_SPEED]:
-                    cand_vx = speed * math.cos(angle)
-                    cand_vy = speed * math.sin(angle)
-                    valid = True
-                    for nx, ny, min_vel in orca_halfplanes:
-                        vel_along_n = cand_vx * nx + cand_vy * ny
-                        if vel_along_n < min_vel - 0.1:
-                            valid = False
-                            break
-                    if valid:
-                        score = -abs(speed - v_current)  # 优先保持原速度
-                        if score > best_score:
-                            best_score = score
-                            best_vx, best_vy = cand_vx, cand_vy
+                for speed in speeds:
+                    consider(speed * math.cos(angle), speed * math.sin(angle))
 
             if best_score == -float('inf'):
-                # ====== BUG 1 修复: 无解时强制排斥 ======
-                rospy.logwarn("[%s] ORCA 无解，强制排斥", self.uav_id)
-                for fid, (fx, fy, fz) in self._friend_positions.items():
-                    dist = math.hypot(fx - wx, fy - wy)
-                    if 0.5 < dist < FRIEND_SAFE_DIST:
-                        force = FRIEND_K * (FRIEND_SAFE_DIST - dist) / dist
-                        best_vx += (wx - fx) * force
-                        best_vy += (wy - fy) * force
+                # 对置友机可能让半平面相互矛盾。旧版从原追踪速度叠加
+                # 排斥力，两侧力抵消时会继续撞向一架友机。无解则停车，
+                # 等下一帧友机位置变化后重新选择方向。
+                rospy.logwarn("[%s] ORCA 多机约束无解，水平停车", self.uav_id)
+                best_vx, best_vy = 0.0, 0.0
             vx, vy = best_vx, best_vy
 
         # 限幅到 MAX_SPEED（防止 ORCA 排斥力过大导致撞墙）
@@ -4321,26 +4981,177 @@ class SwarmAgent(object):
         return vx, vy
 
     # ---------------- 状态上报 ----------------
+    def _recover_stalled_takeoff(self):
+        """One bounded standard-mode recovery of the OFFBOARD takeoff deadlock.
+
+        PX4 can leave landed=false while its takeoff state remains READY and
+        thus ignores OFFBOARD climb setpoints. AUTO.TAKEOFF uses the ordinary
+        navigator takeoff request. Never force arm/disarm, change land-detector
+        thresholds or use this recovery after flight/positioning failure.
+        """
+        now = rospy.Time.now().to_sec()
+        recovery = getattr(self, '_takeoff_recovery', None)
+        if recovery is None:
+            baseline = getattr(self, '_climb_progress', None)
+            if (baseline is None or now-baseline[0] < 10. or
+                    getattr(self, '_takeoff_recovery_attempted', False)):
+                return False
+            z, xy = self.local_z, self.local_xy
+            speed = self._est_recent_speed()
+            roll = getattr(self, 'roll', float('inf'))
+            pitch = getattr(self, 'pitch', float('inf'))
+            if (getattr(self, '_takeoff_done', False) or
+                    getattr(self, '_landing', False) or
+                    getattr(self, '_localization_fault', False) or
+                    getattr(self, '_ekf_frozen', False) or
+                    not getattr(self, '_anchor_done', False) or
+                    not self.state.connected or not self.state.armed or
+                    self.state.mode != 'OFFBOARD' or
+                    z is None or not math.isfinite(z) or not -.3 <= z <= .3 or
+                    getattr(self, '_takeoff_max_z', z) > .3 or
+                    abs(z-baseline[1]) > .1 or xy is None or
+                    not all(math.isfinite(v) for v in xy) or
+                    math.hypot(*xy) > .5 or speed is None or speed > .15 or
+                    not math.isfinite(speed) or
+                    not 0. <= now-getattr(self, '_local_prev_t', -1e18) <= .3 or
+                    not math.isfinite(roll) or not math.isfinite(pitch) or
+                    abs(roll) > math.radians(10.) or abs(pitch) > math.radians(10.)):
+                return False
+            self._takeoff_recovery_attempted = True
+            # AUTO.TAKEOFF must not use an unchecked default height. Read back
+            # PX4's normal parameter without modifying it or its safety gates.
+            try:
+                from mavros_msgs.srv import ParamGet
+                response = rospy.ServiceProxy('/%s/mavros/param/get' % self.uav_id,
+                                               ParamGet)('MIS_TAKEOFF_ALT')
+                height = response.value.real
+                if (not response.success or not math.isfinite(height) or
+                        height < 2.0 or height+max(0., z) >
+                        min(3.5, ALT_HARD_CEIL-ALT_HARD_MARGIN)):
+                    raise ValueError('unsafe or unavailable MIS_TAKEOFF_ALT=%s' % height)
+            except Exception as exc:
+                rospy.logerr('[TAKEOFF_RECOVERY_BLOCKED] uav=%s %s', self.uav_id, exc)
+                return False
+            recovery = self._takeoff_recovery = {
+                'started': now, 'last_request': -1e18, 'auto_seen': False,
+                'phase': 'auto', 'failed': False,
+                'stream_since': now, 'stream_last': now}
+            rospy.logwarn('[TAKEOFF_RECOVERY] uav=%s grounded stall; bounded AUTO.TAKEOFF '
+                          'height=%.2fm, then OFFBOARD', self.uav_id, height)
+
+        if recovery['failed']:
+            if self.state.mode == 'OFFBOARD':
+                self._send_vel(0., 0., vz=0.)
+            return True
+        mode = self.state.mode
+        invalid = (getattr(self, '_localization_fault', False) or
+                   getattr(self, '_ekf_frozen', False) or
+                   getattr(self, '_landing', False) or not self.state.connected or
+                   not self.state.armed or now < recovery['started'] or
+                   now-recovery['started'] > 15. or
+                   mode not in ('OFFBOARD', 'AUTO.TAKEOFF', 'AUTO.LOITER') or
+                   self.local_z is None or not math.isfinite(self.local_z) or
+                   self.local_z > ALT_HARD_CEIL-ALT_HARD_MARGIN or
+                   not 0. <= now-getattr(self, '_local_prev_t', -1e18) <= .3)
+        if invalid:
+            recovery['failed'] = True
+            rospy.logerr('[TAKEOFF_RECOVERY_FAILED] uav=%s mode=%s z=%s; no takeover '
+                         'of landing/failsafe', self.uav_id, mode, self.local_z)
+            # The existing localization-failure path retains authority.
+            if getattr(self, '_localization_fault', False):
+                self._send_vel(0., 0.)
+            elif mode in ('AUTO.TAKEOFF', 'AUTO.LOITER'):
+                self.mode_srv(0, 'AUTO.LAND')
+            elif mode == 'OFFBOARD':
+                self._send_vel(0., 0., vz=0.)
+            return True
+        # Keep the normal zero-motion OFFBOARD prestream during automatic
+        # ascent. PX4 ignores it until handback; no horizontal mission starts.
+        self._send_vel(0., 0., vz=0.)
+        if now-recovery['stream_last'] > OFFBOARD_PRESTREAM_MAX_GAP_S:
+            recovery['stream_since'] = now
+        recovery['stream_last'] = now
+        if mode == 'AUTO.TAKEOFF':
+            recovery['auto_seen'] = True
+        if (recovery['auto_seen'] and self.local_z >= min(2., CLIMB_DONE_ALT) and
+                now-recovery['stream_since'] >= OFFBOARD_PRESTREAM_S):
+            recovery['phase'] = 'offboard'
+        if recovery['phase'] == 'offboard' and mode == 'OFFBOARD':
+            self._takeoff_recovery = None
+            self._climb_progress = (now, self.local_z)
+            rospy.loginfo('[TAKEOFF_RECOVERY_DONE] uav=%s z=%.2f; resume guarded climb',
+                          self.uav_id, self.local_z)
+            return False
+        if now-recovery['last_request'] >= 1.:
+            desired = 'AUTO.TAKEOFF' if recovery['phase'] == 'auto' else 'OFFBOARD'
+            if mode != desired:
+                recovery['last_request'] = now
+                try:
+                    accepted = self.mode_srv(0, desired).mode_sent
+                    rospy.loginfo('[TAKEOFF_RECOVERY_REQUEST] uav=%s mode=%s accepted=%s',
+                                  self.uav_id, desired, accepted)
+                except Exception as exc:
+                    rospy.logwarn('[TAKEOFF_RECOVERY_REQUEST] uav=%s %s', self.uav_id, exc)
+        return True
+
+    def _check_climb_progress(self):
+        """Report lack of measured climb; an armed FCU is not proof of flight.
+
+        Do not re-arm or override a PX4 landing/failsafe from this watchdog.
+        The ordinary output guards retain authority over the climb command.
+        """
+        now = rospy.Time.now().to_sec()
+        z = self.local_z
+        baseline = getattr(self, '_climb_progress', None)
+        if z is None or not math.isfinite(z):
+            self._climb_progress = None
+            return
+        self._takeoff_max_z = max(getattr(self, '_takeoff_max_z', z), z)
+        if baseline is None or now < baseline[0] or z >= baseline[1] + 0.3:
+            self._climb_progress = (now, z)
+            return
+        if now - baseline[0] >= 10.0:
+            rospy.logerr_throttle(
+                5.0, '[TAKEOFF_STALLED] uav=%s no_climb_s=%.1f z=%.2f '
+                'connected=%s armed=%s mode=%s pos_sp=%s; 未完成起飞，不参与派机',
+                self.uav_id, now - baseline[0], z,
+                getattr(self.state, 'connected', False),
+                getattr(self.state, 'armed', False), getattr(self.state, 'mode', ''),
+                getattr(self, '_pos_sp', None))
+
     def _publish_status(self):
-        if self.world_xy is None:
+        world = self.world_xy
+        if world is None and not getattr(self, '_localization_fault', False):
             return
 
         st = UavStatus()
         st.header.stamp = rospy.Time.now()
         st.uav_id = self.uav_id
-        st.x = self.world_xy[0]
-        st.y = self.world_xy[1]
+        # On a sticky positioning fault send a disconnected status so the
+        # manager releases search leases and tracking responsibility. The
+        # coordinates are only historical placeholders; connected=False
+        # forbids assigning work or crediting coverage from them.
+        reported = world or getattr(self, '_last_good_world', None) or self.offset
+        st.x = reported[0]
+        st.y = reported[1]
         st.z = self.local_z if self.local_z is not None else 0.0
         # 飞控链路仍连接不代表此机可执行任务。EKF 熔断或坠机恢复期间
         # world_xy 可能严重漂移；继续向 manager 报可用会占住搜索格，
         # 甚至把从未看过的区域标成已覆盖。
         st.connected = bool(self.state.connected and
+                            getattr(self.state, 'armed', False) and
+                            self.state.mode == 'OFFBOARD' and
+                            getattr(self, '_takeoff_done', False) and
+                            not getattr(self, '_landing', False) and
+                            world is not None and
+                            not getattr(self, '_localization_fault', False) and
                             not getattr(self, '_ekf_frozen', False) and
                             not getattr(self, '_crash_flagged', False))
 
         # 用实际位置计算所在格子（而非被分配的格子）- 使用 10m 覆盖栅格
         # 覆盖判定由 manager 端用感知半径批量处理，agent 只需上报位置
-        actual_cell = self.cov_grid.world_to_cell(self.world_xy[0], self.world_xy[1])
+        actual_cell = (self.cov_grid.world_to_cell(world[0], world[1])
+                       if st.connected else None)
         if actual_cell is not None:
             st.cell_ix = actual_cell[0]
             st.cell_iy = actual_cell[1]
@@ -4378,7 +5189,7 @@ class SwarmAgent(object):
         # 等局部位置就绪
         while not rospy.is_shutdown() and self.local_xy is None:
             self.ctrl_rate.sleep()
-        # 标定「局部->世界」的恒定平移（只取一次 model_states，之后不再订阅）
+        # 从官方固定起飞点参数确定「局部->世界」的恒定平移
         if not self._calibrate_offset():
             raise SystemExit(1)
 
