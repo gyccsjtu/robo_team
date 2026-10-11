@@ -1,0 +1,54 @@
+{
+  "commit": "193294f004db5c4aa41a7fe1ccac0882598ba8ae",
+  "created_wall": 1791753160.488987,
+  "gui": true,
+  "PR_FAR_DISCOVERY": 1,
+  "baseline": "logs_20261012_044233",
+  "baseline_seconds": 347.016,
+  "change": "Synchronize discovery instance with assigned owner; flight speeds unchanged",
+  "log_dir": "logs/logs_20261012_051351",
+  "recorder_start_wall": 1791753257.361589,
+  "recorders": [
+    {
+      "pid": 3492485,
+      "argv": [
+        "python3",
+        "tools/record_motion_safety.py",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/owner_gui_trial/sensors.jsonl.gz",
+        "--seconds",
+        "850"
+      ]
+    },
+    {
+      "pid": 3492486,
+      "argv": [
+        "python3",
+        "tools/record_search_segments.py",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/owner_gui_trial/chain.jsonl.gz",
+        "--seconds",
+        "850"
+      ]
+    },
+    {
+      "pid": 3492487,
+      "argv": [
+        "python3",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/owner_gui_trial/record_camera_views.py"
+      ]
+    },
+    {
+      "pid": 3492488,
+      "argv": [
+        "python3",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/owner_gui_trial/record_matched_frames.py",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/owner_gui_trial/matched_frames",
+        "--max-images",
+        "360",
+        "--interval",
+        "2",
+        "--duration",
+        "850"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "note": "Offline map inspection corroborates the native image; no simulator model pose enters runtime control or perception.",
+  "native_image": "matched_frames/0013_typhoon_h480_2.png",
+  "static_scene_model": [
+    {
+      "name": "casual_female",
+      "static": "1",
+      "pose": "-26.902 13.6572 0 0 -0 0"
+    }
+  ],
+  "coordinate_candidates": 16,
+  "same_sample_pending_negative": 10,
+  "pending_candidate_samples": [
+    "1962.324",
+    "1962.524",
+    "1962.728",
+    "1963.324",
+    "1988.316",
+    "1988.724",
+    "1988.916",
+    "1989.34",
+    "2002.3",
+    "2005.312"
+  ],
+  "evidence_counts": {
+    "secondary_pending": 123,
+    "secondary_distractor": 146
+  }
+}

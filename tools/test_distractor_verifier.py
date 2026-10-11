@@ -90,5 +90,38 @@ class VerifierTests(unittest.TestCase):
         self.assertEqual(self.v.history,[])
         guard.model.predict.assert_not_called()
 
+    def test_pending_negative_is_attention_only_without_erasing_actor_box(self):
+        guard=SecondaryAppearance.__new__(SecondaryAppearance)
+        guard.mode='enforce';guard.histories={};guard.model=Mock()
+        decoy=NS(cls=5,conf=.95,xyxy=[[100,100,130,180]])
+        guard.model.predict.return_value=[NS(names={5:'distractor_person'},boxes=[decoy])]
+        # A new primary box on each image, as produced by ActorDistractorResolver.
+        for t in (1.,1.15):
+            actor=NS(cls=0,conf=.99,xyxy=[[100,100,130,180]],
+                     appearance_status='actor',distractor_confidence=0.)
+            kept,evidence=guard.filter(None,[actor],['blue'],t)
+            self.assertEqual(kept,[actor])
+            self.assertEqual(actor.appearance_status,'ambiguous')
+            self.assertEqual(actor.distractor_confidence,.95)
+            self.assertEqual(evidence[0]['status'],'secondary_pending')
+        # No sticky veto: the next image with no decoy evidence remains usable.
+        guard.model.predict.return_value=[NS(names={},boxes=[])]
+        actor=NS(cls=0,conf=.99,xyxy=[[100,100,130,180]],appearance_status='actor')
+        kept,_=guard.filter(None,[actor],['blue'],1.3)
+        self.assertEqual(kept,[actor])
+        self.assertEqual(actor.appearance_status,'actor')
+
+    def test_pending_negative_does_not_change_shadow_or_conflicting_actor(self):
+        for mode,conflict in (('shadow',False),('enforce',True)):
+            guard=SecondaryAppearance.__new__(SecondaryAppearance)
+            guard.mode=mode;guard.histories={};guard.model=Mock()
+            secondary=[NS(cls=5,conf=.95,xyxy=[[100,100,130,180]])]
+            if conflict:secondary.append(NS(cls=0,conf=.6,xyxy=[[100,100,130,180]]))
+            guard.model.predict.return_value=[NS(names={0:'blue',5:'distractor_person'},boxes=secondary)]
+            actor=NS(cls=0,conf=.99,xyxy=[[100,100,130,180]],appearance_status='actor')
+            kept,_=guard.filter(None,[actor],['blue'],1.)
+            self.assertEqual(kept,[actor])
+            self.assertEqual(actor.appearance_status,'actor')
+
 
 if __name__=='__main__':unittest.main()

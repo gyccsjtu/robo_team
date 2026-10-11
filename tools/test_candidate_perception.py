@@ -5,7 +5,7 @@ import sys
 import unittest
 from pathlib import Path
 from types import SimpleNamespace as NS
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 os.environ.setdefault('ROBOCUP_LOG_DIR', '/tmp/robocup_decoy_tests')
 ROOT = Path(__file__).resolve().parents[1]
@@ -142,6 +142,23 @@ class AppearanceInstanceTests(unittest.TestCase):
 
 
 class CandidateFrameTests(unittest.TestCase):
+    def test_secondary_pending_evidence_cannot_qualify_a_world_report(self):
+        from distractor_verifier import SecondaryAppearance
+        guard=SecondaryAppearance.__new__(SecondaryAppearance)
+        guard.mode='enforce';guard.histories={};guard.model=Mock()
+        guard.model.predict.return_value=[NS(names={5:'distractor_person'},
+            boxes=[NS(cls=5,conf=.96,xyxy=[[300.,150.,360.,310.]])])]
+        actor=NS(cls=pr.CLASSES.index('blue'),conf=.94,
+                 xyxy=[[300.,150.,360.,310.]],appearance_status='actor')
+        kept,_=guard.filter(None,[actor],pr.CLASSES,100.)
+        self.assertEqual(kept,[actor])
+        tr=self.track(appearance_status=actor.appearance_status,
+                      distractor_confidence=actor.distractor_confidence)
+        packet=self.batch([tr])
+        self.assertTrue(packet['candidates'])
+        self.assertFalse(packet['candidates'][0]['official_view_ok'])
+        self.assertEqual(packet['candidates'][0]['appearance_status'],'ambiguous')
+
     def test_association_distance_gate_and_appearance_rank_are_independent(self):
         choices = [(.20, .60), (.15, .95)]
         for order in (choices, choices[::-1]):

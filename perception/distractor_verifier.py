@@ -126,5 +126,19 @@ class SecondaryAppearance:
         evidence=[dict(box=primary[i]['box'],confidence=c,primary_label=primary[i]['label'],
                        status='secondary_distractor' if i in rejected else 'secondary_pending')
                   for i,c in strong.items()]
-        if self.mode=='enforce':boxes=[b for i,b in enumerate(boxes) if i not in rejected]
+        if self.mode == 'enforce':
+            # Strong same-image decoy evidence is already a contradiction,
+            # even before three frames establish a veto. Preserve the box for
+            # bounded visual checking, but do not qualify it as an actor while
+            # waiting. Otherwise camera motion repeatedly resets the temporal
+            # vote and the pending frames keep re-dispatching the sculpture.
+            # No missing/weak secondary detection or remembered world location
+            # constitutes this evidence; a fresh non-conflicting primary box
+            # returns through the ordinary pipeline on the next image.
+            for i, confidence in strong.items():
+                if i not in rejected:
+                    boxes[i].appearance_status = 'ambiguous'
+                    boxes[i].distractor_confidence = max(
+                        float(getattr(boxes[i], 'distractor_confidence', 0.)), confidence)
+            boxes = [b for i, b in enumerate(boxes) if i not in rejected]
         return boxes,evidence
