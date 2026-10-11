@@ -40,6 +40,7 @@ from visual_evidence import parse_visual_evidence
 # 地图（用于过滤「格中心落在建筑内」的格子，与 agent 的 A* 膨胀判定一致）
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from search_observation import cell_points, in_view
+from search_view_hint import parse_failed_view, make_hint
 
 # ============================ 参数 ============================
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -457,6 +458,8 @@ class SwarmManager(object):
         # 合规 SLAM：各 agent 的雷达占用栅格快照（RLE JSON），合并成全局地图
         rospy.Subscriber("/swarm/occupancy_grid", String, self._occ_grid_cb, queue_size=6)
         self.assign_pub = rospy.Publisher("/swarm/assignment", SearchAssignment, queue_size=10)
+        self._search_view_hint_pub = rospy.Publisher(
+            '/swarm/search_view_hint', String, queue_size=10)
         # 本队连续图像仅提示保持观察，不证明官方精度或消除。
         self.confirm_pub = rospy.Publisher("/swarm/visual_streak", String, queue_size=10)
         self.reobserve_pub = rospy.Publisher("/swarm/reobserve", String, queue_size=6)
@@ -648,6 +651,7 @@ class SwarmManager(object):
             return GridMap(self._slam_w, self._slam_h, self._slam_res,
                            self._slam_origin, bytes(self._slam_cells), "map")
 
+    @serialized_tasks
     def _rebuild_blocked_cells(self):
         """SLAM 栅格更新后重建阻塞格/航点/临楼度（主循环节流调用）。"""
         try:
@@ -656,8 +660,64 @@ class SwarmManager(object):
                 self.allocator.cell_edge = self._cell_edge
             except Exception:
                 pass
+            self._reconcile_search_waypoints()
         except Exception as exc:
             rospy.logwarn("[manager] SLAM 阻塞格重建失败: %s", exc)
+
+    def _search_point_free(self, point):
+        """Check a search endpoint against the current inflated lidar map."""
+        g = getattr(self, '_g_infl', None)
+        if g is None:
+            return None  # No new obstacle evidence; preserve the sent task.
+        if (not all(math.isfinite(v) for v in point) or
+                math.hypot(point[0] - flight_waypoint(*point)[0],
+                           point[1] - flight_waypoint(*point)[1]) > 1e-6):
+            return False
+        cell = g.world_to_cell(point)
+        return cell is not None and g.is_free(cell)
+
+    def _reconcile_search_waypoints(self):
+        """Map changes may invalidate a task, but must not silently move it."""
+        sent = getattr(self, '_search_dispatched', {})
+        busy = set(getattr(self, '_tracking', {}).values()) | set(
+            getattr(self, '_backup', {}).values())
+        now = rospy.Time.now()
+        for uid, key in list(getattr(self, '_active_leases', {}).items()):
+            record = sent.get(uid)
+            cell = self.grid.cell(key)
+            if (uid in busy or record is None or record[0] != key or
+                    cell is None or cell.state != STATE_ASSIGNED or
+                    cell.owner != uid or now.to_sec() < record[2]):
+                continue
+            # Clearing a centre or finding a nicer viewpoint is not a reason
+            # to change a safe task already in flight, including a view hint.
+            if self._search_point_free(record[1]) is not False:
+                continue
+            replacement = self._search_waypoint(key, cell)
+            if (key not in self._blocked_cells and
+                    self._search_point_free(replacement) is True):
+                self._publish_assignment(uid, key, cell)
+                # The destination changed, so reset only the progress sample.
+                # The original maximum-hold deadline remains authoritative.
+                st = self.status.get(uid)
+                if st is not None:
+                    self._lease_motion[uid] = (key, now.to_sec(), st.x, st.y)
+                rospy.logwarn('[manager] %s 搜索格 %s 原航点受阻，明确重派安全视点',
+                              uid, key)
+                continue
+            # A cancellation is needed: releasing only the lease would leave
+            # the agent flying its old obstructed task until the next auction.
+            msg = SearchAssignment()
+            msg.header.stamp = now
+            msg.uav_id = uid
+            msg.cell_ix = msg.cell_iy = -1
+            msg.task_type = 255
+            self.assign_pub.publish(msg)
+            self._free_search_lease(uid)
+            sent.pop(uid, None)
+            self.allocator.failed_visit[key] = now.to_sec()
+            rospy.logwarn('[manager] %s 搜索格 %s 已无安全视点，取消并回收租约',
+                          uid, key)
 
     def _blind_viewpoint_valid(self, cell, point):
         """Require a free flight point and a clear camera ray to this cell."""
@@ -737,7 +797,31 @@ class SwarmManager(object):
                 return point
         return None
 
+    def _search_view_job(self, key):
+        """Return a fresh camera viewpoint, never an inferred person location."""
+        jobs = getattr(self, '_search_view_jobs', {})
+        if not jobs:
+            return None
+        now = rospy.Time.now().to_sec()
+        revisit = getattr(getattr(self, 'allocator', None), 'revisit_jobs', {})
+        for old in list(jobs):
+            if now >= jobs[old]['expires_s'] or ('unconfirmed', old) not in revisit:
+                jobs.pop(old, None)
+        view = jobs.get(key)
+        ready = revisit.get(('unconfirmed', key))
+        if view is None or ready is None or now < ready[0]:
+            return None
+        point = (view['x'], view['y'])
+        grid = getattr(self, '_g_infl', None)
+        if (flight_waypoint(*point) != point or grid is None or
+                not grid.is_free(grid.world_to_cell(point))):
+            return None
+        return view
+
     def _search_waypoint(self, key, cell):
+        view = self._search_view_job(key)
+        if view is not None:
+            return (view['x'], view['y'])
         blind = getattr(self, '_blind_viewpoints', {}).get(key)
         if blind is not None:
             if self._blind_viewpoint_valid(cell, blind):
@@ -819,6 +903,7 @@ class SwarmManager(object):
         except (ValueError, KeyError, TypeError, AttributeError):
             return
 
+    @serialized_tasks
     def _visual_candidate_missed_cb(self, msg):
         """Queue a short re-image of the aircraft viewpoint after failed cue.
 
@@ -837,10 +922,23 @@ class SwarmManager(object):
                     not 0.0 <= now - sample <= 2.0 or
                     math.hypot(st.x - x, st.y - y) > 5.0):
                 return
+            view = parse_failed_view(data, now)
+            if 'image_sample_s' in data and view is None:
+                return  # malformed/expired new-contract messages cannot renew as legacy jobs
+            ttl = view['expires_s']-now if view is not None else 35.0
+            if ttl <= 8.0:
+                return  # the existing cooldown would outlive the real image evidence
             key = self.allocator.queue_revisit(
-                'unconfirmed', x, y, now=now, delay_s=8.0, ttl_s=35.0,
+                'unconfirmed', x, y, now=now, delay_s=8.0, ttl_s=ttl,
                 blocked=self._blocked_cells)
             if key is not None:
+                if view is not None:
+                    jobs = self.__dict__.setdefault('_search_view_jobs', {})
+                    old = jobs.get(key)
+                    if old is None or view['image_sample_s'] > old['image_sample_s']:
+                        jobs[key] = view
+                    for stale in sorted(jobs, key=lambda k:jobs[k]['image_sample_s'])[:-64]:
+                        jobs.pop(stale, None)
                 rospy.loginfo('[manager] 候选补看失败：格 %s 进入一次性视角复查', key)
         except (ValueError, KeyError, TypeError, AttributeError):
             return
@@ -3072,6 +3170,9 @@ class SwarmManager(object):
         """
         now = rospy.Time.now()
         for uid in self.uav_ids:
+            if (uid in getattr(self, '_tracking', {}).values() or
+                    uid in getattr(self, '_backup', {}).values()):
+                continue  # A stale search record must never affect tracking.
             if uid not in self.last_report:
                 continue
             # 3 秒内无上报 → 不续租，等 _allocate 里 expire 回收
@@ -3079,6 +3180,21 @@ class SwarmManager(object):
                 continue
             key = self._active_leases.get(uid)
             if key is None:
+                continue
+            # Check this before waiting for a new assignment acknowledgement;
+            # delayed/old statuses cannot keep the original task alive forever.
+            _hk = (uid, key)
+            _since = self._lease_hold_since.setdefault(_hk, now.to_sec())
+            if now.to_sec() - _since > LEASE_MAX_HOLD:
+                self._lease_hold_since.pop(_hk, None)
+                expired = self.lease.force_expire(uid, key)
+                self._active_leases.pop(uid, None)
+                getattr(self, '_lease_motion', {}).pop(uid, None)
+                getattr(self, '_search_dispatched', {}).pop(uid, None)
+                if expired:
+                    self.allocator.failed_visit[key] = now.to_sec()
+                    rospy.logwarn('[manager] %s 持有格 (%s,%s) 超 %.0fs 未抵达 → '
+                                  '强制回收租约重派', uid, key[0], key[1], LEASE_MAX_HOLD)
                 continue
             st = self.status.get(uid)
             if st is None or not getattr(st, 'connected', False):
@@ -3096,6 +3212,21 @@ class SwarmManager(object):
                     getattr(st, 'assigned_cell_iy', -1)) != key:
                 # 状态消息可能比新指派早一帧；旧格的扫描完成证明不能用于新格。
                 continue
+            dispatched = getattr(self, '_search_dispatched', {}).get(uid)
+            if dispatched is not None:
+                sent_key, sent_point, sent_s = dispatched
+                sample = getattr(getattr(st, 'header', None), 'stamp', None)
+                sample_s = sample.to_sec() if sample is not None else -1.0
+                sx = getattr(st, 'assigned_target_x', float('nan'))
+                sy = getattr(st, 'assigned_target_y', float('nan'))
+                if (sent_key != key or not all(math.isfinite(v) for v in
+                        (sample_s, sent_s, sx, sy)) or
+                        not sent_s <= sample_s <= now.to_sec() + 0.05 or
+                        sent_s > now.to_sec() or
+                        math.hypot(sx-sent_point[0], sy-sent_point[1]) > 0.02):
+                    # Same cell can have a newly issued alternative viewpoint.
+                    # Its previous completed/failed status is not an ACK.
+                    continue
             if getattr(st, 'confidence', 0.0) < 0.0:
                 self.lease.force_expire(uid, key)
                 self._active_leases.pop(uid, None)
@@ -3105,12 +3236,12 @@ class SwarmManager(object):
                 rospy.logwarn('[manager] %s 搜索格 (%s,%s) 观察失败，回收重派',
                               uid, key[0], key[1])
                 continue
-            # 到达判定：用格的可达代表点（楼边格中心可能在建筑内）
-            # Normal reachable waypoints need no cell lookup. In particular,
-            # status-only lease checks can run before the coverage grid is
-            # ready; a blind revisit always has a real coverage cell.
-            _wp = (None if key in getattr(self, '_blind_viewpoints', {})
-                   else self._cell_waypoint.get(key))
+            # Judge arrival at the point actually published for this lease.
+            # A later map rebuild may choose a different representative cell
+            # point without changing the safe task already being flown.
+            _wp = (dispatched[1] if dispatched is not None else
+                   None if key in getattr(self, '_blind_viewpoints', {}) else
+                   self._cell_waypoint.get(key))
             if _wp is None:
                 _c = self.grid.cell(key)
                 _wp = self._search_waypoint(key, _c) if _c is not None else None
@@ -3172,27 +3303,6 @@ class SwarmManager(object):
                     rospy.logwarn('[manager] %s 搜索格 (%s,%s) %.0fs 未向航点推进 %.1fm，提前回收重派',
                                   uid, key[0], key[1], LEASE_STALL_S, LEASE_STALL_PROGRESS_M)
                     continue
-            # 2026-10-07 v12: 最长持有时限 —— 到达判定只放行"真到了"的机，
-            # 卡死机（爬升闸门没开/建筑线刹停）会持续上报被无条件续租，
-            # 租约永不到期 → 全场只派首轮 6 格后死锁。超时停止续租，
-            # 租约按 TTL 到期回收，格子回候选池重新拍卖（可能换机/换格）。
-            _hk = (uid, key)
-            _since = self._lease_hold_since.setdefault(_hk, now.to_sec())
-            if now.to_sec() - _since > LEASE_MAX_HOLD:
-                self._lease_hold_since.pop(_hk, None)
-                # v18（2026-10-07）：直接强制回收租约。旧逻辑只「停止续租等 TTL
-                # 到期回收」，但 pop 后下一周期 setdefault 重置计时又恢复续租 →
-                # TTL 永远追不上（v17 实测 agent_0 (3,7) 每 91s 循环告警一次、
-                # 全程 0 次「租约到期重分配」、6 架全被 ASSIGNED 格锁死 →
-                # 202s 后 _idle_uavs 恒空、零分配死锁）。
-                expired = self.lease.force_expire(uid, key)
-                self._active_leases.pop(uid, None)
-                getattr(self, '_lease_motion', {}).pop(uid, None)
-                if expired:
-                    self.allocator.failed_visit[key] = now.to_sec()
-                    rospy.logwarn("[manager] %s 持有格 (%s,%s) 超 %.0fs 未抵达 → "
-                                  "强制回收租约重派", uid, key[0], key[1], LEASE_MAX_HOLD)
-                continue
             if not self.lease.renew(uid, key, now.to_sec()):
                 # Another coverage observation already removed ownership.
                 # Keeping the stale active key made its hold timer trigger
@@ -3213,6 +3323,18 @@ class SwarmManager(object):
         msg.target_x, msg.target_y = flight_waypoint(*_wp)
         msg.task_type = 0  # 搜索
         self.assign_pub.publish(msg)
+        self.__dict__.setdefault('_search_dispatched', {})[uid] = (
+            key, (msg.target_x, msg.target_y), msg.header.stamp.to_sec())
+        view = self._search_view_job(key)
+        publisher = getattr(self, '_search_view_hint_pub', None)
+        if (view is not None and publisher is not None and
+                math.hypot(msg.target_x-view['x'], msg.target_y-view['y']) <= 1e-6):
+            hint = make_hint(view, msg)
+            if hint is not None:
+                publisher.publish(String(data=json.dumps(hint)))
+                rospy.loginfo('[SEARCH_VIEW_HINT_ASSIGN] uav=%s cell=%s image=%.3f '
+                              'assignment=%.3f; original camera position only',
+                              uid, key, view['image_sample_s'], msg.header.stamp.to_sec())
         rospy.loginfo("[manager] 分配 %s → 格 (%d,%d) 中心 (%.1f,%.1f)",
                       uid, key[0], key[1], cell.cx, cell.cy)
 

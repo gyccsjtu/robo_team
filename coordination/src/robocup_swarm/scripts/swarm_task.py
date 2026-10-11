@@ -500,6 +500,22 @@ class TaskAllocator(object):
             "ORPHAN_SEARCH_DEBT_RATIO", "1.5")))
         self.orphan_max_distance = max(0.0, float(os.environ.get(
             "ORPHAN_SEARCH_MAX_DISTANCE_M", "55.0")))
+        # Real progress, not ownership/heartbeat, determines whether a sector
+        # needs limited help. Count each completed/imaged cell only once.
+        self._search_progress_first = {}
+        self._search_route_first = {}
+        self._search_image_first = {}
+        self._search_entry_ready = {}   # zone -> (first assignment, transit grace)
+        self._search_support_active = None  # (uid, zone, cell), one active job
+        self._search_support_next_s = {}    # zone -> next support time
+        self.search_support_window = 45.0
+        self.search_support_cooldown = 90.0
+
+    def _record_search_progress(self, cell_key, now, image=False):
+        if math.isfinite(now) and now >= 0.0:
+            self._search_progress_first.setdefault(cell_key, now)
+            book = self._search_image_first if image else self._search_route_first
+            book.setdefault(cell_key, now)
 
     def observed_cell(self, cell_key, now=None):
         """Record a real processed camera view, never a geometric promise."""
@@ -509,6 +525,7 @@ class TaskAllocator(object):
             now = _now()
         self.visit_time[cell_key] = now
         self.last_seen[cell_key] = now
+        self._record_search_progress(cell_key, now, image=True)
 
     def complete_waypoint(self, uav_id, cell_key, observed=False, now=None):
         """Commit one route step after a completed scan or camera observation.
@@ -522,8 +539,10 @@ class TaskAllocator(object):
         if now is None:
             now = _now()
         self.visit_time[cell_key] = now
+        self._record_search_progress(cell_key, now)
         if observed:
             self.last_seen[cell_key] = now
+            self._record_search_progress(cell_key, now, image=True)
         zone = self.grid.get_zone_id(cell_key)
         rank = self.route_rank.get(zone, {}).get(cell_key)
         if rank is not None:
@@ -940,6 +959,87 @@ class TaskAllocator(object):
                 takeover[min(choices)[1]] = zone
         return takeover
 
+    def _slow_zone_support(self, uavs, remaining, now, orphan_takeover):
+        """Lend one idle aircraft one viewpoint when a staffed sector lags.
+
+        Entry travel gets its own conservative allowance. During the next
+        search phase, repeated views of the same cell cannot hide a stalled
+        frontier. Only actual completed waypoints / processed views count;
+        assignments, leases, target candidates and world truth never count.
+        """
+        if (not uavs or self.mission_start is None or
+                not math.isfinite(now) or
+                now-self.mission_start < max(SEARCH_HOME_HARD_S,
+                                             self.search_support_window)):
+            return {}
+        active = self._search_support_active
+        if active is not None:
+            uid, zone, key = active
+            cell = self.grid.cell(key)
+            if cell is not None and cell.state == STATE_ASSIGNED and cell.owner == uid:
+                return {}
+            self._search_support_active = None
+        counts = []
+        for book in (self._search_progress_first, self._search_route_first,
+                     self._search_image_first):
+            tally = {zone: 0 for zone in self.grid.zone_cells}
+            for key, stamp in book.items():
+                if 0.0 <= now-stamp <= self.search_support_window:
+                    tally[self.grid.get_zone_id(key)] += 1
+            counts.append(tally)
+        progress, routes, images = counts
+        fresh = {zone: [] for zone in self.grid.zone_cells}
+        for key in remaining:
+            if (self.grid.cell(key).state == STATE_FREE and
+                    self.visit_time.get(key, 0.0) <= 0.0):
+                fresh[self.grid.get_zone_id(key)].append(key)
+        owners = {zone: {} for zone in self.grid.zone_cells}
+        for key, cell in self.grid.cells.items():
+            if cell.state == STATE_ASSIGNED and cell.owner is not None:
+                owners[self.grid.get_zone_id(key)][cell.owner] = (cell.cx, cell.cy)
+        choices = []
+        for zone, keys in fresh.items():
+            entry = self._search_entry_ready.get(zone)
+            # Existing orphan takeover handles a sector with no active owner.
+            # An existing helper, including normal cross-sector allocation,
+            # is already sufficient; do not gather additional aircraft.
+            if (entry is None or now < entry[1] or len(keys) < self.orphan_min_new or
+                    now < self._search_support_next_s.get(zone, -float('inf')) or
+                    progress[zone] > 3 or len(owners[zone]) != 1 or
+                    zone in orphan_takeover.values() or
+                    any(self.grid.get_uav_zone(uid) != zone
+                        for uid in owners[zone])):
+                continue
+            for uid, (ux, uy) in uavs.items():
+                home = self.grid.get_uav_zone(uid)
+                if (uid in orphan_takeover or home == zone or
+                        progress[home] < max(6, progress[zone]+3, 2*progress[zone])):
+                    continue
+                # Work ahead of the current searcher, not on top of it.
+                # remaining already excludes obstacles and failed waypoints.
+                viable = [key for key in keys
+                    if math.hypot(self.grid.cell(key).cx-ux,
+                                  self.grid.cell(key).cy-uy) <= self.orphan_max_distance
+                    and all(math.hypot(self.grid.cell(key).cx-x,
+                                       self.grid.cell(key).cy-y) >=
+                            max(MIN_UAV_DIST, 2.0*self.grid.cell_m)
+                            for x, y in owners[zone].values())]
+                if viable:
+                    distance = min(math.hypot(self.grid.cell(key).cx-ux,
+                                              self.grid.cell(key).cy-uy)
+                                   for key in viable)
+                    choices.append((progress[zone]-progress[home], distance,
+                                    uid, zone, viable))
+        if not choices:
+            return {}
+        _, distance, uid, zone, keys = min(choices)
+        return {uid: dict(zone=zone, keys=keys, distance=distance,
+                         zone_progress=progress[zone],
+                         zone_routes=routes[zone], zone_images=images[zone],
+                         home_routes=routes[self.grid.get_uav_zone(uid)],
+                         home_images=images[self.grid.get_uav_zone(uid)],
+                         home_progress=progress[self.grid.get_uav_zone(uid)])}
+
     def allocate(self, uavs, risk_map=None, blocked=()):
         """集中式分配一轮。uavs: {id: (x,y)}，返回 {id: cell_key 或 None}。
 
@@ -964,6 +1064,7 @@ class TaskAllocator(object):
                      (key not in self.failed_visit or
                       now - self.failed_visit[key] >= self.failed_novelty_ttl)}
         takeover = self._orphaned_zone_takeovers(uavs, remaining, now)
+        support = self._slow_zone_support(uavs, remaining, now, takeover)
         # Boundary cells remain in the first-pass candidate pool. A camera
         # frame from an inner row may cover them; if it does not, they are
         # still reachable by a later route waypoint.
@@ -1010,6 +1111,9 @@ class TaskAllocator(object):
             if rescue_zone is not None:
                 candidates = [key for key in remaining
                               if self.grid.get_zone_id(key) == rescue_zone]
+            support_plan = support.get(uav_id)
+            if rescue_zone is None and support_plan is not None:
+                candidates = [key for key in support_plan['keys'] if key in remaining]
             # A short, position-specific revisit can interrupt ordinary
             # search. Limit it to one nearby aircraft; normal coarse coverage
             # remains the priority for distant searchers.
@@ -1088,6 +1192,30 @@ class TaskAllocator(object):
                 c = self.grid.cell(best_key)
                 c.state = STATE_ASSIGNED
                 c.owner = uav_id
+                zone = self.grid.get_zone_id(best_key)
+                if zone not in self._search_entry_ready:
+                    # 1.5 m/s is a conservative transit estimate, including
+                    # the launch acceleration stage; 15 s leaves time to scan.
+                    transit = math.hypot(c.cx-ux, c.cy-uy) / max(
+                        0.5, min(1.5, self.cruise_speed))
+                    self._search_entry_ready[zone] = (now, now+max(
+                        SEARCH_HOME_HARD_S, transit+15.0))
+                if (support_plan is not None and rescue_zone is None and
+                        not urgent and best_key in support_plan['keys']):
+                    self._search_support_active = (uav_id, zone, best_key)
+                    self._search_support_next_s[zone] = now+self.search_support_cooldown
+                    rospy.loginfo('[SEARCH_PROGRESS_SUPPORT] uav=%s zone=%s '
+                                  'new_route_or_image_%ds=%s routes=%s images=%s '
+                                  'donor=%s donor_routes=%s donor_images=%s '
+                                  'distance=%.1f cell=%s zone_cooldown=%.0fs; '
+                                  'one bounded search job, no camera credit',
+                                  uav_id, zone, self.search_support_window,
+                                  support_plan['zone_progress'],
+                                  support_plan['zone_routes'], support_plan['zone_images'],
+                                  support_plan['home_progress'],
+                                  support_plan['home_routes'], support_plan['home_images'],
+                                  math.hypot(c.cx-ux, c.cy-uy), best_key,
+                                  self.search_support_cooldown)
                 remaining.discard(best_key)
                 assigned_positions.append((c.cx, c.cy))
                 task_counts[uav_id] += 1  # 更新任务计数

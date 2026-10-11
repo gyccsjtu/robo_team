@@ -26,6 +26,22 @@ def valid_graph():
 
 
 class GraphAuditTests(unittest.TestCase):
+    def test_yaw_only_search_hints_cannot_feed_formal_reports(self):
+        state, types = valid_graph()
+        state[0].append(['/swarm/search_view_hint', ['/swarm_manager']])
+        state[1].append(['/swarm/search_view_hint', ['/swarm_agent_0']])
+        self.assertEqual(audit.audit_graph(state, types), [])
+        for topic in ('/swarm/search_view_hint', '/swarm/visual_candidate_missed',
+                      '/perception/fast_tracking_view'):
+            with self.subTest(topic=topic):
+                state[1].append([topic, ['/yolo_target_bridge']])
+                self.assertTrue(any(topic in f and 'discovery-only' in f
+                                    for f in audit.audit_graph(state, types)))
+                state[1].pop()
+        state[0][-1][1].append('/unexpected_hint_publisher')
+        self.assertTrue(any('must be published only' in f
+                            for f in audit.audit_graph(state, types)))
+
     def test_exploration_is_not_an_official_report_input(self):
         state, types = valid_graph()
         state[0].append(['/swarm/discovery_states',['/swarm_manager']])

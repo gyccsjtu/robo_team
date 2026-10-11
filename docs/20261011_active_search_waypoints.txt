@@ -1,0 +1,45 @@
+2026-10-11 活跃搜索航点与动态地图修复
+
+问题与复现
+雷达初期使搜索格中心不可用，任务实际派到 (7.830, 6.0)。后续雷达清障，
+管理器把代表点恢复成 (3.5, 3.5)，却没有向飞机发新任务。飞机完成原点扫描后，
+管理器按相差 5 米的新点判断“没到达”，继续占用租约直至停车超时。
+
+本次行为
+1. _publish_assignment 成功发布后记录实际派发点、格键、ROS 时间。
+   该记录由同时进行的搜索方向提示修改提供；本修复使用真实发布接口做测试。
+2. _renew_leases 按已派发点判断到达，不随地图重建静默改变目的地。
+   同一格重派后，旧状态时间或旧 assigned_target_x/y 不能证明新任务已完成。
+3. _rebuild_blocked_cells 在任务锁内重建并核对活跃搜索航点。
+   旧点仍安全就保留；旧点在新膨胀图受阻则明确发布安全替代任务。
+   无安全点时发布 255 取消消息、回收租约，不将格子伪标为已覆盖。
+4. 重派只重置路径进展样本，不重置最大持有时间。主追、备份机不受此流程重派。
+
+本修复涉及的生产函数（均在 swarm_manager.py）
+- _rebuild_blocked_cells：增加任务锁并调用动态核对。
+- _search_point_free：新增，仅使用已有飞行边界与膨胀雷达地图检查点。
+- _reconcile_search_waypoints：新增，保留安全任务、明确重派或取消受阻任务。
+- _renew_leases：使用实际派点，验证状态时间/坐标绑定，保留最长持有时限。
+未改 _allocate、候选回调、消息定义、裁判接口或定位代码。
+
+验证结果
+tools/test_search_dispatched.py：12 项通过，覆盖原 5 米反例、旧点安全、
+新障碍、全堵、无地图、相同格旧坐标/时间、不同格记录、未来时间、已覆盖格、
+最长持有时间、主追与备份不受干扰。实际调用 _publish_assignment 产生派发记录。
+与既有 test_search*.py 组合：73 项通过。
+原复现脚本现输出 bug_reproduced=false、lease_still_active=false，
+完成扫描后状态为 REVIEW，并没有自动变成 COVERED。
+
+额外回归状态
+test_match_blockers.py：129 项中 128 项通过；以下单项独立运行仍失败：
+  test_stationary_world_track_is_not_a_camera_attached_false_box
+  tools/test_match_blockers.py:629
+  self.assertFalse(track.attached_to_cam())
+  AssertionError: True is not false
+主任务随后在隔离的d996be7源码上复现同一失败：旧测试轨迹时间停在100.0，
+却放入直到100.6的未来观测。已把测试轨迹时间同步到100.6，未改感知实现，
+并通过243项组合回归。保留未来/过期图像证据拒绝行为。
+
+限制
+上述为离线状态/消息测试，不是新的完整比赛成绩。安全检查不替代 agent 的路径规划、
+雷达保护或机间避碰。没有地图时保留已经发出的任务，不凭空生成障碍结论。

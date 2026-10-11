@@ -626,6 +626,9 @@ class MatchBlockers(unittest.TestCase):
             (100.0, 126.0, 45.0), (100.2, 126.1, 45.1),
             (100.4, 126.0, 45.0), (100.6, 126.1, 45.0),
         ]
+        # Match production's frame clock; future samples relative to t=100
+        # cannot legitimately establish stationary world-space evidence.
+        track.t = 100.6
         self.assertFalse(track.attached_to_cam())
         # A box that follows the aircraft through world space remains gated.
         track.recent_observed_xy = [

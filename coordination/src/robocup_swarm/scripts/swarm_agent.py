@@ -43,6 +43,7 @@ from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs
                            bind_red_view, bind_red_instance_view,
                            retain_pixel_view)
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
+from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from camera_attention import approach_image, candidate_velocity, candidate_decision, candidate_reposition
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
@@ -1070,6 +1071,8 @@ class SwarmAgent(object):
         rospy.Subscriber("/%s/scan" % uav_id, LaserScan, self._scan_cb,
                  queue_size=1)
         rospy.Subscriber("/swarm/assignment", SearchAssignment, self._assign_cb)
+        rospy.Subscriber('/swarm/search_view_hint', String,
+                         self._search_view_hint_cb, queue_size=6)
         rospy.Subscriber("/swarm/target_states", TargetState, self._target_cb)
         rospy.Subscriber("/swarm/discovery_states", TargetState, self._discovery_state_cb)
         rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb, queue_size=30)
@@ -1432,6 +1435,8 @@ class SwarmAgent(object):
             old_tid = getattr(self, '_track_assigned_id', None)
             if old_tid and msg.target_id and msg.target_id != old_tid:
                 return
+            self.__dict__.setdefault('_search_view_inbox', SearchViewInbox()).assign(
+                msg, rospy.Time.now().to_sec())
             self._discard_old_plan()
             self.assignment = None
             self._tracking_image = None
@@ -1458,6 +1463,8 @@ class SwarmAgent(object):
             self._look_at = None
             self._last_local_goal = None
             return
+        self.__dict__.setdefault('_search_view_inbox', SearchViewInbox()).assign(
+            msg, rospy.Time.now().to_sec())
         if msg.task_type == 0:
             scan_key = (msg.cell_ix, msg.cell_iy,
                         round(msg.target_x, 2), round(msg.target_y, 2))
@@ -1832,6 +1839,7 @@ class SwarmAgent(object):
             cue = getattr(self, '_camera_cue', None)
             if (cue is not None and cue['candidate_id'] == cid and
                     cue['sample_s'] == sample and now < cue['until']):
+                self.__dict__.setdefault('_camera_frame_origins', CameraOrigins()).attach(cue)
                 # Invalid/clipped new frames clear permission to move at once.
                 cue['image'] = approach_image(data)
                 if (cue['image'] is not None and confidence >= .65 and
@@ -2080,22 +2088,32 @@ class SwarmAgent(object):
                 return True
         return False
 
+    @serialized_visual_task
     def _processed_camera_frame_cb(self, msg):
         """Credit cell subpoints using the manager's actual camera footprint."""
         try:
             data = json.loads(msg.data)
             assignment = getattr(self, 'assignment', None)
             if (data.get('source_uav') != self.uav_id or
-                    data.get('processed') is not True or
-                    assignment is None or assignment.task_type != 0 or
-                    getattr(self, '_search_scan_key', None) is None):
+                    data.get('processed') is not True):
                 return
             sample, x, y, yaw, altitude, down_pitch = (float(data[k]) for k in
                 ('sample_s', 'x', 'y', 'yaw', 'z', 'down_pitch'))
             now = rospy.Time.now().to_sec()
             if (not all(math.isfinite(v) for v in (sample, x, y, yaw, altitude, down_pitch)) or
                     altitude <= 0.0 or
-                    not -0.05 <= now - sample <= 0.5 or
+                    not -0.05 <= now - sample <= 0.5):
+                return
+            origins = self.__dict__.setdefault('_camera_frame_origins', CameraOrigins())
+            origins.remember(sample, x, y, now)
+            cue = getattr(self, '_camera_cue', None)
+            if cue is not None and cue.get('sample_s') == sample:
+                origins.attach(cue)
+            if sample > getattr(self, '_search_view_image_s', -1e18):
+                self._search_view_image_s = sample
+                self._search_view_image_yaw = yaw
+            if (assignment is None or assignment.task_type != 0 or
+                    getattr(self, '_search_scan_key', None) is None or
                     sample <= getattr(self, '_search_last_frame', 0.0)):
                 return
             self._search_last_frame = sample
@@ -2121,6 +2139,48 @@ class SwarmAgent(object):
                     seen.add(point)
         except (ValueError, KeyError, TypeError, AttributeError):
             return
+
+    @serialized_visual_task
+    def _search_view_hint_cb(self, msg):
+        """Queue an assignment-bound old camera direction, never a detection."""
+        try:
+            state = self.__dict__.setdefault('_search_view_inbox', SearchViewInbox())
+            if state.offer(json.loads(msg.data), self.uav_id, rospy.Time.now().to_sec()):
+                if state.active is not None:
+                    self._search_scan_done = False
+                    self._search_scan_failed = False
+        except (ValueError, TypeError, AttributeError):
+            return
+
+    def _hold_search_view_hint(self):
+        assignment = getattr(self, 'assignment', None)
+        if assignment is None or assignment.task_type != 0:
+            return False
+        state = getattr(self, '_search_view_inbox', None)
+        if state is None:
+            return False
+        now = rospy.Time.now().to_sec()
+        hint = state.step(now, self.world_xy,
+                          getattr(self, '_search_view_image_s', -1e18),
+                          self.yaw, getattr(self, '_search_view_image_yaw', float('nan')),
+                          self._world_trusted())
+        if hint is None:
+            if state.last_result is not None:
+                rospy.loginfo('[SEARCH_VIEW_HINT_END] uav=%s result=%s; no coverage credit',
+                              self.uav_id, state.last_result['reason'])
+                state.last_result = None
+            return False
+        # A hint is not a new camera cue. Hold only yaw/XY through normal
+        # flight safety, ahead of grid scanning; no target or coverage writes.
+        wx, wy = self.world_xy
+        self._look_at = (wx+10.*math.cos(hint['bearing']), wy+10.*math.sin(hint['bearing']))
+        self._search_heading = (now, self.yaw)
+        self._send_vel(0.0, 0.0)
+        rospy.loginfo_throttle(1., '[SEARCH_VIEW_HINT] uav=%s candidate=%s '
+            'image=%.3f assignment=%.3f phase=%s; bounded yaw only, no observation credit',
+            self.uav_id, hint['candidate_id'], hint['image_sample_s'], hint['assignment_s'],
+            hint['phase'])
+        return True
 
     def _search_observable_points(self, x, y, altitude, down_pitch):
         key = self._search_scan_key[:2]
@@ -2166,7 +2226,8 @@ class SwarmAgent(object):
             if not found and wx is not None and self._world_trusted():
                 publisher = getattr(self, '_candidate_missed_pub', None)
                 if publisher is not None:
-                    publisher.publish(String(data=json.dumps({
+                    paired = failed_view(cue, self.uav_id, now)
+                    publisher.publish(String(data=json.dumps(paired or {
                         'x': wx[0], 'y': wx[1], 'yaw': self.yaw,
                         'source_uav': self.uav_id, 'sample_s': now,
                     })))
@@ -4483,6 +4544,8 @@ class SwarmAgent(object):
         if self._orbit_target is not None:
             # 正在盘旋确认，执行盘旋飞行
             self._fly_orbit()
+            return
+        if self._hold_search_view_hint():
             return
         # === 2026-10-05 国家一等奖：到点 dwell 期机头冻结到「下一个原本要飞到的搜索点」 ===
         # 原行为：_look_at = None → 交回 PX4 自管偏航 → 前视 90° 相机对到哪算哪。

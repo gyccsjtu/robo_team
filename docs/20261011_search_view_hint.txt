@@ -1,0 +1,17 @@
+候选失败后的有界方向复查（2026-10-11）
+
+问题与证据
+旧 visual_candidate_missed 只留下飞机位置/机头朝向；manager只保留格子，SearchAssignment没有观察方向。生产函数回放证明，相反候选方位会产生相同任务，抵达格中心后还可能因 observable=0 直接结束扫描。本轮棕色原图与方向轨迹在 artifacts/reacquire_sampling_20261011/，本次没有把构造复现当作已验证比赛收益。
+
+实现
+1. agent缓存本机processed_camera_frame的精确图像sample_s及相机x/y，只与同sample_s的真实候选bearing配对；不能使用到期时移动后的飞机位置替代原相机位置。缓存最多32条/3秒。没有对应相机帧时保留旧的普通格复查，不产生方向提示。
+2. 失败消息增加 image_sample_s/origin_sample_s、bearing、颜色及候选实例。manager保留这些作为相机观察点任务，35秒TTL从真实图像时间算；原8秒冷却耗尽证据期限时不排队。没有修改目标状态、官方上报或演员代码。
+3. 原观察位置必须仍在飞行边界内且当前膨胀地图可通行。有效任务飞回该相机位置；不把bearing乘假定距离生成人物坐标。原点受阻/过期时恢复普通安全搜索，不把同一方向套到另一个位置。
+4. /swarm/search_view_hint 使用String，绑定 uav_id、cell_ix/iy、assignment_s。对应SearchAssignment成功发布后记录_search_dispatched，再发提示。支持两话题到达次序交换；旧任务、取消、跟踪切换使旧提示失效。相同job重新派发也不会重新获得完整观察预算。
+5. 当前搜索任务在原观察点2米内、定位可信、有新处理图像时，只停车并转机头。仍走_send_vel和既有偏航限速/避障链；不提高速度或角速度。优先级低于真实人物候选、跟踪与飞行安全，高于普通格扫描。
+6. 总预算最多4秒。只有实际机头和新处理图像朝向都距提示方向12度以内后，才观察最多1秒；180度转向未完成时记录look_timeout，不能假称已补看。direction_observed仅描述观察动作，不授予覆盖、定位、确认或消除资格。
+
+回归与运行验证
+新增 tools/test_search_view_hint.py 共15项：同图像原点、图像时间TTL、消息乱序、绑定/取消、过期/异常输入、2米限制、180度转向、实际图像对准、重复派发预算、发布失败、受阻原点、普通搜索兼容及无目标/覆盖写入。
+与camera/candidate/pixel/fast-yaw/early-reacquire/search-reachability/search-dispatched/search-progress组合共142项通过；py_compile和git diff --check通过。
+待GUI验收：记录 missed -> hint assignment -> 到达 -> turning/observing/end，核实各阶段时间、实际偏航与新图像；确认没有旧hint抢走正在跟踪的目标。当前不声明提高6/6成绩。

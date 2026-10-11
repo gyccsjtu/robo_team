@@ -146,7 +146,12 @@ def audit_graph(state, topic_types):
     if (discovery_state in publishers and
             publishers[discovery_state] != {'/swarm_manager'}):
         failures.append('%s must be published only by /swarm_manager' % discovery_state)
-    for topic in ('/swarm/discovery_observation', discovery_state, '/swarm/visual_candidate'):
+    hint_topic = '/swarm/search_view_hint'
+    if hint_topic in publishers and publishers[hint_topic] != {'/swarm_manager'}:
+        failures.append('%s must be published only by /swarm_manager' % hint_topic)
+    for topic in ('/swarm/discovery_observation', discovery_state,
+                  '/swarm/visual_candidate', '/swarm/visual_candidate_missed',
+                  hint_topic, '/perception/fast_tracking_view'):
         if BRIDGE_NODE in subscribers.get(topic, set()):
             failures.append('%s subscribes to discovery-only topic %s' % (BRIDGE_NODE, topic))
 
