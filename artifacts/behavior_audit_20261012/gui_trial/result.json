@@ -1,0 +1,45 @@
+{
+  "runtime_commit": "6434ba717933ed43918c59948b16b3fdf7df1e70",
+  "log_dir": "logs/logs_20261012_044233",
+  "gui": true,
+  "official_actors": [
+    {
+      "actor": 2,
+      "time_s": 311.2280000000003
+    },
+    {
+      "actor": 1,
+      "time_s": 314.0240000000001
+    },
+    {
+      "actor": 5,
+      "time_s": 314.81999999999994
+    },
+    {
+      "actor": 0,
+      "time_s": 316.0160000000003
+    },
+    {
+      "actor": 4,
+      "time_s": 330.0160000000003
+    },
+    {
+      "actor": 3,
+      "time_s": 347.0160000000003
+    }
+  ],
+  "all_six_officially_finished": true,
+  "official_time_s": 347.0160000000003,
+  "previous_time_s": 339.36,
+  "comparison_limit": "Single run, differing actor motion; no isolated speed improvement claimed.",
+  "nearby_resumes": [
+    "[INFO] [1791751718.699618, 2232.468000]: [NEARBY_RESUME] uav=typhoon_h480_0 cid=red:47 image_age=0.120; released old task, bounded look before search",
+    "[INFO] [1791751683.722399, 2198.164000]: [NEARBY_RESUME] uav=typhoon_h480_5 cid=brown:30 image_age=0.244; released old task, bounded look before search",
+    "[INFO] [1791751715.184173, 2228.968000]: [NEARBY_RESUME] uav=typhoon_h480_5 cid=white:44 image_age=0.208; released old task, bounded look before search"
+  ],
+  "remaining": [
+    "Early far people can be imaged yet never produce dispatch coordinates.",
+    "Geometry rejections observed, but no active-look veto event occurred in this run.",
+    "Four CLIMB_STALL events need separate review; scans/estimated poses cannot prove no collisions."
+  ]
+}
