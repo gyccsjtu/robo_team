@@ -1,0 +1,140 @@
+{
+  "os_release": "NAME=\"Ubuntu\"\nVERSION=\"20.04.6 LTS (Focal Fossa)\"\nID=ubuntu\nID_LIKE=debian\nPRETTY_NAME=\"Ubuntu 20.04.6 LTS\"\nVERSION_ID=\"20.04\"\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nVERSION_CODENAME=focal\nUBUNTU_CODENAME=focal\n",
+  "python": "Python 3.8.10",
+  "packages": {
+    "torch": "2.4.1+cu121",
+    "ultralytics": "8.3.0",
+    "numpy": "1.24.4",
+    "opencv-python": "4.8.1.78",
+    "scipy": "1.10.1",
+    "lap": "0.5.12",
+    "lapx": null,
+    "filterpy": null
+  },
+  "package_paths": {
+    "torch": "/root/robo_team_build/vision_cuda_20261003/lib/python3.8/site-packages",
+    "ultralytics": "/root/robo_team_build/vision_env/lib/python3.8/site-packages",
+    "numpy": "/root/robo_team_build/vision_env/lib/python3.8/site-packages",
+    "opencv-python": "/root/robo_team_build/vision_env/lib/python3.8/site-packages",
+    "scipy": "/root/robo_team_build/vision_env/lib/python3.8/site-packages",
+    "lap": "/root/robo_team_build/botsort_env_20261011/lib/python3.8/site-packages"
+  },
+  "python_executable": "/root/robo_team_build/botsort_env_20261011/bin/python",
+  "sys_path": [
+    "/mnt/d/a/.robocup/robo_team_botsort_20261011/coordination/docs",
+    "/usr/lib/python38.zip",
+    "/usr/lib/python3.8",
+    "/usr/lib/python3.8/lib-dynload",
+    "/root/robo_team_build/botsort_env_20261011/lib/python3.8/site-packages",
+    "/root/robo_team_build/vision_cuda_20261003/lib/python3.8/site-packages",
+    "/root/robo_team_build/vision_env/lib/python3.8/site-packages",
+    "/usr/local/lib/python3.8/dist-packages",
+    "/usr/lib/python3/dist-packages"
+  ],
+  "paths": {
+    "/opt/ros/noetic/setup.bash": {
+      "exists": true,
+      "resolved": "/opt/ros/noetic/setup.bash"
+    },
+    "/root/PX4_Firmware": {
+      "exists": true,
+      "resolved": "/root/third_party_official/PX4-Autopilot"
+    },
+    "/root/XTDrone": {
+      "exists": true,
+      "resolved": "/root/third_party_official/XTDrone_official"
+    },
+    "/root/catkin_ws/devel/setup.bash": {
+      "exists": true,
+      "resolved": "/root/robo_team_build/codex_authority_v2/devel/setup.bash"
+    },
+    "/root/third_party_official/PX4-Autopilot": {
+      "exists": true,
+      "resolved": "/root/third_party_official/PX4-Autopilot"
+    },
+    "/root/third_party_official/XTDrone_official": {
+      "exists": true,
+      "resolved": "/root/third_party_official/XTDrone_official"
+    },
+    "/root/robo_team_build/codex_authority_v2/devel/setup.bash": {
+      "exists": true,
+      "resolved": "/root/robo_team_build/codex_authority_v2/devel/setup.bash"
+    },
+    "/root/robocup_runtime/stereo_20261002T140417Z": {
+      "exists": true,
+      "resolved": "/root/robocup_runtime/stereo_20261002T140417Z"
+    },
+    "/root/robocup/robocup_ws/devel/setup.bash": {
+      "exists": true,
+      "resolved": "/root/robocup/robocup_ws/devel/setup.bash"
+    },
+    "/root/vendor_eval/d43bac6/models/typhoon_h480_lidar/typhoon_h480_lidar.sdf": {
+      "exists": true,
+      "resolved": "/root/vendor_eval/d43bac6/models/typhoon_h480_lidar/typhoon_h480_lidar.sdf"
+    },
+    "/root/robocup_resources/vm_gazebo_cache_20261002/models": {
+      "exists": true,
+      "resolved": "/root/robocup_resources/vm_gazebo_cache_20261002/models"
+    },
+    "/usr/share/GeographicLib/geoids/egm96-5.pgm": {
+      "exists": true,
+      "resolved": "/usr/share/GeographicLib/geoids/egm96-5.pgm"
+    },
+    "/root/robo_team": {
+      "exists": false,
+      "resolved": "/root/robo_team"
+    },
+    "/root/robocup-yolo": {
+      "exists": false,
+      "resolved": "/root/robocup-yolo"
+    },
+    "/tmp/.X11-unix/X0": {
+      "exists": true,
+      "resolved": "/tmp/.X11-unix/X0"
+    },
+    "/tmp/.X11-unix/X95": {
+      "exists": false,
+      "resolved": "/tmp/.X11-unix/X95"
+    }
+  },
+  "processes": [],
+  "weights": [
+    {
+      "path": "/root/robocup/robocup_ws/third_party/robocup_yolo/weights/best_yolo11n_bino_v1.pt",
+      "bytes": 5471059
+    },
+    {
+      "path": "/root/vendor_eval/uavsingle/repo/weights/best_yolo11n_bino_v1.pt",
+      "bytes": 5471059
+    },
+    {
+      "path": "/root/vendor_eval/uavsingle/repo/weights/best_yolo11n_bino_v2_neg.pt",
+      "bytes": 5471059
+    },
+    {
+      "path": "/root/active_p0/code/weights/best_yolo11n_bino_v1.pt",
+      "bytes": 5471059
+    },
+    {
+      "path": "/root/active_p0/code/weights/best_yolo11n_bino_v2_neg.pt",
+      "bytes": 5471059
+    },
+    {
+      "path": "/mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v1.pt",
+      "bytes": 5471059
+    },
+    {
+      "path": "/mnt/d/a/.robocup/robo_team/weights/best_yolo11n_bino_v2_neg.pt",
+      "bytes": 5471059
+    },
+    {
+      "path": "/mnt/d/a/.robocup/robo_team_botsort_20261011/weights/best_yolo11n_bino_v1.pt",
+      "bytes": 5471059
+    },
+    {
+      "path": "/mnt/d/a/.robocup/robo_team_botsort_20261011/weights/best_yolo11n_bino_v2_neg.pt",
+      "bytes": 5471059
+    }
+  ],
+  "display": ":0"
+}

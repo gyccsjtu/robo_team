@@ -1,0 +1,99 @@
+{
+  "development_only": true,
+  "official_files_unchanged": true,
+  "official_sha256": {
+    "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/etc/init.d-posix/px4-rc.mavlink": "e607500c12553d10879b581101c9e03aa47c73bf37faf359bb0c0ad56424452c",
+    "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/etc/init.d-posix/airframes/6011_typhoon_h480.post": "32ea87d83d09ae220abb639c9853dadd2a467df8a7a226f1e76f6dde053386b0",
+    "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/etc/init.d-posix/airframes/6012_typhoon_h480_ctrlalloc.post": "32ea87d83d09ae220abb639c9853dadd2a467df8a7a226f1e76f6dde053386b0"
+  },
+  "px4_build": "/root/robo_team_build/botsort_sim_20261011/environment_v2/PX4_Firmware/build",
+  "startup_root": "/root/robo_team_build/botsort_sim_20261011/environment_v2/PX4_Firmware/build/px4_sitl_default/etc",
+  "assignments": [
+    {
+      "instance": 0,
+      "system_id": 1,
+      "simulator_tcp": 4560,
+      "offboard_local": 34580,
+      "offboard_remote": 24540,
+      "payload_local": 14280,
+      "payload_remote": 14030,
+      "gimbal_local": 13030,
+      "gimbal_remote": 13280,
+      "gcs_local": 18570,
+      "extra_local": 14558,
+      "extra_remote": 14530
+    },
+    {
+      "instance": 1,
+      "system_id": 2,
+      "simulator_tcp": 4561,
+      "offboard_local": 34581,
+      "offboard_remote": 24541,
+      "payload_local": 14281,
+      "payload_remote": 14031,
+      "gimbal_local": 13031,
+      "gimbal_remote": 13281,
+      "gcs_local": 18571,
+      "extra_local": 14559,
+      "extra_remote": 14531
+    },
+    {
+      "instance": 2,
+      "system_id": 3,
+      "simulator_tcp": 4562,
+      "offboard_local": 34582,
+      "offboard_remote": 24542,
+      "payload_local": 14282,
+      "payload_remote": 14032,
+      "gimbal_local": 13032,
+      "gimbal_remote": 13282,
+      "gcs_local": 18572,
+      "extra_local": 14560,
+      "extra_remote": 14532
+    },
+    {
+      "instance": 3,
+      "system_id": 4,
+      "simulator_tcp": 4563,
+      "offboard_local": 34583,
+      "offboard_remote": 24543,
+      "payload_local": 14283,
+      "payload_remote": 14033,
+      "gimbal_local": 13033,
+      "gimbal_remote": 13283,
+      "gcs_local": 18573,
+      "extra_local": 14561,
+      "extra_remote": 14533
+    },
+    {
+      "instance": 4,
+      "system_id": 5,
+      "simulator_tcp": 4564,
+      "offboard_local": 34584,
+      "offboard_remote": 24544,
+      "payload_local": 14284,
+      "payload_remote": 14034,
+      "gimbal_local": 13034,
+      "gimbal_remote": 13284,
+      "gcs_local": 18574,
+      "extra_local": 14562,
+      "extra_remote": 14534
+    },
+    {
+      "instance": 5,
+      "system_id": 6,
+      "simulator_tcp": 4565,
+      "offboard_local": 34585,
+      "offboard_remote": 24545,
+      "payload_local": 14285,
+      "payload_remote": 14035,
+      "gimbal_local": 13035,
+      "gimbal_remote": 13285,
+      "gcs_local": 18575,
+      "extra_local": 14563,
+      "extra_remote": 14535
+    }
+  ],
+  "shared_gcs_remote": 14550,
+  "gimbal_model_remote_requires_instance_injection": true
+}

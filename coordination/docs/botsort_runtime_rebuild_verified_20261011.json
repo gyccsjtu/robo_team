@@ -1,0 +1,26 @@
+{
+  "fixture_only": true,
+  "simulator_started": false,
+  "live_overlay_accessed": false,
+  "fresh_auto_private_startup": true,
+  "six_port_assignments": true,
+  "physical_startup_copy": true,
+  "compiled_binaries_read_only_links": true,
+  "repeat_files_hash_and_mtime_unchanged": true,
+  "verify_only_files_hash_and_mtime_unchanged": true,
+  "compatibility_isolate_files_hash_and_mtime_unchanged": true,
+  "incomplete_overlay_rejected_without_writes": true,
+  "official_input_sha256_unchanged": true,
+  "tracked_overlay_entries": 34,
+  "model_sha256": "915b40a5019d0d492ea69574c333c823a6be2f832eea50626162a606f1593c90",
+  "world_sha256": "7723c7af704fe37117dfc5f2b08cfe66af4aef570716760f439e494269384ac1",
+  "official_source_sha256": {
+    "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/etc/init.d-posix/px4-rc.mavlink": "e607500c12553d10879b581101c9e03aa47c73bf37faf359bb0c0ad56424452c",
+    "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/etc/init.d-posix/airframes/6011_typhoon_h480.post": "32ea87d83d09ae220abb639c9853dadd2a467df8a7a226f1e76f6dde053386b0",
+    "/root/third_party_official/PX4-Autopilot/build/px4_sitl_default/etc/init.d-posix/airframes/6012_typhoon_h480_ctrlalloc.post": "32ea87d83d09ae220abb639c9853dadd2a467df8a7a226f1e76f6dde053386b0",
+    "/root/third_party_official/PX4-Autopilot/Tools/sitl_gazebo/worlds/robocup.world": "7723c7af704fe37117dfc5f2b08cfe66af4aef570716760f439e494269384ac1",
+    "/root/third_party_official/XTDrone_official/sitl_config/models/typhoon_h480/typhoon_h480.sdf": "1346f71a33130e3f5634b1513cc5598d1dc2693fdf30d13c2cf9dda2ef2cd29e",
+    "/root/third_party_official/XTDrone_official/sitl_config/models/hokuyo_lidar/model.sdf": "39e07843f315410880f1021d005289e2b0399fce335fcc8530478c1b5f240471",
+    "/root/third_party_official/XTDrone_official/sitl_config/models/stereo_camera/model.sdf": "e4a078f486e40b56cbd83d035123b30c949a3a36d8fb7f1c875af9833d938fdc"
+  }
+}

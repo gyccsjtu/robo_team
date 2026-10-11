@@ -33,6 +33,7 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROS_SETUP="${ROBOCUP_ROS_SETUP:-/opt/ros/noetic/setup.bash}"
 WS_SETUP="${ROBOCUP_WS_SETUP:-$HOME/catkin_ws/devel/setup.bash}"
+ACTOR_PLUGIN="${ROBOCUP_ACTOR_PLUGIN:-$(dirname "$WS_SETUP")/lib/libros_actor_cmd_pose_plugin.so}"
 PX4_ROOT="${PX4_ROOT:-$HOME/PX4_Firmware}"
 XTDRONE_DIR="${XTDRONE_DIR:-$HOME/XTDrone}"
 ROBO_DIR="$XTDRONE_DIR/robocup"
@@ -141,6 +142,7 @@ ensure_colon_path(){  # ensure_colon_path <变量名> <目录>
 }
 ensure_colon_path GAZEBO_MODEL_PATH  "$XTDRONE_DIR/sitl_config/models"
 ensure_colon_path GAZEBO_PLUGIN_PATH "$HOME/catkin_ws/devel/lib"
+ensure_colon_path GAZEBO_PLUGIN_PATH "$(dirname "$ACTOR_PLUGIN")"
 # 2026-10-01 撞楼复盘补：typhoon_h480.sdf 的 mavlink_interface / gps 等 SITL 插件
 # 在 PX4 build_gazebo 下——缺失时 spawn 飞机即 gzserver exit 255（插件 so 找不到）。
 ensure_colon_path GAZEBO_PLUGIN_PATH "$PX4_ROOT/build/px4_sitl_default/build_gazebo"
@@ -522,19 +524,19 @@ preflight(){
            hard_miss=$((hard_miss+1));;
     esac
     case ":${GAZEBO_PLUGIN_PATH:-}:" in
-        *":$HOME/catkin_ws/devel/lib:"*) ok "GAZEBO_PLUGIN_PATH 含 catkin_ws/devel/lib（移动插件）";;
-        *) err "GAZEBO_PLUGIN_PATH 缺少 $HOME/catkin_ws/devel/lib（恐怖分子不会动）"
+        *":$(dirname "$ACTOR_PLUGIN"):"*) ok "GAZEBO_PLUGIN_PATH 含 actor 插件实际目录";;
+        *) err "GAZEBO_PLUGIN_PATH 缺少 $(dirname "$ACTOR_PLUGIN")（恐怖分子不会动）"
            hard_miss=$((hard_miss+1));;
     esac
     # actor 移动插件本体：robocup.world 每个 actor 都引用 libros_actor_cmd_pose_plugin.so，
     # 缺失时 /actor_N/cmd_motion 无订阅者 → 6 个恐怖分子叠在原点不动（GUI 里"只有 1 个actor"）。
     # 2026-10-03 复盘：catkin_ws 重建时丢了该包（源码在回收站），从 Trash 恢复后重编译。
     check_hard "actor 移动插件 libros_actor_cmd_pose_plugin.so" \
-        "[ -f '$HOME/catkin_ws/devel/lib/libros_actor_cmd_pose_plugin.so' ]"
+        "[ -f '$ACTOR_PLUGIN' ]"
     # catkin build 在本机把新库写入 build/，不会覆盖 devel/lib 的旧实体文件；
     # Gazebo 只从 devel/lib 加载。防止源码更新后仍运行旧 actor 插件。
     actor_build="$HOME/catkin_ws/build/ros_actor_cmd_pose_plugin/libros_actor_cmd_pose_plugin.so"
-    actor_runtime="$HOME/catkin_ws/devel/lib/libros_actor_cmd_pose_plugin.so"
+    actor_runtime="$ACTOR_PLUGIN"
     actor_source="$HOME/catkin_ws/src/gazebo_ros_actor_cmd_plugin/src/ActorPluginRos.cpp"
     actor_header="$HOME/catkin_ws/src/gazebo_ros_actor_cmd_plugin/include/actor_plugin_ros/ActorPluginRos.hpp"
     if [ -f "$actor_build" ]; then
@@ -554,7 +556,9 @@ preflight(){
            hard_miss=$((hard_miss+1));;
     esac
 
-    check_soft "XTDrone 通信桥（actor 躲避反应依赖它）" "[ -f '$COMM_BRIDGE' ]"
+    if [ "$REQUIRE_SWARM" != 1 ]; then
+        check_soft "XTDrone 通信桥（非协同控制入口）" "[ -f '$COMM_BRIDGE' ]"
+    fi
     check_hard "协同层工作空间（robocup_swarm 消息）" "[ -f '$COORD_WS_SETUP' ]"
     check_hard "YOLO→swarm 桥 yolo_target_bridge.py" "[ -f '$BRIDGE_SCRIPT' ]"
     check_hard "多机消息就绪检查工具" "[ -f '$READY_SCRIPT' ]"
@@ -731,9 +735,15 @@ do_start(){
         --uavs "${UAVS[@]}" \
         || partial_fail "六机 MAVROS 未全部连接；检查上面的缺失机清单及 $LOGDIR/01_scene.log"
 
-    # ---------------- ② XTDrone 通信桥 + 6 个恐怖分子 ----------------
-    step "② 起 XTDrone 通信桥 + control_actors"
-    if [ -f "$COMM_BRIDGE" ]; then
+    # ---------------- ② 环境人物与可选 XTDrone 控制入口 ----------------
+    step "② 起 control_actors；选择唯一飞控指令源"
+    if [ "$REQUIRE_SWARM" = 1 ]; then
+        # swarm_agent publishes MAVROS setpoints directly. The XTDrone
+        # bridge publishes a default PositionTarget even without any command,
+        # which overwrites this controller at the FCU. Actors read Gazebo's
+        # odometry plugin directly and do not need that command bridge.
+        info "协同模式使用 swarm_agent 直接 MAVROS 控制，不启动第二条 XTDrone 设定点流"
+    elif [ -f "$COMM_BRIDGE" ]; then
         local existing_nodes=""
         if [ "$TEAM_ONLY" = 1 ]; then
             existing_nodes="$(timeout 8s rosnode list 2>/dev/null)" \
@@ -750,7 +760,7 @@ do_start(){
         done
         sleep 1
     else
-        warn "通信桥缺失，跳过 —— actor 将只随机游走、不会躲避"
+        warn "非协同入口通信桥缺失，跳过"
     fi
 
     # PYTHONUNBUFFERED=1：control_actors.sh 内 python 无 -u，块缓冲导致 02_actors.log
@@ -771,8 +781,8 @@ do_start(){
         || partial_fail "裁判没起来，看 $LOGDIR/03_judge.log"
 
     fi  # official actors and judge belong to the organizer in team mode.
-    # ---------------- ④ 感知（CPU 模式） ----------------
-    step "④ 起感知 perception_real.py（CUDA_VISIBLE_DEVICES 置空，CPU 推理）"
+    # ---------------- ④ 感知 ----------------
+    step "④ 起感知 perception_real.py（device=${PR_DEVICE:-cpu}, tracker=${PR_IMAGE_TRACKER:-botsort}）"
     # 国家一等奖优化（2026-10-04 复盘）：
     #   PR_ACTOR_PUB_RANGE=80     边缘瞬移目标（70/72m）也接得上
     #   PR_MAX_COAST_PUB=12       外推余量加宽（远距短遮挡 6→12 帧 ≈ 1.5s）
@@ -799,7 +809,8 @@ do_start(){
             *) partial_fail "感知节点飞机名不符合官方六机编号：$u" ;;
         esac
         start_group "pr_$u" "$LOGDIR/04_perception_$u.log" bash -c \
-            "cd '$PERC_DIR' && CUDA_VISIBLE_DEVICES='' \
+            "cd '$PERC_DIR' && CUDA_VISIBLE_DEVICES='${PR_CUDA_VISIBLE_DEVICES:-}' \
+             PR_DEVICE='${PR_DEVICE:-cpu}' PR_IMAGE_TRACKER='${PR_IMAGE_TRACKER:-botsort}' \
              PR_UAV='$u' \
              PR_WORLD_OFFSET_X='${TAKEOFF_X[$_spawn_id]}' PR_WORLD_OFFSET_Y='${TAKEOFF_Y[$_spawn_id]}' \
              PR_HEIGHT_CALIBRATE='${PR_HEIGHT_CALIBRATE:-1}' PR_GROUND_BODY_HEIGHT='${PR_GROUND_BODY_HEIGHT:-0.22}' \

@@ -1,0 +1,23 @@
+{
+  "base_commit": "997cfa006a41d60e58eff724c5762ca13a3d9cc3",
+  "tracker_source_commit": "69c95d1add13a232382e53b3aa5094ec0c7738db",
+  "command": "bash tools/run_botsort_checks.sh",
+  "runtime": "/root/robo_team_build/botsort_env_20261011/bin/python",
+  "real_tracker_dependencies": true,
+  "tests_run": 190,
+  "test_seconds": 11.980,
+  "failures": 0,
+  "errors": 0,
+  "result": "OK",
+  "simulation_started_by_this_check": false,
+  "flight_entry_followup": {
+    "command": "python -B -m unittest tools.test_single_flight_source tools.test_audit_match_graph tools.test_team_entry -v",
+    "tests_run": 21,
+    "test_seconds": 0.156,
+    "failures": 0,
+    "errors": 0,
+    "result": "OK",
+    "simulation_started_by_this_check": false
+  },
+  "scope": "Dependency, evidence-boundary and startup/audit checks; not tracking-quality or competition acceptance"
+}

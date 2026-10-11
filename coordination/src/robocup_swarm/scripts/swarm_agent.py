@@ -656,6 +656,9 @@ FLEE_STATE_FRESH  = float(os.environ.get('FLEE_STATE_FRESH', '25.0'))
 ESCAPE_RUN_SPEED      = float(os.environ.get('ESCAPE_RUN_SPEED', '1.7'))    # 观测速度≥此值视为逃跑跑中（官方逃 2.0 / 随机走 1.0）
 WALK_SPEED_MAX        = float(os.environ.get('WALK_SPEED_MAX', '1.2'))      # 观测速度≤此值视为行走
 ESCAPE_SPENT_QUIET_S  = float(os.environ.get('ESCAPE_SPENT_QUIET_S', '8.0'))  # 逃跑跑过后持续行走此时长 → 判定「已花掉」
+# A motion-state streak needs new camera samples, including bounded gaps.
+# This is observation continuity, not an aircraft stop/occupancy timeout.
+ESCAPE_SAMPLE_MAX_GAP_S = 1.0
 UNARMED_BRAKE_DIST    = float(os.environ.get('UNARMED_BRAKE_DIST', '13.0'))   # 未武装目标全速接近的减速点（播报闸门 11m + 2m 余量）
 FLEE_SHEPHERD_DIST    = float(os.environ.get('FLEE_SHEPHERD_DIST', '14.0'))   # 追逃时距目标小于此值切牧羊 pace（不冲过目标）
 FLEE_SHEPHERD_SPEED   = float(os.environ.get('FLEE_SHEPHERD_SPEED', '2.6'))   # 牧羊 pace：略快于逃跑 2.0，保持 YOLO 视场
@@ -1000,6 +1003,7 @@ class SwarmAgent(object):
         # ---- v23：一次性逃跑生命周期（官方 escape_triggered 闩锁模型的团队侧镜像）----
         self._flee_run_t = {}       # tid -> 最近一次观测到逃跑跑速（≥ESCAPE_RUN_SPEED）的时刻
         self._walk_since = {}       # tid -> 逃跑跑过后持续行走的起始时刻
+        self._escape_sample_s = {}  # tid -> last original image consumed for motion state
         self._escape_spent = set()  # 已花掉逃跑的目标（全场永不再逃 → 解除压速护栏）
         self._spend_mode = set()    # 指令态：主动全速触发并花掉该目标的一次性逃跑
 
@@ -2116,6 +2120,7 @@ class SwarmAgent(object):
         for name in ('_visual_observations', '_eligible_observations',
                      '_last_eligible_image',
                      '_flee_run_t', '_walk_since', '_stale_search_until',
+                      '_escape_sample_s',
                      '_giveup_until'):
             getattr(self, name, {}).pop(tid, None)
         report_samples = getattr(self, '_report_state_sample', {})
@@ -4490,21 +4495,36 @@ class SwarmAgent(object):
         ent = self.targets.get(tid)
         if ent is None:
             return
-        spd = math.hypot(ent[2], ent[3])
         now = rospy.Time.now().to_sec()
+        sample = getattr(self, '_report_state_sample', {}).get(tid)
+        if sample is None or not math.isfinite(sample) or not 0. <= now-sample <= TARGET_TTL:
+            self._walk_since.pop(tid, None)
+            return
+        samples = self.__dict__.setdefault('_escape_sample_s', {})
+        previous = samples.get(tid)
+        if previous is not None and sample <= previous:
+            return  # bridge keepalive/prediction is not another camera observation
+        samples[tid] = sample
+        if previous is not None and sample-previous > ESCAPE_SAMPLE_MAX_GAP_S:
+            self._walk_since.pop(tid, None)
+        spd = math.hypot(ent[2], ent[3])
+        if not math.isfinite(spd):
+            self._walk_since.pop(tid, None)
+            return
         if spd >= ESCAPE_RUN_SPEED:
-            self._flee_run_t[tid] = now
+            self._flee_run_t[tid] = sample
             self._walk_since.pop(tid, None)
             return
         if tid not in self._flee_run_t or spd > WALK_SPEED_MAX:
+            self._walk_since.pop(tid, None)
             return
-        t0 = self._walk_since.setdefault(tid, now)
-        if now - t0 >= ESCAPE_SPENT_QUIET_S and tid not in self._escape_spent:
+        t0 = self._walk_since.setdefault(tid, sample)
+        if sample - t0 >= ESCAPE_SPENT_QUIET_S and tid not in self._escape_spent:
             self._escape_spent.add(tid)
             self._spend_mode.discard(tid)
             rospy.loginfo('[%s] %s 一次性逃跑已花掉（跑后持续行走 %.0fs）'
                           '→ 解除压速护栏，全速贴脸',
-                          self.uav_id, tid, now - t0)
+                          self.uav_id, tid, sample - t0)
 
     def _approach_cap(self, tid, dist):
         """v23：追踪/接近指定目标的速度上限（官方一次性逃跑闩锁模型）。
@@ -4557,7 +4577,12 @@ class SwarmAgent(object):
         wx = self.world_xy
         if wx is None or not self.targets:
             return MAX_SPEED
+        now = rospy.Time.now().to_sec()
         for tid, (tx, ty, vx, vy) in self.targets.items():
+            sample = self._t_seen.get(tid)
+            if (sample is None or not math.isfinite(sample) or
+                    not 0. <= now-sample <= TARGET_STALE):
+                continue  # keep discovery history, but expire its control position
             d = math.hypot(tx - wx[0], ty - wx[1])
             if d > SPOOK_DIST:
                 continue

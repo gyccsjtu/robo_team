@@ -1,0 +1,36 @@
+{
+  "executable": "/root/robo_team_build/botsort_env_20261011/bin/python",
+  "torch": "2.4.1+cu121",
+  "torch_path": "/root/robo_team_build/vision_cuda_20261003/lib/python3.8/site-packages/torch/__init__.py",
+  "ultralytics": "8.3.0",
+  "ultralytics_path": "/root/robo_team_build/vision_env/lib/python3.8/site-packages/ultralytics/__init__.py",
+  "numpy": "1.24.4",
+  "opencv": "4.8.1",
+  "scipy": "1.10.1",
+  "lap": "0.5.12",
+  "lap_path": "/root/robo_team_build/botsort_env_20261011/lib/python3.8/site-packages/lap/__init__.py",
+  "cuda_available": true,
+  "cuda_device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "sys_path": [
+    "/mnt/d/a/.robocup/robo_team_botsort_20261011",
+    "/mnt/d/a/.robocup/robo_team_botsort_20261011/coordination/docs",
+    "/usr/lib/python38.zip",
+    "/usr/lib/python3.8",
+    "/usr/lib/python3.8/lib-dynload",
+    "/root/robo_team_build/botsort_env_20261011/lib/python3.8/site-packages",
+    "/root/robo_team_build/vision_cuda_20261003/lib/python3.8/site-packages",
+    "/root/robo_team_build/vision_env/lib/python3.8/site-packages",
+    "/usr/local/lib/python3.8/dist-packages",
+    "/usr/lib/python3/dist-packages"
+  ],
+  "cuda_tensor_sum": 4.0,
+  "empty_image_update": true,
+  "detection_image_update": true,
+  "real_detection_identity": "red:0b5c62d57a64:0:1",
+  "tracker_statistics": {
+    "frames": 2,
+    "resets": 0,
+    "matched": 1,
+    "gmc_failures": 0
+  }
+}

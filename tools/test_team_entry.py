@@ -17,7 +17,8 @@ class TeamEntryTests(unittest.TestCase):
             script = SCRIPT + '''
 TEAM_ONLY=1
 REPO_ROOT="''' + str(ROOT) + '''"
-COORD_WS_SETUP="$REPO_ROOT/coordination/devel/setup.bash"
+COORD_WS_SETUP="$RUN_DIR/setup.bash"
+: > "$COORD_WS_SETUP"
 REG="$RUN_DIR/components.tsv"
 LOGDIR="$RUN_DIR/test"
 team_preflight(){ :; }
@@ -39,7 +40,9 @@ timeout(){
 pkill(){ echo FORBIDDEN_PKILL; return 99; }
 rosservice(){ echo FORBIDDEN_SERVICE; return 99; }
 ''' + body
-            completed = subprocess.run(['bash', '-c', script], env=env, cwd=str(ROOT),
+            runner = Path(td)/'runner.sh'
+            runner.write_text(script)
+            completed = subprocess.run(['bash', str(runner)], env=env, cwd=str(ROOT),
                                        capture_output=True, text=True, timeout=10.)
             self.assertEqual(completed.returncode, 0, completed.stdout+completed.stderr)
             self.assertNotIn('FORBIDDEN_', completed.stdout)

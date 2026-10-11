@@ -127,6 +127,19 @@ def audit_graph(state, topic_types):
     types = _topic_types(topic_types)
     failures = []
 
+    # Different MAVROS input topics still control the same FCU. A constant
+    # raw bridge must not compete with the agent's position/velocity stream.
+    for topic, nodes in sorted(publishers.items()):
+        command = re.fullmatch(
+            r'/typhoon_h480_([0-5])/mavros/(?:setpoint_raw/local|'
+            r'setpoint_position/local|setpoint_velocity/cmd_vel)', topic)
+        if command:
+            owner = '/swarm_agent_' + command.group(1)
+            for node in sorted(nodes):
+                if node != owner:
+                    failures.append('%s publishes competing FCU setpoints on %s; expected %s' %
+                                    (node, topic, owner))
+
     for tag in ACTOR_TAGS:
         topic = "/actor_%s_info" % tag
         if types.get(topic) != ACTOR_INFO_TYPE:

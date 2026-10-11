@@ -675,6 +675,7 @@ class TargetBridgeCore(object):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
         self._alternate_history = {}
+        self._tracking_rebind_history = {}
         self._deferred_sites = {}
         self._hypothesis_switches = {}
 
@@ -748,6 +749,72 @@ class TargetBridgeCore(object):
             self._replace_spatial_hypothesis(tr, t, x, y, source, candidate_id, history)
         return history
 
+    def _consider_tracking_rebind(self, tr, t, x, y, conf, range_m,
+                                  official_ok, source, candidate_id, commit=True):
+        """Recover a lost nearby camera identity without qualifying its range.
+
+        A rebuilt image ID is not necessarily another person. Conversely,
+        proximity or one detection cannot replace a live identity. Keep six
+        independent, coherent image samples after loss; slower camera cadence
+        must not reset the history every time. Official evidence keeps its
+        original per-image eligibility and goes through the unchanged gate.
+        """
+        if (tr.tag in RED_TAGS or tr.t_obs < 0. or source is None or
+                candidate_id is None or conf < NEW_TRACK_CONF or
+                range_m is None or not 0. < range_m <= 12. or
+                t-tr.t_obs <= 2.0 or
+                not self._different_candidate(tr, source, candidate_id, t, x, y)):
+            return None
+        self._tracking_rebind_history = {
+            k: points for k, points in self._tracking_rebind_history.items()
+            if points and t-points[-1][0] <= 1.2+1e-6}
+        key = (tr.tag, self._source_key(source, candidate_id))
+        previous = self._tracking_rebind_history.get(key, [])
+        if previous and t <= previous[-1][0]:
+            return None
+        history = [p for p in previous
+                   if 0. <= t-p[0] <= 6.+1e-6]
+        if history and (t-history[-1][0] > 1.2+1e-6 or
+                        math.hypot(x-history[-1][1], y-history[-1][2]) >
+                        VEL_MAX*(t-history[-1][0])+.5):
+            history = []
+        if not history:
+            # Only local continuity can use this recovery path. Distant
+            # alternatives retain the existing stronger hypothesis gate.
+            dt = max(0., min(t-tr.t_obs, .35))
+            if math.hypot(x-tr.x-tr.vx*dt, y-tr.y-tr.vy*dt) > 3.:
+                return None
+        history.append((float(t), x, y, conf, range_m, bool(official_ok)))
+        history = history[-6:]
+        self._tracking_rebind_history[key] = history
+        if len(history) < 6 or history[-1][0]-history[0][0] < 1.-1e-6:
+            return None
+        mean_t = sum(p[0] for p in history)/len(history)
+        den = sum((p[0]-mean_t)**2 for p in history)
+        mean_x, mean_y = (sum(p[k] for p in history)/len(history) for k in (1, 2))
+        vx, vy = (sum((p[0]-mean_t)*(p[k]-mean) for p in history)/den
+                  for k, mean in ((1, mean_x), (2, mean_y)))
+        if (math.hypot(vx, vy) > 2.3 or max(math.hypot(
+                p[1]-mean_x-vx*(p[0]-mean_t), p[2]-mean_y-vy*(p[0]-mean_t))
+                for p in history) > .45):
+            return None
+        if commit:
+            self._replace_tracking_identity(tr, source, candidate_id, history)
+        return history
+
+    def _replace_tracking_identity(self, tr, source, candidate_id, history):
+        """Seed pursuit from real images; never seed official fit from bad views."""
+        self.tracks[tr.tag] = _Track(tr.tag)
+        self._tracking_rebind_history = {k:v for k,v in self._tracking_rebind_history.items()
+                                         if k[0] != tr.tag}
+        self._alternate_history = {k:v for k,v in self._alternate_history.items()
+                                   if k[0] != tr.tag}
+        _core_log('[TRACKING_REBIND] tag=%s source=%s candidate=%s frames=%d; '
+                  'official evidence gated independently', tr.tag, source, candidate_id, len(history))
+        for sample, x, y, conf, range_m, official_ok in history:
+            self.report(sample, tr.tag, x, y, conf, range_m,
+                        official_ok=official_ok, source_uav=source, candidate_id=candidate_id)
+
     def report_frame(self, reports):
         """Choose once per colour after every instance in an image is known."""
         selected = []
@@ -799,17 +866,27 @@ class TargetBridgeCore(object):
             # Every independent disjoint candidate gets a vote, but no vote
             # can mutate the incumbent before the entire frame is evaluated.
             for row in distant:
+                tracking_history = self._consider_tracking_rebind(
+                    tr, row['sample_s'], row['x'], row['y'], row['conf'], row['range_m'],
+                    row['official_ok'], row['source_uav'], row.get('candidate_id'), commit=False)
+                if tracking_history is not None:
+                    ready.append((row, tracking_history, True))
+                    continue
                 history = self._consider_spatial_alternative(
                     tr, row['sample_s'], row['x'], row['y'], row['conf'], row['range_m'],
                     row['official_ok'], row['source_uav'], row.get('candidate_id'), commit=False,
                     identity_change=changed_instance(row))
                 if history is not None:
-                    ready.append((row, history))
+                    ready.append((row, history, False))
             if ready:
-                winner, history = min(ready, key=lambda item: rank(item[0]))
-                self._replace_spatial_hypothesis(
-                    tr, winner['sample_s'], winner['x'], winner['y'],
-                    winner['source_uav'], winner.get('candidate_id'), history)
+                winner, history, tracking_rebind = min(ready, key=lambda item: rank(item[0]))
+                if tracking_rebind:
+                    self._replace_tracking_identity(tr, winner['source_uav'],
+                                                    winner.get('candidate_id'), history)
+                else:
+                    self._replace_spatial_hypothesis(
+                        tr, winner['sample_s'], winner['x'], winner['y'],
+                        winner['source_uav'], winner.get('candidate_id'), history)
             if winner is not None:
                 selected.append(winner)
         return selected
@@ -988,6 +1065,9 @@ class TargetBridgeCore(object):
         changed_instance = self._different_candidate(tr, source_uav, candidate_id, t, x, y)
         if (tag not in RED_TAGS and tr.t_obs >= 0. and
                 (math.hypot(x-tr.x, y-tr.y) > 10. or changed_instance)):
+            if self._consider_tracking_rebind(tr, t, x, y, conf, range_m,
+                                              official_ok, source_uav, candidate_id) is not None:
+                return
             self._consider_spatial_alternative(tr, t, x, y, conf, range_m,
                                                official_ok, source_uav, candidate_id,
                                                identity_change=changed_instance)

@@ -77,6 +77,10 @@ from csv_logger import logger
 from tracking_view import box_from_foot, bound_pixel_candidate
 from camera_attention import ImagePublishClock
 from height_datum import GroundHeightDatum
+try:
+    from .image_mot import ImageMOT, image_world_matches
+except ImportError:
+    from image_mot import ImageMOT, image_world_matches
 
 # ---------------- 参数 ----------------
 # 权重查找顺序（本仓库自包含优先，找不到才退回部署位置）：
@@ -140,6 +144,11 @@ CONF = float(os.environ.get("PR_CONF", "0.40"))
 # 白衣人历史真检置信度常在 0.34～0.40；统一 0.40 推理阈值会在建轨前
 # 丢掉这些框。仅对白类放宽，其他颜色仍按 CONF 过滤。
 WHITE_CONF = float(os.environ.get("PR_WHITE_CONF", "0.30"))
+IMAGE_TRACKER = os.environ.get('PR_IMAGE_TRACKER', 'botsort')
+INFERENCE_DEVICE = os.environ.get('PR_DEVICE', 'cpu')
+if IMAGE_TRACKER not in ('botsort', 'legacy'):
+    raise ValueError('PR_IMAGE_TRACKER must be botsort or legacy')
+MOT_LOW_CONF = float(os.environ.get('PR_MOT_LOW_CONF', '0.10'))
 UAV = os.environ.get("PR_UAV", "typhoon_h480_0")
 # ---- 2026-09-19 双目改造 ----
 # 相机不再走 cgo3（单目 640x360 云台相机），改成平台上双目相机的**左目**
@@ -1202,11 +1211,12 @@ class Track(object):
     """alpha-beta 匀速跟踪器：状态 (x, y, vx, vy) + 身高 H + 外观特征（v4 新增多层次关联）。"""
     _seq = 0
 
-    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None):
+    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None, image_track_id=None):
         """appearance_feat: 外观特征向量（颜色直方图/深度特征），用于外观关联"""
         Track._seq += 1
         self.id = Track._seq
         self.cls = cls
+        self.image_track_id = image_track_id
         self.x, self.y = x, y
         self.vx, self.vy = 0.0, 0.0
         self.t = t
@@ -1831,6 +1841,13 @@ def main():
     frame_stamp = 0.0         # 当前检测图像的 ROS 采集时间
     processed_image_stamp = 0.0
     cue_tracker = PixelCueTracker()
+    image_mot = (ImageMOT(CLASSES, UAV, session=candidate_session[:12],
+                 low_conf=MOT_LOW_CONF,
+                 class_thresholds={c: WHITE_CONF if c == 'white' else CONF for c in CLASSES},
+                 max_absence_s=TRACK_TIMEOUT, max_frame_gap_s=TRACK_TIMEOUT)
+                 if IMAGE_TRACKER == 'botsort' else None)
+    print('[pr] IMAGE_TRACKER=%s pinned_source=69c95d1 detector=8.3.0' % IMAGE_TRACKER,
+          flush=True)
     appearance_resolver = ActorDistractorResolver()
     frame_age = None
     inference_s = None
@@ -1901,8 +1918,9 @@ def main():
 
                 if R is not None:
                     _infer_t0 = time.time()
-                    res = _model(img, conf=min(CONF, WHITE_CONF),
-                                 agnostic_nms=False, verbose=False)[0]
+                    res = _model(img, conf=min(CONF, WHITE_CONF, MOT_LOW_CONF)
+                                 if image_mot is not None else min(CONF, WHITE_CONF),
+                                 device=INFERENCE_DEVICE, agnostic_nms=False, verbose=False)[0]
                     frame_was_processed = True
                     inference_s = time.time() - _infer_t0
                     if not _first_inference_logged:
@@ -1960,6 +1978,8 @@ def main():
                     # white boxes in the 13:52 match.  Same-class NMS cannot
                     # remove them; use visible torso color only when decisive.
                     filtered_boxes = filter_blue_white_duplicate_boxes(img, filtered_boxes)
+                    if image_mot is not None:
+                        image_mot.annotate(img, filtered_boxes, frame_stamp)
                     # Associate boxes before ground projection: a cropped or
                     # unusual person can be kept in sight without treating an
                     # unstable ray as a dispatchable world coordinate.
@@ -1976,6 +1996,7 @@ def main():
                         bu, bv = (bx1 + bx2) / 2.0, (by1 + by2) / 2.0
                         raw_cue_boxes.append(dict(
                             cls=CLASSES[cid], conf=conf, u=bu, v=bv,
+                            image_track_id=getattr(b, 'image_track_id', None),
                             h=bh, bearing=image_world_bearing(bu, bv, R),
                             cam_x=px, cam_y=py, box=[bx1, by1, bx2, by2],
                             appearance_status=b.appearance_status,
@@ -1983,12 +2004,16 @@ def main():
                             distractor_confidence=b.distractor_confidence,
                             width=IMG_W, height=IMG_H,
                             camera_tilt=math.acos(max(-1., min(1., float(R[2, 2]))))))
-                    frame_cues = cue_tracker.update(frame_stamp, raw_cue_boxes)
+                    frame_cues = (image_mot.cues(frame_stamp, raw_cue_boxes)
+                                  if image_mot is not None else
+                                  cue_tracker.update(frame_stamp, raw_cue_boxes))
                     # 遍历过滤后的boxes
                     for b in filtered_boxes:
                         cid = int(b.cls)
                         conf = float(b.conf)
                         if conf < (WHITE_CONF if cid == 3 else CONF):
+                            continue
+                        if image_mot is not None and not getattr(b, 'image_track_id', None):
                             continue
                         x1, y1, x2, y2 = [float(v) for v in b.xyxy[0]]
                         if y2 < ROI_TOP or y1 > ROI_BOT:
@@ -2094,6 +2119,7 @@ def main():
                         img_crop = img[int(y1):int(y2), int(x1):int(x2)] if x2 > x1 and y2 > y1 else None
                         appearance_feat = extract_appearance_feat(img_crop) if img_crop is not None else None
                         dets.append({"cls": CLASSES[cid] if cid < len(CLASSES) else "?",
+                                     "image_track_id": getattr(b, 'image_track_id', None),
                                      "conf": round(conf, 3),
                                      "uv": [round(u, 1), round(v, 1)],
                                      "wh": [round(w_px, 1), round(h_px, 1)],
@@ -2124,7 +2150,8 @@ def main():
                             image_age_s=frame_age, inference_s=inference_s,
                             sin_down=sin_down,
                             range_method='head_height' if t is None else 'foot_ground',
-                            source="yolo_raw")
+                            source=("yolo_raw_mot:"+b.image_track_id if image_mot is not None
+                                    else "yolo_raw"))
 
         if frame_was_processed:
             frame_pub.publish(String(data=json.dumps({
@@ -2150,12 +2177,18 @@ def main():
         # ---------- 2) 关联（位置 + 身高 + 外观；v4新增多层次匹配）----------
         # 原理：先用位置粗关联，再用身高和外观精细筛选，解决密集目标串扰问题
         used = [False] * len(dets)
+        # Image identity is already a global one-to-one association in each
+        # color stream. Do not independently reassign it by world proximity.
+        mot_matches = (image_world_matches(tracks, dets, frame_stamp,
+            CONFIRM_HITS, H_GATE, base_gate=GATE, gate_min=GATE_MIN,
+            gate_mult=GATE_MULT, max_gap_s=TRACK_TIMEOUT)
+            if image_mot is not None else None)
         # 外观相似度权重（国赛创新点：颜色特征辅助关联）
         for tk in tracks:
             dt = max(1e-3, now - tk.t)
             tx, ty = tk.predict(dt)
             # 已确认 track 用 dt 缩放门限（见 GATE_DYN 注释）：走路的人 0.1 s 挪不了 3 m
-            gate = assoc_gate(dt, tk.hits)
+            gate = assoc_gate(max(0., frame_stamp-tk.observed_s), tk.hits)
             best, bd = -1, gate
             best_appear_score = 0.0
             confirmed = tk.hits >= CONFIRM_HITS      # 已确认 -> 宽松档，保链路
@@ -2163,18 +2196,22 @@ def main():
             for j, d in enumerate(dets):
                 if used[j] or d["cls"] != tk.cls:
                     continue
+                if mot_matches is not None and mot_matches.get(tk.id, (-1,))[0] != j:
+                    continue
                 if not confirmed and not d["strict"]:
                     continue                          # 未确认 track 只吃严格档
                 if abs(d["h"] - tk.h) > H_GATE:       # 身高突变 -> 不是同一个东西
                     continue
                 dd = math.hypot(d["xyz"][0] - tx, d["xyz"][1] - ty)
+                if mot_matches is not None:
+                    _, dd, gate = mot_matches[tk.id]
                 # v4新增：外观相似度计算（余弦相似度）
                 appear_sim = appearance_similarity(tk.appearance, d.get("appearance"))
                 # 综合评分：距离越近、外观越相似分数越高
                 # 位置门限内的候选才考虑外观
                 if dd < gate:
                     score = association_score(dd, appear_sim, gate, confirmed)
-                    if score < bd:
+                    if mot_matches is not None or score < bd:
                         best, bd, best_appear_score = j, score, appear_sim
                 elif confirmed and dd >= gate:
                     dyn_rej += 1                      # 被动态门限拒掉：统计用
@@ -2212,6 +2249,12 @@ def main():
         # ---------- 2b) 新建（只认严格档，误检建不了轨）----------
         for j, d in enumerate(dets):
             if not used[j]:
+                if image_mot is not None and any(
+                        tk.image_track_id == d.get('image_track_id') for tk in tracks):
+                    # Rejected projection cannot create a second world owner
+                    # for one image identity or borrow the old track's hits.
+                    _stat["n_new_rej"] += 1
+                    continue
                 if not d["strict"]:
                     _stat["n_new_rej"] += 1
                     continue
@@ -2224,7 +2267,8 @@ def main():
                                     loc_ok=d.get('loc_ok', True), range_method=d['range_method'],
                                     appearance_status=d['appearance_status'],
                                     distractor_confidence=d['distractor_confidence'],
-                          position_uncertainty_m=d.get('position_uncertainty_m')))
+                          position_uncertainty_m=d.get('position_uncertainty_m'),
+                                    image_track_id=d.get('image_track_id')))
 
         # ---------- 3) 清理 ----------
         # 原判据 math.hypot(tk.x, tk.y) 是"距世界原点"的距离，与飞机在哪无关：

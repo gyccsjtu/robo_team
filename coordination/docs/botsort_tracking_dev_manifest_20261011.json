@@ -1,0 +1,43 @@
+{
+  "development_only": true,
+  "formal_match": false,
+  "purpose": "visual tracking data collection; collision/navigation acceptance excluded",
+  "source_overlay": "/root/robo_team_build/botsort_sim_20261011/environment_v2",
+  "source_world_sha256": "7723c7af704fe37117dfc5f2b08cfe66af4aef570716760f439e494269384ac1",
+  "tracking_world_sha256": "7c7726083bf40cc1d5e52e43dc85ff63548eefcd8012d385e5b1175599c89584",
+  "model_sha256": "915b40a5019d0d492ea69574c333c823a6be2f832eea50626162a606f1593c90",
+  "removed_plugins": [
+    {
+      "actor": "actor_0",
+      "name": "actor_collisions_plugin",
+      "filename": "libActorCollisionsPlugin.so"
+    },
+    {
+      "actor": "actor_1",
+      "name": "actor_collisions_plugin",
+      "filename": "libActorCollisionsPlugin.so"
+    },
+    {
+      "actor": "actor_2",
+      "name": "actor_collisions_plugin",
+      "filename": "libActorCollisionsPlugin.so"
+    },
+    {
+      "actor": "actor_3",
+      "name": "actor_collisions_plugin",
+      "filename": "libActorCollisionsPlugin.so"
+    },
+    {
+      "actor": "actor_4",
+      "name": "actor_collisions_plugin",
+      "filename": "libActorCollisionsPlugin.so"
+    },
+    {
+      "actor": "actor_5",
+      "name": "actor_collisions_plugin",
+      "filename": "libActorCollisionsPlugin.so"
+    }
+  ],
+  "retained_actor_count": 6,
+  "all_other_world_xml_unchanged": true
+}

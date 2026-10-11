@@ -1,0 +1,30 @@
+{
+  "development_only": true,
+  "run": "/root/robo_team_build/botsort_sim_20261011/logs/logs_20261011_183813",
+  "core_pattern": "core",
+  "scene_exit_lines": [
+    "\u001b[33m[WARN] [1791715196.332232783, 1790.892000000]: CON: Lost connection, HEARTBEAT timed out.\u001b[0m",
+    "\u001b[33m[WARN] [1791715197.451642612, 1790.892000000]: CON: Lost connection, HEARTBEAT timed out.\u001b[0m",
+    "\u001b[33m[WARN] [1791715197.668501629, 1790.892000000]: CON: Lost connection, HEARTBEAT timed out.\u001b[0m",
+    "\u001b[33m[WARN] [1791715197.995682562, 1790.892000000]: CON: Lost connection, HEARTBEAT timed out.\u001b[0m",
+    "\u001b[33m[WARN] [1791715198.035590022, 1790.892000000]: CON: Lost connection, HEARTBEAT timed out.\u001b[0m",
+    "\u001b[33m[WARN] [1791715198.590610220, 1790.892000000]: CON: Lost connection, HEARTBEAT timed out.\u001b[0m",
+    "Segmentation fault (core dumped)",
+    "\u001b[31m[gazebo-2] process has died [pid 10532, exit code 139, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode /root/robo_team_build/botsort_sim_20261011/environment_v2/PX4_Firmware/Tools/sitl_gazebo/worlds/robocup.world __name:=gazebo __log:=/root/.ros/log/dfe156ca-c55f-11f1-9084-f19a079d1931/gazebo-2.log].",
+    "\u001b[1mprocess[gazebo-2]: started with pid [10532]\u001b[0m"
+  ],
+  "kernel_crash_lines": [
+    "[Sun Oct 11 18:39:48 2026] gzserver[15591]: segfault at 775c30714ec0 ip 00007757755da094 sp 00007ffcd5df9c80 error 4 in libOgreMain.so.1.9.0[1da094,775775516000+337000] likely on CPU 15 (core 7, socket 0)",
+    "[Sun Oct 11 18:39:48 2026] gzserver-11.15.1: gzserver: potentially unexpected fatal signal 11.",
+    "[Sun Oct 11 18:39:48 2026] WSL (24419 - CaptureCrash): Capturing crash for pid: 10796, executable: !usr!bin!gzserver-11.15.1, signal: 11, port: 50005"
+  ],
+  "core_candidates": {
+    "returncode": 0,
+    "output": ""
+  },
+  "ogre_symbols": {
+    "returncode": 0,
+    "output": "Ogre::EdgeListBuilder::buildTrianglesEdges(Ogre::EdgeListBuilder::Geometry const&) + 916 in section .text\nNo symbol matches 0xc4094.\n"
+  },
+  "limitation": "Kernel instruction is inside OGRE. Without a core/backtrace the initiating cause (actor animation/render race vs other memory misuse) is unproven; no OOM kill found in retained kernel tail."
+}

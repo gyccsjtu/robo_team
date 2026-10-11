@@ -1,0 +1,15 @@
+{
+  "development_only": true,
+  "formal_match": false,
+  "purpose": "visual tracking collection with OGRE shadow geometry generation disabled",
+  "source_overlay": "/root/robo_team_build/botsort_sim_20261011/environment_v2",
+  "source_world_sha256": "7723c7af704fe37117dfc5f2b08cfe66af4aef570716760f439e494269384ac1",
+  "tracking_world_sha256": "9f25040d4d31086dc35010dce55e705fbfd937083f4d9175e791171e506e6422",
+  "model_sha256": "915b40a5019d0d492ea69574c333c823a6be2f832eea50626162a606f1593c90",
+  "scene_shadows_before": "1",
+  "scene_shadows_after": false,
+  "actor_collision_plugins_retained": 6,
+  "all_other_world_xml_unchanged": true,
+  "light_settings_unchanged": true,
+  "limitation": "Shadow rendering differs from official scene; visual comparison only, not formal acceptance."
+}

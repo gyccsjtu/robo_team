@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "mode": "development_simulation",
+  "formal_competition": false,
+  "source_run_directory": "/root/robo_team_build/botsort_sim_20261011/logs_tracking_no_shadows/logs_20261011_185723",
+  "analyzer_file": "trial06_analysis.json",
+  "observer": {
+    "events": 9358,
+    "saved_sparse_images": 60,
+    "saved_burst_images": 0,
+    "writer_drained": true,
+    "observer_failures": {},
+    "actual_receive_wall_span_s": 63.65508198738098,
+    "actual_receive_ros_span_s": 19.715999999999894,
+    "stop_ros_s": 1803.216
+  },
+  "six_uav_height_and_gate": {
+    "typhoon_h480_0": {
+      "mavros_local_z_m": {
+        "samples": 592,
+        "first": -0.08519620448350906,
+        "last": 4.244731903076172,
+        "min": -0.08878385275602341,
+        "max": 4.255774021148682
+      },
+      "takeoff_gate_pass_log": [
+        "[INFO] [1791716364.355582, 1797.912000]: [typhoon_h480_0] 已爬升到 2.5m，开始水平机动"
+      ],
+      "takeoff_stalled_log_count": 0
+    },
+    "typhoon_h480_1": {
+      "mavros_local_z_m": {
+        "samples": 592,
+        "first": -0.10029301047325134,
+        "last": 2.838257312774658,
+        "min": -0.11639104038476944,
+        "max": 2.859844923019409
+      },
+      "takeoff_gate_pass_log": [
+        "[INFO] [1791716367.852680, 1799.084000]: [typhoon_h480_1] 已爬升到 2.5m，开始水平机动"
+      ],
+      "takeoff_stalled_log_count": 0
+    },
+    "typhoon_h480_2": {
+      "mavros_local_z_m": {
+        "samples": 592,
+        "first": -0.07305826246738434,
+        "last": 3.4552812576293945,
+        "min": -0.11165501177310944,
+        "max": 3.455322504043579
+      },
+      "takeoff_gate_pass_log": [
+        "[INFO] [1791716372.941184, 1800.744000]: [typhoon_h480_2] 已爬升到 2.5m，开始水平机动"
+      ],
+      "takeoff_stalled_log_count": 0
+    },
+    "typhoon_h480_3": {
+      "mavros_local_z_m": {
+        "samples": 592,
+        "first": -0.05048903450369835,
+        "last": 3.6782500743865967,
+        "min": -0.0889410674571991,
+        "max": 3.6782500743865967
+      },
+      "takeoff_gate_pass_log": [
+        "[INFO] [1791716374.939461, 1801.432000]: [typhoon_h480_3] 已爬升到 2.5m，开始水平机动"
+      ],
+      "takeoff_stalled_log_count": 0
+    },
+    "typhoon_h480_4": {
+      "mavros_local_z_m": {
+        "samples": 592,
+        "first": -0.07348012924194336,
+        "last": 2.5904414653778076,
+        "min": -0.09152154624462128,
+        "max": 2.5904414653778076
+      },
+      "takeoff_gate_pass_log": [
+        "[INFO] [1791716379.495000, 1803.036000]: [typhoon_h480_4] 已爬升到 2.5m，开始水平机动"
+      ],
+      "takeoff_stalled_log_count": 0
+    },
+    "typhoon_h480_5": {
+      "mavros_local_z_m": {
+        "samples": 591,
+        "first": -0.05929020419716835,
+        "last": 2.5156614780426025,
+        "min": -0.06070644408464432,
+        "max": 2.5156614780426025
+      },
+      "takeoff_gate_pass_log": [
+        "[INFO] [1791716379.999642, 1803.216000]: [typhoon_h480_5] 已爬升到 2.5m，开始水平机动"
+      ],
+      "takeoff_stalled_log_count": 0
+    }
+  },
+  "height_basis": "MAVROS local-position z; this is not independent world/actor truth",
+  "processed_frames": {
+    "typhoon_h480_0": {
+      "unique_original_processed_frames": 96,
+      "camera_sample_span_ros_s": 18.95999999999981,
+      "processed_output_wall_span_s": 61.33819794654846,
+      "processed_output_wall_fps": 1.548790202196439,
+      "original_sample_fps_per_ros_second": 5.010548523206801
+    },
+    "typhoon_h480_1": {
+      "unique_original_processed_frames": 95,
+      "camera_sample_span_ros_s": 18.799999999999955,
+      "processed_output_wall_span_s": 60.9108772277832,
+      "processed_output_wall_fps": 1.5432383225819624,
+      "original_sample_fps_per_ros_second": 5.000000000000012
+    },
+    "typhoon_h480_2": {
+      "unique_original_processed_frames": 95,
+      "camera_sample_span_ros_s": 18.799999999999955,
+      "processed_output_wall_span_s": 60.86219811439514,
+      "processed_output_wall_fps": 1.5444726433199116,
+      "original_sample_fps_per_ros_second": 5.000000000000012
+    },
+    "typhoon_h480_3": {
+      "unique_original_processed_frames": 96,
+      "camera_sample_span_ros_s": 18.983999999999924,
+      "processed_output_wall_span_s": 61.32031846046448,
+      "processed_output_wall_fps": 1.5492417910590286,
+      "original_sample_fps_per_ros_second": 5.004214075010555
+    },
+    "typhoon_h480_4": {
+      "unique_original_processed_frames": 95,
+      "camera_sample_span_ros_s": 18.751999999999953,
+      "processed_output_wall_span_s": 60.85955262184143,
+      "processed_output_wall_fps": 1.5445397797134814,
+      "original_sample_fps_per_ros_second": 5.0127986348123
+    },
+    "typhoon_h480_5": {
+      "unique_original_processed_frames": 95,
+      "camera_sample_span_ros_s": 18.751999999999953,
+      "processed_output_wall_span_s": 60.78778553009033,
+      "processed_output_wall_fps": 1.5463632896031294,
+      "original_sample_fps_per_ros_second": 5.0127986348123
+    }
+  },
+  "processed_frames_total": 572,
+  "target_and_discovery_report_counts": {
+    "/swarm/discovery_observation_frames": 583,
+    "/swarm/discovery_observation_nonempty_frames": 0,
+    "/swarm/discovery_observation_candidate_count": 0,
+    "/coordination/target_report_frames": 456,
+    "/coordination/target_report_nonempty_frames": 0,
+    "/coordination/target_report_candidate_count": 0
+  },
+  "target_states": 0,
+  "tracking_view": 0,
+  "actor_info_messages": 0,
+  "image_sample_receive_age_ros_s": {
+    "count": 572,
+    "min": 0.07200000000011642,
+    "mean": 0.1341608391608344,
+    "median": 0.13200000000006185,
+    "p95": 0.17200000000002547,
+    "max": 0.22000000000002728
+  },
+  "csv": {
+    "directory": "/root/robo_team_build/botsort_sim_20261011/logs_tracking_no_shadows/csv",
+    "selection": "metadata wall interval AND ROS interval; excludes clock-reset overlap",
+    "wall_interval_s": [
+      1791716315.7978466,
+      1791716478.281858
+    ],
+    "ros_interval_s": [
+      1783.472,
+      1803.216
+    ],
+    "row_counts": {
+      "all_rows": 1805,
+      "outside_wall_interval": 1395,
+      "selected_this_run": 410
+    },
+    "selected_rows_by_file": {
+      "perception_typhoon_h480_4.csv": 4,
+      "algorithm.csv": 5,
+      "control_typhoon_h480_0.csv": 77,
+      "control_typhoon_h480_3.csv": 62,
+      "control_typhoon_h480_1.csv": 71,
+      "perception_typhoon_h480_2.csv": 3,
+      "perception_typhoon_h480_5.csv": 1,
+      "perception_typhoon_h480_0.csv": 3,
+      "perception_typhoon_h480_1.csv": 2,
+      "control_typhoon_h480_2.csv": 68,
+      "control_typhoon_h480_4.csv": 59,
+      "control_typhoon_h480_5.csv": 55
+    },
+    "event_counts": {
+      "projection_reject": 13,
+      "auction": 5,
+      "velocity": 392
+    },
+    "source_counts": {
+      "sin_down_below_0.30": 13,
+      "task_allocator": 5,
+      "swarm_agent": 392
+    },
+    "detector_classes": {
+      "green": 13
+    }
+  },
+  "cpu_inference_seconds": {
+    "count": 13,
+    "min": 0.19512033462524414,
+    "mean": 0.28226641508249134,
+    "median": 0.27566027641296387,
+    "p95": 0.3537889003753662,
+    "max": 0.36237168312072754
+  },
+  "cpu_timing_limit": "Only CSV rows with inference_s are sampled, often detection-conditioned; not every processed frame or isolated tracker cost",
+  "graph_audit": {
+    "file": "/root/robo_team_build/botsort_sim_20261011/logs_tracking_no_shadows/logs_20261011_185723/07_graph_audit.log",
+    "sha256": "24972c3b995027308e9e623ddb72dfc27aeb121ce6e3d94ceffd94aad1139055",
+    "lines": [
+      "[graph-audit] PASS six ActorInfo channels, target source, judge subscription, truth/feedback subscriptions and environment command publishers (service clients/files not observable)"
+    ],
+    "registration_verdict": "PASS"
+  },
+  "gazebo_failure": {
+    "file": "/root/robo_team_build/botsort_sim_20261011/logs_tracking_no_shadows/logs_20261011_185723/01_scene.log",
+    "evidence": [
+      {
+        "line": 3967,
+        "text": "Segmentation fault"
+      },
+      {
+        "line": 4150,
+        "text": "\u001b[31m[gazebo-2] process has died [pid 965, exit code 139, cmd /opt/ros/noetic/lib/gazebo_ros/gzserver -e ode /root/robo_team_build/botsort_sim_20261011/environment_tracking_no_shadows/PX4_Firmware/Tools/sitl_gazebo/worlds/robocup.world __name:=gazebo __log:=/root/.ros/log/8d6e0ae8-c562-11f1-ac38-c5e71c50d114/gazebo-2.log]."
+      }
+    ],
+    "segfault_observed": true
+  },
+  "judge_log_observed": {
+    "development_judge_eliminated_ids": [],
+    "count": 0,
+    "mission_finished": false,
+    "reported_time_usage_s": [],
+    "failure_lines": [],
+    "status": "OBSERVED_DEV_LOG",
+    "formal_competition": false
+  },
+  "tracking_quality": "ABSTAIN: no positive target reports or valid continuous person-tracking evidence",
+  "coordinate_accuracy": "ABSTAIN: Gazebo APIs have not been verified against the visible actor mesh",
+  "baseline_effect": "ABSTAIN: no valid same-person same-burst old/new comparison",
+  "collision_and_continuous_clearance": "ABSTAIN: sampled poses and a crashed development run do not establish clearance"
+}

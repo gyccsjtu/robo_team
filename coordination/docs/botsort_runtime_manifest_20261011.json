@@ -1,0 +1,12 @@
+{
+  "development_only": true,
+  "official_assets_modified": false,
+  "sensor_spec_check": true,
+  "px4_root": "/root/robo_team_build/botsort_sim_20261011/environment_v2/PX4_Firmware",
+  "xtdrone_dir": "/root/robo_team_build/botsort_sim_20261011/environment_v2/XTDrone",
+  "runtime": "/root/robocup_runtime/stereo_20261002T140417Z",
+  "stock_model_sha256": "1346f71a33130e3f5634b1513cc5598d1dc2693fdf30d13c2cf9dda2ef2cd29e",
+  "model_sha256": "915b40a5019d0d492ea69574c333c823a6be2f832eea50626162a606f1593c90",
+  "world_sha256": "7723c7af704fe37117dfc5f2b08cfe66af4aef570716760f439e494269384ac1",
+  "world_source": "/root/third_party_official/XTDrone_official/sitl_config/worlds/robocup.world"
+}

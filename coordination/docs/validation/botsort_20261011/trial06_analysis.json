@@ -1,0 +1,399 @@
+{
+  "schema_version": 1,
+  "mode": "development_simulation",
+  "formal_competition": false,
+  "overall_verdict": "ABSTAIN: no formal competition, baseline comparison or continuous collision evidence",
+  "evidence": {
+    "recording": "/root/robo_team_build/botsort_sim_20261011/logs_tracking_no_shadows/logs_20261011_185723/observer",
+    "metadata": {
+      "schema_version": 1,
+      "mode": "development_simulation",
+      "formal_competition": false,
+      "observer_only": true,
+      "algorithm_only": true,
+      "master_uri": "http://127.0.0.1:11345",
+      "wall_start_s": 1791716315.7978466,
+      "ros_start_s": 1783.472,
+      "commit": "997cfa006a41d60e58eff724c5762ca13a3d9cc3",
+      "source_sha256": {
+        "perception/perception_real.py": "e594f21f607593f48fdd7a2cde18caec367025d15a468e63098eac5f899ba397",
+        "perception/image_mot.py": "1dd4a24f8bbeab1ad04a3875e4bf0a790d5e1ed076f905b3da358f2cca6d6f59",
+        "coordination/src/robocup_swarm/scripts/swarm_agent.py": "7b2ccfd13719dfc56d003fcb18fc5dd803d4273b596468fc4b0d967ec8f2d017",
+        "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py": "438ab10481a6410e8010a5694ad96163a0aa651b3296d538fe999aefddab5994",
+        "run_match.sh": "9ce364c742bf8dbed8b75a1b1f13af2904814a562a971d602a697aa91d86b381"
+      },
+      "arguments": {
+        "out": "/root/robo_team_build/botsort_sim_20261011/logs_tracking_no_shadows/logs_20261011_185723/observer",
+        "master_port": 11345,
+        "duration": 240.0,
+        "algorithm_only": true,
+        "truth": false,
+        "truth_hz": 5.0,
+        "truth_service_hz": 0.0,
+        "image_period": 2.0,
+        "burst_image_period": 0.2,
+        "burst_duration": 60.0,
+        "burst_start_delay": 0.0,
+        "burst_uav": "",
+        "burst_on_report": true,
+        "max_burst_frames": 350,
+        "max_image_mb": 512.0,
+        "uavs": "typhoon_h480_0,typhoon_h480_1,typhoon_h480_2,typhoon_h480_3,typhoon_h480_4,typhoon_h480_5"
+      },
+      "truth_time_semantics": "Gazebo ModelStates has no header: receive ROS time, not capture time",
+      "images": "original raw-camera frames encoded as JPEG; sparse sampling is not a complete MOT sequence",
+      "image_burst_time_semantics": "duration/start-delay use wall seconds; cadence uses original camera ROS sample; image_burst.frames counts selected attempts, saved events are authoritative",
+      "wall_end_s": 1791716478.281858,
+      "ros_end_s": 1803.216,
+      "subscribed_topics": [
+        "/actor_blue_info",
+        "/actor_brown_info",
+        "/actor_green_info",
+        "/actor_red1_info",
+        "/actor_red2_info",
+        "/actor_white_info",
+        "/coordination/target_report",
+        "/perception/debug_snapshot",
+        "/swarm/assignment",
+        "/swarm/discovery_observation",
+        "/swarm/discovery_states",
+        "/swarm/processed_camera_frame",
+        "/swarm/reobserve",
+        "/swarm/report_telemetry",
+        "/swarm/target_states",
+        "/swarm/tracking_view",
+        "/swarm/uav_status",
+        "/swarm/visual_candidate",
+        "/swarm/visual_conflict",
+        "/swarm/visual_source",
+        "/swarm/visual_streak",
+        "/typhoon_h480_0/mavros/local_position/pose",
+        "/typhoon_h480_0/mavros/local_position/velocity_local",
+        "/typhoon_h480_0/stereo_camera/left/image_raw",
+        "/typhoon_h480_1/mavros/local_position/pose",
+        "/typhoon_h480_1/mavros/local_position/velocity_local",
+        "/typhoon_h480_1/stereo_camera/left/image_raw",
+        "/typhoon_h480_2/mavros/local_position/pose",
+        "/typhoon_h480_2/mavros/local_position/velocity_local",
+        "/typhoon_h480_2/stereo_camera/left/image_raw",
+        "/typhoon_h480_3/mavros/local_position/pose",
+        "/typhoon_h480_3/mavros/local_position/velocity_local",
+        "/typhoon_h480_3/stereo_camera/left/image_raw",
+        "/typhoon_h480_4/mavros/local_position/pose",
+        "/typhoon_h480_4/mavros/local_position/velocity_local",
+        "/typhoon_h480_4/stereo_camera/left/image_raw",
+        "/typhoon_h480_5/mavros/local_position/pose",
+        "/typhoon_h480_5/mavros/local_position/velocity_local",
+        "/typhoon_h480_5/stereo_camera/left/image_raw"
+      ],
+      "missing_topics": [],
+      "event_counts": {
+        "/typhoon_h480_3/mavros/local_position/pose": 592,
+        "written_events": 9358,
+        "/typhoon_h480_0/mavros/local_position/velocity_local": 592,
+        "/typhoon_h480_2/mavros/local_position/velocity_local": 592,
+        "/typhoon_h480_0/mavros/local_position/pose": 592,
+        "/typhoon_h480_2/mavros/local_position/pose": 592,
+        "/typhoon_h480_4/mavros/local_position/pose": 592,
+        "/typhoon_h480_1/mavros/local_position/pose": 592,
+        "/typhoon_h480_1/mavros/local_position/velocity_local": 592,
+        "/typhoon_h480_4/mavros/local_position/velocity_local": 592,
+        "/typhoon_h480_3/mavros/local_position/velocity_local": 591,
+        "/typhoon_h480_5/mavros/local_position/velocity_local": 591,
+        "/typhoon_h480_5/mavros/local_position/pose": 591,
+        "/typhoon_h480_0/stereo_camera/left/image_raw": 10,
+        "/typhoon_h480_1/stereo_camera/left/image_raw": 10,
+        "/typhoon_h480_3/stereo_camera/left/image_raw": 10,
+        "/typhoon_h480_2/stereo_camera/left/image_raw": 10,
+        "/typhoon_h480_4/stereo_camera/left/image_raw": 10,
+        "/typhoon_h480_5/stereo_camera/left/image_raw": 10,
+        "/swarm/discovery_observation": 583,
+        "saved_image_bytes": 1937759,
+        "saved_images": 60,
+        "/swarm/processed_camera_frame": 572,
+        "/coordination/target_report": 456,
+        "/swarm/uav_status": 581,
+        "/swarm/assignment": 5
+      },
+      "observer_failures": {},
+      "image_burst": {
+        "source_uav": null,
+        "start_wall_s": null,
+        "frames": 0
+      },
+      "writer_drained": true
+    },
+    "observed_topics": {
+      "/typhoon_h480_3/mavros/local_position/pose": 592,
+      "/typhoon_h480_0/mavros/local_position/velocity_local": 592,
+      "/typhoon_h480_2/mavros/local_position/velocity_local": 592,
+      "/typhoon_h480_0/mavros/local_position/pose": 592,
+      "/typhoon_h480_2/mavros/local_position/pose": 592,
+      "/typhoon_h480_4/mavros/local_position/pose": 592,
+      "/typhoon_h480_1/mavros/local_position/pose": 592,
+      "/typhoon_h480_1/mavros/local_position/velocity_local": 592,
+      "/typhoon_h480_4/mavros/local_position/velocity_local": 592,
+      "/typhoon_h480_3/mavros/local_position/velocity_local": 591,
+      "/typhoon_h480_5/mavros/local_position/velocity_local": 591,
+      "/typhoon_h480_5/mavros/local_position/pose": 591,
+      "/typhoon_h480_0/stereo_camera/left/image_raw": 10,
+      "/typhoon_h480_1/stereo_camera/left/image_raw": 10,
+      "/typhoon_h480_3/stereo_camera/left/image_raw": 10,
+      "/typhoon_h480_2/stereo_camera/left/image_raw": 10,
+      "/typhoon_h480_4/stereo_camera/left/image_raw": 10,
+      "/typhoon_h480_5/stereo_camera/left/image_raw": 10,
+      "/swarm/discovery_observation": 583,
+      "/swarm/processed_camera_frame": 572,
+      "/coordination/target_report": 456,
+      "/swarm/uav_status": 581,
+      "/swarm/assignment": 5
+    },
+    "six_mavros_pose_streams": [
+      "typhoon_h480_0",
+      "typhoon_h480_1",
+      "typhoon_h480_2",
+      "typhoon_h480_3",
+      "typhoon_h480_4",
+      "typhoon_h480_5"
+    ],
+    "unverified_gazebo_sample_counts": {},
+    "images": {
+      "sparse": 60
+    },
+    "csv": {
+      "rows": 1805,
+      "outside_recording_wall_interval": 1395,
+      "rows_in_recording_interval": 410,
+      "files_read": 19
+    },
+    "csv_roots": [
+      "/root/robo_team_build/botsort_sim_20261011/logs_tracking_no_shadows/csv"
+    ],
+    "csv_ros_interval_s": [
+      1783.472,
+      1803.216
+    ],
+    "csv_wall_interval_s": [
+      1791716315.7978466,
+      1791716478.281858
+    ],
+    "csv_attribution": "ROS and wall time filtered"
+  },
+  "published_view_and_report_continuity": {},
+  "raw_image_mot_id_continuity": {},
+  "actor_info_reports": {},
+  "official_topics_last_observed": {},
+  "development_judge": {
+    "development_judge_eliminated_ids": [],
+    "count": 0,
+    "mission_finished": false,
+    "reported_time_usage_s": [],
+    "failure_lines": [],
+    "status": "OBSERVED_DEV_LOG",
+    "formal_competition": false
+  },
+  "report_coordinate_accuracy": "ABSTAIN: Gazebo APIs have not been verified against the visible actor mesh",
+  "unverified_gazebo_diagnostic": {},
+  "bridge_state_emissions": {},
+  "bridge_state_limitations": "2.5s is the default sample freshness window; emitted states do not prove an agent had authority, accepted geometry or moved. Repeated stamps count once.",
+  "original_sample_receive_age_s": {
+    "/coordination/target_report": {
+      "count": 456,
+      "min": 0.07200000000011642,
+      "mean": 0.13378070175438325,
+      "median": 0.13200000000006185,
+      "p95": 0.16800000000012005,
+      "max": 0.22000000000002728
+    },
+    "/swarm/assignment": {
+      "count": 5,
+      "min": 0.0,
+      "mean": 0.0,
+      "median": 0.0,
+      "p95": 0.0,
+      "max": 0.0
+    },
+    "/swarm/discovery_observation": {
+      "count": 583,
+      "min": 0.05199999999990723,
+      "mean": 0.13447684391080203,
+      "median": 0.13200000000006185,
+      "p95": 0.17200000000002547,
+      "max": 0.2719999999999345
+    },
+    "/swarm/processed_camera_frame": {
+      "count": 572,
+      "min": 0.07200000000011642,
+      "mean": 0.1341608391608344,
+      "median": 0.13200000000006185,
+      "p95": 0.17200000000002547,
+      "max": 0.22000000000002728
+    },
+    "/swarm/uav_status": {
+      "count": 581,
+      "min": -0.023999999999887223,
+      "mean": -0.00019965576592275786,
+      "median": 0.0,
+      "p95": 0.004000000000132786,
+      "max": 0.011999999999943611
+    },
+    "/typhoon_h480_0/mavros/local_position/pose": {
+      "count": 592,
+      "min": -0.17292603900000358,
+      "mean": -0.0007172630016880801,
+      "median": 0.0009781500000372034,
+      "p95": 0.006232133000003159,
+      "max": 0.0144130529999984
+    },
+    "/typhoon_h480_0/mavros/local_position/velocity_local": {
+      "count": 592,
+      "min": -0.17292603900000358,
+      "mean": -0.0009942900287158538,
+      "median": 0.0008937554999874919,
+      "p95": 0.0060953763500037885,
+      "max": 0.013486429000067801
+    },
+    "/typhoon_h480_0/stereo_camera/left/image_raw": {
+      "count": 10,
+      "min": 0.023999999999887223,
+      "mean": 0.033999999999991815,
+      "median": 0.0340000000001055,
+      "p95": 0.043999999999994086,
+      "max": 0.044000000000096406
+    },
+    "/typhoon_h480_1/mavros/local_position/pose": {
+      "count": 592,
+      "min": -0.14715848700006973,
+      "mean": -0.004233220506757727,
+      "median": -0.002257116999885511,
+      "p95": 0.0038327408499867458,
+      "max": 0.016254533999926934
+    },
+    "/typhoon_h480_1/mavros/local_position/velocity_local": {
+      "count": 592,
+      "min": -0.14715848700006973,
+      "mean": -0.004125112398649103,
+      "median": -0.0022534224999617436,
+      "p95": 0.0038327408499867458,
+      "max": 0.010661219999974492
+    },
+    "/typhoon_h480_1/stereo_camera/left/image_raw": {
+      "count": 10,
+      "min": 0.027999999999792635,
+      "mean": 0.03959999999999582,
+      "median": 0.03999999999996362,
+      "p95": 0.04800000000000182,
+      "max": 0.04800000000000182
+    },
+    "/typhoon_h480_2/mavros/local_position/pose": {
+      "count": 592,
+      "min": -0.1772012179999365,
+      "mean": -0.005505917103044561,
+      "median": -0.004412616499848809,
+      "p95": 0.0025858374499648515,
+      "max": 0.008402689000149621
+    },
+    "/typhoon_h480_2/mavros/local_position/velocity_local": {
+      "count": 592,
+      "min": -0.04484065399992687,
+      "mean": -0.003965376562508955,
+      "median": -0.004402172999903087,
+      "p95": 0.0028923898998982553,
+      "max": 0.14690398099992308
+    },
+    "/typhoon_h480_2/stereo_camera/left/image_raw": {
+      "count": 10,
+      "min": 0.023999999999887223,
+      "mean": 0.04039999999999964,
+      "median": 0.04200000000003001,
+      "p95": 0.050599999999940325,
+      "max": 0.055999999999812644
+    },
+    "/typhoon_h480_3/mavros/local_position/pose": {
+      "count": 592,
+      "min": -0.16399999999998727,
+      "mean": -0.0012140071706112762,
+      "median": 0.0002997704999643247,
+      "p95": 0.005604622749899588,
+      "max": 0.016000000000076398
+    },
+    "/typhoon_h480_3/mavros/local_position/velocity_local": {
+      "count": 591,
+      "min": -0.16800000000012005,
+      "mean": -0.001202524949241303,
+      "median": 0.0003116289999525179,
+      "p95": 0.005656529000020782,
+      "max": 0.011999999999943611
+    },
+    "/typhoon_h480_3/stereo_camera/left/image_raw": {
+      "count": 10,
+      "min": 0.03199999999992542,
+      "mean": 0.04280000000003383,
+      "median": 0.044000000000096406,
+      "p95": 0.052399999999897764,
+      "max": 0.055999999999812644
+    },
+    "/typhoon_h480_4/mavros/local_position/pose": {
+      "count": 592,
+      "min": -0.03600000000005821,
+      "mean": 0.0037392386334400922,
+      "median": 0.003783600999895498,
+      "p95": 0.008732012150073841,
+      "max": 0.16799999999989268
+    },
+    "/typhoon_h480_4/mavros/local_position/velocity_local": {
+      "count": 592,
+      "min": -0.16799999999989268,
+      "mean": 0.0017392386334389922,
+      "median": 0.0037653319999435553,
+      "p95": 0.00858040660004917,
+      "max": 0.016461117999824637
+    },
+    "/typhoon_h480_4/stereo_camera/left/image_raw": {
+      "count": 10,
+      "min": 0.03199999999992542,
+      "mean": 0.04400000000005093,
+      "median": 0.044000000000096406,
+      "p95": 0.05679999999991876,
+      "max": 0.06399999999985084
+    },
+    "/typhoon_h480_5/mavros/local_position/pose": {
+      "count": 591,
+      "min": -0.06400000000007822,
+      "mean": 0.0035950827191223106,
+      "median": 0.004017701000066154,
+      "p95": 0.01199595099990347,
+      "max": 0.14399999999977808
+    },
+    "/typhoon_h480_5/mavros/local_position/velocity_local": {
+      "count": 591,
+      "min": -0.16799999999989268,
+      "mean": 0.002079008269036625,
+      "median": 0.0040230519998658565,
+      "p95": 0.008168123999894306,
+      "max": 0.016165191999789386
+    },
+    "/typhoon_h480_5/stereo_camera/left/image_raw": {
+      "count": 10,
+      "min": 0.03199999999992542,
+      "mean": 0.045200000000045294,
+      "median": 0.0420000000001437,
+      "p95": 0.060799999999949235,
+      "max": 0.06799999999998363
+    }
+  },
+  "cpu_inference_s": {
+    "count": 13,
+    "min": 0.19512033462524414,
+    "mean": 0.28226641508249134,
+    "median": 0.27566027641296387,
+    "p95": 0.3537889003753662,
+    "max": 0.36237168312072754
+  },
+  "isolated_tracker_cpu_cost": "ABSTAIN: existing inference CSV is pipeline timing",
+  "baseline_effect": "ABSTAIN: replay the SAME recorded burst with both trackers before comparing",
+  "truth_limitations": "Gazebo API values are observer-only unverified diagnostics, not independent actor pose truth. Animated actor mesh correspondence and headerless timing are unverified; APIs remain separate. Overall report coordinate accuracy is ABSTAIN even when source brackets exist.",
+  "sparse_image_limitations": "Sparse frames are diagnostics. Only image_kind=burst is a replay candidate; JPEG compression and capture gaps must be reported. No synthetic frames.",
+  "collision_verdict": "ABSTAIN: no continuous contact evidence",
+  "flight_clearance_verdict": "ABSTAIN: sampled poses do not prove continuous clearance"
+}

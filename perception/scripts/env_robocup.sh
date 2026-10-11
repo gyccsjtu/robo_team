@@ -6,7 +6,7 @@
 # ============================================================================
 # 注意 ~ 下多处是 /data 的软链，实际上只有一份代码。
 
-export ROBOCOP_ROOT="${ROBOCUP_XTDRONE:-$HOME/XTDrone/robocup}"
+export ROBOCOP_ROOT="${ROBOCUP_XTDRONE:-${XTDRONE_DIR:-$HOME/XTDrone}/robocup}"
 
 # ---- ROS ----
 # 路径可用环境变量覆盖；缺失时**跳过而不是报错**，便于在不同机器上复用。
@@ -19,13 +19,13 @@ WS_SETUP="${ROBOCUP_WS_SETUP:-$HOME/catkin_ws/devel/setup.bash}"
 
 # ---- 让官方 launch 里的 $(find px4) 生效 ----
 # PX4_Firmware 自带 package.xml(name=px4)，且其 launch/ 目录已被放入 XTDrone 的启动文件
-export ROS_PACKAGE_PATH="$HOME/PX4_Firmware:${ROS_PACKAGE_PATH:-}"
+export ROS_PACKAGE_PATH="${PX4_ROOT:-$HOME/PX4_Firmware}:${ROS_PACKAGE_PATH:-}"
 
 # ---- Gazebo 模型与插件 ----
 # 官方 base.world 依赖 model://walker/walk_N.dae、city_terrain、asphalt_plane 等
-export GAZEBO_MODEL_PATH="$HOME/XTDrone/sitl_config/models:$HOME/PX4_Firmware/Tools/sitl_gazebo/models:${GAZEBO_MODEL_PATH:-}"
+export GAZEBO_MODEL_PATH="${XTDRONE_DIR:-$HOME/XTDrone}/sitl_config/models:${PX4_ROOT:-$HOME/PX4_Firmware}/Tools/sitl_gazebo/models:${GAZEBO_MODEL_PATH:-}"
 # 官方 actor 插件 + PX4 编译出的 37 个 gazebo 插件（电机模型 / mavlink 接口 / 云台 / 相机）
-export GAZEBO_PLUGIN_PATH="$HOME/catkin_ws/devel/lib:$HOME/PX4_Firmware/build/px4_sitl_default/build_gazebo:${GAZEBO_PLUGIN_PATH:-}"
+export GAZEBO_PLUGIN_PATH="$(dirname "$WS_SETUP")/lib:${PX4_ROOT:-$HOME/PX4_Firmware}/build/px4_sitl_default/build_gazebo:${GAZEBO_PLUGIN_PATH:-}"
 
 # ---- 已知致命坑 ----
 # 置空在线模型库：否则 gzserver 会去 models.gazebosim.org 拉模型并卡死，
