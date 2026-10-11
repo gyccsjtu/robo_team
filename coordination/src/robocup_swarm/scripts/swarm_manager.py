@@ -557,7 +557,7 @@ class SwarmManager(object):
 
     # ---------------- SLAM 栅格合并（合规建图 2026-10-07）----------------
     def _occ_grid_cb(self, msg):
-        """用每机最新完整快照重算并集，保留其他机器对同一墙的证据。"""
+        """Fuse dated hits/clear rays; an undated zero is never a free ray."""
         try:
             d = json.loads(msg.data)
             uav_id = str(d["uav_id"])
@@ -598,8 +598,38 @@ class SwarmManager(object):
                   math.hypot(origin[0] - self._slam_origin[0],
                              origin[1] - self._slam_origin[1]) > 1e-6):
                 return  # 异构地图不能逐格合并
+            if d.get('schema') == 2:
+                from map_evidence import MapEvidenceFusion
+                fusion = getattr(self, '_map_evidence', None)
+                if fusion is None:
+                    fusion = self._map_evidence = MapEvidenceFusion(w*h)
+                try:
+                    accepted = fusion.apply(
+                        uav_id, str(d['epoch']), int(d['sequence']),
+                        float(d['sample_s']), snapshot, d['evidence'],
+                        rospy.Time.now().to_sec())
+                except (KeyError, TypeError, ValueError, OverflowError):
+                    return
+                if not accepted:
+                    return
+                merged = bytearray(fusion.cells)
+                # Legacy snapshots have no per-cell time/free-space contract;
+                # retain conservatively until all publishers run schema 2.
+                self._slam_sources.pop(uav_id, None)
+                for source in self._slam_sources.values():
+                    for i, occupied in enumerate(source):
+                        if occupied:
+                            merged[i] = 1
+                if merged != self._slam_cells:
+                    self._slam_cells = merged
+                    self._slam_dirty = True
+                return
+            # A downgraded/replayed message cannot restore an obsolete source.
+            fusion = getattr(self, '_map_evidence', None)
+            if fusion is not None and uav_id in fusion.sources:
+                return
             self._slam_sources[uav_id] = snapshot
-            merged = bytearray(w * h)
+            merged = bytearray(fusion.cells) if fusion is not None else bytearray(w * h)
             for source in self._slam_sources.values():
                 for i, occupied in enumerate(source):
                     if occupied:

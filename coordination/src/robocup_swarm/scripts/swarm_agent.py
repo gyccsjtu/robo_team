@@ -1317,7 +1317,8 @@ class SwarmAgent(object):
         且不覆盖规划线程里更新的追踪请求）。栅格有更新时按 SLAM_PUB_SEC
         节流发布 RLE 快照给 manager 合并。
         """
-        if self._scan is None or self.world_xy is None:
+        if (self._scan is None or self.world_xy is None or
+                getattr(self, '_localization_fault', False)):
             return
         now = self._scan_t
         if now - self._slam_last_t < SLAM_PERIOD:
@@ -1331,16 +1332,16 @@ class SwarmAgent(object):
             return
         try:
             marked = self.slam.mark_scan(self.world_xy, self.yaw, self._scan,
-                                         SLAM_MAX_RANGE, SLAM_DEPTH_CELLS)
+                                         SLAM_MAX_RANGE, SLAM_DEPTH_CELLS,
+                                         sample_s=now)
         except Exception as exc:
             rospy.logerr_throttle(5.0, '[%s] 激光建图失败: %s', self.uav_id, exc)
             return
-        if marked <= 0:
-            return
-        self._slam_dirty = True
+        if marked > 0:
+            self._slam_dirty = True
         # 只有当前路径前方被新栅格挡住时才失效重规划。雷达空闲射线清除
         # 动态占用或地图其它区域更新，不能让六机每两秒重复全图 A*。
-        if self.path and self.path_target is not None \
+        if marked > 0 and self.path and self.path_target is not None \
                 and now - self._slam_replan_t >= SLAM_REPLAN_SEC \
                 and remaining_path_blocked(self.grid, self.path, self.world_xy):
             with self._plan_lock:
@@ -1349,9 +1350,13 @@ class SwarmAgent(object):
                 self._slam_replan_t = now
                 self._request_plan(self.path_target)
         # 发布栅格快照（节流）
-        if self._slam_dirty and now - self._slam_pub_t >= SLAM_PUB_SEC:
-            self._slam_pub_t = now
-            self._slam_dirty = False
+        if now - self._slam_pub_t >= SLAM_PUB_SEC:
+            # Publish evidence heartbeat even when occupancy bits are unchanged.
+            # A final dirty frame must not wait forever for another changed cell.
+            import uuid
+            if not hasattr(self, '_slam_epoch'):
+                self._slam_epoch = uuid.uuid4().hex
+                self._slam_sequence = 0
             try:
                 self.occ_pub.publish(String(data=json.dumps({
                     "uav_id": self.uav_id,
@@ -1360,9 +1365,16 @@ class SwarmAgent(object):
                     "resolution": self.slam.resolution,
                     "origin": [self.slam.origin[0], self.slam.origin[1]],
                     "rle": self.slam.to_rle(),
+                    "schema": 2, "epoch": self._slam_epoch,
+                    "sequence": self._slam_sequence+1, "sample_s": now,
+                    "evidence": self.slam.evidence_snapshot(now),
                 })))
-            except Exception:
-                pass
+                self._slam_sequence += 1
+                self._slam_pub_t = now
+                self._slam_dirty = False
+            except Exception as exc:
+                self._slam_dirty = True
+                rospy.logwarn_throttle(5., '[%s] map publish failed: %s', self.uav_id, exc)
 
     def _discard_old_plan(self):
         """Stop the previous task now; a late planner result must not revive it."""

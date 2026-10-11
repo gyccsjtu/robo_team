@@ -810,7 +810,7 @@ class MatchBlockers(unittest.TestCase):
         agent.uav_id = 'u0'
         agent.local_xy, agent.offset = (4.25, 10.25), (0.0, 0.0)
         agent.slam = agent.grid = SlamGrid(0.0, 0.0, 20.0, 20.0, 0.5, 0.0)
-        agent.slam.mark_scan = lambda *_args: 1
+        agent.slam.mark_scan = lambda *_args, **_kw: 1
         agent._scan = SimpleNamespace(ranges=[10.0])
         agent._scan_t = 100.0
         agent._slam_last_t = agent._slam_replan_t = 0.0

@@ -10,9 +10,9 @@
       扫到（有效回波）→ mark occupied（含增量圆盘膨胀 + 墙体深度填充）
 
 设计要点：
-  1. 只标占用、不标自由（保守 SLAM）：位姿误差可能把墙"擦掉"，导致 A*
-     穿墙；多标只会绕远，不会撞。未知区域视为可通行 —— A* 先直飞，
-     雷达近障守卫（RADAR_GUARD）兜底，发现新障碍即触发重规划。
+  1. 命中即时标占用；有时间戳的连续三帧空闲射线才能清除旧回波。
+     未知不等于被观察为空闲；失联不清墙，动态占用由新雷达证据清除。
+     未知区域规划仍由最终雷达、地图及机间保护兜底。
   2. 增量膨胀：新占用 cell 只盖一次半径 r 圆盘到 inflated 栅格，
      避免每次规划前全图重膨胀（380x260 全图膨胀 ~60 万次写）。
   3. 接口与 robocup_navigation.astar.GridMap 对齐（width/height/
@@ -54,6 +54,8 @@ class SlamGrid(object):
         self.total_cells = 0             # 累计占用 cell 数（含深度填充）
         self.new_cells = 0               # 自上次 take_new_cells() 以来的新增数
         self.mark_frames = 0             # 已处理的雷达帧数
+        self._evidence = {}  # index -> (original scan time, occupied, consecutive count)
+        self._evidence_stamp = -float('inf')
 
     # ------------------------------------------------------------------
     # GridMap 兼容接口
@@ -146,7 +148,7 @@ class SlamGrid(object):
         return True
 
     def mark_scan(self, pose, yaw, scan, max_range, depth_cells=0,
-                  min_range=0.5):
+                  min_range=0.5, sample_s=None):
         """把一帧 LaserScan 射线投射进栅格。
 
         pose    : (x, y) 雷达世界坐标（机体原点，2D 雷达共面）
@@ -167,6 +169,10 @@ class SlamGrid(object):
         """
         if scan is None or not scan.ranges:
             return 0
+        if sample_s is not None:
+            if not math.isfinite(sample_s) or sample_s <= self._evidence_stamp:
+                return 0
+            self._evidence_stamp = sample_s
         px, py = float(pose[0]), float(pose[1])
         a0 = float(scan.angle_min)
         inc = float(scan.angle_increment)
@@ -212,10 +218,24 @@ class SlamGrid(object):
             for k in range(int(depth_cells) + 1):
                 d = r + k * res
                 hit_points.append((px + c * d, py + s * d))
+        hit_cells = {self.world_to_cell(p) for p in hit_points}
+        free_cells.difference_update(hit_cells)
         for cell in free_cells:
+            if sample_s is not None:
+                idx = cell[1]*self.width+cell[0]
+                old = self._evidence.get(idx)
+                count = (min(255, old[2]+1) if old is not None and old[1] == 0
+                         and 0. < sample_s-old[0] <= .7 else 1)
+                self._evidence[idx] = (sample_s, 0, count)
+                if count < 3:
+                    continue
             if self.clear_cell(cell):
                 cleared += 1
         for x, y in hit_points:
+            cell = self.world_to_cell((x, y))
+            if sample_s is not None and cell is not None:
+                idx = cell[1]*self.width+cell[0]
+                self._evidence[idx] = (sample_s, 1, 1)
             if self.mark_point(x, y):
                 marked += 1
         if marked or cleared:
@@ -233,6 +253,17 @@ class SlamGrid(object):
 
     def occupied_count(self):
         return sum(1 for v in self.cells if v)
+
+    def evidence_snapshot(self, sample_s):
+        """All retained hit dates plus recent clears, independent of dirty bits."""
+        rows = []
+        for idx, (at, occupied, count) in self._evidence.items():
+            # A pending one/two-ray clearance is not yet the cell's state.
+            if occupied != self.cells[idx]:
+                continue
+            if occupied or 0. <= sample_s-at <= 8.:
+                rows.append([idx, at, occupied, count])
+        return rows
 
     def to_rle(self):
         """原始占用 → RLE [[value, count], ...]，供 /swarm/occupancy_grid 发布。"""
