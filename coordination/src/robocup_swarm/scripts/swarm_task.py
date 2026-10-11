@@ -114,12 +114,6 @@ class SearchCell(object):
 class CoverageGrid(object):
     """200×100 覆盖栅格：20×10 个 10×10 m 搜索格。"""
 
-    @classmethod
-    def for_city(cls, cell_m=GRID_SIZE_M, num_uavs=6):
-        """Identical cell indices for dispatch and aircraft status reports."""
-        from flight_boundary import flight_bounds
-        return cls(*flight_bounds(), cell_m=cell_m, num_uavs=num_uavs)
-
     def __init__(self, x_min, x_max, y_min, y_max, cell_m=GRID_SIZE_M, num_uavs=6):
         self.x_min, self.x_max = float(x_min), float(x_max)
         self.y_min, self.y_max = float(y_min), float(y_max)
@@ -130,12 +124,8 @@ class CoverageGrid(object):
         self.cells = {}
         for ix in range(self.nx):
             for iy in range(self.ny):
-                # The final row/column may be narrower than cell_m. Its
-                # center must not extend beyond the actual search rectangle.
-                left = self.x_min + ix * self.cell_m
-                bottom = self.y_min + iy * self.cell_m
-                c = SearchCell((left + min(left+self.cell_m, self.x_max))/2.0,
-                               (bottom + min(bottom+self.cell_m, self.y_max))/2.0)
+                c = SearchCell(self.x_min + (ix + 0.5) * self.cell_m,
+                               self.y_min + (iy + 0.5) * self.cell_m)
                 self.cells[(ix, iy)] = c
 
         # ---- 区域分割：把地图分成 num_uavs 个区域 ----
@@ -150,8 +140,6 @@ class CoverageGrid(object):
 
     # ---- 坐标 ↔ 格索引 ----
     def world_to_cell(self, x, y):
-        if not (self.x_min <= x < self.x_max and self.y_min <= y < self.y_max):
-            return None
         ix = int(math.floor((x - self.x_min) / self.cell_m))
         iy = int(math.floor((y - self.y_min) / self.cell_m))
         if 0 <= ix < self.nx and 0 <= iy < self.ny:

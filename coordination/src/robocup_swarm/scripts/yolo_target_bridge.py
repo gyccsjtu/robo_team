@@ -33,10 +33,6 @@ import re
 import statistics
 import sys
 import threading
-from visual_triangulation import MultiViewTrack, validate_bearing
-
-# Staged independently of flight control and the original monocular fallback.
-MULTIVIEW_REPORT = os.environ.get('BRIDGE_MULTIVIEW_REPORT', '0') == '1'
 
 # ---- 身份映射 ----
 # 四个不同颜色的官方身份固定。红色在队内使用两个稳定的视觉槽，
@@ -349,17 +345,6 @@ def camera_motion_velocity(histories, now):
 
 
 def official_point_at(track, now):
-    point = _single_camera_point_at(track, now)
-    track.official_method = 'single_camera'
-    if point is not None and MULTIVIEW_REPORT and track.tag not in RED_TAGS:
-        corrected = track.multiview.point_at(now, _robust_official_fit, point)
-        if corrected is not None:
-            track.official_method = 'two_camera'
-            return corrected
-    return point
-
-
-def _single_camera_point_at(track, now):
     """One report policy for regular and keepalive paths, measured from image time.
 
     Fits describe position at the last image, then advance only to now. A
@@ -407,7 +392,7 @@ class _Track(object):
                  "official_source", "official_candidate_id", "source_history", "official_rejects",
                  "tracking_source", "tracking_candidate_id", "source_candidates",
                  "accepted_source_samples",
-                 "pursuit_history", "multiview", "official_method",
+                 "pursuit_history",
                  "_last_fx", "_last_fy", "_last_ft",
                  "_high_conf_count", "_motion_history", "_last_vel_mag")
 
@@ -430,8 +415,6 @@ class _Track(object):
         self.source_history = {}
         self.accepted_source_samples = {}
         self.pursuit_history = {}
-        self.multiview = MultiViewTrack()
-        self.official_method = 'single_camera'
         self.official_rejects = 0
         self.good_x = None
         self.good_y = None
@@ -541,7 +524,6 @@ def parse_report_frame(raw, now):
                    official_ok=(item.get('official_view_ok') is True and
                                 status not in ('ambiguous', 'distractor') and
                                 rng is not None and rng > 0.))
-        row['bearing'] = validate_bearing(item.get('camera_bearing'))
         key = (source, candidate_id if candidate_id is not None else 'legacy:'+tag)
         if key in rows and rows[key] != row:
             conflicts.add(key)
@@ -802,16 +784,6 @@ class TargetBridgeCore(object):
                     tr, winner['sample_s'], winner['x'], winner['y'],
                     winner['source_uav'], winner.get('candidate_id'), history)
             if winner is not None:
-                current = self.tracks[tag]
-                key = self._source_key(winner['source_uav'], winner.get('candidate_id'))
-                # Association must actually accept this physical candidate;
-                # a merely selected but rejected/replaced row is insufficient.
-                tracking_matches = (current.t_obs == winner['sample_s'] and
-                    self._source_key(current.tracking_source,
-                                     current.tracking_candidate_id) == key)
-                if (tracking_matches or
-                        current.accepted_source_samples.get(key) == winner['sample_s']):
-                    current.multiview.add(winner)
                 selected.append(winner)
         return selected
 
@@ -1673,10 +1645,9 @@ class YoloTargetBridge(object):
         if _last_pub is not None and now - _last_pub < _interval:
             return
         self._rospy.loginfo('[REPORT_POINT] tag=%s source=%s image=%.3f '
-                           'age=%.3f xy=(%.3f,%.3f) rejected=%d method=%s',
+                           'age=%.3f xy=(%.3f,%.3f) rejected=%d',
                            tag, tr.official_source, tr.good_t,
-                           now-tr.good_t, am.x, am.y, tr.official_rejects,
-                           tr.official_method)
+                           now-tr.good_t, am.x, am.y, tr.official_rejects)
         # red1/red2 remain separate judge streams.  Their internal names do
         # not assert which official red actor was observed.
         self._actor_pubs[tag].publish(am)
@@ -1699,7 +1670,6 @@ class YoloTargetBridge(object):
             'fresh_image': 0.0 <= now - sample <= 1.0,
             'source_uav': getattr(tr, 'official_source', None) or '',
             'candidate_id': getattr(tr, 'official_candidate_id', None) or 'legacy:'+tag,
-            'position_method': getattr(tr, 'official_method', 'single_camera'),
             'x': float(x), 'y': float(y),
         }
         pub.publish(self._String(data=json.dumps(payload, separators=(',', ':'))))

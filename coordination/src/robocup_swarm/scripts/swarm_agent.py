@@ -40,7 +40,7 @@ from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
                            bind_red_view,
                            retain_pixel_view)
-from camera_attention import approach_image, candidate_motion
+from camera_attention import approach_image, candidate_velocity
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
@@ -58,16 +58,34 @@ def serialized_visual_task(method):
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 
-from flight_boundary import (FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN,
-                             FLIGHT_Y_MAX, FLIGHT_INSET, flight_bounds,
-                             flight_waypoint, boundary_velocity, FlightGrid)
+# The search grid extends beyond the actors so edge targets remain observable.
+# Keep UAV flight inside the official actor plugin's reachable XY envelope;
+# these are engineering flight limits, not a judge XY penalty threshold.
+FLIGHT_X_MIN = float(os.environ.get('FLIGHT_X_MIN', '-50.0'))
+FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
+FLIGHT_Y_MIN = float(os.environ.get('FLIGHT_Y_MIN', '-60.0'))
+FLIGHT_Y_MAX = float(os.environ.get('FLIGHT_Y_MAX', '60.0'))
+FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
+
+
+def flight_bounds():
+    return FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN, FLIGHT_Y_MAX
+
+
+def flight_waypoint(x, y, inset=FLIGHT_INSET):
+    xmin, xmax, ymin, ymax = flight_bounds()
+    inset = max(0.0, min(inset, (xmax - xmin) / 4.0,
+                         (ymax - ymin) / 4.0))
+    return (min(max(x, xmin + inset), xmax - inset),
+            min(max(y, ymin + inset), ymax - inset))
 
 
 def estimated_world_hard_bounds(grid, margin_fraction=0.25):
-    """Reject gross localization corruption using sensor storage extent.
+    """Accept legal map-edge flight; reject only positions well beyond it.
 
-    This broad sanity test is NOT a flight permission. Flight limits and
-    recovery are defined separately in flight_boundary.
+    The old fixed +/-100 m defaults made x>150 look corrupt even though the
+    match metadata permits x up to 155 m.  Recovery from the actual boundary
+    is handled separately by _bounds_recovery_velocity().
     """
     xmin, ymin = grid.origin
     xmax = xmin + grid.width * grid.resolution
@@ -226,8 +244,15 @@ WORLD_TRUST_HOLD_S = float(os.environ.get('WORLD_TRUST_HOLD_S', '3.0'))
 # 正常飞行的 EKF 速度尖峰常只需截断几厘米；这种微调不应连续刷新
 # 3 秒不可信窗口，使目标近旁的控制循环一直悬停。
 WORLD_TRUST_CLAMP_EXCESS_M = float(os.environ.get('WORLD_TRUST_CLAMP_EXCESS_M', '0.15'))
-# Actual outward braking is computed from remaining room in flight_boundary.
+# === 2026-10-05 比赛规则硬约束：扩大软减速带 ===
+# 旧默认 MAP_GUARD_SOFT=2.0 + MAP_GUARD_MARGIN=1.0 = 总 3m 软带。本机巡航 6 m/s
+# 下，0.05s 一帧移动 0.3m，3m 软带只能覆盖 10 帧 = 0.5s，飞机在进入软带到硬停之间
+# 的「刹车距离」不足，会冲出硬边界（uav_2 实测 199m）。新默认 SOFT=6.0 + MARGIN=2.0
+# = 总 8m 软带：在 6 m/s 下提供 1.3s 缓冲，足以让 _send_vel 的加速度限幅
+# (MAX_ACC=2.5 m/s²) 把横向速度从 6 m/s 刹到 0.5 m/s（数学上需 6/2.5=2.4s，
+# 8m 仍偏紧但允许减速到 4 m/s 进入硬边界，回收模式可挽回）。
 MAP_GUARD_MARGIN = float(os.environ.get('MAP_GUARD_MARGIN', '2.0'))
+MAP_GUARD_SOFT   = float(os.environ.get('MAP_GUARD_SOFT', '6.0'))   # 硬边界外的软减速带宽 m
 # 越界主动回收：旧逻辑越界后 A* 起点在外拒绝规划、栅格守卫把界外当墙、
 # 地图守卫只锁朝外分量不主动内拉 → 飞机瘫痪在界外永远回不来（2026-10-01
 # 实测 uav_2 飘到 (201,-178)、uav_3 到 (-84,141) 并死锁）。
@@ -915,7 +940,7 @@ class SwarmAgent(object):
             _b.get("x_min", MAP_X_MIN), _b.get("y_min", MAP_Y_MIN),
             _b.get("x_max", MAP_X_MAX), _b.get("y_max", MAP_Y_MAX),
             _res, INFLATE_M)
-        self.grid = FlightGrid(self.slam)  # sensed obstacles + flight perimeter
+        self.grid = self.slam          # is_free 已含膨胀，plan()/grid_guard 直接用
         self._slam_last_t = 0.0        # 上次建图处理的 ROS 时间
         self._slam_replan_t = 0.0      # 上次因新障碍触发重规划的时刻
         self._slam_pub_t = 0.0         # 上次发布占用栅格的时刻
@@ -951,8 +976,13 @@ class SwarmAgent(object):
         # 2026-10-05 国家一等奖：缓存到点前的最后一个 local_goal，dwell 期冻结视野
         self._last_local_goal = None
 
-        # Dispatch and status must share city cells, not padded sensor cells.
-        self.cov_grid = CoverageGrid.for_city(GRID_SIZE_M)
+        # ---- 覆盖栅格（与 manager 一致，10m 格）----
+        # 覆盖格与 manager 使用同一份 metadata 边界；固定 ±100 的旧边界
+        # 会让 x>100 的扫描状态 confidence 恒为 0，边缘格永远无法完成。
+        self.cov_grid = CoverageGrid(
+            _b.get("x_min", MAP_X_MIN), _b.get("x_max", MAP_X_MAX),
+            _b.get("y_min", MAP_Y_MIN), _b.get("y_max", MAP_Y_MAX),
+            GRID_SIZE_M)
 
         # ---- 目标检测（规则3 几何判定：距离 + 视线遮挡）----
         # 用**未膨胀**的原始 SLAM 栅格做 LOS 判定（膨胀是给飞行留裕度的，
@@ -1662,8 +1692,8 @@ class SwarmAgent(object):
                                 target_id=None, xy=None):
         """Keep a bounded attention lease, independently of search waypoints.
 
-        New frames update where to look, never its absolute deadline. The
-        first localization starts one bounded dispatch handoff from now.
+        New frames update where to look, never its absolute deadline. A
+        localized track may promote a pixel cue once while dispatch catches up.
         """
         assignment = getattr(self, 'assignment', None)
         if assignment is not None and assignment.task_type != 0:
@@ -1691,11 +1721,8 @@ class SwarmAgent(object):
                 return
             cue.update(bearing=bearing, sample_s=sample)
             if xy is not None:
-                if cue.get('xy') is None:
-                    # Localization can take >4 s of the 6 s pixel approach.
-                    # An old started+4 deadline expired immediately on success.
-                    cue['until'] = max(cue['until'], now + CAMERA_HANDOFF_HOLD_S)
-                cue.update(xy=xy, target_id=target_id, candidate_id=cid)
+                cue.update(xy=xy, target_id=target_id, candidate_id=cid,
+                           until=cue['started'] + CAMERA_HANDOFF_HOLD_S)
                 self._camera_cue_retry_after[cid] = cue['until'] + CAMERA_CUE_RETRY_S
                 attempt = cue.get('attempt')
                 if attempt is not None:
@@ -2003,10 +2030,6 @@ class SwarmAgent(object):
             self._camera_cue = None
             return False
         if now >= cue['until']:
-            rospy.loginfo('[CANDIDATE_END] uav=%s candidate=%s reason=%s '
-                          'image_age=%.3f localized=%s', self.uav_id,
-                          cue['candidate_id'], cue.get('motion_reason', 'unrecorded'),
-                          now-cue['sample_s'], cue.get('xy') is not None)
             self._camera_cue = None
             # Only a real own-camera localization resolves a pixel cue. If
             # the 2 s look ended without one, remember this CAMERA POSITION
@@ -2041,21 +2064,16 @@ class SwarmAgent(object):
         self._look_at = cue.get('xy') or (
             wx[0] + 10.0 * math.cos(cue['bearing']),
             wx[1] + 10.0 * math.sin(cue['bearing']))
-        vx, vy, reason = (candidate_motion(cue, now, self.yaw, wx,
-                                          getattr(self, '_scan', None),
-                                          getattr(self, '_scan_t', -1e18))
-                         if self._world_trusted() else (0., 0., 'untrusted_pose'))
-        cue['motion_reason'] = reason
+        vx, vy = (candidate_velocity(cue, now, self.yaw, wx,
+                                    getattr(self, '_scan', None),
+                                    getattr(self, '_scan_t', -1e18))
+                  if cue.get('image') is not None and self._world_trusted() else (0., 0.))
         if getattr(self, '_friend_positions', {}):
             vx, vy = self._apply_friend_avoidance(vx, vy)
         rospy.loginfo_throttle(2., '[CANDIDATE_APPROACH] uav=%s candidate=%s '
-                              'requested=(%.2f,%.2f) remaining=%.2f reason=%s '
-                              'image_age=%.3f scan_age=%.3f yaw_error=%.1f',
+                              'requested=(%.2f,%.2f) remaining=%.2f',
                               self.uav_id, cue['candidate_id'], vx, vy,
-                              max(0., cue['until']-now), reason,
-                              now-cue['sample_s'], now-getattr(self, '_scan_t', -1e18),
-                              math.degrees(math.atan2(math.sin(cue['bearing']-self.yaw),
-                                                      math.cos(cue['bearing']-self.yaw))))
+                              max(0., cue['until']-now))
         self._send_vel(vx, vy)
         return True
 
@@ -2259,13 +2277,9 @@ class SwarmAgent(object):
             resp = get_srv(name)
             return resp.value.integer if resp.success else None
 
-        # This PX4 also checks the HOLD RC exception in AUTO.TAKEOFF. The
-        # bounded grounded recovery uses that mode: OFFBOARD alone (bit 2)
-        # leaves it in no_rc_and_no_datalink failsafe. Include HOLD (bit 1),
-        # retaining all position, estimator, offboard-loss and arming checks.
         configure_fcu_parameters(_pull, self._set_param, _get,
-                                 {"NAV_RCL_ACT": 0, "COM_RCL_EXCEPT": 6})
-        rospy.loginfo("[%s] 飞控参数已读回验证：NAV_RCL_ACT=0 COM_RCL_EXCEPT=6",
+                                 {"NAV_RCL_ACT": 0, "COM_RCL_EXCEPT": 4})
+        rospy.loginfo("[%s] 飞控参数已读回验证：NAV_RCL_ACT=0 COM_RCL_EXCEPT=4",
                       self.uav_id)
 
     def _arm_and_offboard(self):
@@ -3060,7 +3074,12 @@ class SwarmAgent(object):
         return vx, vy
 
     def _map_guard_velocity(self, vx, vy):
-        """Brake outward motion before the shared city perimeter."""
+        """飞行边界护栏；搜索栅格外圈只用于观察边缘目标。
+
+        越界时锁死朝外分量；边界 MAP_GUARD_MARGIN 内禁止朝外；再往外扩
+        MAP_GUARD_SOFT 一段做线性减速，避免高速贴边转弯时惯性冲出栅格
+        （UAV3 坠毁后位置 0.5s 内跳 20m，就是撞楼+边界外失控的组合）。
+        """
         wxy = self.world_xy
         if wxy is None:
             return vx, vy
@@ -3070,14 +3089,41 @@ class SwarmAgent(object):
             rospy.logerr_throttle(2.0,
                                   '[%s] 世界坐标越界 (%.1f,%.1f)，限制速度回收',
                                   self.uav_id, x, y)
-        return boundary_velocity(x, y, vx, vy,
-                                 margin=max(FLIGHT_INSET, MAP_GUARD_MARGIN))
+            return (max(0.0, vx) if x < xmin else min(0.0, vx)
+                    if x > xmax else vx,
+                    max(0.0, vy) if y < ymin else min(0.0, vy)
+                    if y > ymax else vy)
+        # 软减速带：进入 MAP_GUARD_MARGIN+MAP_GUARD_SOFT 带后把朝外分量压到 ≤0.5m/s
+        soft = MAP_GUARD_MARGIN + MAP_GUARD_SOFT
+        if x <= xmin + soft and vx < 0:
+            vx = max(vx, -0.5)
+        elif x >= xmax - soft and vx > 0:
+            vx = min(vx, 0.5)
+        if y <= ymin + soft and vy < 0:
+            vy = max(vy, -0.5)
+        elif y >= ymax - soft and vy > 0:
+            vy = min(vy, 0.5)
+        if x <= xmin + MAP_GUARD_MARGIN:
+            vx = max(0.0, vx)
+        elif x >= xmax - MAP_GUARD_MARGIN:
+            vx = min(0.0, vx)
+        if y <= ymin + MAP_GUARD_MARGIN:
+            vy = max(0.0, vy)
+        elif y >= ymax - MAP_GUARD_MARGIN:
+            vy = min(0.0, vy)
+        return vx, vy
 
     def _bounds_recovery_velocity(self):
         """越界主动回收速度。未越界返回 None；越界返回朝界内的限速速度 (vx, vy)。
 
-        目标点夹到边界内缩处。调用者仍须经过雷达和栅格保护；不能假定
-        界外没有障碍，也不能以回收为由绕过飞行安全检查。
+        界外没有障碍物，因此该速度必须绕过雷达/栅格/地图守卫直接下发。
+        目标点 = 把当前位置夹到「边界内缩 OOB_RECOVER_INSET」处。
+
+        === 2026-10-05 比赛规则硬约束：分级回收速度 ===
+        旧逻辑：固定 OOB_RECOVER_SPEED=3 m/s + 接近目标减速。
+        比赛硬约束要求：「不能撞墙后停止行为」→ 必须能从越界状态可靠收回。
+        分级回收：超出越多 → 回收越快（MAX_SPEED 上限），但接近 inset 时仍按
+        旧逻辑减速（防回弹穿边）。
         """
         wxy = self.world_xy
         if wxy is None:
@@ -3303,18 +3349,13 @@ class SwarmAgent(object):
         # (0,3) 当前(63.2,-66.1)」是在追一个 100m 外的幻影，越追越远。
         # （上方已替换为本修复的雪崩熔断版；此注释保留说明历史脉络）
 
-        # Recovery remains subject to sensed obstacles and the final perimeter.
+        # 最高优先级：越界主动回收，绕过其他守卫（界外无障碍）。
         rec = self._bounds_recovery_velocity()
         visual_slew = False
         view_brake_room = view_brake_need = None
         view_brake_fallback = False
         if rec is not None:
             vx, vy = rec
-            self._radar_retreating = False
-            self._radar_strict = False
-            vx, vy = self._radar_guard_velocity(vx, vy)
-            vx, vy = self._grid_guard_velocity(vx, vy)
-            vx, vy = self._map_guard_velocity(vx, vy)
             rospy.logerr_throttle(2.0,
                 '[%s] 越界主动回收 → (%.1f,%.1f) 当前(%.1f,%.1f)',
                 self.uav_id, vx, vy,
@@ -3387,12 +3428,7 @@ class SwarmAgent(object):
         vx, vy = self._final_scan_cap(vx, vy)
         # Breakout and slew limiting can reintroduce an outward command after
         # the first guard.  Recheck the exact velocity that will be published.
-        before_boundary = (vx, vy)
         vx, vy = self._map_guard_velocity(vx, vy)
-        if (vx, vy) != before_boundary:
-            # Component-wise clipping can change heading. Check the actual
-            # published direction again; this helper only reduces speed.
-            vx, vy = self._final_scan_cap(vx, vy)
         if rec is None and vz is None:
             # `_fly_orbit` protects the 8 m observation ring, but radar/grid
             # detours, breakout and slew limiting may override its direction.
@@ -5409,9 +5445,9 @@ class SwarmAgent(object):
             if mode != desired:
                 recovery['last_request'] = now
                 try:
-                    sent = self.mode_srv(0, desired).mode_sent
-                    rospy.loginfo('[TAKEOFF_RECOVERY_REQUEST] uav=%s mode=%s sent=%s observed=%s',
-                                  self.uav_id, desired, sent, mode)
+                    accepted = self.mode_srv(0, desired).mode_sent
+                    rospy.loginfo('[TAKEOFF_RECOVERY_REQUEST] uav=%s mode=%s accepted=%s',
+                                  self.uav_id, desired, accepted)
                 except Exception as exc:
                     rospy.logwarn('[TAKEOFF_RECOVERY_REQUEST] uav=%s %s', self.uav_id, exc)
         return True

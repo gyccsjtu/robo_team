@@ -89,7 +89,7 @@ class SearchFastStartTests(unittest.TestCase):
         self.assertEqual(self.a._search_start_progress['metres'], before)
 
     def test_boundary_search_views_avoid_slow_band_without_changing_flight_box(self):
-        for x, y in ((20., 44.5), (20., -44.5), (-44.5, 0.), (124.5, 0.)):
+        for x, y in ((20., 54.5), (20., -54.5), (-44.5, 0.), (144.5, 0.)):
             view = sm.search_viewpoint(x, y)
             edge = min(view[0]-sm.FLIGHT_X_MIN, sm.FLIGHT_X_MAX-view[0],
                        view[1]-sm.FLIGHT_Y_MIN, sm.FLIGHT_Y_MAX-view[1])
@@ -97,10 +97,10 @@ class SearchFastStartTests(unittest.TestCase):
             self.assertAlmostEqual(math.hypot(view[0]-x, view[1]-y), 8.5)
             self.assertTrue(sm.SwarmManager._in_processed_view(
                 *view, math.atan2(y-view[1], x-view[0]), x, y, 4., 0.))
-        self.assertEqual(sm.flight_waypoint(155., 65.), (128., 48.))
+        self.assertEqual(sm.flight_waypoint(155., 65.), (148., 58.))
 
     def test_outer_cells_remain_visible_and_no_grid_cell_is_marked_observed(self):
-        grid = st.CoverageGrid(-50, 130, -50, 50, cell_m=7, num_uavs=6)
+        grid = st.CoverageGrid(-55, 155, -65, 65, cell_m=7, num_uavs=6)
         for cell in grid.cells.values():
             view = sm.search_viewpoint(cell.cx, cell.cy)
             distance = math.hypot(view[0]-cell.cx, view[1]-cell.cy)
@@ -114,7 +114,7 @@ class SearchFastStartTests(unittest.TestCase):
 
     def test_inward_view_inside_sensed_obstacle_uses_existing_free_alternative(self):
         m = sm.SwarmManager.__new__(sm.SwarmManager)
-        m.grid = st.CoverageGrid(16.5, 23.5, 41., 48., cell_m=7, num_uavs=1)
+        m.grid = st.CoverageGrid(16.5, 23.5, 51., 58., cell_m=7, num_uavs=1)
         cell = next(iter(m.grid.cells.values()))
         nominal = sm.search_viewpoint(cell.cx, cell.cy)
         raw = bytearray(210 * 130)

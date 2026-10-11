@@ -877,7 +877,6 @@ class MatchBlockers(unittest.TestCase):
 
     def test_pixel_streak_only_holds_world_bearing_for_two_seconds(self):
         agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
-        agent.yaw = 0.0
         agent.uav_id = 'u0'
         agent.local_xy, agent.offset = (5.0, 5.0), (0.0, 0.0)
         agent.assignment = SimpleNamespace(task_type=0)
@@ -1576,7 +1575,6 @@ class MatchBlockers(unittest.TestCase):
 
     def test_camera_cue_pauses_only_unowned_search_target_and_expires(self):
         agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
-        agent.yaw = 0.0
         agent.uav_id = 'typhoon_h480_0'
         agent.local_xy, agent.offset = (0.0, 0.0), (0.0, 0.0)
         agent.assignment = SimpleNamespace(task_type=0)

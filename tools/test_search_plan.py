@@ -71,7 +71,7 @@ class SearchPlanTests(unittest.TestCase):
         self.assertEqual(manager.allocator.last_seen, {})
 
     def test_outer_cell_assignment_uses_camera_visible_interior_viewpoint(self):
-        cell_x, cell_y = -46.5, -46.5
+        cell_x, cell_y = -51.5, -61.5
         nearest = swarm_manager.flight_waypoint(cell_x, cell_y)
         yaw_nearest = math.atan2(cell_y - nearest[1], cell_x - nearest[0])
         self.assertFalse(swarm_manager.SwarmManager._in_processed_view(
@@ -88,7 +88,7 @@ class SearchPlanTests(unittest.TestCase):
         self.assertEqual(swarm_manager.search_viewpoint(20.0, 10.0),
                          (20.0, 10.0))
 
-        grid = swarm_task.CoverageGrid(-50, 130, -50, 50,
+        grid = swarm_task.CoverageGrid(-55, 155, -65, 65,
                                        cell_m=7, num_uavs=6)
         key = grid.world_to_cell(cell_x, cell_y)
         manager = swarm_manager.SwarmManager.__new__(swarm_manager.SwarmManager)

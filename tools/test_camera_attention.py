@@ -1,6 +1,5 @@
 """Discovery/control separation, bounded approach, and image cadence."""
 import math
-import json
 import sys
 import unittest
 import numpy as np
@@ -10,7 +9,7 @@ from types import SimpleNamespace as NS
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / 'coordination/src/robocup_swarm/scripts'))
-from camera_attention import approach_image, candidate_velocity, candidate_motion, ImagePublishClock
+from camera_attention import approach_image, candidate_velocity, ImagePublishClock
 from perception import perception_real as pr
 
 
@@ -119,58 +118,6 @@ class CameraAttentionTests(unittest.TestCase):
         self.assertEqual(len(cues),1)
         self.assertEqual(cues[0]['box'],box['box'])
         self.assertEqual(cues[0]['height'],480)
-
-    def pixel_box(self, coords, confidence=.8):
-        x1,y1,x2,y2 = coords
-        return dict(cls='red', conf=confidence, u=(x1+x2)/2, v=(y1+y2)/2,
-                    h=y2-y1, bearing=0., cam_x=0., cam_y=0., box=coords,
-                    seed_eligible=pr.pixel_cue_box_ok('red', confidence, *coords),
-                    width=752, height=480, camera_tilt=0.)
-
-    def test_logged_red_track_continues_when_box_shrinks_below_seed_size(self):
-        fixture=json.loads((ROOT/'tools/fixtures/pixel_red_143110.json').read_text())
-        tracker=pr.PixelCueTracker()
-        continued=0
-        for index, frame in enumerate(fixture['frames']):
-            box=self.pixel_box(frame['box'], frame['confidence'])
-            self.assertTrue(pr.pixel_cue_box_ok('red', frame['confidence'],
-                                               *frame['box'], continuation=True))
-            cues=tracker.update(frame['sample_s'], [box])
-            if index < 2:
-                self.assertFalse(cues)
-                continue
-            self.assertEqual(len(cues),1)
-            self.assertEqual(cues[0]['candidate_id'],'red:0')
-            if not box['seed_eligible']:
-                continued+=1
-                self.assertTrue(cues[0]['attention_only'])
-        self.assertEqual(continued,26)
-
-    def test_small_boxes_cannot_start_or_complete_unconfirmed_seed(self):
-        small=self.pixel_box([300.,280.,310.,310.])
-        big=self.pixel_box([300.,270.,314.,314.])
-        tracker=pr.PixelCueTracker()
-        for t in (100.,100.2,100.4,100.6):
-            self.assertFalse(tracker.update(t,[small]))
-        self.assertFalse(tracker.tracks)
-        tracker.update(101.,[big])
-        for t in (101.2,101.4,101.6):
-            self.assertFalse(tracker.update(t,[small]))
-
-    def test_small_continuation_cannot_reuse_other_red_or_expired_track(self):
-        big=self.pixel_box([300.,270.,314.,314.])
-        small=self.pixel_box([300.,280.,310.,310.])
-        tracker=pr.PixelCueTracker()
-        for t in (100.,100.2,100.4):tracker.update(t,[big])
-        other=dict(small,bearing=.7)
-        self.assertFalse(tracker.update(100.6,[other]))
-        self.assertFalse(tracker.update(102.,[small]))
-
-    def test_gate_reason_distinguishes_stale_image_from_obstacle(self):
-        self.assertEqual(candidate_motion(self.cue(),100.4,0.,(0.,0.),
-            self.scan(),100.4)[2],'stale_image')
-        self.assertEqual(candidate_motion(self.cue(),100.1,0.,(0.,0.),
-            self.scan(ranges=[3.9]*361),100.1)[2],'obstacle')
 
 
 if __name__ == '__main__':

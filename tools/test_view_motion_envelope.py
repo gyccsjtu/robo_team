@@ -138,15 +138,6 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
         self.assertEqual(sa.view_approach_velocity(0., 0., 0., 0., 7., 0., -1., 0.),
                          (0., 0.))
 
-    def test_boundary_recovery_cannot_override_obstacle_stop(self):
-        for guard in ('_radar_guard_velocity', '_grid_guard_velocity'):
-            a = self.agent()
-            a._bounds_recovery_velocity = lambda: (5., 0.)
-            a._last_cmd_v = (3., 0.)
-            setattr(a, guard, lambda x, y: (0., 0.))
-            a._send_vel(3., 0.)
-            self.assertEqual(a._last_flight_v, (0., 0.))
-
     def test_routed_approach_and_orbit_share_pre_avoidance_braking(self):
         for orbit in (None, 't1'):
             a = self.agent()

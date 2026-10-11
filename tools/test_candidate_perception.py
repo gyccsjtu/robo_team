@@ -153,19 +153,6 @@ class CandidateFrameTests(unittest.TestCase):
                             for c in first['candidates']))
         json.dumps(first, allow_nan=False)
 
-    def test_bearing_is_bound_to_fresh_complete_qualified_image(self):
-        tr = self.track()
-        def batch():
-            return pr.report_candidate_frame([(tr.cls,0,tr)],'u0',101.,'session',
-                        (0.,0.),camera=(0.,0.,3.,0.,0.,0.,1.))['candidates']
-        self.assertIn('camera_bearing',batch()[0])
-        tr.range_method = 'head_height'
-        self.assertNotIn('camera_bearing',batch()[0])
-        tr.range_method = 'foot_ground'; tr.uv = (376.,475.)
-        self.assertNotIn('camera_bearing',batch()[0])
-        tr.miss = 1
-        self.assertEqual(batch(),[])
-
     def test_candidate_identity_stays_stable_and_changes_with_process_session(self):
         tr = self.track()
         a = self.batch([tr])['candidates'][0]

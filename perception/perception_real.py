@@ -84,7 +84,6 @@ if _CSV_HELPER not in sys.path:
 from csv_logger import logger
 from tracking_view import box_from_foot, bound_pixel_candidate
 from camera_attention import ImagePublishClock
-from visual_triangulation import camera_bearing
 
 # ---------------- 参数 ----------------
 # 权重查找顺序（本仓库自包含优先，找不到才退回部署位置）：
@@ -340,16 +339,15 @@ def report_ready_hits(cls, hits):
     return hits >= (RED_REPORT_HITS if cls == "red" else CONFIRM_HITS)
 
 
-def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2, continuation=False):
+def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2):
     """Admit a box for image association, not for world-coordinate reporting."""
     if (cls not in CLASSES or
             not all(math.isfinite(q) for q in (confidence, x1, y1, x2, y2)) or
             not .45 <= confidence <= 1.0):
         return False
     width, height = x2 - x1, y2 - y1
-    return (y2 >= ROI_TOP and y1 <= ROI_BOT and
-            width >= (6.0 if continuation else 9.0) and
-            height >= (24.0 if continuation else 40.0) and y1 >= 4.0 and
+    return (y2 >= ROI_TOP and y1 <= ROI_BOT and width >= 9.0 and
+            height >= 40.0 and y1 >= 4.0 and
             1.1 <= height / max(width, 1.0) <= 4.0)
 
 
@@ -421,13 +419,6 @@ class PixelCueTracker:
                         continue
                 if d < best_d:
                     best, best_d = tr, d
-            # A previously established image track may shrink below the
-            # discovery threshold as we yaw/brake. Do not discard that fresh
-            # box and leave the controller steering from a stale ray. Small
-            # boxes cannot seed new tracks or complete an unconfirmed seed.
-            if not box.get('seed_eligible', True) and (
-                    best is None or not best.get('established', False)):
-                continue
             if best is None:
                 best = dict(id=self.next_id, cls=box['cls'], history=[])
                 self.next_id += 1
@@ -449,12 +440,11 @@ class PixelCueTracker:
             normal_cue = min(p[1] for p in recent) >= 0.85
             if (len(recent) >= 3 and recent[-1][0] - recent[0][0] >= 0.3 and
                     (normal_cue or bounded_attention)):
-                best['established'] = True
                 cues.append(dict(candidate_id='%s:%d' % (box['cls'], best['id']),
                                  sample_s=sample_s, bearing=box['bearing'],
                                  confidence=box['conf'], hits=len(recent),
                                  u=box['u'], v=box['v'],
-                                 attention_only=(not box.get('seed_eligible', True) or not normal_cue or
+                                 attention_only=(not normal_cue or
                                      box.get('appearance_status', 'actor') != 'actor')))
                 for key in ('box', 'width', 'height', 'camera_tilt',
                             'appearance_status', 'appearance_confidence',
@@ -1585,7 +1575,7 @@ def candidate_frame(source, sample, candidates, purpose=None):
 
 
 def report_candidate_frame(entries, source, sample, session, observer_xy,
-                           assigned_target=None, camera=None):
+                           assigned_target=None):
     """Preserve all eligible instances; the bridge owns colour arbitration.
 
     Entries retain established red slot identities. Coordinates are fresh raw
@@ -1616,12 +1606,6 @@ def report_candidate_frame(entries, source, sample, session, observer_xy,
             official_view_ok=bool(person_ok and report_ready_hits(cls, track.hits) and
                                   track.can_report_image()),
             observation_id='obs-%s-%s-%.9f' % (source, cid, sample), **fields))
-        if (getattr(track, 'range_method', None) == 'foot_ground' and
-                candidates[-1]['official_view_ok']):
-            bearing = camera_bearing(camera, box_from_foot(track.uv, track.wh),
-                                     (FX, FY, CX, CY))
-            if bearing is not None:
-                candidates[-1]['camera_bearing'] = bearing
     return candidate_frame(source, sample, candidates)
 
 
@@ -1928,13 +1912,11 @@ def main():
                         bx1, by1, bx2, by2 = [float(v) for v in b.xyxy[0]]
                         bw, bh = bx2 - bx1, by2 - by1
                         if not pixel_cue_box_ok(CLASSES[cid], conf,
-                                               bx1, by1, bx2, by2, continuation=True):
+                                               bx1, by1, bx2, by2):
                             continue
                         bu, bv = (bx1 + bx2) / 2.0, (by1 + by2) / 2.0
                         raw_cue_boxes.append(dict(
                             cls=CLASSES[cid], conf=conf, u=bu, v=bv,
-                            seed_eligible=pixel_cue_box_ok(CLASSES[cid], conf,
-                                                          bx1, by1, bx2, by2),
                             h=bh, bearing=image_world_bearing(bu, bv, R),
                             cam_x=px, cam_y=py, box=[bx1, by1, bx2, by2],
                             appearance_status=b.appearance_status,
@@ -2470,7 +2452,7 @@ def main():
         if COORD_ON and frame_was_processed and coord_clock.ready(frame_stamp):
             report_batch = report_candidate_frame(
                 report_pool, UAV, frame_stamp, candidate_session, uav_last,
-                assigned_target=cur_tid, camera=cam_full)
+                assigned_target=cur_tid)
             coord.publish(String(data=json.dumps(report_batch)))
             report_by_id = {c['candidate_id']: c for c in report_batch['candidates']}
             for _cls, _si, _tk in report_pool:

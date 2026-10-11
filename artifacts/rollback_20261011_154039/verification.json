@@ -1,0 +1,36 @@
+{
+  "baseline": "9061195cda8a8445c935b0606c44fe21ae2163e0",
+  "verified_runtime_files": 43,
+  "all_match": true,
+  "mismatches": [],
+  "weights": {
+    "path": "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_v1.pt",
+    "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2"
+  },
+  "official_files": {
+    "score_cal.py": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+    "control_actor.py": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7"
+  },
+  "backup": {
+    "base_head": "b5a20bc9eb2499bab14960854741725b8d9302d8",
+    "backup_branch": "archive/before-rollback-20261011_154039",
+    "backup_commit": "6553a07e21f71e509a189873b7ac5fd27bfe4a32",
+    "patch_sha256": "20270844d429bb1a758825d24feb9ea931252603d98f4738df83156841c2b43d",
+    "baseline_proposed": "9061195cda8a8445c935b0606c44fe21ae2163e0",
+    "note": "Tracked working tree preserved in backup commit and binary patch; untracked logs, artifacts and weights remain in place. No clean or history rewrite."
+  },
+  "tests": {
+    "count": 602,
+    "passed": true,
+    "simulation_started": false
+  },
+  "preflight": "passed after verified lossless compression of closed ULogs",
+  "closed_ulog_compression": {
+    "compressed_count": 5,
+    "original_bytes": 785485462,
+    "compressed_bytes": 256352075,
+    "reclaimed_bytes": 529133387,
+    "reclaimed_allocated_bytes": 529141760,
+    "remaining_uncompressed_count": 0
+  }
+}

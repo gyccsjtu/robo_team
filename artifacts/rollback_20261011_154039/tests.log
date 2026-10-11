@@ -1,0 +1,115 @@
+..............................................................................................[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.20,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+................[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t3 xy=(8.10,0.00) retry=30s attempt=2; 暂缓同点重派，保留观测和其他新位置
+..[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+...............................Creating new Ultralytics Settings v0.0.8 file ✅
+View Ultralytics Settings with 'yolo settings' or at '/tmp/robocup_cpu_threads_tests/yolo_config/Ultralytics/settings.json'
+Update Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. For help see https://docs.ultralytics.com/usage/settings.
+.........[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+...............................[u0] 世界坐标越界 (-50.5,0.0)，限制速度回收
+.............................[VIEW_RETRY_DEFER] tid=t0 xy=(1.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+........[VIEW_RETRY_DEFER] tid=t0 xy=(1.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+....[typhoon_h480_0] MAVROS 定位失信：test EKF jump；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+[typhoon_h480_0] EKF 雪崩熔断：累计 50 拍位置不可信 → 强制 LAND
+.[typhoon_h480_0] MAVROS 定位失信：位姿位移超出指令物理上限 0.44m（0.52m / 0.032s）；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+..[typhoon_h480_5] 放弃盘旋 t2：reproduce missing pursuit pointer
+......................./opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[u0] 末级近距径向限速 tid=t0 dist=5.00m vin=(0.80,0.00) vout=(0.00,0.00)
+.[?] 末级雷达侧障限速 d=0.60m cap=0.50m/s
+[?] 末级雷达侧障停车 d=0.60m toward=1.00m/s
+.....[manager] u0 暂不可执行任务，回收格 (0,0) 租约
+.[CRASH] typhoon_h480_3 恢复达到高度/时间上限，清除恢复标志
+.............................[manager] typhoon_h480_3 暂不可执行任务，回收格 (2,3) 租约
+...........................[VIEW_RECOVERY] tid=t1 main=u2 backup=None reason=unverified_visual elapsed=0.0; 保持目标补看，等待可靠接力
+[manager] t1 在 (-27.0,13.7) 补看仍失败；保留候选等待其他视角，不屏蔽上报
+..............[manager] u0 搜索格 (2,3) 20s 未向航点推进 2.0m，提前回收重派
+[manager] u0 搜索格 (2,3) 20s 未向航点推进 2.0m，提前回收重派
+...........................[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=-0.50 -> 0; move to clear observation space before changing height
+....[GRID_EXIT] uav=u4 occupied cell; slow checked exit=(0.10,0.00)
+..[VERTICAL_CLEARANCE] uav=u4 invalid scan; hold routine height
+.[ALT_GUARD] HARD z=4.30 > ceil=4.20 -> vz=-1.00 (vx=0.00 vy=0.00) hits=1
+.[GRID_EXIT_BLOCKED] uav=u4 occupied cell; no safe exit
+...[VERTICAL_CLEARANCE] uav=u4 stale scan; hold routine height
+..[u4] 2D雷达三面堵死 front=0.62 left=0.55 right=0.55 → 扇区-10°净空0.62m 慢滑 vout=(0.10,-0.02) 慢滑速度=0.10
+.[u4] 2D雷达近障 front=0.62m left=0.62 right=0.50 -> vin=(-0.12,-0.04) vout=(0.11,-0.06)
+....................................................................[manager] 视觉颜色冲突 (1.0,2.0) ['t3']：位置隔离 12s
+................[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=AUTO.LAND z=-0.1; no takeover of landing/failsafe
+[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=AUTO.RTL z=-0.1; no takeover of landing/failsafe
+[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=MANUAL z=-0.1; no takeover of landing/failsafe
+.[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+.[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+.[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+..[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=AUTO.TAKEOFF z=0.4; no takeover of landing/failsafe
+.[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=OFFBOARD z=-0.1; no takeover of landing/failsafe
+.[TAKEOFF_RECOVERY_BLOCKED] uav=typhoon_h480_0 unsafe or unavailable MIS_TAKEOFF_ALT=2.5
+[TAKEOFF_RECOVERY_BLOCKED] uav=typhoon_h480_0 unsafe or unavailable MIS_TAKEOFF_ALT=5.0
+[TAKEOFF_RECOVERY_BLOCKED] uav=typhoon_h480_0 unsafe or unavailable MIS_TAKEOFF_ALT=1.0
+[TAKEOFF_RECOVERY_BLOCKED] uav=typhoon_h480_0 unsafe or unavailable MIS_TAKEOFF_ALT=nan
+.............[u2] 守卫交替振荡 3.0s/11次 → 强制脱困直行 2s
+[u2] 守卫交替振荡 3.0s/11次 → 强制脱困直行 2s
+................[u0] t0 接近中已 20.0s 无真实位置，停车等待新图像或管理器改派
+...[u0] 放弃盘旋 t3：test lost image
+.......[VIEW_BLOCKED] uav=u0 tid=t3 range=8.00; no safe short observation move
+..........[VIEW_DETOUR] uav=u0 tid=t3 goal=(57.52,17.26) obstacle=True stopped=False image_margin=False
+.....................[manager] 目标 t0 坐标 (130.0, 0.0) 越过搜索范围，飞行航点夹到 (130.0, 0.0)
+..[manager] t0 备份机 u1 失信，主追机 u0 继续
+.[manager] t0 主追机 u0 失信，备份机 u1 接管
+.......[manager] t0 主追机 u0 失信，备份机 u1 接管
+...[VERTICAL_CLEARANCE] uav=u1 near=0.60m vz=0.20 -> 0; move to clear observation space before changing height
+[ALT_GUARD] HARD z=4.30 > ceil=4.20 -> vz=-1.00 (vx=0.00 vy=0.00) hits=2
+...............[u1] 越界主动回收 → (0.5,0.5) 当前(50.0,20.0)
+....[VIEW_RECOVERY] tid=t0 main=u0 backup=u1 reason=unverified_visual elapsed=0.0; 保持目标补看，等待可靠接力
+.[VIEW_REOBSERVE] uav=u0 tid=t0 goal=(56.93,24.00) last_good_image=-1000000000000000000.000; 保持朝向、限时侧移补看
+..[VIEW_RETRY_DEFER] tid=t0 xy=(50.00,20.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t0 xy=(50.00,20.00) retry=30s attempt=2; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t0 xy=(50.00,20.00) retry=60s attempt=3; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t0 xy=(50.00,20.00) retry=60s attempt=3; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t0 xy=(80.00,20.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_RETRY_DEFER] tid=t0 xy=(50.00,20.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_HANDOFF] tid=t0 old=u0 new=u1 reason=unverified_visual image=99.800; 新机已连续见人，旧机才释放
+.[VIEW_HANDOFF] tid=t0 old=u0 new=u1 reason=tracking_tenure image=99.800; 新机已连续见人，旧机才释放
+....[VIEW_HANDOFF] tid=t0 old=u0 new=u1 reason=tracking_tenure image=99.800; 新机已连续见人，旧机才释放
+..[VIEW_RETRY_DEFER] tid=t0 xy=(50.00,20.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.[VIEW_REOBSERVE] uav=u0 tid=t0 goal=(56.93,24.00) last_good_image=100.000; 保持朝向、限时侧移补看
+.........[manager] 读元数据 bounds 失败，用硬编码边界: [Errno 2] No such file or directory: '/home/ros/team_ws/robocup/src/robocup_training_worlds/worlds/generated/robocup_base.json'
+[manager] 读元数据 bounds 失败，用硬编码边界: [Errno 2] No such file or directory: '/home/ros/team_ws/robocup/src/robocup_training_worlds/worlds/generated/robocup_base.json'
+[manager] 读元数据 bounds 失败，用硬编码边界: [Errno 2] No such file or directory: '/home/ros/team_ws/robocup/src/robocup_training_worlds/worlds/generated/robocup_base.json'
+[manager] 读元数据 bounds 失败，用硬编码边界: [Errno 2] No such file or directory: '/home/ros/team_ws/robocup/src/robocup_training_worlds/worlds/generated/robocup_base.json'
+[manager] 读元数据 bounds 失败，用硬编码边界: [Errno 2] No such file or directory: '/home/ros/team_ws/robocup/src/robocup_training_worlds/worlds/generated/robocup_base.json'
+
+----------------------------------------------------------------------
+Ran 602 tests in 4.144s
+
+OK
