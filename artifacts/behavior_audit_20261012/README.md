@@ -8,3 +8,14 @@ Reference GUI run: `logs_20261012_041016`, runtime `fd2d76f`, 6/6 in 339.360 s. 
 4. **Repeated search. Audit in progress:** `_reopen_covered_cells(force=True)` reopens all distant covered cells without checking their image ages, even when only one allocator result is empty. The actual run has limited repeated cell assignments and no reservation overlap; establish which repetitions were invalid versus justified missed-view revisits before changing allocation.
 
 `pixel_pitch_fixture.json` contains recorded raw detection boxes and their image-time camera poses from UAV1; it is a captured subset, not a complete YOLO replay. `pixel_pitch_baseline.json`, `pixel_pitch_candidate.json`, `pixel_pitch_implemented.json` record the identical subset comparisons. Image inspection confirms the early green and brown are real people; they were not newly discovered only at the boundary.
+
+## Implemented second batch (full GUI validation pending)
+
+- Explicit three-frame geometry rejection and enforced secondary appearance rejection now cancel only the matching fresh own-camera pixel look. Secondary negatives must uniquely match a recent pixel track and must not conflict with a positive box. No stationary-person blacklist, judge read, actor-task cancellation, or weakened report geometry.
+- An active actor task may keep up to eight other-person image candidates for at most 0.5 s. It keeps control until cancelled; a valid release rechecks the freshest neighbour through the ordinary bounded attention gates. A second red needs a distinct pixel instance from the bound current red.
+- The ordinary six-second search release cooldown can admit a different target after 0.5 s only with three recent, qualified own-camera observations spanning 0.3 s. Flight fault, stale status, same-target retry and search cooldowns remain. The exception is target-specific in batch matching.
+- Forced coverage reopening now respects REV_COVER_AGE, blocked cells, whole-segment reservations and ownership. A failed allocation no longer wipes recently observed distant cells.
+
+Validation: 149 behaviour/identity/segment tests and 278 broader tracking/report/safety tests passed (sets overlap). Native image u0_1962.884 shows a hydrant near a real white actor; the recorded three-frame red geometry rejection did not previously revoke attention. The partial UAV1 brown image is insufficient to label its rejected box a bin; do not infer object identity from log labels alone.
+
+Space preparation: stopped 12 abandoned rosout processes adopted by user systemd after their simulations ended, losslessly compressed closed logs with decompressed SHA-256 verification, removed only regenerable .pyc caches whose .py sources exist. Weights, training data, official scene, personal files and trial evidence retained.

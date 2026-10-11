@@ -1,0 +1,9 @@
+................................................................................................/opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[u0] search segment blocked leg=2/3 point=(10.50,0.00) reason=GOAL_OCCUPIED
+.....................................................
+----------------------------------------------------------------------
+Ran 149 tests in 0.175s
+
+OK
+sys:1: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/gycc/robocup_logs/perception_typhoon_h480_0.csv' mode='a' encoding='utf-8'>

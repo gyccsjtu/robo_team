@@ -442,6 +442,43 @@ class PixelCueTracker:
                 box.get('appearance_status', 'actor') == 'actor' and
                 math.isfinite(box.get('bearing', float('nan'))))
 
+    def reject_appearance(self, sample_s, evidence, rotation, camera_xy,
+                          positive_boxes=(), enforce=False):
+        """Revoke only a uniquely associated, recently observed pixel instance.
+
+        The verifier already requires three same-image appearance votes. This
+        connection must not turn its negative result into a colour blacklist,
+        or cancel a nearby real person's look. No world target is removed.
+        """
+        if not enforce or not math.isfinite(sample_s) or sample_s <= self.last_frame:
+            return []
+        rejected = {}
+        for item in evidence:
+            if (item.get('status') != 'secondary_distractor' or
+                    item.get('primary_label') not in CLASSES):
+                continue
+            x1,y1,x2,y2 = item['box']
+            u,v = (x1+x2)/2.,(y1+y2)/2.
+            ray = foot_ground_ray(u,v,rotation)
+            box = dict(cls=item['primary_label'],u=u,v=v,h=y2-y1,
+                bearing=image_world_bearing(u,v,rotation),
+                elevation=math.atan2(float(ray[2]),math.hypot(float(ray[0]),float(ray[1]))),
+                cam_x=camera_xy[0],cam_y=camera_xy[1])
+            matches = [tr for tr in self.tracks
+                       if 0. < sample_s-tr['sample_s'] <= .4+1e-9 and
+                       self._association_distance(box,tr,sample_s) is not None]
+            if len(matches) != 1:
+                continue
+            tr = matches[0]
+            if any(self._association_distance(b,tr,sample_s) is not None
+                   for b in positive_boxes):
+                continue
+            cid = '%s:%d' % (tr['cls'],tr['id'])
+            rejected[cid] = dict(candidate_id=cid,sample_s=sample_s,
+                reason='confirmed_distractor',cls=tr['cls'],box=item['box'],
+                confidence=item['confidence'])
+        return list(rejected.values())
+
     def update(self, sample_s, boxes):
         self.rejections = []
         if not math.isfinite(sample_s) or sample_s <= self.last_frame:
@@ -516,7 +553,9 @@ class PixelCueTracker:
             if (len(recent) >= 3 and recent[-1][0]-recent[0][0] >= .3-1e-9 and
                     all(p[2] for p in recent)):
                 self.rejections.append(dict(cls=box['cls'], box=box.get('box'),
-                    confidence=box['conf'], height_m=height_m))
+                    confidence=box['conf'], height_m=height_m,
+                    candidate_id='%s:%d' % (box['cls'], best['id']),
+                    sample_s=sample_s,reason='non_person_geometry'))
                 continue
             # All clothing colours need this image-only entry. Requiring
             # .85 before association discarded .48-.76 nearby blue boxes
@@ -2232,17 +2271,26 @@ def main():
                             foot_sin_down=float(-cue_ray[2]/np.linalg.norm(cue_ray)),
                             camera_height_m=float(pz),
                             camera_tilt=math.acos(max(-1., min(1., float(R[2, 2]))))))
+                    appearance_rejections = cue_tracker.reject_appearance(
+                        frame_stamp, appearance_evidence, R, (px,py), raw_cue_boxes,
+                        enforce=secondary_appearance.mode == 'enforce')
                     frame_cues = cue_tracker.update(frame_stamp, raw_cue_boxes)
                     if fast_seed_pub is not None:
                         fast_seed_pub.publish(String(data=json.dumps(
                             fast_tracker_seed_frame(frame_cues, UAV, frame_stamp,
                                                     candidate_session))))
-                    for rejection in cue_tracker.rejections:
+                    for rejection in cue_tracker.rejections + appearance_rejections:
+                        # Revoke a pending look at this exact pixel instance.
+                        # Merely omitting future cues left the aircraft staring
+                        # for the remainder of its six-second approach lease.
+                        cue_pub.publish(String(data=json.dumps(dict(
+                            source_uav=UAV,real_detection=True,
+                            purpose='camera_rejected',**rejection))))
                         _CSV.write(ros_time=rospy.Time.now().to_sec(),
-                            event='candidate_geometry_reject',
+                            event='candidate_reject',
                             class_name=rejection['cls'], confidence=rejection['confidence'],
-                            height_m=rejection['height_m'], image_stamp=frame_stamp,
-                            image_age_s=frame_age, source='three_full_body_contradictions')
+                            height_m=rejection.get('height_m'), image_stamp=frame_stamp,
+                            image_age_s=frame_age, source=rejection['reason'])
                     # 遍历过滤后的boxes
                     for b in filtered_boxes:
                         cid = int(b.cls)

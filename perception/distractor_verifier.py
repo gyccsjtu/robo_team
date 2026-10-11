@@ -123,7 +123,7 @@ class SecondaryAppearance:
                         box=[float(v) for v in b.xyxy[0]]) for b in result.boxes]
         strong=strong_decoys(primary,secondary)
         rejected=history.update(primary,secondary,sample_s)
-        evidence=[dict(box=primary[i]['box'],confidence=c,
+        evidence=[dict(box=primary[i]['box'],confidence=c,primary_label=primary[i]['label'],
                        status='secondary_distractor' if i in rejected else 'secondary_pending')
                   for i,c in strong.items()]
         if self.mode=='enforce':boxes=[b for i,b in enumerate(boxes) if i not in rejected]

@@ -1514,6 +1514,7 @@ class SwarmAgent(SearchSegmentAgent):
             self._confirm_close_until = 0.0
             self._look_at = None
             self._last_local_goal = None
+            self._resume_nearby_candidate(rospy.Time.now().to_sec())
             return
         self.__dict__.setdefault('_search_view_inbox', SearchViewInbox()).assign(
             msg, rospy.Time.now().to_sec())
@@ -1879,8 +1880,31 @@ class SwarmAgent(SearchSegmentAgent):
             data = json.loads(msg.data)
             now = rospy.Time.now().to_sec()
             assignment = getattr(self, 'assignment', None)
+            if data.get('purpose') == 'camera_rejected':
+                sample = float(data['sample_s'])
+                cue = getattr(self, '_camera_cue', None)
+                if (data.get('source_uav') == self.uav_id and
+                        data.get('real_detection') is True and
+                        data.get('reason') in ('non_person_geometry','confirmed_distractor') and
+                        math.isfinite(sample) and 0. <= now-sample <= .5):
+                    pending = getattr(self, '_nearby_candidates', {})
+                    saved = pending.get(data.get('candidate_id'))
+                    if saved is not None and sample >= saved['sample_s']:
+                        pending.pop(data['candidate_id'],None)
+                    if (cue is not None and data.get('candidate_id') == cue['candidate_id'] and
+                            sample >= cue['sample_s']):
+                        attempt=cue.get('attempt')
+                        if attempt is not None:
+                            attempt['retry_at']=max(attempt['retry_at'],now+12.)
+                        self.__dict__.setdefault('_camera_cue_retry_after',{})[cue['candidate_id']]=now+12.
+                        self._camera_cue=None
+                        rospy.loginfo('[CANDIDATE_REJECT] uav=%s cid=%s reason=%s; '
+                            'cancel pixel look only, no actor blacklist',
+                            self.uav_id,data['candidate_id'],data['reason'])
+                return
             if (getattr(assignment, 'task_type', None) == 1 and
                     data.get('purpose') == 'camera_reacquire'):
+                self._remember_nearby_candidate(data, now)
                 previous_view = getattr(self, '_tracking_image', None)
                 binding = getattr(self, '_camera_instance', {}).get(assignment.target_id)
                 if (previous_view is not None and binding is not None and
@@ -1953,6 +1977,57 @@ class SwarmAgent(SearchSegmentAgent):
                             cue['attempt']['retry_at'], cue['until']+CAMERA_CUE_RETRY_S)
         except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
             return
+
+    def _remember_nearby_candidate(self, data, now):
+        """Keep recent other-person pixels without preempting the current actor.
+
+        No world coordinates or elimination are inferred. The ordinary camera
+        attention gates will run again when the current task is released.
+        """
+        if (data.get('source_uav') != self.uav_id or
+                data.get('real_detection') is not True):
+            return
+        sample,bearing,confidence = (float(data[k]) for k in
+                                    ('sample_s','bearing','confidence'))
+        cid = str(data['candidate_id'])
+        color = cid.split(':',1)[0]
+        if (not all(math.isfinite(v) for v in (sample,bearing,confidence)) or
+                not 0. <= now-sample <= .5 or not .55 <= confidence <= 1. or
+                int(data['hits']) < 3 or color not in ('red','blue','green','brown','white')):
+            return
+        tid = self.assignment.target_id
+        own_color = {'t0':'green','t1':'blue','t2':'brown','t3':'white',
+                     't4':'red','t5':'red'}.get(tid)
+        if color == own_color:
+            # There are two reds: only a distinct, bound pixel instance can
+            # establish that this is the neighbour, not our current person.
+            current = getattr(self,'_tracking_image',None) or {}
+            current_cid = current.get('candidate_id')
+            if color != 'red' or current_cid is None or current_cid == cid:
+                return
+        pending = {k:v for k,v in getattr(self,'_nearby_candidates',{}).items()
+                   if 0. <= now-v['sample_s'] <= .5}
+        if sample <= pending.get(cid,{}).get('sample_s',-1e18):
+            return
+        pending[cid] = dict(data, sample_s=sample)
+        self._nearby_candidates = dict(sorted(pending.items(),
+            key=lambda item:item[1]['sample_s'])[-8:])
+
+    def _resume_nearby_candidate(self, now):
+        if (getattr(self,'_camera_cue',None) is not None or
+                getattr(getattr(self,'assignment',None),'task_type',0) != 0):
+            return
+        pending = getattr(self,'_nearby_candidates',{})
+        self._nearby_candidates = {}
+        for data in sorted(pending.values(),key=lambda d:d['sample_s'],reverse=True):
+            if not 0. <= now-data['sample_s'] <= .5:
+                continue
+            self._visual_candidate_cb(String(data=json.dumps(data)))
+            if getattr(self,'_camera_cue',None) is not None:
+                rospy.loginfo('[NEARBY_RESUME] uav=%s cid=%s image_age=%.3f; '
+                              'released old task, bounded look before search',
+                              self.uav_id,data['candidate_id'],now-data['sample_s'])
+                break
 
     @serialized_visual_task
     def _tracking_view_cb(self, msg):

@@ -1153,16 +1153,10 @@ class SwarmManager(SearchSegmentManager):
         return vis
 
     def _reopen_covered_cells(self, force=False):
-        """所有格都已标记覆盖、但目标还没找全时，把覆盖状态重置重新扫一遍。
+        """Reopen old observations only; an empty auction is not stale coverage.
 
-        不加这一步的话：日志会说"继续搜索"，但没有未覆盖格可分配，
-        飞机实际上拿不到新任务，只能原地待命到超时 —— 等于还是收工。
-
-        国家一等奖标准改进（2026-10-03）：
-        - 同时 reopen_review()：超时未复查的 REVIEW 格强制回 FREE，
-          避免「已知 actor 区域曾低置信扫过、再也没有机会复查」漏报。
-        - 让底层 grid._reopen_covered_cells 走每个格独立的 covered_t
-          时间戳判断（避免「绝对 mission 时间」导致 60s 后再不重置）。
+        force allows a local searcher to revisit while distant free work still
+        exists. It must never erase recently obtained images or reservations.
         """
         # Keep working through genuinely unvisited cells before reopening old
         # ones.  The previous every-second reopen while tracking repeatedly
@@ -1180,17 +1174,21 @@ class SwarmManager(SearchSegmentManager):
             for _key, _c in self.grid.cells.items():
                 if math.hypot(_c.cx - _st.x, _c.cy - _st.y) < REOPEN_MIN_DIST:
                     near.add(_key)
+        now = rospy.Time.now().to_sec()
+        max_age = max(1.,float(os.environ.get('REV_COVER_AGE','60.0')))
+        reserved = set(getattr(getattr(self,'_segments',None),'reserved',{}))
         n_cov = 0
-        for key, c in self.grid.cells.items():
-            if key in self._blocked_cells or key in near:
-                continue
-            if c.state == STATE_COVERED:
-                c.state = STATE_FREE
-                n_cov += 1
-        # 国家一等奖：把"超时未复查 REVIEW"也重开为 FREE
         n_rev = 0
-        if hasattr(self.grid, "reopen_review"):
-            n_rev = self.grid.reopen_review(max_age=60.0)
+        for key, c in self.grid.cells.items():
+            if key in self._blocked_cells or key in near or key in reserved or c.owner:
+                continue
+            if c.state == STATE_COVERED and now-c.covered_t > max_age:
+                n_cov += 1
+            elif c.state == STATE_REVIEW and now-c.review_t > 60.:
+                n_rev += 1
+            else:
+                continue
+            c.state,c.confidence,c.owner,c.lease_until = STATE_FREE,0.,None,0.
         if n_cov or n_rev:
             rospy.loginfo("[manager] 已重新开放 %d 个 COVERED + %d 个 REVIEW（跳过 %d 个近距格）",
                           n_cov, n_rev, len(near))
@@ -1627,7 +1625,7 @@ class SwarmManager(SearchSegmentManager):
         for uid, (sample, sx, sy) in sources.items():
             if (uid in busy or not -0.05 <= now - sample <= 1.5 or
                     not self._tracking_uav_available(uid, now) or
-                    now < getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec() or
+                    self._release_blocks_target(uid, tid, now) or
                     math.hypot(sx - tx, sy - ty) > 4.0):
                 continue
             st = self.status[uid]
@@ -1639,6 +1637,28 @@ class SwarmManager(SearchSegmentManager):
     def _preferred_camera(self, tid, tx, ty, now, busy):
         candidates = self._camera_candidates(tid, tx, ty, now, busy)
         return candidates[0] if candidates else None
+
+    def _release_blocks_target(self, uid, tid, now):
+        """Normal release may yield to a different freshly imaged person.
+
+        Keep the search cooldown and every flight-fault cooldown. Only recent
+        qualified own-camera evidence can interrupt the ordinary six-second
+        pause, after a short cancellation interval. No judge state is read.
+        """
+        until = getattr(self,'_release_cooldown',{}).get(uid,rospy.Time(0)).to_sec()
+        if now >= until:
+            return False
+        release = getattr(self,'_normal_target_release',{}).get(uid)
+        if (release is None or release['until_s'] != until or
+                release['target_id'] == tid or now-release['sample_s'] < .5 or
+                not self._tracking_uav_available(uid,now)):
+            return True
+        image = self._last_eligible(uid,tid)
+        st = self.status[uid]
+        return not (image is not None and image.get('eligible') and
+            0. <= now-image['sample_s'] <= .5 and image.get('hits',0) >= 3 and
+            image['sample_s']-image.get('since_s',image['sample_s']) >= .3-1e-9 and
+            all(math.isfinite(v) for v in (st.x,st.y,st.z)) and st.z >= 1.)
 
     def _redeployable_backup(self, uid, new_tid, now):
         """A redundant reacquisition cannot block a qualified new camera view.
@@ -2291,6 +2311,11 @@ class SwarmManager(SearchSegmentManager):
             if _rid is None:
                 continue
             self._release_cooldown[_rid] = rospy.Time.now() + rospy.Duration(_cd)
+            released = self.__dict__.setdefault('_normal_target_release',{})
+            released.pop(_rid,None)
+            if reason in ('lost','eliminated'):
+                released[_rid] = dict(target_id=tid,sample_s=rospy.Time.now().to_sec(),
+                    until_s=self._release_cooldown[_rid].to_sec())
             self._free_search_lease(_rid)
             rospy.loginfo("[manager] %s 释放追踪冷却 %.1fs (tid=%s, 原因=%s)",
                           _rid, _cd, tid, reason)
@@ -2453,7 +2478,7 @@ class SwarmManager(SearchSegmentManager):
         for tid, (tx, ty) in positions.items():
             self._free_camera_backup_for_new_target(tid, tx, ty, now)
         busy = set(self._tracking.values()) | set(getattr(self, '_backup', {}).values())
-        available = self._dispatch_available(now, busy)
+        available = self._dispatch_available(now, busy, pending_targets=positions)
         costs = self._target_assignment_costs(positions, now, busy, available)
         chosen = joint_target_assignment(costs)
         for tid, uid in sorted(chosen.items()):
@@ -2462,12 +2487,13 @@ class SwarmManager(SearchSegmentManager):
             rospy.loginfo('[DISPATCH_BATCH] target=%s owner=%s cost_s=%.2f '
                           'pending=%d; 一机一主追', tid, uid, costs[tid][uid], len(positions))
 
-    def _dispatch_available(self, now, busy, require_airborne=False):
+    def _dispatch_available(self, now, busy, require_airborne=False, pending_targets=()):
         return [uid for uid in self.uav_ids
                 if uid not in busy and self._tracking_uav_available(uid, now)
                 and (not require_airborne or
                      float(getattr(self.status[uid], 'z', 0.) or 0.) >= 1.)
-                and now >= getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec()]
+                and (now >= getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec()
+                     or any(not self._release_blocks_target(uid,tid,now) for tid in pending_targets))]
 
     def _target_assignment_costs(self, positions, now, busy, available):
         # The whole legal arena is dispatchable. Distance is a cost, not a
@@ -2479,6 +2505,8 @@ class SwarmManager(SearchSegmentManager):
             cameras = {uid for uid, _ in self._camera_candidates(tid, tx, ty, now, busy)}
             edges = {}
             for uid in available:
+                if self._release_blocks_target(uid,tid,now):
+                    continue
                 if not self._failed_view_dispatch_ok(tid, tx, ty, now, uid=uid):
                     continue
                 st = self.status[uid]
@@ -2500,6 +2528,7 @@ class SwarmManager(SearchSegmentManager):
         # Reserve ownership before publishing; callbacks cannot observe an
         # unreserved aircraft between assignment messages.
         self._tracking[tid] = uid
+        getattr(self,'_normal_target_release',{}).pop(uid,None)
         self._record_approach(tid, uid, tx, ty, now)
         self._free_search_lease(uid)
         tracker = getattr(self, 'tracker', None)
@@ -2796,6 +2825,7 @@ class SwarmManager(SearchSegmentManager):
         """Cancel one failed owner without interrupting a healthy backup."""
         if uid is None:
             return
+        getattr(self,'_normal_target_release',{}).pop(uid,None)
         self._free_search_lease(uid)
         self._release_cooldown[uid] = rospy.Time(now) + rospy.Duration(6.0)
         msg = SearchAssignment()
