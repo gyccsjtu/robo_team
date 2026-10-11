@@ -1,0 +1,11 @@
+{
+  "saved": 409,
+  "unmatched": 0,
+  "dropped": 0,
+  "invalid": 0,
+  "image_directory": "/home/gycc/robocup_distractor_data/flight_57f3690",
+  "reviewed_full_dataset": false,
+  "verifier_veto_frames": 5,
+  "veto_frames_visually_checked_as_real_white": 5,
+  "verifier_deployed": false
+}

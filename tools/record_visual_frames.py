@@ -20,9 +20,10 @@ def main():
     parser.add_argument('output', type=Path)
     parser.add_argument('--max-images', type=int, default=600)
     parser.add_argument('--interval', type=float, default=1.0)
+    parser.add_argument('--duration', type=float, default=1200.0)
     args = parser.parse_args()
-    if args.max_images <= 0 or args.interval <= 0:
-        parser.error('max-images and interval must be positive')
+    if args.max_images <= 0 or args.interval <= 0 or args.duration <= 0:
+        parser.error('max-images, interval and duration must be positive')
     args.output.mkdir(parents=True, exist_ok=True)
     manifest_path = args.output / 'frames.jsonl'
     if manifest_path.exists():
@@ -42,12 +43,15 @@ def main():
     lock = threading.Lock()
     pending = queue.Queue(maxsize=12)
     stats = dict(saved=0, unmatched=0, dropped=0, invalid=0)
+    last_camera_wall = [None]
+    deadline = time.monotonic() + args.duration
 
     def camera(msg, source):
         stamp = msg.header.stamp.to_sec()
         if math.isfinite(stamp) and stamp > 0.:
             with lock:
                 frames[source].append((stamp, msg))
+                last_camera_wall[0] = time.monotonic()
 
     def observation(msg):
         try:
@@ -79,6 +83,13 @@ def main():
     try:
         with manifest_path.open('x') as manifest:
             while not rospy.is_shutdown() and stats['saved'] < args.max_images:
+                if time.monotonic() >= deadline:
+                    stats['stop_reason'] = 'duration'
+                    break
+                if (last_camera_wall[0] is not None and
+                        time.monotonic()-last_camera_wall[0] > 15.):
+                    stats['stop_reason'] = 'all_cameras_stopped'
+                    break
                 try:
                     source, sample, (stamp, msg), data = pending.get(timeout=.25)
                 except queue.Empty:

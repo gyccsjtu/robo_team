@@ -1,0 +1,20 @@
+{
+  "runtime_git": "57f3690e7aa0c5f649d65ffdec5fec36ab3f33b2",
+  "official_elapsed_s": 485.044,
+  "score": 2089.828,
+  "official_actor_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "gui": true,
+  "source_hashes_unchanged": true,
+  "changed_source": [],
+  "judge_end_wall_s": 1791696558.6890457,
+  "recorded_wall_s": 1791696631.546648,
+  "previous_elapsed_s": 337.904,
+  "target_180s_pass": false
+}
