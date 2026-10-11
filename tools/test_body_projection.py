@@ -6,6 +6,29 @@ from perception import perception_real as pr
 
 
 class BodyProjectionTests(unittest.TestCase):
+    def test_calibrated_camera_projects_actual_feet_without_height_compensation(self):
+        for height in (2.6, 3.5, 4.5):
+            for pitch in (-8., 0., 8.):
+                a = math.radians(pitch)
+                rotation = np.array([[math.cos(a), 0, math.sin(a)],
+                                     [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
+                for forward, side in ((5., 0.), (8., 2.), (9., -2.)):
+                    foot = np.array([forward, side, -height])
+                    optical = (rotation @ pr.M_OPT2LINK).T @ foot
+                    u = pr.CX+pr.FX*optical[0]/optical[2]
+                    v = pr.CY+pr.FY*optical[1]/optical[2]
+                    ray = pr.foot_ground_ray(u, v, rotation)
+                    np.testing.assert_allclose(-height/ray[2]*ray, foot, atol=1e-9)
+
+    def test_legacy_box_coordinates_still_reconstruct_original_edges(self):
+        from tracking_view import box_from_foot
+        # Only the projection changes; image centering/crop checks must still
+        # see the original box, including its actual lower border.
+        box = (340., 280., 400., 465.)
+        x1, y1, x2, y2 = box
+        uv = ((x1+x2)/2., y2-.05*(y2-y1))
+        np.testing.assert_allclose(box_from_foot(uv, (x2-x1, y2-y1)), box)
+
     def test_known_vertical_segments_at_offsets_and_camera_attitudes(self):
         for pitch, roll in ((0, 0), (30, 0), (0, 20), (12, -15)):
             a, b = map(math.radians, (pitch, roll))

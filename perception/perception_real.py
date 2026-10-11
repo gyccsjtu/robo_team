@@ -344,14 +344,25 @@ def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2):
             1.1 <= height / max(width, 1.0) <= 4.0)
 
 
+def foot_ground_ray(u, bottom, rotation):
+    """Project the observed foot pixel, without compensating an altitude datum.
+
+    Raising every full-box foot by 5% made the ray shallower. That happened
+    to offset the old negative height-origin error; after ground calibration
+    it systematically increases range. Cropped feet use a separate head ray.
+    The legacy uv/wh wire representation remains inset for box reconstruction.
+    """
+    return rotation @ M_OPT2LINK @ np.array([
+        (u-CX)/FX, (bottom-CY)/FY, 1.])
+
+
 def cue_body_height(box, camera_z, rotation):
     """Optional full-box geometry for attention; abstain on crops/shallow rays."""
     x1, y1, x2, y2 = box
     if (not 2.0 <= camera_z <= 6.0 or x1 < 6. or x2 > IMG_W-6. or
             y1 < 6. or y2 > IMG_H-6. or y2-y1 < 40.):
         return None
-    ray = rotation @ M_OPT2LINK @ np.array([
-        ((x1+x2)/2.-CX)/FX, (y2-.05*(y2-y1)-CY)/FY, 1.])
+    ray = foot_ground_ray((x1+x2)/2., y2, rotation)
     if not np.isfinite(ray).all() or -ray[2]/np.linalg.norm(ray) < .30:
         return None
     return projected_body_height((-camera_z/ray[2])*ray, y1, rotation)
@@ -2102,15 +2113,10 @@ def main():
                         # 目标在远处时视线接近水平，v_world[2]≈0，t=-pz/v_world[2] 很大，
                         # 框底部 2 像素的截断会被放大成 >1m 的坐标偏差（实测导致官方不认）。
                         # ROI_BOT 仍用于 L794 的过滤（框完全在底部带则跳过）。
-                        # 【v24c 决定性修复 2026-10-09】框底内缩 5% 框高：YOLO 框底含
-                        # 边界/阴影膨胀 ~15-20px（低于真实脚底），射线过膨胀点交地面
-                        # → 交点沿视线偏远 z_c·δpx/(FY·cos²θ) ≈ 0.8~1.1m（俯角 59°）。
-                        # v22b/v23c/v24c 三轮实测 1.02~1.21m 恒定偏差带（方向恒沿视线
-                        # 水平分量）即此根因。内缩 5%×框高（~15px@300px）抵消膨胀。
+                        # uv/wh 保留旧的内缩表示，供框还原、图像跟踪与裁脚判据使用。
+                        # 测距只使用实际框底 y2，不能再用这项经验补偿覆盖高度零点。
                         v = float(y2) - 0.05 * float(y2 - y1)
-                        v_opt = np.array([(u - CX) / FX, (v - CY) / FY, 1.0])
-                        v_link = M_OPT2LINK @ v_opt
-                        v_world = R @ v_link
+                        v_world = foot_ground_ray(u, float(y2), R)
                         if v_world[2] >= -1e-6:
                             continue
                         # 2026-10-06 八轮复盘：俯角护栏。视线接近水平时（俯角小），

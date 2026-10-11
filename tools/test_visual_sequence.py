@@ -104,10 +104,10 @@ class VisualSequenceTests(unittest.TestCase):
             self.assertEqual(len(cues), 1, heights)
         self.assertIsNone(pr.cue_body_height((300., 300., 350., 480.), 4., np.eye(3)))
         self.assertIsNone(pr.cue_body_height((300., 150., 350., 240.), 4., np.eye(3)))
-        # A complete 1.7m body at 8m, using the same 5% foot inset as runtime.
+        # The image box ends at the physical foot, not at an invented shadow.
         y1 = 240.+376.*(4.-1.7)/8.
         foot = 240.+376.*4./8.
-        y2 = (foot-.05*y1)/.95
+        y2 = foot
         self.assertAlmostEqual(pr.cue_body_height((350., y1, 390., y2), 4., np.eye(3)), 1.7)
 
 
