@@ -1443,6 +1443,27 @@ class SwarmManager(object):
         self._discard_reacquire_site(tid)
         sites[tid] = dict(sample_s=sample, x=x, y=y, expires_s=sample+25., queued=False)
 
+    def _remember_early_bridge_reacquire(self, msg, now, sample):
+        """Keep the bridge's unextrapolated early image for a bounded re-look.
+
+        TargetState has no explicit image/prediction flag. Only the audited
+        bridge's state=0 branch (camera-confirmed, not yet bridge-alive) sends
+        its image position without extrapolation. Its state=1/coasting branch
+        cannot supply this fallback; accepted original images already arrive
+        through visual_source. This hint grants no observation/report credit.
+        """
+        connection = getattr(msg, '_connection_header', None) or {}
+        if (connection.get('callerid') != '/yolo_target_bridge' or
+                getattr(msg.header, 'frame_id', None) != 'map' or
+                getattr(msg, 'state', None) != 0 or msg.eliminated or
+                msg.target_id not in ('t0', 't1', 't2', 't3', 't4', 't5') or
+                not all(math.isfinite(v) for v in (sample, msg.x, msg.y)) or
+                not 0. <= now-sample <= 1.):
+            return
+        # Use capture time, not receipt/loss time. Repeated early keepalives
+        # retain this exact deadline and cannot sustain a frozen pursuit.
+        self._remember_reacquire_site(msg.target_id, sample, msg.x, msg.y)
+
     def _queue_lost_revisit(self, tid, now):
         sites = self.__dict__.setdefault('_reacquire_sites', {})
         site = sites.get(tid)
@@ -1573,9 +1594,12 @@ class SwarmManager(object):
             return
         tid = str(msg.target_id)
         now = rospy.Time.now().to_sec()
+        sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
+        if (tid not in ('t0', 't1', 't2', 't3', 't4', 't5') or
+                not all(math.isfinite(v) for v in (sample, now, msg.x, msg.y))):
+            return
         if self._quarantined_visual(tid, msg.x, msg.y, now):
             return
-        sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
         if sample <= 0.0 or sample > now + 0.05 or now - sample > 1.0:
             return  # 桥的保活帧不可冒充新视觉发现
         if not self._hypothesis_sample_current(tid, sample, msg.x, msg.y):
@@ -1585,6 +1609,7 @@ class SwarmManager(object):
             return
         self._truth_cache[tid] = (msg.x, msg.y, sample)
         self._remember_visual_candidate(tid, msg.x, msg.y, now)
+        self._remember_early_bridge_reacquire(msg, now, sample)
         if tid not in self.tracker.targets:
             self.tracker.add_target(tid, now)
             rospy.loginfo("[manager] 新鲜视觉候选 %s @ (%.1f, %.1f)，提前派机接近",
