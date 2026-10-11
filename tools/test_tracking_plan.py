@@ -179,7 +179,8 @@ class TrackingPlanTests(unittest.TestCase):
             distance = agent.targets['t0'][0] - agent.local_xy[0]
             self.assertTrue(7.5 <= distance <= 8.5, distance)
 
-    def test_close_pursuit_cap_requires_decision_and_fresh_image(self):
+    @patch.object(swarm_agent.rospy.Time, 'now', return_value=swarm_agent.rospy.Time(100.))
+    def test_close_pursuit_cap_requires_decision_and_fresh_image(self, _now):
         agent, _ = self.make_agent()
         self.assertEqual(agent._close_follow_cap('t0', .1), swarm_agent.CLOSE_TRANSIT_SPEED)
         agent._spend_mode = {'t0'}
@@ -187,6 +188,33 @@ class TrackingPlanTests(unittest.TestCase):
         self.assertEqual(agent._close_follow_cap('t0', 1.01), swarm_agent.CLOSE_TRANSIT_SPEED)
         self.assertEqual(agent._close_follow_cap('t0', -.1), swarm_agent.CLOSE_TRANSIT_SPEED)
         self.assertEqual(agent._close_follow_cap('t1', .1), swarm_agent.CLOSE_TRANSIT_SPEED)
+
+    def test_fresh_walking_target_is_followed_without_waiting_for_escape(self):
+        agent, commands = self.make_agent(x=0.,tx=8.,target_vx=1.5)
+        agent._tracking_image = dict(target_id='t0',sample_s=100.,
+                                    position_sample_s=100.,geometry_ok=True,
+                                    box=(300.,180.,400.,350.),height=480)
+        agent._visual_observations['t0'] = dict(sample_s=100.,eligible=True)
+        with patch.object(swarm_agent.rospy.Time,'now',return_value=swarm_agent.rospy.Time(100.)):
+            self.assertAlmostEqual(agent._close_follow_cap('t0',.1),1.95)
+            agent._fly_orbit()
+        self.assertGreater(commands[-1][0],swarm_agent.CLOSE_TRANSIT_SPEED)
+        self.assertLessEqual(math.hypot(*commands[-1]),1.95)
+        self.assertEqual(agent._orbit_target,'t0')
+
+    def test_motion_cap_keeps_slow_limit_for_stale_uncertain_or_too_close_target(self):
+        for change in ('stale','pixel','geometry','stationary','close','other_target'):
+            agent,_ = self.make_agent(x=0.,tx=8.,target_vx=1.5)
+            view=dict(target_id='t0',sample_s=100.,position_sample_s=100.,geometry_ok=True)
+            agent._tracking_image=view
+            if change=='stale':view['position_sample_s']=99.
+            if change=='pixel':view['pixel_only']=True
+            if change=='geometry':view['geometry_ok']=False
+            if change=='stationary':agent.targets['t0']=(8.,0.,0.,0.)
+            if change=='close':agent.targets['t0']=(6.,0.,1.5,0.)
+            if change=='other_target':view['target_id']='t1'
+            with patch.object(swarm_agent.rospy.Time,'now',return_value=swarm_agent.rospy.Time(100.)):
+                self.assertEqual(agent._close_follow_cap('t0',.1),swarm_agent.CLOSE_TRANSIT_SPEED,change)
 
     def make_agent(self, x=8.5, y=0.0, tx=0.0, ty=0.0,
                    target_vx=0.0, target_vy=0.0):

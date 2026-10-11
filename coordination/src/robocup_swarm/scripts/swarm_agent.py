@@ -2086,6 +2086,15 @@ class SwarmAgent(SearchSegmentAgent):
             min(ALT_TARGET_CAP,ALT_HARD_CEIL-ALT_HARD_MARGIN),
             getattr(self,'_scan',None),getattr(self,'_scan_t',-1e18))
         self._tracking_reimage = state
+        # A normal full-body frame between localization updates is not a
+        # request to park. Keep following a still-fresh team position; actual
+        # crop/shallow/tilt/expiry failures retain the bounded recovery below.
+        if (reason == 'no_supported_adjustment' and
+                view.get('footpoint_valid') is not False and
+                view.get('foot_sin_down', 0.) >= .30 and
+                0. <= now-view['position_sample_s'] <= .5 and
+                0. <= now-getattr(self,'_t_seen',{}).get(view['target_id'],-1e18) <= .5):
+            return False
         # Current image bearing, never the frozen actor XY, controls the look.
         self._look_at = (own[0]+10.*math.cos(view['bearing']),
                          own[1]+10.*math.sin(view['bearing']))
@@ -5204,6 +5213,22 @@ class SwarmAgent(SearchSegmentAgent):
                     tid in getattr(self, '_flee_run_t', {}))
         if pursuing and 0.0 <= observation_age <= 1.0:
             return min(FLEE_SHEPHERD_SPEED, MAX_SPEED)
+        now = rospy.Time.now().to_sec()
+        view = self._fresh_tracking_view(now)
+        target = getattr(self, 'targets', {}).get(tid)
+        own = self.world_xy if view is not None and target is not None else None
+        if (view is not None and view['target_id'] == tid and
+                view.get('geometry_ok') and not view.get('pixel_only') and
+                target is not None and own is not None and
+                0. <= observation_age <= .5 and
+                0. <= now-view.get('position_sample_s',view['sample_s']) <= .5 and
+                all(math.isfinite(v) for v in target) and
+                math.hypot(target[0]-own[0],target[1]-own[1]) >= ORBIT_RADIUS_CLOSE-.5):
+            # Match measured walking motion immediately, without waiting for
+            # an escape-state latch or for the actor to leave the camera ring.
+            speed = math.hypot(*target[2:4])
+            if speed >= .75:
+                return min(MAX_SPEED, FLEE_SHEPHERD_SPEED, speed+.45)
         return CLOSE_TRANSIT_SPEED
 
     def _reobserve_cb(self, msg):

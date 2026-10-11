@@ -1,0 +1,3172 @@
+{
+  "source": "logs_20261012_034605; exact team image reports, no simulator truth",
+  "frames": [
+    {
+      "event": "image_report",
+      "ros": 1987.644,
+      "wall": 1791748082.215203,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1987.532,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              61.17,
+              -3.83,
+              1.25
+            ],
+            "confidence": 0.812,
+            "visual_confidence": 0.812,
+            "track_confirmed": true,
+            "sample_s": 1987.532,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.7473443608954735,
+            "track_hits": 5,
+            "range_m": 11.62,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1987.532000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.812,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1988.056,
+      "wall": 1791748082.6338096,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1987.924,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              62.21,
+              -4.02,
+              1.25
+            ],
+            "confidence": 0.71,
+            "visual_confidence": 0.71,
+            "track_confirmed": true,
+            "sample_s": 1987.924,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.8410426405105994,
+            "track_hits": 7,
+            "range_m": 12.64,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1987.924000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.71,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1988.236,
+      "wall": 1791748082.818629,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1988.148,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              62.48,
+              -4.07,
+              1.25
+            ],
+            "confidence": 0.622,
+            "visual_confidence": 0.622,
+            "track_confirmed": true,
+            "sample_s": 1988.148,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.8769388805303423,
+            "track_hits": 8,
+            "range_m": 12.91,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1988.148000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.622,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1988.436,
+      "wall": 1791748083.0232975,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1988.336,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              62.57,
+              -4.0,
+              1.25
+            ],
+            "confidence": 0.713,
+            "visual_confidence": 0.713,
+            "track_confirmed": true,
+            "sample_s": 1988.336,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.8868069978563455,
+            "track_hits": 9,
+            "range_m": 12.96,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1988.336000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.713,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1988.64,
+      "wall": 1791748083.2336192,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1988.536,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              61.26,
+              -3.58,
+              1.25
+            ],
+            "confidence": 0.668,
+            "visual_confidence": 0.668,
+            "track_confirmed": true,
+            "sample_s": 1988.536,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.7527388296748784,
+            "track_hits": 10,
+            "range_m": 11.53,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1988.536000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.668,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1989.248,
+      "wall": 1791748083.848399,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1989.12,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              62.15,
+              -3.67,
+              1.25
+            ],
+            "confidence": 0.707,
+            "visual_confidence": 0.707,
+            "track_confirmed": true,
+            "sample_s": 1989.12,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": null,
+            "track_hits": 11,
+            "range_m": 11.86,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1989.120000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.707,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1989.648,
+      "wall": 1791748084.257058,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1989.524,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              62.8,
+              -3.73,
+              1.25
+            ],
+            "confidence": 0.731,
+            "visual_confidence": 0.731,
+            "track_confirmed": true,
+            "sample_s": 1989.524,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.8301843442832124,
+            "track_hits": 12,
+            "range_m": 12.27,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1989.524000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.731,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1989.848,
+      "wall": 1791748084.4574497,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1989.74,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              62.66,
+              -3.63,
+              1.25
+            ],
+            "confidence": 0.624,
+            "visual_confidence": 0.624,
+            "track_confirmed": true,
+            "sample_s": 1989.74,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.8063536936944447,
+            "track_hits": 13,
+            "range_m": 12.03,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1989.740000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.624,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1991.636,
+      "wall": 1791748086.2721784,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1991.532,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "brown",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:4",
+            "frame_id": "world_enu",
+            "xyz": [
+              60.49,
+              -9.45,
+              1.25
+            ],
+            "confidence": 0.485,
+            "visual_confidence": 0.485,
+            "track_confirmed": true,
+            "sample_s": 1991.532,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6849255796387745,
+            "track_hits": 8,
+            "range_m": 10.94,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:4-1991.532000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.485,
+            "distractor_confidence": 0.0
+          },
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              65.58,
+              -4.02,
+              1.25
+            ],
+            "confidence": 0.485,
+            "visual_confidence": 0.485,
+            "track_confirmed": true,
+            "sample_s": 1991.532,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.775665092616612,
+            "track_hits": 15,
+            "range_m": 12.06,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1991.532000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.485,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1992.24,
+      "wall": 1791748086.8799324,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1992.144,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              67.73,
+              -4.43,
+              1.25
+            ],
+            "confidence": 0.828,
+            "visual_confidence": 0.828,
+            "track_confirmed": true,
+            "sample_s": 1992.144,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": null,
+            "track_hits": 16,
+            "range_m": 13.03,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1992.144000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.828,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1992.84,
+      "wall": 1791748087.4854238,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1992.74,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              67.45,
+              -4.19,
+              1.25
+            ],
+            "confidence": 0.633,
+            "visual_confidence": 0.633,
+            "track_confirmed": true,
+            "sample_s": 1992.74,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.7914874805543832,
+            "track_hits": 17,
+            "range_m": 12.1,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1992.740000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.633,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1993.236,
+      "wall": 1791748087.8878255,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1993.116,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              67.31,
+              -4.06,
+              1.25
+            ],
+            "confidence": 0.53,
+            "visual_confidence": 0.53,
+            "track_confirmed": true,
+            "sample_s": 1993.116,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.7223667905799591,
+            "track_hits": 19,
+            "range_m": 11.44,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1993.116000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.53,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1994.044,
+      "wall": 1791748088.7080307,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1993.928,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "brown",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:4",
+            "frame_id": "world_enu",
+            "xyz": [
+              60.87,
+              -6.89,
+              1.25
+            ],
+            "confidence": 0.818,
+            "visual_confidence": 0.818,
+            "track_confirmed": true,
+            "sample_s": 1993.928,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": null,
+            "track_hits": 14,
+            "range_m": 6.97,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:4-1993.928000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.818,
+            "distractor_confidence": 0.0
+          },
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              68.39,
+              -4.14,
+              1.25
+            ],
+            "confidence": 0.467,
+            "visual_confidence": 0.467,
+            "track_confirmed": true,
+            "sample_s": 1993.928,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.7311101299231281,
+            "track_hits": 20,
+            "range_m": 11.5,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1993.928000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.467,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1994.444,
+      "wall": 1791748089.1197033,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1994.34,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "brown",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:4",
+            "frame_id": "world_enu",
+            "xyz": [
+              60.96,
+              -6.58,
+              1.25
+            ],
+            "confidence": 0.867,
+            "visual_confidence": 0.867,
+            "track_confirmed": true,
+            "sample_s": 1994.34,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": null,
+            "track_hits": 16,
+            "range_m": 6.57,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:4-1994.340000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.867,
+            "distractor_confidence": 0.0
+          },
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              68.68,
+              -4.03,
+              1.25
+            ],
+            "confidence": 0.662,
+            "visual_confidence": 0.662,
+            "track_confirmed": true,
+            "sample_s": 1994.34,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.7117665010565682,
+            "track_hits": 21,
+            "range_m": 11.3,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1994.340000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.662,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1994.656,
+      "wall": 1791748089.3404784,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1994.544,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "brown",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:4",
+            "frame_id": "world_enu",
+            "xyz": [
+              61.08,
+              -6.34,
+              1.25
+            ],
+            "confidence": 0.63,
+            "visual_confidence": 0.63,
+            "track_confirmed": true,
+            "sample_s": 1994.544,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": null,
+            "track_hits": 17,
+            "range_m": 6.33,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:4-1994.544000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.63,
+            "distractor_confidence": 0.0
+          },
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              69.25,
+              -4.15,
+              1.25
+            ],
+            "confidence": 0.481,
+            "visual_confidence": 0.481,
+            "track_confirmed": true,
+            "sample_s": 1994.544,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.7423434592430609,
+            "track_hits": 22,
+            "range_m": 11.65,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1994.544000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.481,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1995.456,
+      "wall": 1791748090.1496744,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1995.312,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              69.68,
+              -3.99,
+              1.25
+            ],
+            "confidence": 0.479,
+            "visual_confidence": 0.479,
+            "track_confirmed": true,
+            "sample_s": 1995.312,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6878042521050448,
+            "track_hits": 23,
+            "range_m": 11.04,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1995.312000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.479,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1996.24,
+      "wall": 1791748090.9462972,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1996.148,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              70.8,
+              -3.99,
+              1.25
+            ],
+            "confidence": 0.427,
+            "visual_confidence": 0.427,
+            "track_confirmed": true,
+            "sample_s": 1996.148,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6802154030860799,
+            "track_hits": 24,
+            "range_m": 10.97,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1996.148000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.427,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1996.836,
+      "wall": 1791748091.5448902,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1996.744,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              71.38,
+              -4.14,
+              1.25
+            ],
+            "confidence": 0.583,
+            "visual_confidence": 0.583,
+            "track_confirmed": true,
+            "sample_s": 1996.744,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6288593176748011,
+            "track_hits": 25,
+            "range_m": 10.51,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1996.744000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.583,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1997.456,
+      "wall": 1791748092.1721206,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1997.324,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              71.92,
+              -4.13,
+              1.25
+            ],
+            "confidence": 0.615,
+            "visual_confidence": 0.615,
+            "track_confirmed": true,
+            "sample_s": 1997.324,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5785525815790826,
+            "track_hits": 26,
+            "range_m": 9.9,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1997.324000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.615,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1997.652,
+      "wall": 1791748092.3801594,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1997.532,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              71.84,
+              -3.92,
+              1.25
+            ],
+            "confidence": 0.549,
+            "visual_confidence": 0.549,
+            "track_confirmed": true,
+            "sample_s": 1997.532,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5320435972284173,
+            "track_hits": 27,
+            "range_m": 9.34,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1997.532000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.549,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1998.04,
+      "wall": 1791748092.7814775,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1997.932,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              72.56,
+              -3.94,
+              1.25
+            ],
+            "confidence": 0.441,
+            "visual_confidence": 0.441,
+            "track_confirmed": true,
+            "sample_s": 1997.932,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5213635215366368,
+            "track_hits": 29,
+            "range_m": 9.22,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1997.932000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.441,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1998.46,
+      "wall": 1791748093.2110686,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1998.324,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              72.94,
+              -4.0,
+              1.25
+            ],
+            "confidence": 0.571,
+            "visual_confidence": 0.571,
+            "track_confirmed": true,
+            "sample_s": 1998.324,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4968758996002552,
+            "track_hits": 30,
+            "range_m": 8.86,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1998.324000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.571,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1998.64,
+      "wall": 1791748093.3892045,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1998.516,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              73.1,
+              -3.97,
+              1.25
+            ],
+            "confidence": 0.762,
+            "visual_confidence": 0.762,
+            "track_confirmed": true,
+            "sample_s": 1998.516,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4791491673164539,
+            "track_hits": 31,
+            "range_m": 8.65,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1998.516000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.762,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1999.036,
+      "wall": 1791748093.7916512,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1998.936,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              73.53,
+              -4.06,
+              1.25
+            ],
+            "confidence": 0.797,
+            "visual_confidence": 0.797,
+            "track_confirmed": true,
+            "sample_s": 1998.936,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4590124375582084,
+            "track_hits": 33,
+            "range_m": 8.33,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1998.936000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.797,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1999.236,
+      "wall": 1791748093.99463,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1999.152,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              73.65,
+              -4.1,
+              1.25
+            ],
+            "confidence": 0.819,
+            "visual_confidence": 0.819,
+            "track_confirmed": true,
+            "sample_s": 1999.152,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4469512140108302,
+            "track_hits": 34,
+            "range_m": 8.12,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1999.152000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.819,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1999.448,
+      "wall": 1791748094.210102,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1999.332,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              74.35,
+              -4.15,
+              1.25
+            ],
+            "confidence": 0.523,
+            "visual_confidence": 0.523,
+            "track_confirmed": true,
+            "sample_s": 1999.332,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4760447267799553,
+            "track_hits": 35,
+            "range_m": 8.59,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1999.332000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.523,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1999.64,
+      "wall": 1791748094.4062371,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1999.548,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              74.14,
+              -4.04,
+              1.25
+            ],
+            "confidence": 0.833,
+            "visual_confidence": 0.833,
+            "track_confirmed": true,
+            "sample_s": 1999.548,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.45055980456615324,
+            "track_hits": 36,
+            "range_m": 8.1,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1999.548000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.833,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1999.844,
+      "wall": 1791748094.611718,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 1999.736,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              74.5,
+              -4.01,
+              1.25
+            ],
+            "confidence": 0.705,
+            "visual_confidence": 0.705,
+            "track_confirmed": true,
+            "sample_s": 1999.736,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.45973912593969973,
+            "track_hits": 37,
+            "range_m": 8.26,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-1999.736000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.705,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2000.252,
+      "wall": 1791748095.0237088,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2000.128,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              75.01,
+              -4.09,
+              1.25
+            ],
+            "confidence": 0.715,
+            "visual_confidence": 0.715,
+            "track_confirmed": true,
+            "sample_s": 2000.128,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.46690662226585367,
+            "track_hits": 39,
+            "range_m": 8.4,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2000.128000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.715,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2000.44,
+      "wall": 1791748095.2142293,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2000.332,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              75.02,
+              -4.1,
+              1.25
+            ],
+            "confidence": 0.784,
+            "visual_confidence": 0.784,
+            "track_confirmed": true,
+            "sample_s": 2000.332,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4565469424087019,
+            "track_hits": 40,
+            "range_m": 8.21,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2000.332000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.784,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2000.64,
+      "wall": 1791748095.4170804,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2000.552,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              75.34,
+              -4.07,
+              1.25
+            ],
+            "confidence": 0.421,
+            "visual_confidence": 0.421,
+            "track_confirmed": true,
+            "sample_s": 2000.552,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.46759100747370086,
+            "track_hits": 41,
+            "range_m": 8.32,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2000.552000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.421,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2000.84,
+      "wall": 1791748095.6169698,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2000.736,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              75.33,
+              -4.1,
+              1.25
+            ],
+            "confidence": 0.832,
+            "visual_confidence": 0.832,
+            "track_confirmed": true,
+            "sample_s": 2000.736,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.45432073933063016,
+            "track_hits": 42,
+            "range_m": 8.13,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2000.736000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.832,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2001.256,
+      "wall": 1791748096.0386124,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2001.124,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              75.47,
+              -3.98,
+              1.25
+            ],
+            "confidence": 0.872,
+            "visual_confidence": 0.872,
+            "track_confirmed": true,
+            "sample_s": 2001.124,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4447649392598649,
+            "track_hits": 44,
+            "range_m": 7.86,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2001.124000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.872,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2001.452,
+      "wall": 1791748096.2394965,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2001.348,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              76.1,
+              -4.11,
+              1.25
+            ],
+            "confidence": 0.855,
+            "visual_confidence": 0.855,
+            "track_confirmed": true,
+            "sample_s": 2001.348,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.47261236985771937,
+            "track_hits": 45,
+            "range_m": 8.31,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2001.348000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.855,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2001.644,
+      "wall": 1791748096.4357605,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2001.528,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              76.12,
+              -4.08,
+              1.25
+            ],
+            "confidence": 0.794,
+            "visual_confidence": 0.794,
+            "track_confirmed": true,
+            "sample_s": 2001.528,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.46684327719578494,
+            "track_hits": 46,
+            "range_m": 8.18,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2001.528000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.794,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2002.044,
+      "wall": 1791748096.8512702,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2001.92,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              76.51,
+              -4.09,
+              1.25
+            ],
+            "confidence": 0.81,
+            "visual_confidence": 0.81,
+            "track_confirmed": true,
+            "sample_s": 2001.92,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.47818709663574277,
+            "track_hits": 48,
+            "range_m": 8.27,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2001.920000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.81,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2002.232,
+      "wall": 1791748097.0409057,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2002.152,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              76.82,
+              -4.04,
+              1.25
+            ],
+            "confidence": 0.753,
+            "visual_confidence": 0.753,
+            "track_confirmed": true,
+            "sample_s": 2002.152,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4899101678720964,
+            "track_hits": 49,
+            "range_m": 8.4,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2002.152000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.753,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2002.432,
+      "wall": 1791748097.2427068,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2002.336,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              77.06,
+              -4.17,
+              1.25
+            ],
+            "confidence": 0.758,
+            "visual_confidence": 0.758,
+            "track_confirmed": true,
+            "sample_s": 2002.336,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5000726593944116,
+            "track_hits": 50,
+            "range_m": 8.52,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2002.336000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.758,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2002.644,
+      "wall": 1791748097.452661,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2002.536,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              77.62,
+              -4.27,
+              1.25
+            ],
+            "confidence": 0.666,
+            "visual_confidence": 0.666,
+            "track_confirmed": true,
+            "sample_s": 2002.536,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5352488600107986,
+            "track_hits": 51,
+            "range_m": 8.94,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2002.536000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.666,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2002.84,
+      "wall": 1791748097.657058,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2002.736,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              77.76,
+              -4.29,
+              1.25
+            ],
+            "confidence": 0.411,
+            "visual_confidence": 0.411,
+            "track_confirmed": true,
+            "sample_s": 2002.736,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5363892284324921,
+            "track_hits": 52,
+            "range_m": 8.93,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2002.736000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.411,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2003.236,
+      "wall": 1791748098.0598981,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2003.128,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              78.08,
+              -4.37,
+              1.25
+            ],
+            "confidence": 0.762,
+            "visual_confidence": 0.762,
+            "track_confirmed": true,
+            "sample_s": 2003.128,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5389689231640779,
+            "track_hits": 54,
+            "range_m": 8.95,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2003.128000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.762,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2003.444,
+      "wall": 1791748098.269211,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2003.336,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              78.31,
+              -4.4,
+              1.25
+            ],
+            "confidence": 0.771,
+            "visual_confidence": 0.771,
+            "track_confirmed": true,
+            "sample_s": 2003.336,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5431662460889255,
+            "track_hits": 55,
+            "range_m": 9.0,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2003.336000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.771,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2003.644,
+      "wall": 1791748098.4715989,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2003.536,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              78.42,
+              -4.49,
+              1.25
+            ],
+            "confidence": 0.602,
+            "visual_confidence": 0.602,
+            "track_confirmed": true,
+            "sample_s": 2003.536,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5386006775898324,
+            "track_hits": 56,
+            "range_m": 8.96,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2003.536000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.602,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2004.252,
+      "wall": 1791748099.087913,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2004.14,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              78.93,
+              -4.49,
+              1.25
+            ],
+            "confidence": 0.642,
+            "visual_confidence": 0.642,
+            "track_confirmed": true,
+            "sample_s": 2004.14,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.539170410741839,
+            "track_hits": 57,
+            "range_m": 8.95,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2004.140000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.642,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2004.648,
+      "wall": 1791748099.482656,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2004.544,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              78.84,
+              -3.92,
+              1.25
+            ],
+            "confidence": 0.685,
+            "visual_confidence": 0.685,
+            "track_confirmed": true,
+            "sample_s": 2004.544,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4835952899962114,
+            "track_hits": 58,
+            "range_m": 8.29,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2004.544000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.685,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2004.844,
+      "wall": 1791748099.6858494,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2004.744,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              79.16,
+              -4.08,
+              1.25
+            ],
+            "confidence": 0.513,
+            "visual_confidence": 0.513,
+            "track_confirmed": true,
+            "sample_s": 2004.744,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.49684877099683505,
+            "track_hits": 59,
+            "range_m": 8.45,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2004.744000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.513,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2005.444,
+      "wall": 1791748100.2980063,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2005.328,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              80.06,
+              -4.3,
+              1.25
+            ],
+            "confidence": 0.717,
+            "visual_confidence": 0.717,
+            "track_confirmed": true,
+            "sample_s": 2005.328,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5494005988389565,
+            "track_hits": 60,
+            "range_m": 8.9,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2005.328000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.717,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2005.84,
+      "wall": 1791748100.706067,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2005.732,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              80.73,
+              -4.34,
+              1.25
+            ],
+            "confidence": 0.433,
+            "visual_confidence": 0.433,
+            "track_confirmed": true,
+            "sample_s": 2005.732,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5866099974595366,
+            "track_hits": 61,
+            "range_m": 9.35,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2005.732000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.433,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2006.444,
+      "wall": 1791748101.3193278,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2006.316,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              81.01,
+              -4.29,
+              1.25
+            ],
+            "confidence": 0.478,
+            "visual_confidence": 0.478,
+            "track_confirmed": true,
+            "sample_s": 2006.316,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5678992792917468,
+            "track_hits": 62,
+            "range_m": 9.2,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2006.316000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.478,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2008.436,
+      "wall": 1791748103.3697531,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2008.324,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              82.34,
+              -3.61,
+              1.25
+            ],
+            "confidence": 0.874,
+            "visual_confidence": 0.874,
+            "track_confirmed": true,
+            "sample_s": 2008.324,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": null,
+            "track_hits": 64,
+            "range_m": 7.9,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2008.324000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.874,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2008.648,
+      "wall": 1791748103.5810752,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2008.556,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              82.5,
+              -3.21,
+              1.25
+            ],
+            "confidence": 0.818,
+            "visual_confidence": 0.818,
+            "track_confirmed": true,
+            "sample_s": 2008.556,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.46555777958480005,
+            "track_hits": 65,
+            "range_m": 7.82,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2008.556000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.818,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2008.848,
+      "wall": 1791748103.7855618,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2008.756,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              82.62,
+              -2.97,
+              1.25
+            ],
+            "confidence": 0.805,
+            "visual_confidence": 0.805,
+            "track_confirmed": true,
+            "sample_s": 2008.756,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.45561518002954843,
+            "track_hits": 66,
+            "range_m": 7.82,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2008.756000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.805,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2009.24,
+      "wall": 1791748104.1962273,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2009.156,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              82.64,
+              -2.71,
+              1.25
+            ],
+            "confidence": 0.866,
+            "visual_confidence": 0.866,
+            "track_confirmed": true,
+            "sample_s": 2009.156,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4510912592043187,
+            "track_hits": 68,
+            "range_m": 7.73,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2009.156000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.866,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2009.444,
+      "wall": 1791748104.4030974,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2009.324,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              82.67,
+              -2.4,
+              1.25
+            ],
+            "confidence": 0.852,
+            "visual_confidence": 0.852,
+            "track_confirmed": true,
+            "sample_s": 2009.324,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4513976635415235,
+            "track_hits": 69,
+            "range_m": 7.68,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2009.324000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.852,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2009.644,
+      "wall": 1791748104.6087203,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2009.524,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              82.76,
+              -2.17,
+              1.25
+            ],
+            "confidence": 0.913,
+            "visual_confidence": 0.913,
+            "track_confirmed": true,
+            "sample_s": 2009.524,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.4581467655816842,
+            "track_hits": 70,
+            "range_m": 7.71,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2009.524000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.913,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2009.852,
+      "wall": 1791748104.818153,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2009.756,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              82.94,
+              -2.36,
+              1.25
+            ],
+            "confidence": 0.839,
+            "visual_confidence": 0.839,
+            "track_confirmed": true,
+            "sample_s": 2009.756,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.47679253585188314,
+            "track_hits": 71,
+            "range_m": 7.94,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2009.756000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.839,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2010.252,
+      "wall": 1791748105.233978,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2010.12,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              83.48,
+              -2.34,
+              1.25
+            ],
+            "confidence": 0.905,
+            "visual_confidence": 0.905,
+            "track_confirmed": true,
+            "sample_s": 2010.12,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5214225544395658,
+            "track_hits": 73,
+            "range_m": 8.48,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2010.120000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.905,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2010.452,
+      "wall": 1791748105.4419005,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2010.336,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              83.72,
+              -2.29,
+              1.25
+            ],
+            "confidence": 0.899,
+            "visual_confidence": 0.899,
+            "track_confirmed": true,
+            "sample_s": 2010.336,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5384159721788895,
+            "track_hits": 74,
+            "range_m": 8.72,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2010.336000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.899,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2010.652,
+      "wall": 1791748105.6414826,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2010.524,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              84.12,
+              -2.33,
+              1.25
+            ],
+            "confidence": 0.889,
+            "visual_confidence": 0.889,
+            "track_confirmed": true,
+            "sample_s": 2010.524,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5717335496080703,
+            "track_hits": 75,
+            "range_m": 9.12,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2010.524000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.889,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2010.852,
+      "wall": 1791748105.8444254,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2010.74,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              84.26,
+              -2.27,
+              1.25
+            ],
+            "confidence": 0.775,
+            "visual_confidence": 0.775,
+            "track_confirmed": true,
+            "sample_s": 2010.74,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5827527306124023,
+            "track_hits": 76,
+            "range_m": 9.24,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2010.740000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.775,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2011.256,
+      "wall": 1791748106.2537599,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2011.132,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              83.94,
+              -2.01,
+              1.25
+            ],
+            "confidence": 0.833,
+            "visual_confidence": 0.833,
+            "track_confirmed": true,
+            "sample_s": 2011.132,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5479906989365771,
+            "track_hits": 78,
+            "range_m": 8.78,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2011.132000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.833,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2011.448,
+      "wall": 1791748106.4494965,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2011.348,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              84.63,
+              -2.13,
+              1.25
+            ],
+            "confidence": 0.838,
+            "visual_confidence": 0.838,
+            "track_confirmed": true,
+            "sample_s": 2011.348,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5925181963423787,
+            "track_hits": 79,
+            "range_m": 9.38,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2011.348000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.838,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2011.644,
+      "wall": 1791748106.6557064,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2011.536,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              84.63,
+              -2.07,
+              1.25
+            ],
+            "confidence": 0.816,
+            "visual_confidence": 0.816,
+            "track_confirmed": true,
+            "sample_s": 2011.536,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5841412786709649,
+            "track_hits": 80,
+            "range_m": 9.25,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2011.536000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.816,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2011.844,
+      "wall": 1791748106.8632274,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2011.74,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              85.24,
+              -2.17,
+              1.25
+            ],
+            "confidence": 0.648,
+            "visual_confidence": 0.648,
+            "track_confirmed": true,
+            "sample_s": 2011.74,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6197073618528575,
+            "track_hits": 81,
+            "range_m": 9.7,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2011.740000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.648,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2012.232,
+      "wall": 1791748107.2713933,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2012.144,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              85.67,
+              -2.12,
+              1.25
+            ],
+            "confidence": 0.815,
+            "visual_confidence": 0.815,
+            "track_confirmed": true,
+            "sample_s": 2012.144,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6175723543499132,
+            "track_hits": 82,
+            "range_m": 9.69,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2012.144000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.815,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2012.44,
+      "wall": 1791748107.4837103,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2012.332,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              85.83,
+              -2.02,
+              1.25
+            ],
+            "confidence": 0.868,
+            "visual_confidence": 0.868,
+            "track_confirmed": true,
+            "sample_s": 2012.332,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6067731782138615,
+            "track_hits": 83,
+            "range_m": 9.58,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2012.332000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.868,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2012.636,
+      "wall": 1791748107.6950903,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2012.552,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              86.06,
+              -2.03,
+              1.25
+            ],
+            "confidence": 0.782,
+            "visual_confidence": 0.782,
+            "track_confirmed": true,
+            "sample_s": 2012.552,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6022652326732955,
+            "track_hits": 84,
+            "range_m": 9.51,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2012.552000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.782,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2013.04,
+      "wall": 1791748108.1167078,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2012.948,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              85.95,
+              -1.95,
+              1.25
+            ],
+            "confidence": 0.529,
+            "visual_confidence": 0.529,
+            "track_confirmed": true,
+            "sample_s": 2012.948,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5376371912631229,
+            "track_hits": 86,
+            "range_m": 8.75,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2012.948000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.529,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2013.236,
+      "wall": 1791748108.3224566,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2013.132,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              86.4,
+              -2.05,
+              1.25
+            ],
+            "confidence": 0.736,
+            "visual_confidence": 0.736,
+            "track_confirmed": true,
+            "sample_s": 2013.132,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.541763368172472,
+            "track_hits": 87,
+            "range_m": 8.87,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2013.132000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.736,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2013.436,
+      "wall": 1791748108.5322773,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2013.324,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              85.97,
+              -1.87,
+              1.25
+            ],
+            "confidence": 0.84,
+            "visual_confidence": 0.84,
+            "track_confirmed": true,
+            "sample_s": 2013.324,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.48434630847196625,
+            "track_hits": 88,
+            "range_m": 8.05,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2013.324000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.84,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2013.644,
+      "wall": 1791748108.750391,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2013.544,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:3",
+            "frame_id": "world_enu",
+            "xyz": [
+              84.79,
+              -1.53,
+              1.25
+            ],
+            "confidence": 0.883,
+            "visual_confidence": 0.883,
+            "track_confirmed": true,
+            "sample_s": 2013.544,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.35150001857931223,
+            "track_hits": 89,
+            "range_m": 6.41,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:3-2013.544000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.883,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2014.244,
+      "wall": 1791748109.3723497,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2014.116,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              87.52,
+              -2.1,
+              1.25
+            ],
+            "confidence": 0.868,
+            "visual_confidence": 0.868,
+            "track_confirmed": true,
+            "sample_s": 2014.116,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5483326616945589,
+            "track_hits": 3,
+            "range_m": 8.68,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2014.116000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.868,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2014.44,
+      "wall": 1791748109.5743504,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2014.344,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              87.91,
+              -2.18,
+              1.25
+            ],
+            "confidence": 0.848,
+            "visual_confidence": 0.848,
+            "track_confirmed": true,
+            "sample_s": 2014.344,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.583416930297838,
+            "track_hits": 4,
+            "range_m": 9.04,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2014.344000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.848,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2014.648,
+      "wall": 1791748109.7839017,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2014.544,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              88.1,
+              -2.11,
+              1.25
+            ],
+            "confidence": 0.883,
+            "visual_confidence": 0.883,
+            "track_confirmed": true,
+            "sample_s": 2014.544,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5959333260916769,
+            "track_hits": 5,
+            "range_m": 9.23,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2014.544000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.883,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2014.836,
+      "wall": 1791748109.983706,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2014.732,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              88.25,
+              -2.11,
+              1.25
+            ],
+            "confidence": 0.872,
+            "visual_confidence": 0.872,
+            "track_confirmed": true,
+            "sample_s": 2014.732,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.611689998811678,
+            "track_hits": 6,
+            "range_m": 9.41,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2014.732000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.872,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2015.244,
+      "wall": 1791748110.4037194,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2015.136,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              88.62,
+              -2.1,
+              1.25
+            ],
+            "confidence": 0.698,
+            "visual_confidence": 0.698,
+            "track_confirmed": true,
+            "sample_s": 2015.136,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6569997818575555,
+            "track_hits": 8,
+            "range_m": 9.89,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2015.136000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.698,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2015.852,
+      "wall": 1791748111.0199153,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2015.744,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              88.76,
+              -1.95,
+              1.25
+            ],
+            "confidence": 0.798,
+            "visual_confidence": 0.798,
+            "track_confirmed": true,
+            "sample_s": 2015.744,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6898694537756404,
+            "track_hits": 9,
+            "range_m": 10.2,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2015.744000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.798,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2016.248,
+      "wall": 1791748111.415673,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2016.148,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              89.15,
+              -1.98,
+              1.25
+            ],
+            "confidence": 0.827,
+            "visual_confidence": 0.827,
+            "track_confirmed": true,
+            "sample_s": 2016.148,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.7424257549654639,
+            "track_hits": 11,
+            "range_m": 10.65,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2016.148000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.827,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2016.448,
+      "wall": 1791748111.6204813,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2016.348,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              88.58,
+              -1.85,
+              1.25
+            ],
+            "confidence": 0.805,
+            "visual_confidence": 0.805,
+            "track_confirmed": true,
+            "sample_s": 2016.348,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.6939216151728881,
+            "track_hits": 12,
+            "range_m": 10.08,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2016.348000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.805,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2016.648,
+      "wall": 1791748111.8259742,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2016.528,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              89.84,
+              -2.1,
+              1.25
+            ],
+            "confidence": 0.634,
+            "visual_confidence": 0.634,
+            "track_confirmed": true,
+            "sample_s": 2016.528,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.8175580379803637,
+            "track_hits": 13,
+            "range_m": 11.38,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2016.528000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.634,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2016.844,
+      "wall": 1791748112.0334322,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2016.732,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              88.59,
+              -1.73,
+              1.25
+            ],
+            "confidence": 0.773,
+            "visual_confidence": 0.773,
+            "track_confirmed": true,
+            "sample_s": 2016.732,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.703789130378341,
+            "track_hits": 14,
+            "range_m": 10.09,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2016.732000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.773,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2018.252,
+      "wall": 1791748113.472122,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2018.132,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              89.2,
+              -1.64,
+              1.25
+            ],
+            "confidence": 0.756,
+            "visual_confidence": 0.756,
+            "track_confirmed": true,
+            "sample_s": 2018.132,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.7417132198935074,
+            "track_hits": 17,
+            "range_m": 10.72,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2018.132000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.756,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 2018.444,
+      "wall": 1791748113.667514,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_3",
+        "sample_s": 2018.332,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "green",
+            "candidate_id": "97e9cf3b9bfe49019acebcfb08f69844:6",
+            "frame_id": "world_enu",
+            "xyz": [
+              89.87,
+              -1.74,
+              1.25
+            ],
+            "confidence": 0.772,
+            "visual_confidence": 0.772,
+            "track_confirmed": true,
+            "sample_s": 2018.332,
+            "source_uav": "typhoon_h480_3",
+            "real_detection": true,
+            "position_uncertainty_m": 0.8169040378852767,
+            "track_hits": 18,
+            "range_m": 11.29,
+            "official_view_ok": false,
+            "observation_id": "obs-typhoon_h480_3-97e9cf3b9bfe49019acebcfb08f69844:6-2018.332000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.772,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    }
+  ]
+}

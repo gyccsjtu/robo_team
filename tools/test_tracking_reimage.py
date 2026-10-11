@@ -103,6 +103,24 @@ class ReimageTests(unittest.TestCase):
                 view['bearing'],3.97,4.2,self.scan(),row['ros'])
             self.assertEqual(velocity,(0.,0.));self.assertIsNone(height)
 
+    def test_complete_pixel_frame_does_not_park_fresh_localized_follow(self):
+        a=sa.SwarmAgent.__new__(sa.SwarmAgent)
+        a.uav_id='u0';a.assignment=NS(task_type=1,target_id='t3')
+        a.local_xy=a.offset=(0.,0.);a.local_z=3.3;a.yaw=0.
+        a._tracking_image=self.view(foot_sin_down=.4,footpoint_valid=True)
+        a._scan=self.scan();a._scan_t=100.29
+        a.targets={'t3':(8.,0.,1.,0.)};a._t_seen={'t3':100.}
+        a._friend_positions={}
+        a._apply_friend_avoidance=Mock(side_effect=lambda x,y:(x,y))
+        a._send_vel=Mock()
+        with patch.object(sa,'CANDIDATE_VIEW_RECOVERY',True),patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(100.3)):
+            self.assertFalse(a._hold_tracking_reimage())
+            a._send_vel.assert_not_called()
+            # Identical pixels cannot extend an expired world position.
+            a._t_seen['t3']=99.
+            self.assertTrue(a._hold_tracking_reimage())
+            self.assertEqual(a._send_vel.call_args.args,(0.,0.))
+
     def test_agent_uses_final_control_and_rejects_blocked_map(self):
         a=sa.SwarmAgent.__new__(sa.SwarmAgent)
         a.uav_id='u0';a.assignment=NS(task_type=1,target_id='t3')

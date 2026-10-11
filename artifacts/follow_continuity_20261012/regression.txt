@@ -1,0 +1,15 @@
+.....................[u0] t0 接近中已 20.0s 无真实位置，停车等待新图像或管理器改派
+............................................................................................/opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[VERTICAL_CLEARANCE_HOLD] uav=u5 near=1.65 occupied=False; require horizontal exit and fresh clear scans
+......[FINAL_SAFETY] uav=u0 reason=measured_braking:lidar intent=(0.5, 0.0, 0.0, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+......[typhoon_h480_0] MAVROS 定位失信：位姿位移超出指令物理上限 0.64m（0.73m / 0.036s） [sample=100.036 receipt=100.400 age=0.364]；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+.[typhoon_h480_0] MAVROS 定位失信：test EKF jump；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+[typhoon_h480_0] EKF 雪崩熔断：累计 50 拍位置不可信 → 强制 LAND
+.[typhoon_h480_0] MAVROS 定位失信：位姿位移超出指令物理上限 0.44m（0.52m / 0.032s） [sample=100.132 receipt=100.132 age=0.000]；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+...
+----------------------------------------------------------------------
+Ran 130 tests in 0.691s
+
+OK
+sys:1: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/gycc/robocup_logs/perception_typhoon_h480_0.csv' mode='a' encoding='utf-8'>
