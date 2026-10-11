@@ -1,0 +1,49 @@
+第三部分：原生云台辅助发现与双目接力（2026-10-12）
+
+代码实现
+- perception/gimbal_auxiliary.py：单进程共享YOLO，默认单机3Hz、CPU单线程、低进程优先级。
+  每机仅存最新待处理图像；固定双目处理过慢、位姿/云台反馈过期、降落或已分配人物时暂停。
+- gimbal_attention.py：各机原生CameraInfo；MAVLink285实测四元数及同图像时刻MAVROS航向。
+  时间按本地原生插件的仿真毫秒检查，姿态间隔<=0.15秒才插值，不使用指令角度替代实测。
+  只输出观察方位，不输出人物世界坐标。仅支持当前原生插件已验证的roll/pitch lock协议。
+- 云台正常进行有限角度扫视，连续三帧且跨度>=0.4秒才保留候选，随后有限保持。
+  同色人物方位接近或关联不唯一时不做身份接力，尤其不凭颜色给双红分配全局ID。
+- swarm_agent只在搜索期间接受新云台候选，使用原安全出口制动、转向，水平位移意图为0。
+  双目候选以自己的ID接手；云台只转交剩余观察预算，不转交目标坐标或正式上报资格。
+  6秒补看期限不随新帧、换相机延长；原有人物任务和双目补看优先；云台异常自动退回双目。
+- run_match.sh增加off/shadow/handoff模式及独立机号配置；默认off。
+  图审计禁止云台节点发飞控位置/速度和正式坐标，也禁止正式桥订阅云台辅助话题。
+  正式ActorInfo仍只有原桥接出口。没有读取Gazebo人物或link真值、裁判剩余目标。
+- run_combined_validation.sh是三部分统一试验入口：开启第一部分搜索/安全、第二部分候选策略、
+  第三部分单机接力。默认5号，扩到六机用GIMBAL_AUX_UAVS=0,1,2,3,4,5显式选择。
+  这只是启动封装，不是第二套飞控。原run_match.sh默认配置仍可回退。
+
+规则与接口核对
+本地规则PDF物理第10页允许云台，原生视场/分辨率/焦距不得改。
+本轮未改官方世界、演员、裁判、相机或激光参数；imgsz=960是网络输入预处理大小。
+正式裁判启动已有mono_cam=1、stereo_cam=1、laser2d=1、gimbal=1；不隐藏已装传感器。
+MAVLink定义：https://mavlink.io/en/messages/common.html#GIMBAL_DEVICE_ATTITUDE_STATUS
+本机插件：PX4_Firmware/Tools/sitl_gazebo/src/gazebo_gimbal_controller_plugin.cpp。
+不同平台若时间戳/flags不匹配，会停用辅助，必须先适配合法姿态接口，不以接收时刻代替拍照姿态。
+
+离线检查
+- 150项人物注意力/跟踪/派机/云台端口等回归通过。
+- 126项云台运行调度/安全/搜索航段/巡南侧/新鲜上报/图审计等集成回归通过。
+  两组有交集，不作为276项独立测试计数。
+- 保存的双机地面数据回放：各94个姿态评估样本，最大差0.1003度、0.1397度。
+  评估对照用的是以前保存的外部相机姿态标签；正式代码没有读取该标签的路径。
+- 12张保存的原生云台真人图像均可完成当前输入流程，热推理中位18.4毫秒（CPU一线程）。
+  不代表飞行中召回率或六机负载已验收；不得称已验证云台使比赛提速。
+
+运行方式
+./run_combined_validation.sh preflight
+./run_combined_validation.sh start --gui
+./run_match.sh stop
+只记录云台、不打断飞机搜索：GIMBAL_AUX_MODE=shadow ./run_combined_validation.sh start --gui
+关闭云台：GIMBAL_AUX_MODE=off ./run_combined_validation.sh start --gui
+
+统一GUI验收待追加
+检查发现->GIMBAL_ATTENTION->双目bino_acquired->原有派机/上报全链，记录每步时间与失败原因。
+单机接力有效且不拖慢双目后，再扩到多机；多机能力代码已实现，效果不能提前承诺。
+第二部分最新正式成绩是439.380秒6/6（2a88dd9，不含这次云台代码），不是三分钟验收。
+雕塑误认、模型遮住脚和偶发爬升卡住告警仍需实测解决；云台不自动解决这些问题。

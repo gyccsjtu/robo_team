@@ -1,0 +1,27 @@
+/opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[VERTICAL_CLEARANCE_HOLD] uav=u5 near=1.65 occupied=False; require horizontal exit and fresh clear scans
+[FINAL_SAFETY] uav=u0 reason=measured_braking:lidar intent=(0.5, 0.0, 0.0, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[u0] search segment blocked leg=2/3 point=(10.50,0.00) reason=GOAL_OCCUPIED
+[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=-0.50 -> 0; move to clear observation space before changing height
+[CLIMB_STALL] uav=u4 executed_vz=0.60 elapsed=3.00 dz=0.00
+[u4] 末级雷达侧障停车 d=0.30m toward=1.00m/s
+[GRID_EXIT] uav=u4 occupied cell; slow checked exit=(0.10,0.00)
+[CLIMB_STALL] uav=u4 executed_vz=0.60 elapsed=3.00 dz=0.00
+[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=0.60 -> 0; move to clear observation space before changing height
+[VERTICAL_CLEARANCE] uav=u4 invalid scan; hold routine height
+[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=-0.80 -> 0; move to clear observation space before changing height
+[ALT_GUARD] HARD z=4.30 > ceil=4.20 -> vz=-1.00 (vx=0.00 vy=0.00) hits=1
+[GRID_EXIT_BLOCKED] uav=u4 occupied cell; no safe exit
+[u4] 末级雷达侧障停车 d=0.76m toward=1.00m/s
+[VERTICAL_CLEARANCE] uav=u4 stale scan; hold routine height
+[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[u4] 2D雷达三面堵死 front=0.62 left=0.55 right=0.55 → 扇区-10°净空0.62m 慢滑 vout=(0.10,-0.02) 慢滑速度=0.10
+[u4] 2D雷达近障 front=0.62m left=0.62 right=0.50 -> vin=(-0.12,-0.04) vout=(0.11,-0.06)
+[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+----------------------------------------------------------------------
+Ran 126 tests in 8.102s
+
+OK

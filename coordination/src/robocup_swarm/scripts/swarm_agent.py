@@ -48,6 +48,7 @@ from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
 from camera_attention import (approach_image, candidate_velocity, candidate_decision,
                               candidate_reposition, candidate_observation_height)
+from gimbal_attention import validate_handoff, selected_uavs
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
@@ -1094,6 +1095,11 @@ class SwarmAgent(SearchSegmentAgent):
         rospy.Subscriber("/swarm/discovery_states", TargetState, self._discovery_state_cb)
         rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb, queue_size=30)
         rospy.Subscriber("/swarm/visual_candidate", String, self._visual_candidate_cb, queue_size=6)
+        self._gimbal_handoff_enabled = (os.environ.get('GIMBAL_AUX_MODE','off') == 'handoff' and
+            self.uav_id in selected_uavs(os.environ.get('GIMBAL_AUX_UAVS','5')))
+        if self._gimbal_handoff_enabled:
+            self._gimbal_feedback_pub = rospy.Publisher('/swarm/gimbal_feedback',String,queue_size=6)
+            rospy.Subscriber('/swarm/gimbal_candidate',String,self._gimbal_candidate_cb,queue_size=3)
         rospy.Subscriber("/swarm/tracking_view", String, self._tracking_view_cb, queue_size=6)
         if self._fast_yaw_enabled:
             rospy.Subscriber('/perception/fast_tracking_view', String,
@@ -1829,6 +1835,41 @@ class SwarmAgent(SearchSegmentAgent):
         rospy.loginfo('[%s] 人物优先补看 %s，最多 %.1fs；搜索暂挂，等待正式派遣',
                       self.uav_id, cid, hold)
 
+    def _gimbal_feedback(self, cue, result, now):
+        pub = getattr(self, '_gimbal_feedback_pub', None)
+        if pub is not None and cue.get('camera') == 'cgo3':
+            pub.publish(String(data=json.dumps(dict(source_uav=self.uav_id,
+                candidate_id=cue['candidate_id'],sample_s=now,result=result))))
+
+    @serialized_visual_task
+    def _gimbal_candidate_cb(self, msg):
+        """Auxiliary bearing can pause search; it never assigns a target identity."""
+        if not getattr(self,'_gimbal_handoff_enabled',False):
+            return
+        try:
+            now=rospy.Time.now().to_sec()
+            data=validate_handoff(json.loads(msg.data),self.uav_id,now)
+            if (self.world_xy is None or not self._world_trusted() or
+                    getattr(self,'_landing',False) or not getattr(self,'_takeoff_done',False)):
+                return
+            active=getattr(self,'_camera_cue',None)
+            if active and active.get('camera')!='cgo3':
+                return  # fixed-camera attention already has better handoff evidence
+            self._offer_camera_attention(data['candidate_id'],data['color'],data['bearing'],
+                                         data['sample_s'],now)
+            cue=getattr(self,'_camera_cue',None)
+            if cue is not None and cue['candidate_id']==data['candidate_id']:
+                cue['camera']='cgo3'
+                cue['until']=min(cue['started']+6.,data['until_s'])
+                cue['handoff_until']=cue['until']
+                if cue.get('attempt') is not None:
+                    cue['attempt']['retry_at']=max(cue['attempt']['retry_at'],cue['until']+CAMERA_CUE_RETRY_S)
+                # No image/xy: only safe braking + yaw in the single control exit.
+                rospy.loginfo_throttle(1.,'[GIMBAL_ATTENTION] uav=%s cid=%s bearing=%.3f until=%.3f; yaw only',
+                                      self.uav_id,cue['candidate_id'],cue['bearing'],cue['until'])
+        except (ValueError,TypeError,KeyError,OverflowError):
+            return
+
     @serialized_visual_task
     def _visual_candidate_cb(self, msg):
         """Bounded own-camera attention; candidates grant no task or confirmation."""
@@ -1876,6 +1917,18 @@ class SwarmAgent(SearchSegmentAgent):
                 return
             if self.world_xy is None:
                 return
+            # Fixed-camera detections establish their own identity. Matching a
+            # bearing only transfers the attention budget, never a red slot or
+            # coordinates. A different colour/direction cannot steal the look.
+            if (active is not None and active.get('camera')=='cgo3' and
+                    active.get('color')==cid.split(':',1)[0] and
+                    sample>=active['sample_s'] and now<active['until'] and
+                    abs(math.atan2(math.sin(bearing-active['bearing']),
+                                   math.cos(bearing-active['bearing'])))<=.12):
+                self._gimbal_feedback(active,'bino_acquired',now)
+                active['gimbal_origin_id']=active['candidate_id']
+                active['candidate_id']=cid
+                active['camera']='stereo'
             target_for_color = {'green': 't0', 'blue': 't1',
                                 'brown': 't2', 'white': 't3'}.get(cid.split(':', 1)[0])
             self._offer_camera_attention(cid, cid.split(':', 1)[0], bearing,
@@ -1891,6 +1944,8 @@ class SwarmAgent(SearchSegmentAgent):
                     cue['approach_started'] = True
                     cue['approach_origin'] = self.world_xy
                     cue['until'] = cue['started'] + 6.
+                    if cue.get('handoff_until') is not None:
+                        cue['until']=min(cue['until'],cue['handoff_until'])
                     if cue.get('attempt') is not None:
                         cue['attempt']['retry_at'] = max(
                             cue['attempt']['retry_at'], cue['until']+CAMERA_CUE_RETRY_S)
@@ -2241,9 +2296,14 @@ class SwarmAgent(SearchSegmentAgent):
         if cue is None:
             return False
         if self.assignment is not None and self.assignment.task_type != 0:
+            self._gimbal_feedback(cue,'preempted',rospy.Time.now().to_sec())
             self._camera_cue = None
             return False
         now = rospy.Time.now().to_sec()
+        if cue.get('camera')=='cgo3' and not 0.<=now-cue['sample_s']<=.65:
+            self._gimbal_feedback(cue,'expired',now)
+            self._camera_cue=None
+            return False
         if self._stable_other_owner(cue.get('target_id'), now,
                                     cue.get('xy'), cue.get('bearing')):
             # A verified handoff is not a failed look. If the peer later
@@ -2255,6 +2315,7 @@ class SwarmAgent(SearchSegmentAgent):
             self._camera_cue = None
             return False
         if now >= cue['until']:
+            self._gimbal_feedback(cue,'expired',now)
             self._camera_cue = None
             # Only a real own-camera localization resolves a pixel cue. If
             # the 2 s look ended without one, remember this CAMERA POSITION

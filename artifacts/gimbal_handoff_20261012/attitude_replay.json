@@ -1,0 +1,16 @@
+{
+  "scope": "Saved ground probe only; no live service access, no coordinate or flight use",
+  "rejected_packets": 0,
+  "errors_deg": {
+    "0": {
+      "n": 94,
+      "median": 0.028419547739733292,
+      "maximum": 0.10024683776868687
+    },
+    "1": {
+      "n": 94,
+      "median": 0.031056700238196497,
+      "maximum": 0.13961220377587757
+    }
+  }
+}

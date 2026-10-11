@@ -72,6 +72,13 @@ MOTION_SAFETY="${MOTION_SAFETY:-0}"
 export MOTION_SAFETY
 SOUTH_PATROL="${SOUTH_PATROL:-0}"
 export SOUTH_PATROL
+# Optional auxiliary camera: off | shadow (mount only) | handoff (agent yaw aid).
+# One aircraft is the validation default; expansion is explicit and reversible.
+GIMBAL_AUX_MODE="${GIMBAL_AUX_MODE:-off}"
+GIMBAL_AUX_UAVS="${GIMBAL_AUX_UAVS:-5}"
+GIMBAL_AUX_HZ="${GIMBAL_AUX_HZ:-3}"
+GIMBAL_AUX_IMGSZ="${GIMBAL_AUX_IMGSZ:-960}"
+export GIMBAL_AUX_MODE GIMBAL_AUX_UAVS GIMBAL_AUX_HZ GIMBAL_AUX_IMGSZ
 # 导航包源码目录：manager/agent 均 import robocup_navigation，必须进 PYTHONPATH
 NAV_SRC="$REPO_ROOT/coordination/src/robocup_navigation/src"
 # 合规地图元数据（2026-10-07 重构，规则 §2.4/§2.5 无预读随机地图）：
@@ -351,6 +358,21 @@ topic_publisher_match(){  # topic_publisher_match <topic> <节点名片段>
 }
 
 # ============================ 赛前体检 ======================================
+gimbal_config_valid(){
+    python3 - "$SWARM_SCRIPTS" <<'PY'
+import os,sys
+sys.path.insert(0,sys.argv[1])
+from gimbal_attention import selected_uavs
+try:
+    assert os.environ['GIMBAL_AUX_MODE'] in ('off','shadow','handoff')
+    selected_uavs(os.environ['GIMBAL_AUX_UAVS'])
+    assert .5 <= float(os.environ['GIMBAL_AUX_HZ']) <= 4.
+    assert int(os.environ['GIMBAL_AUX_IMGSZ']) in (640,960)
+except (ValueError,AssertionError,KeyError):
+    sys.exit('invalid GIMBAL_AUX_MODE/UAVS/HZ/IMGSZ')
+PY
+}
+
 fast_visual_config_valid(){
     local module
     for module in search_segments search_segment_manager search_segment_agent motion_safety boundary_patrol; do
@@ -382,6 +404,7 @@ preflight(){
     local -a _preflight_errors=()
     echo "${C_B}================ RoboCup 赛前体检 ================${C_0}"
     fast_visual_config_valid || hard_miss=$((hard_miss+1))
+    gimbal_config_valid || hard_miss=$((hard_miss+1))
 
     # 进程残留检查：上一局 stop 没清干净会导致新局 gzserver 被顶掉、rosmaster 冲突。
     # 复盘 2026-10-02 23:29 局：残留 gzserver 顶掉新 gzserver → "new node registered
@@ -675,6 +698,7 @@ preflight(){
 team_preflight(){
     local file nodes
     fast_visual_config_valid || return 1
+    gimbal_config_valid || return 1
     for file in "$ROS_SETUP" "$WS_SETUP" "$COORD_WS_SETUP" "$WEIGHTS" \
                 "$PERC_DIR/perception_real.py" "$BRIDGE_SCRIPT" "$COMM_BRIDGE" \
                 "$SWARM_SCRIPTS/swarm_agent.py" "$SWARM_SCRIPTS/swarm_manager.py" \
@@ -1114,6 +1138,19 @@ do_start(){
         wait_gate "协同层 6 agent ROS 节点注册" 45 agents_ready \
             || partial_fail "agent 不足 6/6，看 $LOGDIR/06_swarm_agent_*.log"
 
+        if [ "$GIMBAL_AUX_MODE" != off ]; then
+            start_group gimbal_auxiliary "$LOGDIR/06_gimbal_auxiliary.log" \
+                python3 -u "$PERC_DIR/gimbal_auxiliary.py" \
+                --mode "$GIMBAL_AUX_MODE" --uavs "$GIMBAL_AUX_UAVS" \
+                --weights "$WEIGHTS" --hz "$GIMBAL_AUX_HZ" --imgsz "$GIMBAL_AUX_IMGSZ"
+            gimbal_model_ready(){
+                alive_pgid "$(group_pgid gimbal_auxiliary)" && \
+                    grep -q '\[GIMBAL_READY\]' "$LOGDIR/06_gimbal_auxiliary.log"
+            }
+            wait_gate "云台辅助模型预热（图像和实测姿态由运行期逐帧检查）" 20 gimbal_model_ready \
+                || warn "云台辅助未就绪，双目继续运行；检查 06_gimbal_auxiliary.log"
+        fi
+
         if [ "$FAST_VISUAL_YAW" = 1 ]; then
             start_group fast_visual_yaw "$LOGDIR/06_fast_visual_yaw.log" \
                 python3 -u "$PERC_DIR/fast_visual_node.py" \
@@ -1271,6 +1308,8 @@ do_stop(){
     if [ ! -s "$REG" ]; then info "无已登记组件，仍检查并清理残留进程。"; fi
     # 先停业务节点（后起的先停），最后停场景
     stop_group d2o
+    stop_group gimbal_auxiliary
+    stop_group fast_visual_yaw
     for i in 5 4 3 2 1 0; do stop_group "swarm_agent_$i"; done
     stop_group swarm_manager
     stop_group yolo_bridge

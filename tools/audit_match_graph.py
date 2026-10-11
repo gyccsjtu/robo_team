@@ -151,7 +151,8 @@ def audit_graph(state, topic_types):
         failures.append('%s must be published only by /swarm_manager' % hint_topic)
     for topic in ('/swarm/discovery_observation', discovery_state,
                   '/swarm/visual_candidate', '/swarm/visual_candidate_missed',
-                  hint_topic, '/perception/fast_tracking_view'):
+                  hint_topic, '/perception/fast_tracking_view',
+                  '/swarm/gimbal_observation','/swarm/gimbal_candidate'):
         if BRIDGE_NODE in subscribers.get(topic, set()):
             failures.append('%s subscribes to discovery-only topic %s' % (BRIDGE_NODE, topic))
 
@@ -161,6 +162,10 @@ def audit_graph(state, topic_types):
                 if node != JUDGE_NODE and not OFFICIAL_NODE.fullmatch(node):
                     failures.append("%s subscribes to forbidden topic %s" % (node, topic))
     for topic, nodes in sorted(publishers.items()):
+        if '/gimbal_auxiliary' in nodes and not (
+                topic in ('/rosout','/swarm/gimbal_observation','/swarm/gimbal_candidate') or
+                re.fullmatch(r'/typhoon_h480_[0-5]/mavros/mount_control/command',topic)):
+            failures.append('gimbal_auxiliary publishes forbidden non-auxiliary topic %s' % topic)
         actor = re.fullmatch(r'/actor_([0-5])/cmd_motion', topic)
         if actor:
             allowed = '/actor_' + actor.group(1)

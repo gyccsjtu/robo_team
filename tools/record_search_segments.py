@@ -39,6 +39,10 @@ subs += [rospy.Subscriber(topic,String,evidence,event,queue_size=60) for topic,e
           ('/swarm/visual_candidate','candidate'),('/swarm/visual_candidate_missed','candidate_missed'),
           ('/coordination/target_report','image_report'),('/swarm/report_telemetry','report'),
           ('/swarm/tracking_view','tracking_view')]]
+subs += [rospy.Subscriber(topic,String,evidence,event,queue_size=30) for topic,event in
+         [('/swarm/gimbal_observation','gimbal_observation'),
+          ('/swarm/gimbal_candidate','gimbal_candidate'),
+          ('/swarm/gimbal_feedback','gimbal_feedback')]]
 try:
     end=time.monotonic()+args.seconds
     while not rospy.is_shutdown() and time.monotonic()<end:time.sleep(.2)

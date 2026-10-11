@@ -26,6 +26,17 @@ def valid_graph():
 
 
 class GraphAuditTests(unittest.TestCase):
+    def test_gimbal_bearing_aid_cannot_publish_flight_or_formal_positions(self):
+        state, types = valid_graph()
+        for topic in ('/swarm/gimbal_candidate','/swarm/gimbal_observation',
+                      '/typhoon_h480_5/mavros/mount_control/command'):
+            state[0].append([topic,['/gimbal_auxiliary']])
+        self.assertEqual(audit.audit_graph(state,types),[])
+        state[0].append(['/typhoon_h480_5/mavros/setpoint_position/local',['/gimbal_auxiliary']])
+        self.assertTrue(any('non-auxiliary' in f for f in audit.audit_graph(state,types)))
+        state[1].append(['/swarm/gimbal_candidate',['/yolo_target_bridge']])
+        self.assertTrue(any('discovery-only' in f for f in audit.audit_graph(state,types)))
+
     def test_yaw_only_search_hints_cannot_feed_formal_reports(self):
         state, types = valid_graph()
         state[0].append(['/swarm/search_view_hint', ['/swarm_manager']])

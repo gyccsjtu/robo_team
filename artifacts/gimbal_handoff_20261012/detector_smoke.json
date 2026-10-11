@@ -1,0 +1,440 @@
+{
+  "scope": "Saved images only; bearings here use identity rotation for input validation, not world coordinates; no recall or match claim",
+  "names": {
+    "0": "red",
+    "1": "green",
+    "2": "blue",
+    "3": "white",
+    "4": "brown"
+  },
+  "median_hot_inference_s": 0.01842750200012233,
+  "frames": [
+    {
+      "file": "00139_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.5307160659976944,
+      "usable_boxes": [
+        {
+          "color": "brown",
+          "confidence": 0.8692863583564758,
+          "bearing": -0.10613982386252807
+        },
+        {
+          "color": "blue",
+          "confidence": 0.8589790463447571,
+          "bearing": -0.2632967143302377
+        },
+        {
+          "color": "green",
+          "confidence": 0.8516537547111511,
+          "bearing": -0.4052019700362542
+        },
+        {
+          "color": "red",
+          "confidence": 0.827129065990448,
+          "bearing": 0.3646429627553349
+        },
+        {
+          "color": "red",
+          "confidence": 0.7990561127662659,
+          "bearing": 0.21899541341724438
+        },
+        {
+          "color": "white",
+          "confidence": 0.7465349435806274,
+          "bearing": 0.057321409050183986
+        }
+      ]
+    },
+    {
+      "file": "00141_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.01792128200031584,
+      "usable_boxes": [
+        {
+          "color": "blue",
+          "confidence": 0.8636733293533325,
+          "bearing": -0.26328099847062614
+        },
+        {
+          "color": "brown",
+          "confidence": 0.860713541507721,
+          "bearing": -0.10616148551581413
+        },
+        {
+          "color": "green",
+          "confidence": 0.8382118344306946,
+          "bearing": -0.4050109636631874
+        },
+        {
+          "color": "red",
+          "confidence": 0.8263575434684753,
+          "bearing": 0.3646631860046276
+        },
+        {
+          "color": "white",
+          "confidence": 0.7915587425231934,
+          "bearing": 0.0572687071881475
+        },
+        {
+          "color": "red",
+          "confidence": 0.7913029193878174,
+          "bearing": 0.21889422722294985
+        }
+      ]
+    },
+    {
+      "file": "00143_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.018349540998315206,
+      "usable_boxes": [
+        {
+          "color": "blue",
+          "confidence": 0.8562173247337341,
+          "bearing": -0.2631484122415062
+        },
+        {
+          "color": "brown",
+          "confidence": 0.8522927761077881,
+          "bearing": -0.10629196732464692
+        },
+        {
+          "color": "green",
+          "confidence": 0.8499193787574768,
+          "bearing": -0.4051522925717864
+        },
+        {
+          "color": "red",
+          "confidence": 0.8279191851615906,
+          "bearing": 0.36468321449184943
+        },
+        {
+          "color": "white",
+          "confidence": 0.7943452000617981,
+          "bearing": 0.058559366365861856
+        },
+        {
+          "color": "red",
+          "confidence": 0.7927985787391663,
+          "bearing": 0.2191103214426128
+        }
+      ]
+    },
+    {
+      "file": "00145_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.018876187998102978,
+      "usable_boxes": [
+        {
+          "color": "blue",
+          "confidence": 0.8703517913818359,
+          "bearing": -0.24282219812374048
+        },
+        {
+          "color": "green",
+          "confidence": 0.8668705821037292,
+          "bearing": -0.38612451076476656
+        },
+        {
+          "color": "red",
+          "confidence": 0.8631671667098999,
+          "bearing": 0.38548334353120445
+        },
+        {
+          "color": "red",
+          "confidence": 0.8310655951499939,
+          "bearing": 0.23177732979690202
+        },
+        {
+          "color": "brown",
+          "confidence": 0.7176012992858887,
+          "bearing": -0.08734307698183676
+        },
+        {
+          "color": "white",
+          "confidence": 0.6989701390266418,
+          "bearing": 0.07852555125097031
+        }
+      ]
+    },
+    {
+      "file": "00147_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.017680754001048626,
+      "usable_boxes": [
+        {
+          "color": "blue",
+          "confidence": 0.8772732615470886,
+          "bearing": -0.22161284699266257
+        },
+        {
+          "color": "green",
+          "confidence": 0.8627496361732483,
+          "bearing": -0.37366230913660053
+        },
+        {
+          "color": "brown",
+          "confidence": 0.7856237292289734,
+          "bearing": -0.06338732012808301
+        },
+        {
+          "color": "red",
+          "confidence": 0.7794031500816345,
+          "bearing": 0.40514209964846787
+        },
+        {
+          "color": "red",
+          "confidence": 0.7765079140663147,
+          "bearing": 0.2599394427355139
+        }
+      ]
+    },
+    {
+      "file": "00149_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.01872406199981924,
+      "usable_boxes": [
+        {
+          "color": "blue",
+          "confidence": 0.8554370999336243,
+          "bearing": -0.22100665477186843
+        },
+        {
+          "color": "green",
+          "confidence": 0.8467950820922852,
+          "bearing": -0.36973687649698855
+        },
+        {
+          "color": "red",
+          "confidence": 0.8382837176322937,
+          "bearing": 0.2605678521063922
+        },
+        {
+          "color": "red",
+          "confidence": 0.7668907046318054,
+          "bearing": 0.4057691277411142
+        },
+        {
+          "color": "brown",
+          "confidence": 0.7398044466972351,
+          "bearing": -0.05575761344813553
+        },
+        {
+          "color": "white",
+          "confidence": 0.7104307413101196,
+          "bearing": 0.10573587080615499
+        }
+      ]
+    },
+    {
+      "file": "00151_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.017772270999557804,
+      "usable_boxes": [
+        {
+          "color": "blue",
+          "confidence": 0.8626633286476135,
+          "bearing": -0.22257608032872106
+        },
+        {
+          "color": "green",
+          "confidence": 0.8562942743301392,
+          "bearing": -0.37124565390492464
+        },
+        {
+          "color": "red",
+          "confidence": 0.8211267590522766,
+          "bearing": 0.25714408347935747
+        },
+        {
+          "color": "red",
+          "confidence": 0.787685215473175,
+          "bearing": 0.4048093850837786
+        },
+        {
+          "color": "brown",
+          "confidence": 0.7441444396972656,
+          "bearing": -0.055433864144959794
+        },
+        {
+          "color": "white",
+          "confidence": 0.6385564208030701,
+          "bearing": 0.10628249521653368
+        }
+      ]
+    },
+    {
+      "file": "00153_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.01861250900037703,
+      "usable_boxes": [
+        {
+          "color": "blue",
+          "confidence": 0.8664133548736572,
+          "bearing": -0.22319554428027194
+        },
+        {
+          "color": "green",
+          "confidence": 0.8517993688583374,
+          "bearing": -0.371728137956916
+        },
+        {
+          "color": "red",
+          "confidence": 0.8197235465049744,
+          "bearing": 0.25689866627024277
+        },
+        {
+          "color": "red",
+          "confidence": 0.7915913462638855,
+          "bearing": 0.40445978674263033
+        },
+        {
+          "color": "brown",
+          "confidence": 0.7542606592178345,
+          "bearing": -0.055743177128351334
+        },
+        {
+          "color": "white",
+          "confidence": 0.6859437227249146,
+          "bearing": 0.10623887921589648
+        }
+      ]
+    },
+    {
+      "file": "00155_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.019081571997958235,
+      "usable_boxes": [
+        {
+          "color": "green",
+          "confidence": 0.8950268626213074,
+          "bearing": -0.376472461624701
+        },
+        {
+          "color": "blue",
+          "confidence": 0.8621184229850769,
+          "bearing": -0.23526219543131047
+        },
+        {
+          "color": "red",
+          "confidence": 0.8174490332603455,
+          "bearing": 0.3851195185650543
+        },
+        {
+          "color": "brown",
+          "confidence": 0.7838749289512634,
+          "bearing": -0.07841926971851539
+        },
+        {
+          "color": "red",
+          "confidence": 0.7609434127807617,
+          "bearing": 0.24525056720619934
+        },
+        {
+          "color": "white",
+          "confidence": 0.47557443380355835,
+          "bearing": 0.08668005238531275
+        }
+      ]
+    },
+    {
+      "file": "00157_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.016730516999814427,
+      "usable_boxes": [
+        {
+          "color": "blue",
+          "confidence": 0.876847505569458,
+          "bearing": -0.2571559610633797
+        },
+        {
+          "color": "red",
+          "confidence": 0.8365446329116821,
+          "bearing": 0.3725160476594796
+        },
+        {
+          "color": "green",
+          "confidence": 0.8193805813789368,
+          "bearing": -0.401887837930797
+        },
+        {
+          "color": "brown",
+          "confidence": 0.7869901061058044,
+          "bearing": -0.09730868310716606
+        },
+        {
+          "color": "red",
+          "confidence": 0.7799369096755981,
+          "bearing": 0.2232971706040966
+        },
+        {
+          "color": "white",
+          "confidence": 0.7472732067108154,
+          "bearing": 0.06634106775502431
+        }
+      ]
+    },
+    {
+      "file": "00159_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.019866458998876624,
+      "usable_boxes": [
+        {
+          "color": "red",
+          "confidence": 0.8718419671058655,
+          "bearing": 0.21682507071329687
+        },
+        {
+          "color": "blue",
+          "confidence": 0.8653398752212524,
+          "bearing": -0.2649053261840781
+        },
+        {
+          "color": "green",
+          "confidence": 0.83450847864151,
+          "bearing": -0.4098328849416687
+        },
+        {
+          "color": "red",
+          "confidence": 0.830886721611023,
+          "bearing": 0.3635284843161356
+        },
+        {
+          "color": "white",
+          "confidence": 0.7425709962844849,
+          "bearing": 0.05221522039483877
+        },
+        {
+          "color": "brown",
+          "confidence": 0.7059837579727173,
+          "bearing": -0.11036904695399516
+        }
+      ]
+    },
+    {
+      "file": "00161_actors_12m_aim_gimbal.png",
+      "inference_wall_s": 0.01842750200012233,
+      "usable_boxes": [
+        {
+          "color": "blue",
+          "confidence": 0.887229323387146,
+          "bearing": -0.26394420265679513
+        },
+        {
+          "color": "red",
+          "confidence": 0.868380069732666,
+          "bearing": 0.21413038984929766
+        },
+        {
+          "color": "green",
+          "confidence": 0.8313185572624207,
+          "bearing": -0.41002809481603264
+        },
+        {
+          "color": "red",
+          "confidence": 0.8207204937934875,
+          "bearing": 0.36368848552466443
+        },
+        {
+          "color": "white",
+          "confidence": 0.7328973412513733,
+          "bearing": 0.04984602600389718
+        },
+        {
+          "color": "brown",
+          "confidence": 0.6976819038391113,
+          "bearing": -0.11257662699390455
+        }
+      ]
+    }
+  ]
+}
