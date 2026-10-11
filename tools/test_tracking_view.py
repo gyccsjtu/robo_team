@@ -209,10 +209,11 @@ class TrackingViewTests(unittest.TestCase):
 
     def test_interior_person_does_not_trigger_altitude_hunt(self):
         a = self.agent()
+        a.local_z = 3.0  # within the 8 m / pitch-reserve height window
         for i in range(20):
             t = 100.+i*.2
             self.send(a, self.payload(sample_s=t, box=[325., 190., 375., 310.]), now=t+.1)
-        self.assertAlmostEqual(a._tracking_altitude['goal'], 3.3)
+        self.assertAlmostEqual(a._tracking_altitude['goal'], 3.0)
 
     def test_transient_tilt_and_single_cropped_frame_do_not_change_height(self):
         a = self.agent()
@@ -327,7 +328,8 @@ class TrackingViewTests(unittest.TestCase):
         self.assertEqual(image_altitude_goal(view, 3., 8., 2.6, 4.2), 3.)
         view['box'] = (325., 10., 375., 160.)
         self.assertGreater(image_altitude_goal(view, 3., 8., 2.6, 4.2), 3.)
-        self.assertEqual(image_altitude_goal(view, 4.2, 8., 2.6, 4.2), 4.2)
+        # A high box cannot authorize height that loses the reserved foot FOV.
+        self.assertLess(image_altitude_goal(view, 4.2, 8., 2.6, 4.2), 4.2)
 
     def test_large_clipped_box_needs_distance_not_unbounded_height_changes(self):
         view = parse_tracking_view(self.payload(box=[325., 0., 375., 480.]), 'u0', 't3', 100.1)

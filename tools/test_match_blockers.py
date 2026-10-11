@@ -1250,7 +1250,7 @@ class MatchBlockers(unittest.TestCase):
         self.assertLessEqual(math.hypot(vx, vy),
                              swarm_agent.CLOSE_TRANSIT_SPEED + 1e-6)
 
-    def test_close_ring_brakes_search_velocity_without_faster_acceleration(self):
+    def test_close_braking_keeps_legacy_fallback_but_respects_fresh_view(self):
         # The live run entered the 8 m ring with a 2.87 m/s search command.
         # Normal slew kept > 2 m/s for several frames and carried the aircraft
         # into the actor's 7 m push zone.
@@ -1262,6 +1262,10 @@ class MatchBlockers(unittest.TestCase):
         self.assertLess(math.hypot(*close), math.hypot(*normal))
         self.assertLessEqual(math.dist(old, close),
                              swarm_agent.CLOSE_BRAKE_ACC / swarm_agent.CTRL_RATE + 1e-9)
+        visual = swarm_agent.horizontal_slew_limit(*desired, old,
+                                                   close_mode=True, visual_mode=True)
+        self.assertLessEqual(math.dist(old, visual),
+                             swarm_agent.VIEW_MAX_ACC / swarm_agent.CTRL_RATE + 1e-9)
         accelerating = swarm_agent.horizontal_slew_limit(3.0, 0.0, (0.95, 0.0),
                                                          close_mode=True)
         self.assertAlmostEqual(accelerating[0],

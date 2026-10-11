@@ -413,14 +413,19 @@ CLOSE_CHASE_HOLD_S = 2.0
 # Only increase the slew rate while *reducing* an existing command in close
 # mode.  Acceleration toward the actor keeps the normal bound.
 CLOSE_BRAKE_ACC = float(os.environ.get('CLOSE_BRAKE_ACC', '8.0'))
+VIEW_MAX_ACC = 1.2
+VIEW_MOTION_RANGE = 12.0
+VIEW_BRAKE_MARGIN = .25
 
 
-def horizontal_slew_limit(vx, vy, last_v, close_mode=False):
+def horizontal_slew_limit(vx, vy, last_v, close_mode=False, visual_mode=False):
     """Limit command changes while allowing prompt braking at ring entry."""
     lvx, lvy = last_v
     max_acc = MAX_ACC
     old_speed_sq = lvx * lvx + lvy * lvy
-    if (close_mode and old_speed_sq > CLOSE_TRANSIT_SPEED ** 2 and
+    if visual_mode:
+        max_acc = min(MAX_ACC, VIEW_MAX_ACC)
+    elif (close_mode and old_speed_sq > CLOSE_TRANSIT_SPEED ** 2 and
             vx * vx + vy * vy < old_speed_sq and
             vx * lvx + vy * lvy < old_speed_sq):
         max_acc = max(MAX_ACC, CLOSE_BRAKE_ACC)
@@ -429,6 +434,29 @@ def horizontal_slew_limit(vx, vy, last_v, close_mode=False):
     dv = math.hypot(dvx, dvy)
     if dv > max_dv and dv > 1e-9:
         return lvx + dvx * max_dv / dv, lvy + dvy * max_dv / dv
+    return vx, vy
+
+
+def view_approach_velocity(vx, vy, wx, wy, tx, ty, tvx, tvy, radius=8.0):
+    """Brake relative inward motion before the ring; retain target translation.
+
+    This preference is applied BEFORE collision avoidance. Zero requests stay
+    zero, and the helper cannot increase the existing command's speed budget.
+    """
+    speed = math.hypot(vx, vy)
+    distance = math.hypot(tx-wx, ty-wy)
+    if speed < .05 or distance < 1e-6:
+        return vx, vy
+    ux, uy = (tx-wx)/distance, (ty-wy)/distance
+    relative_cap = math.sqrt(2.*VIEW_MAX_ACC*max(
+        0., distance-radius-VIEW_BRAKE_MARGIN))
+    excess = (vx-tvx)*ux+(vy-tvy)*uy-relative_cap
+    if excess <= 0.:
+        return vx, vy
+    vx, vy = vx-excess*ux, vy-excess*uy
+    result_speed = math.hypot(vx, vy)
+    if result_speed > speed:
+        vx, vy = vx*speed/result_speed, vy*speed/result_speed
     return vx, vy
 
 
@@ -920,7 +948,9 @@ class SwarmAgent(object):
             "ros_time", "event", "target_id", "target_x", "target_y",
             "target_z", "uav_x", "uav_y", "uav_z", "distance_m",
             "capture_threshold_m", "is_captured", "orca_vx", "orca_vy",
-            "orca_vz", "cmd_vx", "cmd_vy", "cmd_vz", "source"])
+            "orca_vz", "cmd_vx", "cmd_vy", "cmd_vz", "source",
+            "visual_slew", "horizontal_stop", "view_sample_s",
+            "view_needs_space", "view_range_floor"])
         self._look_at = None         # 机头需持续对准的世界点 (x,y)；None=不控偏航
         # 2026-10-05 国家一等奖：缓存到点前的最后一个 local_goal，dwell 期冻结视野
         self._last_local_goal = None
@@ -1832,12 +1862,16 @@ class SwarmAgent(object):
                 self.local_z, rng, max(MIN_CRUISE_ALT, 2.6),
                 min(ALT_TARGET_CAP, ALT_HARD_CEIL-ALT_HARD_MARGIN))
             view['altitude_goal'] = self._tracking_altitude['goal']
+            view['needs_space'] = self._tracking_altitude.get('needs_space', False)
+            view['range_floor'] = self._tracking_altitude.get('range_floor', 0.)
             self._tracking_image = view
             rospy.loginfo_throttle(2.0,
                 '[TRACK_VIEW] uav=%s tid=%s image=%.3f centre_v=%.1f bottom=%.1f '
-                'alt_goal=%.2f range=%.2f local_tid=%s', self.uav_id, tid, view['sample_s'],
+                'alt_goal=%.2f range=%.2f local_tid=%s needs_space=%s range_floor=%.2f',
+                self.uav_id, tid, view['sample_s'],
                 (view['box'][1]+view['box'][3])/2., view['box'][3],
-                view['altitude_goal'], rng, view.get('local_target_id', tid))
+                view['altitude_goal'], rng, view.get('local_target_id', tid),
+                view['needs_space'], view['range_floor'])
         except (ValueError, TypeError, KeyError, OverflowError):
             return
 
@@ -1870,6 +1904,54 @@ class SwarmAgent(object):
                 0.0 <= now-view['sample_s'] <= .5):
             return view
         return None
+
+    def _view_motion_context(self, now):
+        """Own, fresh localized image supports near-range control, never credit."""
+        view = self._fresh_tracking_view(now)
+        own = self.world_xy
+        altitude = getattr(self, 'local_z', None)
+        if (view is None or own is None or altitude is None or
+                view.get('pixel_only') or not view.get('geometry_ok') or
+                getattr(self, '_landing', False) or
+                not 0. <= now-view.get('position_sample_s', view['sample_s']) <= .5):
+            return None
+        tid = view['target_id']
+        target = getattr(self, 'targets', {}).get(tid)
+        if (target is None or
+                not 0. <= now-getattr(self, '_t_seen', {}).get(tid, -1e18) <= 1.):
+            return None
+        distance = math.hypot(target[0]-own[0], target[1]-own[1])
+        if not all(math.isfinite(v) for v in (*target, altitude, distance)) or not 0. < distance <= VIEW_MOTION_RANGE:
+            return None
+        tvx, tvy = target[2:4]
+        speed = math.hypot(tvx, tvy)
+        if speed > 2.5:
+            tvx, tvy = tvx*2.5/speed, tvy*2.5/speed
+        radius = ORBIT_RADIUS_CLOSE
+        if view.get('needs_space'):
+            radius = max(radius, min(VIEW_MOTION_RANGE, view.get('range_floor', radius)))
+        return dict(own=own, target=target[:2], velocity=(tvx, tvy),
+                    radius=radius, distance=distance)
+
+    def _view_follow_velocity(self, vx, vy):
+        context = self._view_motion_context(rospy.Time.now().to_sec())
+        if context is None:
+            return vx, vy
+        return view_approach_velocity(vx, vy, *context['own'],
+                                      *context['target'], *context['velocity'],
+                                      radius=context['radius'])
+
+    def _view_friend_conflict(self, now):
+        own = self.world_xy
+        if own is None:
+            return False
+        for fid, (fx, fy, fz) in getattr(self, '_friend_positions', {}).items():
+            if now-getattr(self, '_friend_seen', {}).get(fid, -1e18) > 1.:
+                continue
+            friend_alt = self.local_z if fz is None else fz
+            if math.hypot(math.hypot(fx-own[0], fy-own[1]), friend_alt-self.local_z) < SAFE_3D:
+                return True
+        return False
 
     def _processed_camera_frame_cb(self, msg):
         """Credit a scan heading only after fresh YOLO processing at this view."""
@@ -3242,6 +3324,7 @@ class SwarmAgent(object):
 
         # 最高优先级：越界主动回收，绕过其他守卫（界外无障碍）。
         rec = self._bounds_recovery_velocity()
+        visual_slew = False
         if rec is not None:
             vx, vy = rec
             rospy.logerr_throttle(2.0,
@@ -3272,6 +3355,14 @@ class SwarmAgent(object):
                 (vx*before_guard[0]+vy*before_guard[1]) <
                 math.cos(math.radians(45.))*before_speed*after_speed)
             vx, vy = self._oscillation_breakout(vx, vy, guard_changed=guard_changed)
+            # Safety interventions retain their existing response. The softer
+            # visual envelope is only for an ordinary, clear-space command.
+            now_view = rospy.Time.now().to_sec()
+            visual_slew = (vz is None and
+                self._view_motion_context(now_view) is not None and
+                not self._radar_strict and not self._radar_retreating and
+                math.hypot(vx-before_guard[0], vy-before_guard[1]) < 1e-8 and
+                not self._view_friend_conflict(now_view))
 
         guard_stop = math.hypot(vx, vy) < 0.05
 
@@ -3285,10 +3376,13 @@ class SwarmAgent(object):
         # 后退速度夹成几帧才能爬到目标速度，飞机在 0.3m 墙里推不开。
         if not hasattr(self, "_last_cmd_v"):
             self._last_cmd_v = None
+        visual_slew_applied = False
         if not guard_stop and self._last_cmd_v is not None and not getattr(self, "_radar_retreating", False):
             vx, vy = horizontal_slew_limit(
                 vx, vy, self._last_cmd_v,
-                close_mode=bool(getattr(self, '_confirm_close', False)))
+                close_mode=bool(getattr(self, '_confirm_close', False)),
+                visual_mode=visual_slew)
+            visual_slew_applied = visual_slew
         if guard_stop:
             vx, vy = 0.0, 0.0
         vx, vy = self._final_scan_cap(vx, vy)
@@ -3432,6 +3526,7 @@ class SwarmAgent(object):
         if _now - self._last_csv_t >= 0.2:
             _target = self.assignment
             _wxy = self.world_xy
+            _view_log = self._fresh_tracking_view(_now) or {}
             _dist = None
             if _target is not None and _wxy is not None:
                 _dist = math.sqrt((_target.target_x - _wxy[0]) ** 2 +
@@ -3450,7 +3545,12 @@ class SwarmAgent(object):
                 is_captured=False,  # Geometry cannot establish judge success.
                 orca_vx=self._last_orca_v[0], orca_vy=self._last_orca_v[1],
                 cmd_vx=cmd.twist.linear.x, cmd_vy=cmd.twist.linear.y,
-                cmd_vz=cmd.twist.linear.z, source="swarm_agent")
+                cmd_vz=cmd.twist.linear.z, source="swarm_agent",
+                visual_slew=visual_slew_applied,
+                horizontal_stop=math.hypot(cmd.twist.linear.x, cmd.twist.linear.y) < .05,
+                view_sample_s=_view_log.get('sample_s'),
+                view_needs_space=_view_log.get('needs_space'),
+                view_range_floor=_view_log.get('range_floor'))
             self._last_csv_t = _now
         # === 2026-09-29 P1-3：坠地检测 ===
         # 原来没有任何姿态/坠机检测，坠机后 landed_state 仍报 IN_AIR，系统完全不知情。
@@ -4023,6 +4123,9 @@ class SwarmAgent(object):
                       else approach_goal)
             self._look_at = (tx, ty)
             dist = math.hypot(tx - self.world_xy[0], ty - self.world_xy[1])
+            view_motion = self._view_motion_context(_now_s)
+            ring_radius = (view_motion['radius'] if view_motion else ORBIT_RADIUS)
+            capture_radius = ring_radius+(.5 if view_motion else 0.)
             # Keep the close controller across small range-estimate changes.
             # The old exact 8 m switch ran A* pursuit whenever a walking
             # target moved just outside the ring, then rushed inside 6 m and
@@ -4030,9 +4133,9 @@ class SwarmAgent(object):
             _retain_close = (self._confirm_close and
                              self._confirm_close_tid == _track_id and
                              self._orbit_target == _track_id and
-                             dist <= ORBIT_RADIUS_CLOSE + 1.5)
+                             dist <= ring_radius + 1.5)
             if (self._confirm_close and self._confirm_close_tid == _track_id and
-                    dist > ORBIT_RADIUS_CLOSE + 1.5 and
+                    dist > ring_radius + 1.5 and
                     _now_s - self._t_seen.get(_track_id, 0.0) <= TARGET_TTL):
                 self._confirm_close = False
                 self._confirm_close_tid = None
@@ -4041,14 +4144,14 @@ class SwarmAgent(object):
                 self._confirm_start = 0.0
             # R2（2026-10-09）：world 不可信时禁止"到圈即贴脸"，改为悬停等待
             # 世界坐标自愈，防止用被污染的 world 判定假到达（v26 距真身 48m 贴脸）
-            if dist < ORBIT_RADIUS and not self._world_trusted():
+            if dist < capture_radius and not self._world_trusted():
                 rospy.logwarn_throttle(2.0,
                     '[%s] 到圈判定 dist=%.1fm 但 world 不可信（钳制/重锚定后 %.0fs 内）'
                     '→ 悬停等自愈，不切贴脸', self.uav_id, dist,
                     WORLD_TRUST_HOLD_S)
                 self._send_vel(0.0, 0.0)
                 return
-            if dist < ORBIT_RADIUS or _retain_close:
+            if dist < capture_radius or _retain_close:
                 # 到达目标附近，开始盘旋
                 # === v16.1 修复：到圈分支每周期重入 ===
                 # v16 实测（agent_4）：宽限期内 dist 仍 < ORBIT_RADIUS，本分支
@@ -4727,6 +4830,8 @@ class SwarmAgent(object):
         now = rospy.Time.now().to_sec()
         orbit_dist = math.hypot(tx - wx, ty - wy)
         obs_age = now - self._t_seen.get(self._orbit_target, 0.0)
+        view_motion = self._view_motion_context(now)
+        ring_radius = view_motion['radius'] if view_motion else ORBIT_RADIUS_CLOSE
         if self._confirm_close:
             ref = getattr(self, '_close_range_ref', None)
             if ref is None or ref[0] != self._orbit_target or now - ref[1] > 2.0:
@@ -4762,7 +4867,7 @@ class SwarmAgent(object):
         # that actor walks away, a 30s close-mode latch makes reacquisition
         # mathematically impossible.  Let the normal one-shot escape policy
         # decide whether faster pursuit is warranted once contact opens up.
-        if (self._confirm_close and orbit_dist > ORBIT_RADIUS_CLOSE + 1.5 and
+        if (self._confirm_close and orbit_dist > ring_radius + 1.5 and
                 now - self._t_seen.get(self._orbit_target, 0.0) <= TARGET_TTL):
             self._confirm_close = False
             self._confirm_close_tid = None
@@ -4773,7 +4878,7 @@ class SwarmAgent(object):
         # 团队广播可能先于到圈抵达，所以在实际位置上重复检查一次。
         if (not self._confirm_close and self._orbit_target in self.targets and
                 now - self._t_seen.get(self._orbit_target, 0.0) <= TARGET_TTL and
-                orbit_dist <= ORBIT_RADIUS and
+                orbit_dist <= ring_radius+(.5 if view_motion else 0.) and
                 self.los.visible(wx, wy, tx, ty)):
             self._enter_close_mode(self._orbit_target)
 
@@ -4801,7 +4906,7 @@ class SwarmAgent(object):
         # 的观察点。移动人的平移由后面的新鲜速度前馈承担。
         inward_view = False
         if self._confirm_close:
-            _radius = ORBIT_RADIUS_CLOSE
+            _radius = ring_radius
             # 这里的 angle 只决定观察方向；移动目标的平移由速度前馈负责。
             angle = math.atan2(wy - ty_c, wx - tx_c)
             target_x = tx_c + _radius * math.cos(angle)
@@ -4816,7 +4921,7 @@ class SwarmAgent(object):
             target_x = wx + 0.3 * (target_x - wx)
             target_y = wy + 0.3 * (target_y - wy)
         else:
-            _radius = ORBIT_RADIUS
+            _radius = ring_radius if view_motion else ORBIT_RADIUS
             target_x = tx_c + _radius * math.cos(angle)
             target_y = ty_c + _radius * math.sin(angle)
             if not (xmin + MAP_GUARD_MARGIN <= target_x <= xmax - MAP_GUARD_MARGIN and
@@ -4857,7 +4962,7 @@ class SwarmAgent(object):
                 # At a map edge the radial "back off" direction can point
                 # outside the arena and fight the inward observation goal.
                 vx, vy = ring_standoff_velocity(
-                    vx, vy, wx, wy, tx, ty, ORBIT_RADIUS_CLOSE,
+                    vx, vy, wx, wy, tx, ty, _radius,
                     _tvx, _tvy, speed_cap=follow_cap)
                 vx, vy, _urgent_backoff = urgent_close_backoff_velocity(
                     vx, vy, wx, wy, tx, ty, _tvx, _tvy)
@@ -4968,6 +5073,9 @@ class SwarmAgent(object):
 
     def _apply_friend_avoidance(self, vx, vy):
         """ORCA 避碰：修复无解兜底、对称死锁、速度衰减问题"""
+        # Both routed approach and orbit pass here. Form the visual preference
+        # before ORCA/radar/map safety may replace or stop it.
+        vx, vy = self._view_follow_velocity(vx, vy)
         _w = self.world_xy
         if _w is None:
             self._last_orca_v = (vx, vy)

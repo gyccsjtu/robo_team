@@ -888,7 +888,9 @@ _CSV = logger("perception_%s" % UAV, [
     "ros_time", "event", "target_id", "class_name", "confidence",
     "bbox_u", "bbox_v", "bbox_w", "bbox_h", "target_x", "target_y",
     "target_z", "range_m", "height_m", "strict", "track_id", "hits",
-    "image_stamp", "image_age_s", "inference_s", "source"])
+    "image_stamp", "image_age_s", "inference_s", "source",
+    "sin_down", "range_method", "assoc_residual_m", "assoc_gate_m",
+    "observation_gap_s"])
 # 调试快照**另开一条话题**：它原来和契约挤在同一条 topic 上，形状完全不同。
 # 调试通道与契约通道必须分开，否则要么队友解析不了、要么我自己的复盘脚本全废。
 DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
@@ -1955,8 +1957,17 @@ def main():
                         # 实测低空（1.9m）跟踪时偏差 ±7-10m。俯角正弦 <0.30
                         # （俯角 <17.5°，如 4m 高 13m 外 / 1.9m 高 6m 外）一律拒绝：
                         # 几何不可靠的观测宁可不报，也不给裁判喂错位置。
-                        if (-v_world[2]) / float(np.linalg.norm(v_world)) < 0.30:
+                        sin_down = (-v_world[2]) / float(np.linalg.norm(v_world))
+                        if sin_down < 0.30:
                             _stat["n_pitch_rej"] = _stat.get("n_pitch_rej", 0) + 1
+                            _CSV.write(
+                                ros_time=rospy.Time.now().to_sec(), event='projection_reject',
+                                class_name=CLASSES[cid], confidence=conf,
+                                bbox_u=u, bbox_v=v, bbox_w=float(x2-x1),
+                                bbox_h=float(y2-y1), image_stamp=frame_stamp,
+                                image_age_s=frame_age, inference_s=inference_s,
+                                sin_down=sin_down, range_method='foot_ground',
+                                source='sin_down_below_0.30')
                             continue
                         t = -pz / v_world[2]
                         if t <= 0:
@@ -2046,6 +2057,8 @@ def main():
                             target_z=TARGET_Z, range_m=rng, height_m=impl_h,
                             strict=strict, image_stamp=frame_stamp,
                             image_age_s=frame_age, inference_s=inference_s,
+                            sin_down=sin_down,
+                            range_method='head_height' if t is None else 'foot_ground',
                             source="yolo_raw")
 
         if frame_was_processed:
@@ -2107,6 +2120,16 @@ def main():
                         best, bd = j, dd
                 elif confirmed and dd >= gate:
                     dyn_rej += 1                      # 被动态门限拒掉：统计用
+                    _CSV.write(
+                        ros_time=rospy.Time.now().to_sec(), event='association_reject',
+                        class_name=tk.cls, confidence=d['conf'], track_id=tk.id,
+                        hits=tk.hits, target_x=d['xyz'][0], target_y=d['xyz'][1],
+                        bbox_u=d['uv'][0], bbox_v=d['uv'][1],
+                        bbox_w=d['wh'][0], bbox_h=d['wh'][1],
+                        image_stamp=frame_stamp, image_age_s=frame_age,
+                        range_method=d['range_method'], assoc_residual_m=dd,
+                        assoc_gate_m=gate, observation_gap_s=frame_stamp-tk.observed_s,
+                        source='same_class_pair_outside_gate')
             if dyn_rej:
                 _stat["n_dyn_rej"] = _stat.get("n_dyn_rej", 0) + dyn_rej
             if best >= 0:

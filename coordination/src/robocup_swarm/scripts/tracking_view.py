@@ -100,6 +100,29 @@ def retain_pixel_view(previous, data, source, tid, now):
         return None
 
 
+VIEW_MIN_DOWN_SIN = .33
+VIEW_PITCH_RESERVE = math.radians(10.)
+
+
+def view_height_window(view, range_m, minimum, maximum):
+    """Height interval for reliable ground rays and a 10 degree pitch reserve.
+
+    range_m is horizontal distance, not the camera's slant-range estimate.
+    An empty interval is a request to regain viewing distance, never permission
+    to descend below the flight floor or to relax the perception geometry gate.
+    """
+    angle = math.atan2(.48*view['height'], view['fy'])-VIEW_PITCH_RESERVE
+    upper_ratio = max(0., math.tan(max(0., angle)))
+    lower_ratio = VIEW_MIN_DOWN_SIN/math.sqrt(1.-VIEW_MIN_DOWN_SIN**2)
+    return (max(minimum, range_m*lower_ratio),
+            min(maximum, range_m*upper_ratio))
+
+
+def view_distance_floor(view, altitude):
+    angle = math.atan2(.48*view['height'], view['fy'])-VIEW_PITCH_RESERVE
+    return altitude/max(1e-6, math.tan(max(0., angle)))
+
+
 def image_altitude_goal(view, image_local_z, range_m, minimum, maximum):
     """Small altitude correction toward a full-body image with border margin.
 
@@ -110,16 +133,19 @@ def image_altitude_goal(view, image_local_z, range_m, minimum, maximum):
     """
     _, top, _, bottom = view['box']
     h, fy = view['height'], view['fy']
-    # Only protect head/foot margins. A full body anywhere in the interior
-    # is preferable to climbing just because its centre passed a narrow band.
-    # In conflicting cases a
-    # box taller than the usable frame needs more distance, not altitude.
-    if bottom-top > .8*h:
+    lower, upper = view_height_window(view, range_m, minimum, maximum)
+    # Incompatible height limits or an oversized box need more space. Keep
+    # the current legal height while the existing safe observation planner acts.
+    if lower > upper or bottom-top > .8*h:
         return min(maximum, max(minimum, image_local_z))
-    error = max(bottom-.90*h, 0.)
+    bottom_angle = math.atan2(.48*h, fy)-VIEW_PITCH_RESERVE
+    bottom_limit = .5*h+fy*math.tan(max(0., bottom_angle))
+    error = max(bottom-bottom_limit, 0.)
     if error == 0.:
         error = min(top-.10*h, 0.)
     correction = max(-.35, min(.35, -.6*min(12., max(2., range_m))*error/fy))
+    desired = min(upper, max(lower, image_local_z+correction))
+    correction = max(-.35, min(.35, desired-image_local_z))
     return min(maximum, max(minimum, image_local_z+correction))
 
 
@@ -138,9 +164,14 @@ def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
     if dt < 0.:
         return previous
     goal = previous['goal'] if dt <= 2. else min(maximum, max(minimum, altitude))
+    lower, upper = view_height_window(view, range_m, minimum, maximum)
+    needs_space = lower > upper or view['box'][3]-view['box'][1] > .8*view['height']
     proposed = image_altitude_goal(view, goal, range_m, minimum, maximum)
     delta = proposed-goal
-    direction = (1 if delta > .02 else -1 if delta < -.02 else 0)
+    # The image dead band must not leave the goal just outside a hard geometry
+    # boundary (e.g. 3.16 m at 8 m still consumes the reserved 2% foot border).
+    deadband = .02 if lower <= goal <= upper else 1e-9
+    direction = (1 if delta > deadband else -1 if delta < -deadband else 0)
     if abs(view.get('camera_tilt', math.pi)) > math.radians(8.):
         direction = 0  # pitch/roll during acceleration is not a height error
     since = previous['pressure_since']
@@ -152,7 +183,10 @@ def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
         goal = min(altitude+.25, max(altitude-.25, goal))
     return dict(target_id=view['target_id'], sample_s=sample,
                 goal=min(maximum, max(minimum, goal)),
-                direction=direction, pressure_since=since)
+                direction=direction, pressure_since=since,
+                needs_space=needs_space,
+                range_floor=(max(range_m+.5, view_distance_floor(view, altitude))
+                             if needs_space and lower <= maximum else 0.))
 
 
 def view_needs_space(view):
