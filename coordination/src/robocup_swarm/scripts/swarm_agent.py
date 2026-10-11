@@ -4983,8 +4983,9 @@ class SwarmAgent(SearchSegmentAgent):
         if wx is None or not self.targets:
             return None
         best = None
+        now = rospy.Time.now().to_sec()
         for tid, (tx, ty, _, _) in self.targets.items():
-            if rospy.Time.now().to_sec() - self._t_seen.get(tid, 0.0) > TARGET_TTL:
+            if not 0. <= now - self._t_seen.get(tid, -math.inf) <= TARGET_TTL:
                 continue
             d = math.hypot(tx - wx[0], ty - wx[1])
             if best is None or d < best[1]:
@@ -5092,7 +5093,14 @@ class SwarmAgent(SearchSegmentAgent):
         wx = self.world_xy
         if wx is None or not self.targets:
             return MAX_SPEED
+        now = rospy.Time.now().to_sec()
         for tid, (tx, ty, vx, vy) in self.targets.items():
+            # Discovery positions remain cached after task release. They are
+            # not permanent speed zones: use the same image-age contract as
+            # nearest-target selection. This changes no live-person cap or
+            # downstream obstacle/aircraft safety constraint.
+            if not 0. <= now - self._t_seen.get(tid, -math.inf) <= TARGET_TTL:
+                continue
             d = math.hypot(tx - wx[0], ty - wx[1])
             if d > SPOOK_DIST:
                 continue

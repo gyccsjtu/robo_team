@@ -1,0 +1,107 @@
+find actor_0
+find actor_0
+find actor_0
+find actor_1
+find actor_0
+find actor_0
+find actor_1
+find actor_1
+find actor_2
+actor_0 is OK
+Time usage: 263.5279999999998
+score: 241.9
+find actor_1
+find actor_2
+find actor_2
+find actor_2
+find actor_2
+find actor_2
+actor_1 is OK
+Time usage: 284.82400000000007
+score: 341.9
+find actor_2
+find actor_5
+find actor_2
+find actor_5
+find actor_2
+find actor_4
+find actor_3
+find actor_4
+find actor_3
+find actor_2
+find actor_3
+find actor_2
+find actor_4
+find actor_2
+find actor_2
+find actor_5
+find actor_3
+find actor_2
+find actor_4
+find actor_2
+find actor_2
+find actor_3
+find actor_5
+find actor_5
+find actor_2
+find actor_3
+find actor_5
+find actor_3
+find actor_5
+find actor_2
+find actor_2
+find actor_3
+find actor_2
+find actor_3
+find actor_2
+find actor_5
+find actor_5
+find actor_3
+find actor_2
+find actor_2
+actor_3 is OK
+Time usage: 366.2199999999998
+score: 591.9
+actor_2 is OK
+Time usage: 368.82000000000016
+score: 691.9
+find actor_5
+find actor_5
+find actor_5
+find actor_5
+find actor_5
+find actor_5
+find actor_4
+find actor_5
+find actor_5
+find actor_5
+find actor_5
+find actor_5
+find actor_4
+find actor_5
+find actor_4
+find actor_4
+find actor_5
+find actor_5
+find actor_5
+find actor_4
+find actor_5
+find actor_4
+find actor_5
+find actor_4
+find actor_5
+find actor_5
+find actor_5
+find actor_5
+find actor_4
+find actor_5
+find actor_4
+find actor_4
+find actor_4
+actor_5 is OK
+Time usage: 530.7159999999999
+score: 791.9
+actor_4 is OK
+Time usage: 544.7199999999998
+Mission finished
+score: 2027.1240000000003

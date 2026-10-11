@@ -41,11 +41,11 @@ PERC_DIR="$REPO_ROOT/perception"
 RADAR_DIR="$REPO_ROOT/radar"
 ENV_SCRIPT="$PERC_DIR/scripts/env_robocup.sh"
 # One resolved path for preflight, the run manifest and all perception nodes.
-# Keep v1 as the baseline until a candidate has passed the offline/live gates.
+# v3_clean primary plus the separately validated appearance verifier.
 WEIGHTS="${PR_WEIGHTS:-$REPO_ROOT/weights/best_yolo11n_bino_v3_clean.pt}"
 case "$WEIGHTS" in /*) ;; *) WEIGHTS="$PWD/$WEIGHTS" ;; esac
 export PR_WEIGHTS="$WEIGHTS"
-export PR_DISTRACTOR_MODE="${PR_DISTRACTOR_MODE:-off}"
+export PR_DISTRACTOR_MODE="${PR_DISTRACTOR_MODE:-enforce}"
 export PR_DISTRACTOR_WEIGHTS="${PR_DISTRACTOR_WEIGHTS:-$REPO_ROOT/weights/distractor_verifier_v3.pt}"
 PR_DISTRACTOR_WEIGHTS="$(realpath -m "$PR_DISTRACTOR_WEIGHTS")"
 OFFICIAL_WORLD="$PX4_ROOT/Tools/sitl_gazebo/worlds/robocup.world"
@@ -67,14 +67,17 @@ if [ "$FAST_VISUAL_YAW" = 1 ]; then
     export PR_FAST_TRACKER_SHADOW=1
 fi
 export FAST_VISUAL_YAW FAST_VISUAL_YAW_UAVS
-# Short-segment search is separately gated from auxiliary gimbal observation.
-# Keep the baseline default until the GUI comparison has passed.
-SEARCH_SEGMENTS="${SEARCH_SEGMENTS:-0}"
+# Use the same configuration as the completed GUI trials. Explicit overrides
+# remain available for isolated comparisons; gimbal and far discovery stay off.
+SEARCH_SEGMENTS="${SEARCH_SEGMENTS:-1}"
 export SEARCH_SEGMENTS
-MOTION_SAFETY="${MOTION_SAFETY:-0}"
+MOTION_SAFETY="${MOTION_SAFETY:-1}"
 export MOTION_SAFETY
-SOUTH_PATROL="${SOUTH_PATROL:-0}"
+SOUTH_PATROL="${SOUTH_PATROL:-1}"
 export SOUTH_PATROL
+export BRIDGE_REPORT_POLICY="${BRIDGE_REPORT_POLICY:-fresh}"
+export CANDIDATE_VIEW_RECOVERY="${CANDIDATE_VIEW_RECOVERY:-1}"
+export PR_FAR_DISCOVERY="${PR_FAR_DISCOVERY:-0}"
 # Optional auxiliary camera: off | shadow (mount only) | handoff (agent yaw aid).
 # One aircraft is the validation default; expansion is explicit and reversible.
 GIMBAL_AUX_MODE="${GIMBAL_AUX_MODE:-off}"

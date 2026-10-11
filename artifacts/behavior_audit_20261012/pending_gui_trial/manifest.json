@@ -1,0 +1,54 @@
+{
+  "commit": "719f7067225b0ed65564eb2903c42e4f9aff8d4f",
+  "created_wall": 1791754200.8858576,
+  "gui": true,
+  "PR_FAR_DISCOVERY": 1,
+  "baseline": "logs_20261012_051351",
+  "baseline_seconds": 285.872,
+  "change": "Pending strong decoy evidence is ambiguous before final three-image veto; all flight and detector parameters unchanged",
+  "log_dir": "logs/logs_20261012_053000",
+  "recorder_start_wall": 1791754229.884251,
+  "recorders": [
+    {
+      "pid": 3544625,
+      "argv": [
+        "python3",
+        "tools/record_motion_safety.py",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/pending_gui_trial/sensors.jsonl.gz",
+        "--seconds",
+        "850"
+      ]
+    },
+    {
+      "pid": 3544626,
+      "argv": [
+        "python3",
+        "tools/record_search_segments.py",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/pending_gui_trial/chain.jsonl.gz",
+        "--seconds",
+        "850"
+      ]
+    },
+    {
+      "pid": 3544627,
+      "argv": [
+        "python3",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/pending_gui_trial/record_camera_views.py"
+      ]
+    },
+    {
+      "pid": 3544628,
+      "argv": [
+        "python3",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/pending_gui_trial/record_matched_frames.py",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/pending_gui_trial/matched_frames",
+        "--max-images",
+        "360",
+        "--interval",
+        "2",
+        "--duration",
+        "850"
+      ]
+    }
+  ]
+}

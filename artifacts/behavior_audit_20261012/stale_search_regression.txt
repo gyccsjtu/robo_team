@@ -1,0 +1,13 @@
+................................................../opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[VERTICAL_CLEARANCE] uav=u1 near=0.60m vz=0.20 -> 0; move to clear observation space before changing height
+[ALT_GUARD] HARD z=4.30 > ceil=4.20 -> vz=-1.00 (vx=0.00 vy=0.00) hits=1
+...............[u1] 越界主动回收 → (0.5,0.5) 当前(50.0,20.0)
+.......[VERTICAL_CLEARANCE_HOLD] uav=u5 near=1.65 occupied=False; require horizontal exit and fresh clear scans
+......[FINAL_SAFETY] uav=u0 reason=measured_braking:lidar intent=(0.5, 0.0, 0.0, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+.................[u0] search segment blocked leg=2/3 point=(10.50,0.00) reason=GOAL_OCCUPIED
+.......................
+----------------------------------------------------------------------
+Ran 118 tests in 0.097s
+
+OK
