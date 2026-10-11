@@ -1547,13 +1547,11 @@ class YoloTargetBridge(object):
                             switch['switch_s'] <= sample < switch['trial_until_s']):
                         evidence['hypothesis_switch'] = dict(switch)
                     pub.publish(_msg_string_cls()(data=json.dumps(evidence)))
-                # A qualified recovery image need not wait another timer tick
-                # when the stream is already near its continuity deadline.
-                # Reuse exactly the normal range, motion, conflict and rate
-                # gates. Receipt alone cannot extend image freshness.
-                if (source_accepted and
-                        now-self._pub_last.get(tag, now) >= ACTOR_KEEPALIVE_DT and
-                        self._pub_gate_ok(tag)):
+                # Every qualified new image can use the one publishing exit.
+                # That exit still enforces the unchanged .45/.75 s rate cap;
+                # a separate .75 s callback wait delayed a due moving report
+                # until the next timer tick. No receipt refreshes image time.
+                if source_accepted and self._pub_gate_ok(tag):
                     point = official_point_at(tr, now)
                     if point is not None:
                         self._publish_actor(tag, *point)
