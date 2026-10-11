@@ -1479,10 +1479,23 @@ class Track(object):
 
     def stationary_candidate_stable(self):
         """Short, tight observation series for dispatch, never for range repair."""
-        # Initial ranging jitter must age out of the short stability test;
-        # otherwise a 2.5-second history keeps rejecting a newly stable view.
-        samples = self.recent_observed_xy[-4:]
-        if len(samples) < 4 or samples[-1][0] - samples[0][0] < 0.5:
+        # Preserve the original 5 Hz four-frame window of .6 s. Selecting
+        # only .5 s at higher rates would call a 1 m/s walk stationary under
+        # the unchanged .55 m displacement gate. Select by image time so a
+        # faster detector neither disables nor weakens this exception.
+        # Keep the shortest qualified suffix so old ranging jitter ages out.
+        history = self.recent_observed_xy
+        if len(history) < 4:
+            return False
+        start = len(history) - 4
+        while start > 0 and history[-1][0] - history[start][0] < .6 - 1e-9:
+            start -= 1
+        samples = history[start:]
+        if (not all(math.isfinite(v) for p in samples for v in p) or
+                not 0. <= self.t - samples[-1][0] <= .5 or
+                samples[-1][0] - samples[0][0] < .6 - 1e-9 or
+                any(not 0. < b[0] - a[0] <= .7 + 1e-9
+                    for a, b in zip(samples, samples[1:]))):
             return False
         xs = [p[1] for p in samples]
         ys = [p[2] for p in samples]
