@@ -1,0 +1,2068 @@
+{
+  "created_wall_s": 1791692885.9497433,
+  "outcome": "All v6 and v7 saved epochs rejected. No six-class candidate deployed. No additional training scheduled. Production default remains v1.",
+  "trials": [
+    {
+      "version": "v6",
+      "selection_report": "/home/gycc/robocup_distractor_data/v6_checkpoint_selection.json",
+      "selection_report_sha256": "830f03001e36474dac2504fb749372b2810f8ac5f667afbe431b84e88c666b21",
+      "evaluated_epochs": 47,
+      "accepted_epochs": [],
+      "selected": null,
+      "deployed": false,
+      "policy_sha256": "642d064e96a489f40be96c40b3aa883cbd91f035cd06b74d6abcb2083bcacb18",
+      "evaluator_source_sha256": null,
+      "selector_source_sha256": null,
+      "runtime_source_sha256": "2adc41772aafc7976f6be951fb9058b7ad087989ecaa535c996bd0a7f577c1e4",
+      "test_images_inferred": 0,
+      "baseline": {
+        "original340": {
+          "weights": "weights/best_yolo11n_bino_v1.pt",
+          "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+          "images": 340,
+          "false_decoy_frames": 0,
+          "partial_decoy_frames": 0,
+          "empty_negative_false_frames": 0,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9859154929577465,
+            "blue": 0.9894736842105263,
+            "white": 0.967391304347826,
+            "brown": 1.0,
+            "distractor_person": null
+          },
+          "usable_actor_recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9859154929577465,
+            "blue": 0.9894736842105263,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "totals": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56,
+            "distractor_person": 0
+          }
+        },
+        "new_layout": {
+          "weights": "weights/best_yolo11n_bino_v1.pt",
+          "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+          "images": 8,
+          "false_decoy_frames": 0,
+          "partial_decoy_frames": 0,
+          "empty_negative_false_frames": 0,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 0.875,
+            "white": 0.875,
+            "brown": 1.0,
+            "distractor_person": 0.0
+          },
+          "usable_actor_recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 0.875,
+            "white": 0.875,
+            "brown": 1.0
+          },
+          "totals": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8,
+            "distractor_person": 8
+          }
+        },
+        "negative34": {
+          "weights": "weights/best_yolo11n_bino_v1.pt",
+          "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+          "images": 34,
+          "false_decoy_frames": 0,
+          "partial_decoy_frames": 0,
+          "empty_negative_false_frames": 0,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null,
+            "distractor_person": null
+          },
+          "usable_actor_recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "totals": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0,
+            "distractor_person": 0
+          }
+        }
+      },
+      "epochs": [
+        {
+          "epoch": 1,
+          "checkpoint_sha256": "50a828a147b6c8dd5bd99bf0d81765215126445296bacbf43bf22bcbd15618d6",
+          "accepted": false,
+          "checkpoint": "epoch0.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 2,
+          "checkpoint_sha256": "ab9475eaa6442a86e8119452576568d5d51bc0b1a38852b7fe17d9ce5e056d6e",
+          "accepted": false,
+          "checkpoint": "epoch1.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "white",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "blue",
+                "white",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 3,
+          "checkpoint_sha256": "3448fcfd7ef3adbd919bef7acd68a11835a8417ff35268acbd620b1e9c611f37",
+          "accepted": false,
+          "checkpoint": "epoch2.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 4,
+          "checkpoint_sha256": "28031bd9fb4d9d7d66b840f0db8bb85e3e764f1b21ffff125981fc2fa7837c29",
+          "accepted": false,
+          "checkpoint": "epoch3.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 5,
+          "checkpoint_sha256": "d2216ab9e59fe93b5738172358697a1633cbc6d4df64a5a9fea921cd1fc1c98b",
+          "accepted": false,
+          "checkpoint": "epoch4.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 6,
+          "checkpoint_sha256": "c3a54f25162bfa9e63d96dbb9cccc98b866aa60be8fc70e941b427941e1379f1",
+          "accepted": false,
+          "checkpoint": "epoch5.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 7,
+          "checkpoint_sha256": "a4198e9918e6065e35a525d61d209b39c3ee338a62a094ce674d85912398f94f",
+          "accepted": false,
+          "checkpoint": "epoch6.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 8,
+          "checkpoint_sha256": "bfb5a6244581faa967d69c5f74d6823b6fbd2a3ff3e8547d4bef889e57c45e78",
+          "accepted": false,
+          "checkpoint": "epoch7.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 9,
+          "checkpoint_sha256": "232328a1ed846cc54a3a62624cff0571de19db2cd23911198dc3f941b976b814",
+          "accepted": false,
+          "checkpoint": "epoch8.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 10,
+          "checkpoint_sha256": "e2b8f4c089a2bea2832b68b10de4807146c0717edb3874afb6ab5cbfc5de08cf",
+          "accepted": false,
+          "checkpoint": "epoch9.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 11,
+          "checkpoint_sha256": "06de4ad737ae9bc9ab324c83929fced2fa6547369c146858aad9a551775a45cc",
+          "accepted": false,
+          "checkpoint": "epoch10.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 12,
+          "checkpoint_sha256": "809f451d2443300e7babe49521a479828a9c72eafa0b2ee32b41f9c0cb9279a4",
+          "accepted": false,
+          "checkpoint": "epoch11.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 13,
+          "checkpoint_sha256": "27088330e8ad7ea77cd8fc5f845cd5d893ad85d3f0d12301e34c87bbc73b9655",
+          "accepted": false,
+          "checkpoint": "epoch12.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 14,
+          "checkpoint_sha256": "dfa918d84f18af1374a3860e518584d444112b7549b16ca0dc4827897f8b102a",
+          "accepted": false,
+          "checkpoint": "epoch13.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 15,
+          "checkpoint_sha256": "182277002c10f3c9cc2ef095b0c38255ccdf233329ad0f2025d3afe1ce914f25",
+          "accepted": false,
+          "checkpoint": "epoch14.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 16,
+          "checkpoint_sha256": "d8ff2c9cab9b43b1f652da680e612d58bba8bbe720353d7d11198f55091ec871",
+          "accepted": false,
+          "checkpoint": "epoch15.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 17,
+          "checkpoint_sha256": "5206787a285e462c61cbef3c3b00d5af06edf4536f382d17d9ac854fae81346e",
+          "accepted": false,
+          "checkpoint": "epoch16.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 18,
+          "checkpoint_sha256": "65d2031f0d59cb2d9131779ca56123f0ba2d925a0724531196a648c4a5d39116",
+          "accepted": false,
+          "checkpoint": "epoch17.pt",
+          "failed_gates": {
+            "new_layout": {
+              "recall_failed_colors": [
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "brown"
+              ],
+              "false_decoy_frames": 1
+            }
+          }
+        },
+        {
+          "epoch": 19,
+          "checkpoint_sha256": "ebbb735d1852a4a150572385278c5baac2068f048aecb26277c232c0b5f0bef7",
+          "accepted": false,
+          "checkpoint": "epoch18.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 20,
+          "checkpoint_sha256": "e1899e615b88f227b94e68c2e3a504e2b2cf356107b69d2ef26d7665bb521850",
+          "accepted": false,
+          "checkpoint": "epoch19.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 21,
+          "checkpoint_sha256": "094a5c2d2deb6529227ac13c5b49eeeaf91d21108cbb6002a7c193a4b309833a",
+          "accepted": false,
+          "checkpoint": "epoch20.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 22,
+          "checkpoint_sha256": "2f4059f184afc671b01c3eb71eead6f76404f7b98871a85de9b879888c579655",
+          "accepted": false,
+          "checkpoint": "epoch21.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 23,
+          "checkpoint_sha256": "e589d63c7615cf2c26610e56fbda7d9aee7e7681ca38b6a8d72585068495f10a",
+          "accepted": false,
+          "checkpoint": "epoch22.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 24,
+          "checkpoint_sha256": "8bd9e27a153c691ca25c6270caec14f611eb87eb78c4c75acd821e46453ccf18",
+          "accepted": false,
+          "checkpoint": "epoch23.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 25,
+          "checkpoint_sha256": "c59556ba983ff459a63ce89fc3974d77b02117e59606540af53e080f21332c80",
+          "accepted": false,
+          "checkpoint": "epoch24.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 26,
+          "checkpoint_sha256": "a76e49adf857136f85de64cf8ca7f15cabe8b26c6c2ead27fddef46d430dfbf1",
+          "accepted": false,
+          "checkpoint": "epoch25.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 27,
+          "checkpoint_sha256": "33295cc0f1357fb605e1d47c00e486ba552d05491e68ad2a7d8a10ea69e59ca7",
+          "accepted": false,
+          "checkpoint": "epoch26.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 28,
+          "checkpoint_sha256": "9169ae6c0b70cf432cc4eb3219a1d0e00868b240b38ea2713067f6f1fb8f433d",
+          "accepted": false,
+          "checkpoint": "epoch27.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 29,
+          "checkpoint_sha256": "8e4d9b06ced7a78cc3ddc48462058e107344e55ff9b14a6166f7f047ac53f21d",
+          "accepted": false,
+          "checkpoint": "epoch28.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 30,
+          "checkpoint_sha256": "8f9def1d53b952613d670bde3e8b3f7656ed2260357ceef61b958eb7ef6b00b9",
+          "accepted": false,
+          "checkpoint": "epoch29.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 31,
+          "checkpoint_sha256": "5b28b8c4fb2c9c7bf150d7ad641bd592fc4dceb1fe6ff681377f300bcdf20f83",
+          "accepted": false,
+          "checkpoint": "epoch30.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 32,
+          "checkpoint_sha256": "0cac7e5ea4345b12a061559ac180c110abfe2192fad57ba7d9b3430f955a0dc0",
+          "accepted": false,
+          "checkpoint": "epoch31.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 33,
+          "checkpoint_sha256": "18e506fc70057b6b8ec514d1c21b1120b238184f8c88637126577ff27173da42",
+          "accepted": false,
+          "checkpoint": "epoch32.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 34,
+          "checkpoint_sha256": "ee12142d672594d51703974058dc73a9d7c069373dfe1d2fe360ca75c5e9a6eb",
+          "accepted": false,
+          "checkpoint": "epoch33.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 35,
+          "checkpoint_sha256": "8bd3a334dc832a47d9e99863420f66c3a411d2c0f88530e1c452d1204e75df5f",
+          "accepted": false,
+          "checkpoint": "epoch34.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 36,
+          "checkpoint_sha256": "d0c226eb53435965f2e39aa2b5b959146249cb51d74f6b1cdb4e28eb4b881f3c",
+          "accepted": false,
+          "checkpoint": "epoch35.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 37,
+          "checkpoint_sha256": "0c9c0459f08ec39404d4aa9ee765023157eae4e0fa2bb3402aefa9a9fcb4f740",
+          "accepted": false,
+          "checkpoint": "epoch36.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 38,
+          "checkpoint_sha256": "e7f5a278d6f1124e74af3d9fab26dd25955dba89027f1322573e9b548e73c6eb",
+          "accepted": false,
+          "checkpoint": "epoch37.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 39,
+          "checkpoint_sha256": "a1542339f5469ecda8f172b1dc7ee35196361d9d65a551c4baf0728a82fb8edc",
+          "accepted": false,
+          "checkpoint": "epoch38.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 40,
+          "checkpoint_sha256": "9fdf455faf1383a9897bb9b8bf8aab8086002d3fe61ff0dc43d2cdeb11f5462b",
+          "accepted": false,
+          "checkpoint": "epoch39.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 41,
+          "checkpoint_sha256": "aa4c5cb4d93a57959446c0911863e0a73736d09fb551b531e5370d7602db22bd",
+          "accepted": false,
+          "checkpoint": "epoch40.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 42,
+          "checkpoint_sha256": "ff8e8bbe482b964d491295f677a98b1cbe8ee5b6c82e626f968fcc32fdf86bad",
+          "accepted": false,
+          "checkpoint": "epoch41.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 43,
+          "checkpoint_sha256": "fd75833231f926f26e2794fb23f75d13eb26b2a4ea20b215f265c7e808b55b41",
+          "accepted": false,
+          "checkpoint": "epoch42.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 44,
+          "checkpoint_sha256": "8b0c6cbb69576fb15977de8e11a2ae785fc6af08358046c6c7b1db934d1676a6",
+          "accepted": false,
+          "checkpoint": "epoch43.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 45,
+          "checkpoint_sha256": "0758dfbce5336b1329f8d1c1cd80915038d2e2b97b03b18f8a476a78fa1f0e3e",
+          "accepted": false,
+          "checkpoint": "epoch44.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 46,
+          "checkpoint_sha256": "e57f4a99f9d4d9d322b98e0185593cffdd4fe1b52d2bfe077be7b140eef2bc5c",
+          "accepted": false,
+          "checkpoint": "epoch45.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 47,
+          "checkpoint_sha256": "00fc12f3a47be90f7dd7700a359f2a1c572b73595845a7564c5f067d4d3d058e",
+          "accepted": false,
+          "checkpoint": "epoch46.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green"
+              ]
+            }
+          }
+        }
+      ],
+      "run": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v6_epoch_selection"
+    },
+    {
+      "version": "v7",
+      "selection_report": "/home/gycc/robocup_distractor_data/v7_checkpoint_selection.json",
+      "selection_report_sha256": "1e9139e9b42ef620f6bc7495e4ef06e4d695d5695c0eba66e0c119271dbcbe2c",
+      "evaluated_epochs": 43,
+      "accepted_epochs": [],
+      "selected": null,
+      "deployed": false,
+      "policy_sha256": "d7160441be950fc767c1f683eac428f25ed98cb554833c19e7efff0d88f4c5d1",
+      "evaluator_source_sha256": "0745dcbe3f10df601e868a1dea4e80d2db78026b94021da66d8a370b8676acce",
+      "selector_source_sha256": "802dabdb08341ad665cf9b655367fa4107ea35d48569ca6962968c26d36e93c6",
+      "runtime_source_sha256": "2adc41772aafc7976f6be951fb9058b7ad087989ecaa535c996bd0a7f577c1e4",
+      "test_images_inferred": 0,
+      "baseline": {
+        "original340": {
+          "weights": "weights/best_yolo11n_bino_v1.pt",
+          "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+          "images": 340,
+          "false_decoy_frames": 0,
+          "partial_decoy_frames": 0,
+          "empty_negative_false_frames": 0,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9859154929577465,
+            "blue": 0.9894736842105263,
+            "white": 0.967391304347826,
+            "brown": 1.0,
+            "distractor_person": null
+          },
+          "usable_actor_recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9859154929577465,
+            "blue": 0.9894736842105263,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "totals": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56,
+            "distractor_person": 0
+          }
+        },
+        "new_layout": {
+          "weights": "weights/best_yolo11n_bino_v1.pt",
+          "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+          "images": 8,
+          "false_decoy_frames": 0,
+          "partial_decoy_frames": 0,
+          "empty_negative_false_frames": 0,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 0.875,
+            "white": 0.875,
+            "brown": 1.0,
+            "distractor_person": 0.0
+          },
+          "usable_actor_recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 0.875,
+            "white": 0.875,
+            "brown": 1.0
+          },
+          "totals": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8,
+            "distractor_person": 8
+          }
+        },
+        "negative34": {
+          "weights": "weights/best_yolo11n_bino_v1.pt",
+          "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+          "images": 34,
+          "false_decoy_frames": 0,
+          "partial_decoy_frames": 0,
+          "empty_negative_false_frames": 0,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null,
+            "distractor_person": null
+          },
+          "usable_actor_recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "totals": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0,
+            "distractor_person": 0
+          }
+        }
+      },
+      "epochs": [
+        {
+          "epoch": 1,
+          "checkpoint_sha256": "6ab5dd31ad921f566d92c1956a831c6c06c657431bafceeb285a3a73d09a3fd6",
+          "accepted": false,
+          "checkpoint": "epoch0.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 2,
+          "checkpoint_sha256": "d68332f828f114ac5c2b663673ea692214d547b9e12824f0cb062cd9592c19f1",
+          "accepted": false,
+          "checkpoint": "epoch1.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "white",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "blue",
+                "white",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 3,
+          "checkpoint_sha256": "fe0e04875857bf488833502775266c52b8dea2c37eac06b534494b41a5cec73f",
+          "accepted": false,
+          "checkpoint": "epoch2.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 4,
+          "checkpoint_sha256": "30407e400a9227ddc48515affd9a2e4cd3a9cdd18882d84126de0188ea81f7f1",
+          "accepted": false,
+          "checkpoint": "epoch3.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 5,
+          "checkpoint_sha256": "c6567dbf4e47c8992b1099dbc6c534e7fc6ec289010406368c7c5327ec3108b1",
+          "accepted": false,
+          "checkpoint": "epoch4.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 6,
+          "checkpoint_sha256": "feda338af7771b6659c4c0f44c6b53a47225c75da06a4a4db2d34c074aa72514",
+          "accepted": false,
+          "checkpoint": "epoch5.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 7,
+          "checkpoint_sha256": "bf44a9d9d05bb4f0bbd48e7beaf68ad0e62494ef827fa9e3f58ff783c502e4c8",
+          "accepted": false,
+          "checkpoint": "epoch6.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 8,
+          "checkpoint_sha256": "b9a31cb8929e9a99379355bcc378e317bd2fa4b44be6221516b5bfb6c1aa0ee9",
+          "accepted": false,
+          "checkpoint": "epoch7.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 9,
+          "checkpoint_sha256": "80dacb5b73289be5ed347e9ccb8fd4435ac1e0d34d4589ed588ac6be4dc50928",
+          "accepted": false,
+          "checkpoint": "epoch8.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 10,
+          "checkpoint_sha256": "2980b021cbec1efe4c5ee80a6cee213c6be1dfc381375cb671595288f53ceb89",
+          "accepted": false,
+          "checkpoint": "epoch9.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 11,
+          "checkpoint_sha256": "62908a8ec60c1deb0da186a707b03bdde60102b8b905e3d45d959ea0e91050da",
+          "accepted": false,
+          "checkpoint": "epoch10.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 12,
+          "checkpoint_sha256": "ced72946208ba59efede3e2ce410f10612e99b8a15482ce11cf0fb3b1840405a",
+          "accepted": false,
+          "checkpoint": "epoch11.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 13,
+          "checkpoint_sha256": "027ca970da2616a566f567a85aae59ccd4b6628d1aad438ef5185d6cb4abe5b6",
+          "accepted": false,
+          "checkpoint": "epoch12.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 14,
+          "checkpoint_sha256": "9e64c1db760e58b3f15385254823c141428a70e55fc639eb828925950d18a229",
+          "accepted": false,
+          "checkpoint": "epoch13.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 15,
+          "checkpoint_sha256": "5de26a08b935da6bce02bb72790a08f05f3e497d3407cdda79c515a4bded14cd",
+          "accepted": false,
+          "checkpoint": "epoch14.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 16,
+          "checkpoint_sha256": "74b138c659111df20e87dd86ea2801f7a6e28cb31cf84ea853aa6a488c59f032",
+          "accepted": false,
+          "checkpoint": "epoch15.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 17,
+          "checkpoint_sha256": "cec0743f2624e207a9961c6888b855f6d97904c3b7e247941a2b89032e677250",
+          "accepted": false,
+          "checkpoint": "epoch16.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 18,
+          "checkpoint_sha256": "158da6d7ef2cce2d63e289203b4cea0f25bc4cabf3220ca15826518c7067d125",
+          "accepted": false,
+          "checkpoint": "epoch17.pt",
+          "failed_gates": {
+            "new_layout": {
+              "recall_failed_colors": [
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "brown"
+              ],
+              "false_decoy_frames": 1
+            }
+          }
+        },
+        {
+          "epoch": 19,
+          "checkpoint_sha256": "e32dd457793a348ac261fef686a2100ba0501d48f7642d12f5dbd02ae7e92555",
+          "accepted": false,
+          "checkpoint": "epoch18.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 20,
+          "checkpoint_sha256": "5067f2960fc2cbe0c19e2a87c3250a9d81faa1ecd44ab63886a4a5864bdaef9e",
+          "accepted": false,
+          "checkpoint": "epoch19.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 21,
+          "checkpoint_sha256": "478a94eb0a9e358835ceca018cc47b9cff25fa71e5774d3ba03b16d2c8627d5b",
+          "accepted": false,
+          "checkpoint": "epoch20.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 22,
+          "checkpoint_sha256": "ff2cf036ae1f1efa2349e50eeaec4bee99c58cfc12d687faeace4246057a349b",
+          "accepted": false,
+          "checkpoint": "epoch21.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 23,
+          "checkpoint_sha256": "04d4acd9a0e708c4b0009f0ae5a62a659bf21b3d247eeec86fa04d30fd31eec6",
+          "accepted": false,
+          "checkpoint": "epoch22.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 24,
+          "checkpoint_sha256": "c468e39e6afb1c55822fe17302319505ed9b382dda265ed8dd80d30f2415e2d0",
+          "accepted": false,
+          "checkpoint": "epoch23.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 25,
+          "checkpoint_sha256": "a94285fd2066ea73963ca9ceceaaa20469f4e170bace55e77344cbbd3f168959",
+          "accepted": false,
+          "checkpoint": "epoch24.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 26,
+          "checkpoint_sha256": "2c67d3bc0d7582dd911152d754c97a797851e0cc91686fa16aae4c03b6d3bca1",
+          "accepted": false,
+          "checkpoint": "epoch25.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "red",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "red",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 27,
+          "checkpoint_sha256": "ed79539e3293ad6ba8cfc150853a6b37a4dc7d017e36dff211fdcfbc2c446651",
+          "accepted": false,
+          "checkpoint": "epoch26.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 28,
+          "checkpoint_sha256": "9f69cff91289663b2b65e9db865ee6e6cd92eea6f0b7bf185561edfc4aada2fa",
+          "accepted": false,
+          "checkpoint": "epoch27.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 29,
+          "checkpoint_sha256": "f62f298dc2132e64a6925326d049b849de7e10b807692a466b17b63757a1403d",
+          "accepted": false,
+          "checkpoint": "epoch28.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 30,
+          "checkpoint_sha256": "1522eb8f6a48743a9e9e76ec99daa61b793efd035e83e942b5526dad7dc904a4",
+          "accepted": false,
+          "checkpoint": "epoch29.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 31,
+          "checkpoint_sha256": "9fc5c27678353217ef75458c640bcf99598b72a9a8b2f69c7123b07feeb58fe8",
+          "accepted": false,
+          "checkpoint": "epoch30.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 32,
+          "checkpoint_sha256": "21016eaea1f18f86bf8844719c246a3c8674131f983a2543e5a7902358a990a3",
+          "accepted": false,
+          "checkpoint": "epoch31.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 33,
+          "checkpoint_sha256": "60fa767669014dd21aee1c9fce697abc75fd481309c12c13238b71061b44653e",
+          "accepted": false,
+          "checkpoint": "epoch32.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "brown"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 34,
+          "checkpoint_sha256": "23ccccdd18120429feb15853e9c9fa4c634a4935fbc2818df19051817e1b66a1",
+          "accepted": false,
+          "checkpoint": "epoch33.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 35,
+          "checkpoint_sha256": "2a24419134cb91be0e1a8aeb0034a481e8fd57130fe3de7644cd0175bd35d160",
+          "accepted": false,
+          "checkpoint": "epoch34.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 36,
+          "checkpoint_sha256": "ea6371d338378a17da07d7c5a76e47a11826f809832a2acbc00e162a53c4ba87",
+          "accepted": false,
+          "checkpoint": "epoch35.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 37,
+          "checkpoint_sha256": "61fe782b7b6d233e8395971dfb2d1b3e03ec46a6318c47b540f51a1b2bb3a032",
+          "accepted": false,
+          "checkpoint": "epoch36.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 38,
+          "checkpoint_sha256": "087d804a5284bd19129f19d017371108a9d89db5aaa04f3530f480580d48be83",
+          "accepted": false,
+          "checkpoint": "epoch37.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 39,
+          "checkpoint_sha256": "c4a3c84ab790aaca0e2a5ea298aa4901cfaa4c6f2cdd5eab11bfc22533b12ff8",
+          "accepted": false,
+          "checkpoint": "epoch38.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 40,
+          "checkpoint_sha256": "98ef8de15fd4b22f180663264656c36149d1062e6da41d25909bb51eb266d9a5",
+          "accepted": false,
+          "checkpoint": "epoch39.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 41,
+          "checkpoint_sha256": "b43a1dbfd6e9ba455a2b0fa5e88ba3b8c6ed061dbecf6c394e6892c22d769d6b",
+          "accepted": false,
+          "checkpoint": "epoch40.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 42,
+          "checkpoint_sha256": "fcaec500333c32855dfb96799cc834109a0166ccee07a3dd30a02ba633bb38c3",
+          "accepted": false,
+          "checkpoint": "epoch41.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        },
+        {
+          "epoch": 43,
+          "checkpoint_sha256": "3803c1c6194dcf3aa2c7c32a88967d85f1bc8f8f917f75194e3e46f43bbdfe80",
+          "accepted": false,
+          "checkpoint": "epoch42.pt",
+          "failed_gates": {
+            "original340": {
+              "recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ],
+              "usable_actor_recall_failed_colors": [
+                "green",
+                "blue",
+                "white"
+              ]
+            }
+          }
+        }
+      ],
+      "run": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v7_close_mosaic40"
+    }
+  ],
+  "v6_evaluation_limitation": "Predates one-to-one sculpture false-positive exemption and runtime blue-white filter usable-recall corrections; evaluator/selector source SHA were not recorded. All candidates already rejected; no pass claim or full rerun.",
+  "v7_single_variable_audit": {
+    "argument_differences": {
+      "name": {
+        "v6": "yolo11n_bino_distractor_v6_epoch_selection",
+        "v7": "yolo11n_bino_distractor_v7_close_mosaic40"
+      },
+      "close_mosaic": {
+        "v6": 10,
+        "v7": 40
+      }
+    },
+    "same_warmstart_sha256": true,
+    "preclose_epochs": 20,
+    "preclose_metrics_exactly_equal": true,
+    "v7_finished_epochs": 43,
+    "v7_candidate_deployed": false,
+    "interpretation": "This isolates close_mosaic timing; improved validation acceptance, if any, must still be measured. No causal claim of the existing field failures."
+  },
+  "v7_last_diagnostic": {
+    "report": "/home/gycc/robocup_distractor_data/evaluation_v7_last_validation.json",
+    "sha256": "6c9a4d7393ddf11f235e5b81159f628f8d073f26d6f2e9895b1854bd5c75c395",
+    "new_layout": {
+      "weights": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v7_close_mosaic40/weights/last.pt",
+      "sha256": "d23ecda1686ccfa264b57b3e7e307977deea85d0c096d80b2f0043748834d33e",
+      "images": 8,
+      "false_decoy_frames": 0,
+      "partial_decoy_frames": 0,
+      "empty_negative_false_frames": 0,
+      "recall": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 0.75,
+        "white": 0.625,
+        "brown": 1.0,
+        "distractor_person": 0.375
+      },
+      "usable_actor_recall": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 0.75,
+        "white": 0.625,
+        "brown": 1.0
+      },
+      "totals": {
+        "red": 8,
+        "green": 8,
+        "blue": 8,
+        "white": 8,
+        "brown": 8,
+        "distractor_person": 8
+      }
+    },
+    "original340": {
+      "weights": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v7_close_mosaic40/weights/last.pt",
+      "sha256": "d23ecda1686ccfa264b57b3e7e307977deea85d0c096d80b2f0043748834d33e",
+      "images": 340,
+      "false_decoy_frames": 0,
+      "partial_decoy_frames": 0,
+      "empty_negative_false_frames": 0,
+      "recall": {
+        "red": 0.9934640522875817,
+        "green": 0.971830985915493,
+        "blue": 0.9789473684210527,
+        "white": 0.9565217391304348,
+        "brown": 1.0,
+        "distractor_person": null
+      },
+      "usable_actor_recall": {
+        "red": 0.9934640522875817,
+        "green": 0.971830985915493,
+        "blue": 0.9789473684210527,
+        "white": 0.9565217391304348,
+        "brown": 1.0
+      },
+      "totals": {
+        "red": 153,
+        "green": 71,
+        "blue": 95,
+        "white": 92,
+        "brown": 56,
+        "distractor_person": 0
+      }
+    },
+    "negative34": {
+      "weights": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v7_close_mosaic40/weights/last.pt",
+      "sha256": "d23ecda1686ccfa264b57b3e7e307977deea85d0c096d80b2f0043748834d33e",
+      "images": 34,
+      "false_decoy_frames": 0,
+      "partial_decoy_frames": 0,
+      "empty_negative_false_frames": 0,
+      "recall": {
+        "red": null,
+        "green": null,
+        "blue": null,
+        "white": null,
+        "brown": null,
+        "distractor_person": null
+      },
+      "usable_actor_recall": {
+        "red": null,
+        "green": null,
+        "blue": null,
+        "white": null,
+        "brown": null
+      },
+      "totals": {
+        "red": 0,
+        "green": 0,
+        "blue": 0,
+        "white": 0,
+        "brown": 0,
+        "distractor_person": 0
+      }
+    },
+    "lost_original_instances": [
+      {
+        "image": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00200.jpg",
+        "usable_instances_lost": {
+          "3": 1
+        }
+      },
+      {
+        "image": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00423.jpg",
+        "usable_instances_lost": {
+          "1": 1
+        }
+      },
+      {
+        "image": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00622.jpg",
+        "usable_instances_lost": {
+          "2": 1
+        }
+      },
+      {
+        "image": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00726.jpg",
+        "usable_instances_lost": {
+          "2": 1
+        }
+      }
+    ]
+  },
+  "manual_review": {
+    "page": "/home/gycc/robocup_distractor_data/review_mixed_c_hard_six.html",
+    "proposals": "/home/gycc/robocup_distractor_data/review_mixed_c_hard_six.json",
+    "sha256": "c76030566b9e20cb888fa3297bf9fe964a9d0089dbc9f20a49d2cb5963d7f4cf",
+    "group": "mixed_all_c",
+    "intended_split": "train_only_if_future_review_accepted",
+    "images": [
+      "raw_0000.png",
+      "raw_0001.png",
+      "raw_0003.png",
+      "raw_0004.png",
+      "raw_0012.png",
+      "raw_0015.png"
+    ],
+    "review_status": "pending; user has not returned accepted annotations; not in any current dataset"
+  },
+  "data_gaps": [
+    "No visible white actor in the 12 new mixed-layout C training images; original 174 white training boxes retained.",
+    "New mixed training mostly separated people. Sculpture/actor overlaps and partial head/torso views remain quarantined pending review.",
+    "Legacy tiny/occluded actors lose recall despite improving some sculpture examples. New analogous images are needed; original validation labels must not be edited or transferred into training.",
+    "D10 is a small previously inspected holdout, not a new blind test or an official-match validation."
+  ],
+  "future_options_not_implemented": [
+    "Collect independent layouts with all five true appearances visible, including stationary actors, white shirts near sculpture, and tiny/occluded actors. Review all visible instances.",
+    "Consider a separate crop appearance verifier retaining v1 detection/localization if six-class detector retention cannot be met; this needs its own reviewed crop data and acceptance, not currently deployed."
+  ]
+}
