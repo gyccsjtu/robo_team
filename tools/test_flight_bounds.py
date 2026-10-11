@@ -115,7 +115,30 @@ class FlightBoundsTests(unittest.TestCase):
         agent.local_xy = (199.0, 0.0)  # world x=149, near east edge
         agent._publish_pos_output(6.0, 0.0, 2.5, 0.0)
         sp = agent.pos_pub.messages[-1]
-        self.assertEqual(sp.pose.position.x + agent.offset[0], 148.0)
+        self.assertEqual(sp.pose.position.x + agent.offset[0], 149.0)
+
+    def test_output_cannot_invent_unscanned_reverse_or_move_a_stop(self):
+        agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
+        agent.local_xy, agent.offset, agent.local_z = (149., 0.), (0., 0.), 3.
+        agent._landing, agent._takeoff_done, agent.yaw = False, True, 0.
+        agent._scan_t = 100.
+        agent._scan = SimpleNamespace(ranges=[12.]*720, range_min=.1, range_max=12.,
+            angle_min=-math.radians(135), angle_increment=math.radians(270)/719.)
+        agent.pos_pub = _Publisher()
+        agent._publish_pos_output(0., .1, 3., 0.)
+        point = agent.pos_pub.messages[-1].pose.position
+        self.assertEqual((point.x, point.y), (149., .1))
+        agent.local_xy = (150.5, 0.)
+        agent._publish_pos_output(0., 0., 3., 0.)
+        point = agent.pos_pub.messages[-1].pose.position
+        self.assertEqual((point.x, point.y), (150.5, 0.))
+
+    def test_negative_infinite_scan_is_not_open_space(self):
+        agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
+        agent.yaw, agent._scan_t = 0., 100.
+        agent._scan = SimpleNamespace(ranges=[-math.inf]*720, range_min=.1, range_max=12.,
+            angle_min=-math.radians(135), angle_increment=math.radians(270)/719.)
+        self.assertEqual(agent._final_scan_cap(2., 0.), (0., 0.))
 
 
 if __name__ == '__main__':

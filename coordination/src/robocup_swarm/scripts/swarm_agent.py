@@ -34,6 +34,7 @@ from std_msgs.msg import String
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from slam_grid import SlamGrid
+from flight_execution import bounded_step
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from csv_logger import logger
 from visual_evidence import parse_visual_evidence
@@ -2753,7 +2754,7 @@ class SwarmAgent(object):
             beam = scan.angle_min + i * scan.angle_increment
             delta = (beam - body_angle + math.pi) % (2 * math.pi) - math.pi
             r = float(raw)
-            if math.isnan(r):
+            if math.isnan(r) or r == -math.inf:
                 continue
             # A valid close return is an obstacle at the execution boundary.
             # The mapping self-echo floor must not erase a real post/wall as
@@ -3425,7 +3426,6 @@ class SwarmAgent(object):
             visual_slew_applied = visual_slew
         if guard_stop:
             vx, vy = 0.0, 0.0
-        vx, vy = self._final_scan_cap(vx, vy)
         # Breakout and slew limiting can reintroduce an outward command after
         # the first guard.  Recheck the exact velocity that will be published.
         vx, vy = self._map_guard_velocity(vx, vy)
@@ -3435,6 +3435,7 @@ class SwarmAgent(object):
             # Scale the *final* inward velocity before publishing.  Emergency
             # radar and ORCA proximity still retain precedence in the helper.
             vx, vy = self._close_range_final_guard(vx, vy)
+        vx, vy = self._final_motion_gate(vx, vy)
         self._last_cmd_v = (vx, vy)
         # A safe stop is correct, but the view planner must know that its
         # observation point cannot be maintained. Never override this stop.
@@ -3678,6 +3679,46 @@ class SwarmAgent(object):
         else:
             self.vel_pub.publish(cmd)
 
+    def _final_motion_gate(self, vx, vy):
+        """Validate the direction actually sent, after all direction changes.
+
+        This gate only stops/scales. It cannot generate a new avoidance turn.
+        """
+        vx, vy = self._final_scan_cap(vx, vy)
+        if math.hypot(vx, vy) < 1e-9:
+            return 0.0, 0.0
+        own = self.world_xy
+        if own is None:
+            return 0.0, 0.0
+        now = rospy.Time.now().to_sec()
+        own_z = self.local_z
+        for uid, (x, y, z) in getattr(self, '_friend_positions', {}).items():
+            if not 0. <= now-getattr(self, '_friend_seen', {}).get(uid, -1e18) <= 1.:
+                continue
+            dx, dy = x-own[0], y-own[1]
+            dz = 0. if z is None or own_z is None else z-own_z
+            if math.hypot(math.hypot(dx, dy), dz) < SAFE_3D:
+                if math.hypot(dx, dy) < .01 or vx*dx+vy*dy > 1e-8:
+                    return 0.0, 0.0
+        grid = getattr(self, 'grid', None)
+        if grid is not None:
+            start = grid.world_to_cell(own)
+            escaped = grid.is_free(start)
+            length = min(POS_SP_STEP_MAX, math.hypot(vx, vy)*POS_SP_LEAD)
+            steps = max(1, int(math.ceil(length/max(.05, grid.resolution*.5))))
+            for i in range(1, steps+1):
+                dt = min(POS_SP_LEAD, length/math.hypot(vx, vy))*i/steps
+                cell = grid.world_to_cell((own[0]+vx*dt, own[1]+vy*dt))
+                if cell is None:
+                    return 0.0, 0.0
+                # Permit leaving the initial inflation footprint. A newly
+                # entered measured obstacle or a later inflated cell blocks.
+                raw_free = getattr(grid, 'is_free_raw', grid.is_free)
+                if (escaped and not grid.is_free(cell)) or (cell != start and not raw_free(cell)):
+                    return 0.0, 0.0
+                escaped = escaped or grid.is_free(cell)
+        return vx, vy
+
     def _publish_pos_output(self, vx, vy, target_alt, vz=None, yaw_rate=0.0):
         """速度 → 位置设定点。
 
@@ -3709,24 +3750,20 @@ class SwarmAgent(object):
             k = POS_SP_STEP_MAX / step
             step_x *= k
             step_y *= k
+        off = getattr(self, 'offset', None)
+        if off is not None:
+            step_x, step_y = bounded_step(
+                (lxy[0]+off[0], lxy[1]+off[1]), (step_x, step_y), flight_bounds(),
+                FLIGHT_INSET if getattr(self, '_takeoff_done', False) else 0.)
+        # Validate the actual displacement, then never change its direction.
+        vx, vy = self._final_motion_gate(step_x/POS_SP_LEAD, step_y/POS_SP_LEAD)
+        step_x, step_y = vx*POS_SP_LEAD, vy*POS_SP_LEAD
+        self._last_cmd_v = self._last_flight_v = (vx, vy)
         sp = PoseStamped()
         sp.header.stamp = rospy.Time.now()
         sp.header.frame_id = 'map'
         sp.pose.position.x = lxy[0] + step_x
         sp.pose.position.y = lxy[1] + step_y
-        # Position mode is the default output.  Guard its actual setpoint in
-        # world coordinates as well as the upstream velocity; otherwise the
-        # one-second lead can place the PX4 target beyond the flight envelope.
-        off = getattr(self, 'offset', None)
-        if off is not None:
-            wpx = sp.pose.position.x + off[0]
-            wpy = sp.pose.position.y + off[1]
-            # During vertical takeoff retain the official spawn point; after
-            # takeoff, moving setpoints use the 2 m operational inset.
-            moving = math.hypot(vx, vy) > 0.05 and getattr(self, '_takeoff_done', False)
-            wpx, wpy = flight_waypoint(wpx, wpy, FLIGHT_INSET if moving else 0.0)
-            sp.pose.position.x = wpx - off[0]
-            sp.pose.position.y = wpy - off[1]
         # 位置模式也必须执行最终安全竖直速度，尤其是悬停、硬顶下降和坠机恢复。
         if self._landing:
             z = max(0.0, self.local_z - 0.6)
@@ -5190,7 +5227,10 @@ class SwarmAgent(object):
             dist = math.hypot(fx - wx, fy - wy)
             friend_alt = fz if fz is not None else self.altitude_layer
             my_alt = self.local_z if self.local_z is not None else self.altitude_layer
-            if 0.5 < dist and math.hypot(dist, my_alt - friend_alt) < SAFE_3D:
+            if math.hypot(dist, my_alt - friend_alt) < SAFE_3D:
+                if dist < .01:
+                    self._last_orca_v = (0.0, 0.0)
+                    return self._last_orca_v
                 has_conflict = True
                 break
 

@@ -43,6 +43,14 @@ class OrcaHeadingTests(unittest.TestCase):
             vx, vy = agent._apply_friend_avoidance(1.0, 0.0)
         self.assertLessEqual(vx, 1e-6, (vx, vy))
 
+    def test_extremely_close_peer_is_not_exempt(self):
+        for distance in (.4, 0.):
+            agent = self._agent((distance, 0.))
+            with patch.object(swarm_agent.rospy.Time, 'now',
+                              return_value=swarm_agent.rospy.Time(100.0)):
+                vx, vy = agent._apply_friend_avoidance(1., 0.)
+            self.assertLessEqual(vx, 0.)
+
     def test_opposite_close_peers_stop_when_constraints_conflict(self):
         agent = self._agent((3.3, 0.0))
         agent._friend_positions['typhoon_h480_4'] = (-3.3, 0.0, 3.0)
