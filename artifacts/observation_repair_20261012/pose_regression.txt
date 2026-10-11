@@ -1,0 +1,47 @@
+..[typhoon_h480_0] MAVROS 定位失信：位姿位移超出指令物理上限 0.64m（0.73m / 0.036s） [sample=100.036 receipt=100.400 age=0.364]；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+.[typhoon_h480_0] MAVROS 定位失信：test EKF jump；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+[typhoon_h480_0] EKF 雪崩熔断：累计 50 拍位置不可信 → 强制 LAND
+.[typhoon_h480_0] MAVROS 定位失信：位姿位移超出指令物理上限 0.44m（0.52m / 0.032s） [sample=100.132 receipt=100.132 age=0.000]；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+......./opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[VERTICAL_CLEARANCE_HOLD] uav=u5 near=1.65 occupied=False; require horizontal exit and fresh clear scans
+......[FINAL_SAFETY] uav=u0 reason=measured_braking:lidar intent=(0.5, 0.0, 0.0, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+....[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=AUTO.LAND z=-0.1; no takeover of landing/failsafe
+[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=AUTO.RTL z=-0.1; no takeover of landing/failsafe
+[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=MANUAL z=-0.1; no takeover of landing/failsafe
+.[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+.[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+.[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+..[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=AUTO.TAKEOFF z=0.4; no takeover of landing/failsafe
+.[TAKEOFF_RECOVERY] uav=typhoon_h480_0 grounded stall; bounded AUTO.TAKEOFF height=2.50m, then OFFBOARD
+[TAKEOFF_RECOVERY_FAILED] uav=typhoon_h480_0 mode=OFFBOARD z=-0.1; no takeover of landing/failsafe
+.[TAKEOFF_RECOVERY_BLOCKED] uav=typhoon_h480_0 unsafe or unavailable MIS_TAKEOFF_ALT=2.5
+[TAKEOFF_RECOVERY_BLOCKED] uav=typhoon_h480_0 unsafe or unavailable MIS_TAKEOFF_ALT=5.0
+[TAKEOFF_RECOVERY_BLOCKED] uav=typhoon_h480_0 unsafe or unavailable MIS_TAKEOFF_ALT=1.0
+[TAKEOFF_RECOVERY_BLOCKED] uav=typhoon_h480_0 unsafe or unavailable MIS_TAKEOFF_ALT=nan
+.[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=-0.50 -> 0; move to clear observation space before changing height
+.[CLIMB_STALL] uav=u4 executed_vz=0.60 elapsed=3.00 dz=0.00
+.....[u4] 末级雷达侧障停车 d=0.30m toward=1.00m/s
+.[GRID_EXIT] uav=u4 occupied cell; slow checked exit=(0.10,0.00)
+.[CLIMB_STALL] uav=u4 executed_vz=0.60 elapsed=3.00 dz=0.00
+..[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=0.60 -> 0; move to clear observation space before changing height
+.[VERTICAL_CLEARANCE] uav=u4 invalid scan; hold routine height
+.[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=-0.80 -> 0; move to clear observation space before changing height
+[ALT_GUARD] HARD z=4.30 > ceil=4.20 -> vz=-1.00 (vx=0.00 vy=0.00) hits=1
+.[GRID_EXIT_BLOCKED] uav=u4 occupied cell; no safe exit
+...[u4] 末级雷达侧障停车 d=0.76m toward=1.00m/s
+.[VERTICAL_CLEARANCE] uav=u4 stale scan; hold routine height
+.[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+..[u4] 2D雷达三面堵死 front=0.62 left=0.55 right=0.55 → 扇区-10°净空0.62m 慢滑 vout=(0.10,-0.02) 慢滑速度=0.10
+.[u4] 2D雷达近障 front=0.62m left=0.62 right=0.50 -> vin=(-0.12,-0.04) vout=(0.11,-0.06)
+.
+----------------------------------------------------------------------
+Ran 51 tests in 0.083s
+
+OK
