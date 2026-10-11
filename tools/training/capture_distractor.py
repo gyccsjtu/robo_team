@@ -16,6 +16,9 @@ import xml.etree.ElementTree as ET
 
 
 def make_world(official_world, camera_sdf, output):
+    output = Path(output).resolve()
+    if output in (Path(official_world).resolve(), Path(camera_sdf).resolve()) or output.exists():
+        raise ValueError('Training world output must be a new file, never an official source')
     tree = ET.parse(official_world)
     world = tree.getroot().find('world')
     world.set('name', 'distractor_training_only')
@@ -32,7 +35,6 @@ def make_world(official_world, camera_sdf, output):
     # gazebo_ros fills the empty robotNamespace with the model name.
     camera.find('.//plugin/cameraName').text = '/stereo_camera'
     world.append(camera)
-    output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     tree.write(str(output), encoding='utf-8', xml_declaration=True)
     return output
@@ -115,6 +117,9 @@ def capture(args):
 
 def layout(args):
     """Training-world-only placement; no flight code imports this utility."""
+    output = Path(args.output).resolve()
+    if output == Path(args.official_world).resolve() or output.exists():
+        raise ValueError('Layout metadata output must be a new file, never an official source')
     import rospy
     from gazebo_msgs.msg import ModelState
     from gazebo_msgs.srv import DeleteModel, GetWorldProperties, SetModelState, SpawnModel
@@ -156,7 +161,7 @@ def layout(args):
         if not result.success:
             raise RuntimeError(result.status_message)
         records.append(dict(name=name, class_id=[1,2,4,3,0][idx], x=ax, y=ay, yaw=args.yaw))
-    Path(args.output).write_text(json.dumps(records, indent=2)+'\n')
+    output.write_text(json.dumps(records, indent=2)+'\n')
     print(json.dumps(records, indent=2))
 
 

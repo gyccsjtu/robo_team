@@ -139,14 +139,22 @@ def main():
     p.add_argument('--candidate', required=True);p.add_argument('--output', required=True)
     p.add_argument('--device', default='cpu')
     p.add_argument('--original-val', action='store_true', help='Also compare the untouched legacy 340-image validation subset')
+    p.add_argument('--validation-only', action='store_true',
+                   help='Select candidate using original validation and new-layout validation; do not inspect test images')
     args=p.parse_args()
     all_rows,_=training.audit_manifest(args.manifest)
-    rows=[r for r in all_rows if r['split']=='test']
-    provenance=training.verify_candidate_provenance(args.candidate,rows)
+    if args.validation_only and not args.original_val:
+        p.error('--validation-only requires --original-val to protect all actor colors')
+    rows=[r for r in all_rows if (r['split']=='val' and r['group']!='legacy_original_val')
+          ] if args.validation_only else [r for r in all_rows if r['split']=='test']
+    if not rows:
+        raise ValueError('No reviewed images in requested evaluation split')
+    provenance=training.verify_candidate_provenance(args.candidate,rows,independent=not args.validation_only)
     baseline=evaluate(args.baseline,rows,args.device)
     candidate=evaluate(args.candidate,rows,args.device,candidate=True)
     result=dict(baseline=baseline,candidate=candidate,
                 **compare(baseline,candidate), candidate_provenance=provenance,
+                evaluation_scope='checkpoint_selection_validation' if args.validation_only else 'held_out_test',
                 runtime_instance_predicate_source_sha256=RUNTIME_SOURCE_SHA256,
                 temporal_tracking_acceptance='not_tested', official_match_acceptance='not_tested')
     if args.original_val:

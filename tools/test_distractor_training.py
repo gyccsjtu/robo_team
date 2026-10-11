@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -123,6 +124,15 @@ class DatasetReviewTests(unittest.TestCase):
         training.verify_candidate_provenance(candidate, [self.rows[2]])
         with self.assertRaisesRegex(ValueError, 'checkpoint selection'):
             training.verify_candidate_provenance(candidate, [self.rows[1]])
+        same_recording=dict(self.rows[2],group=self.rows[0]['group'])
+        with self.assertRaisesRegex(ValueError, 'recording/layout group'):
+            training.verify_candidate_provenance(candidate,[same_recording])
+        provenance['class_names']=training.NAMES[:5]
+        path.write_text(json.dumps(provenance))
+        with self.assertRaisesRegex(ValueError, 'mismatch'):
+            training.verify_candidate_provenance(candidate, [self.rows[2]])
+        provenance['class_names']=training.NAMES
+        path.write_text(json.dumps(provenance))
         candidate.write_bytes(b'other_candidate')
         with self.assertRaisesRegex(ValueError, 'mismatch'):
             training.verify_candidate_provenance(candidate, [self.rows[2]])
@@ -146,9 +156,72 @@ class DatasetReviewTests(unittest.TestCase):
         self.assertIsNone(w.find('plugin'))
         self.assertEqual(w.find('.//horizontal_fov').text, '1.5708')
         self.assertEqual(w.find('.//image/width').text, '752')
+        with self.assertRaisesRegex(ValueError, 'never an official source'):
+            capture.make_world(world,camera,world)
+        with self.assertRaisesRegex(ValueError, 'never an official source'):
+            capture.make_world(world,camera,camera)
+        self.assertEqual(world.read_bytes(),original)
 
 
 class EvaluationTests(unittest.TestCase):
+    def test_classification_training_preserves_frozen_bn_and_regression(self):
+        import torch
+        from torch import nn
+        from PIL import Image
+
+        class Head(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.cv2=nn.ModuleList([nn.Sequential(nn.Conv2d(3,1,1),nn.BatchNorm2d(1)) for _ in range(3)])
+                self.cv3=nn.ModuleList([nn.Conv2d(3,2,1) for _ in range(3)])
+
+            def forward(self,x):
+                return [m(x) for m in self.cv2], [m(x) for m in self.cv3]
+
+        class Net(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.model=nn.ModuleList([nn.Sequential(nn.Conv2d(3,3,1),nn.BatchNorm2d(3)),Head()])
+
+            def forward(self,x):
+                return self.model[1](self.model[0](x))
+
+        with tempfile.TemporaryDirectory() as directory:
+            image=Path(directory)/'probe.png'; Image.new('RGB',(8,8),(20,30,40)).save(image)
+            model=Net()
+            audit=training.ClassificationOnlyAudit(model,image)
+            trainer=SimpleNamespace(model=model,freeze_layer_names=['model.0.'])
+            def model_train():
+                model.train()
+                for name,module in model.named_modules():
+                    if isinstance(module,nn.BatchNorm2d) and any(p in name for p in trainer.freeze_layer_names):
+                        module.eval()
+            trainer._model_train=model_train
+            threads=torch.get_num_threads();torch.set_num_threads(1)
+            try:
+                optimizer=torch.optim.SGD(model.parameters(),lr=.01)
+                audit.start(trainer)
+                before=model.model[1].cv3[0].weight.detach().clone()
+                model_train()
+                _,classes=model(torch.ones(2,3,8,8))
+                sum(x.square().mean() for x in classes).backward();optimizer.step()
+                self.assertFalse(torch.equal(before,model.model[1].cv3[0].weight))
+                audit.finish(trainer)
+                self.assertTrue(audit.report['regression_output_exactly_unchanged'])
+                self.assertTrue(all(n.startswith('model.1.cv3.') for n in audit.report['trainable_parameters']))
+                model.model[0][1].running_mean.add_(.01)
+                with self.assertRaisesRegex(RuntimeError,'BatchNorm state drifted'):
+                    audit.finish(trainer)
+            finally:
+                torch.set_num_threads(threads)
+
+    def test_auto_optimizer_must_not_ignore_requested_learning_rate(self):
+        with self.assertRaisesRegex(ValueError, 'auto ignores'):
+            training.retention_options(SimpleNamespace(optimizer='auto',lr0=.0001))
+        self.assertEqual(training.retention_options(SimpleNamespace()),{'optimizer':'auto'})
+        self.assertEqual(training.retention_options(SimpleNamespace(optimizer='AdamW',lr0=.0001,lrf=.1,freeze=10)),
+                         {'optimizer':'AdamW','lr0':.0001,'lrf':.1,'freeze':10})
+
     def test_true_actor_class_conflict_does_not_count_as_usable_recall(self):
         labels=[(2,[0,0,20,60]), (5,[40,0,60,60])]
         predictions=[(2,[0,0,20,60],.94), (5,[0,0,20,60],.83), (5,[40,0,60,60],.9)]

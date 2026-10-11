@@ -1,0 +1,322 @@
+{
+  "created_wall_s": 1791691890.8053045,
+  "baseline": {
+    "weights": "weights/best_yolo11n_bino_v1.pt",
+    "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+    "original340_usable_recall": {
+      "red": 0.9934640522875817,
+      "green": 0.9859154929577465,
+      "blue": 0.9894736842105263,
+      "white": 0.967391304347826,
+      "brown": 1.0
+    }
+  },
+  "dataset": {
+    "manifest": "/home/gycc/robocup_distractor_data/dataset_v3_preserved/reviewed_manifest.jsonl",
+    "manifest_sha256": "01ad10225efdf9f0ae2876986c5a21766e4f138aff6703604ead3c8ff94be9b5",
+    "original_train_images": 792,
+    "original_validation_images": 340,
+    "original_negative_train": 80,
+    "original_negative_val": 34,
+    "prepared_train": 1016,
+    "prepared_val": 382,
+    "prepared_test": 10,
+    "legacy_recording_groups_known": false,
+    "review_status": "Assistant/root visual review; not represented as user per-image signoff"
+  },
+  "candidate_results": [
+    {
+      "candidate": "v3_best",
+      "checkpoint_sha256": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7",
+      "image_acceptance": false,
+      "original340_usable_recall": {
+        "red": 1.0,
+        "green": 0.9436619718309859,
+        "blue": 0.9789473684210527,
+        "white": 0.9565217391304348,
+        "brown": 1.0
+      },
+      "failed_original_color_gates": [
+        {
+          "color": "green",
+          "baseline": 0.9859154929577465,
+          "candidate": 0.9436619718309859,
+          "drop_percentage_points": 4.225352112676061
+        },
+        {
+          "color": "blue",
+          "baseline": 0.9894736842105263,
+          "candidate": 0.9789473684210527,
+          "drop_percentage_points": 1.0526315789473606
+        },
+        {
+          "color": "white",
+          "baseline": 0.967391304347826,
+          "candidate": 0.9565217391304348,
+          "drop_percentage_points": 1.0869565217391242
+        }
+      ],
+      "other_set": "D10",
+      "other_set_usable_recall": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 1.0,
+        "white": 1.0,
+        "brown": 1.0
+      },
+      "other_set_distractor_recall": 1.0,
+      "other_set_false_actor_on_sculpture_frames": 0,
+      "negative34_false_actor_frames": 0,
+      "source_report": "/home/gycc/robocup_distractor_data/evaluation_v3.json",
+      "status": "REJECTED; not deployed"
+    },
+    {
+      "candidate": "v3_last",
+      "checkpoint_sha256": "b3d4505ac5a80ec569aee464edc332a9c4b948f995ec3f27fe5ba475f41727b0",
+      "image_acceptance": false,
+      "original340_usable_recall": {
+        "red": 1.0,
+        "green": 0.971830985915493,
+        "blue": 0.9894736842105263,
+        "white": 0.9782608695652174,
+        "brown": 1.0
+      },
+      "failed_original_color_gates": [
+        {
+          "color": "green",
+          "baseline": 0.9859154929577465,
+          "candidate": 0.971830985915493,
+          "drop_percentage_points": 1.4084507042253502
+        }
+      ],
+      "other_set": "B8",
+      "other_set_usable_recall": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 0.875,
+        "white": 0.875,
+        "brown": 1.0
+      },
+      "other_set_distractor_recall": 0.375,
+      "other_set_false_actor_on_sculpture_frames": 0,
+      "negative34_false_actor_frames": 0,
+      "source_report": "/home/gycc/robocup_distractor_data/evaluation_v3_last_validation.json",
+      "status": "REJECTED; not deployed"
+    },
+    {
+      "candidate": "v4_best",
+      "checkpoint_sha256": "d2a9c1c38fa00042bda3773a8ad9e3a10f32d3c416336a0384e3ebfe18db47a1",
+      "image_acceptance": false,
+      "original340_usable_recall": {
+        "red": 0.9869281045751634,
+        "green": 0.9859154929577465,
+        "blue": 0.9894736842105263,
+        "white": 0.9456521739130435,
+        "brown": 1.0
+      },
+      "failed_original_color_gates": [
+        {
+          "color": "white",
+          "baseline": 0.967391304347826,
+          "candidate": 0.9456521739130435,
+          "drop_percentage_points": 2.1739130434782594
+        }
+      ],
+      "other_set": "B8",
+      "other_set_usable_recall": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 0.875,
+        "white": 0.875,
+        "brown": 1.0
+      },
+      "other_set_distractor_recall": 0.125,
+      "other_set_false_actor_on_sculpture_frames": 0,
+      "negative34_false_actor_frames": 0,
+      "source_report": "/home/gycc/robocup_distractor_data/evaluation_v4_best_validation.json",
+      "status": "REJECTED; not deployed"
+    },
+    {
+      "candidate": "v4_last",
+      "checkpoint_sha256": "06420682c577838b0320666fd7922f6c38078d37c2290f59047cf4b0df7de1f2",
+      "image_acceptance": false,
+      "original340_usable_recall": {
+        "red": 0.9869281045751634,
+        "green": 0.9859154929577465,
+        "blue": 0.9894736842105263,
+        "white": 0.9456521739130435,
+        "brown": 1.0
+      },
+      "failed_original_color_gates": [
+        {
+          "color": "white",
+          "baseline": 0.967391304347826,
+          "candidate": 0.9456521739130435,
+          "drop_percentage_points": 2.1739130434782594
+        }
+      ],
+      "other_set": "B8",
+      "other_set_usable_recall": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 0.875,
+        "white": 0.75,
+        "brown": 1.0
+      },
+      "other_set_distractor_recall": 0.125,
+      "other_set_false_actor_on_sculpture_frames": 0,
+      "negative34_false_actor_frames": 0,
+      "source_report": "/home/gycc/robocup_distractor_data/evaluation_v4_last_validation.json",
+      "status": "REJECTED; not deployed"
+    },
+    {
+      "candidate": "v5_best",
+      "checkpoint_sha256": "2f9f9cba4ae3c797a97064f06193f0ffa8577875338bd39107deac4afa24987e",
+      "image_acceptance": false,
+      "original340_usable_recall": {
+        "red": 0.9934640522875817,
+        "green": 0.9577464788732394,
+        "blue": 0.9894736842105263,
+        "white": 0.9565217391304348,
+        "brown": 1.0
+      },
+      "failed_original_color_gates": [
+        {
+          "color": "green",
+          "baseline": 0.9859154929577465,
+          "candidate": 0.9577464788732394,
+          "drop_percentage_points": 2.8169014084507116
+        },
+        {
+          "color": "white",
+          "baseline": 0.967391304347826,
+          "candidate": 0.9565217391304348,
+          "drop_percentage_points": 1.0869565217391242
+        }
+      ],
+      "other_set": "B8",
+      "other_set_usable_recall": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 1.0,
+        "white": 0.875,
+        "brown": 1.0
+      },
+      "other_set_distractor_recall": 0.0,
+      "other_set_false_actor_on_sculpture_frames": 0,
+      "negative34_false_actor_frames": 0,
+      "source_report": "/home/gycc/robocup_distractor_data/evaluation_v5_best_validation.json",
+      "status": "REJECTED; not deployed"
+    },
+    {
+      "candidate": "v5_last",
+      "checkpoint_sha256": "647ca710f25047816d24b6f331906d91a7e0dfabc4b8310e7d5dabc880d0648d",
+      "image_acceptance": false,
+      "original340_usable_recall": {
+        "red": 0.9934640522875817,
+        "green": 0.9577464788732394,
+        "blue": 0.9894736842105263,
+        "white": 0.967391304347826,
+        "brown": 1.0
+      },
+      "failed_original_color_gates": [
+        {
+          "color": "green",
+          "baseline": 0.9859154929577465,
+          "candidate": 0.9577464788732394,
+          "drop_percentage_points": 2.8169014084507116
+        }
+      ],
+      "other_set": "B8",
+      "other_set_usable_recall": {
+        "red": 1.0,
+        "green": 1.0,
+        "blue": 1.0,
+        "white": 0.875,
+        "brown": 1.0
+      },
+      "other_set_distractor_recall": 0.0,
+      "other_set_false_actor_on_sculpture_frames": 0,
+      "negative34_false_actor_frames": 0,
+      "source_report": "/home/gycc/robocup_distractor_data/evaluation_v5_last_validation.json",
+      "status": "REJECTED; not deployed"
+    }
+  ],
+  "green00579_box_audit": {
+    "image": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00579.jpg",
+    "image_size": [
+      752,
+      480
+    ],
+    "ground_truth": [
+      173.00023199999998,
+      173.99976,
+      178.00028,
+      196.99992
+    ],
+    "ground_truth_width_pixels": 5.0000480000000005,
+    "ground_truth_height_pixels": 23.00016,
+    "v1": [
+      {
+        "confidence": 0.6978862285614014,
+        "xyxy": [
+          171.62210083007812,
+          176.77777099609375,
+          178.0967559814453,
+          194.23147583007812
+        ],
+        "iou": 0.6200782974408842
+      }
+    ],
+    "v3_best": [
+      {
+        "confidence": 0.7068958878517151,
+        "xyxy": [
+          171.64845275878906,
+          178.272216796875,
+          177.2365264892578,
+          190.6532440185547
+        ],
+        "iou": 0.39813531517226036
+      },
+      {
+        "confidence": 0.1031012088060379,
+        "xyxy": [
+          171.72816467285156,
+          173.8913116455078,
+          178.6747589111328,
+          191.3105926513672
+        ],
+        "iou": 0.5791507201193803
+      }
+    ],
+    "v3_last": [
+      {
+        "confidence": 0.6514142155647278,
+        "xyxy": [
+          171.8898162841797,
+          177.77896118164062,
+          177.40846252441406,
+          190.13787841796875
+        ],
+        "iou": 0.4232337930744246
+      }
+    ]
+  },
+  "v5_frozen_checkpoint_audit": {
+    "best": {
+      "frozen_state_exactly_unchanged_after_reload": true,
+      "hash": "798a5648f828055e6d708a0db84c2801a3aa4178965b2a3609db1b10b4a22d7c"
+    },
+    "last": {
+      "frozen_state_exactly_unchanged_after_reload": true,
+      "hash": "798a5648f828055e6d708a0db84c2801a3aa4178965b2a3609db1b10b4a22d7c"
+    }
+  },
+  "limitations": [
+    "No candidate passed all color-retention gates",
+    "D10 is a small previously inspected test set, not a new blind test",
+    "No candidate full-match/temporal acceptance completed",
+    "Production default remains v1; no automatic replacement"
+  ]
+}

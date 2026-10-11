@@ -159,10 +159,8 @@ def finalize_provenance(run_dir, input_audit, timing='before_training'):
         if before[key] != after[key]:
             raise ValueError('Dataset changed since input audit: '+key)
     checkpoints = {}
-    for name in ('best.pt', 'last.pt'):
-        path = run_dir/'weights'/name
-        if not path.is_file():
-            continue
+    for path in sorted((run_dir/'weights').glob('*.pt')):
+        name = path.name
         model = YOLO(str(path))
         if list(model.names.values()) != NAMES:
             raise ValueError('Candidate checkpoint is not the required six-class model')
@@ -176,12 +174,15 @@ def finalize_provenance(run_dir, input_audit, timing='before_training'):
         raise ValueError('No completed best checkpoint')
     path = run_dir/'training_provenance.json'
     record = json.loads(path.read_text()) if path.exists() else {}
+    warmstart_sha = sha256(args['model'])
+    if record.get('warmstart_sha256') not in (None, warmstart_sha):
+        raise ValueError('Warm-start checkpoint changed during training')
     record.update(provenance_version=2, input_audit_timing=timing,
                   input_audit_sha256=sha256(input_audit), dataset_inputs=after,
                   initial_input_audit_wall_s=before['audit_wall_s'],
                   args_sha256=sha256(run_dir/'args.yaml'), actual_arguments=args,
                   checkpoint_sha256=checkpoints, class_names=NAMES,
-                  warmstart_sha256=sha256(args['model']), finalized_wall_s=time.time())
+                  warmstart_sha256=warmstart_sha, finalized_wall_s=time.time())
     path.write_text(json.dumps(record, indent=2)+'\n')
     return path
 
@@ -200,6 +201,9 @@ def verify_candidate_provenance(weights, holdout_rows, independent=True):
     used = {r['sha256'] for s in forbidden for r in inputs['splits'][s]}
     if used.intersection(r['sha256'] for r in holdout_rows):
         raise ValueError('Evaluation images were used for training or checkpoint selection')
+    used_groups = {r['group'] for s in forbidden for r in inputs['splits'][s]}
+    if used_groups.intersection(r['group'] for r in holdout_rows):
+        raise ValueError('Evaluation recording/layout group was used for training or checkpoint selection')
     return dict(path=str(path), sha256=sha256(path), independent_test=independent,
                 input_audit_timing=record['input_audit_timing'])
 
@@ -259,9 +263,108 @@ def probe_device(device):
                 device=torch.cuda.get_device_name(index), small_tensor=value)
 
 
+def retention_options(args):
+    """Explicit experiment knobs; auto must never silently ignore a given LR."""
+    optimizer = getattr(args, 'optimizer', 'auto')
+    lr = getattr(args, 'lr0', None)
+    lrf = getattr(args, 'lrf', None)
+    bias_lr = getattr(args, 'warmup_bias_lr', None)
+    freeze = getattr(args, 'freeze', 0)
+    if optimizer == 'auto' and any(v is not None for v in (lr, lrf, bias_lr)):
+        raise ValueError('Set an explicit optimizer when configuring learning rates; auto ignores them')
+    if lr is not None and (not math.isfinite(lr) or not 0 < lr <= .1):
+        raise ValueError('lr0 must be finite and in (0, .1]')
+    if lrf is not None and (not math.isfinite(lrf) or not 0 < lrf <= 1):
+        raise ValueError('lrf must be finite and in (0, 1]')
+    if bias_lr is not None and (not math.isfinite(bias_lr) or not 0 <= bias_lr <= .1):
+        raise ValueError('warmup-bias-lr must be finite and in [0, .1]')
+    if not isinstance(freeze, int) or not 0 <= freeze <= 23:
+        raise ValueError('freeze must be an integer between 0 and 23')
+    result = dict(optimizer=optimizer)
+    if freeze:
+        result['freeze'] = freeze
+    for name, value in (('lr0', lr), ('lrf', lrf), ('warmup_bias_lr', bias_lr)):
+        if value is not None:
+            result[name] = value
+    return result
+
+
+class ClassificationOnlyAudit:
+    """Freeze native YOLO features/regression, including every frozen BN stat."""
+
+    def __init__(self, source, image):
+        self.head_index = len(source.model)-1
+        self.prefix = 'model.%d.cv3.' % self.head_index
+        self.reference = {k:v.detach().cpu().clone() for k,v in source.state_dict().items()
+                          if not k.startswith(self.prefix)}
+        self.image = str(image)
+        self.report = dict(probe_image=self.image, probe_image_sha256=sha256(image))
+
+    def _frozen_hash(self, model):
+        import torch
+        digest = hashlib.sha256()
+        state = {k:v for k,v in model.state_dict().items() if not k.startswith(self.prefix)}
+        if set(state) != set(self.reference):
+            raise RuntimeError('Frozen model structure changed')
+        for key in sorted(state):
+            value = state[key].detach().cpu()
+            if not torch.equal(value, self.reference[key].to(value.dtype)):
+                raise RuntimeError('Frozen parameter or BatchNorm state drifted: '+key)
+            digest.update(key.encode()); digest.update(value.contiguous().numpy().tobytes())
+        return digest.hexdigest()
+
+    def _regression_output(self, model):
+        import numpy as np
+        import torch
+        from PIL import Image
+        sample = np.asarray(Image.open(self.image).convert('RGB').resize((640,640)),dtype=np.float32).copy()/255.
+        sample = torch.from_numpy(sample.transpose(2,0,1)).unsqueeze(0).to(next(model.parameters()).device)
+        outputs = []
+        hooks = [m.register_forward_hook(lambda module, inputs, out: outputs.append(out.detach().cpu().clone()))
+                 for m in model.model[-1].cv2]
+        model.eval()
+        try:
+            with torch.no_grad():
+                model(sample)
+        finally:
+            for hook in hooks:
+                hook.remove()
+        return outputs
+
+    def start(self, trainer):
+        # Trainer._model_train() explicitly sets BN.eval() whenever its module
+        # name matches freeze_layer_names. Append regression before every epoch.
+        regression = 'model.%d.cv2.' % self.head_index
+        trainer.freeze_layer_names.append(regression)
+        for name, param in trainer.model.named_parameters():
+            param.requires_grad = name.startswith(self.prefix)
+        self.report['trainable_parameters'] = [n for n,p in trainer.model.named_parameters() if p.requires_grad]
+        if not self.report['trainable_parameters']:
+            raise RuntimeError('No classification branch parameters found')
+        self.report['frozen_state_before_sha256'] = self._frozen_hash(trainer.model)
+        self.before = self._regression_output(trainer.model)
+        trainer._model_train()
+
+    def finish(self, trainer):
+        import torch
+        self.report['frozen_state_after_sha256'] = self._frozen_hash(trainer.model)
+        after = self._regression_output(trainer.model)
+        if len(after) != len(self.before) or not all(torch.equal(a,b) for a,b in zip(after,self.before)):
+            raise RuntimeError('Frozen regression output changed on identical probe image')
+        self.report['regression_output_exactly_unchanged'] = True
+        self.report['frozen_parameters_and_bn_exactly_unchanged'] = True
+
+
 def train(args):
+    options = retention_options(args)
     data = Path(args.data).resolve()
-    _, input_audit = audit_prepared_dataset(data)
+    rows, input_audit = audit_prepared_dataset(data)
+    # Ultralytics cache hashes use file sizes/paths, not reviewed label SHA.
+    # Rebuild only these generated caches so labels cannot silently stay stale.
+    for split in ('train', 'val', 'test'):
+        cache = data.parent/'labels'/(split+'.cache')
+        if cache.exists() or cache.is_symlink():
+            cache.unlink()
     if not Path(args.weights).is_file():
         raise ValueError('Warm-start checkpoint does not exist: '+args.weights)
     if shutil.disk_usage(Path(args.project).resolve().parent).free < 1024**3:
@@ -281,9 +384,18 @@ def train(args):
     config = dict(data=str(data), epochs=args.epochs, imgsz=640, batch=args.batch,
                   workers=2, device=args.device, project=str(experiment.parent),
                   name=args.name, plots=False, val=True, patience=12, seed=0,
-                  cache=False, exist_ok=False, save=True, save_period=-1,
+                  cache=False, exist_ok=False, save=True, save_period=getattr(args,'save_period',-1),
                   # Hue changes can relabel the competition's color classes.
                   hsv_h=0.0, fliplr=.5, flipud=0., close_mosaic=10)
+    config.update(options)
+    classifier_audit = None
+    if getattr(args, 'classification_only', False):
+        if args.freeze:
+            raise ValueError('--classification-only chooses the complete feature freeze; omit --freeze')
+        classifier_audit = ClassificationOnlyAudit(model.model, next(r['image'] for r in rows if r['split']=='train'))
+        config['freeze'] = classifier_audit.head_index
+        model.add_callback('on_train_start', classifier_audit.start)
+        model.add_callback('on_train_end', classifier_audit.finish)
     record = dict(start_wall_s=time.time(), warmstart=str(Path(args.weights).resolve()),
                   warmstart_sha256=hashlib.sha256(Path(args.weights).read_bytes()).hexdigest(),
                   device=device, dataset=input_audit['summary'], arguments=config)
@@ -299,9 +411,14 @@ def train(args):
             raise ValueError('OOM retry output already exists')
         record['oom_retry_batch'] = 4
         model = YOLO(args.weights)
+        if classifier_audit is not None:
+            model.add_callback('on_train_start', classifier_audit.start)
+            model.add_callback('on_train_end', classifier_audit.finish)
         model.train(**config)
     save_dir = Path(model.trainer.save_dir)
     record.update(finish_wall_s=time.time(), save_dir=str(save_dir), final_batch=config['batch'])
+    if classifier_audit is not None:
+        record['classification_only_audit'] = classifier_audit.report
     (save_dir/'training_provenance.json').write_text(json.dumps(record, indent=2)+'\n')
     finalize_provenance(save_dir, input_path)
     print(json.dumps(record, indent=2))
@@ -331,6 +448,15 @@ def main():
     t.add_argument('--device', default='0')
     t.add_argument('--epochs', type=int, default=60)
     t.add_argument('--batch', type=int, choices=[4, 8], default=8)
+    t.add_argument('--optimizer', choices=['auto', 'AdamW', 'SGD'], default='auto')
+    t.add_argument('--lr0', type=float, default=None)
+    t.add_argument('--lrf', type=float, default=None)
+    t.add_argument('--warmup-bias-lr', type=float, default=None)
+    t.add_argument('--freeze', type=int, default=0, help='Freeze this many initial backbone layers')
+    t.add_argument('--classification-only', action='store_true',
+                   help='Train only native cv3 classification branches; audit all frozen state and regression outputs')
+    t.add_argument('--save-period', type=int, choices=[-1,1,5,10], default=-1,
+                   help='Keep native epoch checkpoints for validation-constrained selection')
     q = sub.add_parser('probe'); q.add_argument('--device', default='0')
     args = p.parse_args()
     if args.action == 'audit':
