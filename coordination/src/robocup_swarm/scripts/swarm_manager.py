@@ -408,6 +408,8 @@ class SwarmManager(object):
         self._view_recovery = {}          # bounded recovery from unusable imagery
         self._last_detection_sample = {}
         self._visual_source = {}     # tid -> (camera uid, image time, x, y)
+        self._hypothesis_switches = {}  # tid -> accepted bridge switch, original image time
+        self._reacquire_sites = {}     # tid -> one bounded last-image search request
         self._visual_near_seen = {}  # tid -> (x, y, t) observed within 12m by a real UAV
         self._visual_quarantine = {}  # tid -> (x, y, expires)
         self._visual_conflict_sites = []  # (x, y, radius, expires, affected IDs)
@@ -1035,6 +1037,8 @@ class SwarmManager(object):
                 return
             data = parse_visual_evidence(msg.data, now, self.uav_ids)
             tid, uid = data['target_id'], data['source_uav']
+            if not self._hypothesis_sample_current(tid, data['sample_s'], data['x'], data['y']):
+                return
             rng = float(raw['range_m'])
             if (tid not in ('t0', 't1', 't2', 't3') or
                     not math.isfinite(rng) or not 0. < rng <= 12. or
@@ -1100,8 +1104,20 @@ class SwarmManager(object):
             now = rospy.Time.now().to_sec()
             data = parse_visual_evidence(msg.data, now, self.uav_ids)
             tid, uid, sample = data['target_id'], data['source_uav'], data['sample_s']
+            if tid in getattr(self, '_eliminated', set()):
+                return
+            event = data.get('hypothesis_switch')
+            previous = getattr(self, '_hypothesis_switches', {}).get(tid)
+            if (not self._hypothesis_sample_current(tid, sample, data['x'], data['y']) or
+                    (previous is not None and event is not None and
+                     event['switch_s'] < previous['switch_s'])):
+                return
             if self._quarantined_visual(tid, data['x'], data['y'], now):
                 return
+            switched = bool(event is not None and data['eligible'] and
+                            (previous is None or event['switch_s'] > previous['switch_s']))
+            if switched:
+                self._reset_visual_hypothesis(tid, event)
             key = (uid, tid)
             old = self._visual_observations.get(key)
             if old is not None:
@@ -1126,6 +1142,9 @@ class SwarmManager(object):
             old_source = self._visual_source.get(tid)
             if old_source is None or sample > old_source[1]:
                 self._visual_source[tid] = (uid, sample, data['x'], data['y'])
+            self._remember_reacquire_site(tid, sample, data['x'], data['y'])
+            if switched:
+                self._dispatch_hypothesis_switch(tid, data['x'], data['y'], now)
             detection = TargetDetection()
             detection.header.stamp = rospy.Time.from_sec(sample)
             detection.uav_id, detection.target_id = uid, tid
@@ -1134,6 +1153,158 @@ class SwarmManager(object):
             self._detection_cb(detection)
         except (ValueError, KeyError, TypeError, AttributeError):
             return
+
+    def _hypothesis_sample_current(self, tid, sample, x, y):
+        event = getattr(self, '_hypothesis_switches', {}).get(tid)
+        return (event is None or
+                (sample >= event['switch_s'] and
+                 (sample >= event['trial_until_s'] or
+                  math.hypot(x-event['old_x'], y-event['old_y']) > 5.)))
+
+    def _reset_visual_hypothesis(self, tid, event):
+        """Separate disjoint camera hypotheses without inventing observations."""
+        self.__dict__.setdefault('_hypothesis_switches', {})[tid] = dict(event)
+        self._discard_reacquire_site(tid)
+        for name in ('_visual_observations', '_eligible_observations',
+                     '_last_detection_sample', '_qualified_detection_sample'):
+            records = getattr(self, name, {})
+            for key in list(records):
+                if key[1] == tid:
+                    records.pop(key, None)
+        for name in ('_visual_source', '_truth_cache', '_target_hist',
+                     '_visual_near_seen', '_last_detect', '_visual_candidate',
+                     '_cur_targets', '_tracking_since', '_approach_leases',
+                     '_backup_approach_leases', '_view_recovery', '_tenure_recovery',
+                     '_confirm_timeout_bl', '_failed_views', '_lost_view_attempts',
+                     '_confirm_done_t', '_reobserve_sent', '_discovery_selected_s'):
+            getattr(self, name, {}).pop(tid, None)
+        pool = getattr(self, '_discovery_pool', {})
+        for key in list(pool):
+            if key[0] == tid:
+                pool.pop(key, None)
+        ct = self.tracker.targets.get(tid)
+        if ct is None:
+            ct = self.tracker.add_target(tid, event['switch_s'])
+        else:
+            ct.relocate(event['switch_s'])
+            ct.fx = ct.fy = None
+            ct.vx = ct.vy = 0.0
+            ct.confirmation_pending = False
+        ct.set_observers([])
+
+    def _dispatch_hypothesis_switch(self, tid, tx, ty, now):
+        """Reallocate a new place atomically, protecting every other primary."""
+        clean = self._sanitize_dispatch_xy(tx, ty, tid)
+        if clean is None:
+            return
+        tx, ty = clean
+        old_owners = {uid for uid in (self._tracking.get(tid), self._backup.get(tid))
+                      if uid is not None}
+        other_main = {uid for target, uid in self._tracking.items() if target != tid}
+        other_backup = {uid for target, uid in self._backup.items() if target != tid}
+        busy = other_main | other_backup
+        available = self._dispatch_available(now, busy, require_airborne=True)
+        # A seeing backup may help only when no uncommitted aircraft is near.
+        # The primary of its existing target must still have a fresh image.
+        released_backup = None
+        if not any(uid not in old_owners and
+                   math.hypot(self.status[uid].x-tx, self.status[uid].y-ty) <= 20.
+                   for uid in available):
+            for uid, distance in self._camera_candidates(tid, tx, ty, now, other_main):
+                old_tid = next((target for target, owner in self._backup.items()
+                                if owner == uid and target != tid), None)
+                if (old_tid is None or distance > 12. or
+                        float(getattr(self.status[uid], 'z', 0.) or 0.) < 1.):
+                    continue
+                main = self._tracking.get(old_tid)
+                if (self._tracking_uav_available(main, now) and
+                        self._recent_eligible(old_tid, now, 1., main)):
+                    available.append(uid)
+                    released_backup = (uid, old_tid)
+                    break
+        cost_busy = busy - ({released_backup[0]} if released_backup is not None else set())
+        costs = self._target_assignment_costs({tid: (tx, ty)}, now, cost_busy, available)
+        chosen = joint_target_assignment(costs).get(tid)
+        # Keep ownership reserved until the choice is complete; no callback
+        # can see this target's old aircraft as free halfway through selection.
+        self._tracking.pop(tid, None)
+        self._backup.pop(tid, None)
+        if chosen is not None:
+            if released_backup is not None and chosen == released_backup[0]:
+                _, old_tid = released_backup
+                self._backup.pop(old_tid, None)
+                getattr(self, '_backup_approach_leases', {}).pop(old_tid, None)
+                old_ct = self.tracker.targets.get(old_tid)
+                if old_ct is not None:
+                    old_ct.observers.discard(chosen)
+            self._commit_target_assignment(tid, chosen, tx, ty, now)
+        # The winning former backup receives its new task before an old-task
+        # cancellation. Agents already reject cancels for a different target.
+        if released_backup is not None and chosen == released_backup[0]:
+            self._publish_target_cancel(chosen, released_backup[1], now)
+        for uid in sorted(old_owners - {chosen}):
+            self._free_search_lease(uid)
+            self._release_cooldown[uid] = rospy.Time.from_sec(now) + rospy.Duration(1.)
+            self._publish_target_cancel(uid, tid, now)
+        if chosen is None:
+            self._queue_lost_revisit(tid, now)
+        rospy.loginfo('[HYPOTHESIS_DISPATCH] target=%s owner=%s old=%s '
+                      'xy=(%.2f,%.2f); other primaries preserved',
+                      tid, chosen, sorted(old_owners), tx, ty)
+
+    def _publish_target_cancel(self, uid, tid, now):
+        msg = SearchAssignment()
+        msg.header.stamp = rospy.Time.from_sec(now)
+        msg.uav_id, msg.target_id, msg.task_type = uid, tid, 255
+        msg.cell_ix = msg.cell_iy = -1
+        self.assign_pub.publish(msg)
+
+    def _discard_reacquire_site(self, tid):
+        site = getattr(self, '_reacquire_sites', {}).pop(tid, None)
+        jobs = getattr(getattr(self, 'allocator', None), 'revisit_jobs', {})
+        if site is not None and site.get('queued_key') is not None:
+            job = ('lost', site['queued_key'])
+            record = jobs.get(job)
+            if record is not None and record[1] == site['expires_s']:
+                jobs.pop(job, None)
+
+    def _remember_reacquire_site(self, tid, sample, x, y):
+        sites = self.__dict__.setdefault('_reacquire_sites', {})
+        old = sites.get(tid)
+        if old is not None and sample <= old['sample_s']:
+            return
+        self._discard_reacquire_site(tid)
+        sites[tid] = dict(sample_s=sample, x=x, y=y, expires_s=sample+25., queued=False)
+
+    def _queue_lost_revisit(self, tid, now):
+        sites = self.__dict__.setdefault('_reacquire_sites', {})
+        site = sites.get(tid)
+        # Also accept an existing original-camera record when upgrading an
+        # already running manager; this never changes its image timestamp.
+        if site is None:
+            source = getattr(self, '_visual_source', {}).get(tid)
+            if source is not None and 0. <= now-source[1] < 25.:
+                self._remember_reacquire_site(tid, source[1], source[2], source[3])
+                site = sites[tid]
+        if site is None:
+            return
+        if now >= site['expires_s']:
+            self._discard_reacquire_site(tid)
+            return
+        site['requested'] = True
+        allocator = getattr(self, 'allocator', None)
+        if site.get('queued') or not hasattr(allocator, 'queue_revisit'):
+            return
+        key = allocator.queue_revisit('lost', site['x'], site['y'], now=now,
+                                      ttl_s=site['expires_s']-now,
+                                      blocked=getattr(self, '_blocked_cells', set()))
+        site['queued'], site['queued_key'] = key is not None, key
+        jobs = getattr(allocator, 'revisit_jobs', {})
+        if key is not None and ('lost', key) in jobs:
+            # queue_revisit normally grants at least one second. These jobs
+            # instead expire exactly 25 s after the last real camera image.
+            ready, _ = jobs[('lost', key)]
+            jobs[('lost', key)] = (ready, site['expires_s'])
 
     def _camera_candidates(self, tid, tx, ty, now, busy):
         """Keep every fresh source, so a busy latest camera hides no free one."""
@@ -1219,6 +1390,8 @@ class SwarmManager(object):
         sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
         if sample <= 0.0 or sample > now + 0.05 or now - sample > 1.0:
             return  # 桥的保活帧不可冒充新视觉发现
+        if not self._hypothesis_sample_current(tid, sample, msg.x, msg.y):
+            return
         prev = self._truth_cache.get(tid)
         if prev is not None and sample <= prev[2]:
             return
@@ -1412,11 +1585,7 @@ class SwarmManager(object):
                                   tid, main, backup, reason, now - first)
             return True
         recovery.pop(tid, None)
-        source = getattr(self, '_visual_source', {}).get(tid)
-        if (source and 0.0 <= now - source[1] <= 3.0 and
-                hasattr(self.allocator, 'queue_revisit')):
-            self.allocator.queue_revisit('lost', source[2], source[3], now=now,
-                                        ttl_s=25.0, blocked=self._blocked_cells)
+        self._queue_lost_revisit(tid, now)
         return False
 
     def _has_eligible_visual(self, tid, now):
@@ -1456,6 +1625,11 @@ class SwarmManager(object):
           并 publish cancel_msg = -1 → agent 立即转入新拍卖分配。
         """
         now = rospy.Time.now().to_sec()
+        for tid, site in list(getattr(self, '_reacquire_sites', {}).items()):
+            if now >= site['expires_s']:
+                self._discard_reacquire_site(tid)
+            elif site.get('requested') and not site.get('queued') and tid not in self._tracking:
+                self._queue_lost_revisit(tid, now)
         pending = []
         for tid in list(self.tracker.targets.keys()):
             if tid in self._eliminated:
@@ -1599,14 +1773,9 @@ class SwarmManager(object):
             # A recently imaged actor may have moved during occlusion. Keep
             # one short search viewpoint near the *last image*, not a frozen
             # tracking coordinate, and never reserve multiple aircraft for it.
-            source = getattr(self, '_visual_source', {}).get(tid)
             now_s = rospy.Time.now().to_sec()
             self._note_lost_view(tid, now_s)
-            if (source is not None and 0.0 <= now_s - source[1] <= 4.0 and
-                    hasattr(self.allocator, 'queue_revisit')):
-                self.allocator.queue_revisit(
-                    'lost', source[2], source[3], now=now_s,
-                    ttl_s=25.0, blocked=self._blocked_cells)
+            self._queue_lost_revisit(tid, now_s)
         if reason in ('unverified_visual', 'tracking_tenure', 'confirm_hold_timeout'):
             self._defer_failed_view(tid, (self._tracking.get(tid), self._backup.get(tid)),
                                     rospy.Time.now().to_sec())
@@ -1786,9 +1955,23 @@ class SwarmManager(object):
         for tid, (tx, ty) in positions.items():
             self._free_camera_backup_for_new_target(tid, tx, ty, now)
         busy = set(self._tracking.values()) | set(getattr(self, '_backup', {}).values())
-        available = [uid for uid in self.uav_ids
-                     if uid not in busy and self._tracking_uav_available(uid, now)
-                     and now >= getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec()]
+        available = self._dispatch_available(now, busy)
+        costs = self._target_assignment_costs(positions, now, busy, available)
+        chosen = joint_target_assignment(costs)
+        for tid, uid in sorted(chosen.items()):
+            tx, ty = positions[tid]
+            self._commit_target_assignment(tid, uid, tx, ty, now)
+            rospy.loginfo('[DISPATCH_BATCH] target=%s owner=%s cost_s=%.2f '
+                          'pending=%d; 一机一主追', tid, uid, costs[tid][uid], len(positions))
+
+    def _dispatch_available(self, now, busy, require_airborne=False):
+        return [uid for uid in self.uav_ids
+                if uid not in busy and self._tracking_uav_available(uid, now)
+                and (not require_airborne or
+                     float(getattr(self.status[uid], 'z', 0.) or 0.) >= 1.)
+                and now >= getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec()]
+
+    def _target_assignment_costs(self, positions, now, busy, available):
         # The whole legal arena is dispatchable. Distance is a cost, not a
         # permanent veto on west-side aircraft helping an east-side target.
         limit = float(os.environ.get('DISPATCH_FAR_LIMIT', '0.0'))
@@ -1807,26 +1990,24 @@ class SwarmManager(object):
                     # person. Travel is an estimate; agents still plan safely.
                     edges[uid] = distance / speed + (0.0 if uid in cameras else 1.0)
             costs[tid] = edges
-        chosen = joint_target_assignment(costs)
-        for tid, uid in sorted(chosen.items()):
-            tx, ty = positions[tid]
-            # Reserve ownership before publishing; callbacks cannot observe
-            # an unreserved aircraft between assignment messages.
-            self._tracking[tid] = uid
-            self._record_approach(tid, uid, tx, ty, now)
-            self._free_search_lease(uid)
-            tracker = getattr(self, 'tracker', None)
-            ct = tracker.targets.get(tid) if tracker is not None else None
-            if ct is not None:
-                ct.observers.add(uid)
-            msg = SearchAssignment()
-            msg.header.stamp = rospy.Time.from_sec(now)
-            msg.uav_id, msg.target_id, msg.task_type = uid, tid, 1
-            msg.cell_ix = msg.cell_iy = -1
-            msg.target_x, msg.target_y = flight_waypoint(tx, ty)
-            self.assign_pub.publish(msg)
-            rospy.loginfo('[DISPATCH_BATCH] target=%s owner=%s cost_s=%.2f '
-                          'pending=%d; 一机一主追', tid, uid, costs[tid][uid], len(positions))
+        return costs
+
+    def _commit_target_assignment(self, tid, uid, tx, ty, now):
+        # Reserve ownership before publishing; callbacks cannot observe an
+        # unreserved aircraft between assignment messages.
+        self._tracking[tid] = uid
+        self._record_approach(tid, uid, tx, ty, now)
+        self._free_search_lease(uid)
+        tracker = getattr(self, 'tracker', None)
+        ct = tracker.targets.get(tid) if tracker is not None else None
+        if ct is not None:
+            ct.observers.add(uid)
+        msg = SearchAssignment()
+        msg.header.stamp = rospy.Time.from_sec(now)
+        msg.uav_id, msg.target_id, msg.task_type = uid, tid, 1
+        msg.cell_ix = msg.cell_iy = -1
+        msg.target_x, msg.target_y = flight_waypoint(tx, ty)
+        self.assign_pub.publish(msg)
 
     def _predict_target(self, tid, tx, ty, lead_s):
         """基于过去 1.5 秒位置差分估算 lead_s 秒后 actor 位置。

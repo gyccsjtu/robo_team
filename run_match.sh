@@ -6,12 +6,12 @@
 #   ./run_match.sh preflight          # 只做赛前体检（不启动任何东西，安全）
 #   ./run_match.sh start              # 按 ①~⑥ 顺序启动全场（默认）
 #   ./run_match.sh start --gui        # 同上，强制 GAZEBO_GUI=true（复盘看 actor / 视觉）
-#   ./run_match.sh start --no-gui     # 强制 GAZEBO_GUI=false（默认）
+#   ./run_match.sh start --no-gui     # 显式关闭图形界面
 #   ./run_match.sh status             # 查看各组件与关键话题健康
 #   ./run_match.sh stop               # 停止本次比赛的全部组件
 #
 # 可选环境变量（均有默认值）:
-#   GAZEBO_GUI=false            Gazebo 是否开图形界面
+#   GAZEBO_GUI=true             Gazebo 是否开图形界面（默认打开）
 #   GATE_TIMEOUT=180            单个就绪检查最长等待秒数
 #   PR_UAVS="typhoon_h480_0 typhoon_h480_1 ..."  感知节点服务的飞机（默认 6 机全起）
 #   COORD_WS_SETUP=<path>       协同层 catkin devel/setup.bash（未编译则第⑥步跳过）
@@ -81,7 +81,7 @@ read -r -a PR_UAV_ARR <<< "${PR_UAVS:-${UAVS[*]}}"
 # 可显式覆盖为其他文件路径；预检要求其六机出生点与官方固定阵列一致。
 SCENE_LAUNCH="${SCENE_LAUNCH:-}"
 FORMAL_SCENE_LAUNCH="$REPO_ROOT/launch/robocup_with_laser.launch"
-GAZEBO_GUI="${GAZEBO_GUI:-false}"
+GAZEBO_GUI="${GAZEBO_GUI:-true}"
 # 1=Gazebo 暂停启动，全部节点（judge/感知/桥/manager/agents）注册完成后统一
 # unpause。复盘（2026-10-01 234150 局）：旧流程 gzserver 一起就跑，6 个 PX4
 # lockstep 建立前世界以超高 RTF 空跑（~80 墙钟秒烧掉 sim 1807s），EKF 在

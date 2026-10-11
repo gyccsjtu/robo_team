@@ -21,5 +21,23 @@ def parse_visual_evidence(raw, now, uav_ids):
     rng = float(rng) if rng is not None else None
     eligible = (data.get('official_view_ok') is True and rng is not None and
                 math.isfinite(rng) and 0.0 < rng <= 12.0)
-    return dict(target_id=tid, source_uav=uid, sample_s=sample, x=x, y=y,
-                confidence=confidence, eligible=eligible)
+    result = dict(target_id=tid, source_uav=uid, sample_s=sample, x=x, y=y,
+                  confidence=confidence, eligible=eligible)
+    switch = data.get('hypothesis_switch')
+    if switch is not None:
+        if not isinstance(switch, dict) or tid in ('t4', 't5') or not eligible:
+            raise ValueError('invalid spatial hypothesis event')
+        event = {k: float(switch[k]) for k in
+                 ('switch_s', 'old_x', 'old_y', 'new_x', 'new_y', 'trial_until_s')}
+        event['source_uav'] = str(switch['source_uav'])
+        age = sample-event['switch_s']
+        if (not all(math.isfinite(event[k]) for k in event if k != 'source_uav') or
+                event['source_uav'] not in uav_ids or event['switch_s'] <= 0. or
+                not 0. <= age < 25. or
+                abs(event['trial_until_s']-event['switch_s']-25.) > 1e-6 or
+                math.hypot(event['new_x']-event['old_x'],
+                           event['new_y']-event['old_y']) <= 10. or
+                math.hypot(x-event['new_x'], y-event['new_y']) > 3.+2.3*age):
+            raise ValueError('stale or inconsistent spatial hypothesis event')
+        result['hypothesis_switch'] = event
+    return result

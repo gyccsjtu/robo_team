@@ -21,6 +21,7 @@ import os
 import re
 import json
 import threading
+from functools import wraps
 import rospy
 import math
 import traceback
@@ -42,6 +43,16 @@ from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs
 from camera_attention import approach_image, candidate_velocity
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
+
+
+def serialized_visual_task(method):
+    """Keep camera identity changes and task callbacks in one transaction."""
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        lock = self.__dict__.setdefault('_visual_task_lock', threading.RLock())
+        with lock:
+            return method(self, *args, **kwargs)
+    return call
 
 # 覆盖栅格参数（与 manager 一致）
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -1312,6 +1323,7 @@ class SwarmAgent(object):
         self._last_local_goal = None
         self._last_flight_v = (0.0, 0.0)
 
+    @serialized_visual_task
     def _assign_cb(self, msg):
         # Every agent sees the shared assignment topic. Remember ownership so
         # another aircraft's active target does not repeatedly stop searchers
@@ -1457,6 +1469,7 @@ class SwarmAgent(object):
                 self._confirm_close_tid = None
                 self._close_range_ref = None
 
+    @serialized_visual_task
     def _target_cb(self, msg):
         """缓存本队视觉桥的目标观测；不采信其他节点宣称的消除状态。"""
         if msg.eliminated:
@@ -1467,6 +1480,8 @@ class SwarmAgent(object):
         # header.stamp 来自最后一次真实图像。bridge 的保活帧仍会到达，
         # 但不能重置目标新鲜度；否则 8s 内的冻结位置每帧都变成“新观测”。
         sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
+        if sample < getattr(self, '_hypothesis_switch_s', {}).get(msg.target_id, -1e18):
+            return
         if sample <= 0.0 or sample > now:
             sample = now
         previous = self._t_seen.get(msg.target_id, 0.0)
@@ -1482,11 +1497,14 @@ class SwarmAgent(object):
         self._report_state_sample[msg.target_id] = sample
         self._escape_bookkeeping(msg.target_id)   # v23：观测速度 → 逃跑生命周期
 
+    @serialized_visual_task
     def _discovery_state_cb(self, msg):
         """Manager-selected exploratory position; never visual confirmation."""
         now = rospy.Time.now().to_sec()
         sample = msg.header.stamp.to_sec()
         tid = str(msg.target_id)
+        if sample < getattr(self, '_hypothesis_switch_s', {}).get(tid, -1e18):
+            return
         if (tid not in ('t0', 't1', 't2', 't3') or msg.eliminated or
                 not all(math.isfinite(v) for v in (sample, msg.x, msg.y)) or
                 not 0. <= now-sample <= 1. or
@@ -1681,6 +1699,7 @@ class SwarmAgent(object):
         rospy.loginfo('[%s] 人物优先补看 %s，最多 %.1fs；搜索暂挂，等待正式派遣',
                       self.uav_id, cid, hold)
 
+    @serialized_visual_task
     def _visual_candidate_cb(self, msg):
         """Bounded own-camera attention; candidates grant no task or confirmation."""
         try:
@@ -1739,6 +1758,7 @@ class SwarmAgent(object):
         except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
             return
 
+    @serialized_visual_task
     def _tracking_view_cb(self, msg):
         """Image control feedback never creates a detection or confirmation."""
         assignment = getattr(self, 'assignment', None)
@@ -1770,6 +1790,8 @@ class SwarmAgent(object):
                     return
             else:
                 view = parse_tracking_view(raw, self.uav_id, tid, now)
+            if view['sample_s'] < getattr(self, '_hypothesis_switch_s', {}).get(tid, -1e18):
+                return
             previous = getattr(self, '_tracking_image', None)
             if (previous is not None and previous['target_id'] == tid and
                     view['sample_s'] < previous['sample_s']):
@@ -1937,16 +1959,81 @@ class SwarmAgent(object):
         self._send_vel(vx, vy)
         return True
 
+    @serialized_visual_task
+    def _apply_visual_hypothesis(self, data):
+        """Forget the old person's control history when a colour changes site.
+
+        This is camera evidence from the bridge, never an elimination verdict.
+        A peer can relocate the team position but cannot become our own image.
+        """
+        event = data.get('hypothesis_switch')
+        if event is None:
+            return True
+        tid, stamp = data['target_id'], event['switch_s']
+        stamps = self.__dict__.setdefault('_hypothesis_switch_s', {})
+        previous = stamps.get(tid, -1e18)
+        if stamp < previous:
+            return False
+        if stamp == previous:
+            return True
+        stamps[tid] = stamp
+        for name in ('_visual_observations', '_eligible_observations',
+                     '_last_eligible_image',
+                     '_flee_run_t', '_walk_since', '_stale_search_until',
+                     '_giveup_until'):
+            getattr(self, name, {}).pop(tid, None)
+        report_samples = getattr(self, '_report_state_sample', {})
+        if report_samples.get(tid, -1e18) < stamp:
+            report_samples.pop(tid, None)
+        history = getattr(self, '_team_visual', {})
+        for key in list(history):
+            if key[1] == tid:
+                history.pop(key, None)
+        for name in ('_escape_spent', '_spend_mode'):
+            getattr(self, name, set()).discard(tid)
+        # Both topic delivery orders are valid. Never roll a newer target
+        # state back merely because its switch metadata arrived afterwards.
+        if data['sample_s'] >= getattr(self, '_t_seen', {}).get(tid, -1e18):
+            self.__dict__.setdefault('targets', {})[tid] = (data['x'], data['y'], 0., 0.)
+            self.__dict__.setdefault('_t_seen', {})[tid] = data['sample_s']
+            self.__dict__.setdefault('_target_state', {})[tid] = (0, data['sample_s'])
+        assignment = getattr(self, 'assignment', None)
+        if getattr(assignment, 'task_type', None) == 1 and assignment.target_id == tid:
+            self._discard_old_plan()
+            self._tracking_image = self._tracking_altitude = None
+            self._observation_detour = self._tracking_blocked_since = None
+            self._reobserve_view = self._reobserve_forced = None
+            self._reobserve_next = self._observation_detour_next = 0.
+            self._orbit_target = self._orbit_center = self._orbit_prev = None
+            self._confirm_start = self._last_confirm_t = 0.
+            self._confirm_close = False
+            self._confirm_close_tid = self._close_range_ref = None
+            self._confirm_close_until = self._close_chase_until = 0.
+            self._close_chase_tid = None
+            target = self.targets[tid]
+            assignment.target_x, assignment.target_y = flight_waypoint(*target[:2])
+            self._target_to_orbit = target[:2]
+            self._look_at = target[:2]
+            rospy.loginfo('[HYPOTHESIS_REBIND] uav=%s tid=%s image=%.3f; '
+                          'discard old path/view, retain assignment pending dispatch',
+                          self.uav_id, tid, stamp)
+        return True
+
+    @serialized_visual_task
     def _visual_source_cb(self, msg):
         """Own images establish local vision; peer evidence only verifies owners."""
         try:
             now = rospy.Time.now().to_sec()
             allowed = {self.uav_id}
+            allowed.update(getattr(self, '_friend_positions', {}))
             for owners in list(getattr(self, '_team_tracks', {}).values()):
                 allowed.update(owners)
             data = parse_visual_evidence(msg.data, now, allowed)
             tid = data['target_id']
             uid = data['source_uav']
+            if (not self._apply_visual_hypothesis(data) or data['sample_s'] <
+                    getattr(self, '_hypothesis_switch_s', {}).get(tid, -1e18)):
+                return
             if uid == self.uav_id and tid in ('t4', 't5'):
                 self._remember_red_view_binding(
                     json.loads(msg.data).get('local_target_id'), data, now)

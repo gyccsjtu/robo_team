@@ -584,6 +584,7 @@ class TargetBridgeCore(object):
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
         self._alternate_history = {}
         self._deferred_sites = {}
+        self._hypothesis_switches = {}
 
     def _consider_spatial_alternative(self, tr, t, x, y, conf, range_m,
                                       official_ok, source):
@@ -619,6 +620,9 @@ class TargetBridgeCore(object):
         # cameras. Otherwise alternating reporters reset the fresh identity
         # immediately. The location remains eligible after the trial expires.
         self._deferred_sites[tr.tag] = (tr.x, tr.y, t+25.)
+        self._hypothesis_switches[tr.tag] = dict(
+            switch_s=float(t), old_x=tr.x, old_y=tr.y, new_x=x, new_y=y,
+            source_uav=source, trial_until_s=float(t)+25.)
         self.tracks[tr.tag] = _Track(tr.tag)
         self._alternate_history = {k:v for k,v in self._alternate_history.items()
                                    if k[0] != tr.tag}
@@ -1240,13 +1244,20 @@ class YoloTargetBridge(object):
             if tr.alive and ((tr.t_obs == sample and sample > before_t) or source_accepted):
                 pub = getattr(self, 'source_pub', None)
                 if pub is not None:
-                    pub.publish(_msg_string_cls()(data=json.dumps({
+                    evidence = {
                         'target_id': TAG_TO_TID[tag], 'source_uav': source,
                         'local_target_id': TAG_TO_TID[local_tag],
                         'sample_s': sample, 'x': x, 'y': y,
                         'real_detection': True, 'confidence': conf,
                         'range_m': rng,
-                        'official_view_ok': source_accepted})))
+                        'official_view_ok': source_accepted}
+                    switch = self.core._hypothesis_switches.get(tag)
+                    if (source_accepted and switch is not None and
+                            switch['switch_s'] <= sample < switch['trial_until_s']):
+                        # Repeat the same event with fresh real frames so a
+                        # subscriber cannot miss the rebind by losing one packet.
+                        evidence['hypothesis_switch'] = dict(switch)
+                    pub.publish(_msg_string_cls()(data=json.dumps(evidence)))
         except (ValueError, KeyError, TypeError) as exc:
             self._rospy.logwarn_throttle(5, "丢弃 target_report：%s", exc)
 
