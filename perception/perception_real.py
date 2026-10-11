@@ -966,6 +966,7 @@ _CSV = logger("perception_%s" % UAV, [
 # 调试快照**另开一条话题**：它原来和契约挤在同一条 topic 上，形状完全不同。
 # 调试通道与契约通道必须分开，否则要么队友解析不了、要么我自己的复盘脚本全废。
 DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
+FAST_TRACKER_SHADOW = os.environ.get('PR_FAST_TRACKER_SHADOW', '0') == '1'
 
 _lock = threading.Lock()
 _latest = {"img": None, "stamp": 0.0, "recv_wall": 0.0, "recv_ros": 0.0}
@@ -1728,6 +1729,34 @@ def candidate_identity(session, track):
     return '%s:%s' % (session, track.id)
 
 
+def fast_tracker_seed_frame(cues, source, sample, session):
+    """YOLO pixel seeds for a read-only experiment; no location or task credit.
+
+    Called once per independently inferred image. These are measured boxes,
+    not coasted world tracks. The shadow worker must match the original image
+    timestamp before tracking into newer frames.
+    """
+    detections = []
+    for cue in cues:
+        if (cue.get('appearance_status', 'actor') != 'actor' or
+                float(cue.get('sample_s', -1.)) != sample):
+            continue
+        box = cue.get('box')
+        confidence = cue.get('confidence')
+        if (box is None or len(box) != 4 or
+                not all(math.isfinite(float(v)) for v in box) or
+                not 0. < float(confidence) <= 1.):
+            continue
+        detections.append(dict(
+            id='%s:%s' % (session, cue['candidate_id']),
+            label=cue['candidate_id'].split(':', 1)[0],
+            box=list(box), confidence=float(confidence)))
+    return dict(schema=1, source_uav=source, image_stamp=sample,
+                purpose='shadow_only', real_detection=True,
+                control_eligible=False, report_eligible=False,
+                detections=detections)
+
+
 def appearance_fields(track):
     return dict(appearance_status=getattr(track, 'appearance_status', 'actor'),
                 appearance_confidence=float(track.conf),
@@ -1895,6 +1924,9 @@ def main():
         'target_x', 'target_y', 'range_method', 'geometry_ok', 'report_ok'])
     # 调试通道：一帧一条、含全部 dets 的快照，供 rec_snap.py / analyze_snap.py 离线复盘
     dbg = rospy.Publisher(DEBUG_TOPIC, String, queue_size=5)
+    fast_seed_pub = (rospy.Publisher('/perception/fast_tracker_seeds', String,
+                                    queue_size=2)
+                     if FAST_TRACKER_SHADOW else None)
     # YOLO 实时视角（带检测框，调试可视化）
     yolo_view_pub = (rospy.Publisher(YOLO_VIEW_TOPIC, Image, queue_size=1)
                      if YOLO_VIEW else None)
@@ -2116,6 +2148,10 @@ def main():
                             width=IMG_W, height=IMG_H,
                             camera_tilt=math.acos(max(-1., min(1., float(R[2, 2]))))))
                     frame_cues = cue_tracker.update(frame_stamp, raw_cue_boxes)
+                    if fast_seed_pub is not None:
+                        fast_seed_pub.publish(String(data=json.dumps(
+                            fast_tracker_seed_frame(frame_cues, UAV, frame_stamp,
+                                                    candidate_session))))
                     for rejection in cue_tracker.rejections:
                         _CSV.write(ros_time=rospy.Time.now().to_sec(),
                             event='candidate_geometry_reject',

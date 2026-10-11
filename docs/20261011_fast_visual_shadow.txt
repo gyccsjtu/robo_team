@@ -1,0 +1,83 @@
+快速视觉跟踪后台原型（2026-10-11）
+
+已实现范围
+perception/fast_visual_tracker.py 在新图中用多点 LK 前后向光流、RANSAC
+一致性、有限尺度/旋转及外观检查更新人体框。YOLO 负责初始化与纠正。
+头和肩臂边缘参与取点；内侧上身区域用于外观检查。轮廓只估计整框，
+不把框底当已验证脚点；没有世界定位函数。
+同色实例按独立 ID 保存。强重叠/共用特征触发歧义停止，不按颜色续接。
+保存四角多边形，避免反复旋转轴对齐矩形造成框膨胀。
+无 YOLO 重锚定超过 .6 秒、帧间隔超过 .3 秒、遮挡或质量失败即失效。
+跟踪更新不刷新 YOLO 时间或置信度。所有结果的 control_eligible、
+report_eligible、footpoint_valid 均为 false。
+
+接入与隔离
+PR_FAST_TRACKER_SHADOW 默认 0。设 1 时，perception_real.py 每张实际推理
+图像向独立 /perception/fast_tracker_seeds 输出带图像时间和会话实例 ID 的
+YOLO 像素候选。它不改变已有跟踪、派机或裁判消息。
+tools/fast_visual_shadow.py 是独立只读节点，只订阅原图和种子，只写文件。
+每机缓存最多 16 帧/.8 秒；迟到检测必须找到相同时间戳原图，最多追赶
+12 张/.6 秒新图才交接。不能找到原图就拒绝，不用邻近照片冒充。
+只处理最新帧，处理速度有上限；空 YOLO 检测不续期。新种子重建没有
+包含的旧实例记为 not_reanchored，当前原型不承诺跨漏检保持所有 ID。
+归档仅在有人物种子后启动，默认最多600张PNG；队列及磁盘占用有上限。
+两个后台工具及核心中均无 ROS Publisher/ServiceProxy 或模拟器真值接口。
+
+实测与对照
+Gazebo GUI 取样日志 logs/logs_20261011_195121；v3_clean，原有默认 5Hz YOLO。
+运行180秒只读后台，2/5号相机收到10493张原图，归档800张，无processing_error。
+这是取样实验，采样结束后停止，不作为一轮600秒比赛完成率验收。
+运行时前期核心与最终离线核心有版本差异，不能把它们当同一个配置。
+
+最终离线验证使用固定的同400张5号机图片和同一份每帧YOLO参考缓存。
+图像间隔中位32ms，保留5处长断段；每6帧仅用一次YOLO初始化，约5Hz。
+其余图像的YOLO结果完全留作参考，不输入跟踪器。基线为保持上次检测框，
+不是现有世界坐标拟合器，因此这些结果不能证明世界定位链已经改进。
+591个中间对象机会：475次有效跟踪（80.4%）；389次能与YOLO参考唯一匹配。
+以下误差只统计这389次，失败和不能匹配的样本没有混入数值，不能忽略它们：
+                         保持旧YOLO框       快速跟踪框
+中心差异中位数              9.689px            0.880px
+中心差异P95                64.414px            2.544px
+框底差异P95                61.119px            4.789px
+快速跟踪框底最大差异8.180px，仍不能据此开放正式脚点定位。
+单线程离线每次step耗时中位1.63ms/P95 1.96ms（包括空/失败步骤）；相同
+画面首次YOLO参考推理中位约19.77ms。不能外推为六机实飞总延迟。
+
+取点区域对照
+原内侧上身mask在早期蓝衣人仅得到6–7角点，达不到8点门限。加入框内
+头部/肩臂后得到12–14点，保持所有光流与质量阈值不变。
+同400帧原方案354/591有效，候选475/591；原292个唯一匹配全部保留。
+共同292样本中心P95从2.440到2.500px（略差），框底P95从4.987到4.689px。
+选择依据是可用帧增加且保护测试不退化，不宣称每一项精度都提高。
+初次10Hz锚定实验的37个未匹配中，14个伴随红/棕标签翻转，23个无同位置
+YOLO框。人工查看6幅，部分是YOLO漏框而光流仍在人上。这不是全部样本
+人工标注，也不能证明其余86个最终未匹配结果均正确。
+
+验证
+新增图像级/缓存顺序/评估隔离/种子契约测试34项，连同有关感知与桥接回归
+共96项通过；bash -n run_match.sh、git diff --check通过。
+最终代码已用固定400帧缓存再次回放，结果与候选一致。
+老的每.4–.6秒一张存图仅用于拒绝断帧的冒烟，不当作高速跟踪成功证据。
+
+使用方法（仓库根目录；先确保ROS环境已source）
+1. 可选种子输出并开GUI：
+   PR_FAST_TRACKER_SHADOW=1 PR_WEIGHTS="$PWD/artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt" ./run_match.sh start --gui
+2. 另一个终端运行独立后台，output必须是新目录：
+   source /opt/ros/noetic/setup.bash
+   source ~/catkin_ws/devel/setup.bash
+   python3 tools/fast_visual_shadow.py --uavs 2,5 --output /tmp/fast-shadow-new --duration 180 --max-recorded-frames 800
+3. 离线对照：
+   python3 tools/evaluate_fast_visual_tracker.py --manifest /tmp/fast-shadow-new/frames.jsonl --weights artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt --output /tmp/fast-eval-new --max-frames 400 --seed-every 6
+4. 结束正式场景用 ./run_match.sh stop。后台自身到duration结束且不接管飞行。
+
+尚未完成的验收
+多机负载、不同距离/遮挡/双红交会的人工标注，控制接入，可靠脚点提取，
+图像时刻定位及<1m误差/断报验收。不要把本次像素改善称为消除率提高。
+下一步先检查快速框在被遮挡、标签翻转和相机大角度变化时的表现，再讨论
+只接相机对准；正式上报继续走当前独立定位保护。
+
+证据
+artifacts/fast_visual_tracker_20261011/live/{events.jsonl,frames.jsonl,summary.json}
+artifacts/fast_visual_tracker_20261011/eval_final_5hz/summary.json
+artifacts/fast_visual_tracker_20261011/mask_counterfactual.json
+artifacts/fast_visual_tracker_20261011/evaluation_review.txt
