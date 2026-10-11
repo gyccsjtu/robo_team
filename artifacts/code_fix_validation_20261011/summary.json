@@ -1,0 +1,70 @@
+{
+  "code_head": "fa4f7728db94e30eb6b7cba89cb7f081fe3c356a",
+  "baseline": "ef54323",
+  "utc": "2026-10-11T09:29:03.995755+00:00",
+  "unit_tests": 637,
+  "unit_result": "PASS",
+  "simulation_started": false,
+  "unresolved": [
+    "F07 appearance verifier: candidate rejected; detector weights unchanged",
+    "Live six-actor official elimination and end-to-end match time unverified",
+    "Height drift, bbox foot uncertainty and geometry source thresholds require flight validation",
+    "Organizer sensor count interpretation and non-graph compliance review remain outstanding"
+  ],
+  "source_sha256": {
+    "artifacts/code_fix_validation_20261011/reproduce_crop_probe.py": "811538123f77b2c5638d0c2eb694ba785647c052de24ce4eca258e6e11fe19b1",
+    "coordination/src/robocup_swarm/scripts/camera_attention.py": "3edc7300dafa5d43881cbb18e69544ffcea3eaf13a3d33c1b0f66802915ca573",
+    "coordination/src/robocup_swarm/scripts/flight_execution.py": "9dbc845381d0f1fc234d628c9626beeece610c8225633b513dbea354fbc1a3e2",
+    "coordination/src/robocup_swarm/scripts/height_datum.py": "ad9747fa8c2d71601f3c9c04f920979bdc16e9eb5b0fd0c670917ad22555d9cf",
+    "coordination/src/robocup_swarm/scripts/map_evidence.py": "3c3d01f0230f9fae02f21a0c3c44bc5f60a51bad63bc7dd0535d192b0eec2b84",
+    "coordination/src/robocup_swarm/scripts/slam_grid.py": "ae4c24648da9c828e61eee45b0d1a0e6a765c818663c4f66b93097c0b6bd4cd4",
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "49ef979e230e35a7881cd0fe7d0db0b94bede1e08eba7452d51aa71d865b4060",
+    "coordination/src/robocup_swarm/scripts/swarm_manager.py": "cd401ffdbf4bb09674b2115deca9c38e0a263084edc2e6af4e05f6af6064ec8f",
+    "coordination/src/robocup_swarm/scripts/tracking_view.py": "fd36797948c9a8e6d018d5b0e6d38496f8fff2aaa5a7b5d6e1628d432068d24a",
+    "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py": "d071bf053185bb93b7a583bb93c87d3aa534b67e7313078256b7ce1ac886ab71",
+    "perception/perception_real.py": "26534245607992c0ced561ef26e0881ab31f3a296443cc53d5b32bbb02eaae0a",
+    "run_match.sh": "3b4d6c50e88a85eec3524335d6bc6ad8d8a05bf89e73b5c45e6066f614085938",
+    "tools/audit_match_graph.py": "9d008ab70c96a747f19a159f190f8fc0fdf327ab4c83cdaa14fd08ff43c23161",
+    "tools/check_official_map.py": "dad8bd8d825a069b11e92172cb2adcf105e11dc44dcfb3e4d5fc9920c499c2b2",
+    "tools/get_sensor_cost.sh": "3613a025153d7cb7fe5a8fe3da5e83e1ef411b34965502ca11cf6a17879b7054",
+    "tools/official_reference.py": "7704edda323e76ace85379a76d6f5a1808dcc83249f335d41f72711a5c37100e",
+    "tools/test_audit_match_graph.py": "595426a3e22c33551b1633aab51605a6b61e8b0573301c2bcbd71db353acd9ee",
+    "tools/test_body_projection.py": "a2a23ef3c1dff847a79c8da2e810ab8c9d1cf31bb343e6aedefd568514286ba0",
+    "tools/test_camera_attention.py": "83ace96f4d15f6d3b4635df18b7cda777fd69edac1c4305570c628b2700a7560",
+    "tools/test_candidate_perception.py": "ed00504b0f40851baba4ef07f93b7b994af5fab479318b84fe9af66ee3015698",
+    "tools/test_flight_bounds.py": "3bb68ea4b849bf371b3c219b28032202cd032c1319b118d4139146fc7fe3d096",
+    "tools/test_height_datum.py": "e94d04f0ea7764e57789c294f9cbbfc840d8b2c6d96ccfa77627a9e3655f5512",
+    "tools/test_hypothesis_dispatch.py": "ae41cf4459301d7ef4b7c7a015cbdca0d7d41f86f9c4ad6fc324af572a3203d0",
+    "tools/test_joint_dispatch.py": "90968edc4acf9a434baa51ac867303f91756796d101e60e22364b01645c850ee",
+    "tools/test_map_evidence.py": "8653d5f96af3df3d1a7cfa929d6aedda8b71ec57e1374df2c94adc944e80ca93",
+    "tools/test_match_blockers.py": "5817d67ac38c902e23a3c2f3114ca300663cfe8fe5193ba7fd88797804015a0b",
+    "tools/test_official_reference.py": "da652be1f7397a22b83903a250a57ca622973c7f8cb74bae2766bebef258ddc7",
+    "tools/test_orca_heading.py": "fe3e8d57ea7e3272f52ff0fea3f3555e455335948a85c0220b2a8dd96c98347e",
+    "tools/test_perception_guard.py": "3b35f250a7ad3745270e9a0cc296dcbaae716254993c7e8ae5b572b772a2aa4a",
+    "tools/test_robust_coordinate_report.py": "d846d576ec3a4caf5d3d6c447ae9d5c206e45bda2760ed01d5690d796b8726d3",
+    "tools/test_team_entry.py": "00fd11ced40a4954d1d0169e6678fd73d1ee4431250f7510ff28a4f32894aad0",
+    "tools/test_tracking_view.py": "45ac097a014410c6b40a89f456e4840cb1c24a3079ad736aefefa80773b1912d",
+    "tools/test_visual_recovery.py": "99d0c1c3912da9d1ed23c384d07d78c7f05d85ff227c6a81008e59559fbb8a06",
+    "tools/write_run_manifest.py": "123701e8ea44be4d0d8f0369016c55f80976504e21ad4c3bf2519a174d3eda53"
+  },
+  "validation_logs": {
+    "/tmp/robocup_all_tests_20261011.log": "e3f43dc2b51d68692c449eeb103861f616cc9cb1c44337ba4cddefa59e292fd6",
+    "/tmp/robocup_fix_preflight_20261011.log": "395299ee43e6d505b6c97aee23b9f03aea539fd0899e77550a6c769c556ac9a5"
+  },
+  "verified_official": {
+    "repository": "https://github.com/robin-shaun/XTDrone",
+    "commit": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+    "raw_base": "https://raw.githubusercontent.com/robin-shaun/XTDrone/2783bdb32e43b6c656df9445dd2a855855bc24cd/robocup/",
+    "sha256": {
+      "control_actor.py": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7",
+      "score_cal.py": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+      "map_generator.py": "f9edec80bf539eba2684a513a43f16ee38dacd1a80f92dae8ae4d9d54315ed93",
+      "base1.world": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c",
+      "base2.world": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948",
+      "base3.world": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f",
+      "rover_static.world": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81"
+    }
+  },
+  "preflight": "PASS after verified compression of closed logs",
+  "simulation_validation": "not run"
+}

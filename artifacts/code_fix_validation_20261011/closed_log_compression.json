@@ -1,0 +1,243 @@
+{
+  "files": [
+    {
+      "original": "/home/gycc/.ros/sitl_typhoon_h480_0/log/2026-10-11/07_47_25.ulg",
+      "archive": "/home/gycc/.ros/sitl_typhoon_h480_0/log/2026-10-11/07_47_25.ulg.gz",
+      "sha256": "afcf72f967d6d1d5d153ffb0d35c4208b9eaf8fa4f5a659da31aae076fc6d1cd",
+      "original_bytes": 178973938,
+      "archive_bytes": 60066576
+    },
+    {
+      "original": "/home/gycc/.ros/sitl_typhoon_h480_1/log/2026-10-11/07_47_25.ulg",
+      "archive": "/home/gycc/.ros/sitl_typhoon_h480_1/log/2026-10-11/07_47_25.ulg.gz",
+      "sha256": "46eb00050664a81dc15b2dd25eae7c740bc64a88ec3db1a2664fe16a2a83c960",
+      "original_bytes": 178625860,
+      "archive_bytes": 60382939
+    },
+    {
+      "original": "/home/gycc/.ros/sitl_typhoon_h480_2/log/2026-10-11/07_47_29.ulg",
+      "archive": "/home/gycc/.ros/sitl_typhoon_h480_2/log/2026-10-11/07_47_29.ulg.gz",
+      "sha256": "54db449a701fde96947c2a99da091a86042d8317da3e0d5bc0a6619fc1355624",
+      "original_bytes": 176779581,
+      "archive_bytes": 59349347
+    },
+    {
+      "original": "/home/gycc/.ros/sitl_typhoon_h480_3/log/2026-10-11/07_47_34.ulg",
+      "archive": "/home/gycc/.ros/sitl_typhoon_h480_3/log/2026-10-11/07_47_34.ulg.gz",
+      "sha256": "a13f3c5953ac3089e8a0acd77db0cf37c94db77c973fd6edf71bb092ff307f7a",
+      "original_bytes": 176707959,
+      "archive_bytes": 59419999
+    },
+    {
+      "original": "/home/gycc/.ros/sitl_typhoon_h480_4/log/2026-10-11/07_47_39.ulg",
+      "archive": "/home/gycc/.ros/sitl_typhoon_h480_4/log/2026-10-11/07_47_39.ulg.gz",
+      "sha256": "01662fccfab976f1102b3f67258babfe6dcd68fa835760e1400e8452deddd900",
+      "original_bytes": 175863103,
+      "archive_bytes": 59468521
+    },
+    {
+      "original": "/home/gycc/.ros/sitl_typhoon_h480_5/log/2026-10-11/07_47_44.ulg",
+      "archive": "/home/gycc/.ros/sitl_typhoon_h480_5/log/2026-10-11/07_47_44.ulg.gz",
+      "sha256": "65b0d637ce28676ea0d3b84de1cfcfbe56a951e17e3977f4321ce98abb6153ff",
+      "original_bytes": 173689306,
+      "archive_bytes": 57896001
+    },
+    {
+      "original": "/home/gycc/.ros/sitl_typhoon_h480_5/log/2026-10-11/06_07_02.ulg",
+      "archive": "/home/gycc/.ros/sitl_typhoon_h480_5/log/2026-10-11/06_07_02.ulg.gz",
+      "sha256": "a3a38e3234c3aa5e414b8ed11c3cd61585110d455ba226e77d3e648a04880973",
+      "original_bytes": 153911787,
+      "archive_bytes": 51933775
+    },
+    {
+      "original": "/home/gycc/.ros/log/59eb1208-c53d-11f1-9919-bf0e07e592a8/rosout.log",
+      "archive": "/home/gycc/.ros/log/59eb1208-c53d-11f1-9919-bf0e07e592a8/rosout.log.gz",
+      "sha256": "754cc5503544e7368cf1ffa2aa314833ac1ec2dc8ff38b8c89d4ed8fa6ce02d2",
+      "original_bytes": 103218377,
+      "archive_bytes": 5080089
+    },
+    {
+      "original": "/home/gycc/.ros/log/fb583a4e-c547-11f1-a238-83283f48ac7a/rosout.log",
+      "archive": "/home/gycc/.ros/log/fb583a4e-c547-11f1-a238-83283f48ac7a/rosout.log.gz",
+      "sha256": "a266881277c399f3438e6c015931935d78f62ab115603777dbcb5d73070f1528",
+      "original_bytes": 96534475,
+      "archive_bytes": 3938095
+    },
+    {
+      "original": "/home/gycc/.ros/log/ea5054f6-c539-11f1-9919-bf0e07e592a8/rosout.log",
+      "archive": "/home/gycc/.ros/log/ea5054f6-c539-11f1-9919-bf0e07e592a8/rosout.log.gz",
+      "sha256": "735f46b0b95e75f3a378feae47457ebc1e2dc4c7812a002a5102ebbf179f249f",
+      "original_bytes": 38138491,
+      "archive_bytes": 1637002
+    },
+    {
+      "original": "/home/gycc/.ros/log/f0586bbc-c52b-11f1-9918-bf0e07e592a8/rosout.log",
+      "archive": "/home/gycc/.ros/log/f0586bbc-c52b-11f1-9918-bf0e07e592a8/rosout.log.gz",
+      "sha256": "bb8f9ecebb3cbd024076061b6d95c36322a0afefcc63b5092ac6fc999171d26b",
+      "original_bytes": 20331747,
+      "archive_bytes": 821331
+    },
+    {
+      "original": "/home/gycc/.ros/log/0150763e-c541-11f1-9919-bf0e07e592a8/rosout.log",
+      "archive": "/home/gycc/.ros/log/0150763e-c541-11f1-9919-bf0e07e592a8/rosout.log.gz",
+      "sha256": "4a5240b829bea64b71751ff8fe47d214052890597e36f05cd315b65eae6535d8",
+      "original_bytes": 16787020,
+      "archive_bytes": 945839
+    },
+    {
+      "original": "/home/gycc/.ros/log/6d52bb2e-c51b-11f1-9917-bf0e07e592a8/rosout.log",
+      "archive": "/home/gycc/.ros/log/6d52bb2e-c51b-11f1-9917-bf0e07e592a8/rosout.log.gz",
+      "sha256": "4bb3da47fd8276e252a7a85eeef7d8765d2a0f300b83fc172d65dfc7cd879fd4",
+      "original_bytes": 12428567,
+      "archive_bytes": 506919
+    },
+    {
+      "original": "/home/gycc/.ros/log/51153fc0-c513-11f1-9917-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/51153fc0-c513-11f1-9917-bf0e07e592a8/master.log.gz",
+      "sha256": "ba51dcc34abca7b1c71ab017b6dd886a776aa05635e9b380e8a899a39e2a34b7",
+      "original_bytes": 7845920,
+      "archive_bytes": 437103
+    },
+    {
+      "original": "/home/gycc/.ros/log/a7182616-c537-11f1-9919-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/a7182616-c537-11f1-9919-bf0e07e592a8/master.log.gz",
+      "sha256": "545f9f84dd5e65ea9808be9556f9f8a89812a321f5cfb194b229259820eaacb8",
+      "original_bytes": 4982715,
+      "archive_bytes": 275572
+    },
+    {
+      "original": "/home/gycc/.ros/log/7d93dc56-c521-11f1-9918-bf0e07e592a8/rosout.log",
+      "archive": "/home/gycc/.ros/log/7d93dc56-c521-11f1-9918-bf0e07e592a8/rosout.log.gz",
+      "sha256": "6d12ab8c4caf9d4222a86d55a5b945acc75c731d1fc64f7a5bb552b65491c717",
+      "original_bytes": 4650335,
+      "archive_bytes": 183805
+    },
+    {
+      "original": "/home/gycc/.ros/log/yolo_target_bridge.log",
+      "archive": "/home/gycc/.ros/log/yolo_target_bridge.log.gz",
+      "sha256": "dffba4c046cd5360436dda874174205baff01dd736abc5f7bf0757c280e83f2b",
+      "original_bytes": 3817165,
+      "archive_bytes": 602806
+    },
+    {
+      "original": "/home/gycc/.ros/log/0150763e-c541-11f1-9919-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/0150763e-c541-11f1-9919-bf0e07e592a8/master.log.gz",
+      "sha256": "60bac756010e8513e1e70f1c23585bc88f6588e9d0c28cb9008d6716348d0f46",
+      "original_bytes": 3372763,
+      "archive_bytes": 195133
+    },
+    {
+      "original": "/home/gycc/.ros/log/6d52bb2e-c51b-11f1-9917-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/6d52bb2e-c51b-11f1-9917-bf0e07e592a8/master.log.gz",
+      "sha256": "e0c330e546e157ac56aa54eb9204981957d9f4cd0e7e311aafc4d3144edfb843",
+      "original_bytes": 3112470,
+      "archive_bytes": 183332
+    },
+    {
+      "original": "/home/gycc/.ros/log/7d93dc56-c521-11f1-9918-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/7d93dc56-c521-11f1-9918-bf0e07e592a8/master.log.gz",
+      "sha256": "ee6873c9457aa3095ef5e25edd0dec6612c3fbf2a3b4498a279067502ff91e0b",
+      "original_bytes": 2924044,
+      "archive_bytes": 175443
+    },
+    {
+      "original": "/home/gycc/.ros/log/59eb1208-c53d-11f1-9919-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/59eb1208-c53d-11f1-9919-bf0e07e592a8/master.log.gz",
+      "sha256": "954ce1c5f8e69335432df937a5c4912130757a7fe3acfb4f1621db3bf9f6d01b",
+      "original_bytes": 2886724,
+      "archive_bytes": 170867
+    },
+    {
+      "original": "/home/gycc/.ros/log/swarm_agent_2.log",
+      "archive": "/home/gycc/.ros/log/swarm_agent_2.log.gz",
+      "sha256": "990e817ced7263075e3f485dfb3e1c1afd0c9456a2c5e7782181ae18d6f2e020",
+      "original_bytes": 2847315,
+      "archive_bytes": 368161
+    },
+    {
+      "original": "/home/gycc/.ros/log/675737a2-c51d-11f1-9917-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/675737a2-c51d-11f1-9917-bf0e07e592a8/master.log.gz",
+      "sha256": "f5fd1d6b693e025146d7920790815b58f9e6e40d40e9a0d572a6cc6979200c7b",
+      "original_bytes": 2831442,
+      "archive_bytes": 168188
+    },
+    {
+      "original": "/home/gycc/.ros/log/swarm_agent_3.log",
+      "archive": "/home/gycc/.ros/log/swarm_agent_3.log.gz",
+      "sha256": "071310e6e9de2eb7cc0d71961beff6b3d541282615064abf99459de4cb5eebb8",
+      "original_bytes": 2751185,
+      "archive_bytes": 356178
+    },
+    {
+      "original": "/home/gycc/.ros/log/7c601e1e-c533-11f1-9918-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/7c601e1e-c533-11f1-9918-bf0e07e592a8/master.log.gz",
+      "sha256": "f660d0a1b3510283c5075a491dfcc2b9db8c92f1fc1a41918deb5ab28d91f6c1",
+      "original_bytes": 2741792,
+      "archive_bytes": 165508
+    },
+    {
+      "original": "/home/gycc/.ros/log/fb583a4e-c547-11f1-a238-83283f48ac7a/master.log",
+      "archive": "/home/gycc/.ros/log/fb583a4e-c547-11f1-a238-83283f48ac7a/master.log.gz",
+      "sha256": "cb59f49176e9bebb14e1ed6716b82268137ea3ee5a89a5d09711839b1496a771",
+      "original_bytes": 2673482,
+      "archive_bytes": 159637
+    },
+    {
+      "original": "/home/gycc/.ros/log/swarm_agent_1.log",
+      "archive": "/home/gycc/.ros/log/swarm_agent_1.log.gz",
+      "sha256": "a03d2071aeb9dbd10c15648762032d98d335eb421acad0f62c02d5ebcbb6597d",
+      "original_bytes": 2652230,
+      "archive_bytes": 337378
+    },
+    {
+      "original": "/home/gycc/.ros/log/swarm_agent_5.log",
+      "archive": "/home/gycc/.ros/log/swarm_agent_5.log.gz",
+      "sha256": "a2588dc5e6d7034b0fe2e9673c8824b408c16325c2e43cdf3f2f2c30621763d2",
+      "original_bytes": 2628037,
+      "archive_bytes": 334921
+    },
+    {
+      "original": "/home/gycc/.ros/log/swarm_agent_0.log",
+      "archive": "/home/gycc/.ros/log/swarm_agent_0.log.gz",
+      "sha256": "1aead98212245e9991fafba08a2bcd41a0ffe570983fb851b2a7fdbdc838f9e8",
+      "original_bytes": 2597270,
+      "archive_bytes": 335421
+    },
+    {
+      "original": "/home/gycc/.ros/log/swarm_manager.log",
+      "archive": "/home/gycc/.ros/log/swarm_manager.log.gz",
+      "sha256": "56e08351d930b3bdbc79b60ab2e9a66717ded89e937b2617309676cdbbf002e1",
+      "original_bytes": 2590366,
+      "archive_bytes": 317972
+    },
+    {
+      "original": "/home/gycc/.ros/log/swarm_agent_4.log",
+      "archive": "/home/gycc/.ros/log/swarm_agent_4.log.gz",
+      "sha256": "397b43ac1a5ce528c7c0e49f2da981ccf1c910d6d9528da636eb089f30815ef1",
+      "original_bytes": 2510773,
+      "archive_bytes": 320964
+    },
+    {
+      "original": "/home/gycc/.ros/log/ea5054f6-c539-11f1-9919-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/ea5054f6-c539-11f1-9919-bf0e07e592a8/master.log.gz",
+      "sha256": "6acadb1aee0c08e5ac5c47266b31b54368b9d93e3b6686179326b4396f593d48",
+      "original_bytes": 2392452,
+      "archive_bytes": 144796
+    },
+    {
+      "original": "/home/gycc/.ros/log/f0586bbc-c52b-11f1-9918-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/f0586bbc-c52b-11f1-9918-bf0e07e592a8/master.log.gz",
+      "sha256": "929983576d5b84ca45e4ed4d1f9b0e99cf2de62502222e7fc855e5178696ca89",
+      "original_bytes": 2261811,
+      "archive_bytes": 139185
+    },
+    {
+      "original": "/home/gycc/.ros/log/b2c0224a-c530-11f1-9918-bf0e07e592a8/master.log",
+      "archive": "/home/gycc/.ros/log/b2c0224a-c530-11f1-9918-bf0e07e592a8/master.log.gz",
+      "sha256": "f9242611f39eab30d52a2c80036cc2c3d6c9608dc3c321bd9d84ef18bfb5f57c",
+      "original_bytes": 2248261,
+      "archive_bytes": 137484
+    }
+  ],
+  "free_bytes": 2635730944
+}
