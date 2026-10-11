@@ -1,0 +1,86 @@
+{
+  "code": "5b09ac30dfe5dd56e0436521846e959e594b1a36",
+  "stop_reason": "official_timeout_then_user_requested_restart",
+  "wall": 1791745146.6225042,
+  "official": [
+    "227.43200000000002",
+    "252.81200000000013",
+    "396.836",
+    "398.76"
+  ],
+  "actor_lines": [
+    "actor_5 is OK",
+    "actor_4 is OK",
+    "actor_3 is OK",
+    "actor_1 is OK"
+  ],
+  "finished": false,
+  "timeout": true,
+  "manual_flight_commands": false,
+  "phase2_remaining": [
+    "actor_0",
+    "actor_2"
+  ],
+  "sculpture_failure": "UAV2/UAV4 blue/white false detections on same sculpture; secondary classifier was off.",
+  "gimbal_events": {
+    "gimbal_observation": 1281,
+    "gimbal_candidate": 101,
+    "gimbal_feedback": 9
+  },
+  "gimbal_feedback": [
+    {
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "a568b0052f84:typhoon_h480_5:1",
+      "sample_s": 1986.452,
+      "result": "expired"
+    },
+    {
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "a568b0052f84:typhoon_h480_5:17",
+      "sample_s": 2016.512,
+      "result": "bino_acquired"
+    },
+    {
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "a568b0052f84:typhoon_h480_5:19",
+      "sample_s": 2023.6,
+      "result": "expired"
+    },
+    {
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "a568b0052f84:typhoon_h480_5:39",
+      "sample_s": 2127.852,
+      "result": "expired"
+    },
+    {
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "a568b0052f84:typhoon_h480_5:44",
+      "sample_s": 2285.652,
+      "result": "expired"
+    },
+    {
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "a568b0052f84:typhoon_h480_5:46",
+      "sample_s": 2288.852,
+      "result": "expired"
+    },
+    {
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "a568b0052f84:typhoon_h480_5:50",
+      "sample_s": 2298.1,
+      "result": "expired"
+    },
+    {
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "a568b0052f84:typhoon_h480_5:54",
+      "sample_s": 2298.652,
+      "result": "expired"
+    },
+    {
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "a568b0052f84:typhoon_h480_5:50",
+      "sample_s": 2304.912,
+      "result": "bino_acquired"
+    }
+  ]
+}

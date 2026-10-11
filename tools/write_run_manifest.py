@@ -34,6 +34,7 @@ def main():
                [root/'weights/best_yolo11n_bino_v1.pt',
                 Path.home()/'catkin_ws/src/yolov11_ros/weights/best.pt'])
     chosen = next((p for p in weights if p.is_file()), None)
+    secondary = Path(os.environ.get('PR_DISTRACTOR_WEIGHTS','/nonexistent'))
     result = dict(
         script_started_wall_s=args.started,
         snapshot_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -51,6 +52,8 @@ def main():
         gimbal_auxiliary={key:os.environ.get('GIMBAL_AUX_'+key.upper(),default)
                           for key,default in (('mode','off'),('uavs','5'),('hz','3'),('imgsz','960'))},
         weights={'path':str(chosen),'sha256':digest(chosen)} if chosen else None,
+        distractor_verifier=dict(mode=os.environ.get('PR_DISTRACTOR_MODE','off'),
+            path=str(secondary),sha256=digest(secondary) if secondary.is_file() else None),
         note='Disk snapshot before process startup; includes dirty working-tree content. '
              'Effective process parameters are logged by each node. No runtime reload is implied.')
     args.output.parent.mkdir(parents=True,exist_ok=True)

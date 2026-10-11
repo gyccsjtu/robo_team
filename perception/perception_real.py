@@ -1945,6 +1945,8 @@ def main():
     _model = YOLO(WEIGHTS)
     configure_cpu_inference_threads(_model, TORCH_THREADS)
     class_mapping = target_class_mapping(_model.names)
+    from distractor_verifier import SecondaryAppearance
+    secondary_appearance = SecondaryAppearance()
     print('[pr] CLASS_MAP names=%s canonical=%s; non-target classes excluded' %
           (_model.names, class_mapping), flush=True)
     print("[pr] MODEL_READY load_s=%.3f" % (time.monotonic() - _load_wall),
@@ -2126,6 +2128,18 @@ def main():
                     # v4新增：对同类别的检测结果做IOU去重（解决YOLO同一目标多次检测问题）
                     actor_boxes, appearance_evidence = appearance_resolver.resolve(
                         res.boxes, class_mapping, _model.names, frame_stamp)
+                    try:
+                        actor_boxes, secondary_evidence = secondary_appearance.filter(
+                            img, actor_boxes, CLASSES, frame_stamp)
+                        appearance_evidence.extend(secondary_evidence)
+                        if any(e['status']=='secondary_distractor' for e in secondary_evidence):
+                            rospy.loginfo_throttle(2.,'[DISTRACTOR_VETO] uav=%s image=%.3f mode=%s; appearance only',
+                                UAV,frame_stamp,secondary_appearance.mode)
+                    except Exception as exc:
+                        # A failed optional verifier cannot erase a genuine
+                        # actor or reuse positive evidence from an older image.
+                        secondary_appearance.histories.clear()
+                        rospy.logwarn_throttle(2.,'[DISTRACTOR_FALLBACK] %s',type(exc).__name__)
                     for evidence in appearance_evidence:
                         ex1, ey1, ex2, ey2 = evidence['box']
                         _CSV.write(ros_time=rospy.Time.now().to_sec(),

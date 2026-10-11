@@ -42,6 +42,8 @@ class GimbalAuxiliary:
         import numpy as np
         self.model.predict(np.zeros((360,640,3),np.uint8),imgsz=args.imgsz,
                            conf=.45,device='cpu',verbose=False)
+        from distractor_verifier import SecondaryAppearance
+        self.secondary_appearance=SecondaryAppearance()
         self.session=uuid.uuid4().hex[:12]
         self.aircraft={u:dict(body=AttitudeHistory(),gimbal=AttitudeHistory(),image=None,
             info=None,pose=None,state=None,body_yaw=0.,last_image_s=-1.,next_wall=0.,
@@ -186,8 +188,16 @@ class GimbalAuxiliary:
         if im.shape[:2]!=(info[1],info[0]):return False
         started=time.monotonic()
         result=self.model.predict(im,imgsz=self.args.imgsz,conf=.45,device='cpu',verbose=False)[0]
+        boxes=list(result.boxes)
+        try:
+            boxes,evidence=self.secondary_appearance.filter(im,boxes,result.names,sample,uid+':cgo3')
+            if any(e['status']=='secondary_distractor' for e in evidence):
+                self.rospy.loginfo_throttle(2.,'[DISTRACTOR_VETO] camera=cgo3 uav=%s image=%.3f',uid,sample)
+        except Exception as exc:
+            self.secondary_appearance.histories.pop(uid+':cgo3',None)
+            self.rospy.logwarn_throttle(2.,'[DISTRACTOR_FALLBACK] camera=cgo3 %s',type(exc).__name__)
         elapsed=time.monotonic()-started;rows=[]
-        for box in result.boxes:
+        for box in boxes:
             color=str(result.names[int(box.cls.item())]).lower()
             if color not in ('red','green','blue','white','brown'):continue
             xyxy=box.xyxy.cpu().numpy()[0].tolist()
