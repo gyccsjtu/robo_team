@@ -402,6 +402,39 @@ def coarse_approach_geometry(box, camera_xyz, rotation):
                 body_height_m=float(height),sensitivity_m=sensitivity)
 
 
+class AppearanceRecovery:
+    """After a strong contradiction, require a fresh actor image sequence.
+
+    This belongs to an associated visual instance, never a colour or map cell.
+    Ordinary tracks pay no additional delay. Missing secondary evidence on one
+    image cannot erase an explicit contradiction from the preceding image.
+    """
+    def __init__(self):
+        self.blocked = False
+        self.last_sample = -math.inf
+        self.samples = []
+
+    def observe(self, sample_s, status, distractor_confidence):
+        if not math.isfinite(sample_s) or sample_s <= self.last_sample:
+            return not self.blocked
+        self.last_sample = sample_s
+        if status != 'actor' and distractor_confidence >= .85:
+            self.blocked = True
+            self.samples = []
+        elif self.blocked:
+            if status != 'actor':
+                self.samples = []
+            else:
+                if self.samples and sample_s-self.samples[-1] > .7:
+                    self.samples = []
+                self.samples = [s for s in self.samples if sample_s-s <= 1.1]
+                self.samples.append(sample_s)
+                if len(self.samples) >= 3 and sample_s-self.samples[0] >= .3-1e-9:
+                    self.blocked = False
+                    self.samples = []
+        return not self.blocked
+
+
 class PixelCueTracker:
     """Associate fresh YOLO boxes by world bearing before ground range is known."""
 
@@ -561,6 +594,11 @@ class PixelCueTracker:
             contradiction = (height_m is not None and math.isfinite(height_m) and
                              (height_m < H_MIN or height_m > H_MAX_L))
             best['history'].append((sample_s, box['conf'], contradiction))
+            recovery = best.setdefault('appearance_recovery', AppearanceRecovery())
+            appearance_ready = recovery.observe(sample_s,
+                box.get('appearance_status', 'actor'), box.get('distractor_confidence', 0.))
+            if not appearance_ready:
+                best.pop('normal_anchor_s', None)
             coarse=box.get('coarse_approach')
             coarse_history=[p for p in best.get('coarse_history',[])
                             if 0. < sample_s-p[0] <= 1.2]
@@ -598,6 +636,10 @@ class PixelCueTracker:
                     confidence=box['conf'], height_m=height_m,
                     candidate_id='%s:%d' % (box['cls'], best['id']),
                     sample_s=sample_s,reason='non_person_geometry'))
+                continue
+            # Contradictory frames keep the association alive, but must not
+            # manufacture a new three-frame person cue or small-box anchor.
+            if not appearance_ready:
                 continue
             # All clothing colours need this image-only entry. Requiring
             # .85 before association discarded .48-.76 nearby blue boxes
@@ -1442,6 +1484,10 @@ class Track(object):
         self.conf = conf
         self.appearance_status = appearance_status
         self.distractor_confidence = float(distractor_confidence)
+        self.appearance_recovery = AppearanceRecovery()
+        if not self.appearance_recovery.observe(self.observed_s, appearance_status,
+                                                self.distractor_confidence):
+            self.appearance_status = 'ambiguous'
         self.uv, self.wh, self.rng = uv, wh, rng
         self.h = h                      # 归一化身高 (m)
         self.loc_suspect = not loc_ok
@@ -1540,6 +1586,9 @@ class Track(object):
             self.last_strict_s = sample_s
         self.appearance_status = appearance_status
         self.distractor_confidence = float(distractor_confidence)
+        if not self.appearance_recovery.observe(sample_s, appearance_status,
+                                                self.distractor_confidence):
+            self.appearance_status = 'ambiguous'
         self.range_method = range_method
         self.position_uncertainty_m = position_uncertainty_m
         self.recent_observed_xy = [p for p in self.recent_observed_xy

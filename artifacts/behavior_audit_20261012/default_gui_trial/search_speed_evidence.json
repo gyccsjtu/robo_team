@@ -1,0 +1,36 @@
+{
+  "note": "Search commands near the last team-reported blue point after its observations stopped; complements direct flight-loop regression.",
+  "count": 79,
+  "examples": [
+    {
+      "uav": 3,
+      "ros": 2049.9,
+      "old_point_distance_m": 7.3291936454722295,
+      "command_speed_mps": 2.98109657153964
+    },
+    {
+      "uav": 3,
+      "ros": 2050.152,
+      "old_point_distance_m": 6.969098124083421,
+      "command_speed_mps": 3.0
+    },
+    {
+      "uav": 3,
+      "ros": 2050.4,
+      "old_point_distance_m": 6.460879670235281,
+      "command_speed_mps": 2.868336699292864
+    },
+    {
+      "uav": 3,
+      "ros": 2050.652,
+      "old_point_distance_m": 6.006632966612497,
+      "command_speed_mps": 3.0
+    },
+    {
+      "uav": 3,
+      "ros": 2052.9,
+      "old_point_distance_m": 4.280529117122435,
+      "command_speed_mps": 3.0
+    }
+  ]
+}

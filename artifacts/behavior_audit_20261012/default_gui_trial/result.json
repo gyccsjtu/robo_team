@@ -1,0 +1,35 @@
+{
+  "runtime_commit": "4e5d83783e86a7b40038207db09eb41049e246ff",
+  "log_dir": "logs/logs_20261012_054628",
+  "finished": true,
+  "official_eliminated": 6,
+  "eliminations": [
+    {
+      "actor": 1,
+      "seconds": 124.32400000000007
+    },
+    {
+      "actor": 4,
+      "seconds": 244.12400000000002
+    },
+    {
+      "actor": 0,
+      "seconds": 276.1160000000002
+    },
+    {
+      "actor": 2,
+      "seconds": 415.7839999999999
+    },
+    {
+      "actor": 5,
+      "seconds": 481.8240000000003
+    },
+    {
+      "actor": 3,
+      "seconds": 493.7360000000001
+    }
+  ],
+  "completion_seconds": 493.7360000000001,
+  "PR_FAR_DISCOVERY": 0,
+  "gui": true
+}

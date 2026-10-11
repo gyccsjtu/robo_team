@@ -130,10 +130,10 @@ class AppearanceInstanceTests(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertTrue(all(b.appearance_status == 'ambiguous' for b in result))
 
-    def test_ambiguous_pixel_cue_keeps_existing_bounded_attention(self):
+    def test_weak_appearance_disagreement_still_allows_bounded_attention(self):
         tracker = pr.PixelCueTracker()
         box = dict(cls='blue', conf=.95, u=330., v=230., h=160., bearing=0.,
-                   appearance_status='ambiguous', distractor_confidence=.96)
+                   appearance_status='ambiguous', distractor_confidence=.60)
         for sample in (100., 100.2, 100.4):
             cues = tracker.update(sample, [box])
         self.assertEqual(len(cues), 1)

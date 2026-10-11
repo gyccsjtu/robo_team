@@ -1,0 +1,43 @@
+.........................................................................................................../opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[u0] search segment blocked leg=2/3 point=(10.50,0.00) reason=GOAL_OCCUPIED
+..........................................................................[u0] t0 接近中已 20.0s 无真实位置，停车等待新图像或管理器改派
+.....................................................[VERTICAL_CLEARANCE_HOLD] uav=u5 near=1.65 occupied=False; require horizontal exit and fresh clear scans
+......[FINAL_SAFETY] uav=u0 reason=measured_braking:lidar intent=(0.5, 0.0, 0.0, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+......[typhoon_h480_0] MAVROS 定位失信：位姿位移超出指令物理上限 0.64m（0.73m / 0.036s） [sample=100.036 receipt=100.400 age=0.364]；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+.[typhoon_h480_0] MAVROS 定位失信：test EKF jump；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+[typhoon_h480_0] EKF 雪崩熔断：累计 50 拍位置不可信 → 强制 LAND
+.[typhoon_h480_0] MAVROS 定位失信：位姿位移超出指令物理上限 0.44m（0.52m / 0.032s） [sample=100.132 receipt=100.132 age=0.000]；固定 offset=(0.00,-3.00)，停止世界任务并安全降落
+......................[u0] 放弃盘旋 t3：test lost image
+.......[VIEW_BLOCKED] uav=u0 tid=t3 range=8.00; no safe short observation move
+...[VIEW_REOBSERVE] uav=u0 tid=t3 goal=(56.93,24.00) last_good_image=90.000 sparse_qualified_view=False; 保持朝向、限时侧移补看
+........[VIEW_DETOUR] uav=u0 tid=t3 goal=(57.52,17.26) obstacle=True stopped=False image_margin=False
+.......................[VERTICAL_CLEARANCE] uav=u1 near=0.60m vz=0.20 -> 0; move to clear observation space before changing height
+[ALT_GUARD] HARD z=4.30 > ceil=4.20 -> vz=-1.00 (vx=0.00 vy=0.00) hits=1
+...............[u1] 越界主动回收 → (0.5,0.5) 当前(50.0,20.0)
+...[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=-0.50 -> 0; move to clear observation space before changing height
+.[CLIMB_STALL] uav=u4 executed_vz=0.60 elapsed=3.00 dz=0.00
+.....[u4] 末级雷达侧障停车 d=0.30m toward=1.00m/s
+.[GRID_EXIT] uav=u4 occupied cell; slow checked exit=(0.10,0.00)
+.[CLIMB_STALL] uav=u4 executed_vz=0.60 elapsed=3.00 dz=0.00
+..[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=0.60 -> 0; move to clear observation space before changing height
+.[VERTICAL_CLEARANCE] uav=u4 invalid scan; hold routine height
+.[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=-0.80 -> 0; move to clear observation space before changing height
+.[GRID_EXIT_BLOCKED] uav=u4 occupied cell; no safe exit
+...[u4] 末级雷达侧障停车 d=0.76m toward=1.00m/s
+.[VERTICAL_CLEARANCE] uav=u4 stale scan; hold routine height
+.[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+..[u4] 2D雷达三面堵死 front=0.62 left=0.55 right=0.55 → 扇区-10°净空0.62m 慢滑 vout=(0.10,-0.02) 慢滑速度=0.10
+.[u4] 2D雷达近障 front=0.62m left=0.62 right=0.50 -> vin=(-0.12,-0.04) vout=(0.11,-0.06)
+...........................[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+.....................[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+[VIEW_RETRY_DEFER] tid=t3 xy=(8.10,0.00) retry=30s attempt=2; 暂缓同点重派，保留观测和其他新位置
+..[VIEW_RETRY_DEFER] tid=t1 xy=(8.00,0.00) retry=15s attempt=1; 暂缓同点重派，保留观测和其他新位置
+........................................
+----------------------------------------------------------------------
+Ran 440 tests in 10.114s
+
+OK
+sys:1: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/robocup_tests/perception_typhoon_h480_0.csv' mode='a' encoding='utf-8'>
