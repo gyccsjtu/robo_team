@@ -2419,16 +2419,22 @@ class SwarmAgent(object):
         # 近处保持低视点以免脚出画面；8m 观察圈不再强制降到
         # 2.6m（叠加 EKF 高度降层后实测约 2.2m）。相机是否真的看到
         # 人只能由视觉链确认，地图 LOS 不能替代图像。
+        assignment = getattr(self, 'assignment', None)
+        tracking_tid = (assignment.target_id
+                        if getattr(assignment, 'task_type', None) == 1
+                        else self._orbit_target)
+        hold = getattr(self, '_tracking_altitude', None)
+        if hold is not None and hold['target_id'] == tracking_tid:
+            # Leaving the orbit changes horizontal pursuit, not the established
+            # image-height goal. Falling back to the search layer here lowers
+            # the camera precisely when a receding target needs a steeper ray.
+            # Retain the original two-second budget; no image/position refresh.
+            age = rospy.Time.now().to_sec()-hold['sample_s']
+            goal = hold['goal'] if 0. <= age <= 2. else self.local_z
+            # _send_vel subtracts the old layer discount. This goal is already
+            # anchored to measured altitude and must not be discounted twice.
+            return goal-self.altitude_layer + getattr(self, '_alt_sag', 0.0)
         if self._orbit_target is not None:
-            hold = getattr(self, '_tracking_altitude', None)
-            if hold is not None and hold['target_id'] == self._orbit_target:
-                # _send_vel subtracts the old layer discount. This goal is
-                # already anchored to measured altitude; subtracting it again
-                # would descend every new image even with a centred person.
-                age = rospy.Time.now().to_sec()-hold['sample_s']
-                goal = hold['goal'] if 0. <= age <= 2. else self.local_z
-                return (goal-self.altitude_layer +
-                        getattr(self, '_alt_sag', 0.0))
             target = self.targets.get(self._orbit_target)
             rng = (math.hypot(target[0] - wx, target[1] - wy)
                    if target is not None else None)

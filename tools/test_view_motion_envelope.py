@@ -276,6 +276,60 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
                 self.assertAlmostEqual(abs(a._last_flight_v[0]-previous),
                                        sa.VIEW_MAX_ACC/sa.CTRL_RATE)
 
+    def red_altitude_handoff_agent(self):
+        # 122632 run: red loses ground-ray geometry while the approach mode
+        # replaces orbit. Last safe image goal must not become search z=2.8.
+        self.now = 2561.132
+        a = self.agent(distance=9.48)
+        del a._compute_desired_altitude
+        a.local_z, a.altitude_layer = 3.0259885787963867, 2.8
+        a.assignment = NS(task_type=1, target_id='t5', target_x=67.59, target_y=-10.11)
+        a.targets = {'t5': (67.59, -10.11, 1.17, .05)}
+        a._t_seen = {'t5': 2560.712}
+        a._orbit_target, a._confirm_close = None, False
+        a._tracking_image = None
+        a._tracking_altitude = dict(target_id='t5', sample_s=2560.712,
+                                   goal=3.065192961280843)
+        return a
+
+    def test_red_orbit_to_approach_keeps_height_through_actual_output(self):
+        a = self.red_altitude_handoff_agent()
+        original_height = a.local_z
+        original_evidence = (dict(a.targets), dict(a._t_seen), dict(a._tracking_altitude))
+        # Continue the measured vertical handoff for three seconds. No new
+        # localization arrives; after two seconds the height freezes in place.
+        for _ in range(60):
+            a._scan_t = self.now
+            with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'):
+                a._send_vel(.6, .7)
+            point = a.pos_pub.publish.call_args.args[0].pose.position
+            self.assertGreaterEqual(point.z, a.local_z-1e-9)
+            a.local_z += (point.z-a.local_z)/sa.POS_SP_LEAD/sa.CTRL_RATE
+            self.now += 1./sa.CTRL_RATE
+        self.assertGreaterEqual(a.local_z, original_height)
+        self.assertLessEqual(a.local_z, original_evidence[2]['goal'])
+        self.assertEqual((a.targets, a._t_seen, a._tracking_altitude), original_evidence)
+
+    def test_approach_height_hold_keeps_vertical_obstacle_and_ceiling_priority(self):
+        a = self.red_altitude_handoff_agent()
+        a._tracking_altitude['goal'] = 3.2
+        a._scan.ranges[180] = .6
+        with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'), patch.object(sa, 'RADAR_GUARD', True):
+            a._send_vel(0., 0.)
+        self.assertEqual(a.pos_pub.publish.call_args.args[0].pose.position.z, a.local_z)
+        a.local_z = 4.3
+        with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'), patch.object(sa, 'RADAR_GUARD', True), \
+                patch.object(sa, 'ALT_HARD_CEIL', 4.2):
+            a._send_vel(0., 0.)
+        self.assertLess(a.pos_pub.publish.call_args.args[0].pose.position.z, a.local_z)
+
+    def test_altitude_hold_cannot_transfer_to_a_new_assignment(self):
+        a = self.red_altitude_handoff_agent()
+        a.assignment.target_id = 't0'
+        self.assertEqual(a._compute_desired_altitude(), 0.)
+        a.assignment.task_type = 0
+        self.assertEqual(a._compute_desired_altitude(), 0.)
+
     def test_four_meter_height_replay_satisfies_both_camera_constraints(self):
         state, altitude = None, 4.
         for i in range(80):
