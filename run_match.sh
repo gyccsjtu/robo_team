@@ -64,6 +64,10 @@ if [ "$FAST_VISUAL_YAW" = 1 ]; then
     export PR_FAST_TRACKER_SHADOW=1
 fi
 export FAST_VISUAL_YAW FAST_VISUAL_YAW_UAVS
+# Short-segment search is separately gated from auxiliary gimbal observation.
+# Keep the baseline default until the GUI comparison has passed.
+SEARCH_SEGMENTS="${SEARCH_SEGMENTS:-0}"
+export SEARCH_SEGMENTS
 # 导航包源码目录：manager/agent 均 import robocup_navigation，必须进 PYTHONPATH
 NAV_SRC="$REPO_ROOT/coordination/src/robocup_navigation/src"
 # 合规地图元数据（2026-10-07 重构，规则 §2.4/§2.5 无预读随机地图）：
@@ -344,6 +348,8 @@ topic_publisher_match(){  # topic_publisher_match <topic> <节点名片段>
 
 # ============================ 赛前体检 ======================================
 fast_visual_config_valid(){
+    case "$SEARCH_SEGMENTS" in 0|1) ;; *)
+        err "SEARCH_SEGMENTS 只能为0或1"; return 1 ;; esac
     case "$FAST_VISUAL_YAW" in 0) return 0 ;; 1) ;; *)
         err "FAST_VISUAL_YAW 只能为0或1"; return 1 ;; esac
     [[ "$FAST_VISUAL_YAW_UAVS" =~ ^[0-5](,[0-5])*$ ]] \
@@ -621,6 +627,8 @@ preflight(){
     # 需要 ROS 环境才能验证的项
     if [ -f "$ROS_SETUP" ]; then
         ros_env
+        check_hard "搜索任务协议与当前代码一致（管理器/六机同版）" \
+            "python3 '$REPO_ROOT/tools/check_search_protocol.py'"
         if rospack find px4 >/dev/null 2>&1; then ok "ROS 可见 px4 包"
         else err "ROS 找不到 px4 包（检查 ROS_PACKAGE_PATH=$PX4_ROOT）"; hard_miss=$((hard_miss+1)); fi
         if rospack find ros_actor_cmd_pose_plugin_msgs >/dev/null 2>&1; then
@@ -661,6 +669,7 @@ team_preflight(){
         [ "$REQUIRE_SWARM" = 1 ] && [ "$SKIP_RADAR" = 2 ] && [ "$MATCH_HARD_CAP" = 0 ] \
         || { err "队伍入口要求六机、视觉桥、协同与雷达，禁止环境硬停计时器"; return 1; }
     ros_env
+    python3 "$REPO_ROOT/tools/check_search_protocol.py" || return 1
     python3 "$BB2MD" --verify "$FORMAL_METADATA_FILE" || return 1
     nodes="$(timeout 8s rosnode list 2>/dev/null)" || { err "官方ROS环境未就绪"; return 1; }
     if printf '%s\n' "$nodes" | grep -Eq '^/(swarm_manager|swarm_agent_[0-5]|yolo_target_bridge)$'; then

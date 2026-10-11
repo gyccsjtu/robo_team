@@ -285,7 +285,9 @@ class TrackingPlanTests(unittest.TestCase):
                               target_x=5.0, target_y=0.0,
                               cell_ix=-1, cell_iy=-1)
         with patch.object(swarm_agent.rospy, 'is_shutdown',
-                          side_effect=shutdown_after_one_plan):
+                          side_effect=shutdown_after_one_plan), \
+                patch.object(swarm_agent.rospy.Time, 'now',
+                             return_value=swarm_agent.rospy.Time(100.)):
             worker = threading.Thread(target=agent._planner_loop, daemon=True)
             worker.start()
             self.assertTrue(started.wait(1.0))

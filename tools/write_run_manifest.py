@@ -26,6 +26,7 @@ def main():
     args = ap.parse_args()
     root = args.root.resolve()
     paths = [root/'run_match.sh', root/'launch/robocup_with_laser.launch']
+    paths.extend(sorted((root/'coordination/src/robocup_swarm/msg').glob('*.msg')))
     for folder in ('perception', 'coordination/src/robocup_swarm/scripts',
                    'coordination/src/robocup_navigation/src/robocup_navigation'):
         paths.extend(sorted((root/folder).glob('*.py')))
@@ -42,6 +43,7 @@ def main():
                          for name in ('score_cal.py','control_actor.py')
                          if (args.official/name).is_file()},
         team_only=os.environ.get('ROBOCUP_TEAM_ONLY') == '1',
+        search_segments=os.environ.get('SEARCH_SEGMENTS','0'),
         weights={'path':str(chosen),'sha256':digest(chosen)} if chosen else None,
         note='Disk snapshot before process startup; includes dirty working-tree content. '
              'Effective process parameters are logged by each node. No runtime reload is implied.')

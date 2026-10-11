@@ -41,6 +41,8 @@ from visual_evidence import parse_visual_evidence
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from search_observation import cell_points, in_view
 from search_view_hint import parse_failed_view, make_hint
+from search_segments import SegmentBook
+from search_segment_manager import SearchSegmentManager
 
 # ============================ 参数 ============================
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -330,9 +332,15 @@ def serialized_tasks(method):
     return call
 
 
-class SwarmManager(object):
+class SwarmManager(SearchSegmentManager):
+    _segment_flight_waypoint = staticmethod(flight_waypoint)
+
     def __init__(self, uav_ids):
         self._task_lock = threading.RLock()
+        self._segments = (SegmentBook(self._task_lock) if
+                          os.environ.get('SEARCH_SEGMENTS', '0') == '1' else None)
+        self._segment_max_hold = LEASE_MAX_HOLD
+        self._segment_stall_s = LEASE_STALL_S
         self.uav_ids = uav_ids
         # 每机最新状态
         self.status = {}          # uav_id -> UavStatus
@@ -678,6 +686,8 @@ class SwarmManager(object):
 
     def _reconcile_search_waypoints(self):
         """Map changes may invalidate a task, but must not silently move it."""
+        if getattr(self, '_segments', None) is not None:
+            return self._reconcile_segments()
         sent = getattr(self, '_search_dispatched', {})
         busy = set(getattr(self, '_tracking', {}).values()) | set(
             getattr(self, '_backup', {}).values())
@@ -955,6 +965,7 @@ class SwarmManager(object):
     def _in_processed_view(ux, uy, yaw, cx, cy, altitude=None, down_pitch=None):
         return in_view(ux, uy, yaw, cx, cy, altitude, down_pitch)
 
+    @serialized_tasks
     def _processed_camera_frame_cb(self, msg):
         """Credit nine subpoints only after actual processed images and LOS."""
         try:
@@ -1048,7 +1059,7 @@ class SwarmManager(object):
                                 uav_x=ux, uav_y=uy, uav_z=altitude,
                                 covered=True, source='processed_camera_frame')
                 getattr(self, '_blind_viewpoints', {}).pop(key, None)
-                if owner is not None:
+                if owner is not None and getattr(self, '_segments', None) is None:
                     if hasattr(self.allocator, 'complete_waypoint'):
                         self.allocator.complete_waypoint(
                             owner, key, observed=True, now=sample)
@@ -2267,7 +2278,11 @@ class SwarmManager(object):
             rospy.loginfo("[manager] 释放追踪机 %s (tid=%s, 原因=%s)",
                           [r for r in (uid, buid) if r], tid, reason)
 
+    @serialized_tasks
     def _free_search_lease(self, uid):
+        if getattr(self, '_segments', None) is not None:
+            self._drop_segment(uid, 'released_for_new_task')
+            return
         key = getattr(self, '_active_leases', {}).pop(uid, None)
         getattr(self, '_lease_motion', {}).pop(uid, None)
         if key is not None:
@@ -3060,6 +3075,8 @@ class SwarmManager(object):
             # 如果正在追踪目标，视为不空闲
             if uid in self._tracking.values() or uid in self._backup.values():
                 continue
+            if getattr(self, '_segments', None) is not None and uid in self._segments.tasks:
+                continue
             busy = False
             for c in self.grid.cells.values():
                 if c.state == STATE_ASSIGNED and c.owner == uid:
@@ -3073,6 +3090,8 @@ class SwarmManager(object):
     def _allocate(self):
         """只给空闲机拍卖分配未搜索格 → 授租约 → 发布 assignment。"""
         now = rospy.Time.now()
+        if getattr(self, '_segments', None) is not None:
+            return self._allocate_segments(now)
 
         # 到期租约先回退（掉线/卡死的机占用的格释放回候选池）
         expired = self.lease.expire(now.to_sec())
@@ -3163,6 +3182,8 @@ class SwarmManager(object):
     # ---------------- 续租 ----------------
     @serialized_tasks
     def _renew_leases(self):
+        if getattr(self, '_segments', None) is not None:
+            return self._renew_segments(rospy.Time.now())
         """对持续上报的机续租（防误判到期）。
 
         Arrival and completed scan release the lease. Only actual processed

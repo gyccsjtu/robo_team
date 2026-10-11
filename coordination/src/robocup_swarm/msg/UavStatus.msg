@@ -10,8 +10,16 @@ bool    connected     # mavros 是否已连接
 
 int32   cell_ix       # 当前任务格索引 x（无任务 = -1）
 int32   cell_iy       # 当前任务格索引 y（无任务 = -1）
-float32 confidence    # 当前任务格覆盖置信度 [0,1]（管理器据此判定「已覆盖」）
+float32 confidence    # 旧协议观察动作结束标志；不能作为实际图像覆盖证据
 int32   assigned_cell_ix   # 被分配格索引 x
 int32   assigned_cell_iy   # 被分配格索引 y
 float32 assigned_target_x  # 被分配格中心 x
 float32 assigned_target_y  # 被分配格中心 y
+
+# Search protocol v2: progress is distinct from image coverage and ownership.
+string search_task_id
+uint32 search_revision
+uint32 search_index         # number of visited waypoints, not covered cells
+uint8 search_state          # 0=none 1=travel 2=look 3=candidate 4=yield 5=done 6=failed
+uint32 search_path_revision
+float32 search_path_remaining  # metres along current safe path; -1 if unavailable

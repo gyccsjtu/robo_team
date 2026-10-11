@@ -44,6 +44,7 @@ from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs
                            retain_pixel_view)
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
+from search_segment_agent import SearchSegmentAgent
 from camera_attention import approach_image, candidate_velocity, candidate_decision, candidate_reposition
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
@@ -880,7 +881,9 @@ def cap_inward_close_speed(vx, vy, wx, wy, tx, ty,
     return vx * scale, vy * scale
 
 
-class SwarmAgent(object):
+class SwarmAgent(SearchSegmentAgent):
+    _segment_flight_waypoint = staticmethod(flight_waypoint)
+
     def __init__(self, uav_id, model_name):
         self.uav_id = uav_id
         self.model_name = model_name
@@ -1405,6 +1408,8 @@ class SwarmAgent(object):
 
     @serialized_visual_task
     def _assign_cb(self, msg):
+        if not self._accept_segment_message(msg):
+            return
         # Every agent sees the shared assignment topic. Remember ownership so
         # another aircraft's active target does not repeatedly stop searchers
         # for image-only cues of the same blue/white/green/brown person.
@@ -4088,10 +4093,20 @@ class SwarmAgent(object):
         return path, goal_xy, True
 
     # ---------------- 异步规划接口 ----------------
+    @serialized_visual_task
     def _request_plan(self, goal_xy):
         """投递一个规划请求并立即返回（不阻塞控制循环）。多次请求只保留最新目标。"""
         with self._plan_lock:
-            self._plan_pending = flight_waypoint(float(goal_xy[0]), float(goal_xy[1]))
+            goal = flight_waypoint(float(goal_xy[0]), float(goal_xy[1]))
+            identity = self._segment_identity()
+            request = (self._plan_epoch,goal,identity)
+            if getattr(self,'_plan_inflight',None) == request:
+                return
+            self._plan_pending = goal
+            self._plan_pending_epoch = self._plan_epoch
+            self._plan_pending_identity = identity
+            task = getattr(self,'_search_segment',None)
+            self._plan_pending_points = (task['points'][task['index']:] if task is not None else None)
         self._plan_event.set()
 
     def _planner_loop(self):
@@ -4103,23 +4118,31 @@ class SwarmAgent(object):
                 if goal is None:
                     self._plan_event.clear()
                     continue
-                epoch = self._plan_epoch
+                epoch = getattr(self,'_plan_pending_epoch',self._plan_epoch)
+                identity = getattr(self,'_plan_pending_identity',None)
+                points = getattr(self,'_plan_pending_points',None)
+                self._plan_inflight = (epoch,goal,identity)
                 self._plan_pending = None
                 self._plan_event.clear()
             try:
-                path, target, ok = self._compute_plan(goal)
+                path, target, ok = (self._compute_segment_plan(points) if identity is not None
+                                    else self._compute_plan(goal))
             except Exception as exc:
                 rospy.logerr("[%s] 规划线程异常: %s\n%s",
                              self.uav_id, exc, traceback.format_exc())
                 ok = False
             with self._plan_lock:
-                if epoch != self._plan_epoch:
+                self._plan_inflight = None
+                if epoch != self._plan_epoch or identity != self._segment_identity():
                     # A new task arrived while A* computed; never commit its
                     # previous route after the search/pursuit switch.
                     continue
                 if ok:
                     self.path = path
                     self.path_target = target
+                    if identity is not None:
+                        self._segment_path_key = identity[:2]
+                        self._segment_path_sequence = getattr(self,'_segment_path_sequence',0)+1
                 else:
                     # Keep an already safe route for the current task.  A
                     # failed replan must not leave a newly blocked route
@@ -4330,6 +4353,7 @@ class SwarmAgent(object):
             return vx * scale, vy * scale
         return vx, vy
 
+    @serialized_visual_task
     def _control(self):
         """有任务 → A* 绕障飞向格中心；无任务 → 原地悬停。"""
         # === 降落模式 ===
@@ -4546,6 +4570,9 @@ class SwarmAgent(object):
             self._fly_orbit()
             return
         if self._hold_search_view_hint():
+            return
+        if self._segment_control(SEARCH_CRUISE_SPEED, MAX_SPEED, POS_KP,
+                                 SEARCH_DECEL_M, SEARCH_ARRIVE_TOL):
             return
         # === 2026-10-05 国家一等奖：到点 dwell 期机头冻结到「下一个原本要飞到的搜索点」 ===
         # 原行为：_look_at = None → 交回 PX4 自管偏航 → 前视 90° 相机对到哪算哪。
@@ -5726,6 +5753,7 @@ class SwarmAgent(object):
                 getattr(self.state, 'armed', False), getattr(self.state, 'mode', ''),
                 getattr(self, '_pos_sp', None))
 
+    @serialized_visual_task
     def _publish_status(self):
         world = self.world_xy
         if world is None and not getattr(self, '_localization_fault', False):
@@ -5785,6 +5813,7 @@ class SwarmAgent(object):
             st.assigned_target_x = 0.0
             st.assigned_target_y = 0.0
 
+        self._segment_status(st)
         self.status_pub.publish(st)
 
     # ---------------- 主循环 ----------------
