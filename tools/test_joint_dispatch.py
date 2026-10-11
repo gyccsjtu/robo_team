@@ -112,6 +112,42 @@ class JointDispatchTests(unittest.TestCase):
         self.assertFalse(m._backup_search_capacity())
         self.assertTrue(m._update_tracker_position.called)
 
+    def test_actual_blue_hypothesis_switch_hands_task_to_camera_at_new_site(self):
+        root = Path(__file__).resolve().parents[1]
+        rows = json.loads((root/'tools/fixtures/blue_disjoint_102820.json').read_text())['reports']
+        m = self.m
+        m.uav_ids = ['typhoon_h480_%d' % i for i in range(6)]
+        m.status = {uid: NS(x=-30., y=13., z=3., connected=True) for uid in m.uav_ids}
+        m.status['typhoon_h480_5'].x, m.status['typhoon_h480_5'].y = 122., 46.
+        m._tracking = {'t1':'typhoon_h480_2'}
+        m._tracking_since = {'t1':2651.2}
+        m._visual_quarantine, m._visual_candidate = {}, {}
+        m._last_detection_sample, m._last_detect = {}, {}
+        m._visual_near_seen, m._truth_cache, m._cur_targets = {}, {}, {}
+        m._eliminated = set()
+        m._update_tracker_position = Mock()
+        m.tracker = cooperative_tracker.CooperativeTracker(official_only=True,strict_samples=True)
+        node = bridge._mk_bridge()
+        node.source_pub = NS(publish=m._visual_source_cb)
+        with patch.object(sm.rospy.Time, 'now') as now:
+            for r in rows:
+                at = r['receive']
+                now.return_value = sm.rospy.Time.from_sec(at)
+                m.last_report = {uid:sm.rospy.Time.from_sec(at) for uid in m.uav_ids}
+                node._advance(at-node._now())
+                node._report_cb(bridge._FakeString(json.dumps(dict(
+                    target_id='blue',xyz=[r['x'],r['y'],1.25],confidence=r['confidence'],
+                    range_m=r['range_m'],sample_s=r['sample'],source_uav=r['source'],
+                    real_detection=True,official_view_ok=r['official_ok']))))
+                if 't1' in m.tracker.targets:
+                    tx,ty = m._get_target_pos('t1',at)
+                    m._handoff_distant_tracker('t1',tx,ty,m.tracker.targets['t1'])
+        self.assertEqual(m._tracking['t1'],'typhoon_h480_5')
+        self.assertGreater(m._get_target_pos('t1',rows[-1]['receive'])[0],100.)
+        self.assertTrue(any(c.args[0].uav_id=='typhoon_h480_2' and c.args[0].task_type==255
+                            for c in m.assign_pub.publish.call_args_list))
+        self.assertFalse(m._eliminated)
+
     def test_failed_view_is_not_immediately_reassigned_by_joint_dispatch(self):
         m = self.m
         m._visual_source['t0'] = ('u0', 100., 1., 0.)

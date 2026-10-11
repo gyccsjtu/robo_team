@@ -114,15 +114,11 @@ UAV = os.environ.get("PR_UAV", "typhoon_h480_0")
 POSE_TOPIC = os.environ.get("PR_POSE_TOPIC", "/%s/mavros/local_position/pose" % UAV)
 CAM_OFF_BL = np.array([float(x) for x in
                        os.environ.get("PR_CAM_OFF_BL", "0.12,0.06,-0.05").split(",")])
-# ---- 我方 10-03：相机高度标定系数（乘在 pz 上）----
-# 实测（低空 2.89m、actor 水平 15.98m）：系统报 rng=17.09m，真实斜距 16.06m ⇒
-# 偏长 +6.4%；反解 pz 需为 2.72m 而读数 2.89m，差 0.17m。rng 与 pz 成正比，
-# 所以这是**系统性的测距比例偏差**——它让位置误差恒定压在 0.75~1.2m，正好骑在
-# 裁判 err_threshold=1m 上，导致 15s 连续判据反复清零。
-# 相机在机身上的真实安装高度与 CAM_OFF_BL 的假设差 ~0.17m（双目相机被塞在
-# base_link 里，只能靠偏移量补）。这里给一个可标定的修正系数：
-#   1.0 = 不修正（默认，保持既有行为）；按实测标定后应使 rng 对齐真值。
-PZ_SCALE = float(os.environ.get("PR_PZ_SCALE", "0.941"))
+# MAVROS 与相机外参已经以米表示。旧 0.941 是旧定位链某次远距观测的
+# 经验补偿，沿用到图像时刻的 MAVROS 位姿会把 8m 地面射线缩成 7.528m，
+# 对裁脚后的头顶射线偏差更大。保持物理单位；明确标定才显式覆盖。
+# 局部高度原点偏差是另一项误差，不能用比例系数冒充高度原点修正。
+PZ_SCALE = float(os.environ.get("PR_PZ_SCALE", "1.0"))
 CAM_TOPIC = os.environ.get("PR_CAM_TOPIC", "/%s/stereo_camera/left/image_raw" % UAV)
 ROI_TOP = int(os.environ.get("PR_ROI_TOP", "60"))      # 忽略画面顶部：无人机自身部件常被误检成 blue
 ROI_BOT = int(os.environ.get("PR_ROI_BOT", "478"))

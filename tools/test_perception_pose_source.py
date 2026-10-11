@@ -17,12 +17,21 @@ FUNCTIONS = {
 }
 
 
-def load_pose_functions():
+def load_pose_functions(pz_scale=None):
     nodes = [node for node in TREE.body
              if isinstance(node, ast.FunctionDef) and node.name in FUNCTIONS]
+    # Evaluate the real default, rather than baking an old calibration into
+    # the test and silently approving it forever.
+    config = next(node for node in TREE.body if isinstance(node, ast.Assign)
+                  and any(isinstance(t, ast.Name) and t.id == 'PZ_SCALE'
+                          for t in node.targets))
+    settings = dict(os=SimpleNamespace(environ={}))
+    exec(compile(ast.Module(body=[config], type_ignores=[]), str(SOURCE), 'exec'),
+         settings)
     namespace = dict(math=math, np=np, threading=threading,
                      CAM_OFF_BL=np.array([0.12, 0.06, -0.05]),
-                     PZ_SCALE=0.941, _lock=threading.Lock(), _pose_history=[],
+                     PZ_SCALE=settings['PZ_SCALE'] if pz_scale is None else pz_scale,
+                     _lock=threading.Lock(), _pose_history=[],
                      _pose_fault=None,
                      rospy=SimpleNamespace(logerr=lambda *args: None))
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SOURCE), "exec"),
@@ -59,7 +68,7 @@ class ImageTimePoseTests(unittest.TestCase):
             msg, self.offset)
         self.assertAlmostEqual(x, -48.06, places=6)
         self.assertAlmostEqual(y, -21.88, places=6)
-        self.assertAlmostEqual(z, 3.95 * 0.941, places=6)
+        self.assertAlmostEqual(z, 3.95, places=6)
         # Optical center points along body +X; body yaw 90 degrees points north.
         ray = rotation @ np.array([1.0, 0.0, 0.0])
         np.testing.assert_allclose(ray, [0.0, 1.0, 0.0], atol=1e-7)
@@ -72,7 +81,26 @@ class ImageTimePoseTests(unittest.TestCase):
         self.assertIsNotNone(pose)
         self.assertAlmostEqual(pose[0], -50.0 + 0.8 + 0.12, places=6)
         self.assertAlmostEqual(pose[1], -25.0 + 0.06, places=6)
-        self.assertAlmostEqual(pose[2], 3.95 * 0.941, places=6)
+        self.assertAlmostEqual(pose[2], 3.95, places=6)
+
+    def test_metric_camera_pose_does_not_shrink_ground_projection(self):
+        # A known ground ray with 8 m horizontal range from a 4 m camera.
+        # MAVROS and extrinsics are metres, so the inferred range must stay
+        # 8 m at every height, without an empirical scale from an old camera.
+        for height in (2.6, 3.5, 4.2):
+            with self.subTest(height=height):
+                pose = self.api['camera_pose_from_local'](
+                    local_pose(100., 0., 0., height+.05, 0.), (0., 0., 0.))
+                ray = np.array([8., 0., -height])
+                ground = np.array(pose[:3]) - pose[2]/ray[2]*ray
+                self.assertAlmostEqual(ground[0]-pose[0], 8., places=6)
+                self.assertAlmostEqual(ground[2], 0., places=6)
+
+    def test_explicit_calibration_remains_opt_in(self):
+        api = load_pose_functions(pz_scale=.98)
+        pose = api['camera_pose_from_local'](
+            local_pose(100., 0., 0., 4., 0.), (0., 0., 0.))
+        self.assertAlmostEqual(pose[2], 3.95*.98, places=6)
 
     def test_yaw_slerp_matches_image_time(self):
         self.api["on_pose"](local_pose(100.0, 0, 0, 4, 0), self.offset)

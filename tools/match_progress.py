@@ -13,6 +13,7 @@ SIM_TIME = re.compile(r"\[[A-Z]+\] \[[^,]+, ([0-9.]+)\]:")
 REPORT = re.compile(r"\[REPORT_POINT\] tag=(green|blue|brown|white|red1|red2)\b")
 TRACK = re.compile(r"派追踪：([^ ]+) → 目标 t([0-5])")
 DISPATCH = re.compile(r"dispatch target=t([0-5]).*\buav=([^ ]+)")
+BATCH_DISPATCH = re.compile(r"\[DISPATCH_BATCH\] target=t([0-5]) owner=([^ ]+)")
 FOUND = re.compile(r"^find actor_([0-5])$")
 ELIMINATED = re.compile(r"^actor_([0-5]) is OK$")
 TIME_USAGE = re.compile(r"^Time usage: ([0-9.]+)$")
@@ -72,18 +73,23 @@ def summarize(log_dir):
             match = DISPATCH.search(line)
             if match:
                 assigned[int(match.group(1))].add(match.group(2))
+            match = BATCH_DISPATCH.search(line)
+            if match:
+                assigned[int(match.group(1))].add(match.group(2))
     return found, eliminated, eliminated_at, reports, assigned
 
 
 def render(summary):
     found, eliminated, eliminated_at, reports, assigned = summary
-    lines = ["actor 颜色   发现触发次数  官方消除  消除仿真秒  派往的无人机"]
+    lines = ["actor 颜色   发现触发次数  官方消除  消除仿真秒"]
     for actor_id, color in enumerate(ACTORS):
-        lines.append("%-5d %-6s %-9s %-9s %-11s %s" % (
+        lines.append("%-5d %-6s %-9s %-9s %-11s" % (
             actor_id, color, found[actor_id],
             "是" if actor_id in eliminated else "否",
-            "%.1f" % eliminated_at[actor_id] if actor_id in eliminated_at else "-",
-            ",".join(sorted(assigned[actor_id])) or "-"))
+            "%.1f" % eliminated_at[actor_id] if actor_id in eliminated_at else "-"))
+    lines.append("队内任务历任负责人（t4/t5 不代表官方 actor_4/5）：")
+    for tid in sorted(assigned):
+        lines.append("t%d: %s" % (tid, ",".join(sorted(assigned[tid]))))
     lines.append("桥接已记录的真实视觉报告（本队 red1/red2 槽不能直接对应 actor4/5）：")
     if not any(reports.values()):
         lines.append("该版本没有 REPORT_POINT 日志，不能据此判定目标未识别。")

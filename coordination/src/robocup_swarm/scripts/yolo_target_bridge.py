@@ -384,7 +384,7 @@ def official_point_at(track, now):
 
 class _Track(object):
     __slots__ = ("tag", "obs", "x", "y", "vx", "vy", "conf",
-                 "t_obs", "alive", "elim_pending", "range_m",
+                 "t_obs", "started_s", "alive", "elim_pending", "range_m",
                  "good_x", "good_y", "good_t", "good_history",
                  "official_source", "source_history", "official_rejects",
                  "accepted_source_samples",
@@ -413,6 +413,7 @@ class _Track(object):
         self.good_t = -1e18
         self.good_history = []
         self.t_obs = -1e18
+        self.started_s = None
         self.alive = False         # 是否正在对外发布
         self.elim_pending = False  # 待补发 eliminated=true
         self._last_fx = None
@@ -581,6 +582,54 @@ class TargetBridgeCore(object):
     def __init__(self):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
+        self._alternate_history = {}
+        self._deferred_sites = {}
+
+    def _consider_spatial_alternative(self, tr, t, x, y, conf, range_m,
+                                      official_ok, source):
+        """Try a coherent disjoint view after a long stationary observation.
+
+        A colour identifies a hypothesis, not proof that the first blue box
+        was the actor. Never average two distant people or let a single jump
+        replace a live track. This bounded trial uses only camera evidence;
+        it does not classify a stationary person as a decoy or mark it removed.
+        """
+        if (tr.tag in RED_TAGS or not tr.alive or tr.started_s is None or
+                not official_ok or source is None or source == tr.official_source or
+                conf < NEW_TRACK_CONF or range_m is None or not 0. < range_m <= 12. or
+                t < tr.t_obs or math.hypot(x-tr.x, y-tr.y) <= 10.):
+            return
+        key = (tr.tag, source)
+        history = [p for p in self._alternate_history.get(key, [])
+                   if 0. <= t-p[0] <= 2.]
+        if not history or t > history[-1][0]:
+            history.append((float(t), x, y, conf, range_m))
+        self._alternate_history[key] = history[-16:]
+        if (t-tr.started_s < 35. or len(history) < 6 or
+                history[-1][0]-history[0][0] < 1.0 or
+                any(b[0]-a[0] > .6 for a,b in zip(history,history[1:]))):
+            return
+        incumbent = _robust_official_fit(tr.good_history, tr.good_t)
+        candidate = _robust_official_fit(history, t)
+        if (incumbent is None or not incumbent[5] or
+                math.hypot(*incumbent[2:4]) > .35 or
+                candidate is None or not candidate[5]):
+            return
+        # Keep the old location out of this 25 s trial, including its other
+        # cameras. Otherwise alternating reporters reset the fresh identity
+        # immediately. The location remains eligible after the trial expires.
+        self._deferred_sites[tr.tag] = (tr.x, tr.y, t+25.)
+        self.tracks[tr.tag] = _Track(tr.tag)
+        self._alternate_history = {k:v for k,v in self._alternate_history.items()
+                                   if k[0] != tr.tag}
+        _core_log('[HYPOTHESIS_SWITCH] tag=%s old=(%.2f,%.2f) new=(%.2f,%.2f) '
+                  'source=%s frames=%d; independent camera trial, no elimination verdict',
+                  tr.tag, tr.x, tr.y, x, y, source, len(history))
+        # Seed only the actual candidate's original eligible image samples.
+        # Velocity/official fit never spans the jump between the two places.
+        for sample, sx, sy, sample_conf, sample_range in history:
+            self.report(sample, tr.tag, sx, sy, sample_conf, sample_range,
+                        official_ok=True, source_uav=source)
 
     def _accept_official_sample(self, tr, t, source, x, y, range_m):
         """Keep a live report source; validate other cameras independently.
@@ -676,6 +725,16 @@ class TargetBridgeCore(object):
         if tag in self.eliminated:
             return                      # 已消除目标的残余观测，不复活
         tr = self.tracks[tag]
+        deferred = self._deferred_sites.get(tag)
+        if deferred is not None:
+            if t >= deferred[2]:
+                self._deferred_sites.pop(tag, None)
+            elif math.hypot(x-deferred[0], y-deferred[1]) <= 5.:
+                return
+        self._consider_spatial_alternative(tr, t, x, y, conf, range_m,
+                                           official_ok, source_uav)
+        if self.tracks[tag] is not tr:
+            return  # all original candidate images have already been accepted
         if t < tr.t_obs - 0.05:
             # A newer, rejected camera must not starve a trusted camera with
             # slightly older images. Preserve global pursuit time, but allow
@@ -690,6 +749,7 @@ class TargetBridgeCore(object):
         if t - tr.t_obs > max(COAST_TIME, DROP_TIME):
             tr.alive = False
         if not tr.alive and t - tr.t_obs > COAST_TIME:
+            tr.started_s = None
             tr._high_conf_count = 0
             tr._motion_history = []
             tr._last_fx = tr._last_fy = tr._last_ft = None
@@ -727,6 +787,8 @@ class TargetBridgeCore(object):
                 return
         # 超过 COAST_TIME：真·重捕获，允许任意位置。
         tr.obs.append((float(t), x, y, w, conf))
+        if tr.started_s is None:
+            tr.started_s = float(t)
         if official_ok and t >= tr.good_t:
             self._accept_official_sample(tr, t, source_uav, x, y, range_m)
 
