@@ -201,6 +201,32 @@ class ManagerSegmentTests(unittest.TestCase):
         self.assertIn(self.uid,self.m._segments.tasks)
         self.assertEqual(self.m.allocator.failed_visit,{})
 
+    def test_local_blocked_tail_revises_and_releases_without_losing_first_cell(self):
+        t=self.reserve();self.now=101.;st=self.feedback(t)
+        st.search_blocked_waypoint=2;st.search_blocked_reason='GOAL_OCCUPIED'
+        self.m._renew_leases()
+        self.assertEqual(t.revision,2)
+        self.assertEqual(t.cells,((0,0),))
+        self.assertEqual(set(self.m._segments.reserved),{(0,0)})
+        self.assertEqual(t.deadline,190.)
+
+    def test_current_goal_failure_releases_promptly_without_coverage_credit(self):
+        t=self.reserve();self.now=101.;st=self.feedback(t)
+        st.search_blocked_waypoint=1;st.search_blocked_reason='GOAL_OCCUPIED'
+        self.m._renew_leases()
+        self.assertEqual(self.m._segments.tasks,{})
+        self.assertEqual(self.m._segments.reserved,{})
+        self.assertTrue(all(c.state!=tasklib.STATE_COVERED for c in self.m.grid.cells.values()))
+
+    def test_inflation_exit_wait_is_bounded_even_with_fresh_feedback(self):
+        t=self.reserve()
+        for now in (101.,105.,108.):
+            self.now=now;st=self.feedback(t,state=YIELD)
+            st.search_blocked_waypoint=1;st.search_blocked_reason='START_OCCUPIED'
+            self.m._renew_leases();self.assertIn(self.uid,self.m._segments.tasks)
+        self.now=109.;self.feedback(t,state=YIELD);self.m._renew_leases()
+        self.assertNotIn(self.uid,self.m._segments.tasks)
+
 
 class AgentSegmentTests(unittest.TestCase):
     def setUp(self):
@@ -259,7 +285,7 @@ class AgentSegmentTests(unittest.TestCase):
         started,finish=threading.Event(),threading.Event()
         def delayed(points):
             started.set();self.assertTrue(finish.wait(2.))
-            return [(0.,0.),(17.5,0.)],(17.5,0.),True
+            return [(0.,0.),(17.5,0.)],(17.5,0.),True,0,''
         a._compute_segment_plan=delayed
         calls=[]
         def shutdown():calls.append(1);return len(calls)>1
@@ -302,6 +328,41 @@ class AgentSegmentTests(unittest.TestCase):
         a._segment_control(3.,5.,.8,2.,2.)
         a._search_scan_step.assert_called_once()
         self.assertEqual(a._search_segment['index'],0)
+
+    def test_safe_prefix_survives_a_blocked_later_goal(self):
+        a=self.control_fixture();g=a.grid;data=bytearray(g.cells)
+        x,y=g.world_to_cell((10.5,0.));data[y*g.width+x]=1
+        a.grid=sm.GridMap(g.width,g.height,g.resolution,g.origin,data)
+        path,target,ok,blocked,reason=a._compute_segment_plan(((3.5,0.),(10.5,0.),(17.5,0.)))
+        self.assertTrue(ok);self.assertEqual(blocked,2);self.assertEqual(reason,'GOAL_OCCUPIED')
+        self.assertEqual(target,(3.5,0.));self.assertEqual(path[-1],target)
+        self.assertTrue(all(clear_line(a.grid,p,q) for p,q in zip(path,path[1:])))
+
+    def test_blocked_tail_is_never_executed_before_manager_revision(self):
+        a=self.control_fixture();a._search_segment.update(blocked=2,reason='GOAL_OCCUPIED')
+        a._segment_control(3.,5.,.8,2.,2.)
+        self.assertEqual(a._search_segment['index'],1)
+        a._send_vel.assert_called_once_with(0.,0.)
+
+    def test_tail_revision_does_not_reset_scan_budget(self):
+        a=self.control_fixture();a._search_scan_started_t=97.;a._search_scan_phase=2
+        msg=self.message(2);msg.search_waypoints=msg.search_waypoints[:1]
+        msg.search_cell_ix=msg.search_cell_ix[:1];msg.search_cell_iy=msg.search_cell_iy[:1]
+        a._accept_segment_message(msg)
+        self.assertEqual(a._search_scan_key,(0,0,3.5,0.))
+        self.assertEqual(a._search_scan_started_t,97.)
+        self.assertEqual(a._search_scan_phase,2)
+
+    def test_inflation_start_can_only_use_checked_exit_not_direct_goal_velocity(self):
+        a=self.control_fixture();a._search_segment.update(blocked=1,reason='START_OCCUPIED')
+        a.grid.is_free=Mock(return_value=False);a.grid.is_free_raw=Mock(return_value=True)
+        a.local_xy=(2.,0.);a._occupied_cell_exit=Mock(return_value=(0.,.5))
+        a._segment_control(3.,5.,.8,2.,2.)
+        a._occupied_cell_exit.assert_called_once()
+        a._send_vel.assert_called_once_with(0.,.5)
+        a.grid.is_free_raw.return_value=False;a._send_vel.reset_mock()
+        a._segment_control(3.,5.,.8,2.,2.)
+        a._send_vel.assert_called_once_with(0.,0.)
 
     def test_expired_segment_stops_without_reusing_previous_velocity(self):
         a=self.control_fixture();a._search_segment['until']=99.

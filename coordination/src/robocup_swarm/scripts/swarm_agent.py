@@ -4125,18 +4125,25 @@ class SwarmAgent(SearchSegmentAgent):
                 self._plan_pending = None
                 self._plan_event.clear()
             try:
-                path, target, ok = (self._compute_segment_plan(points) if identity is not None
-                                    else self._compute_plan(goal))
+                blocked, blocked_reason = 0, ''
+                if identity is not None:
+                    path,target,ok,blocked,blocked_reason = self._compute_segment_plan(points)
+                else:
+                    path,target,ok = self._compute_plan(goal)
             except Exception as exc:
                 rospy.logerr("[%s] 规划线程异常: %s\n%s",
                              self.uav_id, exc, traceback.format_exc())
                 ok = False
+                blocked, blocked_reason = 1, 'PLANNER_EXCEPTION'
             with self._plan_lock:
                 self._plan_inflight = None
                 if epoch != self._plan_epoch or identity != self._segment_identity():
                     # A new task arrived while A* computed; never commit its
                     # previous route after the search/pursuit switch.
                     continue
+                if identity is not None:
+                    self._search_segment['blocked'] = identity[2]+blocked if blocked else 0
+                    self._search_segment['reason'] = blocked_reason
                 if ok:
                     self.path = path
                     self.path_target = target

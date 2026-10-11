@@ -192,6 +192,24 @@ class SearchSegmentManager:
                 if task.index == len(task.cells):
                     # A completed prefix alone never manufactures DONE.
                     continue
+                blocked = st.search_blocked_waypoint-1
+                if st.search_blocked_waypoint and task.index <= blocked < len(task.cells):
+                    if st.search_blocked_reason == 'START_OCCUPIED' and blocked == task.index:
+                        if task.blocked_since is None:
+                            task.blocked_since = stamp
+                        if stamp-task.blocked_since < 8.:
+                            # Bounded local exit uses measured lidar and raw
+                            # cells. Changing task/version cannot buy more time.
+                            self._send_segment(task)
+                            continue
+                    if blocked > task.index:
+                        self._revise_segment(task,task.cells[task.index:blocked],
+                            task.points[task.index:blocked],stamp,'local_'+st.search_blocked_reason)
+                    else:
+                        self._drop_segment(uid,'local_'+st.search_blocked_reason,failed=True)
+                        self._release_cooldown[uid] = now+rospy.Duration(2.)
+                    continue
+                task.blocked_since = None
                 self._active_leases[uid] = task.cells[task.index]
                 current = (st.search_path_revision,st.search_path_remaining,st.x,st.y)
                 if visited:

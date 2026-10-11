@@ -1,0 +1,28 @@
+.........../opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[u0] search segment blocked leg=2/3 point=(10.50,0.00) reason=GOAL_OCCUPIED
+......................[typhoon_h480_5] 放弃盘旋 t2：reproduce missing pursuit pointer
+.......................[u0] 末级近距径向限速 tid=t0 dist=5.00m vin=(0.80,0.00) vout=(0.00,0.00)
+.[?] 末级雷达侧障限速 d=0.60m cap=0.50m/s
+[?] 末级雷达侧障停车 d=0.60m toward=1.00m/s
+......[CRASH] typhoon_h480_3 恢复达到高度/时间上限，清除恢复标志
+...............................[manager] typhoon_h480_3 暂不可执行任务，回收格 (2,3) 租约
+...........................[VIEW_RECOVERY] tid=t1 main=u2 backup=None reason=unverified_visual elapsed=0.0; 保持目标补看，等待可靠接力
+[manager] t1 在 (-27.0,13.7) 补看仍失败；保留候选等待其他视角，不屏蔽上报
+.............[manager] u0 搜索格 (2,3) 20s 未向航点推进 2.0m，提前回收重派
+[manager] u0 搜索格 (2,3) 20s 未向航点推进 2.0m，提前回收重派
+............................[manager] typhoon_h480_0 搜索格 (0, 0) 已无安全视点，取消并回收租约
+....[manager] typhoon_h480_0 搜索格 (0, 0) 原航点受阻，明确重派安全视点
+....[manager] typhoon_h480_0 搜索格 (0, 0) 原航点受阻，明确重派安全视点
+[manager] typhoon_h480_0 持有格 (0,0) 超 90s 未抵达 → 强制回收租约重派
+.[manager] typhoon_h480_0 搜索格 (0, 0) 原航点受阻，明确重派安全视点
+.[manager] typhoon_h480_0 搜索格 (0, 0) 原航点受阻，明确重派安全视点
+...................[manager] 视觉颜色冲突 (1.0,2.0) ['t3']：位置隔离 12s
+........................[u0] t0 接近中已 20.0s 无真实位置，停车等待新图像或管理器改派
+..........................................................
+----------------------------------------------------------------------
+Ran 273 tests in 1.155s
+
+OK
+[manager] 读元数据 bounds 失败，用硬编码边界: [Errno 2] No such file or directory: '/home/ros/team_ws/robocup/src/robocup_training_worlds/worlds/generated/robocup_base.json'
+sys:1: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/gycc/robocup_logs/perception_typhoon_h480_0.csv' mode='a' encoding='utf-8'>

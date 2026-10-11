@@ -23,3 +23,5 @@ uint32 search_index         # number of visited waypoints, not covered cells
 uint8 search_state          # 0=none 1=travel 2=look 3=candidate 4=yield 5=done 6=failed
 uint32 search_path_revision
 float32 search_path_remaining  # metres along current safe path; -1 if unavailable
+uint32 search_blocked_waypoint # 0=none; otherwise first unreachable index + 1
+string search_blocked_reason   # local planner reason; scoped to task/revision

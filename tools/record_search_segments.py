@@ -22,6 +22,7 @@ def status(m):
     write('status',dict(uav=m.uav_id,stamp=m.header.stamp.to_sec(),connected=m.connected,
         x=m.x,y=m.y,z=m.z,task=m.search_task_id,version=m.search_revision,index=m.search_index,
         state=m.search_state,path_version=m.search_path_revision,remaining=m.search_path_remaining,
+        blocked=m.search_blocked_waypoint,blocked_reason=m.search_blocked_reason,
         cell=[m.assigned_cell_ix,m.assigned_cell_iy],point=[m.assigned_target_x,m.assigned_target_y]))
 def assignment(m):
     write('assignment',dict(uav=m.uav_id,stamp=m.header.stamp.to_sec(),type=m.task_type,target=m.target_id,

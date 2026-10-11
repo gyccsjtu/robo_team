@@ -28,6 +28,7 @@ class Segment:
     progress: object = None
     wait_since: object = None
     yield_replanned: bool = False
+    blocked_since: object = None
 
 
 class SegmentBook:

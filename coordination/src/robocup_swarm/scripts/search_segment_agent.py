@@ -50,11 +50,16 @@ class SearchSegmentAgent:
                     return False  # heartbeat cannot reset index, scan or attention
             elif sample < getattr(self,'_last_task_stamp',-1.):
                 return False
+            same_view = (current is not None and current['id'] == tid and
+                         current['index'] < len(current['cells']) and
+                         cells[0] == current['cells'][current['index']] and
+                         points[0] == current['points'][current['index']])
             self._close_segment(retire=current is None or current['id'] != tid)
             self._discard_old_plan()
-            self._search_scan_key = None
+            if not same_view:
+                self._search_scan_key = None
             self._search_segment = dict(id=tid,revision=revision,cells=cells,points=points,
-                index=0,until=until,state=TRAVEL,created=sample)
+                index=0,until=until,state=TRAVEL,created=sample,blocked=0,reason='')
             self._segment_path_key = None
             self._last_task_stamp = max(sample,getattr(self,'_last_task_stamp',-1.))
             return True
@@ -84,21 +89,28 @@ class SearchSegmentAgent:
         grid = self.grid
         start = self.world_xy
         if start is None or not points:
-            return [],points[-1] if points else (0.,0.),False
+            return [],points[-1] if points else (0.,0.),False,1,'NO_START'
         path = [tuple(start)]
-        for point in points:
+        for index,point in enumerate(points):
             route = plan(grid,start,point,connectivity=8,prevent_corner_cutting=True)
             if not route.success:
-                rospy.logwarn_throttle(5.,'[%s] search segment route failed: %s',self.uav_id,route.reason)
-                return [],points[-1],False
-            leg = [tuple(start)]+list(route.points)+[tuple(point)]
+                reason = route.reason
+                leg = None
+            else:
+                reason = 'UNSAFE_CONNECTION'
+                leg = [tuple(start)]+list(route.points)+[tuple(point)]
             # Keep every obstacle-required turn. No blind straight-line fallback
             # and no spline that cuts across an inflated building corner.
-            if any(not clear_line(grid,a,b) for a,b in zip(leg,leg[1:])):
-                return [],points[-1],False
+            if leg is None or any(not clear_line(grid,a,b) for a,b in zip(leg,leg[1:])):
+                rospy.logwarn_throttle(5.,
+                    '[%s] search segment blocked leg=%d/%d point=(%.2f,%.2f) reason=%s',
+                    self.uav_id,index+1,len(points),point[0],point[1],reason)
+                # Only this verified prefix may execute. The task itself is
+                # shortened by the manager in a new revision, never locally.
+                return (path if index else []),start,index>0,index+1,reason
             path.extend(leg[1:])
             start = point
-        return path,points[-1],True
+        return path,points[-1],True,0,''
 
     def _segment_next(self):
         task = self._search_segment
@@ -135,6 +147,24 @@ class SearchSegmentAgent:
             self._send_vel(0.,0.)
             return True
         i = task['index']
+        if task.get('blocked',0) and i >= task['blocked']-1:
+            if task.get('reason') == 'START_OCCUPIED':
+                own = self.grid.world_to_cell(self.world_xy)
+                if self.grid.is_free(own):
+                    self._request_plan(task['points'][-1])
+                elif getattr(self.grid,'is_free_raw',lambda _:False)(own):
+                    # Strict A* cannot start inside inflation. Reuse the
+                    # existing slow, lidar-checked raw-free exit rather than
+                    # introducing a straight-through planning fallback.
+                    dx = task['points'][i][0]-self.world_xy[0]
+                    dy = task['points'][i][1]-self.world_xy[1]
+                    vx,vy = self._occupied_cell_exit(dx,dy)
+                    vx,vy = self._apply_friend_avoidance(vx,vy)
+                    task['state'] = YIELD
+                    self._send_vel(vx,vy)
+                    return True
+            self._send_vel(0.,0.)
+            return True  # await explicit revision/cancellation of blocked tail
         point = task['points'][i]
         distance = math.dist(self.world_xy,point)
         if distance < arrive:
@@ -151,6 +181,9 @@ class SearchSegmentAgent:
                 # manager explicitly queues the unobserved cell for a side view.
                 self._segment_next()
                 if task['state'] == DONE:
+                    self._send_vel(0.,0.)
+                    return True
+                if task.get('blocked',0) and task['index'] >= task['blocked']-1:
                     self._send_vel(0.,0.)
                     return True
             else:
@@ -203,6 +236,8 @@ class SearchSegmentAgent:
             return
         st.search_task_id,st.search_revision = task['id'],task['revision']
         st.search_index,st.search_state = task['index'],task['state']
+        st.search_blocked_waypoint = task.get('blocked',0)
+        st.search_blocked_reason = task.get('reason','')
         cue = getattr(self,'_camera_cue',None)
         if cue is not None and rospy.Time.now().to_sec() < cue['until']:
             st.search_state = ATTEND
