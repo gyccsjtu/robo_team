@@ -15,3 +15,7 @@
 新增 tools/test_search_view_hint.py 共15项：同图像原点、图像时间TTL、消息乱序、绑定/取消、过期/异常输入、2米限制、180度转向、实际图像对准、重复派发预算、发布失败、受阻原点、普通搜索兼容及无目标/覆盖写入。
 与camera/candidate/pixel/fast-yaw/early-reacquire/search-reachability/search-dispatched/search-progress组合共142项通过；py_compile和git diff --check通过。
 待GUI验收：记录 missed -> hint assignment -> 到达 -> turning/observing/end，核实各阶段时间、实际偏航与新图像；确认没有旧hint抢走正在跟踪的目标。当前不声明提高6/6成绩。
+
+后续GUI验证已完成：1ff3c73、logs_20261011_221944，官方433.100秒6/6。
+比赛完成前3次方向补看完成、1次超时、1次过期/失信结束。仅验证动作链执行，
+未证明搜索提速或误检已消除。完整结果见20261011_search_handoff_validation.txt。

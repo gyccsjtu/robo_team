@@ -1,0 +1,820 @@
+{
+  "commit": "1ff3c73fdefb53ea89ba583db99fbb5c8c56b3dd",
+  "official": {
+    "5": 79.72399999999993,
+    "4": 80.11999999999989,
+    "0": 177.12000000000012,
+    "2": 319.3879999999997,
+    "1": 393.80799999999977,
+    "3": 433.0999999999997
+  },
+  "finished": true,
+  "start_ros_estimate": 1943.293,
+  "report_metrics": {
+    "green": {
+      "reports": 37,
+      "evaluated": 36,
+      "under_1m": 36,
+      "max_error": 0.9407867227151178,
+      "max_gap": 8.108000000000175,
+      "gaps_over_1s": 4,
+      "deletion_ambiguity": 1,
+      "first_report_elapsed": 147.43100000000027
+    },
+    "blue": {
+      "reports": 191,
+      "evaluated": 190,
+      "under_1m": 163,
+      "max_error": 1.8615593463974862,
+      "max_gap": 15.580000000000382,
+      "gaps_over_1s": 11,
+      "deletion_ambiguity": 1,
+      "first_report_elapsed": 245.4269999999999
+    },
+    "brown": {
+      "reports": 98,
+      "evaluated": 96,
+      "under_1m": 95,
+      "max_error": 1.505993151000352,
+      "max_gap": 84.60399999999981,
+      "gaps_over_1s": 6,
+      "deletion_ambiguity": 2,
+      "first_report_elapsed": 174.43900000000008
+    },
+    "white": {
+      "reports": 64,
+      "evaluated": 63,
+      "under_1m": 59,
+      "max_error": 1.7960438477504599,
+      "max_gap": 41.00799999999981,
+      "gaps_over_1s": 12,
+      "deletion_ambiguity": 1,
+      "first_report_elapsed": 273.24300000000017
+    },
+    "red1": {
+      "reports": 34,
+      "evaluated": 33,
+      "under_1m": 33,
+      "max_error": 0.8812240467489846,
+      "max_gap": 0.5240000000001146,
+      "gaps_over_1s": 0,
+      "deletion_ambiguity": 1,
+      "first_report_elapsed": 64.03100000000018
+    },
+    "red2": {
+      "reports": 32,
+      "evaluated": 30,
+      "under_1m": 30,
+      "max_error": 0.6721546578570539,
+      "max_gap": 1.2040000000001783,
+      "gaps_over_1s": 1,
+      "deletion_ambiguity": 2,
+      "first_report_elapsed": 64.22300000000018
+    }
+  },
+  "errors_over_1m": [
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2207.52,
+      "error": 1.154662930461526
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2217.144,
+      "error": 1.002937952570421
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2260.012,
+      "error": 1.2071875128880576
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2271.88,
+      "error": 1.1828663155026253
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2275.68,
+      "error": 1.1989329586727369
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2278.88,
+      "error": 1.2588424616899487
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2279.68,
+      "error": 1.0144391442825254
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2280.732,
+      "error": 1.3423680391257278
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2281.212,
+      "error": 1.2729766168368666
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2281.732,
+      "error": 1.0888283640177887
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2283.28,
+      "error": 1.3426691972840603
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2284.08,
+      "error": 1.8615593463974862
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2286.344,
+      "error": 1.4335682268694476
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2287.944,
+      "error": 1.0254627156043417
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2290.944,
+      "error": 1.0041831431987642
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2291.412,
+      "error": 1.4976916685023425
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2293.08,
+      "error": 1.0131082494642794
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2297.14,
+      "error": 1.2198254439731857
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2301.812,
+      "error": 1.143156720539555
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2303.512,
+      "error": 1.1759003949025282
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2304.012,
+      "error": 1.2787906256408916
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2306.328,
+      "error": 1.006452382975211
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2311.732,
+      "error": 1.280584073978454
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2312.68,
+      "error": 1.0914228963166848
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2313.328,
+      "error": 1.4472728815666869
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2313.812,
+      "error": 1.3483440577635624
+    },
+    {
+      "tag": "blue",
+      "actor": 1,
+      "ros": 2321.08,
+      "error": 1.090088572588979
+    },
+    {
+      "tag": "brown",
+      "actor": 2,
+      "ros": 2222.08,
+      "error": 1.505993151000352
+    },
+    {
+      "tag": "white",
+      "actor": 3,
+      "ros": 2218.328,
+      "error": 1.0140603776687127
+    },
+    {
+      "tag": "white",
+      "actor": 3,
+      "ros": 2287.52,
+      "error": 1.7960438477504599
+    },
+    {
+      "tag": "white",
+      "actor": 3,
+      "ros": 2331.128,
+      "error": 1.0512886371018224
+    },
+    {
+      "tag": "white",
+      "actor": 3,
+      "ros": 2353.28,
+      "error": 1.0173866689313054
+    }
+  ],
+  "motion": {
+    "5": {
+      "last_15s_displacement": 13.710023311285278,
+      "last_15s_path": 13.716594712033116
+    },
+    "4": {
+      "last_15s_displacement": 14.986488639303829,
+      "last_15s_path": 14.987689044762002
+    },
+    "0": {
+      "last_15s_displacement": 12.05542332505027,
+      "last_15s_path": 13.561345206725774
+    },
+    "2": {
+      "last_15s_displacement": 8.47902994216484,
+      "last_15s_path": 14.039412297941235
+    },
+    "1": {
+      "last_15s_displacement": 1.919711340628656,
+      "last_15s_path": 13.150415497375045
+    },
+    "3": {
+      "last_15s_displacement": 0.003999999999990862,
+      "last_15s_path": 3.8679999999917527
+    }
+  },
+  "first_spatially_matching_source": {
+    "0": {
+      "elapsed": 145.75099999999998,
+      "uav": "typhoon_h480_3",
+      "sample": 2089.044
+    },
+    "1": {
+      "elapsed": 245.33500000000026,
+      "uav": "typhoon_h480_5",
+      "sample": 2188.628
+    },
+    "2": {
+      "elapsed": 147.74700000000007,
+      "uav": "typhoon_h480_3",
+      "sample": 2091.04
+    },
+    "3": {
+      "elapsed": 273.135,
+      "uav": "typhoon_h480_5",
+      "sample": 2216.428
+    },
+    "4": {
+      "elapsed": 63.11900000000014,
+      "uav": "typhoon_h480_5",
+      "sample": 2006.412
+    },
+    "5": {
+      "elapsed": 63.11900000000014,
+      "uav": "typhoon_h480_5",
+      "sample": 2006.412
+    }
+  },
+  "view_counts": {
+    "typhoon_h480_5:t5:images": 85,
+    "typhoon_h480_5:t5:report_ok": 64,
+    "typhoon_h480_5:t4:images": 76,
+    "typhoon_h480_5:t4:report_ok": 45,
+    "typhoon_h480_4:t5:images": 46,
+    "typhoon_h480_4:t5:report_ok": 21,
+    "typhoon_h480_4:t4:images": 36,
+    "typhoon_h480_4:t4:report_ok": 24,
+    "typhoon_h480_4:t5:near_bottom": 19,
+    "typhoon_h480_4:t4:near_bottom": 2,
+    "typhoon_h480_2:t1:images": 255,
+    "typhoon_h480_2:t1:report_ok": 235,
+    "typhoon_h480_3:t0:images": 140,
+    "typhoon_h480_3:t0:report_ok": 92,
+    "typhoon_h480_3:t2:images": 223,
+    "typhoon_h480_3:t2:report_ok": 87,
+    "typhoon_h480_3:t0:near_bottom": 66,
+    "typhoon_h480_3:t2:near_bottom": 119,
+    "typhoon_h480_1:t0:images": 12,
+    "typhoon_h480_1:t0:report_ok": 8,
+    "typhoon_h480_1:t0:near_bottom": 2,
+    "typhoon_h480_1:t2:images": 9,
+    "typhoon_h480_1:t2:report_ok": 6,
+    "typhoon_h480_1:t2:near_bottom": 2,
+    "typhoon_h480_5:t1:images": 602,
+    "typhoon_h480_5:t1:report_ok": 498,
+    "typhoon_h480_5:t3:images": 395,
+    "typhoon_h480_5:t3:report_ok": 242,
+    "typhoon_h480_5:t1:near_bottom": 90,
+    "typhoon_h480_5:t2:images": 234,
+    "typhoon_h480_5:t2:report_ok": 180,
+    "typhoon_h480_3:t1:images": 521,
+    "typhoon_h480_3:t1:report_ok": 329,
+    "typhoon_h480_3:t1:near_bottom": 237,
+    "typhoon_h480_5:t3:near_bottom": 63,
+    "typhoon_h480_4:t1:images": 107,
+    "typhoon_h480_4:t1:report_ok": 88,
+    "typhoon_h480_5:t2:near_bottom": 5,
+    "typhoon_h480_1:t1:images": 1,
+    "typhoon_h480_1:t1:near_bottom": 1,
+    "typhoon_h480_4:t1:near_bottom": 24,
+    "typhoon_h480_2:t3:images": 249,
+    "typhoon_h480_2:t3:report_ok": 71,
+    "typhoon_h480_2:t3:near_bottom": 194,
+    "typhoon_h480_2:t1:near_bottom": 28,
+    "typhoon_h480_3:t3:images": 267,
+    "typhoon_h480_3:t3:report_ok": 204,
+    "typhoon_h480_3:t3:near_bottom": 45,
+    "typhoon_h480_4:t3:images": 123,
+    "typhoon_h480_4:t3:report_ok": 76,
+    "typhoon_h480_4:t3:near_bottom": 37
+  },
+  "support": [
+    "[INFO] [1791728531.632597, 2049.264000]: [SEARCH_PROGRESS_SUPPORT] uav=typhoon_h480_1 zone=3 new_route_or_image_45s=2 routes=1 images=1 donor=10 donor_routes=10 donor_images=5 distance=13.8 cell=(26, 6) zone_cooldown=90s; one bounded search job, no camera credit",
+    "[INFO] [1791728597.477649, 2112.964000]: [SEARCH_PROGRESS_SUPPORT] uav=typhoon_h480_4 zone=2 new_route_or_image_45s=0 routes=0 images=0 donor=8 donor_routes=7 donor_images=5 distance=35.4 cell=(11, 10) zone_cooldown=90s; one bounded search job, no camera credit",
+    "[INFO] [1791728643.216224, 2157.364000]: [SEARCH_PROGRESS_SUPPORT] uav=typhoon_h480_0 zone=1 new_route_or_image_45s=0 routes=0 images=0 donor=7 donor_routes=6 donor_images=3 distance=42.5 cell=(15, 3) zone_cooldown=90s; one bounded search job, no camera credit",
+    "[INFO] [1791728798.288648, 2308.264000]: [SEARCH_PROGRESS_SUPPORT] uav=typhoon_h480_1 zone=3 new_route_or_image_45s=0 routes=0 images=0 donor=7 donor_routes=6 donor_images=2 distance=33.1 cell=(16, 6) zone_cooldown=90s; one bounded search job, no camera credit",
+    "[INFO] [1791728893.983961, 2402.364000]: [SEARCH_PROGRESS_SUPPORT] uav=typhoon_h480_5 zone=3 new_route_or_image_45s=2 routes=2 images=1 donor=9 donor_routes=8 donor_images=5 distance=33.9 cell=(24, 11) zone_cooldown=90s; one bounded search job, no camera credit",
+    "[INFO] [1791729039.708950, 2547.164000]: [SEARCH_PROGRESS_SUPPORT] uav=typhoon_h480_3 zone=2 new_route_or_image_45s=3 routes=2 images=1 donor=15 donor_routes=14 donor_images=6 distance=27.1 cell=(13, 7) zone_cooldown=90s; one bounded search job, no camera credit"
+  ],
+  "hint_assignments": [
+    {
+      "x": 4.966250187766563,
+      "y": -3.9886691026401015,
+      "bearing": -0.6805765956140913,
+      "color": "green",
+      "candidate_id": "green:0",
+      "image_sample_s": 1970.212,
+      "origin_sample_s": 1970.212,
+      "expires_s": 2005.212,
+      "source_uav": "typhoon_h480_1",
+      "job_id": "typhoon_h480_1:green:0:1970.212000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_0",
+      "cell_ix": 8,
+      "cell_iy": 8,
+      "assignment_s": 1981.168,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 41.677659817277046,
+      "y": 24.567782928360913,
+      "bearing": 2.171765105637413,
+      "color": "red",
+      "candidate_id": "red:0",
+      "image_sample_s": 1996.64,
+      "origin_sample_s": 1996.64,
+      "expires_s": 2031.64,
+      "source_uav": "typhoon_h480_5",
+      "job_id": "typhoon_h480_5:red:0:1996.640000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_3",
+      "cell_ix": 13,
+      "cell_iy": 12,
+      "assignment_s": 2015.272,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 105.43586624367572,
+      "y": -6.635293882781272,
+      "bearing": 0.20492426844637848,
+      "color": "brown",
+      "candidate_id": "brown:9",
+      "image_sample_s": 2141.02,
+      "origin_sample_s": 2141.02,
+      "expires_s": 2176.02,
+      "source_uav": "typhoon_h480_3",
+      "job_id": "typhoon_h480_3:brown:9:2141.020000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_3",
+      "cell_ix": 22,
+      "cell_iy": 8,
+      "assignment_s": 2158.968,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 110.83850308690128,
+      "y": -6.778627844548983,
+      "bearing": 0.5498904900156295,
+      "color": "brown",
+      "candidate_id": "brown:10",
+      "image_sample_s": 2154.644,
+      "origin_sample_s": 2154.644,
+      "expires_s": 2189.644,
+      "source_uav": "typhoon_h480_3",
+      "job_id": "typhoon_h480_3:brown:10:2154.644000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_3",
+      "cell_ix": 23,
+      "cell_iy": 8,
+      "assignment_s": 2170.768,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 18.561079683750773,
+      "y": 26.841736508202157,
+      "bearing": 2.66519534999559,
+      "color": "blue",
+      "candidate_id": "blue:22",
+      "image_sample_s": 2179.04,
+      "origin_sample_s": 2179.04,
+      "expires_s": 2214.04,
+      "source_uav": "typhoon_h480_4",
+      "job_id": "typhoon_h480_4:blue:22:2179.040000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_4",
+      "cell_ix": 10,
+      "cell_iy": 12,
+      "assignment_s": 2193.968,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 114.73641011771358,
+      "y": 37.40802372819186,
+      "bearing": -0.7342242653494535,
+      "color": "brown",
+      "candidate_id": "brown:19",
+      "image_sample_s": 2174.232,
+      "origin_sample_s": 2174.232,
+      "expires_s": 2209.232,
+      "source_uav": "typhoon_h480_5",
+      "job_id": "typhoon_h480_5:brown:19:2174.232000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_5",
+      "cell_ix": 23,
+      "cell_iy": 14,
+      "assignment_s": 2201.168,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 87.70746981753462,
+      "y": -37.06849325643718,
+      "bearing": 2.5842937767801066,
+      "color": "blue",
+      "candidate_id": "blue:60",
+      "image_sample_s": 2212.044,
+      "origin_sample_s": 2212.044,
+      "expires_s": 2247.044,
+      "source_uav": "typhoon_h480_1",
+      "job_id": "typhoon_h480_1:blue:60:2212.044000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_1",
+      "cell_ix": 20,
+      "cell_iy": 3,
+      "assignment_s": 2235.668,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 126.28567653566265,
+      "y": 37.166965052486326,
+      "bearing": 1.636565199936071,
+      "color": "white",
+      "candidate_id": "white:41",
+      "image_sample_s": 2297.836,
+      "origin_sample_s": 2297.836,
+      "expires_s": 2332.836,
+      "source_uav": "typhoon_h480_3",
+      "job_id": "typhoon_h480_3:white:41:2297.836000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_5",
+      "cell_ix": 25,
+      "cell_iy": 14,
+      "assignment_s": 2316.968,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 119.24361788696908,
+      "y": 40.516921863190795,
+      "bearing": 0.38065442825220314,
+      "color": "white",
+      "candidate_id": "white:63",
+      "image_sample_s": 2313.216,
+      "origin_sample_s": 2313.216,
+      "expires_s": 2348.216,
+      "source_uav": "typhoon_h480_5",
+      "job_id": "typhoon_h480_5:white:63:2313.216000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_3",
+      "cell_ix": 24,
+      "cell_iy": 15,
+      "assignment_s": 2342.168,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 92.8165975123832,
+      "y": -40.13888370845413,
+      "bearing": 2.6015499500107047,
+      "color": "blue",
+      "candidate_id": "blue:109",
+      "image_sample_s": 2406.22,
+      "origin_sample_s": 2406.22,
+      "expires_s": 2441.22,
+      "source_uav": "typhoon_h480_1",
+      "job_id": "typhoon_h480_1:blue:109:2406.220000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_1",
+      "cell_ix": 21,
+      "cell_iy": 3,
+      "assignment_s": 2424.468,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 16.675805795325097,
+      "y": 49.211020145083026,
+      "bearing": -2.134613013289587,
+      "color": "blue",
+      "candidate_id": "blue:5",
+      "image_sample_s": 2411.42,
+      "origin_sample_s": 2411.42,
+      "expires_s": 2446.42,
+      "source_uav": "typhoon_h480_0",
+      "job_id": "typhoon_h480_0:blue:5:2411.420000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_0",
+      "cell_ix": 10,
+      "cell_iy": 16,
+      "assignment_s": 2430.568,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 14.191902901811455,
+      "y": 49.216046406713964,
+      "bearing": -2.1221613041945866,
+      "color": "blue",
+      "candidate_id": "blue:10",
+      "image_sample_s": 2416.632,
+      "origin_sample_s": 2416.632,
+      "expires_s": 2451.632,
+      "source_uav": "typhoon_h480_0",
+      "job_id": "typhoon_h480_0:blue:10:2416.632000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_0",
+      "cell_ix": 9,
+      "cell_iy": 16,
+      "assignment_s": 2446.972,
+      "real_detection": false,
+      "report_eligible": false
+    },
+    {
+      "x": 24.403145266182715,
+      "y": 43.74723472449931,
+      "bearing": -2.7481585504113575,
+      "color": "blue",
+      "candidate_id": "blue:24",
+      "image_sample_s": 2480.852,
+      "origin_sample_s": 2480.852,
+      "expires_s": 2515.852,
+      "source_uav": "typhoon_h480_0",
+      "job_id": "typhoon_h480_0:blue:24:2480.852000000",
+      "schema": 1,
+      "purpose": "search_view_hint",
+      "uav_id": "typhoon_h480_0",
+      "cell_ix": 11,
+      "cell_iy": 15,
+      "assignment_s": 2492.972,
+      "real_detection": false,
+      "report_eligible": false
+    }
+  ],
+  "hint_execution": [
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728935.151551, 2443.200000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_0 candidate=blue:5 image=2411.420 assignment=2430.568 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728936.211192, 2444.252000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_0 candidate=blue:5 image=2411.420 assignment=2430.568 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728937.266335, 2445.300000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_0 candidate=blue:5 image=2411.420 assignment=2430.568 phase=observing; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728937.924589, 2445.952000]: [SEARCH_VIEW_HINT_END] uav=typhoon_h480_0 result=direction_observed; no coverage credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728938.976852, 2447.000000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_0 candidate=blue:10 image=2416.632 assignment=2446.972 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728940.034384, 2448.052000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_0 candidate=blue:10 image=2416.632 assignment=2446.972 phase=observing; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728940.134023, 2448.152000]: [SEARCH_VIEW_HINT_END] uav=typhoon_h480_0 result=direction_observed; no coverage credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728993.818175, 2501.600000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_0 candidate=blue:24 image=2480.852 assignment=2492.972 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728994.885100, 2502.656000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_0 candidate=blue:24 image=2480.852 assignment=2492.972 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728995.931594, 2503.700000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_0 candidate=blue:24 image=2480.852 assignment=2492.972 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_0.log",
+      "line": "[INFO] [1791728996.990421, 2504.752000]: [SEARCH_VIEW_HINT_END] uav=typhoon_h480_0 result=direction_observed; no coverage credit"
+    },
+    {
+      "file": "06_swarm_agent_4.log",
+      "line": "[INFO] [1791728683.826917, 2196.740000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_4 candidate=blue:22 image=2179.040 assignment=2193.968 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_4.log",
+      "line": "[INFO] [1791728684.904996, 2197.792000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_4 candidate=blue:22 image=2179.040 assignment=2193.968 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_4.log",
+      "line": "[INFO] [1791728691.600832, 2204.340000]: [SEARCH_VIEW_HINT_END] uav=typhoon_h480_4 result=look_timeout; no coverage credit"
+    },
+    {
+      "file": "06_swarm_agent_1.log",
+      "line": "[INFO] [1791728730.697659, 2242.364000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_1 candidate=blue:60 image=2212.044 assignment=2235.668 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_1.log",
+      "line": "[INFO] [1791728731.754287, 2243.412000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_1 candidate=blue:60 image=2212.044 assignment=2235.668 phase=observing; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_1.log",
+      "line": "[INFO] [1791728731.903024, 2243.560000]: [SEARCH_VIEW_HINT_END] uav=typhoon_h480_1 result=direction_observed; no coverage credit"
+    },
+    {
+      "file": "06_swarm_agent_3.log",
+      "line": "[INFO] [1791728513.466125, 2031.664000]: [SEARCH_VIEW_HINT_END] uav=typhoon_h480_3 result=expired_or_untrusted; no coverage credit"
+    },
+    {
+      "file": "06_swarm_agent_3.log",
+      "line": "[INFO] [1791728653.368631, 2167.116000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_3 candidate=brown:9 image=2141.020 assignment=2158.968 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_3.log",
+      "line": "[INFO] [1791728654.455208, 2168.164000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_3 candidate=brown:9 image=2141.020 assignment=2158.968 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_3.log",
+      "line": "[INFO] [1791728655.535340, 2169.216000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_3 candidate=brown:9 image=2141.020 assignment=2158.968 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_3.log",
+      "line": "[INFO] [1791728656.612755, 2170.264000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_3 candidate=brown:9 image=2141.020 assignment=2158.968 phase=observing; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_3.log",
+      "line": "[INFO] [1791728656.930938, 2170.564000]: [SEARCH_VIEW_HINT_END] uav=typhoon_h480_3 result=direction_observed; no coverage credit"
+    },
+    {
+      "file": "06_swarm_agent_3.log",
+      "line": "[INFO] [1791728660.285178, 2173.816000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_3 candidate=brown:10 image=2154.644 assignment=2170.768 phase=turning; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_3.log",
+      "line": "[INFO] [1791728661.340036, 2174.864000]: [SEARCH_VIEW_HINT] uav=typhoon_h480_3 candidate=brown:10 image=2154.644 assignment=2170.768 phase=observing; bounded yaw only, no observation credit"
+    },
+    {
+      "file": "06_swarm_agent_3.log",
+      "line": "[INFO] [1791728661.649937, 2175.164000]: [SEARCH_VIEW_HINT_END] uav=typhoon_h480_3 result=direction_observed; no coverage credit"
+    }
+  ],
+  "dynamic_reassignments": 20,
+  "blocked_cancellations": 4,
+  "failsafe_samples": 55,
+  "events": {
+    "fcu": 3919,
+    "local_pose": 117375,
+    "truth": 15972,
+    "position_command": 75167,
+    "uav_truth": 3570,
+    "discovery": 18319,
+    "target_report": 14654,
+    "processed_frame": 18319,
+    "assignment": 6637,
+    "candidate": 4390,
+    "candidate_missed": 43,
+    "search_view_hint": 13,
+    "tracking_view": 3381,
+    "visual_source": 1458,
+    "report_telemetry": 470,
+    "report": 456,
+    "reobserve": 3
+  },
+  "scope": "Truth is external file-only. XY interpolated <=.6s; excludes deletion ambiguity. First-source <3m is diagnostic spatial agreement, not report eligibility; for red both slots are considered. Official elapsed estimate has sampling uncertainty. No blanket no-collision certification.",
+  "match_phase": {
+    "finish_ros_estimate": 2376.3929999999996,
+    "support_jobs": 4,
+    "direction_observed": 3,
+    "direction_timeouts": 1,
+    "direction_expired": 1,
+    "dynamic_reassignments": 18,
+    "blocked_cancellations": 2,
+    "failsafe_samples": 0
+  },
+  "post_finish_failsafe_first": {
+    "5": {
+      "mode": "AUTO.LAND",
+      "elapsed": 504.155
+    },
+    "4": {
+      "mode": "AUTO.LAND",
+      "elapsed": 642.3030000000001
+    },
+    "3": {
+      "mode": "AUTO.LAND",
+      "elapsed": 643.6630000000002
+    },
+    "2": {
+      "mode": "AUTO.LAND",
+      "elapsed": 644.867
+    },
+    "1": {
+      "mode": "AUTO.LAND",
+      "elapsed": 645.8390000000002
+    },
+    "0": {
+      "mode": "AUTO.LAND",
+      "elapsed": 646.6389999999999
+    }
+  },
+  "report_totals": {
+    "reports": 456,
+    "evaluated": 448,
+    "at_least_1m": 32
+  }
+}

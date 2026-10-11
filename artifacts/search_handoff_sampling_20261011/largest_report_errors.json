@@ -1,0 +1,308 @@
+[
+  {
+    "tag": "blue",
+    "actor": 1,
+    "ros": 2284.08,
+    "error": 1.8615593463974862,
+    "telemetry": {
+      "event": "published",
+      "target_id": "t1",
+      "tag": "blue",
+      "report_s": 2284.08,
+      "sample_s": 2283.624,
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_3",
+      "candidate_id": "26b5f2b900d6468d89cea7dbd9bfe875:9",
+      "x": 129.069,
+      "y": 44.274
+    },
+    "source": {
+      "target_id": "t1",
+      "source_uav": "typhoon_h480_3",
+      "candidate_id": "26b5f2b900d6468d89cea7dbd9bfe875:9",
+      "local_target_id": "t1",
+      "sample_s": 2283.624,
+      "x": 128.9,
+      "y": 44.08,
+      "real_detection": true,
+      "confidence": 0.926,
+      "range_m": 8.95,
+      "official_view_ok": true
+    },
+    "raw_image_error": 1.2071746143305342,
+    "raw_point_error_at_publication": 1.6089179749730917,
+    "final_minus_raw": [
+      0.16899999999998272,
+      0.19400000000000261
+    ]
+  },
+  {
+    "tag": "white",
+    "actor": 3,
+    "ros": 2287.52,
+    "error": 1.7960438477504599,
+    "telemetry": {
+      "event": "published",
+      "target_id": "t3",
+      "tag": "white",
+      "report_s": 2287.52,
+      "sample_s": 2287.444,
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_2",
+      "candidate_id": "ce5581ab95674f269243cd8ca9fb92bb:7",
+      "x": 127.77,
+      "y": 46.17
+    },
+    "source": {
+      "target_id": "t3",
+      "source_uav": "typhoon_h480_2",
+      "candidate_id": "ce5581ab95674f269243cd8ca9fb92bb:7",
+      "local_target_id": "t3",
+      "sample_s": 2287.444,
+      "x": 127.77,
+      "y": 46.17,
+      "real_detection": true,
+      "confidence": 0.724,
+      "range_m": 8.93,
+      "official_view_ok": true
+    },
+    "raw_image_error": 1.7741835952769895,
+    "raw_point_error_at_publication": 1.7960472588287093,
+    "final_minus_raw": [
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "tag": "brown",
+    "actor": 2,
+    "ros": 2222.08,
+    "error": 1.505993151000352,
+    "telemetry": {
+      "event": "published",
+      "target_id": "t2",
+      "tag": "brown",
+      "report_s": 2222.08,
+      "sample_s": 2221.64,
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "74e220b9e6b849deb71f161ec19aba7b:13",
+      "x": 126.661,
+      "y": 40.648
+    },
+    "source": {
+      "target_id": "t2",
+      "source_uav": "typhoon_h480_5",
+      "candidate_id": "74e220b9e6b849deb71f161ec19aba7b:13",
+      "local_target_id": "t2",
+      "sample_s": 2221.64,
+      "x": 126.79,
+      "y": 41.04,
+      "real_detection": true,
+      "confidence": 0.875,
+      "range_m": 7.68,
+      "official_view_ok": true,
+      "hypothesis_switch": {
+        "switch_s": 2206.228,
+        "old_x": 104.16252084277214,
+        "old_y": -2.845202640360193,
+        "new_x": 129.52,
+        "new_y": 35.44,
+        "source_uav": "typhoon_h480_5",
+        "trial_until_s": 2231.228,
+        "candidate_id": "74e220b9e6b849deb71f161ec19aba7b:13"
+      }
+    },
+    "raw_image_error": 1.3090849714850006,
+    "raw_point_error_at_publication": 1.6136396678509675,
+    "final_minus_raw": [
+      -0.1290000000000049,
+      -0.3919999999999959
+    ]
+  },
+  {
+    "tag": "blue",
+    "actor": 1,
+    "ros": 2291.412,
+    "error": 1.4976916685023425,
+    "telemetry": {
+      "event": "published",
+      "target_id": "t1",
+      "tag": "blue",
+      "report_s": 2291.412,
+      "sample_s": 2291.216,
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_2",
+      "candidate_id": "ce5581ab95674f269243cd8ca9fb92bb:8",
+      "x": 129.634,
+      "y": 42.393
+    },
+    "source": {
+      "target_id": "t1",
+      "source_uav": "typhoon_h480_2",
+      "candidate_id": "ce5581ab95674f269243cd8ca9fb92bb:8",
+      "local_target_id": "t1",
+      "sample_s": 2291.216,
+      "x": 129.24,
+      "y": 42.32,
+      "real_detection": true,
+      "confidence": 0.897,
+      "range_m": 9.55,
+      "official_view_ok": true
+    },
+    "raw_image_error": 0.9714353256549036,
+    "raw_point_error_at_publication": 1.1085712302056014,
+    "final_minus_raw": [
+      0.39399999999997704,
+      0.0730000000000004
+    ]
+  },
+  {
+    "tag": "blue",
+    "actor": 1,
+    "ros": 2313.328,
+    "error": 1.4472728815666869,
+    "telemetry": {
+      "event": "published",
+      "target_id": "t1",
+      "tag": "blue",
+      "report_s": 2313.324,
+      "sample_s": 2313.216,
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_2",
+      "candidate_id": "ce5581ab95674f269243cd8ca9fb92bb:8",
+      "x": 127.569,
+      "y": 38.177
+    },
+    "source": {
+      "target_id": "t1",
+      "source_uav": "typhoon_h480_2",
+      "candidate_id": "ce5581ab95674f269243cd8ca9fb92bb:8",
+      "local_target_id": "t1",
+      "sample_s": 2313.216,
+      "x": 127.52,
+      "y": 38.33,
+      "real_detection": true,
+      "confidence": 0.813,
+      "range_m": 9.08,
+      "official_view_ok": true
+    },
+    "raw_image_error": 1.4020139045183166,
+    "raw_point_error_at_publication": 1.311874041854026,
+    "final_minus_raw": [
+      0.049000000000006594,
+      -0.1529999999999987
+    ]
+  },
+  {
+    "tag": "blue",
+    "actor": 1,
+    "ros": 2286.344,
+    "error": 1.4335682268694476,
+    "telemetry": {
+      "event": "published",
+      "target_id": "t1",
+      "tag": "blue",
+      "report_s": 2286.344,
+      "sample_s": 2286.248,
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_3",
+      "candidate_id": "26b5f2b900d6468d89cea7dbd9bfe875:9",
+      "x": 129.327,
+      "y": 43.755
+    },
+    "source": {
+      "target_id": "t1",
+      "source_uav": "typhoon_h480_3",
+      "candidate_id": "26b5f2b900d6468d89cea7dbd9bfe875:9",
+      "local_target_id": "t1",
+      "sample_s": 2286.248,
+      "x": 129.08,
+      "y": 43.68,
+      "real_detection": true,
+      "confidence": 0.88,
+      "range_m": 9.06,
+      "official_view_ok": true
+    },
+    "raw_image_error": 1.1919002454447676,
+    "raw_point_error_at_publication": 1.193737831446,
+    "final_minus_raw": [
+      0.24699999999998568,
+      0.07500000000000284
+    ]
+  },
+  {
+    "tag": "blue",
+    "actor": 1,
+    "ros": 2313.812,
+    "error": 1.3483440577635624,
+    "telemetry": {
+      "event": "published",
+      "target_id": "t1",
+      "tag": "blue",
+      "report_s": 2313.812,
+      "sample_s": 2313.628,
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_2",
+      "candidate_id": "ce5581ab95674f269243cd8ca9fb92bb:8",
+      "x": 127.927,
+      "y": 38.189
+    },
+    "source": {
+      "target_id": "t1",
+      "source_uav": "typhoon_h480_2",
+      "candidate_id": "ce5581ab95674f269243cd8ca9fb92bb:8",
+      "local_target_id": "t1",
+      "sample_s": 2313.628,
+      "x": 127.75,
+      "y": 38.36,
+      "real_detection": true,
+      "confidence": 0.761,
+      "range_m": 9.1,
+      "official_view_ok": true
+    },
+    "raw_image_error": 1.2398980922149443,
+    "raw_point_error_at_publication": 1.1022449809141448,
+    "final_minus_raw": [
+      0.1770000000000067,
+      -0.17099999999999937
+    ]
+  },
+  {
+    "tag": "blue",
+    "actor": 1,
+    "ros": 2283.28,
+    "error": 1.3426691972840603,
+    "telemetry": {
+      "event": "published",
+      "target_id": "t1",
+      "tag": "blue",
+      "report_s": 2283.28,
+      "sample_s": 2283.052,
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_3",
+      "candidate_id": "26b5f2b900d6468d89cea7dbd9bfe875:9",
+      "x": 129.007,
+      "y": 44.123
+    },
+    "source": {
+      "target_id": "t1",
+      "source_uav": "typhoon_h480_3",
+      "candidate_id": "26b5f2b900d6468d89cea7dbd9bfe875:9",
+      "local_target_id": "t1",
+      "sample_s": 2283.052,
+      "x": 128.81,
+      "y": 44.03,
+      "real_detection": true,
+      "confidence": 0.91,
+      "range_m": 8.44,
+      "official_view_ok": true
+    },
+    "raw_image_error": 1.0658142306368403,
+    "raw_point_error_at_publication": 1.1322351340366876,
+    "final_minus_raw": [
+      0.19700000000000273,
+      0.09299999999999642
+    ]
+  }
+]

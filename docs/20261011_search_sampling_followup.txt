@@ -47,3 +47,9 @@ dc6bb4a：官方六名演员全部消除，392.812 秒。
 trial_manifest.json、03_judge.log、pipeline_audit.json、first120_search_audit.json、
 first120_false_blue_visual_review.json、geometry_diagnosis_final.json、
 missed_view_direction_reproduction.json。大体积原图、日志和模型权重未加入Git。
+
+第三轮GUI验收补充（1ff3c73）：
+已完成433.100秒6/6，但东北首次有效覆盖约210.8秒，前120秒空白仍在。
+区域支援实际触发4次，不能以触发次数认定搜索提速。448条可评估正式坐标中
+32条采样误差>=1米，棕色最大两次上报间隔84.604秒。上述功能“尚待GUI验收”
+状态现更新为“分支已运行、性能未通过”；详见20261011_search_handoff_validation.txt。
