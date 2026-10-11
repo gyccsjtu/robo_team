@@ -2252,9 +2252,13 @@ class SwarmAgent(object):
             resp = get_srv(name)
             return resp.value.integer if resp.success else None
 
+        # This PX4 also checks the HOLD RC exception in AUTO.TAKEOFF. The
+        # bounded grounded recovery uses that mode: OFFBOARD alone (bit 2)
+        # leaves it in no_rc_and_no_datalink failsafe. Include HOLD (bit 1),
+        # retaining all position, estimator, offboard-loss and arming checks.
         configure_fcu_parameters(_pull, self._set_param, _get,
-                                 {"NAV_RCL_ACT": 0, "COM_RCL_EXCEPT": 4})
-        rospy.loginfo("[%s] 飞控参数已读回验证：NAV_RCL_ACT=0 COM_RCL_EXCEPT=4",
+                                 {"NAV_RCL_ACT": 0, "COM_RCL_EXCEPT": 6})
+        rospy.loginfo("[%s] 飞控参数已读回验证：NAV_RCL_ACT=0 COM_RCL_EXCEPT=6",
                       self.uav_id)
 
     def _arm_and_offboard(self):
@@ -5398,9 +5402,9 @@ class SwarmAgent(object):
             if mode != desired:
                 recovery['last_request'] = now
                 try:
-                    accepted = self.mode_srv(0, desired).mode_sent
-                    rospy.loginfo('[TAKEOFF_RECOVERY_REQUEST] uav=%s mode=%s accepted=%s',
-                                  self.uav_id, desired, accepted)
+                    sent = self.mode_srv(0, desired).mode_sent
+                    rospy.loginfo('[TAKEOFF_RECOVERY_REQUEST] uav=%s mode=%s sent=%s observed=%s',
+                                  self.uav_id, desired, sent, mode)
                 except Exception as exc:
                     rospy.logwarn('[TAKEOFF_RECOVERY_REQUEST] uav=%s %s', self.uav_id, exc)
         return True
