@@ -1012,7 +1012,9 @@ _CSV = logger("perception_%s" % UAV, [
     "target_z", "range_m", "height_m", "strict", "track_id", "hits",
     "image_stamp", "image_age_s", "inference_s", "source",
     "sin_down", "range_method", "assoc_residual_m", "assoc_gate_m",
-    "observation_gap_s"])
+    "observation_gap_s", "camera_x", "camera_y", "camera_z",
+    "camera_rotation", "ground_offset", "fx", "fy", "cx", "cy",
+    "box_top", "box_bottom"])
 # 调试快照**另开一条话题**：它原来和契约挤在同一条 topic 上，形状完全不同。
 # 调试通道与契约通道必须分开，否则要么队友解析不了、要么我自己的复盘脚本全废。
 DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
@@ -2240,6 +2242,14 @@ def main():
                         _stat["n_det"] += 1
 
                         u = (x1 + x2) / 2.0
+                        # File-only replay inputs from the exact image pose.
+                        # These explain raw projection errors independently of
+                        # report smoothing and never affect qualification.
+                        geometry_trace = dict(
+                            camera_x=px,camera_y=py,camera_z=pz,
+                            camera_rotation=json.dumps(R.tolist(),separators=(',',':')),
+                            ground_offset=getattr(globals().get('_height_datum'),'offset',None),
+                            fx=FX,fy=FY,cx=CX,cy=CY,box_top=y1,box_bottom=y2)
                         # 用框真实底部 y2，不截断到 ROI_BOT：
                         # 目标在远处时视线接近水平，v_world[2]≈0，t=-pz/v_world[2] 很大，
                         # 框底部 2 像素的截断会被放大成 >1m 的坐标偏差（实测导致官方不认）。
@@ -2265,7 +2275,7 @@ def main():
                                 bbox_h=float(y2-y1), image_stamp=frame_stamp,
                                 image_age_s=frame_age, inference_s=inference_s,
                                 sin_down=sin_down, range_method='foot_ground',
-                                source='sin_down_below_0.30')
+                                source='sin_down_below_0.30',**geometry_trace)
                             continue
                         t = -pz / v_world[2]
                         if t <= 0:
@@ -2286,6 +2296,12 @@ def main():
                         w_px, h_px = x2 - x1, y2 - y1
                         impl_h = projected_body_height(t*v_world, y1, R)
                         if impl_h is None:
+                            _CSV.write(ros_time=rospy.Time.now().to_sec(),
+                                event='geometry_reject',class_name=CLASSES[cid],
+                                confidence=conf,bbox_u=u,bbox_v=v,bbox_w=w_px,bbox_h=h_px,
+                                image_stamp=frame_stamp,image_age_s=frame_age,
+                                sin_down=sin_down,range_m=rng,range_method='foot_ground',
+                                source='body_height_projection_failed',**geometry_trace)
                             continue  # pixel candidate still survives for bounded reimaging
                         ar = h_px / max(1e-3, w_px)
                         # ---- 我方 10-02：脚被画面下沿裁掉时，改用身高反推距离 ----
@@ -2322,6 +2338,13 @@ def main():
                         loose = (H_MIN_L <= impl_h <= H_MAX_L) and (AR_MIN_L <= ar <= AR_MAX_L)
                         if not loose and not strict:        # 连获准的新建档都过不了 -> 纯噪声
                             _stat["n_geo_rej"] += 1
+                            _CSV.write(ros_time=rospy.Time.now().to_sec(),
+                                event='geometry_reject',class_name=CLASSES[cid],
+                                confidence=conf,bbox_u=u,bbox_v=v,bbox_w=w_px,bbox_h=h_px,
+                                image_stamp=frame_stamp,image_age_s=frame_age,
+                                sin_down=sin_down,range_m=rng,height_m=impl_h,
+                                range_method='head_height' if t is None else 'foot_ground',
+                                source='body_height_or_aspect',**geometry_trace)
                             continue
 
                         if t is None:
@@ -2364,7 +2387,7 @@ def main():
                             image_age_s=frame_age, inference_s=inference_s,
                             sin_down=sin_down,
                             range_method='head_height' if t is None else 'foot_ground',
-                            source="yolo_raw")
+                            source="yolo_raw",**geometry_trace)
 
         if frame_was_processed:
             geometry_end_wall = time.time()

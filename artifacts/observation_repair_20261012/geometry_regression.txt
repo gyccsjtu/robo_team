@@ -1,0 +1,12 @@
+...........................................[u0] 放弃盘旋 t3：test lost image
+......./opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[VIEW_BLOCKED] uav=u0 tid=t3 range=8.00; no safe short observation move
+...[VIEW_REOBSERVE] uav=u0 tid=t3 goal=(56.93,24.00) last_good_image=90.000 sparse_qualified_view=False; 保持朝向、限时侧移补看
+........[VIEW_DETOUR] uav=u0 tid=t3 goal=(57.52,17.26) obstacle=True stopped=False image_margin=False
+......................
+----------------------------------------------------------------------
+Ran 83 tests in 0.030s
+
+OK
+sys:1: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/robocup_decoy_tests/perception_typhoon_h480_0.csv' mode='a' encoding='utf-8'>

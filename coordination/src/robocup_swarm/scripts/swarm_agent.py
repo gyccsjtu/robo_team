@@ -42,7 +42,7 @@ from csv_logger import logger
 from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
                            bind_red_view, bind_red_instance_view,
-                           retain_pixel_view, ReportViewWindow)
+                           retain_pixel_view, retained_view_recovery, ReportViewWindow)
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
@@ -1894,7 +1894,7 @@ class SwarmAgent(SearchSegmentAgent):
                 if view is not None:
                     self._tracking_image = view
                     rospy.loginfo_throttle(2., '[PIXEL_VIEW] uav=%s tid=%s image=%.3f '
-                        'position_age=%.2f; yaw only, no coordinate refresh',
+                        'position_age=%.2f; bounded image recovery, no coordinate refresh',
                         self.uav_id, assignment.target_id, view['sample_s'],
                         now-view['position_sample_s'])
                 return
@@ -2068,6 +2068,42 @@ class SwarmAgent(SearchSegmentAgent):
                 0.0 <= now-view['sample_s'] <= .5):
             return view
         return None
+
+    def _hold_tracking_reimage(self):
+        """A bound fresh image interrupts stale pursuit, within the original budget."""
+        if not CANDIDATE_VIEW_RECOVERY:
+            return False
+        now = rospy.Time.now().to_sec()
+        view = self._fresh_tracking_view(now)
+        own = self.world_xy
+        if (view is None or not view.get('pixel_only') or own is None or
+                self.local_z is None or not self._world_trusted() or
+                not 0. <= now-view['position_sample_s'] < 2.):
+            self._tracking_reimage = None
+            return False
+        state, (vx,vy), goal, reason = retained_view_recovery(
+            getattr(self,'_tracking_reimage',None),view,now,own,self.yaw,self.local_z,
+            min(ALT_TARGET_CAP,ALT_HARD_CEIL-ALT_HARD_MARGIN),
+            getattr(self,'_scan',None),getattr(self,'_scan_t',-1e18))
+        self._tracking_reimage = state
+        # Current image bearing, never the frozen actor XY, controls the look.
+        self._look_at = (own[0]+10.*math.cos(view['bearing']),
+                         own[1]+10.*math.sin(view['bearing']))
+        if math.hypot(vx,vy) > 0.:
+            probe=(own[0]+vx,own[1]+vy)
+            if (getattr(self,'grid',None) is None or
+                    not self._safe_reobserve_segment(own,probe)):
+                vx=vy=0.;goal=None;reason='reimage_grid_blocked'
+        if self._view_friend_conflict(now):
+            goal=None
+        vx,vy=self._apply_friend_avoidance(vx,vy)
+        rospy.loginfo_throttle(1., '[TRACK_REIMAGE] uav=%s tid=%s candidate=%s '
+            'image=%.3f position_age=%.2f reason=%s requested=(%.2f,%.2f) '
+            'height=%s; no target/report refresh',self.uav_id,view['target_id'],
+            view['candidate_id'],view['sample_s'],now-view['position_sample_s'],
+            reason,vx,vy,goal)
+        self._send_vel(vx,vy,view_altitude=goal)
+        return True
 
     @serialized_visual_task
     def _fast_tracking_view_cb(self, msg):
@@ -4655,6 +4691,8 @@ class SwarmAgent(SearchSegmentAgent):
             if _in_cooldown or _stale_far:
                 self._look_at = None
                 self._send_vel(0.0, 0.0)
+                return
+            if self._hold_tracking_reimage():
                 return
             # Assignment coordinates may be the manager's future intercept,
             # several metres ahead of the camera-derived target position.

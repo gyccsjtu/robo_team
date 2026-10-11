@@ -1,0 +1,199 @@
+{
+  "source": "logs_20261012_030240, UAV 3; own-camera messages only, no actor truth",
+  "anchor": {
+    "event": "tracking_view",
+    "ros": 1980.728,
+    "wall": 1791745468.0665286,
+    "data": {
+      "source_uav": "typhoon_h480_3",
+      "target_id": "t3",
+      "track_id": 4,
+      "candidate_id": "white:18",
+      "world_candidate_id": "e375b78a3f3d406d83cb3961e233e8d2:4",
+      "real_detection": true,
+      "sample_s": 1980.6,
+      "confidence": 0.67,
+      "hits": 5,
+      "box": [
+        363.04999999999995,
+        306.28,
+        393.75,
+        363.88
+      ],
+      "width": 752,
+      "height": 480,
+      "fy": 376.0,
+      "camera_tilt": 0.011104363012603419,
+      "geometry_ok": true,
+      "report_ok": true,
+      "bearing": 0.4134178065079971,
+      "x": 60.01,
+      "y": 5.26,
+      "appearance_status": "actor",
+      "appearance_confidence": 0.67,
+      "distractor_confidence": 0.0
+    }
+  },
+  "frames": [
+    {
+      "event": "candidate",
+      "ros": 1980.928,
+      "wall": 1791745468.2704215,
+      "data": {
+        "candidate_id": "white:18",
+        "sample_s": 1980.812,
+        "bearing": 0.41508327399760825,
+        "confidence": 0.6286102533340454,
+        "hits": 3,
+        "u": 377.63519287109375,
+        "v": 331.344970703125,
+        "attention_only": true,
+        "box": [
+          360.84332275390625,
+          302.1441955566406,
+          394.42706298828125,
+          360.5457458496094
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.007469821291010182,
+        "foot_sin_down": 0.2991477640742287,
+        "camera_height_m": 4.2956489640390165,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.6286102533340454,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_3",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 1981.34,
+      "wall": 1791745468.6870513,
+      "data": {
+        "candidate_id": "white:18",
+        "sample_s": 1981.208,
+        "bearing": 0.38246242787498885,
+        "confidence": 0.6013771295547485,
+        "hits": 3,
+        "u": 386.30426025390625,
+        "v": 251.36687469482422,
+        "attention_only": true,
+        "box": [
+          375.721435546875,
+          226.56004333496094,
+          396.8870849609375,
+          276.1737060546875
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.19868024009061258,
+        "foot_sin_down": 0.2879672632463782,
+        "camera_height_m": 4.271284060188695,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.6013771295547485,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_3",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 1981.54,
+      "wall": 1791745468.8906562,
+      "data": {
+        "candidate_id": "white:18",
+        "sample_s": 1981.424,
+        "bearing": 0.3823798052445474,
+        "confidence": 0.7440663576126099,
+        "hits": 3,
+        "u": 387.3687438964844,
+        "v": 272.2158737182617,
+        "attention_only": true,
+        "box": [
+          375.2474060058594,
+          246.67576599121094,
+          399.4900817871094,
+          297.7559814453125
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.14905500107306546,
+        "foot_sin_down": 0.29485898738187816,
+        "camera_height_m": 4.282353484519173,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.7440663576126099,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_3",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 1982.132,
+      "wall": 1791745469.4952412,
+      "data": {
+        "candidate_id": "white:18",
+        "sample_s": 1982.032,
+        "bearing": 0.36018580097609265,
+        "confidence": 0.6928032040596008,
+        "hits": 3,
+        "u": 383.4914093017578,
+        "v": 277.8595428466797,
+        "attention_only": true,
+        "box": [
+          374.4622497558594,
+          257.2265625,
+          392.52056884765625,
+          298.4925231933594
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.11479142848210952,
+        "foot_sin_down": 0.26540272940371196,
+        "camera_height_m": 4.297610046251998,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.6928032040596008,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_3",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 1982.348,
+      "wall": 1791745469.7182217,
+      "data": {
+        "candidate_id": "white:18",
+        "sample_s": 1982.22,
+        "bearing": 0.3541180808980746,
+        "confidence": 0.636100172996521,
+        "hits": 3,
+        "u": 394.8374328613281,
+        "v": 278.9519805908203,
+        "attention_only": true,
+        "box": [
+          386.4523620605469,
+          258.6932067871094,
+          403.2225036621094,
+          299.21075439453125
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.11133923132626843,
+        "foot_sin_down": 0.2639238867574182,
+        "camera_height_m": 4.303432580908165,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.636100172996521,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_3",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+........[u0] 放弃盘旋 t3：test lost image
+......./opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[VIEW_BLOCKED] uav=u0 tid=t3 range=8.00; no safe short observation move
+...[VIEW_REOBSERVE] uav=u0 tid=t3 goal=(56.93,24.00) last_good_image=90.000 sparse_qualified_view=False; 保持朝向、限时侧移补看
+........[VIEW_DETOUR] uav=u0 tid=t3 goal=(57.52,17.26) obstacle=True stopped=False image_margin=False
+.......................[VERTICAL_CLEARANCE] uav=u1 near=0.60m vz=0.20 -> 0; move to clear observation space before changing height
+[ALT_GUARD] HARD z=4.30 > ceil=4.20 -> vz=-1.00 (vx=0.00 vy=0.00) hits=1
+...............[u1] 越界主动回收 → (0.5,0.5) 当前(50.0,20.0)
+..................
+----------------------------------------------------------------------
+Ran 82 tests in 0.072s
+
+OK
+sys:1: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/gycc/robocup_logs/perception_typhoon_h480_0.csv' mode='a' encoding='utf-8'>

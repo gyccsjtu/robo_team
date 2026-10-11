@@ -1,5 +1,6 @@
 """Image-space tracking feedback. No judge state and no target-coordinate output."""
 import math
+from camera_attention import approach_image, candidate_decision, candidate_observation_height
 
 
 class ReportViewWindow:
@@ -64,6 +65,7 @@ def parse_tracking_view(data, source, tid, now):
     return dict(sample_s=sample, target_id=tid, track_id=int(data['track_id']),
                 width=width, height=height, fy=fy, box=(x1, y1, x2, y2),
                 bearing=bearing, x=x, y=y, camera_tilt=tilt,
+                confidence=confidence, hits=int(data['hits']),
                 candidate_id=data.get('candidate_id'), position_sample_s=sample,
                 geometry_ok=data.get('geometry_ok') is True,
                 report_ok=data.get('report_ok') is True)
@@ -119,10 +121,11 @@ def bind_red_instance_view(view, instance, binding, assigned_tid, now):
 
 
 def retain_pixel_view(previous, data, source, tid, now):
-    """At most 2s of yaw-only continuity for an explicitly bound image track.
+    """At most 2s of image continuity for an explicitly bound image track.
 
-    Position time never advances. No new association, localization, report or
-    height correction is obtained from this fallback.
+    Position time never advances. No new association, localization, or report
+    credit is obtained from this fallback. A separate bounded controller
+    may improve the view using this new image, never the frozen actor position.
     """
     try:
         if (previous is None or previous['target_id'] != tid or
@@ -147,9 +150,85 @@ def retain_pixel_view(previous, data, source, tid, now):
                     world_candidate_id=previous.get('world_candidate_id'),
                     altitude_goal=previous.get('altitude_goal'),
                     association_error=previous.get('association_error',float('inf')))
+        # Preserve only image-local quality from THIS frame. Missing fields
+        # must not inherit permission to move from a previous full-body box.
+        for key in ('foot_sin_down', 'camera_height_m'):
+            if key in data:
+                try:
+                    value = float(data[key])
+                except (ValueError,TypeError,OverflowError):
+                    continue
+                if math.isfinite(value):
+                    view[key] = value
+        for key in ('footpoint_valid', 'small_box_continuation', 'appearance_status'):
+            if key in data:
+                view[key] = data[key]
         return view
     except (KeyError,ValueError,TypeError,OverflowError):
         return None
+
+
+def retained_view_recovery(episode, view, now, xy, yaw, altitude, ceiling,
+                           scan, scan_stamp):
+    """Improve an explicitly retained view within its EXISTING two-second budget.
+
+    No target XY, new identity, new observation, or deadline is manufactured.
+    Forward motion reuses candidate scan/box checks; a cropped person requests
+    a slow retreat only with a clear rear sector. The caller still applies
+    the shared grid, friend, boundary and final flight safety constraints.
+    """
+    anchor = view.get('position_sample_s', -1e18)
+    key = (view['target_id'], view.get('candidate_id'), anchor)
+    if episode is None or episode['key'] != key:
+        episode = dict(key=key, started=anchor, until=anchor+2.,
+                       approach_origin=xy, direction=None)
+    if (not view.get('pixel_only') or not view.get('candidate_id') or
+            not 0. <= now-anchor < 2. or not 0. <= now-view['sample_s'] <= .35):
+        return episode, (0.,0.), None, 'expired'
+    episode.update(sample_s=view['sample_s'], bearing=view['bearing'],
+                   image=approach_image(view))
+    box, h = view['box'], view['height']
+    if (view.get('confidence',0.) < .55 or
+            abs(view.get('camera_tilt',math.pi)) > math.radians(8.) or
+            view.get('appearance_status','actor') != 'actor'):
+        return episode, (0.,0.), None, 'unstable_image'
+    if math.hypot(xy[0]-episode['approach_origin'][0],
+                  xy[1]-episode['approach_origin'][1]) >= 1.5:
+        return episode, (0.,0.), None, 'travel_budget'
+    near = box[3] >= .94*h or box[3]-box[1] > .8*h
+    shallow = (episode['image'] is not None and
+               view.get('footpoint_valid') is not False and
+               not view.get('small_box_continuation') and
+               .18 <= view.get('foot_sin_down',0.) < .30)
+    direction = -1 if near else (1 if shallow else 0)
+    if not direction:
+        return episode, (0.,0.), None, 'no_supported_adjustment'
+    if episode['direction'] not in (None, direction):
+        return episode, (0.,0.), None, 'direction_changed_hold'
+    episode['direction'] = direction
+    if direction == 1:
+        vx,vy,reason = candidate_decision(episode,now,yaw,xy,scan,scan_stamp)
+        goal = (candidate_observation_height(episode,now,altitude,ceiling)
+                if reason == 'approach' else None)
+        return episode, (vx,vy), goal, 'shallow_'+reason
+    if (scan is None or not 0. <= now-scan_stamp <= .3 or
+            abs(math.atan2(math.sin(view['bearing']-yaw),
+                           math.cos(view['bearing']-yaw))) > math.radians(12.)):
+        return episode, (0.,0.), None, 'retreat_scan_or_alignment'
+    clear = 0
+    for i, raw in enumerate(scan.ranges):
+        delta = scan.angle_min+i*scan.angle_increment-(view['bearing']+math.pi-yaw)
+        if abs(math.atan2(math.sin(delta),math.cos(delta))) > math.radians(30.):
+            continue
+        value = float(raw)
+        if ((math.isinf(value) and value > 0. and scan.range_max >= 4.) or
+                (math.isfinite(value) and max(4.,scan.range_min) <= value <= scan.range_max)):
+            clear += 1
+        else:
+            return episode, (0.,0.), None, 'retreat_blocked'
+    if clear < 3:
+        return episode, (0.,0.), None, 'retreat_insufficient_scan'
+    return episode, (-.45*math.cos(view['bearing']),-.45*math.sin(view['bearing'])), None, 'cropped_retreat'
 
 
 VIEW_MIN_DOWN_SIN = .33
