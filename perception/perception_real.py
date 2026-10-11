@@ -543,6 +543,41 @@ def official_view_ok(uv, wh, width=752, height=480, range_m=None,
                 h >= FEET_CLIP_MIN_PX and y2 <= height + 2.0)
 
 
+def associated_observation_loc_ok(track, detection, sample_s):
+    """Keep full-body ground measurements through an established pose change.
+
+    The strict shape test creates identities. It must not revoke a mature,
+    continuously associated person's otherwise valid ground ray just because
+    a walking pose becomes narrower and confidence slips below the new-track
+    exception. This grants neither a new identity nor cropped-foot accuracy.
+    The bridge still checks source agreement and coordinate outliers.
+    """
+    if detection.get('loc_ok', False):
+        return True
+    try:
+        dt = sample_s - track.observed_s
+        u, v = detection['uv']
+        w, h = detection['wh']
+        x, y = detection['xyz']
+        distance, body_h, confidence = (detection[k] for k in ('range', 'h', 'conf'))
+        previous = track.observation_xy()
+        values = (dt, u, v, w, h, x, y, distance, body_h, confidence, *previous)
+        return bool(all(math.isfinite(float(n)) for n in values) and
+                    track.hits >= CONFIRM_HITS and track.miss == 0 and
+                    not track.loc_suspect and 0. < dt <= .5 and
+                    track.range_method == detection['range_method'] == 'foot_ground' and
+                    track.cls == detection['cls'] and
+                    track.appearance_status == detection['appearance_status'] == 'actor' and
+                    .65 <= confidence <= 1. and 0. < distance <= 10. and
+                    VERDICT_H_MIN <= body_h <= VERDICT_H_MAX and
+                    w >= 9. and h >= 60. and 1.1 <= h/w <= AR_MAX_L and
+                    u-w/2 >= 6. and u+w/2 <= IMG_W-6. and
+                    v-.95*h >= 6. and v+.05*h <= IMG_H-6. and
+                    math.hypot(x-previous[0], y-previous[1]) <= .35+2.3*dt)
+    except (KeyError, TypeError, ValueError, AttributeError, OverflowError):
+        return False
+
+
 def blue_white_torso_vote(image, xyxy):
     """Use only a clear shirt color to disambiguate duplicate person boxes."""
     x1, y1, x2, y2 = (float(v) for v in xyxy)
@@ -2162,7 +2197,8 @@ def main():
                 tk.update(d["xyz"][0], d["xyz"][1], dt, d["conf"],
                           d["uv"], d["wh"], d["range"], d["h"], now, uav,
                           appearance_feat=appear_feat, observation_s=frame_stamp,
-                          loc_ok=d.get('loc_ok', True), range_method=d['range_method'],
+                          loc_ok=associated_observation_loc_ok(tk, d, frame_stamp),
+                          range_method=d['range_method'],
                           appearance_status=d['appearance_status'],
                           distractor_confidence=d['distractor_confidence'])
             else:
