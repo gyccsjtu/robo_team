@@ -1,0 +1,519 @@
+{
+  "official_boundary": {
+    "judge_end_wall_s": 1791695212.6670852,
+    "recorded_wall_s": 1791695228.8660579,
+    "official_elapsed_s": 337.904,
+    "score": 2236.956,
+    "official_actor_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "runtime_git_head": "9061195cda8a8445c935b0606c44fe21ae2163e0",
+    "source_hashes_unchanged": true,
+    "changed_source": [],
+    "previous_elapsed_s": 465.096,
+    "previous_difference_s": -127.192,
+    "target_180s_pass": false,
+    "gui": true
+  },
+  "official_elimination_s": {
+    "green_actor0": 146.216,
+    "blue_actor1": 337.904,
+    "brown_actor2": 228.096,
+    "white_actor3": 227.332,
+    "red_actor4": 50.616,
+    "red_actor5": 321.3
+  },
+  "report_accuracy": {
+    "green": {
+      "published": 31,
+      "scored": 29,
+      "under_1m": 29,
+      "max_m": 0.9705645123113473,
+      "median_m": 0.8224018467574598,
+      "bad_samples": []
+    },
+    "blue": {
+      "published": 71,
+      "scored": 70,
+      "under_1m": 31,
+      "max_m": 157.4541808229839,
+      "median_m": 156.5356342017994,
+      "bad_samples": [
+        {
+          "ros": 2736.036,
+          "x": -26.8700008392334,
+          "y": 13.430000305175781,
+          "error_m": 157.4541808229839,
+          "actor": 1
+        },
+        {
+          "ros": 2736.836,
+          "x": -26.694000244140625,
+          "y": 13.116000175476074,
+          "error_m": 157.26770341336552,
+          "actor": 1
+        },
+        {
+          "ros": 2737.636,
+          "x": -26.722000122070312,
+          "y": 13.164999961853027,
+          "error_m": 157.31093740015618,
+          "actor": 1
+        },
+        {
+          "ros": 2738.636,
+          "x": -26.756000518798828,
+          "y": 13.256999969482422,
+          "error_m": 157.3152488361695,
+          "actor": 1
+        },
+        {
+          "ros": 2740.636,
+          "x": -26.649999618530273,
+          "y": 13.109999656677246,
+          "error_m": 157.19147268385083,
+          "actor": 1
+        },
+        {
+          "ros": 2741.836,
+          "x": -26.65999984741211,
+          "y": 13.140000343322754,
+          "error_m": 157.17359016901463,
+          "actor": 1
+        },
+        {
+          "ros": 2743.036,
+          "x": -26.6299991607666,
+          "y": 13.079999923706055,
+          "error_m": 157.09275762935349,
+          "actor": 1
+        },
+        {
+          "ros": 2743.836,
+          "x": -26.6560001373291,
+          "y": 13.154999732971191,
+          "error_m": 157.0812499662216,
+          "actor": 1
+        },
+        {
+          "ros": 2744.636,
+          "x": -26.618999481201172,
+          "y": 13.175999641418457,
+          "error_m": 157.08260654690787,
+          "actor": 1
+        },
+        {
+          "ros": 2745.636,
+          "x": -26.606000900268555,
+          "y": 13.057999610900879,
+          "error_m": 157.09854619056495,
+          "actor": 1
+        },
+        {
+          "ros": 2746.436,
+          "x": -26.614999771118164,
+          "y": 13.041999816894531,
+          "error_m": 157.16391109727775,
+          "actor": 1
+        },
+        {
+          "ros": 2747.236,
+          "x": -26.593000411987305,
+          "y": 13.0649995803833,
+          "error_m": 157.04141887971133,
+          "actor": 1
+        },
+        {
+          "ros": 2748.036,
+          "x": -26.615999221801758,
+          "y": 13.105999946594238,
+          "error_m": 157.1704893688143,
+          "actor": 1
+        },
+        {
+          "ros": 2748.836,
+          "x": -26.625999450683594,
+          "y": 13.14799976348877,
+          "error_m": 156.94562387829697,
+          "actor": 1
+        },
+        {
+          "ros": 2749.636,
+          "x": -26.55900001525879,
+          "y": 13.031000137329102,
+          "error_m": 156.93891525239306,
+          "actor": 1
+        },
+        {
+          "ros": 2750.436,
+          "x": -26.58099937438965,
+          "y": 13.074999809265137,
+          "error_m": 157.20465665707272,
+          "actor": 1
+        },
+        {
+          "ros": 2751.236,
+          "x": -26.67300033569336,
+          "y": 13.225000381469727,
+          "error_m": 157.01676862171158,
+          "actor": 1
+        },
+        {
+          "ros": 2752.036,
+          "x": -26.628000259399414,
+          "y": 13.156000137329102,
+          "error_m": 157.20780905118227,
+          "actor": 1
+        },
+        {
+          "ros": 2752.836,
+          "x": -26.645999908447266,
+          "y": 13.197999954223633,
+          "error_m": 156.9131423559677,
+          "actor": 1
+        },
+        {
+          "ros": 2756.436,
+          "x": -26.59000015258789,
+          "y": 13.180000305175781,
+          "error_m": 156.68228988260097,
+          "actor": 1
+        },
+        {
+          "ros": 2757.236,
+          "x": -26.809999465942383,
+          "y": 13.140000343322754,
+          "error_m": 157.12299456599672,
+          "actor": 1
+        },
+        {
+          "ros": 2758.036,
+          "x": -26.738000869750977,
+          "y": 12.984000205993652,
+          "error_m": 156.94713472908208,
+          "actor": 1
+        },
+        {
+          "ros": 2758.836,
+          "x": -26.78499984741211,
+          "y": 13.12399959564209,
+          "error_m": 157.25439785017994,
+          "actor": 1
+        },
+        {
+          "ros": 2759.636,
+          "x": -26.625,
+          "y": 13.121999740600586,
+          "error_m": 156.9884534902652,
+          "actor": 1
+        },
+        {
+          "ros": 2760.436,
+          "x": -26.57900047302246,
+          "y": 13.347999572753906,
+          "error_m": 156.9456892216452,
+          "actor": 1
+        },
+        {
+          "ros": 2761.236,
+          "x": -26.575000762939453,
+          "y": 13.376999855041504,
+          "error_m": 157.34651570819898,
+          "actor": 1
+        },
+        {
+          "ros": 2762.836,
+          "x": -26.66900062561035,
+          "y": 13.486000061035156,
+          "error_m": 156.69797988537013,
+          "actor": 1
+        },
+        {
+          "ros": 2763.636,
+          "x": -26.666000366210938,
+          "y": 13.458999633789062,
+          "error_m": 156.8306495821507,
+          "actor": 1
+        },
+        {
+          "ros": 2764.436,
+          "x": -26.62700080871582,
+          "y": 13.446999549865723,
+          "error_m": 156.23602431728315,
+          "actor": 1
+        },
+        {
+          "ros": 2765.236,
+          "x": -26.67799949645996,
+          "y": 13.52299976348877,
+          "error_m": 156.29065650329304,
+          "actor": 1
+        },
+        {
+          "ros": 2766.036,
+          "x": -26.667999267578125,
+          "y": 13.494000434875488,
+          "error_m": 156.93469172156887,
+          "actor": 1
+        },
+        {
+          "ros": 2766.836,
+          "x": -26.631999969482422,
+          "y": 13.465999603271484,
+          "error_m": 156.5505778934276,
+          "actor": 1
+        },
+        {
+          "ros": 2767.636,
+          "x": -26.597000122070312,
+          "y": 13.413000106811523,
+          "error_m": 156.89735819493197,
+          "actor": 1
+        },
+        {
+          "ros": 2768.436,
+          "x": -26.601999282836914,
+          "y": 13.40999984741211,
+          "error_m": 156.68444705482878,
+          "actor": 1
+        },
+        {
+          "ros": 2769.236,
+          "x": -26.6200008392334,
+          "y": 13.428999900817871,
+          "error_m": 156.1362800154963,
+          "actor": 1
+        },
+        {
+          "ros": 2770.036,
+          "x": -26.64299964904785,
+          "y": 13.45300006866455,
+          "error_m": 156.52069051017122,
+          "actor": 1
+        },
+        {
+          "ros": 2770.836,
+          "x": -26.7189998626709,
+          "y": 13.496000289916992,
+          "error_m": 156.86892234065854,
+          "actor": 1
+        },
+        {
+          "ros": 2771.836,
+          "x": -26.60700035095215,
+          "y": 13.381999969482422,
+          "error_m": 156.7556692222149,
+          "actor": 1
+        },
+        {
+          "ros": 2772.636,
+          "x": -26.972999572753906,
+          "y": 13.824000358581543,
+          "error_m": 156.9765375303252,
+          "actor": 1
+        }
+      ]
+    },
+    "brown": {
+      "published": 33,
+      "scored": 32,
+      "under_1m": 27,
+      "max_m": 1.1499265880029879,
+      "median_m": 0.580387425260082,
+      "bad_samples": [
+        {
+          "ros": 2657.436,
+          "x": 103.16799926757812,
+          "y": 15.477999687194824,
+          "error_m": 1.0366986656393429,
+          "actor": 2
+        },
+        {
+          "ros": 2658.236,
+          "x": 103.23999786376953,
+          "y": 15.244999885559082,
+          "error_m": 1.1499265880029879,
+          "actor": 2
+        },
+        {
+          "ros": 2659.036,
+          "x": 103.2760009765625,
+          "y": 15.208000183105469,
+          "error_m": 1.1238403652740534,
+          "actor": 2
+        },
+        {
+          "ros": 2659.836,
+          "x": 103.16899871826172,
+          "y": 15.097999572753906,
+          "error_m": 1.0689499874058992,
+          "actor": 2
+        },
+        {
+          "ros": 2660.636,
+          "x": 103.12699890136719,
+          "y": 15.015999794006348,
+          "error_m": 1.0944088383285375,
+          "actor": 2
+        }
+      ]
+    },
+    "white": {
+      "published": 61,
+      "scored": 60,
+      "under_1m": 57,
+      "max_m": 1.1239479553027463,
+      "median_m": 0.6686006571412222,
+      "bad_samples": [
+        {
+          "ros": 2561.368,
+          "x": 86.73999786376953,
+          "y": -1.1660000085830688,
+          "error_m": 1.1239479553027463,
+          "actor": 3
+        },
+        {
+          "ros": 2663.036,
+          "x": 103.1760025024414,
+          "y": 11.321999549865723,
+          "error_m": 1.0304774158681997,
+          "actor": 3
+        },
+        {
+          "ros": 2663.836,
+          "x": 103.16300201416016,
+          "y": 11.173999786376953,
+          "error_m": 1.0100394238627648,
+          "actor": 3
+        }
+      ]
+    },
+    "red1": {
+      "published": 45,
+      "scored": 42,
+      "under_1m": 42,
+      "max_m": 0.9466094665900117,
+      "median_m": 0.657671057757268,
+      "bad_samples": []
+    },
+    "red2": {
+      "published": 0,
+      "scored": 0,
+      "under_1m": 0,
+      "max_m": null,
+      "median_m": null,
+      "bad_samples": []
+    }
+  },
+  "current_flight": {
+    "first_airborne_ros_s": 2474.02,
+    "coverage": {
+      "60": {
+        "total_cells": 53,
+        "south_y_below_minus21": 13,
+        "east_x_above80": 0
+      },
+      "90": {
+        "total_cells": 84,
+        "south_y_below_minus21": 15,
+        "east_x_above80": 7
+      },
+      "180": {
+        "total_cells": 177,
+        "south_y_below_minus21": 58,
+        "east_x_above80": 35
+      }
+    },
+    "boundary_search": {
+      "180": {
+        "search_control_samples": 3824,
+        "within_8m_samples": 130,
+        "within_8m_stopped_samples": 94
+      },
+      "complete": {
+        "search_control_samples": 6445,
+        "within_8m_samples": 394,
+        "within_8m_stopped_samples": 288
+      }
+    }
+  },
+  "previous_flight": {
+    "first_airborne_ros_s": 2472.108,
+    "coverage": {
+      "60": {
+        "total_cells": 74,
+        "south_y_below_minus21": 11,
+        "east_x_above80": 0
+      },
+      "90": {
+        "total_cells": 93,
+        "south_y_below_minus21": 14,
+        "east_x_above80": 0
+      },
+      "180": {
+        "total_cells": 136,
+        "south_y_below_minus21": 32,
+        "east_x_above80": 0
+      }
+    },
+    "boundary_search": {
+      "180": {
+        "search_control_samples": 3847,
+        "within_8m_samples": 25,
+        "within_8m_stopped_samples": 1
+      },
+      "complete": {
+        "search_control_samples": 9510,
+        "within_8m_samples": 1302,
+        "within_8m_stopped_samples": 822
+      }
+    }
+  },
+  "actor_last_15s": {
+    "0": {
+      "path_m_last_15s": 11.556000000004623,
+      "stationary_fraction_below_0_05mps": 0.21414222579348605
+    },
+    "1": {
+      "path_m_last_15s": 12.13998957511722,
+      "stationary_fraction_below_0_05mps": 0.12051109616680458
+    },
+    "2": {
+      "path_m_last_15s": 2.9307456305050774,
+      "stationary_fraction_below_0_05mps": 0.0
+    },
+    "3": {
+      "path_m_last_15s": 2.4819700015268475,
+      "stationary_fraction_below_0_05mps": 0.0
+    },
+    "4": {
+      "path_m_last_15s": 14.87599999999925,
+      "stationary_fraction_below_0_05mps": 0.0
+    },
+    "5": {
+      "path_m_last_15s": 8.955365442425347,
+      "stationary_fraction_below_0_05mps": 0.0
+    }
+  },
+  "startup_phases_completed": 6,
+  "safety_log_counts": {
+    "AUTO_LAND": 0,
+    "climb_latch": 3,
+    "shutdown_ROSInterruptException": 6,
+    "runtime_traceback_before_official_finish": 0
+  },
+  "limitations": [
+    "Single GUI run; no proof of repeatability or of 180s completion.",
+    "Coverage counts are actual two-frame and SLAM line-of-sight credits, relative to first aircraft reaching 2.5m, not referee elapsed.",
+    "Boundary counts use command samples with empty target_id as a search proxy; scans and obstacle avoidance included.",
+    "External read-only truth used for offline report accuracy and actor motion only, never fed to team.",
+    "Nearest live red actor matching measures spatial error, not persistent identity. Deletion packets without bracketing samples are unscored.",
+    "Blue reports over 150m from the actual actor indicate a wrong candidate, not a 150m error of the real target projection.",
+    "Logs alone do not prove absence of contact; altitude latch events require separate analysis."
+  ]
+}
