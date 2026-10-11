@@ -155,7 +155,8 @@ class HypothesisDispatchTests(unittest.TestCase):
         self.assertIsNone(ct.last_ok_t)  # Only tracker.step can process the one real report.
         self.assertEqual((ct.vx, ct.vy), (0., 0.))
         self.assertFalse(ct.confirmation_pending)
-        self.assertNotIn('t1', m._target_hist)
+        self.assertEqual(list(m._target_hist['t1']), ['u3'])
+        self.assertEqual(list(m._target_hist['t1']['u3']), [(102., 19., 100.)])
         self.assertNotIn(('u2', 't1'), m._eligible_observations)
         self.now = 100.1
         self.send(source_uav='u2', sample_s=99.95, x=-26., y=13., hypothesis_switch=None)

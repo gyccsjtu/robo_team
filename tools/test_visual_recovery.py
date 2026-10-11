@@ -39,6 +39,37 @@ class VisualRecoveryTests(unittest.TestCase):
         ct.set_observers(['u0', 'u1'])
         return m
 
+    def test_repeated_fifteen_second_streak_cannot_renew_task_forever(self):
+        m = self.manager()
+        m._tracking_since = {'t0': 0.}
+        m.status['u0'] = SimpleNamespace(x=0., y=0., z=3., connected=True)
+        m._backup, m._confirm_done_t, m._confirm_timeout_bl = {}, {}, {}
+        m._truth_cache, m._cur_targets = {}, {}
+        m._eliminated = set()
+        m._csv, m.confirm_pub, m._auction_cycle = Mock(), Mock(), 0
+        m._get_target_pos = lambda tid, now: (5., 0.)
+        m._has_fresh_visual = lambda tid, now: True
+        m._recent_eligible = lambda *a: True
+        m._stable_owner_view = lambda *a: True
+        for name in ('_release_unavailable_trackers', '_release_unverified_visuals',
+                     '_dispatch_pending_targets', '_dispatch_backup'):
+            setattr(m, name, Mock())
+        m._release_tracker = Mock()
+        ct = m.tracker.targets['t0']
+        with patch.object(swarm_manager.rospy.Time, 'now') as clock:
+            for i in range(1, 401):
+                at = i*.5
+                clock.return_value = swarm_manager.rospy.Time.from_sec(at)
+                # Repeatedly reach 15 s then lose the view for 1.5 s.
+                if at % 17. < 15.5:
+                    m.tracker.report('u0', 't0', at, 5., 0., truth=None)
+                m._update_targets()
+                if m._release_tracker.called:
+                    break
+        self.assertTrue(m._release_tracker.called)
+        self.assertLess(at, 100.)
+        self.assertFalse(ct.eliminated)
+
     def test_timeout_keeps_primary_with_accepted_image_under_later_bad_box(self):
         m = self.manager()
         m._eligible_observations[('u0', 't0')] = {'sample_s': 99.6, 'eligible': True}

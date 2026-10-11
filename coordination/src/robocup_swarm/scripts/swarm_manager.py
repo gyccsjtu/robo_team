@@ -1748,6 +1748,7 @@ class SwarmManager(object):
             self._tracking[tid] = backup
             self._backup.pop(tid, None)
             self._tracking_since[tid] = now
+            getattr(self, '_confirm_done_t', {}).pop(tid, None)
             self._cancel_unavailable_owner(main, tid, now)
             self.tracker.assign_observers(tid, [backup])
             recovery.pop(tid, None)
@@ -1883,7 +1884,7 @@ class SwarmManager(object):
         if old_st is None:
             return
         old_d = math.hypot(old_st.x - tx, old_st.y - ty)
-        if old_d <= 25.0 or self._recent_eligible(
+        if self._recent_eligible(
                 tid, rospy.Time.now().to_sec(), 1.0, old):
             return
         busy = set(self._tracking.values()) | set(self._backup.values())
@@ -1903,13 +1904,14 @@ class SwarmManager(object):
             if now < self._release_cooldown.get(uid, rospy.Time(0)):
                 continue
             d = math.hypot(st.x - tx, st.y - ty)
-            if d < best_d and old_d - d >= 12.0:
+            if d < best_d:  # A continuous new image beats a blind incumbent, even nearby.
                 best, best_d = uid, d
         if best is None:
             return
         self._tracking[tid] = best
         self._record_approach(tid, best, tx, ty, now.to_sec())
         self._tracking_since[tid] = now.to_sec()
+        getattr(self, '_confirm_done_t', {}).pop(tid, None)
         self._free_search_lease(best)
         self._release_cooldown[old] = now + rospy.Duration(1.0)
         ct.observers.discard(old)
@@ -2101,6 +2103,7 @@ class SwarmManager(object):
             qualified[key] = sample
             self._qualified_detection_sample = qualified
             self.tracker.report(msg.uav_id, tid, sample, msg.x, msg.y, truth=None)
+            self._record_target_observation(tid, msg.uav_id, sample, msg.x, msg.y)
         self._cur_targets[tid] = (msg.x, msg.y, msg.uav_id)
 
         # 已有负责人立即更新目标位置；无负责人的目标进入快速联合派遣。
@@ -2181,7 +2184,7 @@ class SwarmManager(object):
         # permanent veto on west-side aircraft helping an east-side target.
         limit = float(os.environ.get('DISPATCH_FAR_LIMIT', '0.0'))
         speed = max(.5, float(os.environ.get('SEARCH_CRUISE_SPEED', '3.0')))
-        costs = {}
+        costs, blind_edges = {}, []
         for tid, (tx, ty) in positions.items():
             cameras = {uid for uid, _ in self._camera_candidates(tid, tx, ty, now, busy)}
             edges = {}
@@ -2191,10 +2194,16 @@ class SwarmManager(object):
                 st = self.status[uid]
                 distance = math.hypot(tx - st.x, ty - st.y)
                 if math.isfinite(distance) and (limit <= 0. or distance < limit):
-                    # One second preference for a camera already seeing this
-                    # person. Travel is an estimate; agents still plan safely.
-                    edges[uid] = distance / speed + (0.0 if uid in cameras else 1.0)
+                    edges[uid] = distance / speed
+                    if uid not in cameras:
+                        blind_edges.append((tid, uid))
             costs[tid] = edges
+        # Matching first maximizes staffed targets, then retained cameras,
+        # then travel. One blind edge outweighs every possible travel saving
+        # in this finite matching; nearby blind aircraft cannot steal a view.
+        penalty = 1.0 + sum(max(edges.values(), default=0.) for edges in costs.values())
+        for tid, uid in blind_edges:
+            costs[tid][uid] += penalty
         return costs
 
     def _commit_target_assignment(self, tid, uid, tx, ty, now):
@@ -2214,52 +2223,53 @@ class SwarmManager(object):
         msg.target_x, msg.target_y = flight_waypoint(tx, ty)
         self.assign_pub.publish(msg)
 
-    def _predict_target(self, tid, tx, ty, lead_s):
-        """基于过去 1.5 秒位置差分估算 lead_s 秒后 actor 位置。
-
-        国家一等奖标准改进（2026-10-03）：
-        - 旧实现：只用最早 / 最晚两条点做线性外推 → actor 突然停下
-          或反向时，速度矢量"惯性"使飞机追过头。修复：用最近 1.5s 内的
-          中位速度（去掉首尾两个噪声点），对突然的反向突变有抗性。
-        - 速度被裁到 PREDICT_ACTOR_VMAX。预测长度被裁到 4.0s 以内。
-        - 历史少于 3 条或最近 1.0s 内没新点 → 不外推（避免噪声点）。
-        """
+    def _record_target_observation(self, tid, source, sample, x, y):
+        """Only original qualified image callbacks may extend motion history."""
         from collections import deque
-        now = rospy.Time.now().to_sec()
-        h = self._target_hist.setdefault(tid, deque(maxlen=12))
-        h.append((tx, ty, now))
-        # 去掉超过 2.0s 的旧点（避免全靠很老的数据外推）
-        while h and (now - h[0][2]) > 2.0:
+        histories = getattr(self, '_target_hist', None)
+        if histories is None:
+            histories = self._target_hist = {}
+        cameras = histories.setdefault(tid, {})
+        h = cameras.setdefault(source, deque())
+        if h and sample <= h[-1][2]:
+            return
+        h.append((x, y, sample))
+        while h and sample - h[0][2] > 2.0 + 1e-6:
             h.popleft()
-        if len(h) < 3:
+
+    def _predict_target(self, tid, tx, ty, lead_s):
+        """Read image-time motion; repeated dispatch never adds observations.
+
+        Cameras retain separate baselines. A new camera cannot create velocity
+        from its coordinate offset to another camera. Projection is capped at
+        one second beyond the latest real observation, including its age.
+        """
+        now = rospy.Time.now().to_sec()
+        cameras = getattr(self, '_target_hist', {}).get(tid, {})
+        candidates = []
+        for h in cameras.values():
+            if (len(h) >= 3 and 0. <= now-h[-1][2] <= 1. and
+                    h[-1][2]-h[0][2] >= .3-1e-6 and
+                    math.hypot(tx-h[-1][0], ty-h[-1][1]) <= .1):
+                candidates.append(h)
+        if not candidates:
             return tx, ty
-        # 计算每相邻两点间的瞬时速度
-        speeds = []
-        vecs = []
-        for i in range(1, len(h)):
-            x0, y0, t0 = h[i - 1]
-            x1, y1, t1 = h[i]
-            dt = max(t1 - t0, 0.05)
-            vx_, vy_ = (x1 - x0) / dt, (y1 - y0) / dt
-            vecs.append((vx_, vy_))
-            speeds.append(math.hypot(vx_, vy_))
-        # 用中位速度（去掉头尾 25%）抗噪声
-        speeds_sorted = sorted(speeds)
-        mid = speeds_sorted[len(speeds_sorted) // 2]
-        # 找到速度接近中位的向量（最贴近中位的两条）
-        pairs = sorted(zip(speeds, vecs), key=lambda p: abs(p[0] - mid))[:max(1, len(vecs) // 2)]
-        vx = sum(v[0] for _, v in pairs) / len(pairs)
-        vy = sum(v[1] for _, v in pairs) / len(pairs)
-        sp = math.hypot(vx, vy)
-        if sp > PREDICT_ACTOR_VMAX:
-            scale = PREDICT_ACTOR_VMAX / sp
-            vx, vy = vx * scale, vy * scale
-        # 限幅：lead_s 上界 4.0s（飞机不可能在 4s 内还没追上）
-        lead = min(lead_s, 4.0)
-        # 如果中位速度极小（< 0.3m/s），actor 几乎静止 → 不外推
-        if mid < 0.3:
+        h = max(candidates, key=lambda h: h[-1][2])
+        # Least squares over actual sample times is independent of timer rate.
+        n = len(h)
+        mt = sum(p[2]-h[-1][2] for p in h)/n
+        mx, my = sum(p[0] for p in h)/n, sum(p[1] for p in h)/n
+        denom = sum((p[2]-h[-1][2]-mt)**2 for p in h)
+        if denom < 1e-8:
             return tx, ty
-        return tx + vx * lead, ty + vy * lead
+        vx = sum((p[2]-h[-1][2]-mt)*(p[0]-mx) for p in h)/denom
+        vy = sum((p[2]-h[-1][2]-mt)*(p[1]-my) for p in h)/denom
+        if (math.hypot(vx, vy) > PREDICT_ACTOR_VMAX or
+                max(math.hypot(x-mx-vx*(t-h[-1][2]-mt),
+                               y-my-vy*(t-h[-1][2]-mt)) for x,y,t in h) > .5):
+            return tx, ty
+        horizon = min(1., now-h[-1][2]+max(0., lead_s))
+        return h[-1][0]+vx*horizon, h[-1][1]+vy*horizon
 
     def _update_tracker_position(self, target_id, tx, ty):
         """更新追踪机的目标位置。
@@ -2601,7 +2611,7 @@ class SwarmManager(object):
             if ev == "confirmed":
                 # 这只是本队连续图像样本，绝不等同裁判通过；有新鲜视觉
                 # 就继续稳定视角和上报，失去视觉后限时释放飞机补搜。
-                self._confirm_done_t[tid] = now
+                self._confirm_done_t.setdefault(tid, now)
                 # 2026-10-06 国家一等奖: 通知 swarm_agent 切贴脸模式
                 # (只有当前 _orbit_target == tid 的那架 UAV 会响应)
                 try:
@@ -2713,7 +2723,7 @@ class SwarmManager(object):
             if tid not in self._tracking and tid not in self._backup:
                 self._tracking_since.pop(tid, None)
                 continue
-            if tid in self._confirm_done_t or now - start < TRACKING_MAX_TENURE_S:
+            if now - start < TRACKING_MAX_TENURE_S:
                 continue
             if self._recover_tracking_view(tid, now, 'tracking_tenure'):
                 continue

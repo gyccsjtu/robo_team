@@ -246,6 +246,44 @@ class JointDispatchTests(unittest.TestCase):
         self.assertEqual([(c.args[0].uav_id, c.args[0].task_type)
                           for c in m.assign_pub.publish.call_args_list], [('u1', 1), ('u0', 255)])
 
+    def test_camera_nine_metres_away_wins_over_blind_aircraft_at_five(self):
+        m = self.m
+        m.status['u0'].x, m.status['u1'].x = 0., 4.
+        m._visual_observations[('u0', 't0')] = dict(sample_s=100., x=9., y=0.)
+        m._dispatch_target_batch([('t0', 9., 0.)], 100.)
+        self.assertEqual(m._tracking, {'t0': 'u0'})
+
+    def test_blind_owner_within_25m_allows_continuous_camera_handoff(self):
+        m = self.m
+        m._tracking, m._tracking_since = {'t0':'u0'}, {'t0':50.}
+        m._eligible_observations[('u1','t0')] = dict(
+            sample_s=100., since_s=99.4, hits=4, eligible=True, x=5., y=0.)
+        m._handoff_distant_tracker('t0', 5., 0., m.tracker.targets['t0'])
+        self.assertEqual(m._tracking, {'t0':'u1'})
+
+    def test_prediction_is_independent_of_dispatch_rate_and_duplicate_frames(self):
+        for dispatch_rate in (1, 5, 20):
+            m = self.m
+            m._target_hist = {}
+            with patch.object(sm.rospy.Time, 'now') as clock:
+                for t in range(1, 7):
+                    m._record_target_observation('t0', 'u0', t, float(t), 0.)
+                    m._record_target_observation('t0', 'u0', t, 100., 0.)
+                    m._record_target_observation('t0', 'u0', t-.2, -100., 0.)
+                    for k in range(dispatch_rate):
+                        clock.return_value = sm.rospy.Time.from_sec(t+k/dispatch_rate)
+                        prediction = m._predict_target('t0', float(t), 0., 1.)
+                self.assertEqual(prediction, (7., 0.))
+                clock.return_value = sm.rospy.Time.from_sec(7.1)
+                self.assertEqual(m._predict_target('t0', 6., 0., 1.), (6., 0.))
+
+    def test_camera_change_cannot_create_motion_from_source_offset(self):
+        m = self.m
+        for t in (99., 99.5, 100.):
+            m._record_target_observation('t0', 'u0', t, 0., 0.)
+            m._record_target_observation('t0', 'u1', t, 1.2, 0.)
+        self.assertEqual(m._predict_target('t0', 1.2, 0., 1.), (1.2, 0.))
+
     def test_healthy_primary_is_not_replaced_just_because_peer_is_closer(self):
         m = self.m
         m._tracking = {'t0': 'u0'}
