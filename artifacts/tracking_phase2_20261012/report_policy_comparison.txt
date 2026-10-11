@@ -1,0 +1,3 @@
+fit {'cases': 270, 'error_gt1': 23, 'gap_ge1': 0, 'worst_error': 1.9663333333333384, 'worst_gap': 0.9500000000000028}
+latest {'cases': 270, 'error_gt1': 0, 'gap_ge1': 30, 'worst_error': 0.6666666666666785, 'worst_gap': 1.0}
+fresh_capped {'cases': 270, 'error_gt1': 0, 'gap_ge1': 30, 'worst_error': 0.81666666666667, 'worst_gap': 1.0}

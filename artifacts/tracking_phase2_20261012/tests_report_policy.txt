@@ -1,0 +1,9 @@
+.........[bridge-core] [HYPOTHESIS_SWITCH] tag=white old=(1.60,0.00) new=(30.00,0.00) source=u0 candidate=None frames=6; independent visual instance
+...[bridge-core] [HYPOTHESIS_SWITCH] tag=white old=(19.20,-8.44) new=(64.47,-9.08) source=typhoon_h480_3 candidate=None frames=6; independent visual instance
+[bridge-core] [HYPOTHESIS_SWITCH] tag=white old=(82.97,-0.88) new=(101.25,20.75) source=typhoon_h480_5 candidate=None frames=6; independent visual instance
+[bridge-core] [HYPOTHESIS_SWITCH] tag=blue old=(109.78,-39.61) new=(129.30,23.81) source=typhoon_h480_0 candidate=None frames=6; independent visual instance
+.......
+----------------------------------------------------------------------
+Ran 19 tests in 9.714s
+
+OK

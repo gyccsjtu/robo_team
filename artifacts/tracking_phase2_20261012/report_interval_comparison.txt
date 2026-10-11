@@ -1,0 +1,4 @@
+0.35 {'cases': 120, 'error_gt1': 0, 'gap_ge1': 0, 'worst_error': 0.8166666666666558, 'worst_gap': 0.88333333333334}
+0.45 {'cases': 120, 'error_gt1': 0, 'gap_ge1': 30, 'worst_error': 0.81666666666667, 'worst_gap': 1.0}
+0.55 {'cases': 120, 'error_gt1': 0, 'gap_ge1': 48, 'worst_error': 0.6333333333333258, 'worst_gap': 1.0}
+0.6 {'cases': 120, 'error_gt1': 0, 'gap_ge1': 55, 'worst_error': 0.8499999999999943, 'worst_gap': 1.1083333333333343}

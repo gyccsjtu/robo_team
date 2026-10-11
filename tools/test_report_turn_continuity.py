@@ -11,10 +11,10 @@ import yolo_target_bridge as bridge
 
 
 def replay(speed=1., angle=math.pi/2, image_hz=4., latency=.2,
-           corner=8., tick_phase=0.):
+           corner=8., tick_phase=0., noise=None, tag='blue'):
     node = bridge._mk_bridge()
     emitted = []
-    node._actor_pubs['blue'].publish = lambda m: emitted.append((node._now(), m.x, m.y))
+    node._actor_pubs[tag].publish = lambda m: emitted.append((node._now(), m.x, m.y))
     def position(t):
         dt = t-100.
         return (30.+speed*min(dt, corner)+speed*max(0., dt-corner)*math.cos(angle),
@@ -26,8 +26,11 @@ def replay(speed=1., angle=math.pi/2, image_hz=4., latency=.2,
         node._advance(now-node._now())
         if kind == 0:
             x, y = position(sample)
+            if noise is not None:
+                dx,dy=noise(sample)
+                x,y=x+dx,y+dy
             node._report_cb(bridge._FakeString(json.dumps(dict(
-                target_id='blue', xyz=[x, y, 1.25], confidence=.95,
+                target_id=tag, xyz=[x, y, 1.25], confidence=.95,
                 range_m=8., sample_s=sample, source_uav='u0',
                 candidate_id='camera:person', real_detection=True, official_view_ok=True))))
         else:

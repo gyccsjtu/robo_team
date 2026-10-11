@@ -120,6 +120,13 @@ ACTOR_PUB_HOLD_RANGE_M = float(os.environ.get("BRIDGE_PUB_HOLD_RANGE", "15.0"))
 ACTOR_KEEPALIVE_DT = float(os.environ.get("BRIDGE_KEEPALIVE_DT", "0.75"))
 OFFICIAL_IMAGE_MAX_AGE = 0.6  # modelled reports; never extended by a publish callback
 OFFICIAL_UNMODELLED_MAX_AGE = 0.35
+# Candidate policy: opt in for complete GUI trials; baseline remains available.
+REPORT_POLICY = os.environ.get('BRIDGE_REPORT_POLICY', 'fit')
+if REPORT_POLICY not in ('fit', 'fresh'):
+    raise ValueError('BRIDGE_REPORT_POLICY must be fit or fresh')
+FRESH_REPORT_INTERVAL = .35
+FRESH_REPORT_MAX_AGE = .35
+FRESH_REPORT_MAX_ADVANCE = .15
 # 2026-10-06 六轮复盘核心修复：官方判据「相邻广播间隔 <=1.0s」（score_cal DETECTION_INTERVAL）
 # 只约束不超 1s，不要求高频。广播 3Hz 时 15s streak 需 45 次连乘全过（单次失败率 20% ->
 # 成功率 0.8^45≈8e-6，必然 0 消除）；节流到 0.75s 一次后 15s 只需 20 次连乘（0.8^20=1.2%），
@@ -355,7 +362,7 @@ def camera_motion_velocity(histories, now):
     return tuple(statistics.median(v[k] for v in velocities) for k in (0,1))
 
 
-def official_point_at(track, now):
+def _fitted_official_point_at(track, now):
     """One report policy for regular and keepalive paths, measured from image time.
 
     Fits describe position at the last image, then advance only to now. A
@@ -394,6 +401,44 @@ def official_point_at(track, now):
     if age <= OFFICIAL_UNMODELLED_MAX_AGE:
         return track.good_x, track.good_y
     return None
+
+
+def official_point_at(track, now):
+    """Shared output policy; fresh means accepted image, never latest raw input.
+
+    A moving fit may lag a turn even at its own newest inlier. In fresh mode
+    it qualifies the observation but cannot replace it with an old trajectory.
+    Prediction has both an image age and a displacement limit. These limits
+    reduce model error; they cannot prove absolute camera localization error.
+    """
+    if REPORT_POLICY == 'fit':
+        return _fitted_official_point_at(track, now)
+    age=now-track.good_t
+    if track.good_x is None or not 0. <= age <= FRESH_REPORT_MAX_AGE:
+        return None
+    if track.tag in RED_TAGS and age > RED_OFFICIAL_FRESH_S:
+        return None
+    fit=_robust_official_fit(track.good_history,track.good_t)
+    if fit is not None and not fit[5]:
+        return None  # A rejected last point cannot acquire raw-fallback authority.
+    if _fitted_official_point_at(track,track.good_t) is None:
+        return None
+    if fit is None:
+        return track.good_x,track.good_y
+    vx,vy=fit[2:4]
+    if math.hypot(vx,vy) < .15:
+        return fit[:2]  # Keep robust de-noising for stationary observations.
+    advance=math.hypot(vx,vy)*age
+    scale=min(1.,FRESH_REPORT_MAX_ADVANCE/advance) if advance > 0. else 1.
+    return track.good_x+vx*age*scale,track.good_y+vy*age*scale
+
+
+def official_report_interval(track, keepalive=False):
+    if REPORT_POLICY == 'fresh':
+        return FRESH_REPORT_INTERVAL
+    speed=math.hypot(track.vx,track.vy) if track is not None else 0.
+    base=ACTOR_KEEPALIVE_DT if keepalive else PUB_MIN_INTERVAL
+    return min(base,FAST_PUB_INTERVAL) if speed >= FAST_PUB_SPEED else base
 
 
 class _Track(object):
@@ -1301,6 +1346,9 @@ class YoloTargetBridge(object):
         self._String = _msg_string_cls()
         self.report_pub = rospy.Publisher("/swarm/report_telemetry",
                                           self._String, queue_size=30)
+        rospy.loginfo('[REPORT_POLICY] policy=%s image_age_limit=%.2f interval=%.2f advance_cap=%s',
+                      REPORT_POLICY, FRESH_REPORT_MAX_AGE if REPORT_POLICY=='fresh' else OFFICIAL_IMAGE_MAX_AGE,
+                      official_report_interval(None), FRESH_REPORT_MAX_ADVANCE if REPORT_POLICY=='fresh' else 'fit')
         for tag in TAG_TO_TID:
             self._actor_pubs[tag] = rospy.Publisher(
                 "/actor_%s_info" % tag, ActorInfo, queue_size=3)
@@ -1734,8 +1782,7 @@ class YoloTargetBridge(object):
         # 恰好为 0（离线自测的冻结时钟）"的首帧发布也拦掉。
         _last_pub = self._pub_last.get(tag)
         tr = self.core.tracks.get(tag)
-        _track_speed = (math.hypot(tr.vx, tr.vy) if tr is not None else 0.0)
-        _interval = FAST_PUB_INTERVAL if _track_speed >= FAST_PUB_SPEED else PUB_MIN_INTERVAL
+        _interval = official_report_interval(tr)
         if _last_pub is not None and now - _last_pub < _interval:
             return
         self._rospy.loginfo('[REPORT_POINT] tag=%s source=%s image=%.3f '
@@ -1761,6 +1808,8 @@ class YoloTargetBridge(object):
             'tag': tag,
             'report_s': float(now),
             'sample_s': sample,
+            'image_age_s': float(now-sample),
+            'report_policy': REPORT_POLICY,
             'fresh_image': 0.0 <= now - sample <= 1.0,
             'source_uav': getattr(tr, 'official_source', None) or '',
             'candidate_id': getattr(tr, 'official_candidate_id', None) or 'legacy:'+tag,
@@ -1797,14 +1846,21 @@ class YoloTargetBridge(object):
             if _dbg_now - _BRIDGE_DBG_LAST.get(_dbg_key, -1e18) >= 5.0:
                 _BRIDGE_DBG_LAST[_dbg_key] = _dbg_now
                 _tr = self.core.tracks.get(tag)
+                _reason = 'no_qualified_image'
+                if _tr is not None and _tr.good_x is not None:
+                    _limit = FRESH_REPORT_MAX_AGE if REPORT_POLICY=='fresh' else OFFICIAL_IMAGE_MAX_AGE
+                    _age = _dbg_now-_tr.good_t
+                    _reason = 'image_expired' if _age > _limit else 'motion_or_inlier_rejected'
+                    if _age < 0.:
+                        _reason = 'future_image'
                 self._rospy.loginfo(
                     "[OFFICIAL_HOLD] tag=%s range=%s real_obs_age=%.2fs "
-                    "eligible_xy=(%.2f,%.2f): no recent fully valid view",
+                    "eligible_xy=(%.2f,%.2f) policy=%s reason=%s",
                     tag,
                     ("%.1fm" % _tr.range_m) if _tr is not None and
                     _tr.range_m is not None else "None",
                     _dbg_now - _tr.good_t if _tr is not None else float('inf'),
-                    ev["x"], ev["y"])
+                    ev["x"], ev["y"], REPORT_POLICY, _reason)
             return
         official_sample = ev.get("official_sample_s", _sample)
         # 红衣人移动且两条本地 red 槽会交叉。旧坐标继续向裁判播 8s 会
@@ -1845,9 +1901,7 @@ class YoloTargetBridge(object):
             point = official_point_at(tr, now)
             if point is None:
                 continue
-            speed = math.hypot(tr.vx, tr.vy)
-            interval = (min(ACTOR_KEEPALIVE_DT, FAST_PUB_INTERVAL)
-                        if speed >= FAST_PUB_SPEED else ACTOR_KEEPALIVE_DT)
+            interval = official_report_interval(tr, keepalive=True)
             if now - self._pub_last.get(tag, -1e18) < interval:
                 continue
             if not self._pub_gate_ok(tag):

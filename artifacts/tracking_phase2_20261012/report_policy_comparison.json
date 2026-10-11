@@ -1,0 +1,8108 @@
+{
+  "fit": [
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.28284271247462306,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.3181980515339534,
+      "max_gap": 0.7249999999999943,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3535533905932738,
+      "max_gap": 0.7000000000000028,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.7337411744689813,
+      "max_gap": 0.5333333333333314,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.7676822982921571,
+      "max_gap": 0.5083333333333258,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.2828427124746205,
+      "max_gap": 0.9500000000000028,
+      "count": 36
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.6976788500289977,
+      "max_gap": 0.5333333333333314,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.7316199681376835,
+      "max_gap": 0.5083333333333258,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.2121320343559635,
+      "max_gap": 0.9500000000000028,
+      "count": 36
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.6616162869149451,
+      "max_gap": 0.5333333333333314,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.6955574103631739,
+      "max_gap": 0.5083333333333258,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.9500000000000028,
+      "count": 36
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.6255539767100706,
+      "max_gap": 0.5333333333333314,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.6602020734425079,
+      "max_gap": 0.5083333333333258,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.9500000000000028,
+      "count": 36
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.6429959391611847,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.6762298261521617,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.710170949685902,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.5998622990135116,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.6338034220306643,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.668451776703285,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.5574358956667353,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5913770183037056,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.6260253810971019,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.5143025482253738,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.5489506150627571,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.5843059510602675,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.47116887748567315,
+      "max_gap": 0.6666666666666714,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.5065242124299478,
+      "max_gap": 0.6416666666666657,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.5418795479111921,
+      "max_gap": 0.6166666666666742,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.45000000000000995,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.5,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.30000000000001137,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.35000000000001563,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.9866666666666717,
+      "max_gap": 0.7833333333333314,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 1.0346666666666735,
+      "max_gap": 0.7583333333333258,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.29999999999999716,
+      "max_gap": 0.9500000000000028,
+      "count": 36
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.9356666666666769,
+      "max_gap": 0.7833333333333314,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.9846666666666835,
+      "max_gap": 0.7583333333333258,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.9500000000000028,
+      "count": 36
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.8846666666666678,
+      "max_gap": 0.7833333333333314,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.9336666666666744,
+      "max_gap": 0.7583333333333258,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.9500000000000028,
+      "count": 36
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.2666666666666728,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.2916666666666785,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.8483333333333363,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.8963333333333452,
+      "max_gap": 0.8416666666666686,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.9453333333333376,
+      "max_gap": 0.8166666666666771,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.7883333333333269,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.8363333333333358,
+      "max_gap": 0.8416666666666686,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.8853333333333282,
+      "max_gap": 0.8166666666666771,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.727333333333334,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.7763333333333406,
+      "max_gap": 0.8416666666666686,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.8263333333333307,
+      "max_gap": 0.8166666666666771,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.666333333333327,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.7163333333333313,
+      "max_gap": 0.8416666666666686,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.7663333333333213,
+      "max_gap": 0.8166666666666771,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.565685424949241,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.6363961030679068,
+      "max_gap": 0.7249999999999943,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.7071067811865476,
+      "max_gap": 0.7000000000000028,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.4242640687119295,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.4949747468305953,
+      "max_gap": 0.7249999999999943,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.565685424949236,
+      "max_gap": 0.7000000000000028,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.7249999999999943,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.424264068711927,
+      "max_gap": 0.7000000000000028,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 1.3232325738298838,
+      "max_gap": 0.5333333333333314,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 1.3918218675933907,
+      "max_gap": 0.5083333333333258,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.9500000000000028,
+      "count": 36
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 1.2504005136133243,
+      "max_gap": 0.5333333333333314,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 1.320404146885021,
+      "max_gap": 0.5083333333333258,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.40000000000000746,
+      "max_gap": 0.9500000000000028,
+      "count": 36
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.7083333333333286,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.6833333333333371,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.7083333333333286,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.6833333333333371,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 1.1141646098210833,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 1.183461072917533,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 1.2527575361754653,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 1.0286047723872263,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 1.0986082609880214,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 1.167904724044058,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.9430447732978765,
+      "max_gap": 0.46666666666666856,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 1.0137554493619862,
+      "max_gap": 0.49166666666666003,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 1.0844661256940071,
+      "max_gap": 0.5166666666666515,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.8000000000000043,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.9000000000000199,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 1.0,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.6000000000000014,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.700000000000017,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.7999999999999972,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5500000000000043,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.5999999999999943,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.4000000000000128,
+      "max_gap": 0.75,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.5500000000000185,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.6000000000000014,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 1.7693333333333428,
+      "max_gap": 0.7833333333333314,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 1.867333333333356,
+      "max_gap": 0.7583333333333258,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 1.9663333333333384,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.5333333333333456,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.583333333333357,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.5333333333333456,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.583333333333357,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.7083333333333286,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.6833333333333371,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 1.454666666666668,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 1.553666666666679,
+      "max_gap": 0.8416666666666686,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 1.6526666666666614,
+      "max_gap": 0.8166666666666771,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 1.333666666666666,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 1.4336666666666744,
+      "max_gap": 0.8416666666666686,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 1.5336666666666616,
+      "max_gap": 0.8166666666666771,
+      "count": 37
+    }
+  ],
+  "latest": [
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.2916666666666714,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.2916666666666714,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.2916666666666714,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.2916666666666714,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.2916666666666714,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.20000000000000462,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.20000000000000462,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.20000000000000462,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.29166666666667496,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.29166666666667496,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.29166666666667496,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.29166666666667496,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.6666666666666714,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.2916666666666785,
+      "max_gap": 0.5999999999999943,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.31666666666667,
+      "max_gap": 0.5999999999999943,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.20000000000000995,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.20000000000000995,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.20000000000000995,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.2000000000000064,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.2000000000000064,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.2000000000000064,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.2916666666666785,
+      "max_gap": 0.8000000000000114,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.7999999999999972,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.2916666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.2916666666666714,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.2916666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.3333333333333428,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.2916666666666714,
+      "max_gap": 0.9083333333333314,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.3166666666666629,
+      "max_gap": 0.88333333333334,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.40000000000000746,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.40000000000000746,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.40000000000000746,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.5833333333333428,
+      "max_gap": 0.7083333333333286,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.6333333333333364,
+      "max_gap": 0.6833333333333371,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.5833333333333428,
+      "max_gap": 0.7083333333333286,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.6333333333333364,
+      "max_gap": 0.6833333333333371,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5833333333333499,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.5833333333333481,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.5833333333333499,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.4000000000000128,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.4000000000000128,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.4000000000000128,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.40000000000000924,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.40000000000000924,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.40000000000000924,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.5833333333333606,
+      "max_gap": 0.8000000000000114,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.7999999999999972,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.583333333333357,
+      "max_gap": 0.8000000000000114,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.7999999999999972,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5833333333333393,
+      "max_gap": 0.7083333333333286,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.6333333333333364,
+      "max_gap": 0.6833333333333371,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.583333333333357,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.6666666666666785,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.5833333333333499,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    }
+  ],
+  "fresh_capped": [
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.75,
+      "count": 24
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 0.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.0,
+      "max_gap": 0.8000000000000114,
+      "count": 22
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.26666666666666217,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.25000000000000144,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.25000000000000144,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.25000000000000144,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.359156573717428,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.36097476058275624,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.36279486092158175,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.363705619667577,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.36552853665768686,
+      "max_gap": 0.6666666666666714,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.5999999999999943,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.5999999999999943,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.3500000000000014,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.3500000000000014,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3500000000000014,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.2500000000000071,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.2500000000000071,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.2500000000000071,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.20000000000000284,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.2666666666666728,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.2916666666666785,
+      "max_gap": 0.8000000000000114,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.7999999999999972,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.4833333333333343,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4833333333333272,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.4833333333333343,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.4833333333333272,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.29166666666666785,
+      "max_gap": 0.9083333333333314,
+      "count": 34
+    },
+    {
+      "speed": 1.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.3166666666666593,
+      "max_gap": 0.88333333333334,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.5,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.50833333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 0,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.5166666666666515,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.4272001872658813,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.4272001872658813,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.4272001872658813,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.40000000000000746,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.40000000000000746,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.40000000000000746,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.7083333333333286,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.6833333333333371,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.7083333333333286,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.6833333333333371,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.6804068227497728,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.6813822552560149,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.6833333333333307,
+      "max_gap": 0.4666666666666828,
+      "count": 38
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 90,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.5500000000000043,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.5500000000000043,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.5500000000000043,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.4000000000000128,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.4000000000000128,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.4000000000000128,
+      "max_gap": 0.75,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.4000000000000057,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.4000000000000057,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 4.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.4000000000000057,
+      "max_gap": 1.0,
+      "count": 34
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.0,
+      "max_error": 0.5333333333333456,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.025,
+      "max_error": 0.583333333333357,
+      "max_gap": 0.8000000000000114,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.0,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.7999999999999972,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.0,
+      "max_error": 0.5333333333333456,
+      "max_gap": 0.8000000000000114,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.025,
+      "max_error": 0.583333333333357,
+      "max_gap": 0.8000000000000114,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.05,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.7999999999999972,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.0,
+      "max_error": 0.5333333333333243,
+      "max_gap": 0.7333333333333343,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.7083333333333286,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.1,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.6833333333333371,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.0,
+      "max_error": 0.81666666666667,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.15,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.0,
+      "max_error": 0.8166666666666629,
+      "max_gap": 0.7999999999999972,
+      "count": 37
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.025,
+      "max_error": 0.5833333333333357,
+      "max_gap": 0.9083333333333314,
+      "count": 35
+    },
+    {
+      "speed": 2.0,
+      "angle_deg": 180,
+      "hz": 5.0,
+      "corner": 8.2,
+      "phase": 0.05,
+      "max_error": 0.6333333333333186,
+      "max_gap": 0.88333333333334,
+      "count": 35
+    }
+  ]
+}
