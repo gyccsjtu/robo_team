@@ -1125,6 +1125,7 @@ class YoloTargetBridge(object):
     def _report_cb(self, msg):
         try:
             tag, x, y, conf, rng = parse_report(msg.data)
+            local_tag = tag
             payload = json.loads(msg.data)
             now = self._now()
             if payload.get("real_detection") is not True:
@@ -1179,6 +1180,7 @@ class YoloTargetBridge(object):
                 if pub is not None:
                     pub.publish(_msg_string_cls()(data=json.dumps({
                         'target_id': TAG_TO_TID[tag], 'source_uav': source,
+                        'local_target_id': TAG_TO_TID[local_tag],
                         'sample_s': sample, 'x': x, 'y': y,
                         'real_detection': True, 'confidence': conf,
                         'range_m': rng,

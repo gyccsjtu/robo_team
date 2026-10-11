@@ -49,6 +49,23 @@ def bound_pixel_candidate(cues, cls, box):
     return matches[0] if len(matches) == 1 else None
 
 
+def bind_red_view(view, evidence, assigned_tid):
+    """Use the bridge's own-camera, same-image mapping, never red slot names.
+
+    The caller validates source and freshness before supplying evidence.
+    Coordinate tolerance accounts only for the report's centimetre rounding;
+    it is not a proximity rule for merging two nearby red people.
+    """
+    if (evidence is None or assigned_tid not in ('t4', 't5') or
+            view['target_id'] not in ('t4', 't5') or
+            evidence['target_id'] != assigned_tid or
+            evidence['local_target_id'] != view['target_id'] or
+            abs(evidence['sample_s']-view['sample_s']) > 1e-6 or
+            math.hypot(evidence['x']-view['x'], evidence['y']-view['y']) > .02):
+        return None
+    return dict(view, local_target_id=view['target_id'], target_id=assigned_tid)
+
+
 def retain_pixel_view(previous, data, source, tid, now):
     """At most 2s of yaw-only continuity for an explicitly bound image track.
 

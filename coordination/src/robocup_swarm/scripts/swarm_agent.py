@@ -37,6 +37,7 @@ from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from csv_logger import logger
 from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
+                           bind_red_view,
                            retain_pixel_view)
 from camera_attention import approach_image, candidate_velocity
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
@@ -1747,7 +1748,28 @@ class SwarmAgent(object):
         try:
             now = rospy.Time.now().to_sec()
             tid = assignment.target_id
-            view = parse_tracking_view(json.loads(msg.data), self.uav_id, tid, now)
+            raw = json.loads(msg.data)
+            local_tid = raw.get('target_id')
+            if tid in ('t4', 't5') and local_tid in ('t4', 't5'):
+                view = parse_tracking_view(raw, self.uav_id, local_tid, now)
+                key = (local_tid, view['sample_s'])
+                with self.__dict__.setdefault('_red_view_lock', threading.RLock()):
+                    binding = getattr(self, '_red_view_bindings', {}).get(key)
+                    if binding is None:
+                        # Camera feedback is published before the bridge handles
+                        # that image. Preserve this order without guessing identity.
+                        pending = {k: v for k, v in
+                                   getattr(self, '_pending_red_views', {}).items()
+                                   if 0.0 <= now-k[1] <= .5}
+                        pending[key] = raw
+                        self._pending_red_views = dict(
+                            sorted(pending.items(), key=lambda item: item[0][1])[-16:])
+                        return
+                view = bind_red_view(view, binding, tid)
+                if view is None:
+                    return
+            else:
+                view = parse_tracking_view(raw, self.uav_id, tid, now)
             previous = getattr(self, '_tracking_image', None)
             if (previous is not None and previous['target_id'] == tid and
                     view['sample_s'] < previous['sample_s']):
@@ -1776,11 +1798,32 @@ class SwarmAgent(object):
             self._tracking_image = view
             rospy.loginfo_throttle(2.0,
                 '[TRACK_VIEW] uav=%s tid=%s image=%.3f centre_v=%.1f bottom=%.1f '
-                'alt_goal=%.2f range=%.2f', self.uav_id, tid, view['sample_s'],
+                'alt_goal=%.2f range=%.2f local_tid=%s', self.uav_id, tid, view['sample_s'],
                 (view['box'][1]+view['box'][3])/2., view['box'][3],
-                view['altitude_goal'], rng)
+                view['altitude_goal'], rng, view.get('local_target_id', tid))
         except (ValueError, TypeError, KeyError, OverflowError):
             return
+
+    def _remember_red_view_binding(self, local_tid, data, now):
+        """Join our original image to its global identity across ROS callbacks."""
+        if (data['source_uav'] != self.uav_id or
+                data['target_id'] not in ('t4', 't5') or
+                local_tid not in ('t4', 't5') or
+                not 0.0 <= now-data['sample_s'] <= .5):
+            return
+        key = (local_tid, data['sample_s'])
+        with self.__dict__.setdefault('_red_view_lock', threading.RLock()):
+            bindings = {k: v for k, v in getattr(self, '_red_view_bindings', {}).items()
+                        if 0.0 <= now-k[1] <= .5}
+            bindings[key] = dict(data, local_target_id=local_tid)
+            self._red_view_bindings = dict(
+                sorted(bindings.items(), key=lambda item: item[0][1])[-16:])
+            pending = {k: v for k, v in getattr(self, '_pending_red_views', {}).items()
+                       if 0.0 <= now-k[1] <= .5}
+            raw = pending.pop(key, None)
+            self._pending_red_views = pending
+        if raw is not None:
+            self._tracking_view_cb(String(data=json.dumps(raw)))
 
     def _fresh_tracking_view(self, now):
         view = getattr(self, '_tracking_image', None)
@@ -1904,6 +1947,9 @@ class SwarmAgent(object):
             data = parse_visual_evidence(msg.data, now, allowed)
             tid = data['target_id']
             uid = data['source_uav']
+            if uid == self.uav_id and tid in ('t4', 't5'):
+                self._remember_red_view_binding(
+                    json.loads(msg.data).get('local_target_id'), data, now)
             history = getattr(self, '_team_visual', None)
             if history is None:
                 history = self._team_visual = {}
