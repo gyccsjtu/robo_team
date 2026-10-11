@@ -630,6 +630,8 @@ SPOOK_SPEED     = 0.85    # 接近阶段最大线速度 m/s（离 1.0 m/s 阈值
 # 从未被搜索格覆盖 → 全程零观测零派机。恒速 3.0m/s + 2m 减速带（近引导点
 # 切回 P 控制自然减速，防冲过格中心）。
 SEARCH_CRUISE_SPEED = float(os.environ.get('SEARCH_CRUISE_SPEED', '3.0'))
+SEARCH_START_DISTANCE_M = max(0.0, float(os.environ.get('SEARCH_START_DISTANCE_M', '10.0')))
+SEARCH_START_SPEED = max(0.0, float(os.environ.get('SEARCH_START_SPEED', '1.5')))
 SEARCH_DECEL_M      = float(os.environ.get('SEARCH_DECEL_M', '2.0'))
 # v23 重定标（2026-10-09，规则 PDF 深挖 + 官方 master e9e4ef8 代码核对）：
 # 官方 control_actor.py 逃跑机制实为「一次性闩锁」——
@@ -958,6 +960,7 @@ class SwarmAgent(object):
         self._plan_event = threading.Event()
         self._plan_fail_t = 0.0      # 上次规划失败时刻（失败后 2s 冷却，避免刷屏）
         self._takeoff_done = False   # 是否已完成起飞垂直爬升
+        self._search_start_progress = None
         self._last_flight_v = None   # 上次下发的水平速度 (vx, vy)，规划未就绪时续命
         self._last_orca_v = (0.0, 0.0)
         self._last_csv_t = 0.0
@@ -4046,6 +4049,45 @@ class SwarmAgent(object):
         self._set_search_heading(self._search_scan_phase * math.pi / 2.0)
         self._send_vel(0.0, 0.0)
 
+    def _search_start_cap(self, vx, vy):
+        """Give the first search metres more image time, before safety filters.
+
+        Count measured travel between consecutive search control cycles, not
+        commanded distance or distance to a waypoint. Candidate attention and
+        tracking bypass this cap; returning to search retains the same budget.
+        Long gaps, clock resets and pose jumps cannot consume the budget.
+        """
+        if SEARCH_START_DISTANCE_M <= 0.0:
+            return vx, vy
+        progress = getattr(self, '_search_start_progress', None)
+        if progress is not None and progress['metres'] >= SEARCH_START_DISTANCE_M:
+            return vx, vy
+        now = rospy.Time.now().to_sec()
+        xy = self.world_xy
+        if progress is None:
+            progress = self._search_start_progress = {'metres': 0.0, 'last': None}
+            rospy.loginfo('[%s] SEARCH_START first %.1fm cap %.2fm/s',
+                          self.uav_id, SEARCH_START_DISTANCE_M, SEARCH_START_SPEED)
+        if xy is not None and all(math.isfinite(v) for v in (now, *xy)):
+            last = progress['last']
+            if last is not None:
+                dt = now - last[0]
+                step = math.hypot(xy[0] - last[1], xy[1] - last[2])
+                if 0.0 < dt <= 0.5 and step <= MAX_SPEED * dt + 0.05:
+                    progress['metres'] += step
+            progress['last'] = (now, *xy)
+        else:
+            progress['last'] = None
+        if progress['metres'] >= SEARCH_START_DISTANCE_M:
+            rospy.loginfo('[%s] SEARCH_START complete travelled=%.2fm; cruise=%.2fm/s',
+                          self.uav_id, progress['metres'], SEARCH_CRUISE_SPEED)
+            return vx, vy
+        speed = math.hypot(vx, vy)
+        if speed > SEARCH_START_SPEED:
+            scale = SEARCH_START_SPEED / speed
+            return vx * scale, vy * scale
+        return vx, vy
+
     def _control(self):
         """有任务 → A* 绕障飞向格中心；无任务 → 原地悬停。"""
         # === 降落模式 ===
@@ -4074,6 +4116,7 @@ class SwarmAgent(object):
                 return
             if self.local_z is not None and self.local_z >= CLIMB_DONE_ALT:
                 self._takeoff_done = True
+                self._search_start_progress = None
                 self._climb_progress = None
                 rospy.loginfo("[%s] 已爬升到 %.1fm，开始水平机动",
                               self.uav_id, CLIMB_DONE_ALT)
@@ -4337,6 +4380,8 @@ class SwarmAgent(object):
         if spd > _cap:
             vx *= _cap / spd
             vy *= _cap / spd
+
+        vx, vy = self._search_start_cap(vx, vy)
 
         # === 友机避碰 ===
         vx, vy = self._apply_friend_avoidance(vx, vy)

@@ -881,7 +881,8 @@ do_start(){
                                         # 搜索瘫痪 310s。少一架 backup 少被误检吸走一架。
         export SEARCH_RESERVE_MAX=2    # 未发现目标仍存在时，至少留 1~2 架机继续搜索
         export SEARCH_HARD_HOME_ZONE=1 # 起飞初期先搜本责任区，避免六机反复回西侧
-        export SEARCH_HOME_HARD_S=120.0 # 初期分区展开后允许跨区支援
+        export SEARCH_HOME_HARD_S=30.0 # 初期展开后允许接管被追踪任务留下的搜索空区
+        export SEARCH_BOUNDARY_INSET_M=8.5 # 普通搜索避开边界慢速带；外圈可见性不足时保留近边补看
         export SEARCH_Y_EDGE_DEFER_M=7.0 # 南北外排相机可由内侧一排看见，先推进到中央目标带
         export BACKUP_AFTER=5.0         # v23：2.0→5.0 恢复 2026-10-05 修复（run_match.sh 旧注释
                                         # "默认3"已过时，代码默认 2026-10-05 起就是 5.0，此处 2.0
@@ -898,6 +899,8 @@ do_start(){
         # 2m 减速带；出生区锁定 30s 后立即散开；已发现目标派机距离放宽到 60m
         # （原 13m 存在「飞机不派过去就永远够不到 13m」的鸡生蛋死结）。
         export SEARCH_CRUISE_SPEED=3.0
+        export SEARCH_START_DISTANCE_M=10.0 # 仅起飞后前 10m 搜索实际航程，换格不重置
+        export SEARCH_START_SPEED=1.5       # 候选补看、追踪和安全控制不受此限速影响
         export SEARCH_DECEL_M=2.0
         export SEARCH_ARRIVE_TOL=2.0  # 与 manager 的 4m 验收半径衔接，避免在 1m 多的误差处悬停
         export SEARCH_SWEEP_DEG=20.0  # 开阔搜索小幅扫视；候选/跟踪/近障时退出

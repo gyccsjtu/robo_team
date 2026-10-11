@@ -335,7 +335,7 @@ def _envf(name, default):
 
 _PRIORITY_ON = os.environ.get('PRIORITY_CORNER', '1') not in ('0', 'false', 'False', '')
 SEARCH_HARD_HOME_ZONE = os.environ.get('SEARCH_HARD_HOME_ZONE', '1') not in ('0', 'false', 'False', '')
-SEARCH_HOME_HARD_S = float(os.environ.get('SEARCH_HOME_HARD_S', '120.0'))
+SEARCH_HOME_HARD_S = float(os.environ.get('SEARCH_HOME_HARD_S', '30.0'))
 SEARCH_Y_EDGE_DEFER_M = float(os.environ.get('SEARCH_Y_EDGE_DEFER_M', '7.0'))  # 内排软偏置，外排仍可派
 SEARCH_ROUTE_AXIS = os.environ.get('SEARCH_ROUTE_AXIS', 'long_axis')
 if SEARCH_ROUTE_AXIS not in ('long_axis', 'column'):

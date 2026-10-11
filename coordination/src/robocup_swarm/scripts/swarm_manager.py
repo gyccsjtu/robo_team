@@ -51,6 +51,8 @@ FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
 FLIGHT_Y_MIN = float(os.environ.get('FLIGHT_Y_MIN', '-60.0'))
 FLIGHT_Y_MAX = float(os.environ.get('FLIGHT_Y_MAX', '60.0'))
 FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
+SEARCH_BOUNDARY_INSET_M = max(FLIGHT_INSET, float(
+    os.environ.get('SEARCH_BOUNDARY_INSET_M', '8.5')))
 
 
 def flight_waypoint(x, y, inset=FLIGHT_INSET):
@@ -61,14 +63,16 @@ def flight_waypoint(x, y, inset=FLIGHT_INSET):
 
 
 def search_viewpoint(x, y):
-    """Observe an outer search cell from camera range inside the flight box.
+    """Prefer search viewpoints outside the boundary guard's slow band.
 
-    Clamping its center just 2 m inside the boundary puts a horizontal
-    camera almost above the cell, below its vertical field of view. Only
-    search cells outside the safe flight inset get a standoff viewpoint;
-    tracking keeps the original flight_waypoint behavior.
+    Shifted cells need an 8.5 m camera standoff, not an overhead scan. Outer
+    cells/corners that cannot be viewed from the preferred inset retain their
+    close-boundary viewpoint: flight guards and real image coverage still
+    apply. Tracking uses flight_waypoint directly and is unaffected.
     """
-    px, py = flight_waypoint(x, y)
+    px, py = flight_waypoint(x, y, inset=SEARCH_BOUNDARY_INSET_M)
+    if math.hypot(px - x, py - y) > 9.0:
+        px, py = flight_waypoint(x, y)
     dx, dy = px - x, py - y
     distance = math.hypot(dx, dy)
     if distance < 1e-6 or distance >= 8.5:

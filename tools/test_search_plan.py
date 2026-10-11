@@ -161,9 +161,17 @@ class SearchPlanTests(unittest.TestCase):
         grid = self._east_orphan_grid()
         allocator = swarm_task.TaskAllocator(grid)
         allocator.mission_start = 100.0
-        with patch.object(swarm_task, '_now', return_value=150.0):
+        with patch.object(swarm_task, '_now', return_value=129.9):
             assigned = allocator.allocate({'typhoon_h480_1': (130.0, -32.0)})
         self.assertEqual(grid.get_zone_id(assigned['typhoon_h480_1']), 1)
+
+    def test_orphan_takeover_opens_after_thirty_seconds(self):
+        grid = self._east_orphan_grid()
+        allocator = swarm_task.TaskAllocator(grid)
+        allocator.mission_start = 100.0
+        with patch.object(swarm_task, '_now', return_value=130.1):
+            assigned = allocator.allocate({'typhoon_h480_1': (130.0, -32.0)})
+        self.assertEqual(grid.get_zone_id(assigned['typhoon_h480_1']), 3)
 
     def test_neighbor_keeps_equally_unseen_home_sector(self):
         grid = swarm_task.CoverageGrid(-55, 155, -65, 65,
