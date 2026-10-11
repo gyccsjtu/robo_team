@@ -114,6 +114,12 @@ class SearchCell(object):
 class CoverageGrid(object):
     """200×100 覆盖栅格：20×10 个 10×10 m 搜索格。"""
 
+    @classmethod
+    def for_city(cls, cell_m=GRID_SIZE_M, num_uavs=6):
+        """Identical cell indices for dispatch and aircraft status reports."""
+        from flight_boundary import flight_bounds
+        return cls(*flight_bounds(), cell_m=cell_m, num_uavs=num_uavs)
+
     def __init__(self, x_min, x_max, y_min, y_max, cell_m=GRID_SIZE_M, num_uavs=6):
         self.x_min, self.x_max = float(x_min), float(x_max)
         self.y_min, self.y_max = float(y_min), float(y_max)

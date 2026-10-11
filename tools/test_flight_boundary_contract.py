@@ -22,7 +22,7 @@ class CityBoundaryTests(unittest.TestCase):
         validate_environment({'FLIGHT_X_MAX': '130'})
 
     def test_partial_rows_have_interior_centers_and_no_padding_cells(self):
-        g = CoverageGrid(*flight_bounds(), cell_m=7, num_uavs=6)
+        g = CoverageGrid.for_city(cell_m=7, num_uavs=6)
         self.assertEqual(len(g.cells), 390)
         for key, cell in g.cells.items():
             self.assertTrue(inside_flight(cell.cx, cell.cy))
@@ -31,6 +31,14 @@ class CityBoundaryTests(unittest.TestCase):
         for point in ((130.5, 0), (0, 51.5), (0, 57.5), (-51.5, 0)):
             self.assertIsNone(g.world_to_cell(*point))
         self.assertEqual(set().union(*map(set, g.zone_cells.values())), set(g.cells))
+
+    def test_status_and_dispatch_share_city_indices_instead_of_sensor_padding(self):
+        status = CoverageGrid.for_city()
+        dispatch = CoverageGrid.for_city(num_uavs=6)
+        old_status = CoverageGrid(-55,155,-65,65)
+        self.assertNotEqual(status.world_to_cell(0,0),old_status.world_to_cell(0,0))
+        for key, cell in dispatch.cells.items():
+            self.assertEqual(status.world_to_cell(cell.cx,cell.cy),key)
 
     def test_path_cannot_bypass_wall_through_storage_padding(self):
         cells = bytearray(210*130)

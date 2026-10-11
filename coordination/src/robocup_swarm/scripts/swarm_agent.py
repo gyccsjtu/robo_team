@@ -951,13 +951,8 @@ class SwarmAgent(object):
         # 2026-10-05 国家一等奖：缓存到点前的最后一个 local_goal，dwell 期冻结视野
         self._last_local_goal = None
 
-        # ---- 覆盖栅格（与 manager 一致，10m 格）----
-        # 覆盖格与 manager 使用同一份 metadata 边界；固定 ±100 的旧边界
-        # 会让 x>100 的扫描状态 confidence 恒为 0，边缘格永远无法完成。
-        self.cov_grid = CoverageGrid(
-            _b.get("x_min", MAP_X_MIN), _b.get("x_max", MAP_X_MAX),
-            _b.get("y_min", MAP_Y_MIN), _b.get("y_max", MAP_Y_MAX),
-            GRID_SIZE_M)
+        # Dispatch and status must share city cells, not padded sensor cells.
+        self.cov_grid = CoverageGrid.for_city(GRID_SIZE_M)
 
         # ---- 目标检测（规则3 几何判定：距离 + 视线遮挡）----
         # 用**未膨胀**的原始 SLAM 栅格做 LOS 判定（膨胀是给飞行留裕度的，

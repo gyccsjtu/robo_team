@@ -322,7 +322,7 @@ class SwarmManager(object):
         rospy.loginfo("[manager] 搜索栅格边界 x[%.0f,%.0f] y[%.0f,%.0f]（%s）",
                       _bx0, _bx1, _by0, _by1,
                       "统一场地边界；传感器扩展图不参与任务划分")
-        self.grid = CoverageGrid(_bx0, _bx1, _by0, _by1, GRID_SIZE_M, len(uav_ids))
+        self.grid = CoverageGrid.for_city(GRID_SIZE_M, len(uav_ids))
         self.allocator = TaskAllocator(self.grid, W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE,
                                        w_distance=W_DISTANCE, w_zone=W_ZONE, cruise_speed=CRUISE_SPEED)
         self.lease = LeaseManager(self.grid, duration=LEASE_DURATION)
