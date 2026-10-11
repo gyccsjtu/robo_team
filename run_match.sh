@@ -56,6 +56,14 @@ SWARM_SCRIPTS="$REPO_ROOT/coordination/src/robocup_swarm/scripts"
 BRIDGE_SCRIPT="$SWARM_SCRIPTS/yolo_target_bridge.py"
 READY_SCRIPT="$REPO_ROOT/tools/wait_match_ready.py"
 GRAPH_AUDIT_SCRIPT="$REPO_ROOT/tools/audit_match_graph.py"
+# Optional measured image-ray feedback. Disabled until explicitly selected;
+# separate from both world coordinates and official observation evidence.
+FAST_VISUAL_YAW="${FAST_VISUAL_YAW:-0}"
+FAST_VISUAL_YAW_UAVS="${FAST_VISUAL_YAW_UAVS:-2,5}"
+if [ "$FAST_VISUAL_YAW" = 1 ]; then
+    export PR_FAST_TRACKER_SHADOW=1
+fi
+export FAST_VISUAL_YAW FAST_VISUAL_YAW_UAVS
 # 导航包源码目录：manager/agent 均 import robocup_navigation，必须进 PYTHONPATH
 NAV_SRC="$REPO_ROOT/coordination/src/robocup_navigation/src"
 # 合规地图元数据（2026-10-07 重构，规则 §2.4/§2.5 无预读随机地图）：
@@ -335,11 +343,24 @@ topic_publisher_match(){  # topic_publisher_match <topic> <节点名片段>
 }
 
 # ============================ 赛前体检 ======================================
+fast_visual_config_valid(){
+    case "$FAST_VISUAL_YAW" in 0) return 0 ;; 1) ;; *)
+        err "FAST_VISUAL_YAW 只能为0或1"; return 1 ;; esac
+    [[ "$FAST_VISUAL_YAW_UAVS" =~ ^[0-5](,[0-5])*$ ]] \
+        || { err "FAST_VISUAL_YAW_UAVS 必须为0到5的逗号分隔编号"; return 1; }
+    local file
+    for file in "$PERC_DIR/fast_visual_node.py" "$PERC_DIR/fast_visual_tracker.py" \
+                "$REPO_ROOT/tools/fast_visual_shadow.py" "$SWARM_SCRIPTS/fast_tracking_view.py"; do
+        [ -f "$file" ] || { err "快速视角模块缺失: $file"; return 1; }
+    done
+}
+
 preflight(){
     mkdir -p "$RUN_DIR"
     local hard_miss=0 _collect_preflight_errors=1
     local -a _preflight_errors=()
     echo "${C_B}================ RoboCup 赛前体检 ================${C_0}"
+    fast_visual_config_valid || hard_miss=$((hard_miss+1))
 
     # 进程残留检查：上一局 stop 没清干净会导致新局 gzserver 被顶掉、rosmaster 冲突。
     # 复盘 2026-10-02 23:29 局：残留 gzserver 顶掉新 gzserver → "new node registered
@@ -630,6 +651,7 @@ preflight(){
 # Existing official environment: no local world/plugin/actor ownership.
 team_preflight(){
     local file nodes
+    fast_visual_config_valid || return 1
     for file in "$ROS_SETUP" "$WS_SETUP" "$COORD_WS_SETUP" "$WEIGHTS" \
                 "$PERC_DIR/perception_real.py" "$BRIDGE_SCRIPT" "$COMM_BRIDGE" \
                 "$SWARM_SCRIPTS/swarm_agent.py" "$SWARM_SCRIPTS/swarm_manager.py"; do
@@ -1065,6 +1087,20 @@ do_start(){
         wait_gate "协同层 6 agent ROS 节点注册" 45 agents_ready \
             || partial_fail "agent 不足 6/6，看 $LOGDIR/06_swarm_agent_*.log"
 
+        if [ "$FAST_VISUAL_YAW" = 1 ]; then
+            start_group fast_visual_yaw "$LOGDIR/06_fast_visual_yaw.log" \
+                python3 -u "$PERC_DIR/fast_visual_node.py" \
+                --uavs "$FAST_VISUAL_YAW_UAVS" --publish-yaw \
+                --output "$LOGDIR/fast_visual_yaw" --duration 1200 \
+                --max-hz 20 --max-recorded-frames 600
+            fast_yaw_ready(){
+                alive_pgid "$(group_pgid fast_visual_yaw)" && \
+                    topic_publisher_match /perception/fast_tracking_view fast_visual_yaw "${1:-5}"
+            }
+            wait_gate "快速视角节点注册（不等待人物出现）" 15 fast_yaw_ready \
+                || partial_fail "快速视角节点未就绪；检查 $LOGDIR/06_fast_visual_yaw.log"
+        fi
+
     fi
 
     # ---- 旧的"启时统一暂停、最后统一 unpause"已上移到 Gazebo 服务就绪之后
@@ -1081,6 +1117,7 @@ do_start(){
     fi
     info "实际播报数量请在运行中用 status 查看；启动时目标未发现，不等待六路消息"
     local -a required_components=(yolo_bridge swarm_manager)
+    [ "$FAST_VISUAL_YAW" != 1 ] || required_components+=(fast_visual_yaw)
     [ "$TEAM_ONLY" = 1 ] || required_components+=(judge actors)
     for _component in "${required_components[@]}" \
             swarm_agent_0 swarm_agent_1 swarm_agent_2 \

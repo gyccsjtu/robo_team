@@ -42,6 +42,7 @@ from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
                            bind_red_view, bind_red_instance_view,
                            retain_pixel_view)
+from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from camera_attention import approach_image, candidate_velocity, candidate_decision, candidate_reposition
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
@@ -914,6 +915,14 @@ class SwarmAgent(object):
         self._scan_t = 0.0           # 最近雷达帧的 ROS 时间
         self.state = State()
         self.assignment = None      # SearchAssignment 当前任务
+        self._fast_yaw_enabled = fast_yaw_enabled(os.environ, uav_id)
+        self._fast_tracking_image = None
+        self._fast_yaw_csv = (logger('fast_yaw_%s' % uav_id, [
+            'ros_time', 'event', 'target_id', 'reason', 'yaw_source',
+            'sample_s', 'seed_s', 'image_age', 'seed_age', 'quality',
+            'real_sample_s', 'position_sample_s', 'bearing', 'real_bearing',
+            'yaw', 'yaw_rate', 'candidate_id', 'world_candidate_id'])
+            if self._fast_yaw_enabled else None)
         self._team_tracks = {}      # target_id -> assigned aircraft (main/backup)
         self._team_visual = {}      # (source, target) -> recent accepted image streak
         self._camera_cue = None
@@ -1066,6 +1075,9 @@ class SwarmAgent(object):
         rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb, queue_size=30)
         rospy.Subscriber("/swarm/visual_candidate", String, self._visual_candidate_cb, queue_size=6)
         rospy.Subscriber("/swarm/tracking_view", String, self._tracking_view_cb, queue_size=6)
+        if self._fast_yaw_enabled:
+            rospy.Subscriber('/perception/fast_tracking_view', String,
+                             self._fast_tracking_view_cb, queue_size=6)
         rospy.Subscriber("/swarm/processed_camera_frame", String,
                          self._processed_camera_frame_cb, queue_size=6)
         # 2026-10-06 国家一等奖: 团队侧已确认广播
@@ -1423,6 +1435,7 @@ class SwarmAgent(object):
             self._discard_old_plan()
             self.assignment = None
             self._tracking_image = None
+            self._fast_tracking_image = None
             self._tracking_altitude = None
             self._observation_detour = None
             self._tracking_blocked_since = None
@@ -1474,6 +1487,7 @@ class SwarmAgent(object):
             self._camera_cue = None
         if msg.task_type != 1 or not same_track:
             self._tracking_image = None
+            self._fast_tracking_image = None
             self._tracking_altitude = None
             self._observation_detour = None
             self._observation_detour_next = 0.0
@@ -1943,6 +1957,80 @@ class SwarmAgent(object):
                 0.0 <= now-view['sample_s'] <= .5):
             return view
         return None
+
+    @serialized_visual_task
+    def _fast_tracking_view_cb(self, msg):
+        """Store only explicitly bound image feedback; never touch real evidence."""
+        if not getattr(self, '_fast_yaw_enabled', False):
+            return
+        try:
+            data = json.loads(msg.data)
+            if not isinstance(data, dict) or data.get('source_uav') != self.uav_id:
+                return
+            now = rospy.Time.now().to_sec()
+            assignment = getattr(self, 'assignment', None)
+            if getattr(assignment, 'task_type', None) != 1:
+                return
+            real = self._fresh_tracking_view(now)
+            try:
+                view = validate_fast_view(data, self.uav_id, assignment.target_id,
+                                          real, now,
+                                          getattr(self, '_fast_tracking_image', None))
+            except ValueError as exc:
+                self._write_fast_yaw(now, 'reject', str(exc), 'real', data, real)
+                return
+            self._fast_tracking_image = view
+            self._write_fast_yaw(now, 'accept', '', 'fast', view, real)
+        except (ValueError, KeyError, TypeError, OverflowError):
+            return
+
+    def _fresh_fast_tracking_view(self, now):
+        if not getattr(self, '_fast_yaw_enabled', False):
+            return None
+        assignment = getattr(self, 'assignment', None)
+        view = getattr(self, '_fast_tracking_image', None)
+        if getattr(assignment, 'task_type', None) != 1 or view is None:
+            return None
+        real = self._fresh_tracking_view(now)
+        tid = assignment.target_id
+        binding = getattr(self, '_camera_instance', {}).get(tid)
+        if (binding is not None and 0. <= now-binding['sample_s'] <= 1. and
+                binding.get('candidate_id') != view.get('bound_world_candidate_id')):
+            return None
+        if view['seed_s'] < getattr(self, '_hypothesis_switch_s', {}).get(tid, -1e18):
+            return None
+        try:
+            return validate_fast_view(view, self.uav_id, tid, real, now)
+        except ValueError:
+            return None
+
+    def _write_fast_yaw(self, now, event, reason, source, fast=None, real=None,
+                        bearing=None, yaw_rate=None):
+        log = getattr(self, '_fast_yaw_csv', None)
+        if log is None:
+            return
+        fast, real = fast or {}, real or {}
+        # Diagnostics must not make a malformed experimental message interrupt
+        # the established flight stream.
+        def age(key):
+            try:
+                return now-float(fast[key])
+            except (KeyError, TypeError, ValueError, OverflowError):
+                return None
+        try:
+            log.write(ros_time=now, event=event, reason=reason, yaw_source=source,
+                      target_id=getattr(getattr(self, 'assignment', None), 'target_id', ''),
+                      sample_s=fast.get('sample_s'), seed_s=fast.get('seed_s'),
+                      image_age=age('sample_s'), seed_age=age('seed_s'),
+                      quality=fast.get('quality'), real_sample_s=real.get('sample_s'),
+                      position_sample_s=real.get('position_sample_s'),
+                      bearing=bearing if bearing is not None else fast.get('bearing'),
+                      real_bearing=real.get('bearing'), yaw=getattr(self, 'yaw', None),
+                      yaw_rate=yaw_rate, candidate_id=fast.get('seed_candidate_id'),
+                      world_candidate_id=real.get('world_candidate_id'))
+        except (OSError, ValueError):
+            self._fast_yaw_csv = None
+            rospy.logwarn_throttle(10., '[FAST_YAW_LOG] cannot write diagnostic CSV')
 
     def _view_motion_context(self, now):
         """Own, fresh localized image supports near-range control, never credit."""
@@ -3695,9 +3783,16 @@ class SwarmAgent(object):
         if self._look_at is not None and _wxy is not None:
             _bear = math.atan2(self._look_at[1] - _wxy[1],
                                self._look_at[0] - _wxy[0])
-            view = self._fresh_tracking_view(rospy.Time.now().to_sec())
+            _yaw_now = rospy.Time.now().to_sec()
+            view = self._fresh_tracking_view(_yaw_now)
+            _yaw_source = 'position'
             if view is not None:
                 _bear = view['bearing']  # measured optical ray, not estimated depth
+                _yaw_source = 'real_image'
+            _fast_view = self._fresh_fast_tracking_view(_yaw_now)
+            if _fast_view is not None:
+                _bear = _fast_view['bearing']
+                _yaw_source = 'fast_image'
             _yerr = (_bear - self.yaw + math.pi) % (2.0 * math.pi) - math.pi
             _yr = YAW_KP * _yerr
             if _yr > YAW_RATE_MAX:
@@ -3705,6 +3800,8 @@ class SwarmAgent(object):
             elif _yr < -YAW_RATE_MAX:
                 _yr = -YAW_RATE_MAX
             cmd.twist.angular.z = _yr
+            self._write_fast_yaw(_yaw_now, 'output', '', _yaw_source,
+                                _fast_view, view, _bear, _yr)
         # 记录最终下发的水平速度（供路径未就绪时继续发，保证 offboard 不断流）
         self._last_flight_v = (vx, vy)
         if FLIGHT_OUTPUT == "pos":
