@@ -1256,8 +1256,16 @@ class SwarmManager(SearchSegmentManager):
                     rng = float(raw['range_m'])
                     cid = str(raw['candidate_id'])
                     appearance = raw.get('appearance_status', 'actor')
+                    coarse = raw.get('position_quality') == 'approach_only'
+                    if coarse and (os.environ.get('PR_FAR_DISCOVERY','0') != '1' or
+                            int(raw['hits']) < 5 or data['confidence'] < .70 or
+                            not .6-1e-9 <= float(raw.get('sample_span_s',0.)) <= 1.2+1e-9 or
+                            not 1.25 <= float(raw.get('body_height_m',0.)) <= 2.25 or
+                            not 0. < float(raw.get('sensitivity_m',0.)) <= 1.5 or
+                            appearance != 'actor'):
+                        continue
                     if (tid not in ('t0', 't1', 't2', 't3') or
-                            not math.isfinite(rng) or not 0. < rng <= 12. or
+                            not math.isfinite(rng) or not 0. < rng <= (24. if coarse else 12.) or
                             data['confidence'] < .55 or not cid or len(cid) > 128 or
                             appearance not in ('actor', 'ambiguous')):
                         continue
@@ -1630,7 +1638,10 @@ class SwarmManager(SearchSegmentManager):
                 continue
             st = self.status[uid]
             distance = math.hypot(st.x - tx, st.y - ty)
-            if distance <= 20.0:
+            observation=getattr(self,'_visual_observations',{}).get((uid,tid),{})
+            camera_limit=(24. if os.environ.get('PR_FAR_DISCOVERY','0') == '1' and
+                          observation.get('discovery_only') else 20.)
+            if distance <= camera_limit:
                 candidates.append((uid, distance))
         return sorted(candidates, key=lambda pair: (pair[1], pair[0]))
 

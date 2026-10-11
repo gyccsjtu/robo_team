@@ -68,8 +68,17 @@ class PixelCueContinuationTests(unittest.TestCase):
         for stamp in (100.4, 100.3, float('nan')):
             self.assertEqual([], tracker.update(stamp, [self.box(35.)]))
         self.assertEqual(100.4, tracker.tracks[0]['sample_s'])
-        self.assertEqual([], tracker.update(100.751, [self.box(35.)]))
+        self.assertEqual([], tracker.update(100.951, [self.box(35.)]))
         self.assertEqual(100.4, tracker.tracks[0]['sample_s'])
+
+    def test_one_filtered_frame_cannot_permanently_break_small_continuation(self):
+        tracker=self.established()
+        tracker.update(100.6,[self.box(35.)])
+        tracker.update(100.8,[])  # 31 px frame was correctly filtered
+        cues=tracker.update(101.,[self.box(35.)])
+        self.assertEqual(cues[0]['candidate_id'],'brown:0')
+        self.assertEqual(cues[0]['normal_anchor_s'],100.4)
+        self.assertFalse(cues[0]['report_eligible'])
 
     def test_small_images_never_renew_two_second_normal_anchor(self):
         tracker = self.established()

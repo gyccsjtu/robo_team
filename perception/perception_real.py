@@ -373,6 +373,35 @@ def cue_body_height(box, camera_z, rotation):
     return projected_body_height((-camera_z/ray[2])*ray, y1, rotation)
 
 
+def coarse_approach_geometry(box, camera_xyz, rotation):
+    """A bounded navigation hint, never a qualified/reportable ground point.
+
+    Accurate reporting keeps its .30 downward-sine gate. A complete, stable
+    far view can guide an approach before it reaches that angle. Abstain on
+    crops, non-human size, large pose tilt and excessive estimated sensitivity.
+    """
+    x1,y1,x2,y2=box
+    px,py,z=camera_xyz
+    if (not all(math.isfinite(v) for v in (*box,*camera_xyz)) or
+            not 6. <= x1 < x2 <= IMG_W-6. or not 6. <= y1 < y2 <= IMG_H-6. or
+            not 32. <= y2-y1 <= 110. or not 2. <= z <= 5. or
+            not np.isfinite(rotation).all() or rotation[2,2] < math.cos(math.radians(8.))):
+        return None
+    ray=foot_ground_ray((x1+x2)/2.,y2,rotation)
+    sine=-ray[2]/np.linalg.norm(ray)
+    if not .12 <= sine < .30:
+        return None
+    point=(-z/ray[2])*ray
+    distance=math.hypot(point[0],point[1])
+    height=projected_body_height(point,y1,rotation)
+    sensitivity=math.hypot(.10*distance/z,z*(2./FY)/(sine*sine))
+    if (not 10. <= distance <= 24. or height is None or not 1.25 <= height <= 2.25 or
+            not math.isfinite(sensitivity) or sensitivity > 1.5):
+        return None
+    return dict(x=px+float(point[0]),y=py+float(point[1]),range_m=distance,
+                body_height_m=float(height),sensitivity_m=sensitivity)
+
+
 class PixelCueTracker:
     """Associate fresh YOLO boxes by world bearing before ground range is known."""
 
@@ -505,7 +534,7 @@ class PixelCueTracker:
                 best = matches[0]
                 anchor = best.get('normal_anchor_s')
                 if (best['id'] in used or anchor is None or
-                        not 0.0 < sample_s-best['sample_s'] <= .35+1e-9 or
+                        not 0.0 < sample_s-best['sample_s'] <= .55+1e-9 or
                         not 0.0 <= sample_s-anchor <= 2.0+1e-9 or
                         not math.isfinite(best.get('bearing', float('nan'))) or
                         sum(score.get(best['id']) is not None for score in scores) != 1):
@@ -532,6 +561,19 @@ class PixelCueTracker:
             contradiction = (height_m is not None and math.isfinite(height_m) and
                              (height_m < H_MIN or height_m > H_MAX_L))
             best['history'].append((sample_s, box['conf'], contradiction))
+            coarse=box.get('coarse_approach')
+            coarse_history=[p for p in best.get('coarse_history',[])
+                            if 0. < sample_s-p[0] <= 1.2]
+            if coarse is not None and box['conf'] >= .70 and box.get('appearance_status','actor') == 'actor':
+                if coarse_history:
+                    t,x,y=coarse_history[-1]
+                    if (sample_s-t > .55 or math.hypot(coarse['x']-x,coarse['y']-y) >
+                            1.+2.5*(sample_s-t)):
+                        coarse_history=[]
+                coarse_history.append((sample_s,coarse['x'],coarse['y']))
+            else:
+                coarse_history=[]
+            best['coarse_history']=coarse_history
             normal_history = [p for p in best.get('normal_history', [])
                               if sample_s-p[0] <= 1.1]
             if not small:
@@ -577,6 +619,10 @@ class PixelCueTracker:
                                  u=box['u'], v=box['v'],
                                  attention_only=(small or not normal_cue or
                                      box.get('appearance_status', 'actor') != 'actor')))
+                if (coarse is not None and len(coarse_history) >= 5 and
+                        coarse_history[-1][0]-coarse_history[0][0] >= .6-1e-9):
+                    cues[-1]['approach_geometry']=dict(coarse,
+                        hits=len(coarse_history),span_s=coarse_history[-1][0]-coarse_history[0][0])
                 if small:
                     cues[-1].update(small_box_continuation=True,
                                     normal_anchor_s=best['normal_anchor_s'],
@@ -1910,7 +1956,7 @@ def report_candidate_frame(entries, source, sample, session, observer_xy,
     return candidate_frame(source, sample, candidates)
 
 
-def discovery_candidate_frame(entries, source, sample, session):
+def discovery_candidate_frame(entries, source, sample, session, pixel_cues=()):
     candidates = []
     for cls, slot, track in entries:
         if (cls == 'red' or track.miss or track.observed_s != sample or
@@ -1928,6 +1974,23 @@ def discovery_candidate_frame(entries, source, sample, session):
             real_detection=True, sample_s=float(sample), confidence=float(track.conf),
             hits=track.hits, x=x, y=y, range_m=float(track.rng), geometry_ok=True,
             official_view_ok=False, purpose='discovery_only', **appearance_fields(track)))
+    if os.environ.get('PR_FAR_DISCOVERY','0') == '1':
+        existing={c['target_id'] for c in candidates}
+        for cue in pixel_cues:
+            cls=cue['candidate_id'].split(':',1)[0]
+            geometry=cue.get('approach_geometry')
+            if (cls == 'red' or cls not in TID_OF_COLOR or geometry is None or
+                    cue['sample_s'] != sample or TID_OF_COLOR[cls] in existing):
+                continue
+            candidates.append(dict(source_uav=source,target_id=TID_OF_COLOR[cls],
+                candidate_id='%s:pixel:%s'%(session,cue['candidate_id']),
+                box=cue['box'],real_detection=True,sample_s=float(sample),
+                confidence=float(cue['confidence']),hits=geometry['hits'],
+                x=geometry['x'],y=geometry['y'],range_m=geometry['range_m'],
+                geometry_ok=True,official_view_ok=False,purpose='discovery_only',
+                position_quality='approach_only',sample_span_s=geometry['span_s'],
+                body_height_m=geometry['body_height_m'],
+                sensitivity_m=geometry['sensitivity_m'],appearance_status='actor'))
     return candidate_frame(source, sample, candidates, purpose='discovery_only')
 
 
@@ -2267,6 +2330,11 @@ def main():
                             distractor_confidence=b.distractor_confidence,
                             body_height_m=cue_body_height(
                                 (bx1, by1, bx2, by2), pz, R),
+                            coarse_approach=(coarse_approach_geometry(
+                                (bx1,by1,bx2,by2),(px,py,pz),R)
+                                if os.environ.get('PR_FAR_DISCOVERY','0') == '1' and
+                                getattr(globals().get('_height_datum'),'offset',None) is not None
+                                else None),
                             width=IMG_W, height=IMG_H,
                             foot_sin_down=float(-cue_ray[2]/np.linalg.norm(cue_ray)),
                             camera_height_m=float(pz),
@@ -2673,7 +2741,7 @@ def main():
         control_views = control_tracks(tracks, red_slots, frame_stamp)
         if frame_was_processed:
             discovery_batch = discovery_candidate_frame(
-                control_views, UAV, frame_stamp, candidate_session)
+                control_views, UAV, frame_stamp, candidate_session,frame_cues)
             discovery_pub.publish(String(data=json.dumps(discovery_batch)))
             discovery_ids = {c['candidate_id'] for c in discovery_batch['candidates']}
             for cls, si, tk in control_views:
