@@ -108,7 +108,10 @@ class RobustCoordinateReportTests(unittest.TestCase):
         self.assertIsNone(bridge.official_point_at(c.tracks['white'], 106.))
         c.report(106.4, 'white', 30., 0., .9, 8., source_uav='u0')
         c.report(106.8, 'white', 30., 0., .9, 8., source_uav='u0')
-        self.assertEqual(c.tracks['white'].good_t, 106.8)
+        self.assertEqual(c.tracks['white'].good_t, 101.6)
+        for t in (107.2, 107.6, 108.):
+            c.report(t, 'white', 30., 0., .9, 8., source_uav='u0')
+        self.assertEqual(c.tracks['white'].good_t, 108.)
 
     def test_short_visual_gap_does_not_demand_three_more_images_of_known_walk(self):
         c = bridge.TargetBridgeCore()

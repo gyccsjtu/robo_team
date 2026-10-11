@@ -154,7 +154,8 @@ class VisualRecoveryTests(unittest.TestCase):
         self.assertTrue(m._failed_view_dispatch_ok('t0', 50., 20., 115.))
         self.assertFalse(m.tracker.targets['t0'].eliminated)
         self.assertTrue(m._failed_view_dispatch_ok('t0', 70., 20., 106.))
-        self.assertTrue(m._failed_view_dispatch_ok('t1', 50., 20., 106.))
+        self.assertFalse(m._failed_view_dispatch_ok('t1', 50., 20., 106.))
+        self.assertTrue(m._failed_view_dispatch_ok('t1', 52., 20., 106.))
 
     def test_failed_location_backoff_is_bounded_and_increases_on_repeat(self):
         m = self.manager()

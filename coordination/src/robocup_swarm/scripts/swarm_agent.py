@@ -1708,8 +1708,16 @@ class SwarmAgent(object):
             assignment = getattr(self, 'assignment', None)
             if (getattr(assignment, 'task_type', None) == 1 and
                     data.get('purpose') == 'camera_reacquire'):
-                view = retain_pixel_view(getattr(self, '_tracking_image', None),
-                                         data, self.uav_id, assignment.target_id, now)
+                previous_view = getattr(self, '_tracking_image', None)
+                binding = getattr(self, '_camera_instance', {}).get(assignment.target_id)
+                if (previous_view is not None and binding is not None and
+                        0. <= now-binding['sample_s'] <= 1. and
+                        previous_view.get('world_candidate_id') is not None and
+                        previous_view['world_candidate_id'] != binding['candidate_id']):
+                    self._tracking_image = None
+                    return
+                view = retain_pixel_view(previous_view, data,
+                                         self.uav_id, assignment.target_id, now)
                 if view is not None:
                     self._tracking_image = view
                     rospy.loginfo_throttle(2., '[PIXEL_VIEW] uav=%s tid=%s image=%.3f '
@@ -1790,6 +1798,13 @@ class SwarmAgent(object):
                     return
             else:
                 view = parse_tracking_view(raw, self.uav_id, tid, now)
+            instance = raw.get('world_candidate_id')
+            binding = getattr(self, '_camera_instance', {}).get(tid)
+            if (instance is not None and binding is not None and
+                    0. <= now-binding['sample_s'] <= 1. and
+                    instance != binding['candidate_id']):
+                return  # another nearby same-color object cannot steer this view
+            view['world_candidate_id'] = instance
             if view['sample_s'] < getattr(self, '_hypothesis_switch_s', {}).get(tid, -1e18):
                 return
             previous = getattr(self, '_tracking_image', None)
@@ -2034,6 +2049,21 @@ class SwarmAgent(object):
             if (not self._apply_visual_hypothesis(data) or data['sample_s'] <
                     getattr(self, '_hypothesis_switch_s', {}).get(tid, -1e18)):
                 return
+            if uid == self.uav_id and data['eligible'] and data.get('candidate_id'):
+                bindings = self.__dict__.setdefault('_camera_instance', {})
+                prior = bindings.get(tid)
+                if prior is None or data['sample_s'] > prior['sample_s']:
+                    bindings[tid] = dict(candidate_id=data['candidate_id'], sample_s=data['sample_s'])
+                    view = getattr(self, '_tracking_image', None)
+                    changed = prior is not None and prior['candidate_id'] != data['candidate_id']
+                    wrong_view = (view is not None and view.get('world_candidate_id') is not None and
+                                  view['world_candidate_id'] != data['candidate_id'])
+                    if ((changed or wrong_view) and
+                            getattr(getattr(self, 'assignment', None), 'target_id', None) == tid):
+                        self._tracking_image = None
+                        self._tracking_altitude = None
+                        self._camera_cue = None
+                        self._look_at = (data['x'], data['y'])
             if uid == self.uav_id and tid in ('t4', 't5'):
                 self._remember_red_view_binding(
                     json.loads(msg.data).get('local_target_id'), data, now)
@@ -2046,7 +2076,9 @@ class SwarmAgent(object):
                 return
             if data['eligible']:
                 continuous = (previous is not None and
-                              data['sample_s'] - previous['sample_s'] <= 1.0)
+                              data['sample_s'] - previous['sample_s'] <= 1.0 and
+                              (not previous.get('candidate_id') or not data.get('candidate_id')
+                               or previous['candidate_id'] == data['candidate_id']))
                 history[key] = dict(data,
                     hits=previous['hits'] + 1 if continuous else 1,
                     since_s=previous['since_s'] if continuous else data['sample_s'])
@@ -2069,7 +2101,7 @@ class SwarmAgent(object):
                         data['sample_s'] - evidence['since_s'] >= 0.4 - 1e-6):
                     color = {'t0': 'green', 't1': 'blue', 't2': 'brown',
                              't3': 'white', 't4': 'red', 't5': 'red'}[tid]
-                    self._offer_camera_attention('target:' + tid, color,
+                    self._offer_camera_attention('target:' + tid + ':' + data.get('candidate_id', 'legacy'), color,
                         math.atan2(data['y'] - wx[1], data['x'] - wx[0]),
                         data['sample_s'], now, tid, (data['x'], data['y']))
             detection = TargetDetection()

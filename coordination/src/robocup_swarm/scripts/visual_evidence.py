@@ -23,6 +23,12 @@ def parse_visual_evidence(raw, now, uav_ids):
                 math.isfinite(rng) and 0.0 < rng <= 12.0)
     result = dict(target_id=tid, source_uav=uid, sample_s=sample, x=x, y=y,
                   confidence=confidence, eligible=eligible)
+    candidate_id = data.get('candidate_id')
+    if 'candidate_id' in data:
+        if (not isinstance(candidate_id, str) or not candidate_id.strip() or
+                len(candidate_id) > 128):
+            raise ValueError('invalid camera candidate identity')
+        result['candidate_id'] = candidate_id
     switch = data.get('hypothesis_switch')
     if switch is not None:
         if not isinstance(switch, dict) or tid in ('t4', 't5') or not eligible:
@@ -40,4 +46,10 @@ def parse_visual_evidence(raw, now, uav_ids):
                 math.hypot(x-event['new_x'], y-event['new_y']) > 3.+2.3*age):
             raise ValueError('stale or inconsistent spatial hypothesis event')
         result['hypothesis_switch'] = event
+        if 'candidate_id' in switch:
+            switch_candidate = switch['candidate_id']
+            if (not isinstance(switch_candidate, str) or not switch_candidate.strip() or
+                    len(switch_candidate) > 128):
+                raise ValueError('invalid switch candidate identity')
+            event['candidate_id'] = switch_candidate
     return result

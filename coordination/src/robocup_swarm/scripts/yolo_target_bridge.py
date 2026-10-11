@@ -4,8 +4,10 @@
 
 输入（己方 YOLO 输出，合法）：
   /coordination/target_report  std_msgs/String，6 个 perception_real 实例共写，
-      裸 JSON：{"target_id","frame_id":"world_enu","xyz":[x,y,z],
-                "confidence","observation_id"}
+      整帧 JSON：{"schema_version":2,"source_uav","sample_s",
+          "real_detection":true,"candidates":[{"target_id","candidate_id",
+          "frame_id":"world_enu","xyz":[x,y,z],"confidence",...}]}
+      兼容旧单条 JSON。
       target_id ∈ green / blue / brown / white / red1 / red2
 输出：
   /swarm/target_states  robocup_swarm/TargetState
@@ -30,6 +32,7 @@ import os
 import re
 import statistics
 import sys
+import threading
 
 # ---- 身份映射 ----
 # 四个不同颜色的官方身份固定。红色在队内使用两个稳定的视觉槽，
@@ -86,7 +89,7 @@ OBS_WINDOW = 0.6        # 多感知节点近帧融合窗 s（2Hz/节点 × 最�
 OBS_SPREAD_M = 5.0      # 窗内新观测与已有观测的最大允许距离 m（防跟丢跳变/多机误检拉飞）
 # 跨窗校验：跟丢 >OBS_WINDOW 但 <=COAST_TIME 时，新观测必须离最后融合位置
 # SPREAD_FAR_M 内。真人 1.5s 走不了 10m；超距说明跟丢重跟到错误物体。
-# 超过 COAST_TIME 才允许任意位置（真·重捕获）。
+# 非红异地重获始终独立验证六帧；断流时长本身不能证明是同一人。
 SPREAD_FAR_M = float(os.environ.get("BRIDGE_SPREAD_FAR", "10.0"))
 VEL_DT_MIN = 0.10       # 最小差分间隔，避免高频小 dt 放大噪声
 VEL_ALPHA = 0.6         # 速度 EMA 增益（2026-10-06 五轮复盘：0.35 转向收敛太慢，方向误差 23° 导致外推横向偏差）
@@ -386,7 +389,8 @@ class _Track(object):
     __slots__ = ("tag", "obs", "x", "y", "vx", "vy", "conf",
                  "t_obs", "started_s", "alive", "elim_pending", "range_m",
                  "good_x", "good_y", "good_t", "good_history",
-                 "official_source", "source_history", "official_rejects",
+                 "official_source", "official_candidate_id", "source_history", "official_rejects",
+                 "tracking_source", "tracking_candidate_id", "source_candidates",
                  "accepted_source_samples",
                  "pursuit_history",
                  "_last_fx", "_last_fy", "_last_ft",
@@ -404,6 +408,10 @@ class _Track(object):
         # None = 发布端没给（兼容旧发布端）⇒ 闸门不限距离。
         self.range_m = None
         self.official_source = None
+        self.official_candidate_id = None
+        self.tracking_source = None
+        self.tracking_candidate_id = None
+        self.source_candidates = {}
         self.source_history = {}
         self.accepted_source_samples = {}
         self.pursuit_history = {}
@@ -465,6 +473,65 @@ def parse_report(payload):
         rng = None
     conf = max(0.0, min(1.0, conf))
     return tag, x, y, conf, rng
+
+
+def parse_report_frame(raw, now):
+    """Validate one complete camera image before changing any track state."""
+    data = json.loads(raw)
+    if not isinstance(data, dict):
+        raise ValueError('report must be an object')
+    versioned = data.get('schema_version') == 2
+    if 'schema_version' in data and not versioned:
+        raise ValueError('unsupported report schema')
+    source = data.get('source_uav')
+    sample = float(data['sample_s'])
+    if (not isinstance(source, str) or not source or source == 'legacy' or
+            data.get('real_detection') is not True or
+            not math.isfinite(sample) or sample <= 0. or
+            sample > now+.05 or now-sample > .8):
+        raise ValueError('invalid camera source or image timestamp')
+    candidates = data.get('candidates') if versioned else [data]
+    if not isinstance(candidates, list) or len(candidates) > 72:
+        raise ValueError('invalid candidate frame')
+    rows, conflicts = {}, set()
+    for item in candidates:
+        if not isinstance(item, dict):
+            raise ValueError('candidate must be an object')
+        if (item.get('source_uav', source) != source or
+                float(item.get('sample_s', sample)) != sample or
+                item.get('real_detection', True) is not True):
+            raise ValueError('candidate differs from its camera image')
+        candidate_id = item.get('candidate_id')
+        if ((versioned or 'candidate_id' in item) and
+                (not isinstance(candidate_id, str) or not candidate_id.strip() or
+                 len(candidate_id) > 128)):
+            raise ValueError('invalid candidate_id')
+        tag, x, y, conf, rng = parse_report(json.dumps(item))
+        status = item.get('appearance_status')
+        if status not in (None, 'actor', 'ambiguous', 'distractor'):
+            raise ValueError('invalid appearance status')
+        appearance_conf = float(item.get('appearance_confidence', 0.))
+        if not math.isfinite(appearance_conf) or not 0. <= appearance_conf <= 1.:
+            raise ValueError('invalid appearance confidence')
+        try:
+            visual_conf = float(item.get('visual_confidence', conf))
+        except (ValueError, TypeError):
+            visual_conf = 0.
+        row = dict(tag=tag, local_tag=tag, source_uav=source, sample_s=sample,
+                   candidate_id=candidate_id, x=x, y=y, conf=conf, range_m=rng,
+                   visual_conf=visual_conf, appearance_status=status,
+                   appearance_confidence=appearance_conf,
+                   official_ok=(item.get('official_view_ok') is True and
+                                status not in ('ambiguous', 'distractor') and
+                                rng is not None and rng > 0.))
+        key = (source, candidate_id if candidate_id is not None else 'legacy:'+tag)
+        if key in rows and rows[key] != row:
+            conflicts.add(key)
+        rows[key] = row
+    # Repeated identical boxes are one image; contradictory copies of an
+    # instance are no evidence. Neither case depends on input array order.
+    return [rows[key] for key in sorted(rows) if key not in conflicts and
+            rows[key]['appearance_status'] != 'distractor']
 
 
 def parse_left_actors(raw):
@@ -586,95 +653,212 @@ class TargetBridgeCore(object):
         self._deferred_sites = {}
         self._hypothesis_switches = {}
 
+    @staticmethod
+    def _source_key(source, candidate_id=None):
+        # Preserve legacy callers' string keys while v2 histories distinguish
+        # two people of the same colour observed by one camera.
+        return source if candidate_id is None else (source, candidate_id)
+
+    @staticmethod
+    def _different_candidate(tr, source, candidate_id, sample, x, y):
+        if tr.tag in RED_TAGS:
+            return False  # red uses the existing explicit two-slot association
+        previous = tr.source_candidates.get(source)
+        if previous is not None:
+            return candidate_id != previous
+        if candidate_id is None or tr.t_obs < 0.:
+            return False
+        # Candidate IDs are camera-local. An unseen camera must first agree
+        # with the current physical trajectory; a nearby second person must
+        # not enter the looser 5 m pursuit fusion gate just by scoring higher.
+        fit = _robust_official_fit(tr.good_history, tr.good_t)
+        if fit is not None and 0. <= sample-tr.good_t <= 2.:
+            age = sample-tr.good_t
+            ax, ay = fit[0]+fit[2]*age, fit[1]+fit[3]*age
+        else:
+            ax, ay = tr.x, tr.y
+        return math.hypot(x-ax, y-ay) > 1.5
+
     def _consider_spatial_alternative(self, tr, t, x, y, conf, range_m,
-                                      official_ok, source):
-        """Try a coherent disjoint view after a long stationary observation.
+                                      official_ok, source, candidate_id=None, commit=True,
+                                      identity_change=False):
+        """Validate a new instance after loss or a long stationary observation.
 
         A colour identifies a hypothesis, not proof that the first blue box
         was the actor. Never average two distant people or let a single jump
         replace a live track. This bounded trial uses only camera evidence;
         it does not classify a stationary person as a decoy or mark it removed.
         """
-        if (tr.tag in RED_TAGS or not tr.alive or tr.started_s is None or
-                not official_ok or source is None or source == tr.official_source or
+        if (tr.tag in RED_TAGS or tr.t_obs < 0. or
+                not official_ok or source is None or
                 conf < NEW_TRACK_CONF or range_m is None or not 0. < range_m <= 12. or
-                t < tr.t_obs or math.hypot(x-tr.x, y-tr.y) <= 10.):
+                t < tr.t_obs or
+                (not identity_change and math.hypot(x-tr.x, y-tr.y) <= 10.)):
             return
-        key = (tr.tag, source)
+        key = (tr.tag, self._source_key(source, candidate_id))
+        self._alternate_history = {k: points for k, points in self._alternate_history.items()
+                                   if points and t-points[-1][0] <= 3.+1e-6}
         history = [p for p in self._alternate_history.get(key, [])
-                   if 0. <= t-p[0] <= 2.]
+                   if 0. <= t-p[0] <= 3.+1e-6]
+        if history and (t-history[-1][0] > .6+1e-6 or
+                        math.hypot(x-history[-1][1], y-history[-1][2]) >
+                        VEL_MAX*max(0., t-history[-1][0])+.5):
+            history = []
         if not history or t > history[-1][0]:
             history.append((float(t), x, y, conf, range_m))
         self._alternate_history[key] = history[-16:]
-        if (t-tr.started_s < 35. or len(history) < 6 or
-                history[-1][0]-history[0][0] < 1.0 or
-                any(b[0]-a[0] > .6 for a,b in zip(history,history[1:]))):
+        if (len(history) < 6 or
+                history[-1][0]-history[0][0] < 1.0-1e-6 or
+                any(b[0]-a[0] > .6+1e-6 for a,b in zip(history,history[1:]))):
             return
         incumbent = _robust_official_fit(tr.good_history, tr.good_t)
         candidate = _robust_official_fit(history, t)
-        if (incumbent is None or not incumbent[5] or
-                math.hypot(*incumbent[2:4]) > .35 or
-                candidate is None or not candidate[5]):
+        expired = t-tr.good_t > 2.
+        mature_stationary = (tr.started_s is not None and t-tr.started_s >= 35. and
+                             incumbent is not None and incumbent[5] and
+                             math.hypot(*incumbent[2:4]) <= .35)
+        if (not (expired or mature_stationary) or candidate is None or not candidate[5]):
             return
+        if commit:
+            self._replace_spatial_hypothesis(tr, t, x, y, source, candidate_id, history)
+        return history
+
+    def report_frame(self, reports):
+        """Choose once per colour after every instance in an image is known."""
+        selected = []
+        for tag in sorted({row['tag'] for row in reports}):
+            if tag in self.eliminated:
+                continue
+            # Ambiguous appearance only authorizes the separate discovery
+            # look task. Even an unqualified visual_source can trigger normal
+            # tracking, so it must never construct or refresh this slot.
+            rows = [row for row in reports if row['tag'] == tag and
+                    row.get('appearance_status') not in ('ambiguous', 'distractor')]
+            tr = self.tracks[tag]
+            deferred = self._deferred_sites.get(tag)
+            if deferred is not None:
+                rows = [row for row in rows if row['sample_s'] >= deferred[2] or
+                        math.hypot(row['x']-deferred[0], row['y']-deferred[1]) > 5.]
+            if not rows:
+                continue
+            bound = self._source_key(tr.official_source, tr.official_candidate_id)
+            if tr.official_source is None:
+                bound = self._source_key(tr.tracking_source, tr.tracking_candidate_id)
+            def rank(row):
+                key = self._source_key(row['source_uav'], row.get('candidate_id'))
+                return (0 if key == bound else 1,
+                        0 if row.get('appearance_status') == 'actor' else 1,
+                        -row.get('appearance_confidence', 0.),
+                        -row['conf'], row['range_m'] if row['range_m'] is not None else float('inf'),
+                        row.get('candidate_id') or '', row['x'], row['y'])
+            def changed_instance(row):
+                return self._different_candidate(tr, row['source_uav'],
+                    row.get('candidate_id'), row['sample_s'], row['x'], row['y'])
+            near = [row for row in rows if not changed_instance(row) and
+                    (tr.t_obs < 0. or tag in RED_TAGS or
+                     math.hypot(row['x']-tr.x, row['y']-tr.y) <= 10.)]
+            distant = [row for row in rows if row not in near]
+            def near_rank(row):
+                score = rank(row)
+                distance = (math.hypot(row['x']-tr.x, row['y']-tr.y)
+                            if tr.t_obs >= 0. else 0.)
+                return score[:1]+(distance,)+score[1:]
+            winner = min(near, key=near_rank) if near else None
+            if winner is not None:
+                self.report(winner['sample_s'], tag, winner['x'], winner['y'],
+                            winner['conf'], winner['range_m'], winner['official_ok'],
+                            winner['source_uav'], winner.get('candidate_id'))
+            ready = []
+            # Every independent disjoint candidate gets a vote, but no vote
+            # can mutate the incumbent before the entire frame is evaluated.
+            for row in distant:
+                history = self._consider_spatial_alternative(
+                    tr, row['sample_s'], row['x'], row['y'], row['conf'], row['range_m'],
+                    row['official_ok'], row['source_uav'], row.get('candidate_id'), commit=False,
+                    identity_change=changed_instance(row))
+                if history is not None:
+                    ready.append((row, history))
+            if ready:
+                winner, history = min(ready, key=lambda item: rank(item[0]))
+                self._replace_spatial_hypothesis(
+                    tr, winner['sample_s'], winner['x'], winner['y'],
+                    winner['source_uav'], winner.get('candidate_id'), history)
+            if winner is not None:
+                selected.append(winner)
+        return selected
+
+    def _replace_spatial_hypothesis(self, tr, t, x, y, source, candidate_id, history):
         # Keep the old location out of this 25 s trial, including its other
         # cameras. Otherwise alternating reporters reset the fresh identity
         # immediately. The location remains eligible after the trial expires.
-        self._deferred_sites[tr.tag] = (tr.x, tr.y, t+25.)
-        self._hypothesis_switches[tr.tag] = dict(
-            switch_s=float(t), old_x=tr.x, old_y=tr.y, new_x=x, new_y=y,
-            source_uav=source, trial_until_s=float(t)+25.)
+        disjoint = math.hypot(x-tr.x, y-tr.y) > 10.
+        if disjoint:
+            self._deferred_sites[tr.tag] = (tr.x, tr.y, t+25.)
+            self._hypothesis_switches[tr.tag] = dict(
+                switch_s=float(t), old_x=tr.x, old_y=tr.y, new_x=x, new_y=y,
+                source_uav=source, trial_until_s=float(t)+25.)
+            if candidate_id is not None:
+                self._hypothesis_switches[tr.tag]['candidate_id'] = candidate_id
+        else:
+            self._hypothesis_switches.pop(tr.tag, None)
         self.tracks[tr.tag] = _Track(tr.tag)
         self._alternate_history = {k:v for k,v in self._alternate_history.items()
                                    if k[0] != tr.tag}
-        _core_log('[HYPOTHESIS_SWITCH] tag=%s old=(%.2f,%.2f) new=(%.2f,%.2f) '
-                  'source=%s frames=%d; independent camera trial, no elimination verdict',
-                  tr.tag, tr.x, tr.y, x, y, source, len(history))
+        _core_log('[%s] tag=%s old=(%.2f,%.2f) new=(%.2f,%.2f) '
+                  'source=%s candidate=%s frames=%d; independent visual instance',
+                  'HYPOTHESIS_SWITCH' if disjoint else 'CANDIDATE_REBIND',
+                  tr.tag, tr.x, tr.y, x, y, source, candidate_id, len(history))
         # Seed only the actual candidate's original eligible image samples.
         # Velocity/official fit never spans the jump between the two places.
         for sample, sx, sy, sample_conf, sample_range in history:
             self.report(sample, tr.tag, sx, sy, sample_conf, sample_range,
-                        official_ok=True, source_uav=source)
+                        official_ok=True, source_uav=source, candidate_id=candidate_id)
 
-    def _accept_official_sample(self, tr, t, source, x, y, range_m):
+    def _accept_official_sample(self, tr, t, source, x, y, range_m, candidate_id=None):
         """Keep a live report source; validate other cameras independently.
 
         Agreement qualifies a camera's own view for task health, but is not a
         reason to reset the judge motion fit on every alternating camera frame.
         The incumbent expires on image time, never on keepalive publication.
         """
-        if source is not None and not self._official_source_ok(tr, t, source, x, y):
+        key = self._source_key(source, candidate_id)
+        incumbent = self._source_key(tr.official_source, tr.official_candidate_id)
+        if source is not None and not self._official_source_ok(tr, t, source, x, y, candidate_id):
             return
-        tr.accepted_source_samples[source] = float(t)
-        if (source != tr.official_source and tr.good_x is not None and
+        tr.accepted_source_samples[key] = float(t)
+        if (key != incumbent and tr.good_x is not None and
                 0. <= t-tr.good_t <= OFFICIAL_IMAGE_MAX_AGE):
             return
-        if source != tr.official_source or t-tr.good_t > 2.0:
+        if key != incumbent or t-tr.good_t > 2.0:
             tr.good_history = []
         elif source is not None:
             segment = _confirmed_official_segment(
-                [p for p in tr.source_history.get(source, []) if p[0] > tr.good_t])
+                [p for p in tr.source_history.get(key, []) if p[0] > tr.good_t])
             if segment is not None:
                 # A new coherent corner/reacquisition supersedes the old fit;
                 # never fit a straight line through both sides of the turn.
                 tr.good_history = segment[:-1]
         tr.official_source = source
+        tr.official_candidate_id = candidate_id
         tr.good_x, tr.good_y, tr.good_t = x, y, float(t)
         tr.good_history = [p for p in tr.good_history if 0. <= t-p[0] <= 2.0]
         tr.good_history.append((float(t), x, y))
         if range_m is not None:
             tr.range_m = float(range_m)
 
-    def _official_source_ok(self, tr, t, source, x, y):
+    def _official_source_ok(self, tr, t, source, x, y, candidate_id=None):
         """Protect the judge stream against camera handoff and single-frame jumps.
 
         Tracking still consumes rejected samples. This gate uses camera history
         only; it cannot establish the absolute one-metre error without truth.
         """
-        history = tr.source_history.get(source, [])
+        key = self._source_key(source, candidate_id)
+        incumbent = self._source_key(tr.official_source, tr.official_candidate_id)
+        history = tr.source_history.get(key, [])
         history = [p for p in history if 0.0 <= t - p[0] <= 2.4]
         if not history or t > history[-1][0]:
             history.append((float(t), x, y))
-        tr.source_history[source] = history
+        tr.source_history[key] = history
         age = t - tr.good_t
         has_sequence = (len(history) >= 3 and
                         history[-1][0] - history[-3][0] >= 0.3)
@@ -690,7 +874,7 @@ class TargetBridgeCore(object):
         else:
             stationary = stable_official_point(tr.good_history, tr.good_t)
             ax, ay = stationary if stationary is not None else (tr.good_x, tr.good_y)
-        if tr.good_x is not None and source == tr.official_source and 0.0 <= age <= 2.0:
+        if tr.good_x is not None and key == incumbent and 0.0 <= age <= 2.0:
             # Physical reachability is not a coordinate-quality check: at
             # .8 s it allowed a lone 1.6 m error to refresh the judge stream.
             accepted = math.hypot(x - ax, y - ay) <= 0.45 + VEL_MAX * age
@@ -703,7 +887,7 @@ class TargetBridgeCore(object):
             if not accepted:
                 accepted = _confirmed_official_segment(
                     [p for p in history if p[0] > tr.good_t]) is not None
-        elif tr.good_x is not None and source != tr.official_source and 0.0 <= age <= 2.0:
+        elif tr.good_x is not None and key != incumbent and 0.0 <= age <= 2.0:
             # A disagreeing second camera in the 00:36 match was 2 m away
             # from the trusted blue stream.  Its three smooth frames alone
             # cannot prove which monocular range is right.  Hold the old
@@ -721,7 +905,7 @@ class TargetBridgeCore(object):
 
     # ---- 感知输入 ----
     def report(self, t, target_id, x, y, conf, range_m=None,
-               official_ok=True, source_uav=None):
+               official_ok=True, source_uav=None, candidate_id=None):
         """吸收一条 YOLO 观测。非法参数抛 ValueError。"""
         tag = str(target_id)
         if tag not in self.tracks:
@@ -735,17 +919,22 @@ class TargetBridgeCore(object):
                 self._deferred_sites.pop(tag, None)
             elif math.hypot(x-deferred[0], y-deferred[1]) <= 5.:
                 return
-        self._consider_spatial_alternative(tr, t, x, y, conf, range_m,
-                                           official_ok, source_uav)
-        if self.tracks[tag] is not tr:
-            return  # all original candidate images have already been accepted
+        changed_instance = self._different_candidate(tr, source_uav, candidate_id, t, x, y)
+        if (tag not in RED_TAGS and tr.t_obs >= 0. and
+                (math.hypot(x-tr.x, y-tr.y) > 10. or changed_instance)):
+            self._consider_spatial_alternative(tr, t, x, y, conf, range_m,
+                                               official_ok, source_uav, candidate_id,
+                                               identity_change=changed_instance)
+            # A visual gap never licenses an unrelated location to overwrite
+            # the active slot. All disjoint reacquisitions use the same event.
+            return
         if t < tr.t_obs - 0.05:
             # A newer, rejected camera must not starve a trusted camera with
             # slightly older images. Preserve global pursuit time, but allow
             # independent fresh official evidence to update its own anchor.
             if (source_uav is not None and official_ok and t > tr.good_t and
                     tr.t_obs-t <= OBS_WINDOW):
-                self._accept_official_sample(tr, t, source_uav, x, y, range_m)
+                self._accept_official_sample(tr, t, source_uav, x, y, range_m, candidate_id)
             return
         # The activation counter describes consecutive *fresh* reports.
         # Keeping it across a long visual gap lets one unrelated detection
@@ -789,12 +978,12 @@ class TargetBridgeCore(object):
             # SPREAD_FAR_M 内。真人 1.5s 走不了 10m；超距=跟丢重跟到错误物体。
             if math.hypot(x - tr.x, y - tr.y) > SPREAD_FAR_M:
                 return
-        # 超过 COAST_TIME：真·重捕获，允许任意位置。
+        # A non-red disjoint location has already passed the six-image gate.
         tr.obs.append((float(t), x, y, w, conf))
         if tr.started_s is None:
             tr.started_s = float(t)
         if official_ok and t >= tr.good_t:
-            self._accept_official_sample(tr, t, source_uav, x, y, range_m)
+            self._accept_official_sample(tr, t, source_uav, x, y, range_m, candidate_id)
 
         sw = sum(o[3] for o in tr.obs)
         fx = sum(o[1] * o[3] for o in tr.obs) / sw
@@ -804,11 +993,12 @@ class TargetBridgeCore(object):
         # Camera offsets change the fused centroid when source rates change.
         # Differentiating that centroid created fictitious chase/brake pulses.
         if source_uav is not None:
-            history = [p for p in tr.pursuit_history.get(source_uav, [])
+            source_key = self._source_key(source_uav, candidate_id)
+            history = [p for p in tr.pursuit_history.get(source_key, [])
                        if 0. <= t-p[0] <= 1.5]
             if not history or t > history[-1][0]:
                 history.append((float(t), x, y))
-            tr.pursuit_history[source_uav] = history[-16:]
+            tr.pursuit_history[source_key] = history[-16:]
             tr.vx, tr.vy = camera_motion_velocity(tr.pursuit_history, t)
         elif tr._last_fx is not None:
             dt = t - tr._last_ft
@@ -828,6 +1018,9 @@ class TargetBridgeCore(object):
 
         tr.x, tr.y = fx, fy
         tr.t_obs = float(t)
+        tr.tracking_source, tr.tracking_candidate_id = source_uav, candidate_id
+        if source_uav is not None:
+            tr.source_candidates[source_uav] = candidate_id
         
         # ---- 国家一等奖标准改进：多帧验证 ----
         # 记录运动历史
@@ -1018,6 +1211,8 @@ class YoloTargetBridge(object):
         self._red_focus = None        # 当前正在盯的红球 tag（'red1'/'red2'）
         self._red_consumed = set()    # 仅供离线裁判回放；正式运行不填充
         self._last_source_sample = {}
+        self._report_lock = threading.RLock()
+        self._candidate_sample_s = {}
         self._red_source_map = {}   # (source, local red slot) -> global red track
         self._red_source_observations = {}  # accepted local slot -> (image time, x, y)
         self._rejected_visual = {}  # tag -> (x, y, expiry); 本队视觉冲突位置冷却
@@ -1044,6 +1239,10 @@ class YoloTargetBridge(object):
         return self._rospy.Time.now().to_sec()
 
     def _rejected_visual_cb(self, msg):
+        with self.__dict__.setdefault('_report_lock', threading.RLock()):
+            self._rejected_visual_locked(msg)
+
+    def _rejected_visual_locked(self, msg):
         try:
             item = json.loads(msg.data)
             tid = str(item["target_id"])
@@ -1189,73 +1388,77 @@ class YoloTargetBridge(object):
         return None
 
     def _report_cb(self, msg):
+        # ROS invokes different camera publishers concurrently. Parsing,
+        # arbitration and source publication form one image transaction.
+        with self.__dict__.setdefault('_report_lock', threading.RLock()):
+            self._report_frame_cb(msg)
+
+    def _report_frame_cb(self, msg):
         try:
-            tag, x, y, conf, rng = parse_report(msg.data)
-            local_tag = tag
-            payload = json.loads(msg.data)
             now = self._now()
-            if payload.get("real_detection") is not True:
-                raise ValueError("缺少真实检测标志")
-            sample = float(payload["sample_s"])
-            if not math.isfinite(sample) or sample <= 0.0 or sample > now + 0.05 or now - sample > 0.8:
-                raise ValueError("图像时间戳过期或非法")
-            source = str(payload["source_uav"])
-            if not source or source == "legacy":
-                raise ValueError("缺少相机来源")
-            key = (source, tag)
-            if sample <= self._last_source_sample.get(key, -1e18):
-                return
-            self._last_source_sample[key] = sample
-            if tag in RED_TAGS:
-                assigned = self._associate_red(source, tag, sample, x, y)
-                if assigned is None:
-                    return
-                tag = assigned
-            if self._visual_is_rejected(tag, x, y, now):
-                return
-            try:
-                visual_conf = float(payload.get('visual_confidence', conf))
-            except (TypeError, ValueError):
-                visual_conf = 0.0  # malformed optional evidence must not drop a target
-            conflict = self.conflict_guard.observe(
-                sample, source, tag, x, y, visual_conf,
-                payload.get('official_view_ok') is True)
-            if conflict is not None:
-                self._rospy.logwarn('[COLOR_CONFLICT] camera=%s tags=%s '
-                                    'xy=(%.2f,%.2f) ttl=%.1fs',
-                                    source, '/'.join(conflict['tags']),
-                                    conflict['x'], conflict['y'], conflict['ttl_s'])
-                self.conflict_pub.publish(_msg_string_cls()(data=json.dumps(conflict)))
-            before_t = self.core.tracks[tag].t_obs
-            self.core.report(sample, tag, x, y, conf, rng,
-                             official_ok=(payload.get('official_view_ok') is True and
-                                          rng is not None and rng > 0.0),
-                             source_uav=source)
-            tr = self.core.tracks[tag]
-            source_accepted = tr.accepted_source_samples.get(source) == sample
-            if tr.t_obs == sample and not source_accepted and payload.get('official_view_ok') is True:
-                self._rospy.logwarn_throttle(1, '[OFFICIAL_GUARD] tag=%s source=%s '
-                    'image=%.3f xy=(%.3f,%.3f) trusted_source=%s good_age=%.3f rejects=%d',
-                    tag, source, sample, x, y, tr.official_source,
-                    sample-tr.good_t, tr.official_rejects)
-            # Preserve the camera that actually saw this person. The manager's
-            # geometric /swarm/detection echoes cannot identify that camera.
-            tr = self.core.tracks[tag]
-            if tr.alive and ((tr.t_obs == sample and sample > before_t) or source_accepted):
+            rows = parse_report_frame(msg.data, now)
+            seen = self.__dict__.setdefault('_candidate_sample_s', {})
+            for key in list(seen):
+                if now-seen[key] > 30.:
+                    del seen[key]
+            admitted = []
+            for row in rows:
+                source, sample = row['source_uav'], row['sample_s']
+                local_tag = row['local_tag']
+                instance = row['candidate_id'] or 'legacy:'+local_tag
+                key = (source, instance)
+                if sample <= seen.get(key, -1e18):
+                    continue
+                seen[key] = sample
+                self._last_source_sample[(source, local_tag)] = sample
+                if row['tag'] in RED_TAGS:
+                    assigned = self._associate_red(source, local_tag, sample,
+                                                   row['x'], row['y'])
+                    if assigned is None:
+                        continue
+                    row['tag'] = assigned
+                if not self._visual_is_rejected(row['tag'], row['x'], row['y'], now):
+                    admitted.append(row)
+            before = {row['tag']: self.core.tracks[row['tag']].t_obs for row in admitted}
+            for row in self.core.report_frame(admitted):
+                tag, source, sample = row['tag'], row['source_uav'], row['sample_s']
+                candidate_id = row['candidate_id']
+                x, y = row['x'], row['y']
+                tr = self.core.tracks[tag]
+                key = self.core._source_key(source, candidate_id)
+                source_accepted = tr.accepted_source_samples.get(key) == sample
+                tracking_matches = (tr.t_obs == sample and
+                                    self.core._source_key(tr.tracking_source,
+                                                          tr.tracking_candidate_id) == key)
+                if not (tr.alive and ((tracking_matches and sample > before[tag]) or source_accepted)):
+                    continue
+                if tracking_matches and not source_accepted and row['official_ok']:
+                    self._rospy.logwarn_throttle(1, '[OFFICIAL_GUARD] tag=%s source=%s '
+                        'image=%.3f xy=(%.3f,%.3f) trusted_source=%s good_age=%.3f rejects=%d',
+                        tag, source, sample, x, y, tr.official_source,
+                        sample-tr.good_t, tr.official_rejects)
+                # Only the selected instance contributes to cross-colour
+                # diagnostics; another same-colour person cannot move its fit.
+                conflict = self.conflict_guard.observe(
+                    sample, source, tag, x, y, row['visual_conf'], row['official_ok'])
+                if conflict is not None:
+                    self._rospy.logwarn('[COLOR_CONFLICT] camera=%s tags=%s '
+                                        'xy=(%.2f,%.2f) ttl=%.1fs',
+                                        source, '/'.join(conflict['tags']),
+                                        conflict['x'], conflict['y'], conflict['ttl_s'])
+                    self.conflict_pub.publish(_msg_string_cls()(data=json.dumps(conflict)))
                 pub = getattr(self, 'source_pub', None)
                 if pub is not None:
                     evidence = {
                         'target_id': TAG_TO_TID[tag], 'source_uav': source,
-                        'local_target_id': TAG_TO_TID[local_tag],
+                        'candidate_id': candidate_id or 'legacy:'+row['local_tag'],
+                        'local_target_id': TAG_TO_TID[row['local_tag']],
                         'sample_s': sample, 'x': x, 'y': y,
-                        'real_detection': True, 'confidence': conf,
-                        'range_m': rng,
-                        'official_view_ok': source_accepted}
+                        'real_detection': True, 'confidence': row['conf'],
+                        'range_m': row['range_m'], 'official_view_ok': source_accepted}
                     switch = self.core._hypothesis_switches.get(tag)
                     if (source_accepted and switch is not None and
                             switch['switch_s'] <= sample < switch['trial_until_s']):
-                        # Repeat the same event with fresh real frames so a
-                        # subscriber cannot miss the rebind by losing one packet.
                         evidence['hypothesis_switch'] = dict(switch)
                     pub.publish(_msg_string_cls()(data=json.dumps(evidence)))
         except (ValueError, KeyError, TypeError) as exc:
@@ -1466,6 +1669,7 @@ class YoloTargetBridge(object):
             'sample_s': sample,
             'fresh_image': 0.0 <= now - sample <= 1.0,
             'source_uav': getattr(tr, 'official_source', None) or '',
+            'candidate_id': getattr(tr, 'official_candidate_id', None) or 'legacy:'+tag,
             'x': float(x), 'y': float(y),
         }
         pub.publish(self._String(data=json.dumps(payload, separators=(',', ':'))))
@@ -1557,6 +1761,10 @@ class YoloTargetBridge(object):
             self._publish_actor(tag, *point)
 
     def _tick(self, _evt):
+        with self.__dict__.setdefault('_report_lock', threading.RLock()):
+            self._tick_locked(_evt)
+
+    def _tick_locked(self, _evt):
         now = self._now()
         if RED_DUAL:
             self._pick_red_focus()

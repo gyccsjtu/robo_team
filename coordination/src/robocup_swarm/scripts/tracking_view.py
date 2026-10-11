@@ -92,6 +92,7 @@ def retain_pixel_view(previous, data, source, tid, now):
                                math.cos(view['bearing']-previous['bearing']))) > .25):
             return None
         view.update(position_sample_s=anchor,pixel_only=True,
+                    world_candidate_id=previous.get('world_candidate_id'),
                     altitude_goal=previous.get('altitude_goal'),
                     association_error=previous.get('association_error',float('inf')))
         return view

@@ -1024,76 +1024,157 @@ class SwarmManager(object):
                           n_cov, n_rev, len(near))
         return n_cov + n_rev
 
+    def _queue_candidate_look(self, data, now):
+        """An independent, bounded look; never overwrite a color's live owner."""
+        allocator = getattr(self, 'allocator', None)
+        if allocator is None or not hasattr(allocator, 'queue_revisit'):
+            return
+        key = (data['source_uav'], data['candidate_id'])
+        attempts = {k:v for k,v in getattr(self, '_candidate_looks', {}).items()
+                    if now-v['started_s'] < 60.}
+        previous = attempts.get(key)
+        if previous is not None:
+            self._candidate_looks = attempts
+            return  # fresh frames cannot renew the same 8-second priority
+        job = allocator.queue_revisit(
+            'unconfirmed', data['x'], data['y'], now=now, ttl_s=8.,
+            blocked=getattr(self, '_blocked_cells', set()))
+        if job is not None:
+            attempts[key] = dict(started_s=now, expires_s=now+8., job=job)
+            rospy.loginfo('[CANDIDATE_LOOK] source=%s candidate=%s tid=%s '
+                          'xy=(%.2f,%.2f) expires=%.3f; no report credit',
+                          data['source_uav'], data['candidate_id'], data['target_id'],
+                          data['x'], data['y'], now+8.)
+        self._candidate_looks = attempts
+
     @serialized_tasks
     def _discovery_cb(self, msg):
-        """Finite visual hypotheses for dispatch only; no official output path."""
+        """Ingest every instance in a frame before choosing any color anchor."""
         try:
             now = rospy.Time.now().to_sec()
-            raw = json.loads(msg.data)
-            if (raw.get('purpose') != 'discovery_only' or
-                    raw.get('geometry_ok') is not True or
-                    raw.get('official_view_ok') is not False or
-                    int(raw.get('hits', 0)) < 4):
-                return
-            data = parse_visual_evidence(msg.data, now, self.uav_ids)
-            tid, uid = data['target_id'], data['source_uav']
-            if not self._hypothesis_sample_current(tid, data['sample_s'], data['x'], data['y']):
-                return
-            rng = float(raw['range_m'])
-            if (tid not in ('t0', 't1', 't2', 't3') or
-                    not math.isfinite(rng) or not 0. < rng <= 12. or
-                    data['confidence'] < .55):
-                return
+            packet = json.loads(msg.data)
+            if packet.get('schema_version') == 2:
+                raws = packet.get('candidates')
+                if (not isinstance(raws, list) or len(raws) > 64 or
+                        packet.get('real_detection') is not True or
+                        packet.get('purpose') != 'discovery_only'):
+                    return
+                ids = [str(r.get('candidate_id', '')) for r in raws if isinstance(r, dict)]
+                if len(ids) != len(raws) or len(set(ids)) != len(ids):
+                    return
+                frame_source, frame_sample = packet['source_uav'], float(packet['sample_s'])
+                if any(r.get('source_uav', frame_source) != frame_source or
+                       float(r.get('sample_s', frame_sample)) != frame_sample for r in raws):
+                    return
+                raws = [dict(packet, **r) for r in raws]
+            else:
+                raws = [packet]
             pool = {k:v for k,v in getattr(self, '_discovery_pool', {}).items()
                     if 0. <= now-v['sample_s'] <= 1.}
-            key = (tid, uid, str(raw['candidate_id']))
-            prior = pool.get(key)
-            if prior is not None and data['sample_s'] <= prior['sample_s']:
-                return
-            pool[key] = dict(data, range_m=rng)
-            # All retained hypotheses remain distinct. Cap memory even if a
-            # noisy detector continuously changes IDs during a single second.
-            pool = dict(sorted(pool.items(), key=lambda kv: kv[1]['sample_s'])[-72:])
+            changed = set()
+            for raw in raws:
+                try:
+                    if (raw.get('purpose') != 'discovery_only' or
+                            raw.get('geometry_ok') is not True or
+                            raw.get('official_view_ok') is not False or
+                            int(raw.get('hits', 0)) < 4):
+                        continue
+                    data = parse_visual_evidence(json.dumps(raw), now, self.uav_ids)
+                    tid, uid = data['target_id'], data['source_uav']
+                    if not self._hypothesis_sample_current(tid, data['sample_s'], data['x'], data['y']):
+                        continue
+                    rng = float(raw['range_m'])
+                    cid = str(raw['candidate_id'])
+                    appearance = raw.get('appearance_status', 'actor')
+                    if (tid not in ('t0', 't1', 't2', 't3') or
+                            not math.isfinite(rng) or not 0. < rng <= 12. or
+                            data['confidence'] < .55 or not cid or len(cid) > 128 or
+                            appearance not in ('actor', 'ambiguous')):
+                        continue
+                    key = (tid, uid, cid)
+                    prior = pool.get(key)
+                    if prior is not None and data['sample_s'] <= prior['sample_s']:
+                        continue
+                    # Optional raw image bounds allow a cooldown exception to
+                    # distinguish two physical people before either is report
+                    # qualified. Legacy messages cannot establish this proof.
+                    box = raw.get('box')
+                    try:
+                        box = (tuple(float(v) for v in box)
+                               if isinstance(box, (list, tuple)) and len(box) == 4 else None)
+                        if (box is not None and (not all(math.isfinite(v) for v in box) or
+                                not 0. <= box[0] < box[2] or not 0. <= box[1] < box[3])):
+                            box = None
+                    except (TypeError, ValueError, OverflowError):
+                        box = None
+                    pool[key] = dict(data, range_m=rng, candidate_id=cid,
+                                     appearance_status=appearance, box=box,
+                                     hits=int(raw['hits']),
+                                     complete_frame=packet.get('schema_version') == 2)
+                    changed.add(tid)
+                except (ValueError, KeyError, TypeError, OverflowError):
+                    continue
+            pool = dict(sorted(pool.items(), key=lambda kv:(kv[1]['sample_s'], kv[0]))[-72:])
             self._discovery_pool = pool
-            anchor = self._get_target_pos(tid, now)
-            anchored = anchor is not None and anchor[0] is not None
-            active = tid in self._tracking
-            candidates = []
-            for (target, _, _), item in pool.items():
-                if target != tid:
+            for tid in sorted(changed):
+                anchor = self._get_target_pos(tid, now)
+                anchored = anchor is not None and anchor[0] is not None
+                active = tid in self._tracking
+                source = self._visual_source.get(tid)
+                image = (self._visual_observations.get((source[0], tid))
+                         if source is not None else None)
+                bound = ((source[0], image['candidate_id'])
+                         if image is not None and image.get('candidate_id') and
+                         image['sample_s'] == source[1] else None)
+                qualified_instances = {
+                    (camera, view['candidate_id']) for (camera, target), view in
+                    getattr(self, '_eligible_observations', {}).items()
+                    if target == tid and view.get('candidate_id') and
+                    0. <= now-view['sample_s'] <= 1.}
+                candidates = []
+                for (target, _, _), item in sorted(pool.items()):
+                    if target != tid:
+                        continue
+                    dx = (math.hypot(item['x']-anchor[0], item['y']-anchor[1])
+                          if anchored else float('inf'))
+                    if (self._quarantined_visual(tid, item['x'], item['y'], now) or
+                            not self._failed_view_dispatch_ok(tid, item['x'], item['y'], now,
+                                candidate_source=item['source_uav'],
+                                candidate_id=item['candidate_id'])):
+                        continue
+                    identity = (item['source_uav'], item['candidate_id'])
+                    qualified_peer = (identity in qualified_instances and
+                                      (bound is None or identity[0] != bound[0]))
+                    if (item['appearance_status'] == 'ambiguous' or
+                            (active and (not anchored or dx > 3. or
+                             (identity != bound and not qualified_peer)))):
+                        self._queue_candidate_look(item, now)
+                        continue
+                    candidates.append((0 if active and identity == bound else 1,
+                                       dx, -item['sample_s'],
+                                       -item['confidence'], item['range_m'], item['source_uav'],
+                                       item['candidate_id'], item))
+                if not candidates:
                     continue
-                dx = (math.hypot(item['x']-anchor[0], item['y']-anchor[1])
-                      if anchored else float('inf'))
-                if active and (not anchored or dx > 3.):
-                    continue  # another same-colour person cannot steal a live task
-                if (self._quarantined_visual(tid, item['x'], item['y'], now) or
-                        not self._failed_view_dispatch_ok(tid, item['x'], item['y'], now)):
+                selected = min(candidates, key=lambda x:x[:-1])[-1]
+                precise = self._visual_observations.get((selected['source_uav'], tid))
+                if (precise is not None and precise.get('eligible') and
+                        0. <= now-precise['sample_s'] <= .5):
                     continue
-                candidates.append((0 if dx <= 3. else 1, -item['sample_s'],
-                                   -item['confidence'], item['range_m'], item['source_uav'], item))
-            if not candidates:
-                return
-            selected = min(candidates, key=lambda x:x[:-1])[-1]
-            # Do not overwrite fresh report-qualified evidence with exploratory
-            # data, or use one cached image repeatedly to extend a task lease.
-            precise = self._visual_observations.get((selected['source_uav'], tid))
-            if (precise is not None and precise.get('eligible') and
-                    0. <= now-precise['sample_s'] <= .5):
-                return
-            samples = getattr(self, '_discovery_selected_s', None)
-            if samples is None:
-                samples = self._discovery_selected_s = {}
-            if selected['sample_s'] <= samples.get(tid, -1e18):
-                return
-            samples[tid] = selected['sample_s']
-            payload = dict(selected, real_detection=True, official_view_ok=False)
-            self._visual_source_cb(String(data=json.dumps(payload)))
-            state = TargetState()
-            state.header.stamp = rospy.Time.from_sec(selected['sample_s'])
-            state.target_id, state.x, state.y = tid, selected['x'], selected['y']
-            state.vx = state.vy = 0.
-            state.state, state.eliminated = 0, False
-            self._discovery_state_pub.publish(state)
+                samples = self.__dict__.setdefault('_discovery_selected_s', {})
+                if selected['sample_s'] <= samples.get(tid, -1e18):
+                    continue
+                payload = dict(selected, real_detection=True, official_view_ok=False,
+                               purpose='discovery_only')
+                if not self._visual_source_cb(String(data=json.dumps(payload))):
+                    continue
+                samples[tid] = selected['sample_s']
+                state = TargetState()
+                state.header.stamp = rospy.Time.from_sec(selected['sample_s'])
+                state.target_id, state.x, state.y = tid, selected['x'], selected['y']
+                state.vx = state.vy = 0.
+                state.state, state.eliminated = 0, False
+                self._discovery_state_pub.publish(state)
         except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
             return
 
@@ -1103,6 +1184,8 @@ class SwarmManager(object):
         try:
             now = rospy.Time.now().to_sec()
             data = parse_visual_evidence(msg.data, now, self.uav_ids)
+            data['discovery_only'] = (not data['eligible'] and
+                                     json.loads(msg.data).get('purpose') == 'discovery_only')
             tid, uid, sample = data['target_id'], data['source_uav'], data['sample_s']
             if tid in getattr(self, '_eliminated', set()):
                 return
@@ -1120,10 +1203,19 @@ class SwarmManager(object):
                 self._reset_visual_hypothesis(tid, event)
             key = (uid, tid)
             old = self._visual_observations.get(key)
+            upgrade = False
+            instance_upgrade = False
             if old is not None:
+                if (data['discovery_only'] and old['eligible'] and
+                        0. <= now-old['sample_s'] <= 1.):
+                    return  # protect fresh qualification, not an expired image
+                different_instance = bool(old.get('candidate_id') and data.get('candidate_id') and
+                                          old['candidate_id'] != data['candidate_id'])
                 upgrade = (sample == old['sample_s'] and data['eligible'] and
                            not old['eligible'] and
-                           math.hypot(data['x']-old['x'], data['y']-old['y']) <= .02)
+                           (math.hypot(data['x']-old['x'], data['y']-old['y']) <= .02 or
+                            (old.get('discovery_only') and different_instance)))
+                instance_upgrade = upgrade and different_instance
                 if sample <= old['sample_s'] and not upgrade:
                     return
             self._visual_observations[key] = data
@@ -1135,13 +1227,29 @@ class SwarmManager(object):
                 if accepted is None:
                     accepted = self._eligible_observations = {}
                 prev = accepted.get(key)
-                continuous = prev is not None and 0.0 < sample - prev['sample_s'] <= 1.0
+                continuous = (prev is not None and 0.0 < sample - prev['sample_s'] <= 1.0
+                              and (not prev.get('candidate_id') or not data.get('candidate_id')
+                                   or prev['candidate_id'] == data['candidate_id']))
                 accepted[key] = dict(data, hits=prev.get('hits', 1) + 1 if continuous else 1,
                                      since_s=prev.get('since_s', prev['sample_s'])
                                      if continuous else sample)
             old_source = self._visual_source.get(tid)
-            if old_source is None or sample > old_source[1]:
+            if (old_source is None or sample > old_source[1] or
+                    (upgrade and old_source[0] == uid and old_source[1] == sample)):
                 self._visual_source[tid] = (uid, sample, data['x'], data['y'])
+            if instance_upgrade:
+                # The discovery and bridge describe one image but different
+                # people. Replace its provisional coordinates without adding
+                # a second timestamp or inheriting its failed-view duration.
+                cached = self._truth_cache.get(tid)
+                if (cached is not None and cached[2] == sample and
+                        math.hypot(cached[0]-old['x'], cached[1]-old['y']) <= .02):
+                    self._truth_cache.pop(tid, None)
+                site = getattr(self, '_reacquire_sites', {}).get(tid)
+                if (site is not None and site['sample_s'] == sample and
+                        math.hypot(site['x']-old['x'], site['y']-old['y']) <= .02):
+                    self._discard_reacquire_site(tid)
+                self._visual_candidate.pop(tid, None)
             self._remember_reacquire_site(tid, sample, data['x'], data['y'])
             if switched:
                 self._dispatch_hypothesis_switch(tid, data['x'], data['y'], now)
@@ -1151,6 +1259,7 @@ class SwarmManager(object):
             detection.x, detection.y = data['x'], data['y']
             detection.confidence, detection.source = data['confidence'], 1
             self._detection_cb(detection)
+            return True
         except (ValueError, KeyError, TypeError, AttributeError):
             return
 
@@ -1446,6 +1555,91 @@ class SwarmManager(object):
                 image.get('hits', 0) >= 4 and
                 image['sample_s']-image.get('since_s', image['sample_s']) >= 3.0)
 
+    def _failed_place(self, tid, x, y, now, active_only=False,
+                      candidate_source=None, candidate_id=None):
+        """Short scheduling memory, with a tighter cross-color identity gate.
+
+        Simultaneous observations of both colors can be two nearby actors.
+        Never share a cooldown between those independently visible people.
+        """
+        matches = []
+        observations = getattr(self, '_eligible_observations', {})
+        pool = [item for item in getattr(self, '_discovery_pool', {}).values()
+                if 0. <= now-item['sample_s'] <= 1.]
+        if candidate_id is None:
+            source = getattr(self, '_visual_source', {}).get(tid)
+            image = (getattr(self, '_visual_observations', {}).get((source[0], tid))
+                     if source is not None else None)
+            if (image is not None and image.get('candidate_id') and
+                    0. <= now-image['sample_s'] <= 1. and
+                    math.hypot(image['x']-x, image['y']-y) <= .35):
+                candidate_source, candidate_id = image['source_uav'], image['candidate_id']
+            else:
+                nearby = [item for item in pool if item['target_id'] == tid and
+                          math.hypot(item['x']-x, item['y']-y) <= .35]
+                if len(nearby) == 1:
+                    candidate_source, candidate_id = nearby[0]['source_uav'], nearby[0]['candidate_id']
+        identity = (candidate_source, candidate_id)
+        candidate = next((item for item in pool if item['target_id'] == tid and
+                          (item['source_uav'], item['candidate_id']) == identity), None)
+
+        def separated_boxes(first, second):
+            a, b = first.get('box'), second.get('box')
+            if a is None or b is None:
+                return False
+            overlap = max(0., min(a[2], b[2])-max(a[0], b[0])) * \
+                      max(0., min(a[3], b[3])-max(a[1], b[1]))
+            smaller = min((a[2]-a[0])*(a[3]-a[1]), (b[2]-b[0])*(b[3]-b[1]))
+            return smaller > 0. and overlap <= .5*smaller
+
+        for other, record in getattr(self, '_failed_views', {}).items():
+            if now-record['failed_s'] > 180. or (active_only and now >= record['until']):
+                continue
+            if math.hypot(x-record['x'], y-record['y']) > (3. if other == tid else .75):
+                continue
+            failed_identity = (record.get('source_uav'), record.get('candidate_id'))
+            if candidate_id and identity != failed_identity:
+                independent = record.get('independent_instances', {})
+                if identity in independent and 0. <= now-independent[identity] <= 60.:
+                    continue
+                if (candidate is not None and candidate.get('complete_frame') and
+                        candidate.get('hits', 0) >= 4 and candidate.get('box') is not None):
+                    for partner in pool:
+                        partner_identity = (partner['source_uav'], partner['candidate_id'])
+                        if (partner_identity == identity or
+                                partner['source_uav'] != candidate_source or
+                                partner['sample_s'] != candidate['sample_s'] or
+                                not partner.get('complete_frame') or partner.get('hits', 0) < 4 or
+                                not separated_boxes(candidate, partner)):
+                            continue
+                        # Prefer the exact failed instance. Across cameras or
+                        # rebuilt tracks, require a clearly closer image at
+                        # the failed place, not two IDs of the same box.
+                        old_distance = math.hypot(partner['x']-record['x'], partner['y']-record['y'])
+                        new_distance = math.hypot(candidate['x']-record['x'], candidate['y']-record['y'])
+                        exact = bool(record.get('candidate_id') and partner_identity == failed_identity)
+                        located = old_distance <= .35 and new_distance >= old_distance+.5
+                        if (exact and old_distance <= 3.) or located:
+                            record.setdefault('independent_instances', {})[identity] = candidate['sample_s']
+                            break
+                    proof = record.get('independent_instances', {}).get(identity)
+                    if proof is not None and 0. <= now-proof <= 60.:
+                        continue
+            if other != tid:
+                frames = {}
+                for (camera, target), image in observations.items():
+                    if (target in (tid, other) and image.get('eligible') and
+                            image.get('hits', 0) >= 4 and
+                            image['sample_s']-image.get('since_s', image['sample_s']) >= .3 and
+                            0. <= now-image['sample_s'] <= 1. and
+                            math.hypot(image.get('x', float('inf'))-x,
+                                       image.get('y', float('inf'))-y) <= 1.):
+                        frames.setdefault((camera, image['sample_s']), set()).add(target)
+                if any(len(colors) == 2 for colors in frames.values()):
+                    continue
+            matches.append(record)
+        return max(matches, key=lambda r:r['failed_s']) if matches else None
+
     def _defer_failed_view(self, tid, owners, now, max_age=4.0):
         """Back off a failed visual location, never suppress its detections."""
         source = getattr(self, '_visual_source', {}).get(tid)
@@ -1457,23 +1651,30 @@ class SwarmManager(object):
         records = getattr(self, '_failed_views', None)
         if records is None:
             records = self._failed_views = {}
-        old = records.get(tid)
-        repeated = (old is not None and now-old['failed_s'] <= 180.0 and
-                    math.hypot(x-old['x'], y-old['y']) <= 3.0)
+        image = getattr(self, '_visual_observations', {}).get((source[0], tid))
+        candidate_id = (image.get('candidate_id') if image is not None and
+                        image['sample_s'] == source[1] and
+                        math.hypot(image['x']-x, image['y']-y) <= .02 else None)
+        old = self._failed_place(tid, x, y, now,
+                                 candidate_source=source[0], candidate_id=candidate_id)
+        repeated = old is not None
         attempts = min(3, old['attempts']+1) if repeated else 1
         sources = set(old['sources']) if repeated else set()
         sources.update(uid for uid in owners if uid is not None)
         delay = 15.0 * 2**(attempts-1)
         records[tid] = dict(x=x, y=y, failed_s=now, until=now+delay,
-                            attempts=attempts, sources=sources)
+                            attempts=attempts, sources=sources,
+                            source_uav=source[0], candidate_id=candidate_id,
+                            image_sample_s=source[1])
         rospy.logwarn('[VIEW_RETRY_DEFER] tid=%s xy=(%.2f,%.2f) retry=%.0fs '
                       'attempt=%d; 暂缓同点重派，保留观测和其他新位置',
                       tid, x, y, delay, attempts)
 
-    def _failed_view_dispatch_ok(self, tid, x, y, now, uid=None):
-        old = getattr(self, '_failed_views', {}).get(tid)
-        if (old is None or now >= old['until'] or
-                math.hypot(x-old['x'], y-old['y']) > 3.0):
+    def _failed_view_dispatch_ok(self, tid, x, y, now, uid=None,
+                                 candidate_source=None, candidate_id=None):
+        old = self._failed_place(tid, x, y, now, active_only=True,
+                                 candidate_source=candidate_source, candidate_id=candidate_id)
+        if old is None:
             return True
         # A different camera may rescue a genuine stationary person, but a
         # replayed frame or the same failed source cannot immediately restart.
@@ -2160,6 +2361,8 @@ class SwarmManager(object):
             if _san is None:
                 continue
             tx, ty = _san
+            if self._failed_place(tid, tx, ty, now, active_only=True) is not None:
+                continue
 
             best, best_d, best_seen = None, None, False
             for uid, st in self.status.items():

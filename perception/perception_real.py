@@ -57,6 +57,7 @@ import os
 import sys
 import threading
 import time
+import uuid
 
 import cv2
 import numpy as np
@@ -132,9 +133,9 @@ CLASSES = ["red", "green", "blue", "white", "brown"]
 def target_class_mapping(names):
     """Resolve detector IDs by label, never by an assumed training order.
 
-    All five actor appearances must be present. Additional labels (for
-    example distractor_person) have no actor identity and are discarded
-    before pixel attention, ground projection or target tracking.
+    All five actor appearances must be present. Additional labels have no
+    actor identity; the appearance resolver can inspect distractor_person
+    before those boxes leave the actor-only path.
     """
     if isinstance(names, (list, tuple)):
         names = dict(enumerate(names))
@@ -167,6 +168,105 @@ def target_boxes_only(boxes, mapping):
         if cid is not None:
             targets.append(SimpleNamespace(cls=cid, conf=box.conf, xyxy=box.xyxy))
     return targets
+
+
+def _box_iou(a, b):
+    ax, ay, ar, ab = a
+    bx, by, br, bb = b
+    intersection = max(0., min(ar, br)-max(ax, bx)) * max(0., min(ab, bb)-max(ay, by))
+    return intersection / max((ar-ax)*(ab-ay)+(br-bx)*(bb-by)-intersection, 1e-9)
+
+
+def same_appearance_instance(a, b):
+    """Only near-identical boxes can contradict one physical appearance.
+
+    Ordinary overlap between two people is not an identity match. These
+    conservative defaults need same-set validation before model deployment.
+    """
+    aw, ah, bw, bh = a[2]-a[0], a[3]-a[1], b[2]-b[0], b[3]-b[1]
+    if min(aw, ah, bw, bh) <= 0.:
+        return False
+    return (_box_iou(a, b) >= .90 and .85 <= aw/bw <= 1.18 and
+            .85 <= ah/bh <= 1.18 and
+            abs(a[0]+a[2]-b[0]-b[2]) <= .16*min(aw, bw) and
+            abs(a[1]+a[3]-b[1]-b[3]) <= .16*min(ah, bh))
+
+
+class ActorDistractorResolver:
+    """Resolve unique same-object conflicts, never global cross-class NMS.
+
+    Three fresh images spanning .30 s must agree at >=.90 confidence with
+    a >=.20 class margin. Until then the actor box remains attention-only.
+    Motion, world locations and track longevity are not class evidence.
+    """
+
+    def __init__(self):
+        self.history = []
+        self.last_sample = -1.
+
+    def resolve(self, boxes, mapping, names, sample_s):
+        boxes = list(boxes)
+        labels = dict(enumerate(names)) if isinstance(names, (list, tuple)) else names
+        distractor_ids = {int(i) for i, name in labels.items()
+                          if str(name).strip().lower() == 'distractor_person'}
+        targets = target_boxes_only(boxes, mapping)
+        distractors = [(tuple(float(v) for v in b.xyxy[0]), float(b.conf))
+                       for b in boxes if int(b.cls) in distractor_ids and
+                       math.isfinite(float(b.conf)) and float(b.conf) >= .50]
+        actor_boxes = [tuple(float(v) for v in b.xyxy[0]) for b in targets]
+        matches = [[j for j, (db, _) in enumerate(distractors)
+                    if same_appearance_instance(ab, db)] for ab in actor_boxes]
+        reverse = {j: sum(j in choices for choices in matches)
+                   for j in range(len(distractors))}
+        fresh = sample_s > self.last_sample
+        previous = [h for h in self.history if 0. < sample_s-h['sample_s'] <= .60]
+        previous_owners = {j: sum(targets[i].cls == h['cls'] and
+                                 _box_iou(ab, h['box']) >= .50
+                                 for i, ab in enumerate(actor_boxes))
+                           for j, h in enumerate(previous)}
+        following, used, result = [], set(), []
+        evidence = [dict(box=list(db), confidence=dc, status='distractor')
+                    for db, dc in distractors]
+        # Deterministic traversal also makes temporal matching independent of
+        # detector class/order. No history may be lent to two nearby instances.
+        for i in sorted(range(len(targets)), key=lambda k: (targets[k].cls, actor_boxes[k])):
+            actor, ab = targets[i], actor_boxes[i]
+            actor.appearance_status = 'actor'
+            actor.appearance_confidence = float(actor.conf)
+            actor.distractor_confidence = max((distractors[j][1] for j in matches[i]), default=0.)
+            if not matches[i]:
+                result.append(actor)
+                continue
+            actor.appearance_status = 'ambiguous'
+            unique = len(matches[i]) == 1 and reverse[matches[i][0]] == 1
+            winner = None
+            ac, dc = float(actor.conf), actor.distractor_confidence
+            if unique and dc >= .90 and dc-ac >= .20-1e-9:
+                winner = 'distractor'
+            elif unique and ac >= .90 and ac-dc >= .20-1e-9:
+                winner = 'actor'
+            candidates = [(j, h) for j, h in enumerate(previous) if j not in used and
+                          previous_owners[j] == 1 and h['cls'] == actor.cls and
+                          _box_iou(ab, h['box']) >= .50]
+            samples = []
+            if fresh and winner and len(candidates) == 1:
+                j, old = candidates[0]
+                used.add(j)
+                if old['winner'] == winner:
+                    samples = [s for s in old['samples'] if sample_s-s <= 1.1]
+            if fresh and winner:
+                samples.append(float(sample_s))
+                following.append(dict(cls=actor.cls, box=ab, sample_s=sample_s,
+                                      winner=winner, samples=samples[-3:]))
+            if len(samples) >= 3 and samples[-1]-samples[-3] >= .30-1e-9:
+                actor.appearance_status = winner
+            evidence.append(dict(box=list(ab), confidence=dc,
+                                 status=actor.appearance_status))
+            if actor.appearance_status != 'distractor':
+                result.append(actor)
+        if fresh:
+            self.last_sample, self.history = float(sample_s), following
+        return result, evidence
 
 # --- 人体几何门限（diag_geom.py 实测标定）---
 # 严格档：用于**新建** track（误检从 2.6 m 起步，真人 1.7~2.1 m）
@@ -303,8 +403,11 @@ class PixelCueTracker:
                                  sample_s=sample_s, bearing=box['bearing'],
                                  confidence=box['conf'], hits=len(recent),
                                  u=box['u'], v=box['v'],
-                                 attention_only=not normal_cue))
-                for key in ('box', 'width', 'height', 'camera_tilt'):
+                                 attention_only=(not normal_cue or
+                                     box.get('appearance_status', 'actor') != 'actor')))
+                for key in ('box', 'width', 'height', 'camera_tilt',
+                            'appearance_status', 'appearance_confidence',
+                            'distractor_confidence'):
                     if key in box:
                         cues[-1][key] = box[key]
         return cues
@@ -724,19 +827,10 @@ TOPIC_OF = {
     "red": ["/actor_red1_info", "/actor_red2_info"],
 }
 
-# --- 协同上报（接口 v0 / schema v1：robocup_repo/docs/coordination_interface_v0.md）---
-# ⚠⚠ 契约形状：/coordination/target_report 上必须是**裸 data 对象**，不是带 envelope
-#    的完整消息。队友 coordination_node.py 的 _in() 把 json.loads 的结果**整个**当
-#    `data` 交给核心，所以 topic 上只能有这 5 个字段：
-#      {"target_id","frame_id":"world_enu","xyz":[x,y,z],"confidence","observation_id"}
-#    且**每个目标一条**（target_id 是唯一键），不是"一帧一条、dets 里塞全部目标"。
-#    2026-09-20 实测：原发布端发的是 {"stamp","cam","uav","dets":[...]}，
-#    target_id / frame_id / observation_id / confidence 四个必填字段**一个都没有**，
-#    xyz 还只有 2 维 ⇒ 接上协同核心会**一条都解析不出来**，不是"没联调"而是"接不上"。
-# ⚠ target_id 用 tag（green/blue/white/brown/red1/red2）：这是官方目标身份、跨帧稳定；
-#    track 的整数 id 会因重建而变，按契约（"非空稳定 ID"）不能用。
-# ⚠ 我们算出的 (x,y) 是**地面交点**（射线与 z=0 平面求交），不是目标体心，
-#    所以 z 由 TARGET_Z 显式补上（默认取官方 actor 体心高度 1.25m）。
+# --- Internal coordination input, schema 2: one complete camera frame. ---
+# Each candidate retains the old measurement fields plus a process-scoped
+# identity. yolo_target_bridge alone reduces physical hypotheses to official
+# colour streams; the final ActorInfo contract remains unchanged.
 COORD_ON = int(os.environ.get("PR_COORD_ON", "1"))
 COORD_HZ = float(os.environ.get("PR_COORD_HZ", "2.0"))   # 对齐队友替身；核心按 tick 消费，灌太快会积压
 # ---- 我方 10-03 修（对齐队友 mavros-port-iris 的方案 A）----
@@ -1016,7 +1110,7 @@ class Track(object):
     """alpha-beta 匀速跟踪器：状态 (x, y, vx, vy) + 身高 H + 外观特征（v4 新增多层次关联）。"""
     _seq = 0
 
-    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground'):
+    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0.):
         """appearance_feat: 外观特征向量（颜色直方图/深度特征），用于外观关联"""
         Track._seq += 1
         self.id = Track._seq
@@ -1029,6 +1123,8 @@ class Track(object):
         self.hits = 1
         self.miss = 0
         self.conf = conf
+        self.appearance_status = appearance_status
+        self.distractor_confidence = float(distractor_confidence)
         self.uv, self.wh, self.rng = uv, wh, rng
         self.h = h                      # 归一化身高 (m)
         self.loc_suspect = not loc_ok
@@ -1111,13 +1207,15 @@ class Track(object):
             self._pub_result = (px, py)
         return self._pub_result
 
-    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground'):
+    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0.):
         """更新track状态，可选更新外观特征用于多层次关联"""
         sample_s = t if observation_s is None else observation_s
         if t <= self.t or sample_s <= self.observed_s or dt <= 0.0:
             return False
         self.observed_s = sample_s
         self.observation_loc_ok = bool(loc_ok)
+        self.appearance_status = appearance_status
+        self.distractor_confidence = float(distractor_confidence)
         self.range_method = range_method
         self.recent_observed_xy = [p for p in self.recent_observed_xy
                                    if sample_s - p[0] <= 2.5]
@@ -1159,7 +1257,8 @@ class Track(object):
 
     def can_report_image(self):
         """Track longevity cannot make this frame's bad geometry trustworthy."""
-        return bool(self.miss == 0 and self.observation_loc_ok and
+        return bool(self.appearance_status == 'actor' and
+                    self.miss == 0 and self.observation_loc_ok and
                     not self.loc_suspect and official_view_ok(
                         self.uv, self.wh, IMG_W, IMG_H, self.rng,
                         clipped_stable=self.clipped_report_stable()))
@@ -1239,7 +1338,8 @@ class Track(object):
         self.sp = sp
         return MOTION_FLOOR + (1.0 - MOTION_FLOOR) * min(sp / MOTION_REF, 1.0)
 
-    def verdict(self, now=None, max_coast=None, attach_check=True):
+    def verdict(self, now=None, max_coast=None, attach_check=True,
+                motion_independent=False):
         """「是不是人」判决 —— 只用于「要不要画这个框 / 要不要发这个坐标」。
 
         attach_check=False：跳过「长在机身上」视差判据。盘旋确认时必须关闭 —
@@ -1271,6 +1371,15 @@ class Track(object):
             return False, "height"
         if self.rng > VERDICT_RANGE_MAX:
             return False, "range"
+        if motion_independent:
+            # A stopped actor and a sculpture can both have zero velocity.
+            # Classification is appearance evidence; retain every physical
+            # gate above and the same score floor without the motion penalty.
+            if self.conf < (WHITE_CONF if self.cls == 'white' else CONF):
+                return False, "confidence"
+            if self.conf * person_likelihood(self.h) < VERDICT_SCORE:
+                return False, "score"
+            return True, ""
         self.motion_factor(now)                 # 刷新 self.sp
         static_near = (STATIC_OK and self.hits >= STATIC_OK_HITS and
                        self.conf >= STATIC_OK_CONF and
@@ -1402,6 +1511,81 @@ def control_tracks(tracks, red_slots, sample):
     return result
 
 
+def candidate_identity(session, track):
+    return '%s:%s' % (session, track.id)
+
+
+def appearance_fields(track):
+    return dict(appearance_status=getattr(track, 'appearance_status', 'actor'),
+                appearance_confidence=float(track.conf),
+                distractor_confidence=float(getattr(track, 'distractor_confidence', 0.)))
+
+
+def candidate_frame(source, sample, candidates, purpose=None):
+    """One complete camera frame; neither callback nor detector order ranks it."""
+    payload = dict(schema_version=2, source_uav=source, sample_s=float(sample),
+                   real_detection=True, candidates=sorted(
+                       candidates, key=lambda c: (c['target_id'], c['candidate_id'])))
+    if purpose is not None:
+        payload['purpose'] = purpose
+    return payload
+
+
+def report_candidate_frame(entries, source, sample, session, observer_xy,
+                           assigned_target=None):
+    """Preserve all eligible instances; the bridge owns colour arbitration.
+
+    Entries retain established red slot identities. Coordinates are fresh raw
+    image measurements, never coasting or the legacy display extrapolation.
+    """
+    candidates = []
+    for cls, slot, track in entries:
+        if (track.miss or track.observed_s != sample or track.hits < MIN_HITS or
+                getattr(track, 'appearance_status', 'actor') == 'distractor'):
+            continue
+        x, y = track.observation_xy()
+        tag = 'red%d' % (slot+1) if cls == 'red' else cls
+        cid = candidate_identity(session, track)
+        conf = max(0., min(1., float(track.conf)))
+        if COORD_CONF_ONE and report_ready_hits(cls, track.hits):
+            conf = 1.
+        fields = appearance_fields(track)
+        person_ok = track.verdict(sample, max_coast=0, attach_check=not
+                                  skip_attached_verdict(cls, assigned_target, track.rng),
+                                  motion_independent=True)[0]
+        candidates.append(dict(
+            target_id=tag, candidate_id=cid, frame_id='world_enu',
+            xyz=[round(x, 2), round(y, 2), TARGET_Z], confidence=conf,
+            visual_confidence=round(float(track.conf), 3),
+            sample_s=float(sample), source_uav=source, real_detection=True,
+            track_hits=int(track.hits), range_m=round(math.hypot(
+                x-observer_xy[0], y-observer_xy[1]), 2),
+            official_view_ok=bool(person_ok and report_ready_hits(cls, track.hits) and
+                                  track.can_report_image()),
+            observation_id='obs-%s-%s-%.9f' % (source, cid, sample), **fields))
+    return candidate_frame(source, sample, candidates)
+
+
+def discovery_candidate_frame(entries, source, sample, session):
+    candidates = []
+    for cls, slot, track in entries:
+        if (cls == 'red' or track.miss or track.observed_s != sample or
+                not track.observation_loc_ok or track.loc_suspect or
+                track.conf < .55 or track.hits < 4 or not 0. < track.rng <= 12. or
+                track.observed_s-track.t0 < .5 or
+                getattr(track, 'appearance_status', 'actor') == 'distractor'):
+            continue
+        x, y = track.observation_xy()
+        candidates.append(dict(
+            source_uav=source, target_id=TID_OF_COLOR[cls],
+            candidate_id=candidate_identity(session, track),
+            box=box_from_foot(track.uv, track.wh),
+            real_detection=True, sample_s=float(sample), confidence=float(track.conf),
+            hits=track.hits, x=x, y=y, range_m=float(track.rng), geometry_ok=True,
+            official_view_ok=False, purpose='discovery_only', **appearance_fields(track)))
+    return candidate_frame(source, sample, candidates, purpose='discovery_only')
+
+
 def main():
     global _model
     rospy.init_node("perception_real", anonymous=True)
@@ -1483,7 +1667,7 @@ def main():
                 for c, topics in TOPIC_OF.items()}
     else:
         pubs = None
-    # 契约通道：一条消息 = 一个目标（形状见文件上方"协同上报"段）
+    # Schema 2 is one complete frame; the bridge selects physical hypotheses.
     coord = rospy.Publisher("/coordination/target_report", String, queue_size=50)
     cue_pub = rospy.Publisher("/swarm/visual_candidate", String, queue_size=6)
     frame_pub = rospy.Publisher("/swarm/processed_camera_frame", String, queue_size=6)
@@ -1538,12 +1722,13 @@ def main():
     _last_live_loop = 0      # 实际循环频率；配置频率不能代表 CPU 满载时的吞吐
     _last_live_det = 0
     coord_clock = ImagePublishClock(COORD_HZ)
-    _obs_seq = 0              # observation_id 单调序号（契约要求非空且不复用）
+    candidate_session = uuid.uuid4().hex
     annot_img = None          # 最近一次参与检测的图像，供标注帧使用
     annot_z = 0.0             # 该帧对应的相机高度
     frame_stamp = 0.0         # 当前检测图像的 ROS 采集时间
     processed_image_stamp = 0.0
     cue_tracker = PixelCueTracker()
+    appearance_resolver = ActorDistractorResolver()
     frame_age = None
     inference_s = None
     _first_inference_logged = False
@@ -1613,7 +1798,8 @@ def main():
 
                 if R is not None:
                     _infer_t0 = time.time()
-                    res = _model(img, conf=min(CONF, WHITE_CONF), verbose=False)[0]
+                    res = _model(img, conf=min(CONF, WHITE_CONF),
+                                 agnostic_nms=False, verbose=False)[0]
                     frame_was_processed = True
                     inference_s = time.time() - _infer_t0
                     if not _first_inference_logged:
@@ -1623,8 +1809,18 @@ def main():
                     # 几何、轨迹和上报共用图像采集时刻 frame_stamp；推理耗时
                     # 只用于评估延迟，不能再从采集时间减去半个推理周期。
                     # v4新增：对同类别的检测结果做IOU去重（解决YOLO同一目标多次检测问题）
+                    actor_boxes, appearance_evidence = appearance_resolver.resolve(
+                        res.boxes, class_mapping, _model.names, frame_stamp)
+                    for evidence in appearance_evidence:
+                        ex1, ey1, ex2, ey2 = evidence['box']
+                        _CSV.write(ros_time=rospy.Time.now().to_sec(),
+                            event='appearance_evidence', class_name='distractor_person',
+                            confidence=evidence['confidence'],
+                            bbox_u=(ex1+ex2)/2., bbox_v=(ey1+ey2)/2.,
+                            bbox_w=ex2-ex1, bbox_h=ey2-ey1, image_stamp=frame_stamp,
+                            source=evidence['status'])
                     boxes_by_class = {}
-                    for b in target_boxes_only(res.boxes, class_mapping):
+                    for b in actor_boxes:
                         cid = int(b.cls)
                         if cid not in boxes_by_class:
                             boxes_by_class[cid] = []
@@ -1679,6 +1875,9 @@ def main():
                             cls=CLASSES[cid], conf=conf, u=bu, v=bv,
                             h=bh, bearing=image_world_bearing(bu, bv, R),
                             cam_x=px, cam_y=py, box=[bx1, by1, bx2, by2],
+                            appearance_status=b.appearance_status,
+                            appearance_confidence=b.appearance_confidence,
+                            distractor_confidence=b.distractor_confidence,
                             width=IMG_W, height=IMG_H,
                             camera_tilt=math.acos(max(-1., min(1., float(R[2, 2]))))))
                     frame_cues = cue_tracker.update(frame_stamp, raw_cue_boxes)
@@ -1794,6 +1993,8 @@ def main():
                                      "loc_ok": strict_base,
                                      "range_method": 'head_height' if t is None else 'foot_ground',
                                      "score": round(conf * person_likelihood(impl_h), 3),
+                                     "appearance_status": b.appearance_status,
+                                     "distractor_confidence": b.distractor_confidence,
                                      "appearance": appearance_feat})
                         _CSV.write(
                             ros_time=rospy.Time.now().to_sec(), event="yolo_detection",
@@ -1878,7 +2079,9 @@ def main():
                 tk.update(d["xyz"][0], d["xyz"][1], dt, d["conf"],
                           d["uv"], d["wh"], d["range"], d["h"], now, uav,
                           appearance_feat=appear_feat, observation_s=frame_stamp,
-                          loc_ok=d.get('loc_ok', True), range_method=d['range_method'])
+                          loc_ok=d.get('loc_ok', True), range_method=d['range_method'],
+                          appearance_status=d['appearance_status'],
+                          distractor_confidence=d['distractor_confidence'])
             else:
                 tk.coast(dt)
 
@@ -1894,7 +2097,9 @@ def main():
                                     d["uv"], d["wh"], d["range"], d["h"], now, uav,
                                     appearance_feat=d.get("appearance"),
                                     observation_s=frame_stamp,
-                                    loc_ok=d.get('loc_ok', True), range_method=d['range_method']))
+                                    loc_ok=d.get('loc_ok', True), range_method=d['range_method'],
+                                    appearance_status=d['appearance_status'],
+                                    distractor_confidence=d['distractor_confidence']))
 
         # ---------- 3) 清理 ----------
         # 原判据 math.hypot(tk.x, tk.y) 是"距世界原点"的距离，与飞机在哪无关：
@@ -1910,9 +2115,11 @@ def main():
                       and math.hypot(tk.x - _ux, tk.y - _uy) < MAX_RANGE]
 
         # ---------- 4) 发布 ----------
-        # 单流类：每类选"最像人"的 1 个 track。
+        # Keep every physical candidate for the bridge. best_of is retained
+        # only for the legacy display/direct-output path.
         # red（双流）：走槽位持久绑定，两条流各锁一个红衣人（理由见 TOPIC_OF 注释）。
         best_of = {}
+        report_pool = []
         red_cands = []
         with arb_lock:
             _cur_tid_for_verdict = arb["tid"]
@@ -1921,9 +2128,9 @@ def main():
                 continue
             if tk.miss > MAX_COAST_PUB:   # 跟丢太久，坐标已是纯外推，不让它代表本类发布
                 continue
-            # v3.5：发布侧的人判决默认开启：静止建筑/招牌误检不能占用追踪机。
-            # 真机若确实允许静止目标，可显式设置 PR_PUB_VERDICT=0 做对照实验；
-            # 关闭后会放大假目标占机风险。
+            # Retain the physical/person gates without using zero motion as
+            # sculpture evidence. The legacy default verdict remains callable
+            # for old diagnostics; appearance classification resolves decoys.
             if PUB_VERDICT:
                 # 盘旋确认段跳过 attach 判据（见 verdict/ATTACH_SKIP_RANGE 注释）。
                 # Red has two local slots and no entry in TID_OF_COLOR.
@@ -1935,7 +2142,7 @@ def main():
                     tk.cls, _cur_tid_for_verdict, tk.rng)
                 _person_ok, _reject_reason = tk.verdict(
                     now, max_coast=MAX_COAST_PUB,
-                    attach_check=not _skip_attach)
+                    attach_check=not _skip_attach, motion_independent=True)
                 if not _person_ok:
                     _CSV.write(
                         ros_time=rospy.Time.now().to_sec(), event="track_reject",
@@ -1953,6 +2160,7 @@ def main():
             if tk.cls == "red":
                 red_cands.append(tk)      # red 不在这里决出，交给下面的槽位绑定
                 continue
+            report_pool.append((tk.cls, 0, tk))
             cur = best_of.get(tk.cls)
             # v2  按 (hits, conf)    -> 偏向"持续存在的误检"（招牌 hits 也多）
             # v3.0按 (hits, score)   -> score 含身高似然，但 hits 仍优先
@@ -1966,6 +2174,7 @@ def main():
         # --- red 双流槽位绑定（逻辑见 assign_slots）---
         bound = assign_slots(red_cands, red_slots, CONFIRM_HITS,
                              red_slot_xy, RED_STICKY_R)
+        report_pool.extend(('red', si, tk) for si, tk in bound)
 
         # --- 断流/换轨诊断：让"某条流突然静默 8s"变成一个可归因的事件 ---
         for si in range(len(red_slots)):
@@ -2001,6 +2210,10 @@ def main():
         # world position and keeps the nearest matching image for this frame.
         control_views = control_tracks(tracks, red_slots, frame_stamp)
         if frame_was_processed:
+            discovery_batch = discovery_candidate_frame(
+                control_views, UAV, frame_stamp, candidate_session)
+            discovery_pub.publish(String(data=json.dumps(discovery_batch)))
+            discovery_ids = {c['candidate_id'] for c in discovery_batch['candidates']}
             for cls, si, tk in control_views:
                 tid = TID_OF_RED_SLOT[si] if cls == 'red' else TID_OF_COLOR[cls]
                 box = box_from_foot(tk.uv, tk.wh)
@@ -2013,15 +2226,7 @@ def main():
                 # Discovery is not a judge report. Preserve same-colour
                 # hypotheses before best_of/verdict suppresses them. Red
                 # identity continues through the bridge's two-person matcher.
-                if (cls != 'red' and tk.observation_loc_ok and not tk.loc_suspect and
-                        tk.conf >= .55 and tk.hits >= 4 and 0. < tk.rng <= 12. and
-                        tk.observed_s-tk.t0 >= .5):
-                    discovery_pub.publish(String(data=json.dumps(dict(
-                        source_uav=UAV, target_id=tid, candidate_id=str(tk.id),
-                        real_detection=True, sample_s=tk.observed_s,
-                        confidence=float(tk.conf), hits=tk.hits, x=ox, y=oy,
-                        range_m=float(tk.rng), geometry_ok=True,
-                        official_view_ok=False, purpose='discovery_only'))))
+                if candidate_identity(candidate_session, tk) in discovery_ids:
                     _CSV.write(ros_time=rospy.Time.now().to_sec(),event='discovery_report',
                         target_id=tid,class_name=cls,confidence=tk.conf,
                         bbox_u=tk.uv[0],bbox_v=tk.uv[1],bbox_w=tk.wh[0],bbox_h=tk.wh[1],
@@ -2030,12 +2235,14 @@ def main():
                 view_pub.publish(String(data=json.dumps(dict(
                     source_uav=UAV, target_id=tid, track_id=tk.id,
                     candidate_id=bound_pixel_candidate(frame_cues,cls,box),
+                    world_candidate_id=candidate_identity(candidate_session, tk),
                     real_detection=True, sample_s=tk.observed_s,
                     confidence=float(tk.conf), hits=tk.hits, box=box,
                     width=IMG_W, height=IMG_H, fy=FY,
                     camera_tilt=math.acos(max(-1., min(1., float(R[2, 2])))),
                     geometry_ok=bool(tk.observation_loc_ok),
-                    bearing=image_world_bearing(u, v, R), x=ox, y=oy))))
+                    bearing=image_world_bearing(u, v, R), x=ox, y=oy,
+                    **appearance_fields(tk)))))
                 view_csv.write(ros_time=rospy.Time.now().to_sec(), sample_s=tk.observed_s,
                     target_id=tid, track_id=tk.id, x1=box[0], y1=box[1], x2=box[2], y2=box[3],
                     camera_x=cam_full[0], camera_y=cam_full[1], camera_z=cam_full[2],
@@ -2049,7 +2256,7 @@ def main():
             cur_tid = arb["tid"]
         now_secs = rospy.Time.now().to_sec()
         gated_list = []
-        for cls, si, tk in pub_list:
+        for cls, si, tk in report_pool:
             need_tid = TID_OF_RED_SLOT[si] if cls == "red" else TID_OF_COLOR.get(cls)
             if tk.rng > ACTOR_PUB_RANGE:
                 continue
@@ -2065,11 +2272,13 @@ def main():
                 if math.hypot(tk.x - ts_ent[0], tk.y - ts_ent[1]) > IDENTITY_M:
                     continue
             gated_list.append((cls, si, tk))
-        if len(gated_list) != len(pub_list):
+        if len(gated_list) != len(report_pool):
             rospy.loginfo_throttle(
                 5, "[pr] 官方话题闸门外挂 %d/%d 条（指派=%s, rng<=%.0fm）",
-                len(pub_list) - len(gated_list), len(pub_list), cur_tid, ACTOR_PUB_RANGE)
-        pub_list = gated_list
+                len(report_pool) - len(gated_list), len(report_pool), cur_tid, ACTOR_PUB_RANGE)
+        report_pool = gated_list
+        pub_list = [entry for entry in pub_list if entry in report_pool and
+                    entry[2].appearance_status == 'actor']
 
         snap = []
         for cls, si, tk in pub_list:
@@ -2173,98 +2382,50 @@ def main():
                              _stat.get("v_height", 0), _stat.get("v_range", 0),
                              _stat.get("v_static", 0), _stat.get("v_score", 0)), flush=True)
 
-        # ---- 协同上报（契约 v0/schema v1）：每目标一条，按 COORD_HZ 节流 ----
-        # 位置必须在上面那段诊断打印**之后**：那段的缩进属于 `if snap:`，
-        # 若把本块插在中间，Python 会把诊断打印并进本块的 if 里 ——
-        # 于是 `PR_COORD_ON=0` 时连日志一起消失，静默丢掉排查手段。
-        # 为什么要节流：核心按自己 tick_hz 从单写者队列里取，我按检测频率灌
-        # 6 条/帧会把它堆成积压（queue_size=50 + 无界 deque），既不加分也拖延迟。
-        # 队友替身用的就是 2 Hz。
-        if COORD_ON and any(tk.miss == 0 and tk.observed_s == frame_stamp
-                                for _, _, tk in pub_list) and coord_clock.ready(frame_stamp):
-            for _cls, _si, _tk in pub_list:
-                if _tk.miss != 0 or _tk.observed_s != frame_stamp:
+        # One complete frame preserves competing instances before colour
+        # arbitration. ImagePublishClock still limits actual image samples.
+        if COORD_ON and frame_was_processed and coord_clock.ready(frame_stamp):
+            report_batch = report_candidate_frame(
+                report_pool, UAV, frame_stamp, candidate_session, uav_last,
+                assigned_target=cur_tid)
+            coord.publish(String(data=json.dumps(report_batch)))
+            report_by_id = {c['candidate_id']: c for c in report_batch['candidates']}
+            for _cls, _si, _tk in report_pool:
+                report = report_by_id.get(candidate_identity(candidate_session, _tk))
+                if report is None:
                     continue
-                _tag = ("%s%d" % (_cls, _si + 1)) if NSLOTS[_cls] > 1 else _cls
-                _obs_seq += 1
-                # The bridge alone estimates the report-time position. Send
-                # the actual measurement at sample_s, not pub_xy's .3s lead
-                # plus EMA labelled with an older image timestamp.
-                _cx, _cy = _tk.observation_xy()
-                # 2026-10-03 我方补：水平距离（m）= 本机位置到上报点的水平距离。
-                # 单目测距误差随距离放大（实测 34.7m 真实测成 21.3m，误差 13m），
-                # 而官方"误差<1m 连续 15s"的判据在远距离根本达不到。
-                # yolo_target_bridge 用这个字段做"只在可信距离内播报"的闸门：
-                # 够不着就不说，避免把裁判的 15s 计时反复清零（清零=永远消除不了）。
-                try:
-                    _rng_h = math.hypot(_cx - uav_last[0], _cy - uav_last[1])
-                except Exception:
-                    _rng_h = 0.0
-                # 置信度语义见文件顶部 COORD_CONF_ONE：协同核心只消费"已确认"
-                # 目标（confidence=1.0）。先前无条件发 1.0 会把未确认的误检也
-                # 直接喂进核心；改为方案 A 后未确认的照旧发真实置信度，核心
-                # 第一句 `if d['confidence'] < 1.: return` 自然忽略。
-                _coord_conf = max(0.0, min(1.0, float(_tk.conf)))
-                if COORD_CONF_ONE and report_ready_hits(_cls, _tk.hits):
-                    _coord_conf = 1.0
-                coord.publish(String(data=json.dumps({
-                    "target_id": _tag,
-                    "frame_id": "world_enu",
-                    "xyz": [round(_cx, 2), round(_cy, 2), TARGET_Z],
-                    "confidence": _coord_conf,
-                    # Keep the original YOLO confidence separate from the
-                    # coordination protocol's confirmed-track value (1.0).
-                    # The bridge uses it only to verify a same-camera,
-                    # cross-color conflict at one fixed world location.
-                    "visual_confidence": round(float(_tk.conf), 3),
-                    "sample_s": float(_tk.observed_s),
-                    "source_uav": UAV,
-                    "real_detection": True,
-                    "track_hits": int(_tk.hits),
-                    "range_m": round(float(_rng_h), 2),
-                    "official_view_ok": _tk.can_report_image(),
-                    # 2026-10-02 我方补：observation_id 必须六机全局唯一。
-                    # 队友原版是 "obs-{tag}-{seq}"，seq 是每机本地计数 ⇒ 六机会
-                    # 出现同名 observation_id，触发协调核心的 OBSERVATION_CONFLICT
-                    # （同 key 不同内容直接拒收整条观测）。加 UAV 前缀即可。
-                    "observation_id": "obs-%s-%s-%d" % (UAV, _tag, _obs_seq)})))
-                # Record actual coordination messages separately from per-loop
-                # track diagnostics, which also contain coasting/repeated images.
                 _CSV.write(
-                    ros_time=now_secs, event="coord_report", target_id=_tag,
-                    class_name=_cls, confidence=_coord_conf,
+                    ros_time=now_secs, event="coord_report", target_id=report['target_id'],
+                    class_name=_cls, confidence=report['confidence'],
                     bbox_u=_tk.uv[0], bbox_v=_tk.uv[1],
                     bbox_w=_tk.wh[0], bbox_h=_tk.wh[1],
-                    target_x=round(_cx, 2), target_y=round(_cy, 2),
-                    target_z=TARGET_Z, range_m=round(float(_rng_h), 2),
+                    target_x=report['xyz'][0], target_y=report['xyz'][1],
+                    target_z=TARGET_Z, range_m=report['range_m'],
                     height_m=_tk.h, strict=True, track_id=_tk.id, hits=_tk.hits,
                     image_stamp=_tk.observed_s,
                     image_age_s=now_secs-_tk.observed_s, inference_s=inference_s,
                     source="coordination/target_report")
-                # === 仿真环境日志：YOLO 检测输出 + ROS 时间戳 ===
-                # 排查感知延迟/位置滞后：同时打检测框(uv)、世界坐标(xyz)、置信度、时间戳
-                _uv = getattr(_tk, 'uv', (None, None))
                 rospy.loginfo_throttle(
-                    0.5,
-                    "[PERC] yolo uav=%s target=%s uv=(%s,%s) world_xyz=(%.2f,%.2f,%.1f) "
-                    "conf=%.3f | img_ts=%.3f | obs_id=obs-%s-%d",
-                    UAV, _tag,
-                    "%.0f" % _uv[0] if _uv[0] is not None else "NA",
-                    "%.0f" % _uv[1] if _uv[1] is not None else "NA",
-                    _cx, _cy, TARGET_Z, float(_tk.conf), frame_stamp, _tag, _obs_seq)
+                    0.5, "[PERC] uav=%s target=%s candidate=%s xy=(%.2f,%.2f) "
+                    "appearance=%s official=%s img_ts=%.3f",
+                    UAV, report['target_id'], report['candidate_id'],
+                    report['xyz'][0], report['xyz'][1], report['appearance_status'],
+                    report['official_view_ok'], frame_stamp)
 
-        # ---------- 5) 标注帧：只画"那个人" ----------
-        # v3.4：只画最终进入 best_of 的 track（每类最优），默认再取 score 最高的 1 个。
-        # v3.5：再叠一层 **人判决** —— 必须已确认、身高像人、而且**在动**。
-        #       这样画出来的框 == 上报给裁判的那个目标 == 真的在走的人；
-        #       白墙/招牌/建筑色条/自身起落架 这些静止误检一律不画。
+        # ---------- 5) 兼容原每类最优标注，仅用于诊断显示 ----------
+        # 与正式人物判据一样，不能因为目标静止就隐藏其框。
+        # 完整实例集合通过 report_pool 发布，由 bridge 决定报告资格；
+        # 此处画框不表示已向裁判上报或已消除。
         if ANNOT_ON and annot_img is not None and annot_z >= ANNOT_MIN_Z:
             cands = []                     # [(类, 槽号, track)]
             for _cls, _si, _tk in pub_list:
                 if ANNOT_CLS and _cls != ANNOT_CLS:
                     continue
                 if ANNOT_VERDICT:
-                    ok, why = _tk.verdict(now, max_coast=ANNOT_MAX_COAST)
+                    ok, why = _tk.verdict(
+                        now, max_coast=ANNOT_MAX_COAST,
+                        attach_check=not skip_attached_verdict(_cls, cur_tid, _tk.rng),
+                        motion_independent=True)
                     if not ok:
                         _stat["v_" + why] = _stat.get("v_" + why, 0) + 1
                         continue

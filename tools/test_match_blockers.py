@@ -268,11 +268,11 @@ class MatchBlockers(unittest.TestCase):
         core.report(102.2, 'blue', 4.4, 0, .9, 8, source_uav='b')
         core.report(102.4, 'blue', 4.8, 0, .9, 8, source_uav='b')
         self.assertEqual(core.tracks['blue'].official_source, 'b')
-        # Old camera has really vanished: three fresh frames admit a new place.
-        for i in range(3):
+        # A disjoint instance needs six fresh frames even after a long gap.
+        for i in range(6):
             core.report(110+i*.2, 'blue', 40+i*.1, 0, .9, 8, source_uav='c')
         self.assertEqual(core.tracks['blue'].official_source, 'c')
-        self.assertAlmostEqual(core.tracks['blue'].good_x, 40.2)
+        self.assertAlmostEqual(core.tracks['blue'].good_x, 40.5)
 
     def test_newer_bad_camera_does_not_starve_older_trusted_images(self):
         core = yolo_target_bridge.TargetBridgeCore()
@@ -686,17 +686,19 @@ class MatchBlockers(unittest.TestCase):
 
     def test_bridge_reacquisition_requires_new_reports_after_long_gap(self):
         core = yolo_target_bridge.TargetBridgeCore()
-        core.report(100.0, 'green', 10.0, 0.0, 1.0, 8.0)
-        core.report(100.2, 'green', 10.1, 0.0, 1.0, 8.0)
+        for i in range(3):
+            core.report(100.+i*.2, 'green', 10.+i*.1, 0., 1., 8., source_uav='u0')
         self.assertTrue(core.tracks['green'].alive)
-        core.tick(110.0)
+        core.tick(110.)
         self.assertFalse(core.tracks['green'].alive)
-        core.report(148.0, 'green', 150.0, 10.0, 1.0, 8.0)
-        self.assertFalse(core.tracks['green'].alive)
-        self.assertEqual(core.tracks['green']._high_conf_count, 1)
-        self.assertEqual(core.tick(148.1)[0]['official_x'], None)
-        core.report(148.2, 'green', 150.1, 10.0, 1.0, 8.0)
+        for i in range(5):
+            core.report(148.+i*.2, 'green', 150.+i*.1, 10., 1., 8., source_uav='u0')
+            self.assertFalse(core.tracks['green'].alive)
+            self.assertLess(core.tracks['green'].x, 11.)
+            self.assertIsNone(yolo_target_bridge.official_point_at(core.tracks['green'], 148.+i*.2))
+        core.report(149., 'green', 150.5, 10., 1., 8., source_uav='u0')
         self.assertTrue(core.tracks['green'].alive)
+        self.assertIn('green', core._hypothesis_switches)
 
     def test_manager_replaces_per_aircraft_laser_snapshots(self):
         manager = swarm_manager.SwarmManager.__new__(swarm_manager.SwarmManager)

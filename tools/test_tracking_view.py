@@ -87,6 +87,71 @@ class TrackingViewTests(unittest.TestCase):
         self.assertEqual(a._tracking_image['track_id'],2)
         self.assertEqual(a._visual_observations,{})
 
+    def test_bound_instance_blocks_nearby_same_color_distractor_view(self):
+        a = self.agent()
+        a._camera_instance = {'t3': dict(candidate_id='session:7', sample_s=100.)}
+        self.send(a, self.payload(world_candidate_id='session:7', x=8.2))
+        self.send(a, self.payload(world_candidate_id='session:8', x=8., confidence=.99))
+        self.assertEqual(a._tracking_image['world_candidate_id'], 'session:7')
+        self.assertEqual(a._tracking_image['x'], 8.2)
+
+    def test_expired_instance_allows_geometric_reacquisition(self):
+        a = self.agent()
+        a._camera_instance = {'t3': dict(candidate_id='session:7', sample_s=98.)}
+        self.send(a, self.payload(world_candidate_id='session:8'))
+        self.assertEqual(a._tracking_image['world_candidate_id'], 'session:8')
+
+    def test_own_qualified_instance_change_clears_old_view_and_streak(self):
+        a = self.agent()
+        self.send(a)
+        a._camera_instance = {'t3': dict(candidate_id='session:old', sample_s=99.9)}
+        a._team_visual = {('u0', 't3'): dict(candidate_id='session:old',
+            sample_s=99.9, hits=10, since_s=97., eligible=True)}
+        data = dict(source_uav='u0', target_id='t3', real_detection=True,
+                    candidate_id='session:new', sample_s=100., confidence=.9,
+                    x=8., y=0., range_m=8., official_view_ok=True)
+        a._visual_source_cb(NS(data=json.dumps(data)))
+        self.assertIsNone(a._tracking_image)
+        self.assertIsNone(a._tracking_altitude)
+        self.assertEqual(a._look_at, (8., 0.))
+        self.assertEqual(a._team_visual[('u0', 't3')]['hits'], 1)
+        self.assertEqual(a._camera_instance['t3']['candidate_id'], 'session:new')
+
+    def test_unqualified_image_cannot_rebind_the_camera_instance(self):
+        a = self.agent()
+        self.send(a)
+        old_view = a._tracking_image
+        a._camera_instance = {'t3': dict(candidate_id='session:old', sample_s=99.9)}
+        data = dict(source_uav='u0', target_id='t3', real_detection=True,
+                    candidate_id='session:new', sample_s=100., confidence=.9,
+                    x=8., y=0., range_m=8., official_view_ok=False)
+        a._visual_source_cb(NS(data=json.dumps(data)))
+        self.assertIs(a._tracking_image, old_view)
+        self.assertEqual(a._camera_instance['t3']['candidate_id'], 'session:old')
+
+    def test_first_binding_clears_earlier_wrong_instance_view(self):
+        for expired in (False, True):
+            a = self.agent()
+            if expired:
+                a._camera_instance = {'t3': dict(candidate_id='session:right', sample_s=98.)}
+            self.send(a, self.payload(world_candidate_id='session:wrong', candidate_id='white:8'))
+            data = dict(source_uav='u0', target_id='t3', real_detection=True,
+                        candidate_id='session:right', sample_s=100., confidence=.9,
+                        x=8., y=0., range_m=8., official_view_ok=True)
+            a._visual_source_cb(NS(data=json.dumps(data)))
+            self.assertIsNone(a._tracking_image)
+            self.assertIsNone(a._tracking_altitude)
+
+    def test_pixel_continuity_preserves_and_checks_world_instance(self):
+        a = self.agent()
+        self.send(a, self.payload(world_candidate_id='session:wrong', candidate_id='white:8'))
+        raw = self.payload(candidate_id='white:8', sample_s=100.2, purpose='camera_reacquire')
+        continued = retain_pixel_view(a._tracking_image, raw, 'u0', 't3', 100.3)
+        self.assertEqual(continued['world_candidate_id'], 'session:wrong')
+        a._camera_instance = {'t3': dict(candidate_id='session:right', sample_s=100.)}
+        a._visual_candidate_cb(NS(data=json.dumps(raw)))
+        self.assertIsNone(a._tracking_image)
+
     def test_bound_pixel_survives_short_bad_geometry_without_refreshing_position(self):
         a = self.agent()
         self.send(a,self.payload(candidate_id='white:11'))
