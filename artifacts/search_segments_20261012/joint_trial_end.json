@@ -1,0 +1,5 @@
+{
+  "wall": 1791737718.7020018,
+  "ros": 2459.4,
+  "reason": "End safety trial after UAV5 close side return; investigate altitude transition before enabling patrol."
+}

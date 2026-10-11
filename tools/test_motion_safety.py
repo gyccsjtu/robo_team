@@ -6,7 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import Mock,patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'coordination/src/robocup_swarm/scripts'))
-from motion_safety import braking_cap,boundary_constraints
+from motion_safety import braking_cap,boundary_constraints,HeightClearanceHold
 import swarm_agent as sa
 from geometry_msgs.msg import TwistStamped,PoseStamped
 
@@ -91,6 +91,54 @@ class OutputTests(unittest.TestCase):
         m.pose.position.x=123.
         a._local_cb(m)
         self.assertEqual(a.local_xy,(0.,0.));self.assertEqual(a._pose_sample_s,100.)
+
+
+class HeightHoldTests(unittest.TestCase):
+    def test_vanished_return_cannot_release_hold_without_horizontal_escape(self):
+        h=HeightClearanceHold()
+        self.assertTrue(h.update(100.,(0.,0.),True,False,1.6))
+        for t in (100.1,101.,110.):
+            self.assertTrue(h.update(t,(.5,0.),False,True,1.6))
+        self.assertTrue(h.update(111.,(2.,0.),False,True,1.6))
+        self.assertTrue(h.update(111.,(2.,0.),False,True,1.6))
+        self.assertTrue(h.update(111.4,(2.,0.),False,True,1.6))
+        self.assertFalse(h.update(111.6,(2.,0.),False,True,1.6))
+
+    def test_nearby_new_obstacle_restarts_clearance_but_never_moves_aircraft(self):
+        h=HeightClearanceHold()
+        h.update(100.,(0.,0.),True,False,1.6)
+        h.update(101.,(2.,0.),False,True,1.6)
+        self.assertTrue(h.update(101.4,(2.,0.),True,False,1.6))
+        self.assertTrue(h.update(110.,(2.,0.),False,True,1.6))
+
+    def test_actual_height_goal_no_longer_drops_inside_inflation(self):
+        a=sa.SwarmAgent.__new__(sa.SwarmAgent)
+        a.local_xy=a.offset=(0.,0.);a.local_z=2.85;a.altitude_layer=2.8
+        a._alt_sag=.1;a._orbit_target=None;a.los=True
+        a.grid=NS(world_to_cell=lambda p:(2,2),is_free=lambda c:False,
+                  origin=(-10.,-10.),width=40,height=40,resolution=.5)
+        with patch.object(sa,'MOTION_SAFETY',True):
+            goal=a.altitude_layer+a._compute_desired_altitude()-a._alt_sag
+        self.assertAlmostEqual(goal,a.local_z)
+
+    def test_actual_guard_remembers_near_scan_after_height_plane_becomes_clear(self):
+        a=sa.SwarmAgent.__new__(sa.SwarmAgent)
+        a.local_xy=a.offset=(0.,0.);a.local_z=2.85;a.uav_id='u5'
+        a._takeoff_done=True;a._landing=False;a._scan_t=100.
+        a._scan=NS(angle_min=0.,angle_increment=1.,range_min=.1,range_max=20.,ranges=[1.65])
+        with patch.object(sa,'MOTION_SAFETY',True),patch.object(sa,'RADAR_GUARD',True):
+            with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(100)):
+                self.assertEqual(a._guard_vertical_clearance(-.2),0.)
+            a._scan.ranges=[5.2];a.local_xy=(.5,0.);a._scan_t=101.
+            with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(101)):
+                self.assertEqual(a._guard_vertical_clearance(-.5),0.)
+                self.assertEqual(a._guard_vertical_clearance(.03),0.)
+            a.local_xy=(2.,0.)
+            for t in (102.,102.6):
+                a._scan_t=sa.rospy.Time.from_sec(t).to_sec()
+                with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(t)):
+                    value=a._guard_vertical_clearance(.3)
+            self.assertEqual(value,.3)
 
 
 if __name__=='__main__':unittest.main()

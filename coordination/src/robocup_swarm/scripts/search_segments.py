@@ -29,6 +29,8 @@ class Segment:
     wait_since: object = None
     yield_replanned: bool = False
     blocked_since: object = None
+    purpose: str = 'coverage'
+    look_points: tuple = ()
 
 
 class SegmentBook:
@@ -56,14 +58,21 @@ class SegmentBook:
         if any(len(p) != 2 or not all(math.isfinite(v) for v in p) for p in points):
             raise ValueError('nonfinite search point')
 
-    def reserve(self, uid, cells, points, now, ttl, max_hold):
+    def reserve(self, uid, cells, points, now, ttl, max_hold,
+                purpose='coverage', look_points=()):
         with self.lock:
             cells, points = tuple(cells), tuple(points)
             self.validate(cells, points)
+            look_points = tuple(look_points)
+            if look_points:
+                self.validate(cells, look_points)
+            if purpose not in ('coverage', 'south_patrol'):
+                raise ValueError('unknown search purpose')
             if uid in self.tasks or any(k in self.reserved for k in cells):
                 return None
             task = Segment(uid, uuid.uuid4().hex, 1, cells, points, now,
-                           now+max_hold, min(now+ttl, now+max_hold), progress_s=now)
+                           now+max_hold, min(now+ttl, now+max_hold), progress_s=now,
+                           purpose=purpose, look_points=look_points)
             self.tasks[uid] = task
             for key in cells:
                 self.reserved[key] = task.task_id
@@ -95,12 +104,16 @@ class SegmentBook:
             if any(self.reserved.get(k, task.task_id) != task.task_id for k in cells):
                 return None
             old_remaining = task.cells[task.index:]
+            looks = dict(zip(task.cells, task.look_points))
+            if task.look_points and any(k not in looks for k in cells):
+                raise ValueError('revision needs an existing observation region')
             for key in old_remaining:
                 if self.reserved.get(key) == task.task_id:
                     self.reserved.pop(key)
             for key in cells:
                 self.reserved[key] = task.task_id
             task.cells, task.points, task.index = cells, points, 0
+            task.look_points = tuple(looks[k] for k in cells) if looks else ()
             task.revision += 1
             task.feedback_s = -1.
             # Replanning does not buy another maximum-hold or wait budget.

@@ -1,0 +1,36 @@
+{
+  "logdir": "logs/logs_20261012_004602",
+  "code": "0900d5f",
+  "flags": {
+    "MOTION_SAFETY": 1,
+    "SEARCH_SEGMENTS": 1,
+    "SOUTH_PATROL": 0
+  },
+  "end": {
+    "wall": 1791737718.7020018,
+    "ros": 2459.4,
+    "reason": "End safety trial after UAV5 close side return; investigate altitude transition before enabling patrol."
+  },
+  "official_completed": [
+    {
+      "actor": "actor_0",
+      "judge_s": 135.42399999999998
+    },
+    {
+      "actor": "actor_4",
+      "judge_s": 208.32000000000016
+    },
+    {
+      "actor": "actor_1",
+      "judge_s": 292.91600000000017
+    },
+    {
+      "actor": "actor_2",
+      "judge_s": 390.1199999999999
+    }
+  ],
+  "mission_finished": false,
+  "safety_accepted": false,
+  "reason": "UAV5 side scan fell to 0.855m after near-obstacle descent and subsequent ascent. Stop for correction; no contact truth was collected.",
+  "flight_fault_lines": []
+}

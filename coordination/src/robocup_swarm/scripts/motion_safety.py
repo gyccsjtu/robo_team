@@ -7,6 +7,36 @@ already-checked direction. A zero intent can never become a recovery command.
 import math
 
 
+class HeightClearanceHold:
+    """A vanished 2D return alone cannot authorize changing scan height.
+
+    Routine height control resumes only after horizontal escape and a fresh,
+    sustained clear scan. Clock passage or repeated output calls buy no credit.
+    Horizontal escape remains subject to the ordinary flight safety checks.
+    """
+    def __init__(self):
+        self.anchor = None
+        self.clear_since = None
+        self.last_sample = -float('inf')
+
+    def update(self, sample, xy, near, clear, escape_m, settle_s=.5):
+        if sample <= self.last_sample:
+            return self.anchor is not None
+        self.last_sample = sample
+        if near:
+            self.anchor = xy
+            self.clear_since = None
+        elif self.anchor is not None:
+            if not clear or math.dist(xy, self.anchor) < escape_m:
+                self.clear_since = None
+            else:
+                if self.clear_since is None:
+                    self.clear_since = sample
+                if sample-self.clear_since >= settle_s:
+                    self.anchor = self.clear_since = None
+        return self.anchor is not None
+
+
 def braking_cap(intent, measured, constraints, margin, delay, decel):
     values = (*intent,*measured,margin,delay,decel)
     if (not all(math.isfinite(v) for v in values) or

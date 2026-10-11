@@ -30,10 +30,24 @@ class SearchSegmentAgent:
                 return False
             cells = tuple(zip(msg.search_cell_ix,msg.search_cell_iy))
             points = tuple((p.x,p.y) for p in msg.search_waypoints)
+            purpose = getattr(msg, 'search_purpose', '') or 'coverage'
+            looks = tuple((p.x,p.y) for p in getattr(msg, 'search_look_points', ()))
             try:
                 SegmentBook.validate(cells,points)
+                if looks:
+                    SegmentBook.validate(cells, looks)
             except (ValueError,TypeError):
                 return False
+            if purpose not in ('coverage', 'south_patrol') or (purpose == 'south_patrol' and not looks):
+                return False
+            if looks:
+                coverage = getattr(self, 'cov_grid', None)
+                if coverage is None:
+                    return False
+                for key, point in zip(cells, looks):
+                    cell = coverage.cell(key)
+                    if cell is None or math.dist(point, (cell.cx, cell.cy)) > 1e-6:
+                        return False  # observation region must match its reservation
             if len(msg.search_cell_ix) != len(msg.search_cell_iy) or revision < 1:
                 return False
             if any(self._segment_flight_waypoint(*point) != point for point in points):
@@ -45,7 +59,9 @@ class SearchSegmentAgent:
                 if revision < current['revision']:
                     return False
                 if revision == current['revision']:
-                    if cells == current['cells'] and points == current['points']:
+                    if (cells == current['cells'] and points == current['points'] and
+                            looks == current.get('look_points', ()) and
+                            purpose == current.get('purpose', 'coverage')):
                         current['until'] = max(current['until'],until)
                     return False  # heartbeat cannot reset index, scan or attention
             elif sample < getattr(self,'_last_task_stamp',-1.):
@@ -59,7 +75,8 @@ class SearchSegmentAgent:
             if not same_view:
                 self._search_scan_key = None
             self._search_segment = dict(id=tid,revision=revision,cells=cells,points=points,
-                index=0,until=until,state=TRAVEL,created=sample,blocked=0,reason='')
+                index=0,until=until,state=TRAVEL,created=sample,blocked=0,reason='',
+                purpose=purpose,look_points=looks)
             self._segment_path_key = None
             self._last_task_stamp = max(sample,getattr(self,'_last_task_stamp',-1.))
             return True
@@ -217,7 +234,13 @@ class SearchSegmentAgent:
             return True
         dx,dy = local[0]-self.world_xy[0],local[1]-self.world_xy[1]
         distance = math.hypot(dx,dy)
-        heading = self._search_sweep_bearing(math.atan2(dy,dx),distance)
+        # Lateral sensing has not been qualified for blind continuous patrol.
+        # Travel facing the route; at each reserved boundary cell the same
+        # bounded scan executor observes its explicit ground region. No second
+        # yaw publisher or inferred coverage is introduced.
+        heading = math.atan2(dy,dx)
+        if task.get('purpose') != 'south_patrol':
+            heading = self._search_sweep_bearing(heading,distance)
         self._set_search_heading(heading)
         self._last_local_goal = local
         speed = min(max_speed,cruise if distance>decel else kp*distance,self._transit_cap())

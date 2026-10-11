@@ -43,6 +43,7 @@ from search_observation import cell_points, in_view
 from search_view_hint import parse_failed_view, make_hint
 from search_segments import SegmentBook
 from search_segment_manager import SearchSegmentManager
+from boundary_patrol import SouthPatrol
 
 # ============================ 参数 ============================
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -341,6 +342,11 @@ class SwarmManager(SearchSegmentManager):
                           os.environ.get('SEARCH_SEGMENTS', '0') == '1' else None)
         self._segment_max_hold = LEASE_MAX_HOLD
         self._segment_stall_s = LEASE_STALL_S
+        patrol_enabled = os.environ.get('SOUTH_PATROL', '0') == '1'
+        if patrol_enabled and (self._segments is None or os.environ.get('MOTION_SAFETY', '0') != '1'):
+            raise ValueError('SOUTH_PATROL requires SEARCH_SEGMENTS=1 and MOTION_SAFETY=1')
+        self._south_patrol = (SouthPatrol((FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN, FLIGHT_Y_MAX))
+                              if patrol_enabled else None)
         self.uav_ids = uav_ids
         # 每机最新状态
         self.status = {}          # uav_id -> UavStatus
@@ -3062,6 +3068,11 @@ class SwarmManager(SearchSegmentManager):
         _cool = float(os.environ.get("LEASE_RELEASE_COOLDOWN_S", "6.0"))
         for uid in self.uav_ids:
             if uid not in self.status or not self.status[uid].connected:
+                continue
+            received = self.last_report.get(uid)
+            if (received is None or not 0. <= (_now-received).to_sec() < 3. or
+                    not all(math.isfinite(v) for v in
+                            (self.status[uid].x, self.status[uid].y, self.status[uid].z))):
                 continue
             # 2026-10-07 五分钟冲刺: 起飞稳定门槛 — z<1.0 说明还在地面 EKF 预热/
             # 解锁爬升阶段, 此时派 100m+ 远格会让 A* 在 EKF 抖动里反复重规划卡死.

@@ -19,3 +19,7 @@ int32[] search_cell_ix
 int32[] search_cell_iy
 geometry_msgs/Point[] search_waypoints
 time search_valid_until
+# Observation regions stay distinct from the aircraft's safe waypoints.
+# south_patrol uses short transit followed by bounded directed observation.
+string search_purpose
+geometry_msgs/Point[] search_look_points

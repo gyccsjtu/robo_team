@@ -68,6 +68,8 @@ class SearchSegmentManager:
         msg.search_cell_iy = [k[1] for k in task.cells]
         msg.search_waypoints = [Point(x=x,y=y,z=0.) for x,y in task.points]
         msg.search_valid_until = rospy.Time.from_sec(task.expires)
+        msg.search_purpose = task.purpose
+        msg.search_look_points = [Point(x=x,y=y,z=0.) for x,y in task.look_points]
         self.assign_pub.publish(msg)
 
     def _drop_segment(self, uid, reason, cancel=True, failed=False):
@@ -75,6 +77,9 @@ class SearchSegmentManager:
         if task is None:
             return
         now = rospy.Time.now().to_sec()
+        patrol = getattr(self, '_south_patrol', None)
+        if patrol is not None:
+            patrol.ended(task, reason, now)
         for key in task.cells[task.index:]:
             self.lease.force_expire(uid,key)
             if failed:
@@ -101,6 +106,20 @@ class SearchSegmentManager:
         if not idle:
             self._last_alloc_t = now
             return
+        patrol = getattr(self, '_south_patrol', None)
+        if patrol is not None:
+            proposed = patrol.choose(self, idle, stamp)
+            if proposed is not None:
+                uid, cells, points, direction = proposed
+                task = self._start_search_segment(uid, cells, points, stamp,
+                    purpose='south_patrol', publish=False)
+                if task is not None:
+                    patrol.started(task, direction, stamp)
+                    self._send_segment(task)
+                    idle.remove(uid)
+                    rospy.loginfo('[SOUTH_PATROL] uav=%s task=%s cells=%s deadline=%.3f '
+                        'ENU_south=-Y; short transit then directed image observation',
+                        uid, task.task_id, cells, task.deadline)
         positions = {uid:(self.status[uid].x,self.status[uid].y) for uid in idle}
         # Outer task lock covers allocator selection, segment extension and
         # whole-segment reservation. No callback can see a half-reserved route.
@@ -110,14 +129,10 @@ class SearchSegmentManager:
             if key is None:
                 continue
             cells,points = self._segment_cells(uid,key,stamp)
-            task = self._segments.reserve(uid,cells,points,stamp,20.,self._segment_max_hold)
+            task = self._start_search_segment(uid,cells,points,stamp)
             if task is None:
                 self.lease.force_expire(uid,key)
                 continue
-            for cell in cells:
-                self.lease.grant(uid,cell,stamp,task.expires-stamp)
-            self._active_leases[uid] = key
-            self._send_segment(task)
             # Keep the existing assignment-bound missed-view hints for a
             # one-cell observation task. They never count as fresh detection.
             self._segment_view_hint(task)
@@ -126,6 +141,20 @@ class SearchSegmentManager:
         self._last_alloc_t = now
         if any(key is None for key in seeds.values()):
             self._reopen_covered_cells(force=True)
+
+    def _start_search_segment(self, uid, cells, points, stamp, purpose='coverage', publish=True):
+        """Single reservation/lease entry for internal and boundary search."""
+        look = [(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
+        task = self._segments.reserve(uid,cells,points,stamp,20.,self._segment_max_hold,
+                                      purpose=purpose, look_points=look)
+        if task is None:
+            return None
+        for cell in cells:
+            self.lease.grant(uid,cell,stamp,task.expires-stamp)
+        self._active_leases[uid] = cells[0]
+        if publish:
+            self._send_segment(task)
+        return task
 
     def _segment_view_hint(self, task):
         from search_view_hint import make_hint

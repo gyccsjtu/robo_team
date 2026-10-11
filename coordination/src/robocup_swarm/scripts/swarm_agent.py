@@ -35,7 +35,7 @@ from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDe
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from slam_grid import SlamGrid
 from flight_execution import bounded_step
-from motion_safety import braking_cap, boundary_constraints, scan_constraints
+from motion_safety import braking_cap, boundary_constraints, scan_constraints, HeightClearanceHold
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from search_observation import cell_points, in_view, observable_points, next_heading
 from csv_logger import logger
@@ -2676,7 +2676,10 @@ class SwarmAgent(SearchSegmentAgent):
             # 用 A* 膨胀后的栅格判断
             cell = self.grid.world_to_cell((wx, wy))
             if cell and not self.grid.is_free(cell):
-                # 已经在障碍附近，降低高度
+                if MOTION_SAFETY:
+                    # A horizontal inflated cell cannot prove free space
+                    # below us. Hold this layer while leaving horizontally.
+                    return self.local_z-self.altitude_layer+getattr(self, '_alt_sag', 0.)
                 return -0.5
 
         # 检查与最近建筑的距离
@@ -2690,6 +2693,8 @@ class SwarmAgent(SearchSegmentAgent):
                 # 简化：使用 A* 栅格判断
                 astar_cell = self.grid.world_to_cell((wx, wy))
                 if astar_cell and not self.grid.is_free(astar_cell):
+                    if MOTION_SAFETY:
+                        return self.local_z-self.altitude_layer+getattr(self, '_alt_sag', 0.)
                     return -0.5
 
         # 开阔区域
@@ -3031,7 +3036,7 @@ class SwarmAgent(SearchSegmentAgent):
         beside a scaffold. Takeoff, landing and the hard altitude protections
         retain their own authority.
         """
-        if (abs(vz) < .05 or not RADAR_GUARD or
+        if ((abs(vz) < .05 and not MOTION_SAFETY) or not RADAR_GUARD or
                 not getattr(self, '_takeoff_done', False) or
                 getattr(self, '_landing', False)):
             return vz
@@ -3058,6 +3063,28 @@ class SwarmAgent(SearchSegmentAgent):
             rospy.logwarn_throttle(2., '[VERTICAL_CLEARANCE] uav=%s invalid scan; hold routine height',
                                    self.uav_id)
             return 0.
+        if MOTION_SAFETY:
+            xy = self.world_xy
+            if xy is None:
+                return 0.
+            grid = getattr(self, 'grid', None)
+            cell = grid.world_to_cell(xy) if grid is not None else None
+            occupied = grid is not None and (cell is None or not grid.is_free(cell))
+            hold = getattr(self, '_height_clearance_hold', None)
+            if hold is None:
+                hold = self._height_clearance_hold = HeightClearanceHold()
+            # The release band is one map cell beyond the old near threshold.
+            # A drop in scan height must not make a rail disappear and restart
+            # vertical motion at the same XY. Repeated output calls cannot
+            # substitute for fresh scans or actual horizontal displacement.
+            clear_range = RADAR_BACKOFF_R+max(.25, getattr(grid, 'resolution', .5))
+            if hold.update(self._scan_t, xy, occupied or nearest < RADAR_BACKOFF_R,
+                           not occupied and nearest >= clear_range, RADAR_STOP_R):
+                if abs(vz) >= .05:
+                    rospy.logwarn_throttle(2., '[VERTICAL_CLEARANCE_HOLD] uav=%s '
+                        'near=%.2f occupied=%s; require horizontal exit and fresh clear scans',
+                        self.uav_id, nearest, occupied)
+                return 0.
         if nearest < RADAR_BACKOFF_R:
             rospy.logwarn_throttle(2., '[VERTICAL_CLEARANCE] uav=%s near=%.2fm vz=%.2f -> 0; '
                                    'move to clear observation space before changing height',

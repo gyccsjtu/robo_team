@@ -1,0 +1,2 @@
+[search protocol] SearchAssignment f698598e3a5ea864da8568c6c424a932 OK
+[search protocol] UavStatus d0d4f03129110008c6ec0cf329b10c0a OK

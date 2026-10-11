@@ -347,6 +347,29 @@ class AgentSegmentTests(unittest.TestCase):
         a._search_scan_step.assert_called_once()
         self.assertEqual(a._search_segment['index'],0)
 
+    def test_real_candidate_interrupts_patrol_before_next_waypoint(self):
+        a=self.control_fixture();a.local_xy=(0.,0.);a.yaw=0.
+        a._takeoff_done=True;a._landing=False
+        a._search_segment['purpose']='south_patrol'
+        a._camera_cue=dict(candidate_id='blue:8',color='blue',target_id='t1',
+            started=100.,until=102.,bearing=math.pi/2,xy=(0.,8.),image={'fresh':True})
+        a._stable_other_owner=Mock(return_value=False);a._world_trusted=Mock(return_value=True)
+        a._segment_control=Mock();a._search_scan_started_t=None
+        with patch.object(sa,'candidate_decision',return_value=(0.,.3,'approach')):
+            a._control()
+        a._segment_control.assert_not_called();a._search_scan_step.assert_not_called()
+        a._send_vel.assert_called_once_with(0.,.3)
+        self.assertEqual(a._look_at,(0.,8.))
+
+    def test_patrol_transit_disables_free_sweep_and_arrival_keeps_directed_look(self):
+        a=self.control_fixture();a._search_segment['purpose']='south_patrol'
+        a.local_xy=(0.,0.);a._search_sweep_bearing=Mock(side_effect=AssertionError('ordinary sweep'))
+        a._segment_control(3.,5.,.8,2.,2.)
+        a._search_sweep_bearing.assert_not_called()
+        a.local_xy=(3.5,0.);a._search_observable_points.return_value={0:(8.,-6.)}
+        a._segment_control(3.,5.,.8,2.,2.)
+        a._search_scan_step.assert_called_once()
+
     def test_safe_prefix_survives_a_blocked_later_goal(self):
         a=self.control_fixture();g=a.grid;data=bytearray(g.cells)
         x,y=g.world_to_cell((10.5,0.));data[y*g.width+x]=1
@@ -391,13 +414,17 @@ class AgentSegmentTests(unittest.TestCase):
 
     def test_generated_wire_protocol_preserves_segment_fields(self):
         import io
-        msg=self.message(2);buffer=io.BytesIO();msg.serialize(buffer)
+        msg=self.message(2);msg.search_purpose='south_patrol'
+        msg.search_look_points=[Point(x=3.5,y=-8.5,z=0.)]
+        buffer=io.BytesIO();msg.serialize(buffer)
         received=SearchAssignment();received.deserialize(buffer.getvalue())
         self.assertEqual(received.search_task_id,'task-a')
         self.assertEqual(received.search_revision,2)
         self.assertEqual(tuple(received.search_cell_ix),(0,1,2))
         self.assertEqual(received.search_waypoints[-1].x,17.5)
         self.assertEqual(received.search_valid_until.to_sec(),119.)
+        self.assertEqual(received.search_purpose,'south_patrol')
+        self.assertEqual(received.search_look_points[0].y,-8.5)
 
 
 if __name__=='__main__':unittest.main()

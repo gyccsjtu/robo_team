@@ -70,6 +70,8 @@ SEARCH_SEGMENTS="${SEARCH_SEGMENTS:-0}"
 export SEARCH_SEGMENTS
 MOTION_SAFETY="${MOTION_SAFETY:-0}"
 export MOTION_SAFETY
+SOUTH_PATROL="${SOUTH_PATROL:-0}"
+export SOUTH_PATROL
 # 导航包源码目录：manager/agent 均 import robocup_navigation，必须进 PYTHONPATH
 NAV_SRC="$REPO_ROOT/coordination/src/robocup_navigation/src"
 # 合规地图元数据（2026-10-07 重构，规则 §2.4/§2.5 无预读随机地图）：
@@ -350,6 +352,15 @@ topic_publisher_match(){  # topic_publisher_match <topic> <节点名片段>
 
 # ============================ 赛前体检 ======================================
 fast_visual_config_valid(){
+    local module
+    for module in search_segments search_segment_manager search_segment_agent motion_safety boundary_patrol; do
+        [ -f "$SWARM_SCRIPTS/$module.py" ] || { err "协同模块缺失: $module.py"; return 1; }
+    done
+    case "$SOUTH_PATROL" in 0|1) ;; *)
+        err "SOUTH_PATROL 只能为0或1"; return 1 ;; esac
+    if [ "$SOUTH_PATROL" = 1 ] && { [ "$MOTION_SAFETY" != 1 ] || [ "$SEARCH_SEGMENTS" != 1 ]; }; then
+        err "SOUTH_PATROL 需要 MOTION_SAFETY=1 且 SEARCH_SEGMENTS=1"; return 1
+    fi
     case "$MOTION_SAFETY" in 0|1) ;; *)
         err "MOTION_SAFETY 只能为0或1"; return 1 ;; esac
     case "$SEARCH_SEGMENTS" in 0|1) ;; *)
@@ -666,7 +677,10 @@ team_preflight(){
     fast_visual_config_valid || return 1
     for file in "$ROS_SETUP" "$WS_SETUP" "$COORD_WS_SETUP" "$WEIGHTS" \
                 "$PERC_DIR/perception_real.py" "$BRIDGE_SCRIPT" "$COMM_BRIDGE" \
-                "$SWARM_SCRIPTS/swarm_agent.py" "$SWARM_SCRIPTS/swarm_manager.py"; do
+                "$SWARM_SCRIPTS/swarm_agent.py" "$SWARM_SCRIPTS/swarm_manager.py" \
+                "$SWARM_SCRIPTS/search_segments.py" "$SWARM_SCRIPTS/search_segment_manager.py" \
+                "$SWARM_SCRIPTS/search_segment_agent.py" "$SWARM_SCRIPTS/motion_safety.py" \
+                "$SWARM_SCRIPTS/boundary_patrol.py"; do
         [ -f "$file" ] || { err "队伍依赖缺失: $file"; return 1; }
     done
     [ "${PR_UAV_ARR[*]}" = "${UAVS[*]}" ] && [ "$YOLO_BRIDGE" = 1 ] && \

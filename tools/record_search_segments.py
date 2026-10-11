@@ -27,7 +27,8 @@ def status(m):
 def assignment(m):
     write('assignment',dict(uav=m.uav_id,stamp=m.header.stamp.to_sec(),type=m.task_type,target=m.target_id,
         task=m.search_task_id,version=m.search_revision,until=m.search_valid_until.to_sec(),
-        cells=list(zip(m.search_cell_ix,m.search_cell_iy)),points=[[p.x,p.y] for p in m.search_waypoints]))
+        cells=list(zip(m.search_cell_ix,m.search_cell_iy)),points=[[p.x,p.y] for p in m.search_waypoints],
+        purpose=m.search_purpose,look_points=[[p.x,p.y] for p in m.search_look_points]))
 def evidence(m,event):
     try:write(event,json.loads(m.data))
     except (ValueError,TypeError):pass
