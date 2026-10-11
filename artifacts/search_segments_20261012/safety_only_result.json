@@ -1,0 +1,90 @@
+{
+  "logdir": "logs/logs_20261012_002956",
+  "code": "6398fc3",
+  "motion_safety": 1,
+  "search_segments": 0,
+  "ros_interval": [
+    1953.8,
+    2349.336
+  ],
+  "sensor": {
+    "1": {
+      "samples": 3759,
+      "modes": {
+        "OFFBOARD": 3750,
+        "AUTO.LAND": 9
+      },
+      "min_front_side_range": 2.2774009704589844,
+      "max_tilt_deg": 30.70976717411334,
+      "max_local_z": 3.9520411491394043
+    },
+    "0": {
+      "samples": 3786,
+      "modes": {
+        "OFFBOARD": 3750,
+        "AUTO.LAND": 36
+      },
+      "min_front_side_range": 1.9016859531402588,
+      "max_tilt_deg": 26.709102551164026,
+      "max_local_z": 4.2998151779174805
+    },
+    "2": {
+      "samples": 3740,
+      "modes": {
+        "OFFBOARD": 3727,
+        "AUTO.LAND": 13
+      },
+      "min_front_side_range": 1.7961986064910889,
+      "max_tilt_deg": 29.706461842623376,
+      "max_local_z": 3.707712173461914
+    },
+    "4": {
+      "samples": 3729,
+      "modes": {
+        "OFFBOARD": 3699,
+        "AUTO.LAND": 30
+      },
+      "min_front_side_range": 1.737769603729248,
+      "max_tilt_deg": 30.621519037630726,
+      "max_local_z": 4.3506951332092285
+    },
+    "3": {
+      "samples": 3734,
+      "modes": {
+        "OFFBOARD": 3706,
+        "AUTO.LAND": 28
+      },
+      "min_front_side_range": 1.62116277217865,
+      "max_tilt_deg": 29.592151319803907,
+      "max_local_z": 4.232325553894043
+    },
+    "5": {
+      "samples": 3690,
+      "modes": {
+        "OFFBOARD": 3677,
+        "AUTO.LAND": 13
+      },
+      "min_front_side_range": 1.3011157512664795,
+      "max_tilt_deg": 25.902397104326326,
+      "max_local_z": 3.436563491821289
+    }
+  },
+  "official_completed": [
+    {
+      "actor": "actor_3",
+      "judge_s": 200.22400000000016
+    },
+    {
+      "actor": "actor_4",
+      "judge_s": 311.62400000000025
+    },
+    {
+      "actor": "actor_2",
+      "judge_s": 330.22000000000025
+    }
+  ],
+  "mission_finished": false,
+  "flight_fault_lines": [],
+  "termination": "Operator ended the component trial with run_match.sh stop. OFFBOARD loss, failsafe and landing in the scene log occur during shutdown.",
+  "limits": "Safety-only component trial; not a completed match or randomized acceptance. 2D scan/estimated pose are not proof of no contact. Safety and segment flags still default off."
+}
