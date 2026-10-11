@@ -1,0 +1,54 @@
+{
+  "commit": "d3dd674deb38c8aa6bb1211ee3083f8412aa3d9d",
+  "deployed": false,
+  "files": {
+    "README.md": {
+      "size": 11311,
+      "sha256": "423faea2e35b27fa62147485a7d1396cb0cedd717f71c15d850eac1827204c5a"
+    },
+    "weights/best_yolo11n_bino_v3_clean.pt": {
+      "size": 5470611,
+      "sha256": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a"
+    },
+    "weights/yolo11n_person.pt": {
+      "size": 5613764,
+      "sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1"
+    },
+    "scripts/train_yolo11n.py": {
+      "size": 3592,
+      "sha256": "58f442d544c19c6db7359b9905dc1e7302523ef25b3b3507a64c018e2b9889fa"
+    },
+    "scripts/infer_demo.py": {
+      "size": 3795,
+      "sha256": "828b9aa8d91462f023b4c7c057214fb749ed89bcb26bb406d5be8022bb0d81ac"
+    },
+    "perception/perception_real.py": {
+      "size": 113142,
+      "sha256": "5dc2ff3f488bda27768132464c6e6828d91fb186020f54b9572dd7f61bd75c7d"
+    },
+    "perception/stationary_person.py": {
+      "size": 368,
+      "sha256": "859bc369a80beac6b337ad78a4afb0fda46069de9fc6827a0868e5b2fb87f330"
+    },
+    "perception/motion_identity.py": {
+      "size": 1843,
+      "sha256": "7098c5fb3da7382c220f61fc73dfadcf4f144498fb5dcda4d20f267e82b43b08"
+    },
+    "perception/fresh_person.py": {
+      "size": 2134,
+      "sha256": "a1f4f11c28d8c738cf6e2a2306cfce069417e46d9a6c7fb9b51f13d59e163477"
+    },
+    "perception/requirements.txt": {
+      "size": 244,
+      "sha256": "0c62c612281122d827f665c8d6f664278e1d9fd95dce297deff8c664bf0a3c2b"
+    },
+    "coordination/docs/yolo_v3_clean_20261009/args.yaml": {
+      "size": 1731,
+      "sha256": "3738415059943458bede2299da967f08f842137ffa96e5399604da5b2406c3bb"
+    },
+    "coordination/docs/yolo_v3_clean_20261009/results.csv": {
+      "size": 18494,
+      "sha256": "aa8cbe5007f77966418eb808df8e390bdde52599d45dc9672a4a1334d85a882f"
+    }
+  }
+}

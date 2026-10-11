@@ -1,0 +1,463 @@
+{
+  "remote_commit": "d3dd674deb38c8aa6bb1211ee3083f8412aa3d9d",
+  "deployed": false,
+  "scope": "Fixed existing datasets, not a fresh independent held-out test. Remote training membership not verified. No threshold selection. No deployment.",
+  "thresholds": {
+    "white": 0.3,
+    "other": 0.4,
+    "imgsz": 640
+  },
+  "groups": {
+    "legacy_validation340": {
+      "production_v1": {
+        "weights": "/home/gycc/\u684c\u9762/RoboCup_Team/weights/best_yolo11n_bino_v1.pt",
+        "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+        "images": 340,
+        "false_decoy_frames": 0,
+        "partial_decoy_frames": 0,
+        "empty_negative_false_frames": 0,
+        "recall": {
+          "red": 0.9934640522875817,
+          "green": 0.9859154929577465,
+          "blue": 0.9894736842105263,
+          "white": 0.967391304347826,
+          "brown": 1.0,
+          "distractor_person": null
+        },
+        "usable_actor_recall": {
+          "red": 0.9934640522875817,
+          "green": 0.9859154929577465,
+          "blue": 0.9894736842105263,
+          "white": 0.967391304347826,
+          "brown": 1.0
+        },
+        "totals": {
+          "red": 153,
+          "green": 71,
+          "blue": 95,
+          "white": 92,
+          "brown": 56,
+          "distractor_person": 0
+        }
+      },
+      "remote_v3_clean": {
+        "weights": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt",
+        "sha256": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+        "images": 340,
+        "false_decoy_frames": 0,
+        "partial_decoy_frames": 0,
+        "empty_negative_false_frames": 0,
+        "recall": {
+          "red": 0.9934640522875817,
+          "green": 0.9577464788732394,
+          "blue": 0.9789473684210527,
+          "white": 0.967391304347826,
+          "brown": 1.0,
+          "distractor_person": null
+        },
+        "usable_actor_recall": {
+          "red": 0.9934640522875817,
+          "green": 0.9577464788732394,
+          "blue": 0.9789473684210527,
+          "white": 0.967391304347826,
+          "brown": 1.0
+        },
+        "totals": {
+          "red": 153,
+          "green": 71,
+          "blue": 95,
+          "white": 92,
+          "brown": 56,
+          "distractor_person": 0
+        }
+      }
+    },
+    "empty_negative34": {
+      "production_v1": {
+        "weights": "/home/gycc/\u684c\u9762/RoboCup_Team/weights/best_yolo11n_bino_v1.pt",
+        "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+        "images": 34,
+        "false_decoy_frames": 0,
+        "partial_decoy_frames": 0,
+        "empty_negative_false_frames": 0,
+        "recall": {
+          "red": null,
+          "green": null,
+          "blue": null,
+          "white": null,
+          "brown": null,
+          "distractor_person": null
+        },
+        "usable_actor_recall": {
+          "red": null,
+          "green": null,
+          "blue": null,
+          "white": null,
+          "brown": null
+        },
+        "totals": {
+          "red": 0,
+          "green": 0,
+          "blue": 0,
+          "white": 0,
+          "brown": 0,
+          "distractor_person": 0
+        }
+      },
+      "remote_v3_clean": {
+        "weights": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt",
+        "sha256": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+        "images": 34,
+        "false_decoy_frames": 0,
+        "partial_decoy_frames": 0,
+        "empty_negative_false_frames": 0,
+        "recall": {
+          "red": null,
+          "green": null,
+          "blue": null,
+          "white": null,
+          "brown": null,
+          "distractor_person": null
+        },
+        "usable_actor_recall": {
+          "red": null,
+          "green": null,
+          "blue": null,
+          "white": null,
+          "brown": null
+        },
+        "totals": {
+          "red": 0,
+          "green": 0,
+          "blue": 0,
+          "white": 0,
+          "brown": 0,
+          "distractor_person": 0
+        }
+      }
+    },
+    "sculpture_layout_b8": {
+      "production_v1": {
+        "weights": "/home/gycc/\u684c\u9762/RoboCup_Team/weights/best_yolo11n_bino_v1.pt",
+        "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+        "images": 8,
+        "false_decoy_frames": 0,
+        "partial_decoy_frames": 0,
+        "empty_negative_false_frames": 0,
+        "recall": {
+          "red": 1.0,
+          "green": 1.0,
+          "blue": 0.875,
+          "white": 0.875,
+          "brown": 1.0,
+          "distractor_person": 0.0
+        },
+        "usable_actor_recall": {
+          "red": 1.0,
+          "green": 1.0,
+          "blue": 0.875,
+          "white": 0.875,
+          "brown": 1.0
+        },
+        "totals": {
+          "red": 8,
+          "green": 8,
+          "blue": 8,
+          "white": 8,
+          "brown": 8,
+          "distractor_person": 8
+        }
+      },
+      "remote_v3_clean": {
+        "weights": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt",
+        "sha256": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+        "images": 8,
+        "false_decoy_frames": 0,
+        "partial_decoy_frames": 0,
+        "empty_negative_false_frames": 0,
+        "recall": {
+          "red": 1.0,
+          "green": 0.875,
+          "blue": 1.0,
+          "white": 0.375,
+          "brown": 1.0,
+          "distractor_person": 0.0
+        },
+        "usable_actor_recall": {
+          "red": 1.0,
+          "green": 0.875,
+          "blue": 1.0,
+          "white": 0.375,
+          "brown": 1.0
+        },
+        "totals": {
+          "red": 8,
+          "green": 8,
+          "blue": 8,
+          "white": 8,
+          "brown": 8,
+          "distractor_person": 8
+        }
+      }
+    },
+    "previously_evaluated_layout_d10": {
+      "production_v1": {
+        "weights": "/home/gycc/\u684c\u9762/RoboCup_Team/weights/best_yolo11n_bino_v1.pt",
+        "sha256": "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+        "images": 10,
+        "false_decoy_frames": 3,
+        "partial_decoy_frames": 0,
+        "empty_negative_false_frames": 0,
+        "recall": {
+          "red": 1.0,
+          "green": 1.0,
+          "blue": 1.0,
+          "white": 1.0,
+          "brown": 1.0,
+          "distractor_person": 0.0
+        },
+        "usable_actor_recall": {
+          "red": 1.0,
+          "green": 1.0,
+          "blue": 1.0,
+          "white": 1.0,
+          "brown": 1.0
+        },
+        "totals": {
+          "red": 10,
+          "green": 10,
+          "blue": 10,
+          "white": 10,
+          "brown": 10,
+          "distractor_person": 10
+        }
+      },
+      "remote_v3_clean": {
+        "weights": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt",
+        "sha256": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+        "images": 10,
+        "false_decoy_frames": 4,
+        "partial_decoy_frames": 0,
+        "empty_negative_false_frames": 0,
+        "recall": {
+          "red": 1.0,
+          "green": 1.0,
+          "blue": 1.0,
+          "white": 1.0,
+          "brown": 1.0,
+          "distractor_person": 0.0
+        },
+        "usable_actor_recall": {
+          "red": 1.0,
+          "green": 1.0,
+          "blue": 1.0,
+          "white": 1.0,
+          "brown": 1.0
+        },
+        "totals": {
+          "red": 10,
+          "green": 10,
+          "blue": 10,
+          "white": 10,
+          "brown": 10,
+          "distractor_person": 10
+        }
+      }
+    }
+  },
+  "cpu_probe": {
+    "python": "3.8.10 (default, Mar 18 2025, 20:04:55) \n[GCC 9.4.0]",
+    "torch": "2.4.1+cu121",
+    "threads": 1,
+    "runs": {
+      "production_v1": {
+        "names": {
+          "0": "red",
+          "1": "green",
+          "2": "blue",
+          "3": "white",
+          "4": "brown"
+        },
+        "load_s": 0.014476673999524792,
+        "first_prediction_s": 0.5433884269987175,
+        "warm_prediction_s": [
+          0.01834970600066299,
+          0.01722033999976702,
+          0.017176862000269466,
+          0.017402209001375013,
+          0.0177319800004625,
+          0.01754686400090577
+        ],
+        "boxes": [
+          {
+            "cls": "blue",
+            "confidence": 0.8083398342132568,
+            "xyxy": [
+              364.83074951171875,
+              220.58184814453125,
+              384.38836669921875,
+              277.11651611328125
+            ]
+          },
+          {
+            "cls": "green",
+            "confidence": 0.33505183458328247,
+            "xyxy": [
+              673.7369995117188,
+              190.6650390625,
+              684.73681640625,
+              214.3659210205078
+            ]
+          },
+          {
+            "cls": "blue",
+            "confidence": 0.3347703814506531,
+            "xyxy": [
+              365.0473937988281,
+              220.4230499267578,
+              383.7673645019531,
+              252.52125549316406
+            ]
+          }
+        ]
+      },
+      "remote_v3_clean": {
+        "names": {
+          "0": "red",
+          "1": "green",
+          "2": "blue",
+          "3": "white",
+          "4": "brown"
+        },
+        "load_s": 0.08386382299977413,
+        "first_prediction_s": 0.03856225699928473,
+        "warm_prediction_s": [
+          0.018025907998890034,
+          0.017639232000874472,
+          0.01779713200085098,
+          0.017784658000891795,
+          0.017665855999439373,
+          0.01860887200018624
+        ],
+        "boxes": [
+          {
+            "cls": "blue",
+            "confidence": 0.7755075693130493,
+            "xyxy": [
+              363.20330810546875,
+              222.23475646972656,
+              383.97247314453125,
+              278.5712890625
+            ]
+          }
+        ]
+      },
+      "remote_person_verifier": {
+        "names": {
+          "0": "person",
+          "1": "bicycle",
+          "2": "car",
+          "3": "motorcycle",
+          "4": "airplane",
+          "5": "bus",
+          "6": "train",
+          "7": "truck",
+          "8": "boat",
+          "9": "traffic light",
+          "10": "fire hydrant",
+          "11": "stop sign",
+          "12": "parking meter",
+          "13": "bench",
+          "14": "bird",
+          "15": "cat",
+          "16": "dog",
+          "17": "horse",
+          "18": "sheep",
+          "19": "cow",
+          "20": "elephant",
+          "21": "bear",
+          "22": "zebra",
+          "23": "giraffe",
+          "24": "backpack",
+          "25": "umbrella",
+          "26": "handbag",
+          "27": "tie",
+          "28": "suitcase",
+          "29": "frisbee",
+          "30": "skis",
+          "31": "snowboard",
+          "32": "sports ball",
+          "33": "kite",
+          "34": "baseball bat",
+          "35": "baseball glove",
+          "36": "skateboard",
+          "37": "surfboard",
+          "38": "tennis racket",
+          "39": "bottle",
+          "40": "wine glass",
+          "41": "cup",
+          "42": "fork",
+          "43": "knife",
+          "44": "spoon",
+          "45": "bowl",
+          "46": "banana",
+          "47": "apple",
+          "48": "sandwich",
+          "49": "orange",
+          "50": "broccoli",
+          "51": "carrot",
+          "52": "hot dog",
+          "53": "pizza",
+          "54": "donut",
+          "55": "cake",
+          "56": "chair",
+          "57": "couch",
+          "58": "potted plant",
+          "59": "bed",
+          "60": "dining table",
+          "61": "toilet",
+          "62": "tv",
+          "63": "laptop",
+          "64": "mouse",
+          "65": "remote",
+          "66": "keyboard",
+          "67": "cell phone",
+          "68": "microwave",
+          "69": "oven",
+          "70": "toaster",
+          "71": "sink",
+          "72": "refrigerator",
+          "73": "book",
+          "74": "clock",
+          "75": "vase",
+          "76": "scissors",
+          "77": "teddy bear",
+          "78": "hair drier",
+          "79": "toothbrush"
+        },
+        "load_s": 0.014719386999786366,
+        "first_prediction_s": 0.04096331799883046,
+        "warm_prediction_s": [
+          0.018396580999251455,
+          0.018327459998545237,
+          0.01854261799962842,
+          0.017852334000053816,
+          0.01832959499915887,
+          0.020377255999846966
+        ],
+        "boxes": [
+          {
+            "cls": "person",
+            "confidence": 0.8051744103431702,
+            "xyxy": [
+              366.17047119140625,
+              219.518310546875,
+              381.53729248046875,
+              276.4653015136719
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
