@@ -1,0 +1,142 @@
+{
+  "prediction_fresh_1Hz": {
+    "last_t": 6.0,
+    "target_x": 6.0,
+    "lead_s": 1.0,
+    "output": [
+      7.0,
+      0.0
+    ]
+  },
+  "prediction_cached_5Hz": {
+    "last_t": 6.0,
+    "target_x": 6.0,
+    "lead_s": 1.0,
+    "output": [
+      6.0,
+      0.0
+    ]
+  },
+  "dispatch_seen_vs_blind": {
+    "seen_distance_m": 9.0,
+    "blind_distance_m": 5.0,
+    "costs": {
+      "seeing": 3.0,
+      "blind": 2.666666666666667
+    },
+    "chosen": {
+      "t0": "blind"
+    }
+  },
+  "coverage": {
+    "uav": [
+      0.0,
+      0.0,
+      2.8
+    ],
+    "yaw": 0.0,
+    "cell_m": 7.0,
+    "center": [
+      8.0,
+      0.0
+    ],
+    "center_visible": true,
+    "same_cell_corner": [
+      11.5,
+      3.5
+    ],
+    "corner_visible": false
+  },
+  "tenure": {
+    "continuous_s": 15.5,
+    "blackout_s": 1.5,
+    "duration_s": 200,
+    "confirmed_events": [
+      15.0,
+      32.0,
+      49.0,
+      66.0,
+      83.0,
+      100.0,
+      117.0,
+      134.0,
+      151.0,
+      168.0,
+      185.0
+    ],
+    "release_due_times": [],
+    "last_done": 185.0,
+    "absolute_tenure_branch_skipped": true
+  },
+  "friend_close_skip": {
+    "own": [
+      0.0,
+      0.0,
+      3.0
+    ],
+    "friend": [
+      0.4,
+      0.0,
+      3.0
+    ],
+    "desired": [
+      1.0,
+      0.0
+    ],
+    "output": [
+      1.0,
+      0.0
+    ]
+  },
+  "position_clip_turn": {
+    "world": [
+      149.0,
+      0.0
+    ],
+    "input": [
+      0.0,
+      0.1
+    ],
+    "after_final_scan": [
+      0.0,
+      0.1
+    ],
+    "after_map": [
+      0.0,
+      0.1
+    ],
+    "published_world_sp": [
+      148.0,
+      0.1,
+      3.0
+    ],
+    "actual_step": [
+      -1.0,
+      0.1
+    ],
+    "scan_verdict_for_actual_step": [
+      0.0,
+      0.0
+    ],
+    "note": "Final setpoint creates an unscanned rearward displacement; this is a deterministic command-chain failure, not a claim of an observed collision."
+  },
+  "position_clip_zero_stop": {
+    "world": [
+      150.5,
+      0.0
+    ],
+    "input": [
+      0.0,
+      0.0
+    ],
+    "published_world_sp": [
+      150.0,
+      0.0,
+      3.0
+    ],
+    "actual_step": [
+      -0.5,
+      0.0
+    ]
+  }
+}

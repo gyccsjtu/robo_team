@@ -1,0 +1,23 @@
+{
+  "status": "current_failure_signatures_reproduced",
+  "altitude_hold_goal": {
+    "level": 2.796666659755967,
+    "intermittent_tilt": 2.6
+  },
+  "final_scan_invalid_input_output": {
+    "nan": [
+      0.0,
+      0.0
+    ],
+    "negative_infinity": [
+      2.0,
+      0.0
+    ]
+  },
+  "graph_audit_failures_for_environment_command_publisher": [],
+  "limits": [
+    "Synthetic inputs demonstrate code behavior, not a recorded collision.",
+    "ROS graph results do not prove that any formal team node uses forbidden data.",
+    "Negative-infinity scan input has not been established in the match logs."
+  ]
+}
