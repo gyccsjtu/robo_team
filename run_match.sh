@@ -415,13 +415,11 @@ preflight(){
         err "裁判未使用官方 ros_actor_cmd_pose_plugin_msgs/ActorInfo；停止启动"
         hard_miss=$((hard_miss+1))
     fi
-    if [ -d "$XTDRONE_DIR/.git" ]; then
-        if git -C "$XTDRONE_DIR" diff --quiet origin/master -- robocup/score_cal.py robocup/control_actor.py; then
-            ok "裁判与人物控制代码符合本地官方 origin/master"
-        else
-            err "裁判或人物控制代码偏离本地官方 origin/master；正式运行前恢复官方版本"
-            hard_miss=$((hard_miss+1))
-        fi
+    if python3 "$REPO_ROOT/tools/official_reference.py" --root "$XTDRONE_DIR"; then
+        ok "裁判与人物控制代码符合已核对官方版本（固定哈希）"
+    else
+        err "裁判/人物文件与已核对官方版本不同；先核查差异，不自动恢复旧 origin/master"
+        hard_miss=$((hard_miss+1))
     fi
     if [ "${D2O_ENABLE:-0}" != "0" ]; then
         err "正式赛禁用 D2O_ENABLE：该开发桥不在正式启动链路中"
@@ -1273,6 +1271,7 @@ case "$_subcmd" in
 esac
 case "$_subcmd" in
     prepare-map)
+        python3 "$REPO_ROOT/tools/official_reference.py" --download || exit 2
         python3 "$REPO_ROOT/tools/prepare_official_map.py" --apply \
             --xtdrone-root "$XTDRONE_DIR" --world "$OFFICIAL_WORLD" \
             --official-ref "${ROBOCUP_OFFICIAL_REF:-2783bdb32e43b6c656df9445dd2a855855bc24cd}"

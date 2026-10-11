@@ -1,0 +1,69 @@
+{
+  "audit": {
+    "images": 1408,
+    "groups": 6,
+    "counts": {
+      "train": {
+        "green": 160,
+        "blue": 219,
+        "white": 174,
+        "brown": 156,
+        "red": 446,
+        "distractor_person": 144
+      },
+      "val": {
+        "green": 79,
+        "blue": 103,
+        "white": 100,
+        "brown": 64,
+        "red": 161,
+        "distractor_person": 8
+      },
+      "test": {
+        "green": 10,
+        "blue": 10,
+        "brown": 10,
+        "white": 10,
+        "red": 10,
+        "distractor_person": 10
+      }
+    },
+    "missing_classes": []
+  },
+  "threshold": 0.5787076168833514,
+  "sign": 1.0,
+  "by_class": {
+    "red": {
+      "n": 161,
+      "rejected": 0,
+      "max_margin": 0.5172898747600376
+    },
+    "green": {
+      "n": 75,
+      "rejected": 0,
+      "max_margin": 0.5287076168833513
+    },
+    "blue": {
+      "n": 103,
+      "rejected": 0,
+      "max_margin": 0.13961460188955277
+    },
+    "white": {
+      "n": 100,
+      "rejected": 0,
+      "max_margin": 0.022076234359041713
+    },
+    "brown": {
+      "n": 64,
+      "rejected": 0,
+      "max_margin": 0.25312750209904067
+    },
+    "distractor_person": {
+      "n": 8,
+      "rejected": 0,
+      "max_margin": 0.038796556334840915
+    }
+  },
+  "scope": "GT crops of existing validation only; not detector crops or flight acceptance",
+  "model": "linear grayscale gradient cells, ridge alpha=1 fixed"
+}

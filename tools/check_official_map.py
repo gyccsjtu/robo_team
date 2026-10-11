@@ -31,7 +31,13 @@ EXPECTED_BOXES = FIXED_BOXES + len(BUILDINGS) + ROVERS
 
 
 def load_reference(root, ref):
-    """Read already-fetched official Git objects; never access the network."""
+    """Read pinned verified bytes or fetched Git objects; never use network."""
+    try:
+        from .official_reference import contract, pinned_blobs
+    except ImportError:
+        from official_reference import contract, pinned_blobs
+    if ref == contract()['commit']:
+        return pinned_blobs(root, SOURCE_FILES)
     blobs = {}
     for name in SOURCE_FILES:
         result = subprocess.run(
