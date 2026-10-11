@@ -41,7 +41,7 @@ from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
                            bind_red_view,
                            retain_pixel_view)
-from camera_attention import approach_image, candidate_velocity
+from camera_attention import approach_image, candidate_velocity, candidate_decision
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
@@ -2065,16 +2065,17 @@ class SwarmAgent(object):
         self._look_at = cue.get('xy') or (
             wx[0] + 10.0 * math.cos(cue['bearing']),
             wx[1] + 10.0 * math.sin(cue['bearing']))
-        vx, vy = (candidate_velocity(cue, now, self.yaw, wx,
+        vx, vy, reason = (candidate_decision(cue, now, self.yaw, wx,
                                     getattr(self, '_scan', None),
                                     getattr(self, '_scan_t', -1e18))
-                  if cue.get('image') is not None and self._world_trusted() else (0., 0.))
+                  if cue.get('image') is not None and self._world_trusted()
+                  else (0., 0., 'untrusted_pose_or_image'))
         if getattr(self, '_friend_positions', {}):
             vx, vy = self._apply_friend_avoidance(vx, vy)
         rospy.loginfo_throttle(2., '[CANDIDATE_APPROACH] uav=%s candidate=%s '
-                              'requested=(%.2f,%.2f) remaining=%.2f',
+                              'requested=(%.2f,%.2f) remaining=%.2f reason=%s',
                               self.uav_id, cue['candidate_id'], vx, vy,
-                              max(0., cue['until']-now))
+                              max(0., cue['until']-now), reason)
         self._send_vel(vx, vy)
         return True
 

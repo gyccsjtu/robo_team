@@ -581,12 +581,10 @@ def parse_left_actors(raw):
 
 
 class CrossColorLocationGuard(object):
-    """Short, spatial quarantine for a camera that changes a fixed object's color.
+    """Diagnostic only: nearby sequential colours are not instance identity.
 
-    This is evidence of an ambiguous *visual object*, not proof that all
-    stationary people or all reports of either color are false.  Keep the
-    judge gate separate from the pursuit tracks so another location remains
-    available for a genuine actor with the same color.
+    Visual rejection needs appearance evidence from the same image instance.
+    A spatial coincidence alone must not quarantine neighbouring real people.
     """
 
     def __init__(self):
@@ -605,10 +603,10 @@ class CrossColorLocationGuard(object):
         return cx, cy
 
     def blocked(self, tag, x, y, now):
+        # Sequential colours near one place do not establish one object.
+        # Keep diagnostics, but never suppress either person's coordinates.
         self.blocks = [b for b in self.blocks if now < b['until']]
-        return any(tag in b['tags'] and
-                   math.hypot(x-b['x'], y-b['y']) <= COLOR_CONFLICT_RADIUS_M
-                   for b in self.blocks)
+        return False
 
     def observe(self, sample, source, tag, x, y, visual_conf, view_ok):
         """Return a new conflict event, or None, using only fresh image facts."""
@@ -1456,11 +1454,12 @@ class YoloTargetBridge(object):
                 conflict = self.conflict_guard.observe(
                     sample, source, tag, x, y, row['visual_conf'], row['official_ok'])
                 if conflict is not None:
-                    self._rospy.logwarn('[COLOR_CONFLICT] camera=%s tags=%s '
-                                        'xy=(%.2f,%.2f) ttl=%.1fs',
+                    self._rospy.logwarn('[COLOR_AMBIGUITY] camera=%s tags=%s '
+                                        'xy=(%.2f,%.2f) diagnostic_ttl=%.1fs',
                                         source, '/'.join(conflict['tags']),
                                         conflict['x'], conflict['y'], conflict['ttl_s'])
-                    self.conflict_pub.publish(_msg_string_cls()(data=json.dumps(conflict)))
+                    # No cross-colour instance association exists in v2.
+                    # Do not send a spatial guess to the quarantine channel.
                 pub = getattr(self, 'source_pub', None)
                 if pub is not None:
                     evidence = {

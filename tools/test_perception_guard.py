@@ -17,10 +17,10 @@ class CrossColorGuardTests(unittest.TestCase):
     def setUp(self):
         self.guard = bridge.CrossColorLocationGuard()
 
-    def test_replays_same_camera_blue_then_white_fixed_object(self):
+    def test_sequential_blue_white_reports_only_diagnostic_without_instance_proof(self):
         # 22:45 run: UAV3 blue at 107/110 s, then white at 114/115 s,
-        # always at approximately (-27.1, 13.2).  This cannot be a reliable
-        # class identity for an official judge report.
+        # always near (-27.1, 13.2). This could also be two different people
+        # seen sequentially: spatial proximity does not prove one instance.
         self.assertIsNone(self.guard.observe(107.24, 'u3', 'blue',
                                              -27.09, 13.10, .876, True))
         self.assertIsNone(self.guard.observe(110.056, 'u3', 'blue',
@@ -32,8 +32,8 @@ class CrossColorGuardTests(unittest.TestCase):
         self.assertIsNotNone(event)
         self.assertEqual(event['target_ids'], ['t1', 't3'])
         self.assertEqual(event['source_uav'], 'u3')
-        self.assertTrue(self.guard.blocked('blue', -27.03, 13.2, 115.6))
-        self.assertTrue(self.guard.blocked('white', -27.03, 13.2, 115.6))
+        self.assertFalse(self.guard.blocked('blue', -27.03, 13.2, 115.6))
+        self.assertFalse(self.guard.blocked('white', -27.03, 13.2, 115.6))
         self.assertFalse(self.guard.blocked('blue', 150.0, 38.0, 115.6))
         self.assertFalse(self.guard.blocked('red1', -27.03, 13.2, 115.6))
         self.assertIsNone(self.guard.observe(116.336, 'u3', 'white',
@@ -88,7 +88,7 @@ class CrossColorGuardTests(unittest.TestCase):
                                              1.2, 0, .8, False))
         self.assertFalse(self.guard.blocked('white', 1.2, 0, 102.6))
 
-    def test_bridge_blocks_only_conflicted_official_point(self):
+    def test_bridge_does_not_quarantine_sequential_neighbouring_people(self):
         b = bridge._mk_bridge()
 
         def feed(t, tag, x, y):
@@ -108,20 +108,17 @@ class CrossColorGuardTests(unittest.TestCase):
 
         for t in (105.0, 105.4, 105.8):
             feed(t, 'white', -27.1, 13.2)
-        self.assertEqual(len(b.conflict_pub.msgs), 1)
-        signal = json.loads(b.conflict_pub.msgs[0].data)
-        self.assertEqual(signal['target_ids'], ['t1', 't3'])
+        self.assertEqual(len(b.conflict_pub.msgs), 0)
         b._tick(None)
-        self.assertEqual(len(b._actor_pubs['white'].msgs), 0)
-        b._publish_actor('blue', -27.1, 13.2)
-        self.assertEqual(len(b._actor_pubs['blue'].msgs), 1)
-
-        # A genuine person of either class at another position remains free
-        # to report, and the judge's three-field ActorInfo contract is intact.
-        b._publish_actor('white', 150.0, 38.0)
         self.assertEqual(len(b._actor_pubs['white'].msgs), 1)
+        b._publish_actor('blue', -27.1, 13.2)
+        self.assertEqual(len(b._actor_pubs['blue'].msgs), 2)
+
+        # Existing coordinate consistency checks still apply. Proximity
+        # alone does not silence either class or change the ActorInfo ABI.
         msg = b._actor_pubs['white'].msgs[0]
-        self.assertEqual((msg.cls, msg.x, msg.y), ('white', 150.0, 38.0))
+        self.assertEqual((msg.cls, msg.x, msg.y), ('white', -27.1, 13.2))
+
 
 
 if __name__ == '__main__':
