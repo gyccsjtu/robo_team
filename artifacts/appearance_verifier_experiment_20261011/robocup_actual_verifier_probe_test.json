@@ -1,0 +1,123 @@
+{
+  "policy": {
+    "checkpoint": "v3_last",
+    "imgsz": 640,
+    "ambiguous_confidence": 0.5,
+    "strong_confidence": 0.75,
+    "iou": 0.75,
+    "model_class_margin": 0.2,
+    "unique_instance": true
+  },
+  "groups": {
+    "mixed_all_d": {
+      "base_matched": {
+        "1": 10,
+        "2": 10,
+        "4": 10,
+        "3": 10,
+        "0": 10
+      },
+      "new_matched": {
+        "1": 10,
+        "2": 10,
+        "4": 10,
+        "3": 10,
+        "0": 10
+      },
+      "base_usable": {
+        "1": 10,
+        "2": 10,
+        "4": 10,
+        "3": 10,
+        "0": 10
+      },
+      "new_usable": {
+        "1": 10,
+        "2": 10,
+        "4": 10,
+        "3": 10,
+        "0": 10
+      },
+      "total": {
+        "1": 10,
+        "2": 10,
+        "4": 10,
+        "3": 10,
+        "0": 10,
+        "5": 10
+      },
+      "base_false": 3,
+      "new_false": 0,
+      "removed": [
+        {
+          "image": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0013.png",
+          "boxes": [
+            {
+              "box": [
+                365.878173828125,
+                208.1323699951172,
+                387.4928894042969,
+                275.1592102050781
+              ],
+              "verifier_box": [
+                365.7193908691406,
+                208.13290405273438,
+                391.7212829589844,
+                275.93048095703125
+              ],
+              "confidence": 0.8207315802574158,
+              "actor_confidence": 0.0,
+              "status": "ambiguous"
+            }
+          ]
+        },
+        {
+          "image": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0018.png",
+          "boxes": [
+            {
+              "box": [
+                369.18463134765625,
+                212.09774780273438,
+                389.60284423828125,
+                272.4344787597656
+              ],
+              "verifier_box": [
+                369.46734619140625,
+                211.9483642578125,
+                391.0335998535156,
+                273.2471618652344
+              ],
+              "confidence": 0.6427603960037231,
+              "actor_confidence": 0.0,
+              "status": "ambiguous"
+            }
+          ]
+        },
+        {
+          "image": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0019.png",
+          "boxes": [
+            {
+              "box": [
+                366.1956787109375,
+                212.6788330078125,
+                388.5746765136719,
+                273.4569396972656
+              ],
+              "verifier_box": [
+                366.43280029296875,
+                210.41156005859375,
+                391.4671936035156,
+                274.3568115234375
+              ],
+              "confidence": 0.8797119855880737,
+              "actor_confidence": 0.0,
+              "status": "ambiguous"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "crop_latency_median_s": null,
+  "deployed": false
+}

@@ -1,0 +1,13 @@
+{
+  "deployed": false,
+  "accepted": false,
+  "reason": "five visually reviewed true white actors become ambiguous on fresh flight frames",
+  "verifier_weights": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/weights/last.pt",
+  "unit_tests_passed": 610,
+  "verifier_sha256": "b3d4505ac5a80ec569aee464edc332a9c4b948f995ec3f27fe5ba475f41727b0",
+  "code_sha256": {
+    "perception/appearance_verifier.py": "5c6683aa79ebc668f9ba8c9a54781da3922b5eca204c7ea13ada81ce4ba5e267",
+    "perception/perception_real.py": "11381c3de98053ff31c3d267ced15ed5dbe994821957d351ba4bf754b1f2300c",
+    "tools/test_appearance_verifier.py": "eaeb17a69372a074b53d1d289f8b4e0f2a257057381025a62154c98e1e1b8882"
+  }
+}

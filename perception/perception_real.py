@@ -59,6 +59,11 @@ import threading
 import time
 import uuid
 
+if __package__:
+    from .appearance_verifier import AppearanceVerifier
+else:
+    from appearance_verifier import AppearanceVerifier
+
 import cv2
 import numpy as np
 import rospy
@@ -1694,6 +1699,21 @@ def main():
     _model = YOLO(WEIGHTS)
     configure_cpu_inference_threads(_model, TORCH_THREADS)
     class_mapping = target_class_mapping(_model.names)
+    appearance_model = None
+    appearance_verifier = AppearanceVerifier()
+    appearance_weights = os.environ.get('PR_APPEARANCE_WEIGHTS', '').strip()
+    if appearance_weights:
+        if not os.path.isfile(appearance_weights):
+            raise RuntimeError('PR_APPEARANCE_WEIGHTS does not exist: '+appearance_weights)
+        appearance_model = YOLO(appearance_weights)
+        configure_cpu_inference_threads(appearance_model, TORCH_THREADS)
+        target_class_mapping(appearance_model.names)
+        names = appearance_model.names
+        names = names.values() if isinstance(names, dict) else names
+        if list(names).count('distractor_person') != 1:
+            raise RuntimeError('Appearance weights require a distractor_person class')
+        print('[pr] APPEARANCE_VERIFIER weights=%s full_frame=true '
+              'primary_box_unchanged=true' % appearance_weights, flush=True)
     print('[pr] CLASS_MAP names=%s canonical=%s; non-target classes excluded' %
           (_model.names, class_mapping), flush=True)
     print("[pr] MODEL_READY load_s=%.3f" % (time.monotonic() - _load_wall),
@@ -1845,16 +1865,22 @@ def main():
                     res = _model(img, conf=min(CONF, WHITE_CONF),
                                  agnostic_nms=False, verbose=False)[0]
                     frame_was_processed = True
-                    inference_s = time.time() - _infer_t0
-                    if not _first_inference_logged:
-                        print("[pr] FIRST_INFERENCE image_stamp=%.3f latency_s=%.3f"
-                              % (frame_stamp, inference_s), flush=True)
-                        _first_inference_logged = True
                     # 几何、轨迹和上报共用图像采集时刻 frame_stamp；推理耗时
                     # 只用于评估延迟，不能再从采集时间减去半个推理周期。
                     # v4新增：对同类别的检测结果做IOU去重（解决YOLO同一目标多次检测问题）
                     actor_boxes, appearance_evidence = appearance_resolver.resolve(
                         res.boxes, class_mapping, _model.names, frame_stamp)
+                    if appearance_model is not None:
+                        verification = (appearance_model(img, conf=.30, imgsz=640,
+                            agnostic_nms=False, verbose=False)[0].boxes if actor_boxes else [])
+                        actor_boxes, extra_evidence = appearance_verifier.apply(
+                            actor_boxes, verification, appearance_model.names, frame_stamp)
+                        appearance_evidence.extend(extra_evidence)
+                    inference_s = time.time() - _infer_t0
+                    if not _first_inference_logged:
+                        print("[pr] FIRST_INFERENCE image_stamp=%.3f latency_s=%.3f"
+                              % (frame_stamp, inference_s), flush=True)
+                        _first_inference_logged = True
                     for evidence in appearance_evidence:
                         ex1, ey1, ex2, ey2 = evidence['box']
                         _CSV.write(ros_time=rospy.Time.now().to_sec(),

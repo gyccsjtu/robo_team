@@ -1,0 +1,96 @@
+{
+  "policy": {
+    "checkpoint": "v3_last",
+    "imgsz": 640,
+    "ambiguous_confidence": 0.5,
+    "strong_confidence": 0.75,
+    "iou": 0.75,
+    "model_class_margin": 0.2,
+    "unique_instance": true
+  },
+  "groups": {
+    "legacy_original_val": {
+      "base_matched": {
+        "1": 70,
+        "2": 94,
+        "3": 89,
+        "4": 56,
+        "0": 152
+      },
+      "new_matched": {
+        "1": 70,
+        "2": 94,
+        "3": 89,
+        "4": 56,
+        "0": 152
+      },
+      "base_usable": {
+        "1": 70,
+        "2": 94,
+        "3": 89,
+        "4": 56,
+        "0": 152
+      },
+      "new_usable": {
+        "1": 70,
+        "2": 94,
+        "3": 89,
+        "4": 56,
+        "0": 152
+      },
+      "total": {
+        "1": 71,
+        "2": 95,
+        "3": 92,
+        "4": 56,
+        "0": 153
+      },
+      "base_false": 0,
+      "new_false": 0,
+      "removed": []
+    },
+    "mixed_all_b": {
+      "base_matched": {
+        "1": 8,
+        "2": 7,
+        "4": 8,
+        "3": 7,
+        "0": 8
+      },
+      "new_matched": {
+        "1": 8,
+        "2": 7,
+        "4": 8,
+        "3": 7,
+        "0": 8
+      },
+      "base_usable": {
+        "1": 8,
+        "2": 7,
+        "4": 8,
+        "3": 7,
+        "0": 8
+      },
+      "new_usable": {
+        "1": 8,
+        "2": 7,
+        "4": 8,
+        "3": 7,
+        "0": 8
+      },
+      "total": {
+        "1": 8,
+        "2": 8,
+        "4": 8,
+        "3": 8,
+        "0": 8,
+        "5": 8
+      },
+      "base_false": 0,
+      "new_false": 0,
+      "removed": []
+    }
+  },
+  "crop_latency_median_s": null,
+  "deployed": false
+}

@@ -1,0 +1,136 @@
+{
+  "policy": {
+    "checkpoint": "v3_last",
+    "imgsz": 640,
+    "ambiguous_confidence": 0.5,
+    "strong_confidence": 0.75,
+    "iou": 0.75,
+    "model_class_margin": 0.2,
+    "unique_instance": true
+  },
+  "groups": {
+    "flight_57f3690_unreviewed": {
+      "base_matched": {},
+      "new_matched": {},
+      "base_usable": {},
+      "new_usable": {},
+      "total": {},
+      "base_false": 0,
+      "new_false": 0,
+      "removed": [
+        {
+          "image": "/home/gycc/robocup_distractor_data/flight_57f3690/0228_typhoon_h480_0.png",
+          "boxes": [
+            {
+              "box": [
+                419.1661071777344,
+                251.61973571777344,
+                443.7566223144531,
+                302.98223876953125
+              ],
+              "verifier_box": [
+                416.0087890625,
+                252.41357421875,
+                444.4422912597656,
+                305.0330810546875
+              ],
+              "confidence": 0.6046029925346375,
+              "actor_confidence": 0.0,
+              "status": "ambiguous"
+            }
+          ]
+        },
+        {
+          "image": "/home/gycc/robocup_distractor_data/flight_57f3690/0250_typhoon_h480_0.png",
+          "boxes": [
+            {
+              "box": [
+                422.7839050292969,
+                252.84762573242188,
+                447.3916320800781,
+                305.93817138671875
+              ],
+              "verifier_box": [
+                420.68017578125,
+                252.972412109375,
+                446.0775146484375,
+                308.0486755371094
+              ],
+              "confidence": 0.7075357437133789,
+              "actor_confidence": 0.0,
+              "status": "ambiguous"
+            }
+          ]
+        },
+        {
+          "image": "/home/gycc/robocup_distractor_data/flight_57f3690/0298_typhoon_h480_3.png",
+          "boxes": [
+            {
+              "box": [
+                409.7476806640625,
+                336.2613830566406,
+                440.3965759277344,
+                417.7717590332031
+              ],
+              "verifier_box": [
+                410.681640625,
+                336.052734375,
+                441.466796875,
+                417.92041015625
+              ],
+              "confidence": 0.6062933206558228,
+              "actor_confidence": 0.0,
+              "status": "ambiguous"
+            }
+          ]
+        },
+        {
+          "image": "/home/gycc/robocup_distractor_data/flight_57f3690/0306_typhoon_h480_0.png",
+          "boxes": [
+            {
+              "box": [
+                428.196533203125,
+                240.25888061523438,
+                447.23980712890625,
+                287.53033447265625
+              ],
+              "verifier_box": [
+                426.18145751953125,
+                240.19383239746094,
+                447.29833984375,
+                291.2213439941406
+              ],
+              "confidence": 0.796064555644989,
+              "actor_confidence": 0.0,
+              "status": "ambiguous"
+            }
+          ]
+        },
+        {
+          "image": "/home/gycc/robocup_distractor_data/flight_57f3690/0327_typhoon_h480_3.png",
+          "boxes": [
+            {
+              "box": [
+                206.37564086914062,
+                289.11859130859375,
+                235.70582580566406,
+                385.0242919921875
+              ],
+              "verifier_box": [
+                206.05899047851562,
+                288.9890441894531,
+                234.63555908203125,
+                383.8932189941406
+              ],
+              "confidence": 0.8280316591262817,
+              "actor_confidence": 0.5569550395011902,
+              "status": "ambiguous"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "crop_latency_median_s": null,
+  "deployed": false
+}
