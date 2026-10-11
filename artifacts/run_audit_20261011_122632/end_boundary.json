@@ -1,0 +1,22 @@
+{
+  "judge_end_wall_s": 1791693298.9461756,
+  "recorded_wall_s": 1791693338.799491,
+  "official_elapsed_s": 465.096,
+  "score": 2109.732,
+  "official_actor_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "runtime_git_head": "52dae71ec814372670c9f7fb3ebbff1390d08977",
+  "source_hashes_unchanged": true,
+  "previous_elapsed_s": 538.332,
+  "previous_difference_s": -73.236,
+  "saved_baseline_elapsed_s": 462.716,
+  "baseline_difference_s": 2.38,
+  "target_180s_pass": false,
+  "gui": true
+}

@@ -1,0 +1,349 @@
+{
+  "official_boundary": {
+    "judge_end_wall_s": 1791693298.9461756,
+    "recorded_wall_s": 1791693338.799491,
+    "official_elapsed_s": 465.096,
+    "score": 2109.732,
+    "official_actor_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "runtime_git_head": "52dae71ec814372670c9f7fb3ebbff1390d08977",
+    "source_hashes_unchanged": true,
+    "previous_elapsed_s": 538.332,
+    "previous_difference_s": -73.236,
+    "saved_baseline_elapsed_s": 462.716,
+    "baseline_difference_s": 2.38,
+    "target_180s_pass": false,
+    "gui": true
+  },
+  "limitations": [
+    "External read-only truth used only for audit; no feedback or commands to team.",
+    "Red labels are output slots; error matches nearest physically present official red actor, not persistent identity.",
+    "Packets at actor deletion without bracketing truth are unscored, not matched to the other red actor.",
+    "Inference timings describe frames represented in perception CSV, not all camera frames.",
+    "Control CSV separation is sampled/interpolated; it does not prove absence of collision."
+  ],
+  "report_accuracy": {
+    "white": {
+      "published": 37,
+      "scored": 35,
+      "unscored": 2,
+      "under_1m": 35,
+      "median_m": 0.5503601795489027,
+      "p90_m": 0.7869006838062721,
+      "max_m": 0.9426757468396442,
+      "bad_samples": []
+    },
+    "red1": {
+      "published": 67,
+      "scored": 65,
+      "unscored": 2,
+      "under_1m": 64,
+      "median_m": 0.2797789666021446,
+      "p90_m": 0.5581776018200845,
+      "max_m": 1.2716129149774777,
+      "bad_samples": [
+        {
+          "ros": 2548.084,
+          "error_m": 1.2716129149774777,
+          "actor": 4
+        }
+      ]
+    },
+    "green": {
+      "published": 32,
+      "scored": 31,
+      "unscored": 1,
+      "under_1m": 31,
+      "median_m": 0.21059670616984838,
+      "p90_m": 0.5999200603097758,
+      "max_m": 0.7697160505454745,
+      "bad_samples": []
+    },
+    "blue": {
+      "published": 33,
+      "scored": 32,
+      "unscored": 1,
+      "under_1m": 32,
+      "median_m": 0.34560477815465174,
+      "p90_m": 0.46250583313200055,
+      "max_m": 0.5565789800313411,
+      "bad_samples": []
+    },
+    "brown": {
+      "published": 50,
+      "scored": 49,
+      "unscored": 1,
+      "under_1m": 47,
+      "median_m": 0.23608939873649565,
+      "p90_m": 0.6915718221016176,
+      "max_m": 1.4514551911834779,
+      "bad_samples": [
+        {
+          "ros": 2876.084,
+          "error_m": 1.0292052629831598,
+          "actor": 2
+        },
+        {
+          "ros": 2882.484,
+          "error_m": 1.4514551911834779,
+          "actor": 2
+        }
+      ]
+    }
+  },
+  "motion_last_15s": {
+    "0": {
+      "last_truth_ros": 2590.746,
+      "path_length_m": 11.943999999993064,
+      "stationary_sample_fraction": 0.18666666666666668
+    },
+    "1": {
+      "last_truth_ros": 2681.334,
+      "path_length_m": 14.891999999995736,
+      "stationary_sample_fraction": 0.0
+    },
+    "2": {
+      "last_truth_ros": 2915.874,
+      "path_length_m": 14.623010460938842,
+      "stationary_sample_fraction": 0.0
+    },
+    "3": {
+      "last_truth_ros": 2529.728,
+      "path_length_m": 14.863999999991762,
+      "stationary_sample_fraction": 0.0
+    },
+    "4": {
+      "last_truth_ros": 2827.272,
+      "path_length_m": 1.4119999999967092,
+      "stationary_sample_fraction": 0.8533333333333334
+    },
+    "5": {
+      "last_truth_ros": 2901.618,
+      "path_length_m": 12.321099210224792,
+      "stationary_sample_fraction": 0.0
+    }
+  },
+  "perception": {
+    "perception_typhoon_h480_0": {
+      "inference": {
+        "n": 743,
+        "median_s": 0.02925395965576172,
+        "p95_s": 0.03507351875305176,
+        "max_s": 0.11480975151062012,
+        "above_800ms": 0
+      },
+      "image_age_csv": {
+        "n": 743,
+        "median_s": 0.052000000000134605,
+        "p95_s": 0.07999999999992724,
+        "max_s": 0.11200000000008004,
+        "above_800ms": 0
+      },
+      "events": {
+        "projection_reject": 1150,
+        "yolo_detection": 110,
+        "camera_candidate": 69,
+        "track_reject": 184,
+        "track_publish": 62,
+        "coord_report": 7,
+        "association_reject": 4
+      }
+    },
+    "perception_typhoon_h480_1": {
+      "inference": {
+        "n": 893,
+        "median_s": 0.03678750991821289,
+        "p95_s": 0.04281353950500488,
+        "max_s": 1.028977870941162,
+        "above_800ms": 1
+      },
+      "image_age_csv": {
+        "n": 893,
+        "median_s": 0.05600000000004002,
+        "p95_s": 0.08800000000019281,
+        "max_s": 0.13200000000006185,
+        "above_800ms": 0
+      },
+      "events": {
+        "projection_reject": 775,
+        "camera_candidate": 510,
+        "yolo_detection": 352,
+        "track_reject": 29,
+        "track_publish": 750,
+        "coord_report": 249,
+        "discovery_report": 188
+      }
+    },
+    "perception_typhoon_h480_2": {
+      "inference": {
+        "n": 1041,
+        "median_s": 0.03584122657775879,
+        "p95_s": 0.04289126396179199,
+        "max_s": 0.15149998664855957,
+        "above_800ms": 0
+      },
+      "image_age_csv": {
+        "n": 1041,
+        "median_s": 0.052000000000134605,
+        "p95_s": 0.0840000000002874,
+        "max_s": 0.11200000000008004,
+        "above_800ms": 0
+      },
+      "events": {
+        "projection_reject": 1312,
+        "camera_candidate": 421,
+        "yolo_detection": 58,
+        "track_reject": 116,
+        "track_publish": 46,
+        "coord_report": 2
+      }
+    },
+    "perception_typhoon_h480_3": {
+      "inference": {
+        "n": 1047,
+        "median_s": 0.03723907470703125,
+        "p95_s": 0.044133901596069336,
+        "max_s": 0.0697486400604248,
+        "above_800ms": 0
+      },
+      "image_age_csv": {
+        "n": 1047,
+        "median_s": 0.052000000000134605,
+        "p95_s": 0.08000000000038199,
+        "max_s": 0.17200000000002547,
+        "above_800ms": 0
+      },
+      "events": {
+        "projection_reject": 1190,
+        "camera_candidate": 654,
+        "yolo_detection": 407,
+        "track_reject": 205,
+        "track_publish": 780,
+        "coord_report": 251,
+        "association_reject": 34,
+        "discovery_report": 178
+      }
+    },
+    "perception_typhoon_h480_4": {
+      "inference": {
+        "n": 328,
+        "median_s": 0.03729879856109619,
+        "p95_s": 0.04345273971557617,
+        "max_s": 0.059230804443359375,
+        "above_800ms": 0
+      },
+      "image_age_csv": {
+        "n": 328,
+        "median_s": 0.05600000000004002,
+        "p95_s": 0.08800000000019281,
+        "max_s": 0.11599999999998545,
+        "above_800ms": 0
+      },
+      "events": {
+        "projection_reject": 394,
+        "yolo_detection": 14
+      }
+    },
+    "perception_typhoon_h480_5": {
+      "inference": {
+        "n": 792,
+        "median_s": 0.028823494911193848,
+        "p95_s": 0.033773183822631836,
+        "max_s": 0.0562591552734375,
+        "above_800ms": 0
+      },
+      "image_age_csv": {
+        "n": 792,
+        "median_s": 0.04800000000022919,
+        "p95_s": 0.07600000000002183,
+        "max_s": 0.11199999999962529,
+        "above_800ms": 0
+      },
+      "events": {
+        "projection_reject": 754,
+        "camera_candidate": 297,
+        "yolo_detection": 180,
+        "track_reject": 14,
+        "track_publish": 366,
+        "coord_report": 133,
+        "discovery_report": 76
+      }
+    }
+  },
+  "visual_slew": {
+    "control_typhoon_h480_0": {
+      "t1": {
+        "nonzero_tracking_samples": 28,
+        "visual_slew_samples": 0,
+        "fallback_samples": 0
+      },
+      "t4": {
+        "nonzero_tracking_samples": 27,
+        "visual_slew_samples": 0,
+        "fallback_samples": 0
+      }
+    },
+    "control_typhoon_h480_1": {
+      "t3": {
+        "nonzero_tracking_samples": 99,
+        "visual_slew_samples": 69,
+        "fallback_samples": 1
+      },
+      "t5": {
+        "nonzero_tracking_samples": 183,
+        "visual_slew_samples": 42,
+        "fallback_samples": 6
+      },
+      "t1": {
+        "nonzero_tracking_samples": 114,
+        "visual_slew_samples": 69,
+        "fallback_samples": 14
+      }
+    },
+    "control_typhoon_h480_2": {},
+    "control_typhoon_h480_3": {
+      "t3": {
+        "nonzero_tracking_samples": 30,
+        "visual_slew_samples": 0,
+        "fallback_samples": 0
+      },
+      "t5": {
+        "nonzero_tracking_samples": 39,
+        "visual_slew_samples": 2,
+        "fallback_samples": 0
+      },
+      "t2": {
+        "nonzero_tracking_samples": 160,
+        "visual_slew_samples": 98,
+        "fallback_samples": 35
+      }
+    },
+    "control_typhoon_h480_4": {},
+    "control_typhoon_h480_5": {
+      "t0": {
+        "nonzero_tracking_samples": 83,
+        "visual_slew_samples": 50,
+        "fallback_samples": 9
+      },
+      "t5": {
+        "nonzero_tracking_samples": 68,
+        "visual_slew_samples": 22,
+        "fallback_samples": 18
+      }
+    }
+  },
+  "sampled_min_3d_separation_above_2m": {
+    "pair": [
+      "control_typhoon_h480_1",
+      "control_typhoon_h480_3"
+    ],
+    "ros": 2473.884,
+    "distance_m": 2.945560780974846
+  }
+}
