@@ -103,6 +103,20 @@ class ObstacleHeightSafetyTests(unittest.TestCase):
         point=a.pos_pub.publish.call_args.args[0].pose.position
         self.assertEqual((point.x,point.y,point.z),(0.,0.,a.local_z))
 
+    def test_candidate_height_request_cannot_bypass_obstacle_hold(self):
+        a=self.output_agent();a.local_z=a.altitude_layer=2.8
+        with patch.object(sa,'FLIGHT_OUTPUT','pos'),patch.object(sa,'CRASH_DETECT',False):
+            a._send_vel(0.,0.,view_altitude=3.4)
+        self.assertEqual(a.pos_pub.publish.call_args.args[0].pose.position.z,2.8)
+
+    def test_clear_candidate_height_request_reaches_position_output(self):
+        a=self.output_agent();a.local_z=a.altitude_layer=2.8
+        a._scan.ranges[:]=[20.]*361
+        with patch.object(sa,'FLIGHT_OUTPUT','pos'),patch.object(sa,'CRASH_DETECT',False):
+            a._send_vel(0.,0.,view_altitude=3.4)
+        self.assertGreater(a.pos_pub.publish.call_args.args[0].pose.position.z,2.8)
+        self.assertLessEqual(a.pos_pub.publish.call_args.args[0].pose.position.z,3.4)
+
     def test_near_obstacle_height_hold_cannot_override_hard_ceiling_descent(self):
         a=self.output_agent()
         a.local_z=4.3

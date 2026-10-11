@@ -46,7 +46,8 @@ from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
-from camera_attention import approach_image, candidate_velocity, candidate_decision, candidate_reposition
+from camera_attention import (approach_image, candidate_velocity, candidate_decision,
+                              candidate_reposition, candidate_observation_height)
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
@@ -179,6 +180,7 @@ SEARCH_HEADING_RATE = math.radians(25.0)
 CAMERA_CUE_HOLD_S = 2.0
 CAMERA_HANDOFF_HOLD_S = 4.0
 CAMERA_CUE_RETRY_S = 2.0
+CANDIDATE_VIEW_RECOVERY = os.environ.get('CANDIDATE_VIEW_RECOVERY', '0') == '1'
 SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
 SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
 SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '4.0'))
@@ -2303,7 +2305,33 @@ class SwarmAgent(SearchSegmentAgent):
                               'requested=(%.2f,%.2f) remaining=%.2f reason=%s',
                               self.uav_id, cue['candidate_id'], vx, vy,
                               max(0., cue['until']-now), reason)
-        self._send_vel(vx, vy)
+        view_height = (candidate_observation_height(cue, now, self.local_z,
+                         min(ALT_TARGET_CAP, ALT_HARD_CEIL-ALT_HARD_MARGIN))
+                       if CANDIDATE_VIEW_RECOVERY and self.local_z is not None and
+                       self._world_trusted() and reason == 'approach' else None)
+        if (view_height is None and CANDIDATE_VIEW_RECOVERY and
+                cue.get('observation_height') is not None and
+                self.local_z is not None and self._world_trusted()):
+            # A stale/tilted view stops further ascent without repeatedly
+            # dropping to the old layer between two usable images.
+            view_height = self.local_z
+        if view_height is not None:
+            for fid, (fx, fy, fz) in getattr(self, '_friend_positions', {}).items():
+                if not 0. <= now-getattr(self, '_friend_seen', {}).get(fid, -1e18) <= 1.:
+                    continue
+                fz = self.local_z if fz is None else fz
+                nearest_z = max(self.local_z, min(view_height, fz))
+                if math.hypot(math.hypot(fx-wx[0], fy-wx[1]), fz-nearest_z) < SAFE_3D:
+                    view_height = self.local_z
+                    break
+        if view_height is None:
+            self._send_vel(vx, vy)
+        else:
+            rospy.loginfo_throttle(1., '[CANDIDATE_VIEW_HEIGHT] uav=%s candidate=%s '
+                'goal=%.2f foot_sin=%.3f; bounded view adjustment, no coordinate credit',
+                self.uav_id, cue['candidate_id'], view_height,
+                (cue.get('image') or {}).get('foot_sin_down', float('nan')))
+            self._send_vel(vx, vy, view_altitude=view_height)
         return True
 
     @serialized_visual_task
@@ -3447,7 +3475,7 @@ class SwarmAgent(SearchSegmentAgent):
                 vx, vy, limited[0], limited[1])
         return limited
 
-    def _send_vel(self, vx, vy, vz=None):
+    def _send_vel(self, vx, vy, vz=None, view_altitude=None):
         """下发 ENU 水平速度 + 自适应高度。
 
         vz=None 时按当前高度竖直 P 控制爬升到自适应高度；预热/悬停阶段显式传
@@ -3703,6 +3731,8 @@ class SwarmAgent(SearchSegmentAgent):
         # 解锁，飞机在稍低但可用的层高继续任务（对 2D 雷达/俯视感知影响小）。
         target_alt = max(MIN_CRUISE_ALT,
                          min(_alt_cap, base_alt + alt_offset - self._alt_sag))
+        if view_altitude is not None and vz is None and math.isfinite(view_altitude):
+            target_alt = min(_alt_cap, max(target_alt, view_altitude))
         # 上限 4.5（远低于官方 6m），下限 MIN_CRUISE_ALT 防止追踪降高过低
 
         cmd = TwistStamped()

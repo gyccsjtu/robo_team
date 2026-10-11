@@ -1,0 +1,42 @@
+{
+  "code": "c37b916",
+  "log": "logs/logs_20261012_020211",
+  "gui": true,
+  "official": [
+    {
+      "actor": 4,
+      "judge_elapsed_s": 79.52399999999989
+    },
+    {
+      "actor": 1,
+      "judge_elapsed_s": 80.72000000000003
+    },
+    {
+      "actor": 5,
+      "judge_elapsed_s": 98.51999999999998
+    },
+    {
+      "actor": 2,
+      "judge_elapsed_s": 525.2160000000001
+    },
+    {
+      "actor": 0,
+      "judge_elapsed_s": 544.3679999999997
+    }
+  ],
+  "mission_finished": false,
+  "timeout": true,
+  "script_to_judge_timeout_s": 640.6038155555725,
+  "sampled_finish_ros": 2542.996,
+  "cutoff_basis": "nearest own-sensor sample to judge final-write time",
+  "manual_flight_intervention": false,
+  "report_policy": "fresh",
+  "candidate_view_recovery": false,
+  "notes": [
+    "5/6, official timeout. Second block not accepted.",
+    "Red actors finish early in interior; green and brown found late and took over 100 seconds after first official reports.",
+    "Native UAV1 image u1_2195.280.jpg contains a real white person. Repeated shallow-angle projection rejection; no UAV1 white official reports.",
+    "Statue near (-27,14) generated white and blue candidates, consuming multiple aircraft.",
+    "Two UAV5 climb-latch warnings remain at actual commands around .25/.20; numerical-tolerance fix alone does not resolve all warnings."
+  ]
+}

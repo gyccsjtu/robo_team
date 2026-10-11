@@ -9,7 +9,8 @@ from types import SimpleNamespace as NS
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / 'coordination/src/robocup_swarm/scripts'))
-from camera_attention import approach_image, candidate_velocity, ImagePublishClock
+from camera_attention import (approach_image, candidate_velocity, ImagePublishClock,
+                              candidate_observation_height)
 from perception import perception_real as pr
 
 
@@ -31,6 +32,41 @@ class CameraAttentionTests(unittest.TestCase):
     def cue(self):
         return dict(image=approach_image(self.image()), approach_origin=(0., 0.),
                     sample_s=100., started=99., bearing=0.)
+
+    def height_cue(self, **changes):
+        image=self.image(foot_sin_down=.27,camera_height_m=3.,confidence=.8)
+        image.update(changes)
+        return dict(image=approach_image(image),sample_s=100.,started=100.,until=106.)
+
+    def test_shallow_white_view_can_request_bounded_better_height_not_actor_xy(self):
+        cue=self.height_cue()
+        goal=candidate_observation_height(cue,100.1,2.8,4.2)
+        self.assertTrue(2.8<goal<=3.6)
+        distance=3.*math.sqrt(1.-.27**2)/.27
+        height=3.+goal-2.8
+        self.assertGreater(height/math.hypot(height,distance),.30)
+        self.assertNotIn('xy',cue)
+        self.assertEqual(cue['until'],106.)
+
+    def test_new_frames_cannot_ratchet_height_or_extend_deadline(self):
+        cue=self.height_cue()
+        goal=candidate_observation_height(cue,100.1,2.8,4.2)
+        cue['sample_s']=101.;cue['image']['foot_sin_down']=.20
+        self.assertEqual(candidate_observation_height(cue,101.,3.3,4.2),goal)
+        cue['sample_s']=106.
+        self.assertIsNone(candidate_observation_height(cue,106.,3.3,4.2))
+
+    def test_invalid_clipped_weak_or_already_good_views_do_not_trigger_ascent(self):
+        for changes in (dict(camera_tilt=.3),dict(box=[340,300,380,480]),
+                        dict(footpoint_valid=False),dict(small_box_continuation=True),
+                        dict(appearance_status='ambiguous'),
+                        dict(confidence=.6),dict(foot_sin_down=.1),
+                        dict(foot_sin_down=.35),dict(camera_height_m=float('nan'))):
+            self.assertIsNone(candidate_observation_height(self.height_cue(**changes),100.1,2.8,4.2))
+        self.assertIsNone(candidate_observation_height(self.height_cue(),100.5,2.8,4.2))
+        self.assertIsNone(candidate_observation_height(self.height_cue(),100.1,4.2,4.2))
+        cue=self.height_cue();cue['xy']=(10.,0.)
+        self.assertIsNone(candidate_observation_height(cue,100.1,2.8,4.2))
 
     def scan(self, **changes):
         data = dict(angle_min=-math.pi, angle_increment=math.pi/180,
@@ -112,12 +148,15 @@ class CameraAttentionTests(unittest.TestCase):
     def test_pixel_association_preserves_full_frame_metadata(self):
         tracker = pr.PixelCueTracker()
         box = dict(cls='brown', conf=.8, u=360., v=250., h=100.,
+                   foot_sin_down=.27, camera_height_m=3.,
                    bearing=0., cam_x=0., cam_y=0., **self.image())
         for t in (100.,100.2,100.4):
             cues = tracker.update(t,[box])
         self.assertEqual(len(cues),1)
         self.assertEqual(cues[0]['box'],box['box'])
         self.assertEqual(cues[0]['height'],480)
+        self.assertEqual(cues[0]['foot_sin_down'],.27)
+        self.assertEqual(cues[0]['camera_height_m'],3.)
 
 
 class CandidateSideLookTests(unittest.TestCase):

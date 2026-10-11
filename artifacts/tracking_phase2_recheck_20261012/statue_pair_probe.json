@@ -1,0 +1,38 @@
+[
+  {
+    "image": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/tracking_phase2_20261012/camera_views/u2_2009.984.jpg",
+    "annotation": "Visually reviewed sculpture; one frame cannot establish temporal rejection.",
+    "predictions": [
+      {
+        "weight": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt",
+        "boxes": [
+          {
+            "label": "white",
+            "confidence": 0.7897251844406128,
+            "box": [
+              365.617919921875,
+              330.7046813964844,
+              390.50634765625,
+              410.7383728027344
+            ]
+          }
+        ]
+      },
+      {
+        "weight": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/weights/best.pt",
+        "boxes": [
+          {
+            "label": "distractor_person",
+            "confidence": 0.8880841732025146,
+            "box": [
+              360.8857116699219,
+              325.62017822265625,
+              391.0673828125,
+              414.1010437011719
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

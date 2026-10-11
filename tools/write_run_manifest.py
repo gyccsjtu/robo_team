@@ -47,6 +47,7 @@ def main():
         motion_safety=os.environ.get('MOTION_SAFETY','0'),
         south_patrol=os.environ.get('SOUTH_PATROL','0'),
         report_policy=os.environ.get('BRIDGE_REPORT_POLICY','fit'),
+        candidate_view_recovery=os.environ.get('CANDIDATE_VIEW_RECOVERY','0'),
         weights={'path':str(chosen),'sha256':digest(chosen)} if chosen else None,
         note='Disk snapshot before process startup; includes dirty working-tree content. '
              'Effective process parameters are logged by each node. No runtime reload is implied.')

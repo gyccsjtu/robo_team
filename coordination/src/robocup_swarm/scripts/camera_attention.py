@@ -16,7 +16,16 @@ def approach_image(data):
                 not 12 <= y2-y1 <= .32*h or
                 abs(tilt) > math.radians(8)):
             return None
-        return dict(box=box, width=w, height=h, camera_tilt=tilt)
+        result = dict(box=box, width=w, height=h, camera_tilt=tilt)
+        result['height_reimage_ok'] = (data.get('footpoint_valid') is not False and
+            not data.get('small_box_continuation') and
+            data.get('appearance_status', 'actor') == 'actor')
+        for key in ('foot_sin_down', 'camera_height_m', 'confidence'):
+            if key in data:
+                value = float(data[key])
+                if math.isfinite(value):
+                    result[key] = value
+        return result
     except (KeyError, TypeError, ValueError, OverflowError):
         return None
 
@@ -75,6 +84,36 @@ def candidate_decision(cue, now, yaw, xy, scan, scan_stamp):
 
 def candidate_velocity(cue, now, yaw, xy, scan, scan_stamp):
     return candidate_decision(cue, now, yaw, xy, scan, scan_stamp)[:2]
+
+
+def candidate_observation_height(cue, now, local_z, ceiling):
+    """Bound one upward reimage attempt; never relax coordinate qualification.
+
+    Only a fresh, full-body cue with a measured shallow foot ray can start it.
+    The caller must retain obstacle-height and final flight safety gates.
+    A new frame never extends the attention deadline or raises the stored goal.
+    """
+    if (not all(math.isfinite(v) for v in (now, local_z, ceiling)) or
+            not 0. <= now-cue.get('sample_s', -1e18) <= .35 or
+            not 0. <= now-cue.get('started', now) < 6. or
+            now >= cue.get('until', now)):
+        return None
+    image = cue.get('image')
+    if (image is None or not image.get('height_reimage_ok') or
+            image.get('confidence', 0.) < .65):
+        return None
+    goal = cue.get('observation_height')
+    if goal is not None:
+        return min(ceiling, goal)
+    sin_down, height = image.get('foot_sin_down', 0.), image.get('camera_height_m', 0.)
+    if (cue.get('xy') is not None or not .18 <= sin_down < .30 or
+            not 1.5 <= height <= 5.5 or local_z >= ceiling-.1):
+        return None
+    # Use the measured ray only to improve the viewpoint, never as actor XY.
+    delta = min(.8, max(.3, height*(.32/sin_down-1.)))
+    goal = min(ceiling, local_z+delta)
+    cue['observation_height'] = goal
+    return goal
 
 
 def candidate_reposition(cue, now, yaw, xy, scan, scan_stamp, grid):

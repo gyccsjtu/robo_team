@@ -93,6 +93,35 @@ class AttentionPriorityTests(unittest.TestCase):
         self.a._control()
         self.assertEqual(self.commands[-1],(0.,0.))
 
+    def test_shallow_candidate_height_flows_through_attention_without_report_credit(self):
+        a=self.a
+        calls=[]
+        a._send_vel=lambda *args,**kwargs:calls.append((args,kwargs))
+        a._scan=NS(angle_min=-math.pi,angle_increment=math.pi/180.,
+                   ranges=[20.]*361,range_min=.1,range_max=30.)
+        a._scan_t=100.
+        a._visual_candidate_cb(NS(data=json.dumps(dict(
+            source_uav='u0',real_detection=True,purpose='camera_reacquire',
+            candidate_id='white:1',hits=4,sample_s=100.,bearing=0.,confidence=.85,
+            box=[340.,200.,380.,300.],width=752,height=480,camera_tilt=0.,
+            foot_sin_down=.27,camera_height_m=3.))))
+        with patch.object(sa,'CANDIDATE_VIEW_RECOVERY',True):
+            a._hold_camera_candidate()
+            self.assertGreater(calls[-1][1]['view_altitude'],3.)
+            self.assertLessEqual(calls[-1][1]['view_altitude'],3.8)
+            # An aircraft over the climb path prevents any additional ascent.
+            a._friend_positions={'u1':(.2,0.,3.5)};a._friend_seen={'u1':100.}
+            a._apply_friend_avoidance=lambda vx,vy:(vx,vy)
+            a._hold_camera_candidate()
+            self.assertEqual(calls[-1][1]['view_altitude'],3.)
+            # Missing image permission holds the reached altitude; it cannot
+            # continue an old ascent or drop repeatedly between usable frames.
+            a._camera_cue['image']=None
+            a._hold_camera_candidate()
+            self.assertEqual(calls[-1][1]['view_altitude'],3.)
+        self.assertEqual(self.detections,[])
+        self.assertEqual(a._camera_cue['until'],106.)
+
     def test_multiframe_moderate_confidence_interrupts_search_for_every_color(self):
         for color in ('blue', 'green', 'brown', 'red', 'white'):
             with self.subTest(color=color):

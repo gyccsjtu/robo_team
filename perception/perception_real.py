@@ -533,6 +533,7 @@ class PixelCueTracker:
                                     normal_anchor_s=best['normal_anchor_s'],
                                     report_eligible=False, footpoint_valid=False)
                 for key in ('box', 'width', 'height', 'camera_tilt',
+                            'foot_sin_down', 'camera_height_m',
                             'appearance_status', 'appearance_confidence',
                             'distractor_confidence'):
                     if key in box:
@@ -2187,6 +2188,7 @@ def main():
                                 bx1, by1, bx2, by2, allow_small_continuation=True)):
                             continue
                         bu, bv = (bx1 + bx2) / 2.0, (by1 + by2) / 2.0
+                        cue_ray = foot_ground_ray(bu, by2, R)
                         raw_cue_boxes.append(dict(
                             cls=CLASSES[cid], conf=conf, u=bu, v=bv,
                             small_box_continuation_only=not ordinary_cue,
@@ -2198,6 +2200,8 @@ def main():
                             body_height_m=cue_body_height(
                                 (bx1, by1, bx2, by2), pz, R),
                             width=IMG_W, height=IMG_H,
+                            foot_sin_down=float(-cue_ray[2]/np.linalg.norm(cue_ray)),
+                            camera_height_m=float(pz),
                             camera_tilt=math.acos(max(-1., min(1., float(R[2, 2]))))))
                     frame_cues = cue_tracker.update(frame_stamp, raw_cue_boxes)
                     if fast_seed_pub is not None:
