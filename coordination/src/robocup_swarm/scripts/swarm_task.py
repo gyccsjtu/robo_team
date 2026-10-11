@@ -858,8 +858,8 @@ class TaskAllocator(object):
         背景：actor_5 出生在 (-35,-28) 的建筑区，是搜索最晚触达的角落；
         elapsed = max(各目标发现时刻)，它一个人决定了扣分。
         
-        注意：建筑物内部的格会被 manager 直接标成 STATE_COVERED（飞不进去，
-        永不参与拍卖），所以不能给「角落格本身」加偏置 —— 要给**建筑周边**
+        注意：当前不可达的格由 manager 从本轮拍卖中排除，不算已观察。
+        因此不能给「角落格本身」加偏置 —— 要给**建筑周边**
         的空格加，让飞机沿建筑边缘扫，靠探测半径覆盖到里面。
         
         环境变量（默认开启，关掉用 PRIORITY_CORNER=0）：
@@ -940,7 +940,7 @@ class TaskAllocator(object):
                 takeover[min(choices)[1]] = zone
         return takeover
 
-    def allocate(self, uavs, risk_map=None):
+    def allocate(self, uavs, risk_map=None, blocked=()):
         """集中式分配一轮。uavs: {id: (x,y)}，返回 {id: cell_key 或 None}。
 
         贪心：按当前「收益最高」逐机分配（每机取剩余格中自身效用最大者），
@@ -958,9 +958,11 @@ class TaskAllocator(object):
         # A failed cell is temporarily ineligible, not just lower-scored. The
         # old novelty penalty still won beside a wall and reassigned the same
         # unreachable waypoint immediately after every stall timeout.
+        blocked = set(blocked)
         remaining = {key for key in self.grid.uncovered_cells()
-                     if key not in self.failed_visit or
-                     now - self.failed_visit[key] >= self.failed_novelty_ttl}
+                     if key not in blocked and
+                     (key not in self.failed_visit or
+                      now - self.failed_visit[key] >= self.failed_novelty_ttl)}
         takeover = self._orphaned_zone_takeovers(uavs, remaining, now)
         # Boundary cells remain in the first-pass candidate pool. A camera
         # frame from an inner row may cover them; if it does not, they are

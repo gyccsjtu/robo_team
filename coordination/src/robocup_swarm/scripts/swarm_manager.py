@@ -495,40 +495,46 @@ class SwarmManager(object):
                 return blocked
             g = inflate_grid(g_raw, INFLATE_M)
             self._g_infl = g
-            if EDGE_ENABLE:
-                clearance = _ClearanceField(g)
-                for key, c in self.grid.cells.items():
-                    # Edge coverage cells may be outside the UAV flight box.
-                    # Observe them from the nearest interior point instead.
-                    px, py = search_viewpoint(c.cx, c.cy)
-                    view_x, view_y = px, py
-                    outer = math.hypot(px - c.cx, py - c.cy) > 0.5
-                    ctr = g.world_to_cell((px, py))
-                    wp = (px, py) if (ctr is not None and g.is_free(ctr)) else None
-                    if wp is None:
-                        for r in WAYPOINT_RING:
-                            for a in range(12):
-                                th = a * math.pi / 6.0
-                                px, py = flight_waypoint(
-                                    view_x + r * math.cos(th),
-                                    view_y + r * math.sin(th))
-                                if outer and not 7.8 <= math.hypot(
-                                        px - c.cx, py - c.cy) <= 9.0:
+            # EDGE_ENABLE controls auction preference, not reachability.
+            # Disabling the preference must not discard an entire cell just
+            # because its centre lies inside a sensed obstacle. Build the
+            # clearance field lazily when no edge scores are requested.
+            clearance = _ClearanceField(g) if EDGE_ENABLE else None
+            for key, c in self.grid.cells.items():
+                # Edge coverage cells may be outside the UAV flight box.
+                # Observe them from the nearest interior point instead.
+                px, py = search_viewpoint(c.cx, c.cy)
+                view_x, view_y = px, py
+                outer = math.hypot(px - c.cx, py - c.cy) > 0.5
+                ctr = g.world_to_cell((px, py))
+                wp = (px, py) if (ctr is not None and g.is_free(ctr)) else None
+                if wp is None:
+                    if clearance is None:
+                        clearance = _ClearanceField(g)
+                    for r in WAYPOINT_RING:
+                        for a in range(12):
+                            th = a * math.pi / 6.0
+                            px, py = flight_waypoint(
+                                view_x + r * math.cos(th),
+                                view_y + r * math.sin(th))
+                            if outer and not 7.8 <= math.hypot(
+                                    px - c.cx, py - c.cy) <= 9.0:
+                                continue
+                            pc = g.world_to_cell((px, py))
+                            if pc is not None and g.is_free(pc):
+                                # Additional clearance beyond map inflation.
+                                d = clearance.clearance((px, py))
+                                if d is not None and d < 1.0:
                                     continue
-                                pc = g.world_to_cell((px, py))
-                                if pc is not None and g.is_free(pc):
-                                    # 取离建筑尽量远的候选点（留足旋翼余量）
-                                    if clearance.clearance((px, py)) is not None and \
-                                            clearance.clearance((px, py)) < 1.0:
-                                        continue
-                                    wp = (px, py)
-                                    break
-                            if wp is not None:
+                                wp = (px, py)
                                 break
-                    if wp is None:
-                        blocked.add(key)
-                        continue
-                    waypoint[key] = wp
+                        if wp is not None:
+                            break
+                if wp is None:
+                    blocked.add(key)
+                    continue
+                waypoint[key] = wp
+                if EDGE_ENABLE:
                     d = clearance.clearance(wp)
                     if d is None or d >= EDGE_RANGE:
                         edge[key] = 0.0
@@ -536,11 +542,6 @@ class SwarmManager(object):
                         edge[key] = 1.0
                     else:
                         edge[key] = (EDGE_RANGE - d) / (EDGE_RANGE - EDGE_NEAR)
-            else:
-                for key, c in self.grid.cells.items():
-                    cell = g.world_to_cell(search_viewpoint(c.cx, c.cy))
-                    if cell is None or not g.is_free(cell):
-                        blocked.add(key)
         except Exception as exc:
             rospy.logwarn("[manager] 合并 SLAM 栅格过滤建筑格失败: %s（将不过滤）", exc)
         self._cell_waypoint = waypoint
@@ -2989,11 +2990,9 @@ class SwarmManager(object):
                     self._lease_hold_since.pop((uid, key), None)
                     self._lease_motion.pop(uid, None)
 
-        # 建筑内格中心标记为 STATE_COVERED（agent 无法到达，视为无需搜索）
-        for key in self._blocked_cells:
-            c = self.grid.cell(key)
-            if c is not None and c.state == STATE_FREE:
-                c.state = STATE_COVERED
+        # A currently blocked viewpoint is not an observed cell. Exclude it
+        # from this auction without changing coverage; new lidar evidence
+        # may make it reachable on the next rebuild.
 
         # 只对空闲机分配
         idle = self._idle_uavs()
@@ -3007,7 +3006,7 @@ class SwarmManager(object):
         # its XY position here would falsely erase unseen building sides.
 
         # 拍卖（每机取剩余格中自身效用最大者，不重复）
-        assign = self.allocator.allocate(uavs)
+        assign = self.allocator.allocate(uavs, blocked=self._blocked_cells)
         self._auction_cycle += 1
         for _d in self.allocator.last_allocation:
             _key = _d["cell_key"]

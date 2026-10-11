@@ -987,8 +987,8 @@ do_start(){
 
         # 国家一等奖 v2（2026-10-05）——「5 分钟内消灭全部目标」×「无预读随机地图」
         # 0 行代码改动，仅环境变量；不触犯任何比赛硬规则
-        # (1) 真正遵守「无预读随机地图」：EDGE / VIS 都会从 ROBOCUP_METADATA 算临楼度
-        #     / LOS 预计算, 真比赛拿不到 metadata 必须关掉。
+        # (1) 保持临楼效用偏置和可见增益预计算关闭。可达观察点始终由
+        #     运行时雷达 SLAM 寻找；EDGE_ENABLE 不再控制整格的可达性。
         export EDGE_ENABLE=0
         export VIS_ENABLE=0
         # (2) 租约速度对齐 agent MAX_SPEED=5.0：原 3.0 把租约算长 67%, 接力损耗大
