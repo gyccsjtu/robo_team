@@ -1304,6 +1304,11 @@ class SwarmManager(SearchSegmentManager):
                 bound = ((source[0], image['candidate_id'])
                          if image is not None and image.get('candidate_id') and
                          image['sample_s'] == source[1] else None)
+                owner_binding = getattr(self, '_approach_owner_binding', {}).get(tid)
+                if (owner_binding is not None and active and
+                        owner_binding[0] == self._tracking[tid] and
+                        not self._recent_eligible(tid, now, 1.)):
+                    bound = owner_binding
                 qualified_instances = {
                     (camera, view['candidate_id']) for (camera, target), view in
                     getattr(self, '_eligible_observations', {}).items()
@@ -1398,6 +1403,7 @@ class SwarmManager(SearchSegmentManager):
                     return
             self._visual_observations[key] = data
             if data['eligible']:
+                getattr(self, '_approach_owner_binding', {}).pop(tid, None)
                 if not hasattr(self, '_seen_target_slots'):
                     self._seen_target_slots = set()
                 self._seen_target_slots.add(tid)
@@ -2309,6 +2315,7 @@ class SwarmManager(SearchSegmentManager):
         getattr(self, '_approach_leases', {}).pop(tid, None)
         getattr(self, '_backup_approach_leases', {}).pop(tid, None)
         getattr(self, '_view_recovery', {}).pop(tid, None)
+        getattr(self, '_approach_owner_binding', {}).pop(tid, None)
         getattr(self, '_tenure_recovery', {}).pop(tid, None)
         # v18（2026-10-07）：backup 机也必须收到 cancel + 冷却。旧实现 uid=None
         # 时直接 return —— backup 被 pop 却收不到 cancel，agent 侧永远停在追踪
@@ -2539,6 +2546,20 @@ class SwarmManager(SearchSegmentManager):
         # Reserve ownership before publishing; callbacks cannot observe an
         # unreserved aircraft between assignment messages.
         self._tracking[tid] = uid
+        # Bind navigation updates to the selected camera's actual instance.
+        # Another discoverer's more recent frame must not lock out the owner.
+        # This changes no observation timestamps or report qualification.
+        bindings = self.__dict__.setdefault('_approach_owner_binding', {})
+        bindings.pop(tid, None)
+        own = getattr(self, '_visual_observations', {}).get((uid, tid))
+        if (own is not None and own.get('discovery_only') and own.get('candidate_id') and
+                0. <= now - own['sample_s'] <= .5 and
+                math.hypot(own['x'] - tx, own['y'] - ty) <= 3. and
+                not self._recent_eligible(tid, now, 1.)):
+            bindings[tid] = (uid, own['candidate_id'])
+            rospy.loginfo('[APPROACH_CAMERA_BIND] tid=%s owner=%s cid=%s image=%.3f; '
+                          'navigation only, keep report qualification separate',
+                          tid, uid, own['candidate_id'], own['sample_s'])
         getattr(self,'_normal_target_release',{}).pop(uid,None)
         self._record_approach(tid, uid, tx, ty, now)
         self._free_search_lease(uid)

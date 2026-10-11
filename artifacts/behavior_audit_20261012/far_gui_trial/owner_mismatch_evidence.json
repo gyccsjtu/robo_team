@@ -1,0 +1,14 @@
+{
+  "runtime_commit": "91f8b0b",
+  "completed_match": false,
+  "manager_lines": [
+    "[INFO] [1791752447.632448, 1933.892000]: [manager] 发现新目标 t0 @ (12.6, -10.7)，由 typhoon_h480_0 首次检测",
+    "[INFO] [1791752448.204278, 1934.460000]: [DISPATCH_BATCH] target=t0 owner=typhoon_h480_1 cost_s=4.28 pending=1; 一机一主追",
+    "[INFO] [1791752448.296552, 1934.548000]: [CANDIDATE_LOOK] source=typhoon_h480_1 candidate=027287b28ba245d5858dc0b534e072e3:pixel:green:0 tid=t0 xy=(13.23,-10.73) expires=1942.548; no report credit",
+    "[INFO] [1791752448.298151, 1934.552000]: [CANDIDATE_LOOK] source=typhoon_h480_2 candidate=c8f71f337c2d4e8ea608661b3f9cee0a:pixel:green:3 tid=t0 xy=(12.66,-10.57) expires=1942.548; no report credit",
+    "[INFO] [1791752455.483145, 1941.660000]: [LOST_REVISIT_QUEUED] tid=t0 image=1934.204 key=(8, 7) remaining=17.544; no observation credit",
+    "[INFO] [1791752455.484125, 1941.660000]: [manager] typhoon_h480_1 释放追踪冷却 6.0s (tid=t0, 原因=lost)",
+    "[INFO] [1791752455.484696, 1941.660000]: [manager] 释放追踪机 ['typhoon_h480_1'] (tid=t0, 原因=lost)"
+  ],
+  "failure": "Assigned camera has a different local candidate identity than last discoverer. Its subsequent real observations are sent to candidate-look rather than active target navigation."
+}

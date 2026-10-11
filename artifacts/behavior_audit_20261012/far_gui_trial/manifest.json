@@ -1,0 +1,53 @@
+{
+  "commit": "91f8b0b5fecfea6511df6cae95fd918caca3fb00",
+  "created_wall": 1791752386.9053931,
+  "gui": true,
+  "PR_FAR_DISCOVERY": 1,
+  "baseline": "logs_20261012_044233",
+  "baseline_seconds": 347.016,
+  "log_dir": "logs/logs_20261012_045946",
+  "recorder_start_wall": 1791752431.8400137,
+  "recorders": [
+    {
+      "pid": 3458499,
+      "argv": [
+        "python3",
+        "tools/record_motion_safety.py",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/far_gui_trial/sensors.jsonl.gz",
+        "--seconds",
+        "850"
+      ]
+    },
+    {
+      "pid": 3458500,
+      "argv": [
+        "python3",
+        "tools/record_search_segments.py",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/far_gui_trial/chain.jsonl.gz",
+        "--seconds",
+        "850"
+      ]
+    },
+    {
+      "pid": 3458501,
+      "argv": [
+        "python3",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/far_gui_trial/record_camera_views.py"
+      ]
+    },
+    {
+      "pid": 3458502,
+      "argv": [
+        "python3",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/far_gui_trial/record_matched_frames.py",
+        "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/behavior_audit_20261012/far_gui_trial/matched_frames",
+        "--max-images",
+        "360",
+        "--interval",
+        "2",
+        "--duration",
+        "850"
+      ]
+    }
+  ]
+}

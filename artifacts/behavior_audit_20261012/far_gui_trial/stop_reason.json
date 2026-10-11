@@ -1,0 +1,4 @@
+{
+  "reason": "Confirmed discovery source/owner mismatch: target bound to UAV0 while assigned UAV1 frames diverted to candidate look. Stop experiment for regression and fix; not a completed match.",
+  "wall": 1791752564.2065766
+}

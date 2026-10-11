@@ -106,5 +106,33 @@ class FarDispatchTests(unittest.TestCase):
         self.assertTrue(self.m._visual_observations[('u0','t1')]['eligible'])
         self.assertEqual(self.m.tracker.report.call_count,1)
 
+    def test_assigned_camera_can_continue_after_newer_frame_from_other_discoverer(self):
+        m=self.m
+        with patch.dict('os.environ',PR_FAR_DISCOVERY='1'):
+            self.far(candidate_id='camera0')
+            self.now=100.125;self.far(source_uav='u1',candidate_id='camera1')
+            self.now=100.25;self.far(candidate_id='camera0')
+            self.assertEqual(m._visual_source['t1'][0],'u0')
+            m._commit_target_assignment('t1','u1',22.,0.,self.now)
+            self.now=100.375;self.far(source_uav='u1',candidate_id='camera1',x=22.2)
+        self.assertEqual(m._visual_source['t1'][:2],('u1',100.375))
+        self.assertEqual(m._get_target_pos('t1',self.now),(22.2,0.))
+        m.tracker.report.assert_not_called()
+        self.assertEqual(m._eligible_observations,{})
+
+    def test_precise_camera_drops_provisional_owner_binding(self):
+        m=self.m
+        with patch.dict('os.environ',PR_FAR_DISCOVERY='1'):self.far()
+        m._commit_target_assignment('t1','u0',22.,0.,100.)
+        self.assertIn('t1',m._approach_owner_binding)
+        self.now=100.2
+        m._visual_source_cb(NS(data=json.dumps(self.payload(
+            official_view_ok=True,range_m=9.,x=22.,candidate_id='accurate'))))
+        self.assertNotIn('t1',m._approach_owner_binding)
+        self.assertEqual(m.tracker.report.call_count,1)
+        with patch.dict('os.environ',PR_FAR_DISCOVERY='1'):self.far()
+        self.assertTrue(self.m._visual_observations[('u0','t1')]['eligible'])
+        self.assertEqual(self.m.tracker.report.call_count,1)
+
 
 if __name__=='__main__':unittest.main()
