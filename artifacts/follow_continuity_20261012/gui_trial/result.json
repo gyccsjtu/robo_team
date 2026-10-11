@@ -1,0 +1,55 @@
+{
+  "runtime_commit": "fd2d76f5711048428c710e5baac65f0ef55c341e",
+  "log_dir": "logs/logs_20261012_041016",
+  "gui": true,
+  "official_actors": [
+    {
+      "actor": 2,
+      "time_s": 201.93200000000002
+    },
+    {
+      "actor": 1,
+      "time_s": 277.0240000000001
+    },
+    {
+      "actor": 3,
+      "time_s": 290.4280000000001
+    },
+    {
+      "actor": 0,
+      "time_s": 319.65200000000027
+    },
+    {
+      "actor": 5,
+      "time_s": 326.2520000000002
+    },
+    {
+      "actor": 4,
+      "time_s": 339.3599999999999
+    }
+  ],
+  "all_six_officially_finished": true,
+  "official_time_s": 339.36,
+  "previous_time_s": 457.38,
+  "difference_s": 118.02,
+  "comparison_limit": "One run, actor behaviour not controlled; not proof of repeatability or isolated causal speed gain.",
+  "moving_brown": {
+    "official_time_s": 201.932,
+    "last_15s_report_displacement_m": 15.1938270689119
+  },
+  "remaining": [
+    "Early white tracking loss after image cropping/localization rejection",
+    "Red discovery late; no proof of 3-minute completion",
+    "One UAV0 climb-stall event; OFFBOARD samples do not prove absence of contact",
+    "Live local-ID continuation event absent this run; exact recorded green regression passed"
+  ],
+  "estimated_min_separation": {
+    "ros": 1935.276,
+    "uavs": [
+      "4",
+      "5"
+    ],
+    "distance_m": 2.8940443936400952
+  },
+  "end_ros": 2249.16
+}

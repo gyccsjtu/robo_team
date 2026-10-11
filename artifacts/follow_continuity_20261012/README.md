@@ -18,3 +18,9 @@ Base: `280211a`. Reference GUI run: `logs_20261012_034605`, official 6/6 at 457.
 - This verifies continuity, not absolute coordinate accuracy or a guaranteed match time. New GUI outcome is recorded separately after the run.
 
 Trial configuration: GUI; v3_clean primary model; existing sculpture verifier; existing official map/actors/judge and sensor specification; gimbal off for comparison. Read-only recorders are separate from flight code.
+
+## GUI result: logs_20261012_041016
+
+Runtime `fd2d76f`: official six distinct actors eliminated in **339.360 s**, versus preceding 457.380 s (118.020 s shorter in this single run). Brown completed at 201.932 s; its last 15 seconds of formal positions moved 15.194 m, with corresponding walking-person imagery. White still lost early due to cropped/invalid positioning, then was reacquired. One UAV0 climb-stall event remains. No local-ID rebind event occurred in this live run; that fix is validated by the exact prior recorded-green regression, not claimed exercised here.
+
+See `gui_trial/result.json`, `judge.txt`, safety/search summaries and `runtime_evidence.tar.gz` for runtime logs, code manifest and flight CSV. Full team report chain is saved alongside; full sensor/camera records remain locally with hash evidence. Trial stopped after official completion. This is not a stable three-minute result and does not establish collision absence or absence of false positives.

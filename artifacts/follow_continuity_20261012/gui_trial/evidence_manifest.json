@@ -1,0 +1,18 @@
+{
+  "sensors.jsonl.gz": {
+    "bytes": 28359701,
+    "sha256": "7aade3a053090b61269b56887be28bc88e41cef735d3dbfed536446cb5efe87f"
+  },
+  "chain.jsonl.gz": {
+    "bytes": 3041840,
+    "sha256": "a155f4ca7a8ef68a7656b23100efbe54c61d5f93f4f660af31d33bb0e5620bc7"
+  },
+  "runtime_evidence.tar.gz": {
+    "bytes": 3515189,
+    "sha256": "5f9cb33e07c30fb0bfe63b3eb3dcd89f27082f1781c26fba473a58aef248e933"
+  },
+  "judge.txt": {
+    "bytes": 741,
+    "sha256": "a5f94abada268156b7fe902ccda9f71339cd23fdd61d02ac3b8c71e2f3a4163c"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "captured_wall": 1791749864.1249135,
+  "judge_file_wall": 1791749800.7408357,
+  "nearest_sensor": {
+    "ros": 2249.16,
+    "wall": 1791749800.712894,
+    "delta": 0.02794170379638672
+  },
+  "official_results": [
+    {
+      "actor": 2,
+      "time_s": 201.93200000000002
+    },
+    {
+      "actor": 1,
+      "time_s": 277.0240000000001
+    },
+    {
+      "actor": 3,
+      "time_s": 290.4280000000001
+    },
+    {
+      "actor": 0,
+      "time_s": 319.65200000000027
+    },
+    {
+      "actor": 5,
+      "time_s": 326.2520000000002
+    },
+    {
+      "actor": 4,
+      "time_s": 339.3599999999999
+    }
+  ],
+  "mission_finished": true,
+  "judge": "find actor_3\nfind actor_2\nfind actor_1\nfind actor_2\nfind actor_2\nfind actor_0\nfind actor_2\nfind actor_2\nfind actor_2\nfind actor_2\nfind actor_2\nfind actor_0\nactor_2 is OK\nTime usage: 201.93200000000002\nscore: 291.9\nfind actor_3\nfind actor_3\nfind actor_1\nfind actor_1\nfind actor_3\nfind actor_3\nfind actor_3\nactor_1 is OK\nTime usage: 277.0240000000001\nscore: 391.9\nfind actor_0\nfind actor_0\nactor_3 is OK\nTime usage: 290.4280000000001\nscore: 491.9\nfind actor_0\nfind actor_0\nfind actor_4\nfind actor_4\nfind actor_5\nfind actor_4\nfind actor_4\nactor_0 is OK\nTime usage: 319.65200000000027\nscore: 691.9\nfind actor_4\nactor_5 is OK\nTime usage: 326.2520000000002\nscore: 791.9\nactor_4 is OK\nTime usage: 339.3599999999999\nMission finished\nscore: 2232.524\n"
+}

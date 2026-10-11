@@ -1,0 +1,32 @@
+{
+  "first": {
+    "event": "published",
+    "target_id": "t2",
+    "tag": "brown",
+    "report_s": 2096.412,
+    "sample_s": 2096.084,
+    "image_age_s": 0.32799999999997453,
+    "report_policy": "fresh",
+    "fresh_image": true,
+    "source_uav": "typhoon_h480_3",
+    "candidate_id": "d4778b76bcd54dc1a431ec3f3076930f:4",
+    "x": 129.38,
+    "y": 13.06
+  },
+  "last": {
+    "event": "published",
+    "target_id": "t2",
+    "tag": "brown",
+    "report_s": 2111.412,
+    "sample_s": 2111.088,
+    "image_age_s": 0.3239999999996144,
+    "report_policy": "fresh",
+    "fresh_image": true,
+    "source_uav": "typhoon_h480_3",
+    "candidate_id": "d4778b76bcd54dc1a431ec3f3076930f:4",
+    "x": 129.039,
+    "y": 28.25
+  },
+  "xy_displacement_m": 15.1938270689119,
+  "samples": 36
+}
