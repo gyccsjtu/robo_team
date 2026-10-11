@@ -337,6 +337,9 @@ _PRIORITY_ON = os.environ.get('PRIORITY_CORNER', '1') not in ('0', 'false', 'Fal
 SEARCH_HARD_HOME_ZONE = os.environ.get('SEARCH_HARD_HOME_ZONE', '1') not in ('0', 'false', 'False', '')
 SEARCH_HOME_HARD_S = float(os.environ.get('SEARCH_HOME_HARD_S', '120.0'))
 SEARCH_Y_EDGE_DEFER_M = float(os.environ.get('SEARCH_Y_EDGE_DEFER_M', '7.0'))  # 内排软偏置，外排仍可派
+SEARCH_ROUTE_AXIS = os.environ.get('SEARCH_ROUTE_AXIS', 'long_axis')
+if SEARCH_ROUTE_AXIS not in ('long_axis', 'column'):
+    raise ValueError('SEARCH_ROUTE_AXIS must be long_axis or column')
 _PRIORITY_DECAY = _envf('PRIORITY_DECAY', 300.0)
 # 2026-10-05 国家一等奖修复：_PRIORITY_RADIUS 30→22.0。原 30m 在 (-35,-28) 单点偏置
 # 下,优先级区是 x[-65,-5]×y[-58,2] 200×60=12000 m²,actor 聚集区
@@ -402,13 +405,28 @@ class TaskAllocator(object):
         self.route_cursor = {}
         self.route_order = {}
         self.route_rank = {}
+        self.route_axis = SEARCH_ROUTE_AXIS
+        self.route_sweep_axes = {}
         for zone, keys in self.grid.zone_cells.items():
-            columns = {}
+            # Traverse the long dimension first. Sweeping short north/south
+            # columns held the three eastern sectors near their western
+            # entrance for most of the first pass. Use only grid geometry;
+            # the nearest entry, completion cursor and obstacle filters below
+            # retain their existing responsibilities. "column" replays the
+            # previous ordering for a single-variable comparison.
+            lane_axis = 0
+            if keys and self.route_axis == 'long_axis':
+                width = max(k[0] for k in keys) - min(k[0] for k in keys)
+                height = max(k[1] for k in keys) - min(k[1] for k in keys)
+                if width > height:
+                    lane_axis = 1
+            self.route_sweep_axes[zone] = 'x' if lane_axis == 1 else 'y'
+            lanes = {}
             for key in keys:
-                columns.setdefault(key[0], []).append(key)
+                lanes.setdefault(key[lane_axis], []).append(key)
             ordered = []
-            for j, ix in enumerate(sorted(columns)):
-                ordered.extend(sorted(columns[ix], key=lambda k: k[1],
+            for j, lane in enumerate(sorted(lanes)):
+                ordered.extend(sorted(lanes[lane], key=lambda k: k[1-lane_axis],
                                       reverse=bool(j % 2)))
             # Safe inner viewpoints come first, but the outer strip remains in
             # this first-pass route. A processed camera frame may cover those
@@ -421,6 +439,9 @@ class TaskAllocator(object):
                        [key for key in ordered if outer_row(key)])
             self.route_order[zone] = ordered
             self.route_rank[zone] = {key: rank for rank, key in enumerate(ordered)}
+        rospy.loginfo('[SEARCH_ROUTE] version=long_axis_v1 axis=%s sector_sweep=%s',
+                      self.route_axis, ','.join('%s:%s' % item for item in
+                                               sorted(self.route_sweep_axes.items())))
         # Evidence-backed revisit requests. They select at most one viewpoint
         # per event; an unconfirmed static decoy cannot hold several aircraft.
         self.revisit_jobs = {}  # (kind, cell_key) -> (ready_s, expires_s)
