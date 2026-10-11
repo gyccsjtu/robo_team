@@ -1534,8 +1534,8 @@ class SwarmAgent(object):
         sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
         if sample < getattr(self, '_hypothesis_switch_s', {}).get(msg.target_id, -1e18):
             return
-        if sample <= 0.0 or sample > now:
-            sample = now
+        if not math.isfinite(sample) or sample <= 0.0 or sample > now:
+            return
         previous = self._t_seen.get(msg.target_id, 0.0)
         if sample < previous - 0.01:
             return  # 倒序相机帧不能把追踪点拉回旧位置
@@ -4763,11 +4763,12 @@ class SwarmAgent(object):
         observation ring; they do not establish that this camera sees a person.
         """
         tid = self._orbit_target
+        request = getattr(self, '_reobserve_forced', None)
+        forced = request is not None and request[0] == tid and now < request[1]
         image = self._fresh_tracking_view(now)
-        if (image is not None and (image.get('geometry_ok') or image.get('pixel_only')) and
+        if (not forced and image is not None and image.get('geometry_ok') and
                 not view_needs_space(image)):
-            # Bridge disagreement is not camera blindness. Even a forced
-            # manager request must not disturb a fresh complete local view.
+            # A pixel-only view cannot veto a request to recover geometry.
             self._reobserve_view = None
             return None
         last = getattr(self, '_last_eligible_image', {}).get(tid, -1e18)

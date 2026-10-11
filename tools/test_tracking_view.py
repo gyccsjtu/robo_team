@@ -18,6 +18,15 @@ from perception import perception_real as pr
 
 
 class TrackingViewTests(unittest.TestCase):
+    def test_repeated_tilt_pauses_but_does_not_erase_height_intent(self):
+        state = None
+        for i in range(50):
+            tilt = math.radians([0., 9., 0., 0., 9.][i % 5])
+            view = self.payload(sample_s=100.+i*.2, camera_tilt=tilt,
+                                box=[340., 240., 380., 400.])
+            state = update_altitude_hold(state, view, 2.6, 8., 2., 4.2)
+        self.assertGreater(state['goal'], 2.7)
+
     def setUp(self):
         clock = patch.object(sa.rospy.Time, 'now',
                              return_value=sa.rospy.Time.from_sec(100.1))
@@ -401,12 +410,16 @@ class TrackingViewTests(unittest.TestCase):
         self.assertIsNotNone(a._fresh_tracking_view(100.1))
         self.assertIsNone(a._obstructed_view_goal(50., 20., 0., 0., 100.1))
 
-    def test_bridge_rejection_and_forced_reobserve_cannot_disrupt_full_local_view(self):
+    def test_full_local_pixels_do_not_veto_explicit_quality_recovery(self):
         a = self.obstacle_agent()
         self.send(a, self.payload(x=50., y=20., box=[325., 230., 375., 360.]))
         a._last_eligible_image = {'t3': 90.}
         a._reobserve_forced = ('t3', 106.)
-        self.assertIsNone(a._reobserve_goal(50., 20., 100.1))
+        a._safe_reobserve_segment = lambda *args: True
+        a.los = NS(visible=lambda *args: True)
+        a._t_seen = {'t3': 100.}
+        a._orbit_entered_t = 90.
+        self.assertIsNotNone(a._reobserve_goal(50., 20., 100.1))
         self.assertEqual(a._visual_observations, {})
 
     def test_new_obstacle_invalidates_cached_observation_move(self):

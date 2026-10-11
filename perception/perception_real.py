@@ -84,6 +84,7 @@ if _CSV_HELPER not in sys.path:
 from csv_logger import logger
 from tracking_view import box_from_foot, bound_pixel_candidate
 from camera_attention import ImagePublishClock
+from height_datum import GroundHeightDatum
 
 # ---------------- 参数 ----------------
 # 权重查找顺序（本仓库自包含优先，找不到才退回部署位置）：
@@ -988,7 +989,22 @@ def on_pose(msg, world_offset):
     if stamp <= 0.0:
         return
     try:
-        sample = (stamp,) + camera_pose_from_local(msg, world_offset)
+        offset = world_offset
+        datum = globals().get('_height_datum')
+        if datum is not None:
+            o = msg.pose.orientation
+            rotation = quat_to_R(o.x, o.y, o.z, o.w)
+            tilt = math.acos(max(-1., min(1., float(rotation[2, 2]))))
+            z_offset = datum.observe(stamp, msg.pose.position.z,
+                                     globals().get('_height_armed'), tilt)
+            if z_offset is None:
+                return  # ground reference not established; no invented range
+            offset = (world_offset[0], world_offset[1], z_offset)
+            if not globals().get('_height_logged'):
+                print('[pr] HEIGHT_DATUM offset_z=%.4f known_body_height=%.4f' %
+                      (z_offset, datum.body_height), flush=True)
+                globals()['_height_logged'] = True
+        sample = (stamp,) + camera_pose_from_local(msg, offset)
     except (TypeError, ValueError, OverflowError):
         return
     with _lock:
@@ -1059,6 +1075,27 @@ def pose_at_stamp(stamp, fallback=None):
     xyz = tuple(first[i] + alpha * (second[i] - first[i]) for i in (1, 2, 3))
     # Rotation must refer to the same image time as translation.
     return xyz + (interpolate_rotation(first[4], second[4], alpha),)
+
+
+def projected_body_height(foot_relative_world, y_top, rotation):
+    """Vertical world segment through the measured foot, ending on the head row.
+
+    Uses full perspective (different head/foot optical depths under pitch).
+    The result is geometric evidence, not a claim that a detector box has
+    exact anatomical endpoints. Slant range is reserved for range checks.
+    """
+    transform = np.asarray(rotation) @ M_OPT2LINK
+    foot = transform.T @ np.asarray(foot_relative_world)
+    vertical = transform.T @ np.array([0., 0., 1.])
+    v = (float(y_top)-CY)/FY
+    denominator = vertical[1]-v*vertical[2]
+    if not np.isfinite(foot).all() or not np.isfinite(vertical).all() or abs(denominator) < 1e-6:
+        return None
+    height = (v*foot[2]-foot[1])/denominator
+    head_depth = foot[2]+height*vertical[2]
+    if not math.isfinite(height) or height <= 0. or head_depth <= .1:
+        return None
+    return float(height)
 
 
 def clipped_head_ground(u, y_top, px, py, pz, rotation):
@@ -1732,6 +1769,14 @@ def main():
                      if YOLO_VIEW else None)
 
     rospy.Subscriber(CAM_TOPIC, Image, on_img, queue_size=1)
+    if int(os.environ.get('PR_HEIGHT_CALIBRATE', '0')):
+        from mavros_msgs.msg import State
+        globals()['_height_datum'] = GroundHeightDatum(float(os.environ['PR_GROUND_BODY_HEIGHT']))
+        def height_state(msg):
+            globals()['_height_armed'] = bool(msg.armed)
+            if msg.armed:
+                globals()['_height_datum'].frozen = True
+        rospy.Subscriber('/%s/mavros/state' % UAV, State, height_state, queue_size=1)
     rospy.Subscriber(POSE_TOPIC, PoseStamped, on_pose,
                      callback_args=world_offset, queue_size=100)
 
@@ -1990,10 +2035,9 @@ def main():
                         # 注意：这里只打标、不丢弃。是否采用由关联/新建阶段按档位决定
                         # （v3.0 在这里硬丢，结果把真人的框也丢了，链路断得比 v2 还狠）
                         w_px, h_px = x2 - x1, y2 - y1
-                        # 必须用真实距离 rng 而不是沿视线参数 t：用 t 会系统性低估身高
-                        # （实测 (-20.5,-4.5) 那处静态红物：t=30 而实距 35.5，真实 2.5 m+
-                        #  的红色物被算成 1.97~2.20 m，正好落进"像人"档而建了轨）。
-                        impl_h = h_px * rng / FY
+                        impl_h = projected_body_height(t*v_world, y1, R)
+                        if impl_h is None:
+                            continue  # pixel candidate still survives for bounded reimaging
                         ar = h_px / max(1e-3, w_px)
                         # ---- 我方 10-02：脚被画面下沿裁掉时，改用身高反推距离 ----
                         # 见 FX/FY 处的说明：近目标双脚在画面外，"双脚落地"假设失效，

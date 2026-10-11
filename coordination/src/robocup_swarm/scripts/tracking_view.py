@@ -173,7 +173,12 @@ def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
     deadband = .02 if lower <= goal <= upper else 1e-9
     direction = (1 if delta > deadband else -1 if delta < -deadband else 0)
     if abs(view.get('camera_tilt', math.pi)) > math.radians(8.):
-        direction = 0  # pitch/roll during acceleration is not a height error
+        # Pause accumulation on transient pitch/roll; do not erase a
+        # persistent correction direction. Bad frames add no pressure time.
+        return dict(previous, sample_s=sample, goal=goal,
+                    pressure_since=previous['pressure_since']+max(0., dt),
+                    needs_space=needs_space,
+                    range_floor=previous.get('range_floor', 0.))
     since = previous['pressure_since']
     if direction != previous['direction'] or dt > .5:
         since = sample
