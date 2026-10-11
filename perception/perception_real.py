@@ -2013,6 +2013,7 @@ def discovery_candidate_frame(entries, source, sample, session, pixel_cues=()):
                 track.conf < .55 or track.hits < 4 or not 0. < track.rng <= 12. or
                 track.observed_s-track.t0 < .5 or
                 getattr(track, 'appearance_status', 'actor') == 'distractor' or
+                getattr(getattr(track, 'appearance_recovery', None), 'blocked', False) or
                 not track.world_candidate_ready()):
             continue
         x, y = track.observation_xy()

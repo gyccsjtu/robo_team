@@ -78,6 +78,17 @@ class PipelineRecoveryTests(unittest.TestCase):
             self.assertEqual(pr.appearance_fields(track)['appearance_status'],
                              'actor' if expected else 'ambiguous')
 
+    def test_world_discovery_cannot_bypass_pixel_recovery_with_another_look_task(self):
+        track = pr.Track('blue',6.,0.,.95,(376.,360.),(40.,80.),6.,1.7,100.)
+        for sample in (100.2,100.4,100.6):
+            track.update(6.,0.,.2,.95,track.uv,track.wh,6.,1.7,sample,
+                         appearance_status='ambiguous',distractor_confidence=.95)
+        entries = [('blue',0,track)]
+        for sample, expected in ((100.8,False),(101.,False),(101.2,True)):
+            track.update(6.,0.,.2,.95,track.uv,track.wh,6.,1.7,sample)
+            packet=pr.discovery_candidate_frame(entries,'u0',sample,'test-session')
+            self.assertEqual(bool(packet['candidates']),expected)
+
 
 if __name__ == '__main__':
     unittest.main()
