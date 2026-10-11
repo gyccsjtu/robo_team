@@ -77,6 +77,54 @@ def candidate_velocity(cue, now, yaw, xy, scan, scan_stamp):
     return candidate_decision(cue, now, yaw, xy, scan, scan_stamp)[:2]
 
 
+def candidate_reposition(cue, now, yaw, xy, scan, scan_stamp, grid):
+    """A short side look when forward approach is blocked, using local sensors.
+
+    Never infer a person's depth. Both the side laser sector and one metre of
+    inflated-map path must be clear. Retain the chosen side for at most 1.5 s;
+    new images cannot renew it. Final flight safety still owns the output.
+    """
+    if candidate_decision(cue, now, yaw, xy, scan, scan_stamp)[2] != 'obstacle':
+        return 0., 0., 'reposition_unavailable'
+    if grid is None:
+        return 0., 0., 'reposition_no_map'
+    episode = cue.get('reposition')
+    if episode is not None and now-episode[1] >= 1.5:
+        return 0., 0., 'reposition_budget'
+    choices = []
+    for sign in ((episode[0],) if episode is not None else (1, -1)):
+        heading = cue['bearing']+sign*math.pi/2.
+        distances = []
+        try:
+            for i, raw in enumerate(scan.ranges):
+                angle = yaw+scan.angle_min+i*scan.angle_increment
+                delta = math.atan2(math.sin(angle-heading), math.cos(angle-heading))
+                if abs(delta) > math.radians(20.):
+                    continue
+                value = float(raw)
+                if math.isinf(value) and value > 0.:
+                    value = scan.range_max
+                if not math.isfinite(value) or not scan.range_min <= value <= scan.range_max:
+                    distances = []
+                    break
+                distances.append(value)
+            if len(distances) < 3 or min(distances) < 3.:
+                continue
+            if any(not grid.is_free(grid.world_to_cell(
+                    (xy[0]+d*math.cos(heading), xy[1]+d*math.sin(heading))))
+                   for d in (.2, .4, .6, .8, 1.)):
+                continue
+        except (AttributeError, TypeError, ValueError):
+            continue
+        choices.append((min(distances), sign, heading))
+    if not choices:
+        return 0., 0., 'reposition_blocked'
+    _, sign, heading = max(choices)
+    if episode is None:
+        cue['reposition'] = (sign, now)
+    return .35*math.cos(heading), .35*math.sin(heading), 'side_reobserve'
+
+
 class ImagePublishClock:
     """Image-time cadence without phase drift or repeat/coast publications."""
     def __init__(self, hz):

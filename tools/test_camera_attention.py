@@ -120,5 +120,28 @@ class CameraAttentionTests(unittest.TestCase):
         self.assertEqual(cues[0]['height'],480)
 
 
+class CandidateSideLookTests(unittest.TestCase):
+    def test_near_wall_allows_only_bounded_sensor_checked_side_look(self):
+        from camera_attention import candidate_reposition
+        from types import SimpleNamespace as NS
+        cue = dict(sample_s=100., started=99., bearing=0., approach_origin=(0.,0.),
+                   image=dict(box=[300.,150.,360.,250.], height=480.))
+        scan = NS(angle_min=-math.pi*3/4., angle_increment=math.pi/180.,
+                  ranges=[10.]*271, range_min=.1, range_max=12.)
+        scan.ranges[135] = 2.
+        grid = NS(world_to_cell=lambda p:p, is_free=lambda p:True)
+        vx, vy, reason = candidate_reposition(cue,100.,0.,(0.,0.),scan,100.,grid)
+        self.assertAlmostEqual(vx,0.)
+        self.assertAlmostEqual(abs(vy),.35)
+        self.assertEqual(reason,'side_reobserve')
+        cue['sample_s'] = 101.6
+        self.assertEqual(candidate_reposition(cue,101.6,0.,(0.,.4),scan,101.6,grid)[:2],(0.,0.))
+        cue.pop('reposition')
+        self.assertEqual(candidate_reposition(cue,101.6,0.,(0.,.4),scan,101.,grid)[:2],(0.,0.))
+        grid.is_free = lambda p:False
+        self.assertEqual(candidate_reposition(cue,101.6,0.,(0.,.4),scan,101.6,grid)[:2],(0.,0.))
+        self.assertNotIn('reposition',cue)
+
+
 if __name__ == '__main__':
     unittest.main()
