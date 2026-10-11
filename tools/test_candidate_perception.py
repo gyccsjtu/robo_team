@@ -35,6 +35,20 @@ class AppearanceInstanceTests(unittest.TestCase):
         self.assertEqual(evidence, [])
         self.assertFalse(hasattr(a, 'appearance_status'))
 
+    def test_increasing_camera_rate_preserves_candidate_and_negative_evidence(self):
+        for hz in (5, 10, 12, 20):
+            tracker = pr.PixelCueTracker()
+            resolver = pr.ActorDistractorResolver()
+            cues = []
+            for k in range(hz+1):
+                sample = 100.+k/hz
+                cues = tracker.update(sample, [dict(cls='white', conf=.95,
+                    u=376., v=260., h=60., bearing=0., cam_x=0., cam_y=0.)])
+                boxes, _ = resolver.resolve([self.box(), self.box(cls=5, conf=.96)],
+                    self.mapping, self.names, sample)
+            self.assertTrue(cues, hz)
+            self.assertEqual(boxes, [], hz)
+
     def test_distractor_only_keeps_diagnostic_evidence_without_actor(self):
         result, evidence = self.resolver.resolve(
             [self.box(cls=5, conf=.98)], self.mapping, self.names, 100.)
@@ -128,6 +142,19 @@ class AppearanceInstanceTests(unittest.TestCase):
 
 
 class CandidateFrameTests(unittest.TestCase):
+    def test_association_distance_gate_and_appearance_rank_are_independent(self):
+        choices = [(.20, .60), (.15, .95)]
+        for order in (choices, choices[::-1]):
+            winner = min(order, key=lambda p: pr.association_score(*p, 1., True))
+            self.assertEqual(winner, (.15, .95))
+        self.assertIsNone(pr.association_score(1.1, 1., 1., True))
+
+    def test_confirmed_track_preserves_model_confidence(self):
+        for confidence in (.4, .8):
+            row = self.batch([self.track(confidence=confidence)])['candidates'][0]
+            self.assertAlmostEqual(row['confidence'], confidence)
+            self.assertTrue(row['track_confirmed'])
+
     def track(self, cls='blue', x=8., confidence=.7, **kwargs):
         tr = pr.Track(cls, x, 0., confidence, (376., 400.), (60., 140.),
                       8., 1.75, 100., **kwargs)

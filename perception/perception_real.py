@@ -298,8 +298,8 @@ class ActorDistractorResolver:
             if fresh and winner:
                 samples.append(float(sample_s))
                 following.append(dict(cls=actor.cls, box=ab, sample_s=sample_s,
-                                      winner=winner, samples=samples[-3:]))
-            if len(samples) >= 3 and samples[-1]-samples[-3] >= .30-1e-9:
+                                      winner=winner, samples=samples))
+            if len(samples) >= 3 and samples[-1]-samples[0] >= .30-1e-9:
                 actor.appearance_status = winner
             evidence.append(dict(box=list(ab), confidence=dc,
                                  status=actor.appearance_status))
@@ -430,7 +430,14 @@ class PixelCueTracker:
             best['history'] = [p for p in best['history'] if sample_s - p[0] <= 1.1]
             best['history'].append((sample_s, box['conf']))
             used.add(best['id'])
-            recent = best['history'][-4:]
+            # Select by elapsed image time, not a fixed last-N frame count.
+            recent = best['history']
+            first = 0
+            for start in range(max(0, len(recent)-2)):
+                if recent[-1][0]-recent[start][0] < .3-1e-9:
+                    break
+                first = start
+            recent = recent[first:]
             # All clothing colours need this image-only entry. Requiring
             # .85 before association discarded .48-.76 nearby blue boxes
             # while the aircraft continued its search route.
@@ -438,7 +445,7 @@ class PixelCueTracker:
                                  min(p[1] for p in recent) >= 0.45 and
                                  box['conf'] >= 0.55)
             normal_cue = min(p[1] for p in recent) >= 0.85
-            if (len(recent) >= 3 and recent[-1][0] - recent[0][0] >= 0.3 and
+            if (len(recent) >= 3 and recent[-1][0] - recent[0][0] >= 0.3-1e-9 and
                     (normal_cue or bounded_attention)):
                 cues.append(dict(candidate_id='%s:%d' % (box['cls'], best['id']),
                                  sample_s=sample_s, bearing=box['bearing'],
@@ -627,6 +634,12 @@ GATE = float(os.environ.get("PR_GATE", "3.0"))               # v3.0 收到 2.0 -
 GATE_DYN = int(os.environ.get("PR_GATE_DYN", "1"))
 GATE_MIN = float(os.environ.get("PR_GATE_MIN", "1.5"))
 GATE_MULT = float(os.environ.get("PR_GATE_MULT", "3.0"))
+
+
+def association_score(distance, similarity, gate, confirmed, appearance_weight=.3):
+    if not 0. <= distance < gate:
+        return None
+    return distance-appearance_weight*similarity*gate if confirmed and similarity > .3 else distance
 
 
 def assoc_gate(dt, hits, confirm_hits=CONFIRM_HITS, gate=GATE,
@@ -874,15 +887,7 @@ TOPIC_OF = {
 # colour streams; the final ActorInfo contract remains unchanged.
 COORD_ON = int(os.environ.get("PR_COORD_ON", "1"))
 COORD_HZ = float(os.environ.get("PR_COORD_HZ", "2.0"))   # 对齐队友替身；核心按 tick 消费，灌太快会积压
-# ---- 我方 10-03 修（对齐队友 mavros-port-iris 的方案 A）----
-# 协同核心 `coordination/core.py::_target()` 第一句是 `if d['confidence'] < 1.: return`
-# —— 它的约定是"**上游负责融合与确认判定**，只有已确认目标才发 confidence=1.0"。
-# 我方先前是**无条件发 1.0**，比队友的方案 A 更激进：连未确认的误检也会被核心
-# 直接吃下去（叠上"红色过敏"就是让全队去追一个消不掉的假目标）。
-#   1（默认，方案 A）= 已确认 track（hits >= CONFIRM_HITS）发 1.0，其余发真实置信度；
-#   0 = 所有 track 都发 1.0（我方 10-03 之前的旧行为，仅供离线对照 / 诊断）。
-# 原始 conf 不变地留在调试快照与裁判侧，离线复盘不受影响。只改本仓库，核心不动。
-COORD_CONF_ONE = int(os.environ.get("PR_COORD_CONF_ONE", "1"))
+# Confidence always remains the detector probability; track_confirmed is separate.
 TARGET_Z = float(os.environ.get("PR_TARGET_Z", "1.25"))
 _CSV = logger("perception_%s" % UAV, [
     "ros_time", "event", "target_id", "class_name", "confidence",
@@ -1590,8 +1595,6 @@ def report_candidate_frame(entries, source, sample, session, observer_xy,
         tag = 'red%d' % (slot+1) if cls == 'red' else cls
         cid = candidate_identity(session, track)
         conf = max(0., min(1., float(track.conf)))
-        if COORD_CONF_ONE and report_ready_hits(cls, track.hits):
-            conf = 1.
         fields = appearance_fields(track)
         person_ok = track.verdict(sample, max_coast=0, attach_check=not
                                   skip_attached_verdict(cls, assigned_target, track.rng),
@@ -1600,6 +1603,7 @@ def report_candidate_frame(entries, source, sample, session, observer_xy,
             target_id=tag, candidate_id=cid, frame_id='world_enu',
             xyz=[round(x, 2), round(y, 2), TARGET_Z], confidence=conf,
             visual_confidence=round(float(track.conf), 3),
+            track_confirmed=bool(report_ready_hits(cls, track.hits)),
             sample_s=float(sample), source_uav=source, real_detection=True,
             track_hits=int(track.hits), range_m=round(math.hypot(
                 x-observer_xy[0], y-observer_xy[1]), 2),
@@ -1670,7 +1674,7 @@ def main():
           % (ACTOR_PUB_RANGE,
              "ON" if ACTOR_CONFIRM_ONLY else "off",
              CONFIRM_HITS,
-             "方案A(已确认才发1.0)" if COORD_CONF_ONE else "恒发1.0(旧)"), flush=True)
+             "原始检测概率；track_confirmed独立"), flush=True)
     if SearchAssignment is not None:
         rospy.Subscriber("/swarm/assignment", SearchAssignment, _arb_cb)
         print("[pr] 指派订阅已连接；仲裁开关=%s，直发官方开关=%s"
@@ -2086,7 +2090,6 @@ def main():
         # 原理：先用位置粗关联，再用身高和外观精细筛选，解决密集目标串扰问题
         used = [False] * len(dets)
         # 外观相似度权重（国赛创新点：颜色特征辅助关联）
-        APP_W = 0.3  # 外观权重，可根据实际效果调整
         for tk in tracks:
             dt = max(1e-3, now - tk.t)
             tx, ty = tk.predict(dt)
@@ -2108,16 +2111,10 @@ def main():
                 appear_sim = appearance_similarity(tk.appearance, d.get("appearance"))
                 # 综合评分：距离越近、外观越相似分数越高
                 # 位置门限内的候选才考虑外观
-                if dd < bd:
-                    # 外观特征只在已确认track且有有效特征时起作用
-                    if confirmed and appear_sim > 0.3:  # 相似度阈值
-                        # 融合位置距离与外观相似度
-                        combined_score = dd - APP_W * appear_sim * gate
-                        if combined_score < bd:
-                            best, bd = j, combined_score
-                            best_appear_score = appear_sim
-                    else:
-                        best, bd = j, dd
+                if dd < gate:
+                    score = association_score(dd, appear_sim, gate, confirmed)
+                    if score < bd:
+                        best, bd, best_appear_score = j, score, appear_sim
                 elif confirmed and dd >= gate:
                     dyn_rej += 1                      # 被动态门限拒掉：统计用
                     _CSV.write(

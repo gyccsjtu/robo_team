@@ -25,6 +25,24 @@ from slam_grid import SlamGrid
 
 
 class MatchBlockers(unittest.TestCase):
+    def test_fast_camera_still_establishes_official_source(self):
+        for hz in (5, 10, 20):
+            core = yolo_target_bridge.TargetBridgeCore()
+            for k in range(hz+1):
+                core.report(100.+k/hz, 'green', k/hz, 0., .9, 8.,
+                            source_uav='u0', candidate_id='a')
+            self.assertEqual(core.tracks['green'].good_t, 101.)
+
+    def test_legacy_confidence_flag_cannot_promote_low_confidence(self):
+        payload = dict(target_id='blue', xyz=[1., 2.], confidence=1.,
+            visual_confidence=.4, source_uav='u0', sample_s=100., real_detection=True,
+            track_confirmed=True, track_hits=20, range_m=8., official_view_ok=True)
+        rows = yolo_target_bridge.parse_report_frame(json.dumps(payload), 100.1)
+        self.assertEqual(rows[0]['conf'], .4)
+        core = yolo_target_bridge.TargetBridgeCore()
+        core.report_frame(rows)
+        self.assertEqual(core.tick(100.1), [])
+
     def test_official_view_numpy_values_are_json_booleans(self):
         # 01:34 run: cameras 2 and 5 crashed on a clipped box whose stability
         # predicate returned numpy.bool_(False). Cover every return branch.
@@ -667,8 +685,10 @@ class MatchBlockers(unittest.TestCase):
     def test_first_confirmed_visual_dispatches_without_judge_report(self):
         bridge = yolo_target_bridge._mk_bridge()
         bridge._advance(100.1)
-        bridge.core.report(100.0, 'green', 149.8, 9.9, 1.0, 11.9,
-                           official_ok=True)
+        bridge._report_cb(SimpleNamespace(data=json.dumps(dict(
+            target_id='green', xyz=[149.8, 9.9, 0.], confidence=.8,
+            track_confirmed=True, track_hits=3, range_m=11.9,
+            sample_s=100., source_uav='u0', real_detection=True, official_view_ok=True))))
         self.assertFalse(bridge.core.tracks['green'].alive)
         bridge._tick(None)
         self.assertEqual(len(bridge.pub.msgs), 1)

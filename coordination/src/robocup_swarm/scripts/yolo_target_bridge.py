@@ -292,6 +292,19 @@ def coherent_official_velocity(history, now):
     return fit[2:] if fit is not None else None
 
 
+def _timed_image_segment(history):
+    """Newest >=3 unique images spanning 0.3 s, independent of frame rate."""
+    points = history
+    for start in range(max(0, len(history)-2)):
+        if history[-1][0]-history[start][0] < .3-1e-6:
+            break
+        points = history[start:]
+    if (len(points) < 3 or points[-1][0]-points[0][0] < .3-1e-6 or
+            any(not 0. < b[0]-a[0] <= 1.+1e-6 for a,b in zip(points, points[1:]))):
+        return None
+    return points
+
+
 def _confirmed_official_segment(history):
     """Three new images can establish a turn, one possible step cannot.
 
@@ -299,14 +312,12 @@ def _confirmed_official_segment(history):
     inliers would let two old stationary images plus one depth spike look
     like a coherent new trajectory at a slower camera cadence.
     """
-    points = history[-3:]
-    if (len(points) < 3 or points[-1][0]-points[0][0] < .3-1e-6 or
-            any(not 0. < b[0]-a[0] <= 1.+1e-6
-                for a, b in zip(points, points[1:]))):
+    points = _timed_image_segment(history)
+    if points is None:
         return None
-    mean_t = sum(p[0] for p in points)/3.
+    mean_t = sum(p[0] for p in points)/len(points)
     den = sum((p[0]-mean_t)**2 for p in points)
-    mean_x, mean_y = (sum(p[k] for p in points)/3. for k in (1, 2))
+    mean_x, mean_y = (sum(p[k] for p in points)/len(points) for k in (1, 2))
     vx, vy = (sum((p[0]-mean_t)*(p[k]-mean) for p in points)/den
               for k, mean in ((1, mean_x), (2, mean_y)))
     if (math.hypot(vx, vy) > 2.3 or
@@ -394,7 +405,7 @@ class _Track(object):
                  "accepted_source_samples",
                  "pursuit_history",
                  "_last_fx", "_last_fy", "_last_ft",
-                 "_high_conf_count", "_motion_history", "_last_vel_mag")
+                 "_high_conf_count", "_motion_history", "_last_vel_mag", "camera_confirmed")
 
     def __init__(self, tag):
         self.tag = tag
@@ -429,6 +440,7 @@ class _Track(object):
         self._last_ft = None
         # 国家一等奖标准改进：多帧验证
         self._high_conf_count = 0  # 连续高置信度帧数
+        self.camera_confirmed = False
         self._motion_history = []   # 运动历史，用于一致性校验
         self._last_vel_mag = 0.0   # 上一次速度幅值
 
@@ -517,9 +529,16 @@ def parse_report_frame(raw, now):
             visual_conf = float(item.get('visual_confidence', conf))
         except (ValueError, TypeError):
             visual_conf = 0.
+        if not math.isfinite(visual_conf) or not 0. <= visual_conf <= 1.:
+            raise ValueError('invalid model confidence')
+        # Older producers used confidence=1 as a confirmation flag. Always
+        # preserve the actual model probability when it is available.
+        conf = visual_conf
         row = dict(tag=tag, local_tag=tag, source_uav=source, sample_s=sample,
                    candidate_id=candidate_id, x=x, y=y, conf=conf, range_m=rng,
                    visual_conf=visual_conf, appearance_status=status,
+                   camera_confirmed=(item.get('track_confirmed') is True and
+                                     int(item.get('track_hits', 0)) >= 3),
                    appearance_confidence=appearance_conf,
                    official_ok=(item.get('official_view_ok') is True and
                                 status not in ('ambiguous', 'distractor') and
@@ -768,6 +787,7 @@ class TargetBridgeCore(object):
                 self.report(winner['sample_s'], tag, winner['x'], winner['y'],
                             winner['conf'], winner['range_m'], winner['official_ok'],
                             winner['source_uav'], winner.get('candidate_id'))
+                self.tracks[tag].camera_confirmed = bool(winner.get('camera_confirmed'))
             ready = []
             # Every independent disjoint candidate gets a vote, but no vote
             # can mutate the incumbent before the entire frame is evaluated.
@@ -860,14 +880,10 @@ class TargetBridgeCore(object):
             history.append((float(t), x, y))
         tr.source_history[key] = history
         age = t - tr.good_t
-        has_sequence = (len(history) >= 3 and
-                        history[-1][0] - history[-3][0] >= 0.3)
-        if has_sequence:
-            has_sequence = all(
-                0. < b[0]-a[0] <= 1.0+1e-6 and
-                math.hypot(b[1]-a[1], b[2]-a[2]) <=
-                VEL_MAX*(b[0]-a[0]) + 0.5
-                for a, b in zip(history[-3:], history[-2:]))
+        segment = _timed_image_segment(history)
+        has_sequence = segment is not None and all(
+            math.hypot(b[1]-a[1], b[2]-a[2]) <= VEL_MAX*(b[0]-a[0])+.5
+            for a,b in zip(segment, segment[1:]))
         model = _robust_official_fit(tr.good_history, tr.good_t)
         if model is not None:
             ax, ay = model[0]+model[2]*age, model[1]+model[3]*age
@@ -1106,12 +1122,10 @@ class TargetBridgeCore(object):
                                 state=3, eliminated=True, sample_s=tr.t_obs))
                 continue
             if not tr.alive:
-                # Perception already required several same-object YOLO hits
-                # before sending confidence=1.0.  A first such report can
-                # dispatch a search aircraft, but the judge-facing stream
-                # still waits for this bridge's second independent report.
+                # A separately confirmed camera track can dispatch early;
+                # model confidence remains a probability, never a flag.
                 gap = t - tr.t_obs
-                if (tr._high_conf_count == 1 and tr.conf >= 1.0 and
+                if (tr._high_conf_count == 1 and tr.camera_confirmed and tr.conf >= NEW_TRACK_CONF and
                         0.0 <= gap <= 1.0):
                     out.append(dict(tag=tr.tag, tid=TAG_TO_TID[tr.tag],
                                     x=tr.x, y=tr.y, vx=tr.vx, vy=tr.vy,
