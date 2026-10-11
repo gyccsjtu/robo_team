@@ -1463,6 +1463,9 @@ class SwarmManager(object):
         # Use capture time, not receipt/loss time. Repeated early keepalives
         # retain this exact deadline and cannot sustain a frozen pursuit.
         self._remember_reacquire_site(msg.target_id, sample, msg.x, msg.y)
+        rospy.loginfo('[EARLY_REACQUIRE_SITE] tid=%s image=%.3f xy=(%.2f,%.2f) '
+                      'expires=%.3f; search hint only',
+                      msg.target_id, sample, msg.x, msg.y, sample+25.)
 
     def _queue_lost_revisit(self, tid, now):
         sites = self.__dict__.setdefault('_reacquire_sites', {})
@@ -1493,6 +1496,9 @@ class SwarmManager(object):
             # instead expire exactly 25 s after the last real camera image.
             ready, _ = jobs[('lost', key)]
             jobs[('lost', key)] = (ready, site['expires_s'])
+            rospy.loginfo('[LOST_REVISIT_QUEUED] tid=%s image=%.3f key=%s '
+                          'remaining=%.3f; no observation credit',
+                          tid, site['sample_s'], key, site['expires_s']-now)
 
     def _camera_candidates(self, tid, tx, ty, now, busy):
         """Keep every fresh source, so a busy latest camera hides no free one."""

@@ -332,15 +332,20 @@ def report_ready_hits(cls, hits):
     return hits >= (RED_REPORT_HITS if cls == "red" else CONFIRM_HITS)
 
 
-def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2):
-    """Admit a box for image association, not for world-coordinate reporting."""
+def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2,
+                     allow_small_continuation=False):
+    """Image association input gate; small boxes still cannot establish a cue.
+
+    The opt-in path only hands 32--40 px boxes to PixelCueTracker, which must
+    independently prove a recent unique established instance before using one.
+    """
     if (cls not in CLASSES or
             not all(math.isfinite(q) for q in (confidence, x1, y1, x2, y2)) or
             not .45 <= confidence <= 1.0):
         return False
     width, height = x2 - x1, y2 - y1
     return (y2 >= ROI_TOP and y1 <= ROI_BOT and width >= 9.0 and
-            height >= 40.0 and y1 >= 4.0 and
+            height >= (32.0 if allow_small_continuation else 40.0) and y1 >= 4.0 and
             1.1 <= height / max(width, 1.0) <= 4.0)
 
 
@@ -377,66 +382,95 @@ class PixelCueTracker:
         self.last_frame = -1.0
         self.rejections = []
 
+    @staticmethod
+    def _association_distance(box, tr, sample_s):
+        """Existing image/bearing gates, shared by ordinary and small views."""
+        if tr['cls'] != box['cls']:
+            return None
+        # Pixel u can sweep across the whole frame as the UAV yaws. Keep
+        # vertical/size gates: azimuth alone cannot distinguish two people.
+        if (math.isfinite(box.get('bearing', float('nan'))) and
+                math.isfinite(tr.get('bearing', float('nan')))):
+            angle = abs(math.atan2(math.sin(box['bearing'] - tr['bearing']),
+                                   math.cos(box['bearing'] - tr['bearing'])))
+            dt = max(0.0, sample_s - tr['sample_s'])
+            angle_gate = 0.12
+            if all(math.isfinite(q) for q in (
+                    box.get('cam_x', float('nan')), box.get('cam_y', float('nan')),
+                    tr.get('cam_x', float('nan')), tr.get('cam_y', float('nan')))):
+                # Compare rays over plausible depth rather than widening the
+                # bearing gate when the observing aircraft translates.
+                depth = 2.0 * FY / max(tr['h'], 40.0)
+                near = max(2.5, 0.55 * depth)
+                far = min(20.0, 2.0 * depth)
+                errors = []
+                for i in range(9):
+                    r = near + (far - near) * i / 8.0
+                    expected = math.atan2(
+                        tr['cam_y'] + r * math.sin(tr['bearing']) - box['cam_y'],
+                        tr['cam_x'] + r * math.cos(tr['bearing']) - box['cam_x'])
+                    errors.append(abs(math.atan2(math.sin(box['bearing'] - expected),
+                                                 math.cos(box['bearing'] - expected))))
+                angle = min(errors)
+                angle_gate = 0.08 + 0.10 * min(dt, 0.8)
+            vdiff = abs(box['v'] - tr['v'])
+            ratio = box['h'] / max(tr['h'], 1.0)
+            if (angle > angle_gate or vdiff > max(90.0, 0.8 * box['h']) or
+                    not 0.55 <= ratio <= 1.8):
+                return None
+            return angle / angle_gate + vdiff / max(90.0, 0.8 * box['h'])
+        distance = math.hypot(box['u'] - tr['u'], box['v'] - tr['v'])
+        return distance if distance < max(65.0, 1.2 * box['h']) else None
+
+    @staticmethod
+    def _small_input_ok(box):
+        bounds = box.get('box')
+        return (box.get('small_box_continuation_only') is True and
+                32.0 <= box['h'] < 40.0 and bounds is not None and len(bounds) == 4 and
+                abs((bounds[3]-bounds[1])-box['h']) <= 1e-6 and
+                pixel_cue_box_ok(box['cls'], box['conf'], *bounds,
+                                 allow_small_continuation=True) and
+                box.get('appearance_status', 'actor') == 'actor' and
+                math.isfinite(box.get('bearing', float('nan'))))
+
     def update(self, sample_s, boxes):
         self.rejections = []
-        if sample_s <= self.last_frame:
+        if not math.isfinite(sample_s) or sample_s <= self.last_frame:
             return []
         self.last_frame = sample_s
         self.tracks = [tr for tr in self.tracks
                        if sample_s - tr['sample_s'] <= 1.1]
         used = set()
         cues = []
-        for box in sorted(boxes, key=lambda b: b['conf'], reverse=True):
+        boxes = sorted(boxes, key=lambda b: b['conf'], reverse=True)
+        # Freeze associations before this image updates any track. A small
+        # box needs a unique match in both directions, independent of ordering.
+        scores = [{tr['id']: self._association_distance(box, tr, sample_s)
+                   for tr in self.tracks} for box in boxes]
+        for box_index, box in enumerate(boxes):
             best, best_d = None, float('inf')
+            small = box['h'] < 40.0 or box.get('small_box_continuation_only') is True
+            if small:
+                if not self._small_input_ok(box):
+                    continue
+                matches = [tr for tr in self.tracks if scores[box_index].get(tr['id']) is not None]
+                if len(matches) != 1:
+                    continue
+                best = matches[0]
+                anchor = best.get('normal_anchor_s')
+                if (best['id'] in used or anchor is None or
+                        not 0.0 < sample_s-best['sample_s'] <= .35+1e-9 or
+                        not 0.0 <= sample_s-anchor <= 2.0+1e-9 or
+                        not math.isfinite(best.get('bearing', float('nan'))) or
+                        sum(score.get(best['id']) is not None for score in scores) != 1):
+                    continue
             for tr in self.tracks:
+                if small:
+                    break
                 if tr['id'] in used or tr['cls'] != box['cls']:
                     continue
-                # Pixel u can sweep across the whole frame as the UAV yaws.
-                # The world-frame ray stays near the same person. Keep a
-                # vertical/size gate so two same-colour people on one bearing
-                # cannot be merged solely by azimuth.
-                if (math.isfinite(box.get('bearing', float('nan'))) and
-                        math.isfinite(tr.get('bearing', float('nan')))):
-                    angle = abs(math.atan2(
-                        math.sin(box['bearing'] - tr['bearing']),
-                        math.cos(box['bearing'] - tr['bearing'])))
-                    dt = max(0.0, sample_s - tr['sample_s'])
-                    angle_gate = 0.12
-                    if all(math.isfinite(q) for q in (
-                            box.get('cam_x', float('nan')),
-                            box.get('cam_y', float('nan')),
-                            tr.get('cam_x', float('nan')),
-                            tr.get('cam_y', float('nan')))):
-                        # At 3 m/s a 0.4 s sideways flight changes the
-                        # bearing of a person 7.5 m away by 0.16 rad. Compare
-                        # with the ray expected from the new camera position
-                        # over a plausible depth interval instead of simply
-                        # widening the raw-angle gate (which merges people).
-                        depth = 2.0 * FY / max(tr['h'], 40.0)
-                        near = max(2.5, 0.55 * depth)
-                        far = min(20.0, 2.0 * depth)
-                        errors = []
-                        for i in range(9):
-                            r = near + (far - near) * i / 8.0
-                            expected = math.atan2(
-                                tr['cam_y'] + r * math.sin(tr['bearing']) - box['cam_y'],
-                                tr['cam_x'] + r * math.cos(tr['bearing']) - box['cam_x'])
-                            errors.append(abs(math.atan2(
-                                math.sin(box['bearing'] - expected),
-                                math.cos(box['bearing'] - expected))))
-                        angle = min(errors)
-                        angle_gate = 0.08 + 0.10 * min(dt, 0.8)
-                    vdiff = abs(box['v'] - tr['v'])
-                    ratio = box['h'] / max(tr['h'], 1.0)
-                    if (angle > angle_gate or vdiff > max(90.0, 0.8 * box['h']) or
-                            not 0.55 <= ratio <= 1.8):
-                        continue
-                    d = angle / angle_gate + vdiff / max(90.0, 0.8 * box['h'])
-                else:
-                    d = math.hypot(box['u'] - tr['u'], box['v'] - tr['v'])
-                    if d >= max(65.0, 1.2 * box['h']):
-                        continue
-                if d < best_d:
+                d = self._association_distance(box, tr, sample_s)
+                if d is not None and d < best_d:
                     best, best_d = tr, d
             if best is None:
                 best = dict(id=self.next_id, cls=box['cls'], history=[])
@@ -451,6 +485,11 @@ class PixelCueTracker:
             contradiction = (height_m is not None and math.isfinite(height_m) and
                              (height_m < H_MIN or height_m > H_MAX_L))
             best['history'].append((sample_s, box['conf'], contradiction))
+            normal_history = [p for p in best.get('normal_history', [])
+                              if sample_s-p[0] <= 1.1]
+            if not small:
+                normal_history.append((sample_s, box['conf'], contradiction))
+            best['normal_history'] = normal_history
             used.add(best['id'])
             # Select by elapsed image time, not a fixed last-N frame count.
             recent = best['history']
@@ -478,12 +517,21 @@ class PixelCueTracker:
             normal_cue = min(p[1] for p in recent) >= 0.85
             if (len(recent) >= 3 and recent[-1][0] - recent[0][0] >= 0.3-1e-9 and
                     (normal_cue or bounded_attention)):
+                if (not small and box.get('appearance_status', 'actor') == 'actor' and
+                        len(normal_history) >= 3 and
+                        normal_history[-1][0]-normal_history[0][0] >= .3-1e-9 and
+                        min(p[1] for p in normal_history) >= .45):
+                    best['normal_anchor_s'] = sample_s
                 cues.append(dict(candidate_id='%s:%d' % (box['cls'], best['id']),
                                  sample_s=sample_s, bearing=box['bearing'],
                                  confidence=box['conf'], hits=len(recent),
                                  u=box['u'], v=box['v'],
-                                 attention_only=(not normal_cue or
+                                 attention_only=(small or not normal_cue or
                                      box.get('appearance_status', 'actor') != 'actor')))
+                if small:
+                    cues[-1].update(small_box_continuation=True,
+                                    normal_anchor_s=best['normal_anchor_s'],
+                                    report_eligible=False, footpoint_valid=False)
                 for key in ('box', 'width', 'height', 'camera_tilt',
                             'appearance_status', 'appearance_confidence',
                             'distractor_confidence'):
@@ -503,6 +551,7 @@ def pixel_promoted_strict(cues, cls, u, v, conf, rng, height_m,
             x1 < 6.0 or x2 > image_width - 6.0 or y1 < 6.0):
         return False
     return any(c['candidate_id'].startswith(cls + ':') and
+               not c.get('small_box_continuation', False) and
                not c.get('attention_only', False) and
                abs(c['u'] - u) < 20.0 and abs(c['v'] - v) < 30.0
                for c in cues)
@@ -2132,12 +2181,15 @@ def main():
                             continue
                         bx1, by1, bx2, by2 = [float(v) for v in b.xyxy[0]]
                         bw, bh = bx2 - bx1, by2 - by1
-                        if not pixel_cue_box_ok(CLASSES[cid], conf,
-                                               bx1, by1, bx2, by2):
+                        ordinary_cue = pixel_cue_box_ok(CLASSES[cid], conf,
+                                                        bx1, by1, bx2, by2)
+                        if (not ordinary_cue and not pixel_cue_box_ok(CLASSES[cid], conf,
+                                bx1, by1, bx2, by2, allow_small_continuation=True)):
                             continue
                         bu, bv = (bx1 + bx2) / 2.0, (by1 + by2) / 2.0
                         raw_cue_boxes.append(dict(
                             cls=CLASSES[cid], conf=conf, u=bu, v=bv,
+                            small_box_continuation_only=not ordinary_cue,
                             h=bh, bearing=image_world_bearing(bu, bv, R),
                             cam_x=px, cam_y=py, box=[bx1, by1, bx2, by2],
                             appearance_status=b.appearance_status,
@@ -2316,7 +2368,8 @@ def main():
                     bbox_h=cue['box'][3]-cue['box'][1] if 'box' in cue else '',
                     track_id=cue['candidate_id'], hits=cue['hits'],
                     image_stamp=frame_stamp, image_age_s=frame_age,
-                    source='pixel_attention_only')
+                    source=('pixel_small_continuation_only' if cue.get('small_box_continuation')
+                            else 'pixel_attention_only'))
 
         # ---------- 2) 关联（位置 + 身高 + 外观；v4新增多层次匹配）----------
         # 原理：先用位置粗关联，再用身高和外观精细筛选，解决密集目标串扰问题
