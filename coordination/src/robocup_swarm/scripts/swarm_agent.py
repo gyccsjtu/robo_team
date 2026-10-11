@@ -3725,54 +3725,6 @@ class SwarmAgent(SearchSegmentAgent):
                 cmd.twist.linear.z = 0.6
             if cmd.twist.linear.z < -1.0:
                 cmd.twist.linear.z = -1.0
-            # === v14 Fix D：连续爬升卡死闩锁 ===
-            # EKF z 估计病态偏低（卡住不动）时 alt_error 恒正，P 控制恒输出爬升，
-            # 真值一路冲破 6m（v14 agent_4 实测 236s 漂升）。若持续 CLIMB_LATCH_S
-            # 仍在爬（vz>0.2）而高度几乎没变（|Δz|<CLIMB_LATCH_DZ），判为估计卡死，
-            # 闩锁 vz≤0 直到误差收敛或高度恢复变化。
-            _now_s = rospy.Time.now().to_sec()
-            # === v18 修复：地面复飞豁免 ===
-            # v17 实测（logs_20261007_213201）：agent_1 熔断 LAND 落地后 CRASH
-            # 恢复爬升（vz=0.6）被本闩锁拦死（EKF z 病态 |Δz|=0.22<0.30）→
-            # 永远趴地。6m 红线防护针对高空冲顶；z<1.5m 时爬升到 1.5m 距红线
-            # 极远，豁免闩锁。爬过 1.5m 后若仍卡死，闩锁正常介入。
-            if cmd.twist.linear.z > 0.2 and not self._climb_latch \
-                    and (self.local_z is None or self.local_z > 1.5):
-                if self._climb_t0 is None:
-                    self._climb_t0 = _now_s
-                    self._climb_z0 = self.local_z
-                elif _now_s - self._climb_t0 >= CLIMB_LATCH_S:
-                    if abs(self.local_z - self._climb_z0) < CLIMB_LATCH_DZ:
-                        self._climb_latch = True
-                        self._climb_latch_z = self.local_z
-                        rospy.logerr('[%s] P 控制爬升卡死闩锁触发：持续 %.1fs vz=%.2f '
-                                     '但 |Δz|=%.2f < %.2f → 闩锁 vz≤0 防冲红线',
-                                     self.uav_id, CLIMB_LATCH_S, cmd.twist.linear.z,
-                                     abs(self.local_z - self._climb_z0), CLIMB_LATCH_DZ)
-                        # v16: 自适应降层 0.5m（累计 ≤1.0m，层高下限 3.5m），
-                        # alt_error 收敛后闩锁解锁，不再反复顶同一层
-                        if self._alt_sag < 1.0 and target_alt - 0.5 >= 3.5:
-                            self._alt_sag += 0.5
-                            rospy.logerr('[%s] 自适应降层 %.1fm → 层高 %.1f'
-                                         '（EKF z 病态，保底可用高度）',
-                                         self.uav_id, self._alt_sag,
-                                         target_alt - self._alt_sag)
-                    else:
-                        self._climb_t0 = _now_s
-                        self._climb_z0 = self.local_z
-            elif cmd.twist.linear.z <= 0.2:
-                self._climb_t0 = None
-            if self._climb_latch:
-                _moved = self._climb_latch_z is not None and \
-                         abs(self.local_z - self._climb_latch_z) >= CLIMB_LATCH_DZ
-                # v18: 地面豁免——趴地复飞时闩锁自动解除（防 vz≤0 死锁）
-                if alt_error < 0.3 or _moved or \
-                        (self.local_z is not None and self.local_z < 1.5):
-                    self._climb_latch = False
-                    self._climb_t0 = None
-                    self._climb_latch_z = None
-                else:
-                    cmd.twist.linear.z = min(cmd.twist.linear.z, 0.0)
         # Routine view/obstacle height changes cannot continue after a near
         # horizontal obstacle stop. Emergency ceiling descent is applied next.
         if vz is None:
@@ -3914,7 +3866,8 @@ class SwarmAgent(SearchSegmentAgent):
         # 记录最终下发的水平速度（供路径未就绪时继续发，保证 offboard 不断流）
         self._last_flight_v = (vx, vy)
         self._flight_output(cmd.twist.linear.x,cmd.twist.linear.y,
-                            cmd.twist.linear.z,cmd.twist.angular.z,target_alt)
+                            cmd.twist.linear.z,cmd.twist.angular.z,target_alt,
+                            monitor_climb=(vz is None and not getattr(self,"_crash_flagged",False)))
 
     def _output_motion_safety(self,vx,vy,vz,yaw_rate):
         """One execution check for ordinary commands and early recovery exits."""
@@ -3962,18 +3915,57 @@ class SwarmAgent(SearchSegmentAgent):
         self._last_cmd_v=self._last_flight_v=(vx,vy)
         return vx,vy,vz,yaw_rate
 
-    def _flight_output(self,vx,vy,vz,yaw_rate=0.,target_alt=None):
+    def _guard_executed_climb(self, vz, target_alt, enabled):
+        """Watch the command that survives safety/encoding, never a vetoed intent.
+
+        Intentional obstacle/pose/ceiling holds reset the progress window. The
+        existing estimator-stall latch still stops an actual sustained climb;
+        this gate can only remove upward motion, never request new motion.
+        """
+        z=self.local_z
+        if (not enabled or target_alt is None or z is None or
+                getattr(self,'_landing',False) or not getattr(self,'_takeoff_done',False)):
+            self._climb_t0=None
+            return vz
+        now=rospy.Time.now().to_sec()
+        alt_error=target_alt-z
+        if getattr(self,'_climb_latch',False):
+            latched_z=getattr(self,'_climb_latch_z',None)
+            if (alt_error < .3 or z < 1.5 or
+                    (latched_z is not None and abs(z-latched_z) >= CLIMB_LATCH_DZ)):
+                self._climb_latch=False
+                self._climb_t0=self._climb_latch_z=None
+            else:
+                return min(vz,0.)
+        if vz <= .2 or z <= 1.5:
+            self._climb_t0=None
+        elif getattr(self,'_climb_t0',None) is None or now < self._climb_t0:
+            self._climb_t0,self._climb_z0=now,z
+        elif now-self._climb_t0 >= CLIMB_LATCH_S:
+            if abs(z-self._climb_z0) < CLIMB_LATCH_DZ:
+                self._climb_latch=True
+                self._climb_latch_z=z
+                rospy.logerr('[CLIMB_STALL] uav=%s executed_vz=%.2f elapsed=%.2f dz=%.2f',
+                    self.uav_id,vz,now-self._climb_t0,abs(z-self._climb_z0))
+                if self._alt_sag < 1. and target_alt-.5 >= 3.5:
+                    self._alt_sag+=.5
+                return min(vz,0.)
+            self._climb_t0,self._climb_z0=now,z
+        return vz
+
+    def _flight_output(self,vx,vy,vz,yaw_rate=0.,target_alt=None,monitor_climb=False):
         """Sole flight-output entry; stale positions use zero velocity holding."""
         now=rospy.Time.now().to_sec()
         pose_ok=(not MOTION_SAFETY or (not getattr(self,'_localization_fault',False) and
                  0. <= now-getattr(self,'_pose_sample_s',-1e18) <= .3))
         if (FLIGHT_OUTPUT == 'pos' and pose_ok):
-            self._publish_pos_output(vx,vy,target_alt,vz,yaw_rate)
+            self._publish_pos_output(vx,vy,target_alt,vz,yaw_rate,monitor_climb)
             return
-        self._publish_velocity_output(vx,vy,vz,yaw_rate)
+        self._publish_velocity_output(vx,vy,vz,yaw_rate,target_alt,monitor_climb)
 
-    def _publish_velocity_output(self,vx,vy,vz,yaw_rate):
+    def _publish_velocity_output(self,vx,vy,vz,yaw_rate,target_alt=None,monitor_climb=False):
         vx,vy,vz,yaw_rate=self._output_motion_safety(vx,vy,vz,yaw_rate)
+        vz=self._guard_executed_climb(vz,target_alt,monitor_climb)
         cmd=TwistStamped();cmd.header.stamp=rospy.Time.now();cmd.header.frame_id='world'
         cmd.twist.linear.x,cmd.twist.linear.y,cmd.twist.linear.z=vx,vy,vz
         cmd.twist.angular.z=yaw_rate
@@ -4019,7 +4011,7 @@ class SwarmAgent(SearchSegmentAgent):
                 escaped = escaped or grid.is_free(cell)
         return vx, vy
 
-    def _publish_pos_output(self, vx, vy, target_alt, vz=None, yaw_rate=0.0):
+    def _publish_pos_output(self, vx, vy, target_alt, vz=None, yaw_rate=0.0, monitor_climb=False):
         """速度 → 位置设定点。
 
         速度指令本身已经过加速度限幅 / 雷达 / 栅格 / 地图边界四层守卫，这里只做
@@ -4034,7 +4026,7 @@ class SwarmAgent(SearchSegmentAgent):
         lxy = self.local_xy
         if lxy is None or self.local_z is None:
             # 位置还没就绪 → 退回速度通道保持 offboard 流不断
-            self._publish_velocity_output(vx,vy,0. if vz is None else vz,yaw_rate)
+            self._publish_velocity_output(vx,vy,0. if vz is None else vz,yaw_rate,target_alt,monitor_climb)
             return
         step_x = vx * POS_SP_LEAD
         step_y = vy * POS_SP_LEAD
@@ -4070,7 +4062,10 @@ class SwarmAgent(SearchSegmentAgent):
             z = target_alt
         else:
             z = self.local_z
-        sp.pose.position.z = max(0.0, min(z, ALT_RECOVER_CEIL))
+        z=max(0.0,min(z,ALT_RECOVER_CEIL))
+        executed_vz=self._guard_executed_climb((z-self.local_z)/POS_SP_LEAD,
+                                               target_alt,monitor_climb)
+        sp.pose.position.z=self.local_z+executed_vz*POS_SP_LEAD
         yaw = getattr(self, 'yaw', 0.0) or 0.0
         yaw += max(-YAW_RATE_MAX, min(YAW_RATE_MAX, yaw_rate)) * POS_SP_LEAD
         sp.pose.orientation.z = math.sin(yaw * 0.5)

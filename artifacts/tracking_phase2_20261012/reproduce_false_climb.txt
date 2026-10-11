@@ -1,0 +1,21 @@
+/opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=0.60 -> 0; move to clear observation space before changing height
+[u4] P 控制爬升卡死闩锁触发：持续 2.5s vz=0.60 但 |Δz|=0.00 < 0.30 → 闩锁 vz≤0 防冲红线
+[u4] 自适应降层 0.5m → 层高 3.6（EKF z 病态，保底可用高度）
+[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=0.20 -> 0; move to clear observation space before changing height
+F[u4] P 控制爬升卡死闩锁触发：持续 2.5s vz=0.60 但 |Δz|=0.00 < 0.30 → 闩锁 vz≤0 防冲红线
+[u4] 自适应降层 0.5m → 层高 3.6（EKF z 病态，保底可用高度）
+.
+======================================================================
+FAIL: test_intentional_height_hold_is_not_a_failed_climb (tools.test_obstacle_height_safety.ObstacleHeightSafetyTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gycc/桌面/RoboCup_Team/tools/test_obstacle_height_safety.py", line 126, in test_intentional_height_hold_is_not_a_failed_climb
+    self.assertEqual(a._alt_sag,0.)
+AssertionError: 0.5 != 0.0
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+FAILED (failures=1)

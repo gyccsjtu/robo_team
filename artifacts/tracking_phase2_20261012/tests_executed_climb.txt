@@ -1,0 +1,40 @@
+/opt/ros/noetic/lib/python3/dist-packages/rospy/core.py:205: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  logfunc(msg, *args, **kwargs)
+[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=-0.50 -> 0; move to clear observation space before changing height
+.[CLIMB_STALL] uav=u4 executed_vz=0.60 elapsed=3.00 dz=0.00
+...[u4] 末级雷达侧障停车 d=0.30m toward=1.00m/s
+.[GRID_EXIT] uav=u4 occupied cell; slow checked exit=(0.10,0.00)
+.[CLIMB_STALL] uav=u4 executed_vz=0.60 elapsed=3.00 dz=0.00
+..[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=0.60 -> 0; move to clear observation space before changing height
+.[VERTICAL_CLEARANCE] uav=u4 invalid scan; hold routine height
+.[VERTICAL_CLEARANCE] uav=u4 near=0.60m vz=-0.80 -> 0; move to clear observation space before changing height
+[ALT_GUARD] HARD z=4.30 > ceil=4.20 -> vz=-1.00 (vx=0.00 vy=0.00) hits=1
+.[GRID_EXIT_BLOCKED] uav=u4 occupied cell; no safe exit
+..[u4] 末级雷达侧障停车 d=0.76m toward=1.00m/s
+.[VERTICAL_CLEARANCE] uav=u4 stale scan; hold routine height
+.[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+[FINAL_SAFETY] uav=u4 reason=untrusted_pose_or_command intent=(0.0, 0.0, 0.6, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+..[u4] 2D雷达三面堵死 front=0.62 left=0.55 right=0.55 → 扇区-10°净空0.62m 慢滑 vout=(0.10,-0.02) 慢滑速度=0.10
+.[u4] 2D雷达近障 front=0.62m left=0.62 right=0.50 -> vin=(-0.12,-0.04) vout=(0.11,-0.06)
+.....[VERTICAL_CLEARANCE_HOLD] uav=u5 near=1.65 occupied=False; require horizontal exit and fresh clear scans
+......[FINAL_SAFETY] uav=u0 reason=measured_braking:lidar intent=(0.5, 0.0, 0.0, 0.0) output=(0.0, 0.0, 0.0, 0.0)
+.[VERTICAL_CLEARANCE_HOLD] uav=u0 near=0.80 occupied=False; require horizontal exit and fresh clear scans
+.................[u0] t0 接近中已 20.0s 无真实位置，停车等待新图像或管理器改派
+............[typhoon_h480_5] 放弃盘旋 t2：reproduce missing pursuit pointer
+.......................[u0] 末级近距径向限速 tid=t0 dist=5.00m vin=(0.80,0.00) vout=(0.00,0.00)
+.[?] 末级雷达侧障限速 d=0.60m cap=0.50m/s
+[?] 末级雷达侧障停车 d=0.60m toward=1.00m/s
+......[CRASH] typhoon_h480_3 恢复达到高度/时间上限，清除恢复标志
+...............................[manager] typhoon_h480_3 暂不可执行任务，回收格 (2,3) 租约
+...........................[VIEW_RECOVERY] tid=t1 main=u2 backup=None reason=unverified_visual elapsed=0.0; 保持目标补看，等待可靠接力
+[manager] t1 在 (-27.0,13.7) 补看仍失败；保留候选等待其他视角，不屏蔽上报
+.............[manager] u0 搜索格 (2,3) 20s 未向航点推进 2.0m，提前回收重派
+[manager] u0 搜索格 (2,3) 20s 未向航点推进 2.0m，提前回收重派
+............................
+----------------------------------------------------------------------
+Ran 188 tests in 0.297s
+
+OK
+[manager] 读元数据 bounds 失败，用硬编码边界: [Errno 2] No such file or directory: '/home/ros/team_ws/robocup/src/robocup_training_worlds/worlds/generated/robocup_base.json'
+sys:1: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/robocup_phase2_regression/perception_typhoon_h480_0.csv' mode='a' encoding='utf-8'>

@@ -112,6 +112,60 @@ class ObstacleHeightSafetyTests(unittest.TestCase):
         point=a.pos_pub.publish.call_args.args[0].pose.position
         self.assertLess(point.z,a.local_z)
 
+    def test_intentional_height_hold_is_not_a_failed_climb(self):
+        a=self.output_agent()
+        a.local_z=3.5
+        a.altitude_layer=4.1
+        a._last_csv_t=1000.
+        with patch.object(sa,'FLIGHT_OUTPUT','pos'),patch.object(sa,'CRASH_DETECT',False):
+            for t in range(100,105):
+                a._scan_t=float(t)
+                with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(t)):
+                    a._send_vel(0.,0.)
+        self.assertFalse(a._climb_latch)
+        self.assertEqual(a._alt_sag,0.)
+        self.assertEqual(a.pos_pub.publish.call_args.args[0].pose.position.z,3.5)
+
+    def test_actually_commanded_stalled_climb_still_latches(self):
+        a=self.output_agent()
+        a._scan.ranges[:]=[20.]*361
+        a.local_z=3.5
+        a.altitude_layer=4.1
+        a._last_csv_t=1000.
+        with patch.object(sa,'FLIGHT_OUTPUT','pos'),patch.object(sa,'CRASH_DETECT',False):
+            for t in range(100,104):
+                a._scan_t=float(t)
+                with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(t)):
+                    a._send_vel(0.,0.)
+        self.assertTrue(a._climb_latch)
+        self.assertLessEqual(a.pos_pub.publish.call_args.args[0].pose.position.z,3.5)
+
+    def test_hold_breaks_climb_window_and_motion_can_clear_real_latch(self):
+        a=self.output_agent()
+        a.local_z=3.5
+        for t,vz in ((100,.6),(102,0.),(103,.6),(105,.6)):
+            with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(t)):
+                self.assertEqual(a._guard_executed_climb(vz,4.1,True),vz)
+        self.assertFalse(a._climb_latch)
+        with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(106)):
+            self.assertEqual(a._guard_executed_climb(.6,4.1,True),0.)
+        a.local_z=3.85
+        self.assertEqual(a._guard_executed_climb(.4,4.1,True),.4)
+        self.assertFalse(a._climb_latch)
+
+    def test_stale_pose_hold_cannot_trigger_failed_climb_or_lower_layer(self):
+        a=self.output_agent()
+        a.local_z=3.5
+        a._pose_sample_s=90.
+        a.vel_pub=Mock()
+        with patch.object(sa,'MOTION_SAFETY',True),patch.object(sa,'FLIGHT_OUTPUT','pos'):
+            for t in range(100,105):
+                with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(t)):
+                    a._flight_output(0.,0.,.6,target_alt=4.1,monitor_climb=True)
+        self.assertFalse(a._climb_latch)
+        self.assertEqual(a._alt_sag,0.)
+        self.assertEqual(a.vel_pub.publish.call_args.args[0].twist.linear.z,0.)
+
     def grid(self):
         g=SlamGrid(-5.,-5.,5.,5.,.25,.75)
         return g
