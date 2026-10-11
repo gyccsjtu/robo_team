@@ -1,0 +1,30 @@
+{
+  "reference": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+  "stage": "/home/gycc/official_map_stage_hz5i4lla",
+  "backup": {
+    "source/map_generator.py": "/home/gycc/official_map_stage_hz5i4lla/backup/source__map_generator.py",
+    "source/base1.world": "/home/gycc/official_map_stage_hz5i4lla/backup/source__base1.world",
+    "source/base2.world": "/home/gycc/official_map_stage_hz5i4lla/backup/source__base2.world",
+    "source/base3.world": "/home/gycc/official_map_stage_hz5i4lla/backup/source__base3.world",
+    "source/rover_static.world": "/home/gycc/official_map_stage_hz5i4lla/backup/source__rover_static.world",
+    "world": "/home/gycc/official_map_stage_hz5i4lla/backup/world",
+    "black_box": "/home/gycc/official_map_stage_hz5i4lla/backup/black_box",
+    "obstacle": "/home/gycc/official_map_stage_hz5i4lla/backup/obstacle"
+  },
+  "official_source_sha256": {
+    "map_generator.py": "f9edec80bf539eba2684a513a43f16ee38dacd1a80f92dae8ae4d9d54315ed93",
+    "base1.world": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c",
+    "base2.world": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948",
+    "base3.world": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f",
+    "rover_static.world": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81"
+  },
+  "generated_sha256": {
+    "world": "dad42ec5640a43ed8221a93a923455fa78cd10a03f00e6806c9d2d15ef0eb714",
+    "black_box": "f3d3c29bd578f6ca6323919ebb21d4c17156770d7e028290d00752dc5778a62e",
+    "obstacle": "0019195a73577b472ae92a15511b0072a6445eac40eba6830d6364c9d694b898"
+  },
+  "artifact_risks": [
+    "world 有 40 个 rover model 元素，生成器配置 20 组；官方原版 rover_static.world 可能使每组重复两次",
+    "world 中 20 个 rover 名称重复（例如 rover_static_clone_clone_10_clone_clone_1），Gazebo 实际解析有歧义"
+  ]
+}

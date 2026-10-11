@@ -1,0 +1,43 @@
+{
+  "official_six_of_six": true,
+  "eliminations": [
+    {
+      "actor": 0,
+      "time_usage_s": 167.7280000000003
+    },
+    {
+      "actor": 4,
+      "time_usage_s": 207.72399999999993
+    },
+    {
+      "actor": 2,
+      "time_usage_s": 253.9240000000002
+    },
+    {
+      "actor": 3,
+      "time_usage_s": 278.0200000000002
+    },
+    {
+      "actor": 5,
+      "time_usage_s": 304.81600000000003
+    },
+    {
+      "actor": 1,
+      "time_usage_s": 311.67200000000025
+    }
+  ],
+  "last_elimination_time_usage_s": 311.67200000000025,
+  "score": 2260.2239999999997,
+  "judge_log": "/home/gycc/\u684c\u9762/RoboCup_Team/logs/logs_20261011_185248/03_judge.log",
+  "snapshot_wall_s": 1791716382.20744,
+  "weights": {
+    "path": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt",
+    "sha256": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a"
+  },
+  "manual_flight_commands": false,
+  "sculpture_secondary_model_enabled": false,
+  "limitations": [
+    "One run on the existing generated official map, not three different maps.",
+    "Current foot projection code differs from the previous full run. Do not attribute all improvement to the weight."
+  ]
+}

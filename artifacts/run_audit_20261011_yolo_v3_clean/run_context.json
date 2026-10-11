@@ -1,0 +1,17 @@
+{
+  "prepared_wall_s": 1791715968.172583,
+  "code_head": "741a6b4ec548bb65dd6b8e95ef58a58bd0c874ca",
+  "weights": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt",
+  "weights_sha256": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+  "gui": true,
+  "secondary_verifier": false,
+  "mode": "one run with current code and upstream primary weight override; no persistent default change",
+  "comparison_limitation": "Previous full match used code 25e86fa. Current b263acb foot projection fix has not flown; old run comparisons cannot isolate weight effects.",
+  "world_official_hashes": {
+    "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/worlds/robocup.world": "dad42ec5640a43ed8221a93a923455fa78cd10a03f00e6806c9d2d15ef0eb714",
+    "/home/gycc/XTDrone/robocup/control_actor.py": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7",
+    "/home/gycc/XTDrone/robocup/score_cal.py": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1"
+  },
+  "display": ":0",
+  "log_directory": "/home/gycc/\u684c\u9762/RoboCup_Team/logs/logs_20261011_185248"
+}
