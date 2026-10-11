@@ -35,6 +35,7 @@ from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDe
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from slam_grid import SlamGrid
 from flight_execution import bounded_step
+from motion_safety import braking_cap, boundary_constraints, scan_constraints
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M
 from search_observation import cell_points, in_view, observable_points, next_heading
 from csv_logger import logger
@@ -71,6 +72,12 @@ FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
 FLIGHT_Y_MIN = float(os.environ.get('FLIGHT_Y_MIN', '-60.0'))
 FLIGHT_Y_MAX = float(os.environ.get('FLIGHT_Y_MAX', '60.0'))
 FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
+MOTION_SAFETY = os.environ.get('MOTION_SAFETY','0') == '1'
+# Trial bounds, kept separate from the command slew limit. The recorded 13
+# sustained stops averaged 0.93--2.92 m/s^2; 0.8 is a conservative trial value,
+# not a certified lower bound on physical braking in all scenes.
+BRAKE_DECEL = float(os.environ.get('BRAKE_DECEL','0.8'))
+BRAKE_DELAY = float(os.environ.get('BRAKE_DELAY','0.25'))
 
 
 def flight_bounds():
@@ -886,6 +893,8 @@ class SwarmAgent(SearchSegmentAgent):
 
     def __init__(self, uav_id, model_name):
         self.uav_id = uav_id
+        rospy.loginfo('[FINAL_SAFETY_CONFIG] uav=%s enabled=%s decel=%.2f delay=%.2f lidar_margin=%.2f',
+                      uav_id,MOTION_SAFETY,BRAKE_DECEL,BRAKE_DELAY,RADAR_STOP_R)
         self.model_name = model_name
 
         # ---- 高度层分配（基于 ID，6m 以内）----
@@ -1071,6 +1080,9 @@ class SwarmAgent(SearchSegmentAgent):
         rospy.Subscriber("/swarm/orbit_claim", String, self._claim_cb, queue_size=20)
         self._claim_pub = rospy.Publisher("/swarm/orbit_claim", String, queue_size=10)
         rospy.Subscriber("/%s/mavros/local_position/pose" % uav_id, PoseStamped, self._local_cb)
+        if MOTION_SAFETY:
+            rospy.Subscriber("/%s/mavros/local_position/velocity_local" % uav_id,
+                             TwistStamped,self._measured_velocity_cb,queue_size=1)
         rospy.Subscriber("/%s/scan" % uav_id, LaserScan, self._scan_cb,
                  queue_size=1)
         rospy.Subscriber("/swarm/assignment", SearchAssignment, self._assign_cb)
@@ -1206,6 +1218,17 @@ class SwarmAgent(SearchSegmentAgent):
         self.state = msg
 
     def _local_cb(self, msg):
+        if MOTION_SAFETY:
+            sample = msg.header.stamp.to_sec()
+            now = rospy.Time.now().to_sec()
+            q = msg.pose.orientation
+            p = msg.pose.position
+            if (not 0. <= now-sample <= .5 or
+                    sample <= getattr(self,'_pose_sample_s',-1e18) or
+                    not all(math.isfinite(v) for v in (p.x,p.y,p.z,q.x,q.y,q.z,q.w)) or
+                    abs(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w-1.) > .02):
+                return  # receipt time cannot turn a delayed pose into fresh data
+            self._pose_sample_s = sample
         self.local_z = msg.pose.position.z
         new_xy = (msg.pose.position.x, msg.pose.position.y)
         now = rospy.Time.now().to_sec()
@@ -1274,6 +1297,15 @@ class SwarmAgent(SearchSegmentAgent):
         self.roll = math.atan2(2.0 * (q.w * q.x + q.y * q.z),
                                1.0 - 2.0 * (q.x * q.x + q.y * q.y))
 
+    def _measured_velocity_cb(self,msg):
+        sample=msg.header.stamp.to_sec()
+        velocity=(msg.twist.linear.x,msg.twist.linear.y)
+        old=getattr(self,'_measured_velocity',None)
+        now=rospy.Time.now().to_sec()
+        if (0. <= now-sample <= .5 and all(math.isfinite(v) for v in velocity) and
+                (old is None or sample>old[0])):
+            self._measured_velocity=(sample,velocity)
+
     def _est_track(self, xy, now):
         """维护最近 EST_WIN_S 秒的位置轨迹（判位置估计是否可信）。"""
         tr = getattr(self, '_est_hist', None)
@@ -1323,6 +1355,11 @@ class SwarmAgent(SearchSegmentAgent):
         return v <= MAX_SPEED * EST_V_RATIO
 
     def _scan_cb(self, msg):
+        if MOTION_SAFETY:
+            sample=msg.header.stamp.to_sec()
+            if (not 0. <= rospy.Time.now().to_sec()-sample <= RADAR_FRESH_S or
+                    sample <= getattr(self,'_scan_t',-1e18)):
+                return
         self._scan = msg
         stamped = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
         self._scan_t = stamped if stamped > 0.0 else rospy.Time.now().to_sec()
@@ -3420,16 +3457,7 @@ class SwarmAgent(SearchSegmentAgent):
                 self._crash_t0 = None
                 rospy.logwarn('[CRASH] %s 恢复达到高度/时间上限，清除恢复标志',
                               self.uav_id)
-            _m = TwistStamped()
-            _m.header.stamp = rospy.Time.now()
-            _m.header.frame_id = 'world'
-            _m.twist.linear.x = 0.0
-            _m.twist.linear.y = 0.0
-            _m.twist.linear.z = _vz
-            if FLIGHT_OUTPUT == "pos":
-                self._publish_pos_output(0.0, 0.0, min(target_alt, ALT_RECOVER_CEIL), _vz)
-            else:
-                self.vel_pub.publish(_m)
+            self._flight_output(0.,0.,_vz,target_alt=min(target_alt,ALT_RECOVER_CEIL))
             return
 
         # === 国家一等奖修（2026-10-05）：EST_GUARD 雪崩熔断 ===
@@ -3499,13 +3527,7 @@ class SwarmAgent(SearchSegmentAgent):
                 # 实测 236s 漂过 6m 红线）。继续发零速保持 stream 活跃；若模式
                 # 已被 failsafe 切走，一次性尝试切回 OFFBOARD 让零速悬停指令生效
                 # （LAND 已成功的场合 PX4 在 AUTO 模式下忽略 offboard，无害）。
-                if FLIGHT_OUTPUT == "pos":
-                    self._publish_pos_output(0.0, 0.0, _alt, 0.0)
-                else:
-                    _m = TwistStamped()
-                    _m.header.stamp = rospy.Time.now()
-                    _m.header.frame_id = 'world'
-                    self.vel_pub.publish(_m)
+                self._flight_output(0.,0.,0.,target_alt=_alt)
                 if not self._offboard_rearm_done:
                     _cur = getattr(self.state, 'mode', None)
                     if _cur not in ('OFFBOARD', 'AUTO.LAND'):
@@ -3524,13 +3546,7 @@ class SwarmAgent(SearchSegmentAgent):
                 self._est_hold_n, EST_FROZEN_N)
             self._last_cmd_v = (0.0, 0.0)
             self._last_flight_v = (0.0, 0.0)
-            if FLIGHT_OUTPUT == "pos":
-                self._publish_pos_output(0.0, 0.0, _alt, 0.0)
-            else:
-                _m = TwistStamped()
-                _m.header.stamp = rospy.Time.now()
-                _m.header.frame_id = 'world'
-                self.vel_pub.publish(_m)
+            self._flight_output(0.,0.,0.,target_alt=_alt)
             return
 
         # === 位置估计可信性闸门（EST_GUARD，2026-10-03，最高优先级）===
@@ -3870,12 +3886,71 @@ class SwarmAgent(SearchSegmentAgent):
                                 _fast_view, view, _bear, _yr)
         # 记录最终下发的水平速度（供路径未就绪时继续发，保证 offboard 不断流）
         self._last_flight_v = (vx, vy)
-        if FLIGHT_OUTPUT == "pos":
-            self._publish_pos_output(cmd.twist.linear.x, cmd.twist.linear.y,
-                                     target_alt, cmd.twist.linear.z,
-                                     cmd.twist.angular.z)
+        self._flight_output(cmd.twist.linear.x,cmd.twist.linear.y,
+                            cmd.twist.linear.z,cmd.twist.angular.z,target_alt)
+
+    def _output_motion_safety(self,vx,vy,vz,yaw_rate):
+        """One execution check for ordinary commands and early recovery exits."""
+        if not MOTION_SAFETY:
+            return vx,vy,vz,yaw_rate
+        now=rospy.Time.now().to_sec()
+        original=(vx,vy,vz,yaw_rate)
+        reason=''
+        pose_ok=(not getattr(self,'_localization_fault',False) and
+                 0. <= now-getattr(self,'_pose_sample_s',-1e18) <= .3)
+        if not pose_ok or not all(math.isfinite(v) for v in original):
+            vx=vy=vz=yaw_rate=0.
+            reason='untrusted_pose_or_command'
         else:
-            self.vel_pub.publish(cmd)
+            measured=getattr(self,'_measured_velocity',None)
+            if measured is None or not 0. <= now-measured[0] <= .3:
+                vx=vy=0.
+                reason='stale_measured_velocity'
+            elif math.hypot(vx,vy) > 1e-9:
+                own=self.world_xy
+                scan=getattr(self,'_scan',None)
+                scan_age=now-getattr(self,'_scan_t',-1e18)
+                if own is None or scan is None or not 0. <= scan_age <= RADAR_FRESH_S:
+                    vx=vy=0.
+                    reason='stale_scan_or_frame'
+                else:
+                    delay=BRAKE_DELAY+max(scan_age,now-measured[0])
+                    (vx,vy),reason=braking_cap((vx,vy),measured[1],
+                        scan_constraints(scan,self.yaw,(vx,vy)),RADAR_STOP_R,delay,BRAKE_DECEL)
+                    (vx,vy),edge_reason=braking_cap((vx,vy),measured[1],
+                        boundary_constraints(own,flight_bounds(),FLIGHT_INSET),
+                        0.,delay,BRAKE_DECEL)
+                    reason=edge_reason or reason
+                    vx,vy=self._final_motion_gate(vx,vy)
+            # Crash recovery is not permission to climb beside a scaffold.
+            # Hard ceiling descent and landing retain their explicit priority.
+            if not getattr(self,'_landing',False) and self.local_z <= ALT_HARD_CEIL:
+                old_vz=vz
+                vz=self._guard_vertical_clearance(vz)
+                if vz != old_vz:
+                    reason=reason or 'vertical_clearance'
+        if original != (vx,vy,vz,yaw_rate):
+            rospy.logwarn_throttle(1.,'[FINAL_SAFETY] uav=%s reason=%s intent=%s output=%s',
+                self.uav_id,reason or 'final_obstacle_or_friend',original,(vx,vy,vz,yaw_rate))
+        self._last_cmd_v=self._last_flight_v=(vx,vy)
+        return vx,vy,vz,yaw_rate
+
+    def _flight_output(self,vx,vy,vz,yaw_rate=0.,target_alt=None):
+        """Sole flight-output entry; stale positions use zero velocity holding."""
+        now=rospy.Time.now().to_sec()
+        pose_ok=(not MOTION_SAFETY or (not getattr(self,'_localization_fault',False) and
+                 0. <= now-getattr(self,'_pose_sample_s',-1e18) <= .3))
+        if (FLIGHT_OUTPUT == 'pos' and pose_ok):
+            self._publish_pos_output(vx,vy,target_alt,vz,yaw_rate)
+            return
+        self._publish_velocity_output(vx,vy,vz,yaw_rate)
+
+    def _publish_velocity_output(self,vx,vy,vz,yaw_rate):
+        vx,vy,vz,yaw_rate=self._output_motion_safety(vx,vy,vz,yaw_rate)
+        cmd=TwistStamped();cmd.header.stamp=rospy.Time.now();cmd.header.frame_id='world'
+        cmd.twist.linear.x,cmd.twist.linear.y,cmd.twist.linear.z=vx,vy,vz
+        cmd.twist.angular.z=yaw_rate
+        self.vel_pub.publish(cmd)
 
     def _final_motion_gate(self, vx, vy):
         """Validate the direction actually sent, after all direction changes.
@@ -3932,14 +4007,7 @@ class SwarmAgent(SearchSegmentAgent):
         lxy = self.local_xy
         if lxy is None or self.local_z is None:
             # 位置还没就绪 → 退回速度通道保持 offboard 流不断
-            m = TwistStamped()
-            m.header.stamp = rospy.Time.now()
-            m.header.frame_id = 'world'
-            m.twist.linear.x = vx
-            m.twist.linear.y = vy
-            m.twist.linear.z = 0.0 if vz is None else vz
-            m.twist.angular.z = yaw_rate
-            self.vel_pub.publish(m)
+            self._publish_velocity_output(vx,vy,0. if vz is None else vz,yaw_rate)
             return
         step_x = vx * POS_SP_LEAD
         step_y = vy * POS_SP_LEAD
@@ -3955,6 +4023,10 @@ class SwarmAgent(SearchSegmentAgent):
                 FLIGHT_INSET if getattr(self, '_takeoff_done', False) else 0.)
         # Validate the actual displacement, then never change its direction.
         vx, vy = self._final_motion_gate(step_x/POS_SP_LEAD, step_y/POS_SP_LEAD)
+        vx,vy,checked_vz,yaw_rate=self._output_motion_safety(vx,vy,
+            0. if vz is None else vz,yaw_rate)
+        if MOTION_SAFETY:
+            vz=checked_vz
         step_x, step_y = vx*POS_SP_LEAD, vy*POS_SP_LEAD
         self._last_cmd_v = self._last_flight_v = (vx, vy)
         sp = PoseStamped()

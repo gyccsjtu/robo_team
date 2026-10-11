@@ -99,6 +99,7 @@ class FlightBoundsTests(unittest.TestCase):
     def test_planner_and_position_output_cannot_target_outside(self):
         agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
         agent._plan_lock = threading.Lock()
+        agent._plan_epoch = 0
         agent._plan_event = threading.Event()
         agent._request_plan((155.0, 65.0))
         self.assertEqual(agent._plan_pending, (148.0, 58.0))

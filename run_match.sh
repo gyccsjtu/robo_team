@@ -68,6 +68,8 @@ export FAST_VISUAL_YAW FAST_VISUAL_YAW_UAVS
 # Keep the baseline default until the GUI comparison has passed.
 SEARCH_SEGMENTS="${SEARCH_SEGMENTS:-0}"
 export SEARCH_SEGMENTS
+MOTION_SAFETY="${MOTION_SAFETY:-0}"
+export MOTION_SAFETY
 # 导航包源码目录：manager/agent 均 import robocup_navigation，必须进 PYTHONPATH
 NAV_SRC="$REPO_ROOT/coordination/src/robocup_navigation/src"
 # 合规地图元数据（2026-10-07 重构，规则 §2.4/§2.5 无预读随机地图）：
@@ -348,6 +350,8 @@ topic_publisher_match(){  # topic_publisher_match <topic> <节点名片段>
 
 # ============================ 赛前体检 ======================================
 fast_visual_config_valid(){
+    case "$MOTION_SAFETY" in 0|1) ;; *)
+        err "MOTION_SAFETY 只能为0或1"; return 1 ;; esac
     case "$SEARCH_SEGMENTS" in 0|1) ;; *)
         err "SEARCH_SEGMENTS 只能为0或1"; return 1 ;; esac
     case "$FAST_VISUAL_YAW" in 0) return 0 ;; 1) ;; *)

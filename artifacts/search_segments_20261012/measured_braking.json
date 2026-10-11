@@ -1,0 +1,96 @@
+{
+  "samples": [
+    {
+      "uav": 0,
+      "time": 2182.08,
+      "start_speed": 1.1291870883369808,
+      "end_speed": 0.11941920681698097,
+      "average_decel": 1.2622098519004301
+    },
+    {
+      "uav": 0,
+      "time": 2212.712,
+      "start_speed": 0.9109558958411603,
+      "end_speed": 0.044470454855565736,
+      "average_decel": 1.0940472739718259
+    },
+    {
+      "uav": 1,
+      "time": 2205.708,
+      "start_speed": 0.8713101784101108,
+      "end_speed": 0.12819134843850527,
+      "average_decel": 0.9335663693112713
+    },
+    {
+      "uav": 1,
+      "time": 2236.708,
+      "start_speed": 2.0249609394631625,
+      "end_speed": 0.04580901183498637,
+      "average_decel": 2.4739399095346575
+    },
+    {
+      "uav": 1,
+      "time": 2244.208,
+      "start_speed": 1.896524487555655,
+      "end_speed": 0.22656783036577263,
+      "average_decel": 2.087445821488065
+    },
+    {
+      "uav": 2,
+      "time": 2103.268,
+      "start_speed": 2.5718653005195464,
+      "end_speed": 0.31723125010728925,
+      "average_decel": 2.8324548372019627
+    },
+    {
+      "uav": 2,
+      "time": 2109.516,
+      "start_speed": 2.2440502454109956,
+      "end_speed": 0.15455744488045137,
+      "average_decel": 2.6249909554394706
+    },
+    {
+      "uav": 2,
+      "time": 2141.416,
+      "start_speed": 1.936065349334196,
+      "end_speed": 0.14748358100106884,
+      "average_decel": 2.246962020519507
+    },
+    {
+      "uav": 2,
+      "time": 2145.416,
+      "start_speed": 2.1798613500481223,
+      "end_speed": 0.07391075525746582,
+      "average_decel": 2.6324382434877225
+    },
+    {
+      "uav": 2,
+      "time": 2209.168,
+      "start_speed": 2.1844208252396973,
+      "end_speed": 0.15479535078007034,
+      "average_decel": 2.5370318430739567
+    },
+    {
+      "uav": 2,
+      "time": 2224.268,
+      "start_speed": 2.6362787183386334,
+      "end_speed": 0.2984330568654327,
+      "average_decel": 2.922307076840837
+    },
+    {
+      "uav": 4,
+      "time": 2114.416,
+      "start_speed": 1.9517994180132292,
+      "end_speed": 0.01239863918921066,
+      "average_decel": 2.4364331392266996
+    },
+    {
+      "uav": 4,
+      "time": 2182.264,
+      "start_speed": 1.6376162309521545,
+      "end_speed": 0.08815385035246727,
+      "average_decel": 1.9368279757491687
+    }
+  ],
+  "limit": "Short sampled stops only; not a lower-bound braking certification."
+}
