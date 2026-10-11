@@ -1,0 +1,70 @@
+{
+  "created_wall_s": 1791715420.5835228,
+  "scope": "Offline fixed comparison; not runtime deployment or temporal acceptance. Previously evaluated validation/test images are reused.",
+  "primary_weights": [
+    "weights/best_yolo11n_bino_v1.pt",
+    "artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt"
+  ],
+  "verifier_weights": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/weights/best.pt",
+  "model_conf": 0.3,
+  "actor_thresholds": {
+    "white": 0.3,
+    "other": 0.4
+  },
+  "imgsz": 640,
+  "policies": [
+    {
+      "name": "near_identical_090",
+      "iou": 0.9,
+      "minimum_decoy_confidence": 0.9,
+      "same_model_class_margin": 0.2,
+      "shape": "runtime_same_appearance_instance"
+    },
+    {
+      "name": "unique_cross_model_090",
+      "iou": 0.65,
+      "minimum_decoy_confidence": 0.9,
+      "same_model_class_margin": 0.2,
+      "width_height_ratio": [
+        0.7,
+        1.43
+      ],
+      "center_dx_fraction": 0.2,
+      "center_dy_fraction": 0.15
+    },
+    {
+      "name": "unique_cross_model_080",
+      "iou": 0.65,
+      "minimum_decoy_confidence": 0.8,
+      "same_model_class_margin": 0.2,
+      "width_height_ratio": [
+        0.7,
+        1.43
+      ],
+      "center_dx_fraction": 0.2,
+      "center_dy_fraction": 0.15
+    }
+  ],
+  "forbidden": [
+    "world truth",
+    "world coordinate blacklist",
+    "static implies sculpture",
+    "cross-model raw confidence subtraction",
+    "automatic deployment",
+    "threshold selection from test set"
+  ],
+  "limitations": [
+    "single-image evidence cannot demonstrate three fresh frame agreement",
+    "matching ambiguity abstains",
+    "no recovery of primary model misses",
+    "six-UAV latency not measured",
+    "adjacent actor/sculpture overlap coverage limited"
+  ],
+  "primary_weights_sha256": [
+    "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+    "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a"
+  ],
+  "verifier_weights_sha256": [
+    "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7"
+  ]
+}

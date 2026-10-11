@@ -1,0 +1,1191 @@
+{
+  "policy": {
+    "created_wall_s": 1791715420.5835228,
+    "scope": "Offline fixed comparison; not runtime deployment or temporal acceptance. Previously evaluated validation/test images are reused.",
+    "primary_weights": [
+      "weights/best_yolo11n_bino_v1.pt",
+      "artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt"
+    ],
+    "verifier_weights": "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/weights/best.pt",
+    "model_conf": 0.3,
+    "actor_thresholds": {
+      "white": 0.3,
+      "other": 0.4
+    },
+    "imgsz": 640,
+    "policies": [
+      {
+        "name": "near_identical_090",
+        "iou": 0.9,
+        "minimum_decoy_confidence": 0.9,
+        "same_model_class_margin": 0.2,
+        "shape": "runtime_same_appearance_instance"
+      },
+      {
+        "name": "unique_cross_model_090",
+        "iou": 0.65,
+        "minimum_decoy_confidence": 0.9,
+        "same_model_class_margin": 0.2,
+        "width_height_ratio": [
+          0.7,
+          1.43
+        ],
+        "center_dx_fraction": 0.2,
+        "center_dy_fraction": 0.15
+      },
+      {
+        "name": "unique_cross_model_080",
+        "iou": 0.65,
+        "minimum_decoy_confidence": 0.8,
+        "same_model_class_margin": 0.2,
+        "width_height_ratio": [
+          0.7,
+          1.43
+        ],
+        "center_dx_fraction": 0.2,
+        "center_dy_fraction": 0.15
+      }
+    ],
+    "forbidden": [
+      "world truth",
+      "world coordinate blacklist",
+      "static implies sculpture",
+      "cross-model raw confidence subtraction",
+      "automatic deployment",
+      "threshold selection from test set"
+    ],
+    "limitations": [
+      "single-image evidence cannot demonstrate three fresh frame agreement",
+      "matching ambiguity abstains",
+      "no recovery of primary model misses",
+      "six-UAV latency not measured",
+      "adjacent actor/sculpture overlap coverage limited"
+    ],
+    "primary_weights_sha256": [
+      "9d0c1fe2b6370a40eb274573de06ac4e36c81eb7a39149dd1ac4aff0ed6990c2",
+      "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a"
+    ],
+    "verifier_weights_sha256": [
+      "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7"
+    ]
+  },
+  "policy_sha256": "8d7ff747a1834eb96b8bd83d717e0b257195db922cd4f67aa4d6cefedb64d105",
+  "manifest_sha256": "01ad10225efdf9f0ae2876986c5a21766e4f138aff6703604ead3c8ff94be9b5",
+  "evaluator_sha256": "112eef64d79cfdee400929d23c3ab9c2aaf65e5d8371a14b1ff691fb7148840a",
+  "runtime_source_sha256": "5418413e806abf42515dbed1f1d8d4d432efdd17aaf130a5ff835a91d5624466",
+  "inference_device": "0",
+  "timing": {
+    "weights/best_yolo11n_bino_v1.pt": {
+      "images": 392,
+      "median_s": 0.004731998000352178,
+      "p95_s": 0.005576323500463332,
+      "first_s": 1.041232094001316
+    },
+    "artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt": {
+      "images": 392,
+      "median_s": 0.004911452999294852,
+      "p95_s": 0.005883267499484646,
+      "first_s": 0.11866344300142373
+    },
+    "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/weights/best.pt": {
+      "images": 392,
+      "median_s": 0.00469691600119404,
+      "p95_s": 0.00553031050003483,
+      "first_s": 0.035801616999378894
+    }
+  },
+  "groups": {
+    "legacy340": {
+      "weights/best_yolo11n_bino_v1.pt": {
+        "primary_alone": {
+          "images": 340,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9859154929577465,
+            "blue": 0.9894736842105263,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 152,
+            "green": 70,
+            "blue": 94,
+            "white": 89,
+            "brown": 56
+          },
+          "labels": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "near_identical_090": {
+          "images": 340,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9859154929577465,
+            "blue": 0.9894736842105263,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 152,
+            "green": 70,
+            "blue": 94,
+            "white": 89,
+            "brown": 56
+          },
+          "labels": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_090": {
+          "images": 340,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9859154929577465,
+            "blue": 0.9894736842105263,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 152,
+            "green": 70,
+            "blue": 94,
+            "white": 89,
+            "brown": 56
+          },
+          "labels": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_080": {
+          "images": 340,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9859154929577465,
+            "blue": 0.9894736842105263,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 152,
+            "green": 70,
+            "blue": 94,
+            "white": 89,
+            "brown": 56
+          },
+          "labels": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        }
+      },
+      "artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt": {
+        "primary_alone": {
+          "images": 340,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9577464788732394,
+            "blue": 0.9789473684210527,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 152,
+            "green": 68,
+            "blue": 93,
+            "white": 89,
+            "brown": 56
+          },
+          "labels": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "near_identical_090": {
+          "images": 340,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9577464788732394,
+            "blue": 0.9789473684210527,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 152,
+            "green": 68,
+            "blue": 93,
+            "white": 89,
+            "brown": 56
+          },
+          "labels": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_090": {
+          "images": 340,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9577464788732394,
+            "blue": 0.9789473684210527,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 152,
+            "green": 68,
+            "blue": 93,
+            "white": 89,
+            "brown": 56
+          },
+          "labels": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_080": {
+          "images": 340,
+          "recall": {
+            "red": 0.9934640522875817,
+            "green": 0.9577464788732394,
+            "blue": 0.9789473684210527,
+            "white": 0.967391304347826,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 152,
+            "green": 68,
+            "blue": 93,
+            "white": 89,
+            "brown": 56
+          },
+          "labels": {
+            "red": 153,
+            "green": 71,
+            "blue": 95,
+            "white": 92,
+            "brown": 56
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        }
+      }
+    },
+    "negative34": {
+      "weights/best_yolo11n_bino_v1.pt": {
+        "primary_alone": {
+          "images": 34,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "matched": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "labels": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "near_identical_090": {
+          "images": 34,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "matched": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "labels": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_090": {
+          "images": 34,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "matched": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "labels": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_080": {
+          "images": 34,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "matched": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "labels": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        }
+      },
+      "artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt": {
+        "primary_alone": {
+          "images": 34,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "matched": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "labels": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "near_identical_090": {
+          "images": 34,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "matched": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "labels": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_090": {
+          "images": 34,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "matched": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "labels": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_080": {
+          "images": 34,
+          "recall": {
+            "red": null,
+            "green": null,
+            "blue": null,
+            "white": null,
+            "brown": null
+          },
+          "matched": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "labels": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "white": 0,
+            "brown": 0
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        }
+      }
+    },
+    "mixed_all_b": {
+      "weights/best_yolo11n_bino_v1.pt": {
+        "primary_alone": {
+          "images": 8,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 0.875,
+            "white": 0.875,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 8,
+            "green": 8,
+            "blue": 7,
+            "white": 7,
+            "brown": 8
+          },
+          "labels": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "near_identical_090": {
+          "images": 8,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 0.875,
+            "white": 0.875,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 8,
+            "green": 8,
+            "blue": 7,
+            "white": 7,
+            "brown": 8
+          },
+          "labels": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_090": {
+          "images": 8,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 0.875,
+            "white": 0.875,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 8,
+            "green": 8,
+            "blue": 7,
+            "white": 7,
+            "brown": 8
+          },
+          "labels": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_080": {
+          "images": 8,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 0.875,
+            "white": 0.875,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 8,
+            "green": 8,
+            "blue": 7,
+            "white": 7,
+            "brown": 8
+          },
+          "labels": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        }
+      },
+      "artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt": {
+        "primary_alone": {
+          "images": 8,
+          "recall": {
+            "red": 1.0,
+            "green": 0.875,
+            "blue": 1.0,
+            "white": 0.375,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 8,
+            "green": 7,
+            "blue": 8,
+            "white": 3,
+            "brown": 8
+          },
+          "labels": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "near_identical_090": {
+          "images": 8,
+          "recall": {
+            "red": 1.0,
+            "green": 0.875,
+            "blue": 1.0,
+            "white": 0.375,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 8,
+            "green": 7,
+            "blue": 8,
+            "white": 3,
+            "brown": 8
+          },
+          "labels": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_090": {
+          "images": 8,
+          "recall": {
+            "red": 1.0,
+            "green": 0.875,
+            "blue": 1.0,
+            "white": 0.375,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 8,
+            "green": 7,
+            "blue": 8,
+            "white": 3,
+            "brown": 8
+          },
+          "labels": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_080": {
+          "images": 8,
+          "recall": {
+            "red": 1.0,
+            "green": 0.875,
+            "blue": 1.0,
+            "white": 0.375,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 8,
+            "green": 7,
+            "blue": 8,
+            "white": 3,
+            "brown": 8
+          },
+          "labels": {
+            "red": 8,
+            "green": 8,
+            "blue": 8,
+            "white": 8,
+            "brown": 8
+          },
+          "false_decoy_frames": 0,
+          "empty_false_frames": 0
+        }
+      }
+    },
+    "mixed_all_d": {
+      "weights/best_yolo11n_bino_v1.pt": {
+        "primary_alone": {
+          "images": 10,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 1.0,
+            "white": 1.0,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "labels": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "false_decoy_frames": 3,
+          "empty_false_frames": 0
+        },
+        "near_identical_090": {
+          "images": 10,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 1.0,
+            "white": 1.0,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "labels": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "false_decoy_frames": 3,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_090": {
+          "images": 10,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 1.0,
+            "white": 1.0,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "labels": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "false_decoy_frames": 3,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_080": {
+          "images": 10,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 1.0,
+            "white": 1.0,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "labels": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "false_decoy_frames": 1,
+          "empty_false_frames": 0
+        }
+      },
+      "artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt": {
+        "primary_alone": {
+          "images": 10,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 1.0,
+            "white": 1.0,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "labels": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "false_decoy_frames": 4,
+          "empty_false_frames": 0
+        },
+        "near_identical_090": {
+          "images": 10,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 1.0,
+            "white": 1.0,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "labels": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "false_decoy_frames": 4,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_090": {
+          "images": 10,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 1.0,
+            "white": 1.0,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "labels": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "false_decoy_frames": 4,
+          "empty_false_frames": 0
+        },
+        "unique_cross_model_080": {
+          "images": 10,
+          "recall": {
+            "red": 1.0,
+            "green": 1.0,
+            "blue": 1.0,
+            "white": 1.0,
+            "brown": 1.0
+          },
+          "matched": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "labels": {
+            "red": 10,
+            "green": 10,
+            "blue": 10,
+            "white": 10,
+            "brown": 10
+          },
+          "false_decoy_frames": 1,
+          "empty_false_frames": 0
+        }
+      }
+    }
+  },
+  "temporal_acceptance": "not_tested",
+  "flight_acceptance": "not_tested",
+  "deployed": false,
+  "extra_true_actor_misses": 0,
+  "cpu_benchmark": {
+    "primary_only": {
+      "median_s": 0.01022045799982152,
+      "p95_s": 0.010534351949900156,
+      "samples": 24,
+      "torch_threads": 1,
+      "six_uav_load_tested": false
+    },
+    "primary_plus_verifier": {
+      "median_s": 0.020978919500521442,
+      "p95_s": 0.022366479950960638,
+      "samples": 24,
+      "torch_threads": 1,
+      "six_uav_load_tested": false
+    }
+  },
+  "confirmed_native_sculpture": {
+    "image": "/home/gycc/\u684c\u9762/RoboCup_Team/artifacts/run_audit_20261011_175916/frames/0011_typhoon_h480_2.png",
+    "predictions": {
+      "weights/best_yolo11n_bino_v1.pt": [
+        [
+          2,
+          [
+            364.83074951171875,
+            220.58184814453125,
+            384.38836669921875,
+            277.11651611328125
+          ],
+          0.8083398342132568
+        ],
+        [
+          1,
+          [
+            673.7369995117188,
+            190.6650390625,
+            684.73681640625,
+            214.3659210205078
+          ],
+          0.33505183458328247
+        ],
+        [
+          2,
+          [
+            365.0473937988281,
+            220.4230499267578,
+            383.7673645019531,
+            252.52125549316406
+          ],
+          0.3347703814506531
+        ]
+      ],
+      "artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt": [
+        [
+          2,
+          [
+            363.20330810546875,
+            222.23475646972656,
+            383.97247314453125,
+            278.5712890625
+          ],
+          0.7755075693130493
+        ]
+      ],
+      "/home/gycc/robocup_distractor_data/runs/yolo11n_bino_distractor_v3/weights/best.pt": [
+        [
+          5,
+          [
+            363.02459716796875,
+            217.28001403808594,
+            386.2154541015625,
+            279.9032897949219
+          ],
+          0.8645336627960205
+        ]
+      ]
+    },
+    "combinations": {
+      "weights/best_yolo11n_bino_v1.pt": {
+        "primary_alone": [
+          [
+            2,
+            [
+              364.83074951171875,
+              220.58184814453125,
+              384.38836669921875,
+              277.11651611328125
+            ],
+            0.8083398342132568
+          ]
+        ],
+        "near_identical_090": {
+          "kept": [
+            [
+              2,
+              [
+                364.83074951171875,
+                220.58184814453125,
+                384.38836669921875,
+                277.11651611328125
+              ],
+              0.8083398342132568
+            ]
+          ],
+          "proposed_vetoes": [],
+          "evidence": []
+        },
+        "unique_cross_model_090": {
+          "kept": [
+            [
+              2,
+              [
+                364.83074951171875,
+                220.58184814453125,
+                384.38836669921875,
+                277.11651611328125
+              ],
+              0.8083398342132568
+            ]
+          ],
+          "proposed_vetoes": [],
+          "evidence": [
+            {
+              "actor_index": 0,
+              "decoy_confidence": 0.8645336627960205,
+              "verifier_actor_confidence": 0.0,
+              "reason": "weak_verifier"
+            }
+          ]
+        },
+        "unique_cross_model_080": {
+          "kept": [],
+          "proposed_vetoes": [
+            [
+              2,
+              [
+                364.83074951171875,
+                220.58184814453125,
+                384.38836669921875,
+                277.11651611328125
+              ],
+              0.8083398342132568
+            ]
+          ],
+          "evidence": [
+            {
+              "actor_index": 0,
+              "decoy_confidence": 0.8645336627960205,
+              "verifier_actor_confidence": 0.0,
+              "reason": "proposed_veto"
+            }
+          ]
+        }
+      },
+      "artifacts/yolo_remote_audit_20261011/weights/best_yolo11n_bino_v3_clean.pt": {
+        "primary_alone": [
+          [
+            2,
+            [
+              363.20330810546875,
+              222.23475646972656,
+              383.97247314453125,
+              278.5712890625
+            ],
+            0.7755075693130493
+          ]
+        ],
+        "near_identical_090": {
+          "kept": [
+            [
+              2,
+              [
+                363.20330810546875,
+                222.23475646972656,
+                383.97247314453125,
+                278.5712890625
+              ],
+              0.7755075693130493
+            ]
+          ],
+          "proposed_vetoes": [],
+          "evidence": []
+        },
+        "unique_cross_model_090": {
+          "kept": [
+            [
+              2,
+              [
+                363.20330810546875,
+                222.23475646972656,
+                383.97247314453125,
+                278.5712890625
+              ],
+              0.7755075693130493
+            ]
+          ],
+          "proposed_vetoes": [],
+          "evidence": [
+            {
+              "actor_index": 0,
+              "decoy_confidence": 0.8645336627960205,
+              "verifier_actor_confidence": 0.0,
+              "reason": "weak_verifier"
+            }
+          ]
+        },
+        "unique_cross_model_080": {
+          "kept": [],
+          "proposed_vetoes": [
+            [
+              2,
+              [
+                363.20330810546875,
+                222.23475646972656,
+                383.97247314453125,
+                278.5712890625
+              ],
+              0.7755075693130493
+            ]
+          ],
+          "evidence": [
+            {
+              "actor_index": 0,
+              "decoy_confidence": 0.8645336627960205,
+              "verifier_actor_confidence": 0.0,
+              "reason": "proposed_veto"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "decision": "No production deployment. Image-level veto reduces errors under the 0.80 candidate policy, but remote primary fails actor-retention checks, misses remain, and temporal/six-UAV acceptance is untested."
+}
