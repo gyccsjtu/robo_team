@@ -402,7 +402,7 @@ class _Track(object):
                  "good_x", "good_y", "good_t", "good_history",
                  "official_source", "official_candidate_id", "source_history", "official_rejects",
                  "tracking_source", "tracking_candidate_id", "source_candidates",
-                 "accepted_source_samples",
+                 "accepted_source_samples", "source_quality", "quality_switch_s",
                  "pursuit_history",
                  "_last_fx", "_last_fy", "_last_ft",
                  "_high_conf_count", "_motion_history", "_last_vel_mag", "camera_confirmed")
@@ -425,6 +425,8 @@ class _Track(object):
         self.source_candidates = {}
         self.source_history = {}
         self.accepted_source_samples = {}
+        self.source_quality = {}
+        self.quality_switch_s = -1e18
         self.pursuit_history = {}
         self.official_rejects = 0
         self.good_x = None
@@ -534,9 +536,15 @@ def parse_report_frame(raw, now):
         # Older producers used confidence=1 as a confirmation flag. Always
         # preserve the actual model probability when it is available.
         conf = visual_conf
+        quality = item.get('position_uncertainty_m')
+        if quality is not None:
+            quality = float(quality)
+            if not math.isfinite(quality) or not .01 <= quality <= 10.:
+                quality = None
         row = dict(tag=tag, local_tag=tag, source_uav=source, sample_s=sample,
                    candidate_id=candidate_id, x=x, y=y, conf=conf, range_m=rng,
                    visual_conf=visual_conf, appearance_status=status,
+                   position_uncertainty_m=quality,
                    camera_confirmed=(item.get('track_confirmed') is True and
                                      int(item.get('track_hits', 0)) >= 3),
                    appearance_confidence=appearance_conf,
@@ -784,7 +792,8 @@ class TargetBridgeCore(object):
             if winner is not None:
                 self.report(winner['sample_s'], tag, winner['x'], winner['y'],
                             winner['conf'], winner['range_m'], winner['official_ok'],
-                            winner['source_uav'], winner.get('candidate_id'))
+                            winner['source_uav'], winner.get('candidate_id'),
+                            position_uncertainty_m=winner.get('position_uncertainty_m'))
                 self.tracks[tag].camera_confirmed = bool(winner.get('camera_confirmed'))
             ready = []
             # Every independent disjoint candidate gets a vote, but no vote
@@ -832,7 +841,8 @@ class TargetBridgeCore(object):
             self.report(sample, tr.tag, sx, sy, sample_conf, sample_range,
                         official_ok=True, source_uav=source, candidate_id=candidate_id)
 
-    def _accept_official_sample(self, tr, t, source, x, y, range_m, candidate_id=None):
+    def _accept_official_sample(self, tr, t, source, x, y, range_m, candidate_id=None,
+                                position_uncertainty_m=None):
         """Keep a live report source; validate other cameras independently.
 
         Agreement qualifies a camera's own view for task health, but is not a
@@ -841,13 +851,25 @@ class TargetBridgeCore(object):
         """
         key = self._source_key(source, candidate_id)
         incumbent = self._source_key(tr.official_source, tr.official_candidate_id)
-        if source is not None and not self._official_source_ok(tr, t, source, x, y, candidate_id):
+        if position_uncertainty_m is not None:
+            q = float(position_uncertainty_m)
+            if math.isfinite(q) and .01 <= q <= 10.:
+                history = [p for p in tr.source_quality.get(key, []) if 0. <= t-p[0] <= 2.4]
+                if not history or t > history[-1][0]:
+                    history.append((t, q))
+                tr.source_quality[key] = history
+        valid = source is None or self._official_source_ok(tr, t, source, x, y, candidate_id)
+        quality_segment = self._better_geometry_segment(tr, t, key, incumbent, x, y)
+        if not valid and quality_segment is None:
             return
         tr.accepted_source_samples[key] = float(t)
         if (key != incumbent and tr.good_x is not None and
-                0. <= t-tr.good_t <= OFFICIAL_IMAGE_MAX_AGE):
+                0. <= t-tr.good_t <= OFFICIAL_IMAGE_MAX_AGE and quality_segment is None):
             return
-        if key != incumbent or t-tr.good_t > 2.0:
+        if quality_segment is not None:
+            tr.quality_switch_s = t
+            tr.good_history = quality_segment[:-1]
+        elif key != incumbent or t-tr.good_t > 2.0:
             tr.good_history = []
         elif source is not None:
             segment = _confirmed_official_segment(
@@ -863,6 +885,36 @@ class TargetBridgeCore(object):
         tr.good_history.append((float(t), x, y))
         if range_m is not None:
             tr.range_m = float(range_m)
+
+    def _better_geometry_segment(self, tr, t, key, incumbent, x, y):
+        """Bounded takeover by demonstrably better geometry, never averaging.
+
+        Sensitivity ranks cameras; it does not prove absolute accuracy. Require
+        a complete independent second-long fit and hysteresis. Red disagreement
+        is tighter because two real people share that appearance.
+        """
+        if (key == incumbent or tr.good_x is None or t-tr.quality_switch_s < 5. or
+                not 0. <= t-tr.good_t <= OFFICIAL_IMAGE_MAX_AGE):
+            return None
+        new = [p for p in tr.source_quality.get(key, []) if 0. <= t-p[0] <= 1.5]
+        old = [p for p in tr.source_quality.get(incumbent, []) if 0. <= t-p[0] <= 1.5]
+        if (len(new) < 6 or len(old) < 3 or new[-1][0]-new[0][0] < 1.-1e-6 or
+                new[-1][0] != t or
+                statistics.median(p[1] for p in new) > .6*statistics.median(p[1] for p in old)):
+            return None
+        segment = [p for p in tr.source_history.get(key, []) if new[0][0] <= p[0] <= t]
+        model = _robust_official_fit(segment, t)
+        if model is None or not model[5] or len(segment) < 6:
+            return None
+        if any(b[0]-a[0] > .5 for a,b in zip(segment, segment[1:])):
+            return None
+        old_model = _robust_official_fit(tr.good_history, tr.good_t)
+        ax, ay = tr.good_x, tr.good_y
+        if old_model is not None:
+            ax, ay = old_model[0]+old_model[2]*(t-tr.good_t), old_model[1]+old_model[3]*(t-tr.good_t)
+        if math.hypot(x-ax, y-ay) > (.5 if tr.tag in RED_TAGS else 1.5):
+            return None
+        return segment
 
     def _official_source_ok(self, tr, t, source, x, y, candidate_id=None):
         """Protect the judge stream against camera handoff and single-frame jumps.
@@ -919,7 +971,7 @@ class TargetBridgeCore(object):
 
     # ---- 感知输入 ----
     def report(self, t, target_id, x, y, conf, range_m=None,
-               official_ok=True, source_uav=None, candidate_id=None):
+               official_ok=True, source_uav=None, candidate_id=None, position_uncertainty_m=None):
         """吸收一条 YOLO 观测。非法参数抛 ValueError。"""
         tag = str(target_id)
         if tag not in self.tracks:
@@ -948,7 +1000,8 @@ class TargetBridgeCore(object):
             # independent fresh official evidence to update its own anchor.
             if (source_uav is not None and official_ok and t > tr.good_t and
                     tr.t_obs-t <= OBS_WINDOW):
-                self._accept_official_sample(tr, t, source_uav, x, y, range_m, candidate_id)
+                self._accept_official_sample(tr, t, source_uav, x, y, range_m, candidate_id,
+                                             position_uncertainty_m)
             return
         # The activation counter describes consecutive *fresh* reports.
         # Keeping it across a long visual gap lets one unrelated detection
@@ -997,7 +1050,8 @@ class TargetBridgeCore(object):
         if tr.started_s is None:
             tr.started_s = float(t)
         if official_ok and t >= tr.good_t:
-            self._accept_official_sample(tr, t, source_uav, x, y, range_m, candidate_id)
+            self._accept_official_sample(tr, t, source_uav, x, y, range_m, candidate_id,
+                                             position_uncertainty_m)
 
         sw = sum(o[3] for o in tr.obs)
         fx = sum(o[1] * o[3] for o in tr.obs) / sw
@@ -1438,6 +1492,9 @@ class YoloTargetBridge(object):
                 x, y = row['x'], row['y']
                 tr = self.core.tracks[tag]
                 key = self.core._source_key(source, candidate_id)
+                if tr.quality_switch_s == sample:
+                    self._rospy.loginfo('[SOURCE_QUALITY_HANDOFF] tag=%s source=%s image=%.3f quality=%s',
+                                         tag, source, sample, row.get('position_uncertainty_m'))
                 source_accepted = tr.accepted_source_samples.get(key) == sample
                 tracking_matches = (tr.t_obs == sample and
                                     self.core._source_key(tr.tracking_source,

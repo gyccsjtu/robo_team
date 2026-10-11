@@ -30,3 +30,10 @@ class BodyProjectionTests(unittest.TestCase):
     def test_nonphysical_and_nonfinite_geometry_is_rejected(self):
         self.assertIsNone(pr.projected_body_height([7., 0., -3.], float('nan'), np.eye(3)))
         self.assertIsNone(pr.projected_body_height([7., 0., -3.], 1000., np.eye(3)))
+
+    def test_quality_ranks_steeper_calibrated_view_and_rejects_bad_input(self):
+        far = pr.ground_position_uncertainty(3., 1/3., 9., 100.)
+        near = pr.ground_position_uncertainty(3., .5, 6., 150.)
+        self.assertLess(near, .6*far)
+        self.assertIsNone(pr.ground_position_uncertainty(3., .1, 9., 100.))
+        self.assertIsNone(pr.ground_position_uncertainty(float('nan'), .5, 6., 150.))

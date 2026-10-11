@@ -161,5 +161,30 @@ class RobustCoordinateReportTests(unittest.TestCase):
         self.assertGreaterEqual(accepted, 218)
 
 
+class GeometryHandoffTests(unittest.TestCase):
+    def feed(self, quality=.2, jump=1.2, tag='blue', count=12):
+        c = bridge.TargetBridgeCore()
+        for i in range(count):
+            t = 100.+i*.2
+            c.report(t, tag, 0., 0., .9, 9., source_uav='a', position_uncertainty_m=.8)
+            c.report(t+.01, tag, jump, 0., .9, 6., source_uav='b', position_uncertainty_m=quality)
+        return c
+
+    def test_better_geometry_can_replace_live_smooth_biased_source(self):
+        c = self.feed()
+        tr = c.tracks['blue']
+        self.assertEqual(tr.official_source, 'b')
+        self.assertAlmostEqual(bridge.official_point_at(tr, 102.3)[0], 1.2)
+        self.assertTrue(all(abs(p[1]-1.2) < 1e-6 for p in tr.good_history))
+
+    def test_no_switch_from_single_frame_equal_quality_or_large_disagreement(self):
+        for kwargs in (dict(count=4), dict(quality=.8), dict(jump=2.), dict(tag='red1')):
+            c = self.feed(**kwargs)
+            self.assertEqual(c.tracks[kwargs.get('tag','blue')].official_source, 'a')
+
+    def test_missing_quality_does_not_guess_which_camera_is_right(self):
+        self.assertEqual(self.feed(quality=None).tracks['blue'].official_source, 'a')
+
+
 if __name__ == '__main__':
     unittest.main()

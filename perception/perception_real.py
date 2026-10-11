@@ -13,18 +13,10 @@ M3 验收暴露：red 命中率 51.5%、误差中位 0.85 m，明显差于 white
     这推翻了 M2 的结论「误检不影响判分」——那只对 white 成立（白墙误检离人远），
     red 的误检与真目标共处窄区域，会**间接污染**正确目标。
 
-============================ 判据的物理依据 =============================
-单目测距已经给出了沿光轴深度 z_cam，于是可以把框的像素高换算成「物体实际高度」：
-
-    H = h_px * z_cam / fy
-
-真人（actor 用 walk 动画，站立身高 ~1.7 m）必然落在 ~1.7 m 附近；
-招牌 / 建筑色条要么几米要么几十米。diag 实测：
-
-    真 actor_4 连续 9 帧：H = 1.70 ~ 2.11 m，conf 0.66 ~ 0.91
-    同帧误检：          H = 0.92 / 2.63 / 4.62 / 17.8 / 24.4 / 31.2 m
-
-**这个量纲是米，不是拍脑袋的阈值**，且只依赖 z_cam（我们自己测的）和 fy（官方内参）。
+============================ 当前人体几何 =============================
+完整框按图像时刻相机姿态、地面脚点的竖线与头部像素行投影求身高。
+脚点斜距只用于量程；倾斜相机的头脚深度不同，不能用 h_px * range / fy。
+框边不等于精确关键点，几何通过也不证明绝对定位误差小于裁判门限。
 
 ============================ v3.0 的教训：过滤过度会断链 =============================
 v3.0 把四道闸一起收紧，跑出来的结果一半喜一半忧：
@@ -1077,6 +1069,21 @@ def pose_at_stamp(stamp, fallback=None):
     return xyz + (interpolate_rotation(first[4], second[4], alpha),)
 
 
+def ground_position_uncertainty(height, sin_down, slant_range, box_height):
+    """Conservative sensitivity to 10 cm datum, 1 degree tilt and foot pixels.
+
+    Used only for comparing calibrated camera sources, never as referee truth.
+    Full-box foot uncertainty includes the existing 5% inset magnitude.
+    """
+    if not all(math.isfinite(v) for v in (height, sin_down, slant_range, box_height)):
+        return None
+    if height <= 0. or not .3 <= sin_down <= 1. or slant_range <= 0.:
+        return None
+    horizontal = slant_range*math.sqrt(max(0., 1.-sin_down*sin_down))
+    angular = math.hypot(math.radians(1.), max(2., box_height*.05)/FY)
+    return math.hypot(.10*horizontal/height, height*angular/(sin_down*sin_down))
+
+
 def projected_body_height(foot_relative_world, y_top, rotation):
     """Vertical world segment through the measured foot, ending on the head row.
 
@@ -1195,7 +1202,7 @@ class Track(object):
     """alpha-beta 匀速跟踪器：状态 (x, y, vx, vy) + 身高 H + 外观特征（v4 新增多层次关联）。"""
     _seq = 0
 
-    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0.):
+    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None):
         """appearance_feat: 外观特征向量（颜色直方图/深度特征），用于外观关联"""
         Track._seq += 1
         self.id = Track._seq
@@ -1215,6 +1222,7 @@ class Track(object):
         self.loc_suspect = not loc_ok
         self.observation_loc_ok = bool(loc_ok)
         self.range_method = range_method
+        self.position_uncertainty_m = position_uncertainty_m
         self.loc_good_streak = 3 if loc_ok else 0
         self.x0, self.y0, self.t0 = x, y, t   # 起点，用于算净位移速度
         self.sp = 0.0                   # 净位移速度 (m/s)：真人 ~1，静止误检 ~0
@@ -1292,7 +1300,7 @@ class Track(object):
             self._pub_result = (px, py)
         return self._pub_result
 
-    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0.):
+    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None):
         """更新track状态，可选更新外观特征用于多层次关联"""
         sample_s = t if observation_s is None else observation_s
         if t <= self.t or sample_s <= self.observed_s or dt <= 0.0:
@@ -1302,6 +1310,7 @@ class Track(object):
         self.appearance_status = appearance_status
         self.distractor_confidence = float(distractor_confidence)
         self.range_method = range_method
+        self.position_uncertainty_m = position_uncertainty_m
         self.recent_observed_xy = [p for p in self.recent_observed_xy
                                    if sample_s - p[0] <= 2.5]
         self.recent_observed_xy.append((sample_s, zx, zy))
@@ -1642,6 +1651,7 @@ def report_candidate_frame(entries, source, sample, session, observer_xy,
             visual_confidence=round(float(track.conf), 3),
             track_confirmed=bool(report_ready_hits(cls, track.hits)),
             sample_s=float(sample), source_uav=source, real_detection=True,
+            position_uncertainty_m=getattr(track, 'position_uncertainty_m', None),
             track_hits=int(track.hits), range_m=round(math.hypot(
                 x-observer_xy[0], y-observer_xy[1]), 2),
             official_view_ok=bool(person_ok and report_ready_hits(cls, track.hits) and
@@ -2092,6 +2102,13 @@ def main():
                                      "h": round(impl_h, 2),
                                      "strict": strict,
                                      "loc_ok": strict_base,
+                                     # Geometry sensitivity is a source ranking metric,
+                                     # not a certified absolute error bound. No quality
+                                     # takeover is enabled for assumed-height crops.
+                                     "position_uncertainty_m": (
+                                         ground_position_uncertainty(pz, sin_down, rng, h_px)
+                                         if t is not None and globals().get('_height_datum') is not None
+                                         and globals()['_height_datum'].offset is not None else None),
                                      "range_method": 'head_height' if t is None else 'foot_ground',
                                      "score": round(conf * person_likelihood(impl_h), 3),
                                      "appearance_status": b.appearance_status,
@@ -2187,7 +2204,8 @@ def main():
                           appearance_feat=appear_feat, observation_s=frame_stamp,
                           loc_ok=d.get('loc_ok', True), range_method=d['range_method'],
                           appearance_status=d['appearance_status'],
-                          distractor_confidence=d['distractor_confidence'])
+                          distractor_confidence=d['distractor_confidence'],
+                          position_uncertainty_m=d.get('position_uncertainty_m'))
             else:
                 tk.coast(dt)
 
@@ -2205,7 +2223,8 @@ def main():
                                     observation_s=frame_stamp,
                                     loc_ok=d.get('loc_ok', True), range_method=d['range_method'],
                                     appearance_status=d['appearance_status'],
-                                    distractor_confidence=d['distractor_confidence']))
+                                    distractor_confidence=d['distractor_confidence'],
+                          position_uncertainty_m=d.get('position_uncertainty_m')))
 
         # ---------- 3) 清理 ----------
         # 原判据 math.hypot(tk.x, tk.y) 是"距世界原点"的距离，与飞机在哪无关：
