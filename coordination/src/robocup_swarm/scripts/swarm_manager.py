@@ -851,7 +851,7 @@ class SwarmManager(object):
         return abs((bearing - yaw + math.pi) % (2.0 * math.pi) - math.pi) <= math.radians(45.0)
 
     def _processed_camera_frame_cb(self, msg):
-        """Credit cells imaged twice during transit, after the actual YOLO pass."""
+        """Credit nine subpoints only after actual processed images and LOS."""
         try:
             data = json.loads(msg.data)
             if data.get('processed') is not True:
@@ -882,26 +882,50 @@ class SwarmManager(object):
             evidence = getattr(self, '_camera_cell_evidence', None)
             if evidence is None:
                 evidence = self._camera_cell_evidence = {}
+            seen = getattr(self, '_camera_point_seen', None)
+            if seen is None:
+                seen = self._camera_point_seen = {}
+            # Independent subpoints preserve the unseen far edge of a cell.
+            # Credit expires so an old pass cannot complete a new blind sweep.
+            for book in (evidence, seen):
+                for k in list(book):
+                    at = book[k][-1] if isinstance(book[k], tuple) else book[k]
+                    if now-at > 30.:
+                        del book[k]
             for key, cell in self.grid.cells.items():
                 cx, cy = cell.cx, cell.cy
-                # Actual image direction and LOS allow observing the outer
-                # strip from the safe inner row. The older 5.5 m edge rule
-                # applies only to geometry-based arrival coverage.
-                if (not self._in_processed_view(ux, uy, yaw, cx, cy,
-                                                altitude, down_pitch) or
-                        not los.visible(ux, uy, cx, cy)):
+                half = self.grid.cell_m*.5
+                if math.hypot(cx-ux, cy-uy) > 9.+half*math.sqrt(2.):
                     continue
-                prior = evidence.get((uid, key))
-                if prior is None:
-                    evidence[(uid, key)] = (sample, sample)
-                    continue
-                first, last = prior
-                if sample <= last:
-                    continue
-                if sample - last > 0.7:
-                    first = sample
-                evidence[(uid, key)] = (first, sample)
-                if sample - first < 0.2:
+                required = []
+                for iy in range(3):
+                    for ix in range(3):
+                        px = max(self.grid.x_min+.01, min(self.grid.x_max-.01,
+                                 cx+(ix-1)*(half-.01)))
+                        py = max(self.grid.y_min+.01, min(self.grid.y_max-.01,
+                                 cy+(iy-1)*(half-.01)))
+                        point = iy*3+ix
+                        # Known solid obstacle interiors are not search space.
+                        if (hasattr(grid_map, 'world_to_cell') and
+                                not grid_map.is_free(grid_map.world_to_cell((px, py)))):
+                            continue
+                        required.append(point)
+                        if (not self._in_processed_view(ux, uy, yaw, px, py,
+                                                       altitude, down_pitch) or
+                                not los.visible(ux, uy, px, py)):
+                            continue
+                        ek = (uid, key, point)
+                        prior = evidence.get(ek)
+                        if prior is None or sample-prior[1] > .7:
+                            evidence[ek] = (sample, sample)
+                            continue
+                        first, last = prior
+                        if sample <= last:
+                            continue
+                        evidence[ek] = (first, sample)
+                        if sample-first >= .2-1e-6:
+                            seen[(key, point)] = sample
+                if not required or any((key, p) not in seen for p in required):
                     continue
                 owner = cell.owner if cell.state == STATE_ASSIGNED else None
                 newly_observed = cell.state != STATE_COVERED
@@ -933,7 +957,7 @@ class SwarmManager(object):
                         self._active_leases.pop(owner, None)
                         self._lease_hold_since.pop((owner, key), None)
                         self._lease_motion.pop(owner, None)
-                evidence.pop((uid, key), None)
+                # Keep dated subpoint evidence for adjoining transit views.
         except (ValueError, KeyError, TypeError, AttributeError, RuntimeError):
             return
 

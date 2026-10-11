@@ -1574,8 +1574,21 @@ class MatchBlockers(unittest.TestCase):
             if sample == 100.0:
                 self.assertEqual(manager.grid.cell(front).state,
                                  swarm_task.STATE_FREE)
+        # Centre is visible; far corners lie outside the valid image range.
         self.assertEqual(manager.grid.cell(front).state,
-                         swarm_task.STATE_COVERED)
+                         swarm_task.STATE_FREE)
+        self.assertGreater(len(manager._camera_point_seen), 0)
+        # Sweep viewpoints around the cell. Every free subpoint must actually
+        # be in a processed image twice before the whole cell is credited.
+        for j, (x, y, yaw) in enumerate((px-8., py, 0.)
+                for px in (.01,3.5,6.99) for py in (-6.99,-3.5,-.01)):
+            manager.status['u0'].x, manager.status['u0'].y = x, y
+            for at in (101.+j, 101.3+j):
+                payload.update(sample_s=at, x=x, y=y, yaw=yaw)
+                with patch.object(swarm_manager.rospy.Time, 'now',
+                                  return_value=swarm_manager.rospy.Time.from_sec(at)):
+                    manager._processed_camera_frame_cb(SimpleNamespace(data=json.dumps(payload)))
+        self.assertEqual(manager.grid.cell(front).state, swarm_task.STATE_COVERED)
         self.assertEqual(manager.grid.cell(behind).state,
                          swarm_task.STATE_FREE)
         self.assertFalse(manager._in_processed_view(
@@ -1583,6 +1596,7 @@ class MatchBlockers(unittest.TestCase):
         blocked = swarm_task.CoverageGrid(-21, 21, -21, 21, num_uavs=1)
         manager.grid = blocked
         manager._camera_cell_evidence = {}
+        manager._camera_point_seen = {}
         with patch.object(swarm_manager.LineOfSight, 'visible',
                           return_value=False):
             for sample in (101.0, 101.3):
