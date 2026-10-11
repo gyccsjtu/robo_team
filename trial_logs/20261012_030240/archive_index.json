@@ -1,0 +1,47 @@
+{
+  "diagnostics.tar.gz": {
+    "bytes": 49147040,
+    "sha256": "b39c535791dad9222234354c707ab1f292a824cc4ea56d9f1e96c1a19610b514",
+    "files": 82
+  },
+  "runtime_sources_and_weights.tar.gz": {
+    "bytes": 10505512,
+    "sha256": "09c210361daf72446d192d319ac47d09a7d5e36df4c4207f6c626ebbc800a11c",
+    "files": 67
+  },
+  "camera_uav0_stereo.tar.gz": {
+    "bytes": 14692691,
+    "sha256": "3dc9bc13b65ac96356acf67ed9ce5b56561ccfb2c54cec975a697b5c4393f9ec",
+    "files": 308
+  },
+  "camera_uav1_stereo.tar.gz": {
+    "bytes": 15072989,
+    "sha256": "8c2537e9c147b98aa3aaba22e816f335279a0492cd2d00164b1fc3de5a4bc892",
+    "files": 308
+  },
+  "camera_uav2_stereo.tar.gz": {
+    "bytes": 13687693,
+    "sha256": "b79f1859afb588cc3ea1e32bb6ba4b456ce590ef1d6368e0e20b3e6bb924dd22",
+    "files": 308
+  },
+  "camera_uav3_stereo.tar.gz": {
+    "bytes": 14290404,
+    "sha256": "b75513b777f3b22e824506b2411799741a8f047e59fec29ac4f07d86df02ddbf",
+    "files": 308
+  },
+  "camera_uav4_stereo.tar.gz": {
+    "bytes": 14307924,
+    "sha256": "144d4f2863fd4d5136ef07c96f5c56a6ba95bb02fa0c8daa3919680c5c8f2dcd",
+    "files": 306
+  },
+  "camera_uav5_stereo.tar.gz": {
+    "bytes": 13862461,
+    "sha256": "a7692771a0c3d1ed5394ed7e593d3aba22c207e02ff4cefa576c9160d4db069d",
+    "files": 304
+  },
+  "camera_uav5_gimbal.tar.gz": {
+    "bytes": 20173232,
+    "sha256": "a56535f91e4544890cac85292392254f60f8d3a90a4fa79154f9177812824567",
+    "files": 581
+  }
+}

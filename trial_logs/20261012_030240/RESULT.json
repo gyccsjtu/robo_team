@@ -1,0 +1,75 @@
+{
+  "trial": "20261012_030240",
+  "code": "738c5fde62ac5c33fe65761cc4c971bae3568822",
+  "gui": true,
+  "official_actors": [
+    {
+      "actor": "actor_2",
+      "elapsed_s": 172.0279999999998
+    },
+    {
+      "actor": "actor_4",
+      "elapsed_s": 247.6239999999998
+    },
+    {
+      "actor": "actor_0",
+      "elapsed_s": 284.4559999999997
+    },
+    {
+      "actor": "actor_1",
+      "elapsed_s": 316.65599999999995
+    },
+    {
+      "actor": "actor_3",
+      "elapsed_s": 335.2199999999998
+    },
+    {
+      "actor": "actor_5",
+      "elapsed_s": 462.3199999999997
+    }
+  ],
+  "mission_finished": true,
+  "elapsed_s": 462.3199999999997,
+  "evaluation_end_ros": 2373.816,
+  "end_basis": "Nearest MAVROS recorder wall timestamp to final judge log mtime; uncertainty about 0.040 seconds.",
+  "events_before_finish": {
+    "processed_frame": 13734,
+    "discovery": 13734,
+    "image_report": 10972,
+    "candidate": 1936,
+    "status": 26413,
+    "assignment": 8305,
+    "candidate_missed": 56,
+    "gimbal_observation": 1116,
+    "tracking_view": 1001,
+    "gimbal_candidate": 69,
+    "gimbal_feedback": 8,
+    "report": 235
+  },
+  "gimbal_feedback_before_finish": {
+    "expired": 8
+  },
+  "gimbal_uavs": [
+    5
+  ],
+  "weights": {
+    "path": "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_v3_clean.pt",
+    "sha256": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a"
+  },
+  "distractor_verifier": {
+    "mode": "enforce",
+    "path": "/home/gycc/桌面/RoboCup_Team/weights/distractor_verifier_v3.pt",
+    "sha256": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7"
+  },
+  "limitations": [
+    "One randomized trial; 462.32 seconds does not meet the 3-4 minute objective.",
+    "All eight recorded gimbal handoffs expired; no bino_acquired feedback before finish.",
+    "White remained visible around ROS 1980 but projection quality rejected further positions; follow-up remains required.",
+    "Late edge red discovery/tracking delay remains under investigation.",
+    "UAV 0 climb stall and UAV 3 suspected crash recovery alerts require review; sampled sensors cannot prove absence of contact.",
+    "Sculpture secondary verifier was enabled on all six main cameras; this trial alone does not prove elimination of sculpture false positives.",
+    "Raw records include post-finish flight and shutdown; summaries stop at evaluation_end_ros.",
+    "Camera samples are periodic JPEGs, not every inference frame or continuous video.",
+    "Local red1/t5 labels may be reused and are not official actor identities."
+  ]
+}
