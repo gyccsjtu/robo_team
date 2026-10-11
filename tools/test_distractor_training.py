@@ -246,10 +246,42 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(len(score['false_decoy']),1)
         self.assertEqual(len(score['partial_decoy']),1)
 
+    def test_neighbour_actor_cannot_excuse_extra_sculpture_torso_false_box(self):
+        labels=[(2,[0,0,20,60]), (5,[4,0,24,60])]
+        predictions=[(2,[0,0,20,60],.94), (2,[4,0,24,50],.91),
+                     (5,[4,0,24,60],.93)]
+        score=evaluation.score_image(labels,predictions)
+        self.assertEqual(score['usable'][2],1)
+        self.assertEqual(score['false_decoy'],[predictions[1]])
+
+    def test_box_closer_to_sculpture_cannot_impersonate_neighbour_actor(self):
+        labels=[(2,[0,0,20,60]), (5,[4,0,24,60])]
+        predictions=[(2,[4,0,24,50],.91), (5,[4,0,24,60],.93)]
+        score=evaluation.score_image(labels,predictions)
+        self.assertEqual(score['usable'][2],0)
+        self.assertEqual(score['false_decoy'],[predictions[0]])
+
     def test_low_distractor_confidence_does_not_impose_runtime_conflict(self):
         score=evaluation.score_image([(2,[0,0,20,60])],
                                      [(2,[0,0,20,60],.94),(5,[0,0,20,60],.49)])
         self.assertEqual(score['usable'][2],1)
+
+    def test_runtime_blue_vote_can_remove_white_even_below_blue_class_threshold(self):
+        import numpy as np
+        image=np.zeros((80,60,3),dtype=np.uint8); image[:,:,0]=220
+        raw=[(3,[10,10,40,70],.8),(2,[10,10,40,70],.35)]
+        survivors=evaluation.runtime_color_survivors(image,raw)
+        self.assertEqual(survivors,{1})
+        score=evaluation.score_image([(3,raw[0][1])],[raw[0]],set())
+        self.assertEqual(score['matched'][3],1)
+        self.assertEqual(score['usable'][3],0)
+        self.assertEqual(len(score['color_suppressed']),1)
+
+    def test_runtime_color_vote_does_not_remove_neighbouring_people(self):
+        import numpy as np
+        image=np.zeros((80,80,3),dtype=np.uint8);image[:,:,0]=220
+        raw=[(2,[0,10,30,70],.8),(3,[20,10,50,70],.8)]
+        self.assertEqual(evaluation.runtime_color_survivors(image,raw),{0,1})
 
 
 if __name__ == '__main__':

@@ -357,6 +357,9 @@ class ClassificationOnlyAudit:
 
 def train(args):
     options = retention_options(args)
+    close_mosaic = getattr(args, 'close_mosaic', 10)
+    if not isinstance(close_mosaic, int) or not 0 <= close_mosaic <= args.epochs:
+        raise ValueError('close-mosaic must be an integer between zero and epochs')
     data = Path(args.data).resolve()
     rows, input_audit = audit_prepared_dataset(data)
     # Ultralytics cache hashes use file sizes/paths, not reviewed label SHA.
@@ -386,7 +389,7 @@ def train(args):
                   name=args.name, plots=False, val=True, patience=12, seed=0,
                   cache=False, exist_ok=False, save=True, save_period=getattr(args,'save_period',-1),
                   # Hue changes can relabel the competition's color classes.
-                  hsv_h=0.0, fliplr=.5, flipud=0., close_mosaic=10)
+                  hsv_h=0.0, fliplr=.5, flipud=0., close_mosaic=close_mosaic)
     config.update(options)
     classifier_audit = None
     if getattr(args, 'classification_only', False):
@@ -457,6 +460,8 @@ def main():
                    help='Train only native cv3 classification branches; audit all frozen state and regression outputs')
     t.add_argument('--save-period', type=int, choices=[-1,1,5,10], default=-1,
                    help='Keep native epoch checkpoints for validation-constrained selection')
+    t.add_argument('--close-mosaic', type=int, default=10,
+                   help='Final epochs without Mosaic; explicit experiment knob, default unchanged')
     q = sub.add_parser('probe'); q.add_argument('--device', default='0')
     args = p.parse_args()
     if args.action == 'audit':
