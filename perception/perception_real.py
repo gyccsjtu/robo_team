@@ -968,7 +968,7 @@ _CSV = logger("perception_%s" % UAV, [
 DEBUG_TOPIC = os.environ.get("PR_DEBUG_TOPIC", "/perception/debug_snapshot")
 
 _lock = threading.Lock()
-_latest = {"img": None, "stamp": 0.0, "recv_wall": 0.0}
+_latest = {"img": None, "stamp": 0.0, "recv_wall": 0.0, "recv_ros": 0.0}
 _pose_history = []  # (pose header ROS time, world camera x/y/z, rotation matrix)
 _pose_fault = None  # in-flight EKF discontinuity: fail closed until node restart
 _model = None
@@ -1100,6 +1100,8 @@ def on_pose(msg, world_offset):
 
 
 def on_img(msg):
+    received_wall = time.time()
+    received_ros = rospy.Time.now().to_sec()
     try:
         img = CvBridge().imgmsg_to_cv2(msg, "bgr8")
     except Exception:
@@ -1109,7 +1111,8 @@ def on_img(msg):
         _latest["stamp"] = (msg.header.stamp.to_sec()
                              if msg.header.stamp.to_sec() > 0.0
                              else rospy.Time.now().to_sec())
-        _latest["recv_wall"] = time.time()
+        _latest["recv_wall"] = received_wall
+        _latest["recv_ros"] = received_ros
 
 
 def pose_at_stamp(stamp, fallback=None):
@@ -1930,6 +1933,11 @@ def main():
     _last_live_loop = 0      # 实际循环频率；配置频率不能代表 CPU 满载时的吞吐
     _last_live_det = 0
     coord_clock = ImagePublishClock(COORD_HZ)
+    timing_csv = logger('pipeline_timing_%s' % UAV, [
+        'image_stamp', 'receive_ros_s', 'inference_start_ros_s', 'report_ros_s',
+        'receive_wall_s', 'inference_start_wall_s', 'inference_end_wall_s',
+        'geometry_end_wall_s', 'report_wall_s', 'inference_s', 'image_age_s',
+        'candidate_count', 'qualified_count'])
     candidate_session = uuid.uuid4().hex
     annot_img = None          # 最近一次参与检测的图像，供标注帧使用
     annot_z = 0.0             # 该帧对应的相机高度
@@ -1977,6 +1985,8 @@ def main():
             with _lock:
                 img = None if _latest["img"] is None else _latest["img"].copy()
                 frame_stamp = _latest["stamp"]
+                frame_receive_wall = _latest['recv_wall']
+                frame_receive_ros = _latest['recv_ros']
             frame_age = max(0.0, now - frame_stamp) if frame_stamp > 0.0 else None
             if frame_stamp <= processed_image_stamp or frame_age is None or frame_age > 0.5:
                 img = None
@@ -2005,11 +2015,13 @@ def main():
                     cam_full = None
 
                 if R is not None:
+                    inference_start_ros = rospy.Time.now().to_sec()
                     _infer_t0 = time.time()
                     res = _model(img, conf=min(CONF, WHITE_CONF),
                                  agnostic_nms=False, verbose=False)[0]
                     frame_was_processed = True
-                    inference_s = time.time() - _infer_t0
+                    inference_end_wall = time.time()
+                    inference_s = inference_end_wall - _infer_t0
                     if not _first_inference_logged:
                         print("[pr] FIRST_INFERENCE image_stamp=%.3f latency_s=%.3f"
                               % (frame_stamp, inference_s), flush=True)
@@ -2236,6 +2248,7 @@ def main():
                             source="yolo_raw")
 
         if frame_was_processed:
+            geometry_end_wall = time.time()
             frame_pub.publish(String(data=json.dumps({
                 'source_uav': UAV, 'sample_s': frame_stamp,
                 'x': px, 'y': py, 'z': pz, 'yaw': yaw_cam,
@@ -2635,6 +2648,17 @@ def main():
                 report_pool, UAV, frame_stamp, candidate_session, uav_last,
                 assigned_target=cur_tid)
             coord.publish(String(data=json.dumps(report_batch)))
+            report_wall = time.time()
+            report_ros = rospy.Time.now().to_sec()
+            timing_csv.write(
+                image_stamp=frame_stamp, receive_ros_s=frame_receive_ros,
+                inference_start_ros_s=inference_start_ros, report_ros_s=report_ros,
+                receive_wall_s=frame_receive_wall, inference_start_wall_s=_infer_t0,
+                inference_end_wall_s=inference_end_wall,
+                geometry_end_wall_s=geometry_end_wall, report_wall_s=report_wall,
+                inference_s=inference_s, image_age_s=report_ros-frame_stamp,
+                candidate_count=len(report_batch['candidates']),
+                qualified_count=sum(c['official_view_ok'] for c in report_batch['candidates']))
             report_by_id = {c['candidate_id']: c for c in report_batch['candidates']}
             for _cls, _si, _tk in report_pool:
                 report = report_by_id.get(candidate_identity(candidate_session, _tk))
