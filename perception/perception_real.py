@@ -2488,7 +2488,7 @@ def main():
                     camera_x=cam_full[0], camera_y=cam_full[1], camera_z=cam_full[2],
                     qx=cam_full[3], qy=cam_full[4], qz=cam_full[5], qw=cam_full[6],
                     target_x=ox, target_y=oy, range_method=tk.range_method,
-                    geometry_ok=tk.observation_loc_ok, report_ok=tk.can_report_image())
+                    geometry_ok=tk.observation_view_ok, report_ok=tk.can_report_image())
 
         # ---- 官方话题闸门：指派仲裁 + 近距离 + 空间身份一致 ----
         # 未过闸不发布 ActorInfo（在进入内部调试快照链路前剔除）。
@@ -2641,7 +2641,8 @@ def main():
                     bbox_w=_tk.wh[0], bbox_h=_tk.wh[1],
                     target_x=report['xyz'][0], target_y=report['xyz'][1],
                     target_z=TARGET_Z, range_m=report['range_m'],
-                    height_m=_tk.h, strict=True, track_id=_tk.id, hits=_tk.hits,
+                    height_m=_tk.h, strict=report['official_view_ok'],
+                    range_method=_tk.range_method, track_id=_tk.id, hits=_tk.hits,
                     image_stamp=_tk.observed_s,
                     image_age_s=now_secs-_tk.observed_s, inference_s=inference_s,
                     source="coordination/target_report")

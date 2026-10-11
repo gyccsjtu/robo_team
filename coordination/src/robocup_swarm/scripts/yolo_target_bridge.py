@@ -399,7 +399,7 @@ def official_point_at(track, now):
 class _Track(object):
     __slots__ = ("tag", "obs", "x", "y", "vx", "vy", "conf",
                  "t_obs", "started_s", "alive", "elim_pending", "range_m",
-                 "good_x", "good_y", "good_t", "good_history",
+                 "good_x", "good_y", "good_t", "good_history", "segment_anchor_t",
                  "official_source", "official_candidate_id", "source_history", "official_rejects",
                  "tracking_source", "tracking_candidate_id", "source_candidates",
                  "accepted_source_samples", "source_quality", "quality_switch_s",
@@ -432,6 +432,7 @@ class _Track(object):
         self.good_x = None
         self.good_y = None
         self.good_t = -1e18
+        self.segment_anchor_t = None
         self.good_history = []
         self.t_obs = -1e18
         self.started_s = None
@@ -869,15 +870,29 @@ class TargetBridgeCore(object):
         if quality_segment is not None:
             tr.quality_switch_s = t
             tr.good_history = quality_segment[:-1]
+            tr.segment_anchor_t = None
         elif key != incumbent or t-tr.good_t > 2.0:
             tr.good_history = []
+            tr.segment_anchor_t = None
         elif source is not None:
+            previous_fit = _robust_official_fit(tr.good_history, tr.good_t)
+            current_fit = _robust_official_fit(tr.good_history + [(float(t), x, y)], t)
+            used_latest = current_fit is not None and current_fit[5]
+            if used_latest:
+                tr.segment_anchor_t = None
+            elif previous_fit is not None and tr.segment_anchor_t is None:
+                tr.segment_anchor_t = tr.good_t
+            # A reachable observation can be received while the report model
+            # excludes it. Keep a separate, fixed segment anchor so successive
+            # good_t updates cannot erase the independent turn evidence.
+            anchor = tr.good_t if tr.segment_anchor_t is None else tr.segment_anchor_t
             segment = _confirmed_official_segment(
-                [p for p in tr.source_history.get(key, []) if p[0] > tr.good_t])
+                [p for p in tr.source_history.get(key, []) if p[0] > anchor])
             if segment is not None:
                 # A new coherent corner/reacquisition supersedes the old fit;
                 # never fit a straight line through both sides of the turn.
                 tr.good_history = segment[:-1]
+                tr.segment_anchor_t = None
         tr.official_source = source
         tr.official_candidate_id = candidate_id
         tr.good_x, tr.good_y, tr.good_t = x, y, float(t)
@@ -951,8 +966,9 @@ class TargetBridgeCore(object):
                     math.hypot(x-tr.good_x, y-tr.good_y) > .75):
                 accepted = False
             if not accepted:
+                anchor = tr.good_t if tr.segment_anchor_t is None else tr.segment_anchor_t
                 accepted = _confirmed_official_segment(
-                    [p for p in history if p[0] > tr.good_t]) is not None
+                    [p for p in history if p[0] > anchor]) is not None
         elif tr.good_x is not None and key != incumbent and 0.0 <= age <= 2.0:
             # A disagreeing second camera in the 00:36 match was 2 m away
             # from the trusted blue stream.  Its three smooth frames alone
@@ -1531,6 +1547,16 @@ class YoloTargetBridge(object):
                             switch['switch_s'] <= sample < switch['trial_until_s']):
                         evidence['hypothesis_switch'] = dict(switch)
                     pub.publish(_msg_string_cls()(data=json.dumps(evidence)))
+                # A qualified recovery image need not wait another timer tick
+                # when the stream is already near its continuity deadline.
+                # Reuse exactly the normal range, motion, conflict and rate
+                # gates. Receipt alone cannot extend image freshness.
+                if (source_accepted and
+                        now-self._pub_last.get(tag, now) >= ACTOR_KEEPALIVE_DT and
+                        self._pub_gate_ok(tag)):
+                    point = official_point_at(tr, now)
+                    if point is not None:
+                        self._publish_actor(tag, *point)
         except (ValueError, KeyError, TypeError) as exc:
             self._rospy.logwarn_throttle(5, "丢弃 target_report：%s", exc)
 
