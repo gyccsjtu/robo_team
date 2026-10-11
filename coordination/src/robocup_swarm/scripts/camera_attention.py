@@ -22,6 +22,10 @@ def approach_image(data):
 
 
 def candidate_velocity(cue, now, yaw, xy, scan, scan_stamp):
+    return candidate_motion(cue, now, yaw, xy, scan, scan_stamp)[:2]
+
+
+def candidate_motion(cue, now, yaw, xy, scan, scan_stamp):
     """Approach at <=.95m/s for <=6s/3m, with fresh view and clear raw rays.
 
     The returned request STILL goes through all flight safety guards. Unknown
@@ -30,19 +34,25 @@ def candidate_velocity(cue, now, yaw, xy, scan, scan_stamp):
     """
     image = cue.get('image')
     origin = cue.get('approach_origin')
-    if (image is None or origin is None or cue.get('xy') is not None or
-            not 0 <= now-cue['sample_s'] <= .35 or
-            not 0 <= now-cue['started'] < 6. or
-            math.hypot(xy[0]-origin[0], xy[1]-origin[1]) >= 3. or
-            scan is None or not 0 <= now-scan_stamp <= .3):
-        return 0., 0.
+    if image is None or origin is None:
+        return 0., 0., 'image_shape_or_tilt'
+    if cue.get('xy') is not None:
+        return 0., 0., 'awaiting_dispatch'
+    if not 0 <= now-cue['sample_s'] <= .35:
+        return 0., 0., 'stale_image'
+    if not 0 <= now-cue['started'] < 6.:
+        return 0., 0., 'time_budget'
+    if math.hypot(xy[0]-origin[0], xy[1]-origin[1]) >= 3.:
+        return 0., 0., 'travel_budget'
+    if scan is None or not 0 <= now-scan_stamp <= .3:
+        return 0., 0., 'stale_scan'
     error = math.atan2(math.sin(cue['bearing']-yaw), math.cos(cue['bearing']-yaw))
     if abs(error) > math.radians(12):
-        return 0., 0.
+        return 0., 0., 'aligning_yaw'
     clear = 0
     try:
         if not math.isfinite(scan.range_max) or scan.range_max < 4.:
-            return 0., 0.
+            return 0., 0., 'scan_range'
         for i, raw in enumerate(scan.ranges):
             angle = scan.angle_min+i*scan.angle_increment
             delta = math.atan2(math.sin(angle-error), math.cos(angle-error))
@@ -53,18 +63,19 @@ def candidate_velocity(cue, now, yaw, xy, scan, scan_stamp):
                 clear += 1
             elif math.isfinite(r) and scan.range_min <= r <= scan.range_max:
                 if r < 4.:
-                    return 0., 0.
+                    return 0., 0., 'obstacle'
                 clear += 1
             else:
-                return 0., 0.
+                return 0., 0., 'invalid_ray'
     except (AttributeError, TypeError, ValueError):
-        return 0., 0.
+        return 0., 0., 'invalid_scan'
     if clear < 3:
-        return 0., 0.
+        return 0., 0., 'insufficient_rays'
     # Slow down before the box grows out of the admissible approach band.
     height = image['box'][3]-image['box'][1]
     speed = min(.95, max(0., (.32-height/image['height'])*5.))
-    return speed*math.cos(cue['bearing']), speed*math.sin(cue['bearing'])
+    return (speed*math.cos(cue['bearing']), speed*math.sin(cue['bearing']),
+            'approaching' if speed > 0. else 'image_size')
 
 
 class ImagePublishClock:

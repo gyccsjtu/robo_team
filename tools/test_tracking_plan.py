@@ -399,7 +399,8 @@ class TrackingPlanTests(unittest.TestCase):
         agent.assignment = SimpleNamespace(task_type=0)
         agent._search_scan_key = (1, 1, 2.0, 3.0)
         agent._camera_cue = dict(bearing=0.5, started=100.0,
-                                 until=102.0, color='blue',
+                                 until=102.0, color='blue', candidate_id='blue:1',
+                                 sample_s=100.0,
                                  scan_key=agent._search_scan_key)
         agent.yaw = 0.4
         published = []
@@ -415,7 +416,8 @@ class TrackingPlanTests(unittest.TestCase):
         self.assertNotIn('target_id', payload)
 
         agent._camera_cue = dict(bearing=0.5, started=103.0,
-                                 until=105.0, color='blue',
+                                 until=105.0, color='blue', candidate_id='blue:2',
+                                 sample_s=103.0,
                                  scan_key=agent._search_scan_key)
         agent._visual_observations['t1'] = {'sample_s': 103.5,
                                             'eligible': True}

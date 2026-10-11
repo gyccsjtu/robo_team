@@ -340,15 +340,16 @@ def report_ready_hits(cls, hits):
     return hits >= (RED_REPORT_HITS if cls == "red" else CONFIRM_HITS)
 
 
-def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2):
+def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2, continuation=False):
     """Admit a box for image association, not for world-coordinate reporting."""
     if (cls not in CLASSES or
             not all(math.isfinite(q) for q in (confidence, x1, y1, x2, y2)) or
             not .45 <= confidence <= 1.0):
         return False
     width, height = x2 - x1, y2 - y1
-    return (y2 >= ROI_TOP and y1 <= ROI_BOT and width >= 9.0 and
-            height >= 40.0 and y1 >= 4.0 and
+    return (y2 >= ROI_TOP and y1 <= ROI_BOT and
+            width >= (6.0 if continuation else 9.0) and
+            height >= (24.0 if continuation else 40.0) and y1 >= 4.0 and
             1.1 <= height / max(width, 1.0) <= 4.0)
 
 
@@ -420,6 +421,13 @@ class PixelCueTracker:
                         continue
                 if d < best_d:
                     best, best_d = tr, d
+            # A previously established image track may shrink below the
+            # discovery threshold as we yaw/brake. Do not discard that fresh
+            # box and leave the controller steering from a stale ray. Small
+            # boxes cannot seed new tracks or complete an unconfirmed seed.
+            if not box.get('seed_eligible', True) and (
+                    best is None or not best.get('established', False)):
+                continue
             if best is None:
                 best = dict(id=self.next_id, cls=box['cls'], history=[])
                 self.next_id += 1
@@ -441,11 +449,12 @@ class PixelCueTracker:
             normal_cue = min(p[1] for p in recent) >= 0.85
             if (len(recent) >= 3 and recent[-1][0] - recent[0][0] >= 0.3 and
                     (normal_cue or bounded_attention)):
+                best['established'] = True
                 cues.append(dict(candidate_id='%s:%d' % (box['cls'], best['id']),
                                  sample_s=sample_s, bearing=box['bearing'],
                                  confidence=box['conf'], hits=len(recent),
                                  u=box['u'], v=box['v'],
-                                 attention_only=(not normal_cue or
+                                 attention_only=(not box.get('seed_eligible', True) or not normal_cue or
                                      box.get('appearance_status', 'actor') != 'actor')))
                 for key in ('box', 'width', 'height', 'camera_tilt',
                             'appearance_status', 'appearance_confidence',
@@ -1919,11 +1928,13 @@ def main():
                         bx1, by1, bx2, by2 = [float(v) for v in b.xyxy[0]]
                         bw, bh = bx2 - bx1, by2 - by1
                         if not pixel_cue_box_ok(CLASSES[cid], conf,
-                                               bx1, by1, bx2, by2):
+                                               bx1, by1, bx2, by2, continuation=True):
                             continue
                         bu, bv = (bx1 + bx2) / 2.0, (by1 + by2) / 2.0
                         raw_cue_boxes.append(dict(
                             cls=CLASSES[cid], conf=conf, u=bu, v=bv,
+                            seed_eligible=pixel_cue_box_ok(CLASSES[cid], conf,
+                                                          bx1, by1, bx2, by2),
                             h=bh, bearing=image_world_bearing(bu, bv, R),
                             cam_x=px, cam_y=py, box=[bx1, by1, bx2, by2],
                             appearance_status=b.appearance_status,

@@ -251,13 +251,28 @@ class AttentionPriorityTests(unittest.TestCase):
         for stamp in (100.1, 100.3, 100.5):
             self.now = stamp
             self.image()
-        self.assertEqual(self.a._camera_cue['until'], 104.)
+        self.assertEqual(self.a._camera_cue['until'], 104.5)
         self.now = 103.9
         self.image()
-        self.assertEqual(self.a._camera_cue['until'], 104.)
-        self.now = 104.1
+        self.assertEqual(self.a._camera_cue['until'], 104.5)
+        self.now = 104.6
         self.a._hold_camera_candidate()
         self.assertIsNone(self.a._camera_cue)
+
+    def test_late_localization_cannot_shorten_active_approach_or_expire_on_success(self):
+        self.a._offer_camera_attention('red:26','red',0.,100.,100.)
+        self.a._camera_cue['until']=106.  # six-second permitted pixel approach
+        self.now=105.5
+        self.a._offer_camera_attention('world-red:8','red',0.,105.5,105.5,
+                                      target_id='t4',xy=(8.,0.))
+        self.assertTrue(self.a._hold_camera_candidate())
+        self.assertEqual(self.a._camera_cue['until'],109.5)
+        self.now=109.
+        self.a._offer_camera_attention('world-red:8','red',0.,109.,109.,
+                                      target_id='t4',xy=(9.,0.))
+        self.assertEqual(self.a._camera_cue['until'],109.5)
+        self.now=109.6
+        self.assertFalse(self.a._hold_camera_candidate())
 
     def test_active_tracking_and_reacquisition_cannot_be_preempted(self):
         self.cue()

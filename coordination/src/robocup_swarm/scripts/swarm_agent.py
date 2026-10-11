@@ -40,7 +40,7 @@ from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
                            bind_red_view,
                            retain_pixel_view)
-from camera_attention import approach_image, candidate_velocity
+from camera_attention import approach_image, candidate_motion
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
@@ -1667,8 +1667,8 @@ class SwarmAgent(object):
                                 target_id=None, xy=None):
         """Keep a bounded attention lease, independently of search waypoints.
 
-        New frames update where to look, never its absolute deadline. A
-        localized track may promote a pixel cue once while dispatch catches up.
+        New frames update where to look, never its absolute deadline. The
+        first localization starts one bounded dispatch handoff from now.
         """
         assignment = getattr(self, 'assignment', None)
         if assignment is not None and assignment.task_type != 0:
@@ -1696,8 +1696,11 @@ class SwarmAgent(object):
                 return
             cue.update(bearing=bearing, sample_s=sample)
             if xy is not None:
-                cue.update(xy=xy, target_id=target_id, candidate_id=cid,
-                           until=cue['started'] + CAMERA_HANDOFF_HOLD_S)
+                if cue.get('xy') is None:
+                    # Localization can take >4 s of the 6 s pixel approach.
+                    # An old started+4 deadline expired immediately on success.
+                    cue['until'] = max(cue['until'], now + CAMERA_HANDOFF_HOLD_S)
+                cue.update(xy=xy, target_id=target_id, candidate_id=cid)
                 self._camera_cue_retry_after[cid] = cue['until'] + CAMERA_CUE_RETRY_S
                 attempt = cue.get('attempt')
                 if attempt is not None:
@@ -2005,6 +2008,10 @@ class SwarmAgent(object):
             self._camera_cue = None
             return False
         if now >= cue['until']:
+            rospy.loginfo('[CANDIDATE_END] uav=%s candidate=%s reason=%s '
+                          'image_age=%.3f localized=%s', self.uav_id,
+                          cue['candidate_id'], cue.get('motion_reason', 'unrecorded'),
+                          now-cue['sample_s'], cue.get('xy') is not None)
             self._camera_cue = None
             # Only a real own-camera localization resolves a pixel cue. If
             # the 2 s look ended without one, remember this CAMERA POSITION
@@ -2039,16 +2046,21 @@ class SwarmAgent(object):
         self._look_at = cue.get('xy') or (
             wx[0] + 10.0 * math.cos(cue['bearing']),
             wx[1] + 10.0 * math.sin(cue['bearing']))
-        vx, vy = (candidate_velocity(cue, now, self.yaw, wx,
-                                    getattr(self, '_scan', None),
-                                    getattr(self, '_scan_t', -1e18))
-                  if cue.get('image') is not None and self._world_trusted() else (0., 0.))
+        vx, vy, reason = (candidate_motion(cue, now, self.yaw, wx,
+                                          getattr(self, '_scan', None),
+                                          getattr(self, '_scan_t', -1e18))
+                         if self._world_trusted() else (0., 0., 'untrusted_pose'))
+        cue['motion_reason'] = reason
         if getattr(self, '_friend_positions', {}):
             vx, vy = self._apply_friend_avoidance(vx, vy)
         rospy.loginfo_throttle(2., '[CANDIDATE_APPROACH] uav=%s candidate=%s '
-                              'requested=(%.2f,%.2f) remaining=%.2f',
+                              'requested=(%.2f,%.2f) remaining=%.2f reason=%s '
+                              'image_age=%.3f scan_age=%.3f yaw_error=%.1f',
                               self.uav_id, cue['candidate_id'], vx, vy,
-                              max(0., cue['until']-now))
+                              max(0., cue['until']-now), reason,
+                              now-cue['sample_s'], now-getattr(self, '_scan_t', -1e18),
+                              math.degrees(math.atan2(math.sin(cue['bearing']-self.yaw),
+                                                      math.cos(cue['bearing']-self.yaw))))
         self._send_vel(vx, vy)
         return True
 
