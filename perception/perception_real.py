@@ -84,6 +84,7 @@ if _CSV_HELPER not in sys.path:
 from csv_logger import logger
 from tracking_view import box_from_foot, bound_pixel_candidate
 from camera_attention import ImagePublishClock
+from visual_triangulation import camera_bearing
 
 # ---------------- 参数 ----------------
 # 权重查找顺序（本仓库自包含优先，找不到才退回部署位置）：
@@ -1575,7 +1576,7 @@ def candidate_frame(source, sample, candidates, purpose=None):
 
 
 def report_candidate_frame(entries, source, sample, session, observer_xy,
-                           assigned_target=None):
+                           assigned_target=None, camera=None):
     """Preserve all eligible instances; the bridge owns colour arbitration.
 
     Entries retain established red slot identities. Coordinates are fresh raw
@@ -1606,6 +1607,12 @@ def report_candidate_frame(entries, source, sample, session, observer_xy,
             official_view_ok=bool(person_ok and report_ready_hits(cls, track.hits) and
                                   track.can_report_image()),
             observation_id='obs-%s-%s-%.9f' % (source, cid, sample), **fields))
+        if (getattr(track, 'range_method', None) == 'foot_ground' and
+                candidates[-1]['official_view_ok']):
+            bearing = camera_bearing(camera, box_from_foot(track.uv, track.wh),
+                                     (FX, FY, CX, CY))
+            if bearing is not None:
+                candidates[-1]['camera_bearing'] = bearing
     return candidate_frame(source, sample, candidates)
 
 
@@ -2452,7 +2459,7 @@ def main():
         if COORD_ON and frame_was_processed and coord_clock.ready(frame_stamp):
             report_batch = report_candidate_frame(
                 report_pool, UAV, frame_stamp, candidate_session, uav_last,
-                assigned_target=cur_tid)
+                assigned_target=cur_tid, camera=cam_full)
             coord.publish(String(data=json.dumps(report_batch)))
             report_by_id = {c['candidate_id']: c for c in report_batch['candidates']}
             for _cls, _si, _tk in report_pool:

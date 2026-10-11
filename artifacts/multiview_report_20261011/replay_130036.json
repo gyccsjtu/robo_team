@@ -1,0 +1,50 @@
+{
+  "counts": {
+    "matched_views": 433,
+    "no_truth_bracket": 5
+  },
+  "by_tag": {
+    "white": {
+      "reports": 60,
+      "changed": 0,
+      "old_bad": 3,
+      "new_bad": 3,
+      "newly_bad": 0,
+      "fixed": 0,
+      "old_median": 0.6686006571412222,
+      "new_median": 0.6686006571412222
+    },
+    "green": {
+      "reports": 29,
+      "changed": 0,
+      "old_bad": 0,
+      "new_bad": 0,
+      "newly_bad": 0,
+      "fixed": 0,
+      "old_median": 0.8224018467574598,
+      "new_median": 0.8224018467574598
+    },
+    "brown": {
+      "reports": 32,
+      "changed": 0,
+      "old_bad": 5,
+      "new_bad": 5,
+      "newly_bad": 0,
+      "fixed": 0,
+      "old_median": 0.580387425260082,
+      "new_median": 0.580387425260082
+    },
+    "blue": {
+      "reports": 70,
+      "changed": 0,
+      "old_bad": 39,
+      "new_bad": 39,
+      "newly_bad": 0,
+      "fixed": 0,
+      "old_median": 156.5356342017994,
+      "new_median": 156.5356342017994
+    }
+  },
+  "changed_reports": [],
+  "limitation": "Conditional on saved source association and original publication times; does not simulate new flight paths or missing old candidate events."
+}

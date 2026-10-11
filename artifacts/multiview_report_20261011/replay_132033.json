@@ -1,0 +1,286 @@
+{
+  "counts": {
+    "matched_views": 1329,
+    "corrected_reports": 41,
+    "no_truth_bracket": 5
+  },
+  "by_tag": {
+    "brown": {
+      "reports": 188,
+      "changed": 15,
+      "old_bad": 51,
+      "new_bad": 49,
+      "newly_bad": 0,
+      "fixed": 2,
+      "old_median": 0.8231505676896334,
+      "new_median": 0.7665890974842777
+    },
+    "white": {
+      "reports": 130,
+      "changed": 12,
+      "old_bad": 26,
+      "new_bad": 22,
+      "newly_bad": 0,
+      "fixed": 4,
+      "old_median": 0.6421378487314101,
+      "new_median": 0.5812734578178017
+    },
+    "green": {
+      "reports": 19,
+      "changed": 4,
+      "old_bad": 0,
+      "new_bad": 0,
+      "newly_bad": 0,
+      "fixed": 0,
+      "old_median": 0.2557994084118298,
+      "new_median": 0.31082340314089657
+    },
+    "blue": {
+      "reports": 162,
+      "changed": 8,
+      "old_bad": 20,
+      "new_bad": 20,
+      "newly_bad": 0,
+      "fixed": 0,
+      "old_median": 0.6701408937913504,
+      "new_median": 0.6701408937913504
+    }
+  },
+  "changed_reports": [
+    {
+      "tag": "brown",
+      "ros": 2594.64,
+      "old_error": 0.8981016305264937,
+      "new_error": 0.43686065073635844
+    },
+    {
+      "tag": "brown",
+      "ros": 2595.572,
+      "old_error": 0.8379877943362416,
+      "new_error": 0.38738812123859484
+    },
+    {
+      "tag": "brown",
+      "ros": 2596.508,
+      "old_error": 0.8492337847662361,
+      "new_error": 0.3773011904554908
+    },
+    {
+      "tag": "brown",
+      "ros": 2597.44,
+      "old_error": 0.7535069001786951,
+      "new_error": 0.41459452399378205
+    },
+    {
+      "tag": "brown",
+      "ros": 2598.372,
+      "old_error": 0.709714901046417,
+      "new_error": 0.55020638855353
+    },
+    {
+      "tag": "brown",
+      "ros": 2600.44,
+      "old_error": 0.8243263804888322,
+      "new_error": 0.3022049605614638
+    },
+    {
+      "tag": "brown",
+      "ros": 2602.84,
+      "old_error": 0.7758677545190228,
+      "new_error": 0.7157425822622849
+    },
+    {
+      "tag": "brown",
+      "ros": 2603.308,
+      "old_error": 0.9867024476661007,
+      "new_error": 0.7087250459004992
+    },
+    {
+      "tag": "brown",
+      "ros": 2604.24,
+      "old_error": 0.789965078245552,
+      "new_error": 0.4766229594563682
+    },
+    {
+      "tag": "brown",
+      "ros": 2605.644,
+      "old_error": 0.5947398422616667,
+      "new_error": 0.41401239962026104
+    },
+    {
+      "tag": "brown",
+      "ros": 2610.44,
+      "old_error": 0.9129910817370352,
+      "new_error": 0.5370095081519644
+    },
+    {
+      "tag": "brown",
+      "ros": 2612.308,
+      "old_error": 0.9454714527256919,
+      "new_error": 0.3798360028832703
+    },
+    {
+      "tag": "brown",
+      "ros": 2612.772,
+      "old_error": 0.8608890145860333,
+      "new_error": 0.3469581281124694
+    },
+    {
+      "tag": "brown",
+      "ros": 2614.64,
+      "old_error": 1.1656774488637769,
+      "new_error": 0.38438078413250404
+    },
+    {
+      "tag": "brown",
+      "ros": 2616.508,
+      "old_error": 1.1615762410830888,
+      "new_error": 0.524121783328329
+    },
+    {
+      "tag": "white",
+      "ros": 2672.312,
+      "old_error": 0.3971484750245333,
+      "new_error": 0.17723304104305757
+    },
+    {
+      "tag": "green",
+      "ros": 2745.908,
+      "old_error": 0.4936584642370699,
+      "new_error": 0.3892884166054683
+    },
+    {
+      "tag": "green",
+      "ros": 2746.708,
+      "old_error": 0.23017185139069632,
+      "new_error": 0.4701750659006043
+    },
+    {
+      "tag": "green",
+      "ros": 2747.508,
+      "old_error": 0.16058469377531107,
+      "new_error": 0.39135928854123736
+    },
+    {
+      "tag": "green",
+      "ros": 2749.908,
+      "old_error": 0.16460508538130067,
+      "new_error": 0.3830069803589232
+    },
+    {
+      "tag": "blue",
+      "ros": 2803.308,
+      "old_error": 0.27735270270342005,
+      "new_error": 0.2764763960728186
+    },
+    {
+      "tag": "blue",
+      "ros": 2831.372,
+      "old_error": 0.5087123698518166,
+      "new_error": 0.3675768865020682
+    },
+    {
+      "tag": "blue",
+      "ros": 2831.84,
+      "old_error": 0.42807398334206753,
+      "new_error": 0.3120449362757226
+    },
+    {
+      "tag": "blue",
+      "ros": 2832.308,
+      "old_error": 0.4606490040201826,
+      "new_error": 0.2983300513679994
+    },
+    {
+      "tag": "blue",
+      "ros": 2833.708,
+      "old_error": 0.5058716068653587,
+      "new_error": 0.24153151054815272
+    },
+    {
+      "tag": "blue",
+      "ros": 2834.64,
+      "old_error": 0.48623470349077613,
+      "new_error": 0.2933130626271733
+    },
+    {
+      "tag": "blue",
+      "ros": 2841.572,
+      "old_error": 0.40812885987447056,
+      "new_error": 0.26770253334682115
+    },
+    {
+      "tag": "blue",
+      "ros": 2844.708,
+      "old_error": 0.343734986567086,
+      "new_error": 0.2484165871098239
+    },
+    {
+      "tag": "white",
+      "ros": 2882.308,
+      "old_error": 1.2907804549211528,
+      "new_error": 0.2101767329622554
+    },
+    {
+      "tag": "white",
+      "ros": 2882.772,
+      "old_error": 1.2160519884849195,
+      "new_error": 0.2370584114379882
+    },
+    {
+      "tag": "white",
+      "ros": 2890.372,
+      "old_error": 1.0459283054614983,
+      "new_error": 0.1377496840772158
+    },
+    {
+      "tag": "white",
+      "ros": 2890.84,
+      "old_error": 0.930412934948144,
+      "new_error": 0.13404928219735882
+    },
+    {
+      "tag": "white",
+      "ros": 2891.308,
+      "old_error": 0.9324245475526897,
+      "new_error": 0.15528201079888954
+    },
+    {
+      "tag": "white",
+      "ros": 2891.772,
+      "old_error": 0.8323669356868576,
+      "new_error": 0.2211061304361744
+    },
+    {
+      "tag": "white",
+      "ros": 2893.64,
+      "old_error": 1.0613902957581869,
+      "new_error": 0.21938103148773713
+    },
+    {
+      "tag": "white",
+      "ros": 2895.508,
+      "old_error": 0.5805950959602417,
+      "new_error": 0.17689390469156233
+    },
+    {
+      "tag": "white",
+      "ros": 2901.572,
+      "old_error": 0.4396964251775764,
+      "new_error": 0.2748838291563598
+    },
+    {
+      "tag": "white",
+      "ros": 2903.508,
+      "old_error": 0.3429769466843875,
+      "new_error": 0.24928417815201642
+    },
+    {
+      "tag": "white",
+      "ros": 2907.308,
+      "old_error": 0.3923900645602767,
+      "new_error": 0.3206571183542127
+    }
+  ],
+  "limitation": "Conditional on saved source association and original publication times; does not simulate new flight paths or missing old candidate events."
+}
