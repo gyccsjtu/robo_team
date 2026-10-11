@@ -1,0 +1,46 @@
+{
+  "method": "AST-extracted unmodified current functions; pure Python mocks; no ROS/simulation",
+  "source_sha256": {
+    "slam_grid.py": "e83b98c149a39cee509ad4d21287f75b91b45a33d09ad351800518eac2fd6df8",
+    "swarm_manager.py": "68ed39705c669d570d6931f898fadb5e00c91484fb85d0a5223d275c42f0bd3d",
+    "swarm_agent.py": "5aa42cd217cf3748c601e3b5672ee7808d3ef6eb90d86cf2d17565210d7941cb"
+  },
+  "results": [
+    {
+      "case": "old_source_retained_vs_new_zero",
+      "merged": [
+        1
+      ],
+      "source_ids": [
+        "old_source",
+        "new_source"
+      ],
+      "timestamp_fields": [],
+      "explanation": "Wire zero conflates unknown and observed free; cannot safely override occupied."
+    },
+    {
+      "case": "same_source_new_full_snapshot_clears",
+      "merged": [
+        0
+      ]
+    },
+    {
+      "case": "final_clear_inside_publish_throttle",
+      "stamp": 101.0,
+      "dirty": true,
+      "published_count": 0
+    },
+    {
+      "case": "final_clear_inside_publish_throttle",
+      "stamp": 103.0,
+      "dirty": true,
+      "published_count": 0
+    },
+    {
+      "case": "final_clear_inside_publish_throttle",
+      "stamp": 200.0,
+      "dirty": true,
+      "published_count": 0
+    }
+  ]
+}

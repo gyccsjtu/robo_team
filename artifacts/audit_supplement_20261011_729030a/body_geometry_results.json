@@ -1,0 +1,77 @@
+[
+  {
+    "pitch_deg": 0,
+    "roll_deg": 0,
+    "world_xy": [
+      7,
+      5
+    ],
+    "head_px": [
+      107.42857142857144,
+      309.8285714285714
+    ],
+    "foot_px": [
+      107.42857142857144,
+      401.1428571428571
+    ],
+    "h_px": 91.31428571428569,
+    "true_height": 1.7,
+    "optical_depth": 7.000000000000001,
+    "slant": 9.110433579144301,
+    "height_by_slant": 2.212533869220758,
+    "height_by_depth": 1.6999999999999997,
+    "height_by_correct_head_ray": 1.7000000000000002,
+    "current_foot_shrink_sin_down": 0.32093633514535996,
+    "current_foot_shrink_height": 2.270143167932171
+  },
+  {
+    "pitch_deg": 30,
+    "roll_deg": 0,
+    "world_xy": [
+      7,
+      0
+    ],
+    "head_px": [
+      376.0,
+      107.00489681501236
+    ],
+    "foot_px": [
+      376.0,
+      195.15533325027485
+    ],
+    "h_px": 88.15043643526249,
+    "true_height": 1.7,
+    "optical_depth": 7.56217782649107,
+    "slant": 7.615773105863909,
+    "height_by_slant": 1.785462029451697,
+    "height_by_depth": 1.772897010123012,
+    "height_by_correct_head_ray": 1.7,
+    "current_foot_shrink_sin_down": 0.38328516697291637,
+    "current_foot_shrink_height": 1.8349991361159252
+  },
+  {
+    "pitch_deg": 0,
+    "roll_deg": 20,
+    "world_xy": [
+      7,
+      0
+    ],
+    "head_px": [
+      399.8827780082267,
+      305.6173932914503
+    ],
+    "foot_px": [
+      431.11410309590775,
+      391.42475374950067
+    ],
+    "h_px": 85.80736045805037,
+    "true_height": 1.7,
+    "optical_depth": 7.0,
+    "slant": 7.615773105863909,
+    "height_by_slant": 1.7380036916531654,
+    "height_by_depth": 1.597477455336044,
+    "height_by_correct_head_ray": 1.7,
+    "current_foot_shrink_sin_down": 0.3855422490172537,
+    "current_foot_shrink_height": 1.7757669798553788
+  }
+]

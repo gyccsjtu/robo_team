@@ -1,0 +1,22 @@
+{
+  "audited_head": "729030a711f378950443caee657ebe1411abaefa",
+  "runtime_files_unchanged": 43,
+  "simulation_started": false,
+  "source_sha256": {
+    "run_match.sh": "5d152aaab56a4c0e9e210e5b5405b91eb1fd2a78405cf47c3a3da405fa5f78e3",
+    "perception/perception_real.py": "2adc41772aafc7976f6be951fb9058b7ad087989ecaa535c996bd0a7f577c1e4",
+    "coordination/src/robocup_swarm/scripts/slam_grid.py": "e83b98c149a39cee509ad4d21287f75b91b45a33d09ad351800518eac2fd6df8",
+    "coordination/src/robocup_swarm/scripts/swarm_manager.py": "68ed39705c669d570d6931f898fadb5e00c91484fb85d0a5223d275c42f0bd3d",
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "5aa42cd217cf3748c601e3b5672ee7808d3ef6eb90d86cf2d17565210d7941cb"
+  },
+  "correction": {
+    "issue": "F19",
+    "status": "withdrawn_incorrect_audit",
+    "reason": "Six-process liveness and FIRST_INFERENCE log checks already exist at run_match.sh:824-833; perception emits marker after inference returns."
+  },
+  "added_issues": [
+    "F20: body projection geometry independent of camera height calibration",
+    "F21: final dirty map update not flushed and multi-source occupancy has no evidence age"
+  ],
+  "scope": "Plan correction and offline reproductions only; no runtime fixes or simulation validation."
+}
