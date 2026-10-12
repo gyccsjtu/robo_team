@@ -1186,7 +1186,8 @@ def on_pose(msg, world_offset):
             rotation = quat_to_R(o.x, o.y, o.z, o.w)
             tilt = math.acos(max(-1., min(1., float(rotation[2, 2]))))
             z_offset = datum.observe(stamp, msg.pose.position.z,
-                                     globals().get('_height_armed'), tilt)
+                                     globals().get('_height_armed'), tilt,
+                                     now=rospy.Time.now().to_sec())
             if z_offset is None:
                 return  # ground reference not established; no invented range
             offset = (world_offset[0], world_offset[1], z_offset)
@@ -2112,8 +2113,6 @@ def main():
         globals()['_height_datum'] = GroundHeightDatum(float(os.environ['PR_GROUND_BODY_HEIGHT']))
         def height_state(msg):
             globals()['_height_armed'] = bool(msg.armed)
-            if msg.armed:
-                globals()['_height_datum'].frozen = True
         rospy.Subscriber('/%s/mavros/state' % UAV, State, height_state, queue_size=1)
     rospy.Subscriber(POSE_TOPIC, PoseStamped, on_pose,
                      callback_args=world_offset, queue_size=100)
