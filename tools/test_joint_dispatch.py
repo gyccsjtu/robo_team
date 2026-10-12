@@ -314,6 +314,164 @@ class JointDispatchTests(unittest.TestCase):
         m._dispatch_target_batch([('t0', 9., 0.)], 100.)
         self.assertEqual(m._tracking, {'t0': 'u0'})
 
+    def _east_visual_owner_scenario(self):
+        """Random-map run: the red2 task took u0 just before it saw white."""
+        m = self.m
+        m.uav_ids = ['u%d' % i for i in range(6)]
+        m.status = {uid: NS(x=x, y=y, z=4., connected=True)
+                    for uid, x, y in [('u0', 135., 20.), ('u1', 45., -20.),
+                                      ('u2', 0., 0.), ('u3', 70., 0.),
+                                      ('u4', 10., 0.), ('u5', 125., 38.)]}
+        m.last_report = {uid: sm.rospy.Time(100) for uid in m.uav_ids}
+        m._tracking = {'t4': 'u0', 't5': 'u5', 't3': 'u3', 't0': 'u1'}
+        m._tracking_since = {'t4': 90., 't5': 90., 't3': 99., 't0': 90.}
+        m._confirm_done_t = {}
+        m._eliminated = set()
+        m._visual_candidate = {}
+        m._last_detect = {}
+        m._visual_near_seen = {}
+        m._truth_cache = {}
+        m._cur_targets = {}
+        m._last_detection_sample = {}
+        m._quarantined_visual = lambda *args: False
+        m._appearance_rejected = lambda *args: False
+        m._update_tracker_position = Mock()
+        m.tracker = cooperative_tracker.CooperativeTracker(
+            official_only=True, strict_samples=True)
+        for tid, uid in m._tracking.items():
+            m.tracker.add_target(tid, now=90.)
+            m.tracker.targets[tid].observers.add(uid)
+        m.tracker.report = Mock(wraps=m.tracker.report)
+        return m
+
+    def _east_white_frame(self, m, sample, candidate='white-person', x=121.,
+                          accepted=True, source='u0', distance=13.5,
+                          purpose=None):
+        # Exact /swarm/visual_source schema emitted by yolo_target_bridge.
+        payload = dict(target_id='t3', source_uav=source,
+                       candidate_id=candidate, local_target_id='t3',
+                       sample_s=sample, x=x, y=24., real_detection=True,
+                       confidence=.75, range_m=distance,
+                       official_view_ok=accepted)
+        if purpose is not None:
+            payload['purpose'] = purpose
+        m.last_report = {uid: sm.rospy.Time.from_sec(sample) for uid in m.uav_ids}
+        with patch.object(sm.rospy.Time, 'now',
+                          return_value=sm.rospy.Time.from_sec(sample+0.05)):
+            m._visual_source_cb(NS(data=json.dumps(payload)))
+            m._handoff_distant_tracker('t3', x, 24., m.tracker.targets['t3'])
+
+    def test_continuous_distant_camera_retakes_blind_red_task_for_white(self):
+        m = self._east_visual_owner_scenario()
+        for sample in (100., 100.4):
+            self._east_white_frame(m, sample)
+            self.assertEqual(m._tracking['t3'], 'u3')
+        self._east_white_frame(m, 100.8)
+        self.assertFalse(m._visual_observations[('u0', 't3')]['eligible'])
+        self.assertEqual(m._visual_observations[('u0', 't3')]['dispatch_hits'], 3)
+        m.tracker.report.assert_not_called()  # 13 m never becomes judge evidence
+        self.assertEqual(m._tracking['t3'], 'u0')
+        self.assertNotIn('t4', m._tracking)  # red2 returns to pending
+        self.assertIn('t4', m.tracker.targets)
+        self.assertEqual(m._tracking['t5'], 'u5')  # red1 camera is protected
+        self.assertEqual(m._tracking['t0'], 'u1')
+        self.assertFalse(m._eliminated)
+        self.assertEqual([(c.args[0].uav_id, c.args[0].target_id,
+                           c.args[0].task_type)
+                          for c in m.assign_pub.publish.call_args_list],
+                         [('u0', 't3', 1), ('u0', 't4', 255), ('u3', 't3', 255)])
+
+    def test_retask_clears_old_view_recovery_without_completing_target(self):
+        m = self._east_visual_owner_scenario()
+        m._view_recovery, m._tenure_recovery = {'t4': {'first_s': 90.}}, {'t4': {}}
+        for sample in (100., 100.4, 100.8):
+            self._east_white_frame(m, sample)
+        self.assertNotIn('t4', m._view_recovery)
+        self.assertNotIn('t4', m._tenure_recovery)
+        self.assertIn('t4', m.tracker.targets)
+        self.assertFalse(m.tracker.targets['t4'].eliminated)
+
+    def test_active_old_image_streak_cannot_be_stolen_by_other_person(self):
+        m = self._east_visual_owner_scenario()
+        m.tracker.targets['t4'].last_ok_t = 100.6
+        m._eligible_observations[('u0', 't4')] = dict(
+            sample_s=100.6, since_s=89., hits=40, eligible=True,
+            x=122., y=33., candidate_id='red2-person')
+        for sample in (100., 100.4, 100.8):
+            self._east_white_frame(m, sample)
+        self.assertEqual(m._tracking['t4'], 'u0')
+        self.assertEqual(m._tracking['t3'], 'u3')
+        m.assign_pub.publish.assert_not_called()
+
+    def test_changed_camera_instance_or_jump_cannot_retake_owner(self):
+        m = self._east_visual_owner_scenario()
+        self._east_white_frame(m, 100., candidate='person-A')
+        self._east_white_frame(m, 100.4, candidate='person-B')
+        self._east_white_frame(m, 100.8, candidate='person-B')
+        self.assertEqual(m._tracking['t3'], 'u3')
+        self._east_white_frame(m, 101.2, candidate='person-B', x=130.)
+        self.assertEqual(m._tracking['t3'], 'u3')
+
+    def test_bridge_rejected_frames_cannot_borrow_backup_or_primary(self):
+        m = self._east_visual_owner_scenario()
+        m.status['u4'].x, m.status['u4'].y = 135., 20.
+        m._backup = {'t5': 'u4'}
+        m.tracker.targets['t5'].observers.add('u4')
+        for sample in (100., 100.4, 100.8):
+            self._east_white_frame(m, sample, accepted=False, source='u4')
+            self._east_white_frame(m, sample, accepted=False, source='u0')
+        self.assertEqual(m._backup['t5'], 'u4')
+        self.assertEqual(m._tracking['t4'], 'u0')
+        self.assertEqual(m._tracking['t3'], 'u3')
+        self.assertFalse(m._visual_observations[('u4', 't3')].get('dispatch_hits'))
+        m.assign_pub.publish.assert_not_called()
+
+    def test_bridge_approved_far_view_does_not_expand_backup_handoff(self):
+        m = self._east_visual_owner_scenario()
+        m.status['u4'].x, m.status['u4'].y = 135., 20.
+        m._backup = {'t5': 'u4'}
+        m.tracker.targets['t5'].observers.add('u4')
+        for sample in (100., 100.4, 100.8):
+            self._east_white_frame(m, sample, accepted=True, source='u4')
+        self.assertTrue(m._sustained_distant_view('u4', 't3', 100.85))
+        self.assertEqual(m._backup['t5'], 'u4')
+        self.assertEqual(m._tracking['t3'], 'u3')
+        m.assign_pub.publish.assert_not_called()
+
+    def test_free_aircraft_still_needs_qualified_images_for_handoff(self):
+        m = self._east_visual_owner_scenario()
+        m.status['u2'].x, m.status['u2'].y = 135., 20.
+        for accepted in (False, True):
+            for sample in (100., 100.4, 100.8):
+                self._east_white_frame(m, sample + (1. if accepted else 0.),
+                                       source='u2', accepted=accepted)
+        self.assertEqual(m._tracking['t3'], 'u3')
+        m.assign_pub.publish.assert_not_called()
+
+    def test_distant_same_frame_upgrade_does_not_create_extra_evidence(self):
+        m = self._east_visual_owner_scenario()
+        self._east_white_frame(m, 100., accepted=False, purpose='discovery_only')
+        self._east_white_frame(m, 100.)
+        self._east_white_frame(m, 100.)
+        image = m._visual_observations[('u0', 't3')]
+        self.assertEqual(image['dispatch_hits'], 1)
+        self.assertFalse(m._sustained_distant_view('u0', 't3', 100.05))
+        # Preserve the pre-existing same-frame eligibility upgrade contract.
+        self._east_white_frame(m, 100., distance=11.5)
+        self._east_white_frame(m, 100., distance=11.5)
+        self.assertTrue(m._visual_observations[('u0', 't3')]['eligible'])
+        self.assertEqual(m._last_eligible('u0', 't3')['hits'], 1)
+        self.assertEqual(m._tracking['t3'], 'u3')
+        m.assign_pub.publish.assert_not_called()
+
+    def test_qualified_near_view_can_retask_blind_primary(self):
+        m = self._east_visual_owner_scenario()
+        m.status['u0'].x, m.status['u0'].y = 132., 24.
+        for sample in (100., 100.4, 100.8):
+            self._east_white_frame(m, sample, distance=11.)
+        self.assertEqual(m._tracking['t3'], 'u0')
+        self.assertNotIn('t4', m._tracking)
+
     def test_blind_owner_within_25m_allows_continuous_camera_handoff(self):
         m = self.m
         m._tracking, m._tracking_since = {'t0':'u0'}, {'t0':50.}

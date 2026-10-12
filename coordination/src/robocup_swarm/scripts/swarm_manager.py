@@ -1519,9 +1519,11 @@ class SwarmManager(SearchSegmentManager):
         """Dispatch directly from accepted camera samples, including distant ones."""
         try:
             now = rospy.Time.now().to_sec()
+            packet = json.loads(msg.data)
             data = parse_visual_evidence(msg.data, now, self.uav_ids)
             data['discovery_only'] = (not data['eligible'] and
-                                     json.loads(msg.data).get('purpose') == 'discovery_only')
+                                     packet.get('purpose') == 'discovery_only')
+            distant_accepted = self._bridge_distant_accepted(data, packet)
             tid, uid, sample = data['target_id'], data['source_uav'], data['sample_s']
             if self._appearance_rejected(uid, data.get('candidate_id'), now):
                 return
@@ -1544,18 +1546,22 @@ class SwarmManager(SearchSegmentManager):
             upgrade = False
             instance_upgrade = False
             if old is not None:
-                if (data['discovery_only'] and old['eligible'] and
+                if (data['discovery_only'] and
+                        (old['eligible'] or old.get('dispatch_hits', 0)) and
                         0. <= now-old['sample_s'] <= 1.):
-                    return  # protect fresh qualification, not an expired image
+                    return  # protect a fresh accepted image from discovery hints
                 different_instance = bool(old.get('candidate_id') and data.get('candidate_id') and
                                           old['candidate_id'] != data['candidate_id'])
-                upgrade = (sample == old['sample_s'] and data['eligible'] and
+                upgrade = (sample == old['sample_s'] and
                            not old['eligible'] and
+                           (data['eligible'] or (old.get('discovery_only') and
+                            distant_accepted and not old.get('dispatch_hits', 0))) and
                            (math.hypot(data['x']-old['x'], data['y']-old['y']) <= .02 or
                             (old.get('discovery_only') and different_instance)))
                 instance_upgrade = upgrade and different_instance
                 if sample <= old['sample_s'] and not upgrade:
                     return
+            self._annotate_distant_view(data, old, distant_accepted)
             self._visual_observations[key] = data
             if data['eligible']:
                 if not hasattr(self, '_seen_target_slots'):
@@ -1801,6 +1807,66 @@ class SwarmManager(SearchSegmentManager):
             if distance <= 20.0:
                 candidates.append((uid, distance))
         return sorted(candidates, key=lambda pair: (pair[1], pair[0]))
+
+    def _bridge_distant_accepted(self, image, packet):
+        """True only when parser rejection is solely its 12 m range limit."""
+        if (packet.get('official_view_ok') is not True or image['eligible'] or
+                image['discovery_only'] or not image.get('candidate_id')):
+            return False
+        try:
+            distance = float(packet['range_m'])
+        except (KeyError, ValueError, TypeError, OverflowError):
+            return False
+        near_limit = float(os.environ.get('HANDOFF_NEAR_M', '20.0'))
+        return math.isfinite(distance) and 12.0 < distance <= near_limit
+
+    def _annotate_distant_view(self, image, previous, distant_accepted):
+        """Record bridge-accepted far frames on the existing image record.
+
+        The parser's <=12 m eligible flag and the judge publication path stay
+        unchanged. Rejected bridge frames and discovery hints never qualify.
+        """
+        if not distant_accepted:
+            return
+        sample = image['sample_s']
+        continuous = False
+        if previous is not None and previous.get('dispatch_hits', 0):
+            dt = sample - previous['sample_s']
+            continuous = (previous.get('candidate_id') == image['candidate_id'] and
+                          0.0 < dt <= 1.0 and
+                          math.hypot(image['x']-previous['x'],
+                                     image['y']-previous['y']) <= 4.0)
+        image['dispatch_hits'] = previous['dispatch_hits']+1 if continuous else 1
+        image['dispatch_since_s'] = previous['dispatch_since_s'] if continuous else sample
+
+    def _sustained_distant_view(self, uid, tid, now):
+        """A bridge-approved far view may choose an owner, never report."""
+        image = getattr(self, '_visual_observations', {}).get((uid, tid))
+        return bool(image is not None and image.get('dispatch_hits', 0) >= 3 and
+                    0.0 <= now-image['sample_s'] <= 1.0 and
+                    image['sample_s']-image['dispatch_since_s'] >= 0.4-1e-6)
+
+    def _redeployable_blind_primary(self, uid, old_tid, new_tid, now):
+        """Yield a blind approach task to a different person in this camera.
+
+        The old target remains pending; a qualified image from any aircraft
+        or a recent local observation streak protects its 15 s judge attempt.
+        """
+        if (old_tid is None or old_tid == new_tid or
+                self._tracking.get(old_tid) != uid or
+                old_tid in self._backup or
+                old_tid in getattr(self, '_confirm_done_t', {}) or
+                now-getattr(self, '_tracking_since', {}).get(old_tid, now) < 3.0 or
+                self._recent_eligible(old_tid, now, 2.0)):
+            return False
+        ct = self.tracker.targets.get(old_tid)
+        last_ok = getattr(ct, 'last_ok_t', None)
+        if last_ok is not None and 0.0 <= now-last_ok <= 2.0:
+            return False
+        raw = getattr(self, '_visual_observations', {}).get((uid, old_tid))
+        if raw is not None and 0.0 <= now-raw['sample_s'] <= 1.5:
+            return False  # give this camera its own current person first
+        return True  # the caller applies its existing qualified-image gate
 
     def _preferred_camera(self, tid, tx, ty, now, busy):
         candidates = self._camera_candidates(tid, tx, ty, now, busy)
@@ -2292,18 +2358,40 @@ class SwarmManager(SearchSegmentManager):
         busy = set(self._tracking.values()) | set(self._backup.values())
         best, best_d = None, float(os.environ.get("HANDOFF_NEAR_M", "20.0"))
         borrowed_from = None
+        borrowed_primary = None
+        best_sample = None
         for uid, st in self.status.items():
             if not self._tracking_uav_available(uid, now_s):
                 continue
-            old_backup_tid = (self._redeployable_backup(uid, tid, now_s)
-                              if uid in busy else None)
-            if uid in busy and old_backup_tid is None:
-                continue
+            old_primary_tid = next((other for other, owner in self._tracking.items()
+                                    if owner == uid and other != tid), None)
+            old_backup_tid = None
+            if uid in busy:
+                if old_primary_tid is not None:
+                    if not self._redeployable_blind_primary(uid, old_primary_tid,
+                                                            tid, now_s):
+                        continue
+                else:
+                    old_backup_tid = self._redeployable_backup(uid, tid, now_s)
+                    if old_backup_tid is None:
+                        continue
             image = self._last_eligible(uid, tid)
-            if (image is None or not 0.0 <= now_s - image['sample_s'] <= 1.0 or
-                    image.get('hits', 0) < 3 or
-                    image['sample_s'] - image.get('since_s', image['sample_s']) < 0.4 - 1e-6 or
-                    math.hypot(image['x'] - tx, image['y'] - ty) > 4.0):
+            qualified_sequence = (image is not None and
+                                  0.0 <= now_s - image['sample_s'] <= 1.0 and
+                                  image.get('hits', 0) >= 3 and
+                                  image['sample_s'] - image.get('since_s', image['sample_s'])
+                                  >= 0.4 - 1e-6 and
+                                  math.hypot(image['x'] - tx, image['y'] - ty) <= 4.0)
+            if old_primary_tid is not None:
+                # Only a blind primary may use the bridge-approved distant
+                # sequence. Free aircraft and backups retain the old formal
+                # qualified-image requirement.
+                view = self._visual_observations.get((uid, tid))
+                distant_sequence = (self._sustained_distant_view(uid, tid, now_s) and
+                                    math.hypot(view['x']-tx, view['y']-ty) <= 4.0)
+                if not (qualified_sequence or distant_sequence):
+                    continue
+            elif not qualified_sequence:
                 continue
             if float(getattr(st, "z", 0.0) or 0.0) < 1.0:
                 continue
@@ -2315,12 +2403,25 @@ class SwarmManager(SearchSegmentManager):
             if d < best_d:  # A continuous new image beats a blind incumbent, even nearby.
                 best, best_d = uid, d
                 borrowed_from = old_backup_tid
+                borrowed_primary = old_primary_tid
+                best_sample = (image if qualified_sequence else view)['sample_s']
         if best is None:
             return
         if borrowed_from is not None:
             self._backup.pop(borrowed_from, None)
             getattr(self, '_backup_approach_leases', {}).pop(borrowed_from, None)
             previous = self.tracker.targets.get(borrowed_from)
+            if previous is not None:
+                previous.observers.discard(best)
+        if borrowed_primary is not None:
+            # No completion is inferred.  The old visual target stays in the
+            # tracker and enters the next dispatch batch without this owner.
+            self._tracking.pop(borrowed_primary, None)
+            getattr(self, '_tracking_since', {}).pop(borrowed_primary, None)
+            getattr(self, '_approach_leases', {}).pop(borrowed_primary, None)
+            getattr(self, '_view_recovery', {}).pop(borrowed_primary, None)
+            getattr(self, '_tenure_recovery', {}).pop(borrowed_primary, None)
+            previous = self.tracker.targets.get(borrowed_primary)
             if previous is not None:
                 previous.observers.discard(best)
         self._tracking[tid] = best
@@ -2344,7 +2445,14 @@ class SwarmManager(SearchSegmentManager):
             rospy.loginfo('[BACKUP_RETASK] uav=%s old=%s new=%s '
                           'old_primary=%s image=%.3f; 连续新视角接棒，保留原主追',
                           best, borrowed_from, tid, self._tracking.get(borrowed_from),
-                          self._last_eligible(best, tid)['sample_s'])
+                          best_sample)
+        if borrowed_primary is not None:
+            # Publish the new task first; cancellation is target-scoped and
+            # cannot erase the new task on the same aircraft.
+            self._publish_target_cancel(best, borrowed_primary, now_s)
+            rospy.loginfo('[VISUAL_OWNER_RETASK] uav=%s old=%s pending new=%s '
+                          'image=%.3f; no old judge streak, no completion',
+                          best, borrowed_primary, tid, best_sample)
         msg = SearchAssignment()
         msg.header.stamp = now
         msg.uav_id = old
