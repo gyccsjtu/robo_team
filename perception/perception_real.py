@@ -1958,6 +1958,9 @@ def main():
     _model = YOLO(WEIGHTS)
     configure_cpu_inference_threads(_model, TORCH_THREADS)
     class_mapping = target_class_mapping(_model.names)
+    from distractor_verifier import SecondaryAppearance
+    secondary_appearance = SecondaryAppearance(configure_model=lambda model:
+        configure_cpu_inference_threads(model, TORCH_THREADS))
     print('[pr] CLASS_MAP names=%s canonical=%s; non-target classes excluded' %
           (_model.names, class_mapping), flush=True)
     print("[pr] MODEL_READY load_s=%.3f" % (time.monotonic() - _load_wall),
@@ -2043,7 +2046,7 @@ def main():
     timing_csv = logger('pipeline_timing_%s' % UAV, [
         'image_stamp', 'receive_ros_s', 'inference_start_ros_s', 'report_ros_s',
         'receive_wall_s', 'inference_start_wall_s', 'inference_end_wall_s',
-        'geometry_end_wall_s', 'report_wall_s', 'inference_s', 'image_age_s',
+        'geometry_end_wall_s', 'report_wall_s', 'inference_s', 'secondary_inference_s', 'image_age_s',
         'candidate_count', 'qualified_count'])
     candidate_session = uuid.uuid4().hex
     annot_img = None          # 最近一次参与检测的图像，供标注帧使用
@@ -2138,6 +2141,23 @@ def main():
                     # v4新增：对同类别的检测结果做IOU去重（解决YOLO同一目标多次检测问题）
                     actor_boxes, appearance_evidence = appearance_resolver.resolve(
                         res.boxes, class_mapping, _model.names, frame_stamp)
+                    secondary_start = time.monotonic()
+                    try:
+                        actor_boxes, secondary_evidence = secondary_appearance.filter(
+                            img, actor_boxes, CLASSES, frame_stamp)
+                        appearance_evidence.extend(secondary_evidence)
+                        if any(e['status'] == 'secondary_distractor'
+                               for e in secondary_evidence):
+                            rospy.loginfo_throttle(2.,
+                                '[DISTRACTOR_VETO] uav=%s image=%.3f mode=%s; three fresh images',
+                                UAV, frame_stamp, secondary_appearance.mode)
+                    except Exception as exc:
+                        # Never reuse old negative evidence after an inference
+                        # failure, or suppress primary actors on missing data.
+                        secondary_appearance.histories.clear()
+                        rospy.logwarn_throttle(2., '[DISTRACTOR_FALLBACK] %s',
+                                               type(exc).__name__)
+                    secondary_inference_s = time.monotonic() - secondary_start
                     for evidence in appearance_evidence:
                         ex1, ey1, ex2, ey2 = evidence['box']
                         _CSV.write(ros_time=rospy.Time.now().to_sec(),
@@ -2774,7 +2794,8 @@ def main():
                 receive_wall_s=frame_receive_wall, inference_start_wall_s=_infer_t0,
                 inference_end_wall_s=inference_end_wall,
                 geometry_end_wall_s=geometry_end_wall, report_wall_s=report_wall,
-                inference_s=inference_s, image_age_s=report_ros-frame_stamp,
+                inference_s=inference_s, secondary_inference_s=secondary_inference_s,
+                image_age_s=report_ros-frame_stamp,
                 candidate_count=len(report_batch['candidates']),
                 qualified_count=sum(c['official_view_ok'] for c in report_batch['candidates']))
             report_by_id = {c['candidate_id']: c for c in report_batch['candidates']}

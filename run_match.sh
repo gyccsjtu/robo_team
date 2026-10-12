@@ -45,6 +45,9 @@ ENV_SCRIPT="$PERC_DIR/scripts/env_robocup.sh"
 WEIGHTS="${PR_WEIGHTS:-$REPO_ROOT/weights/best_yolo11n_bino_v1.pt}"
 case "$WEIGHTS" in /*) ;; *) WEIGHTS="$PWD/$WEIGHTS" ;; esac
 export PR_WEIGHTS="$WEIGHTS"
+export PR_DISTRACTOR_MODE="${PR_DISTRACTOR_MODE:-off}"
+export PR_DISTRACTOR_WEIGHTS="${PR_DISTRACTOR_WEIGHTS:-$REPO_ROOT/weights/distractor_verifier_v7.pt}"
+PR_DISTRACTOR_WEIGHTS="$(realpath -m "$PR_DISTRACTOR_WEIGHTS")"
 OFFICIAL_WORLD="$PX4_ROOT/Tools/sitl_gazebo/worlds/robocup.world"
 MAP_GENERATOR="$ROBO_DIR/map_generator.py"
 ACTOR_MODEL_DIR="$XTDRONE_DIR/sitl_config/models/actor"
@@ -511,6 +514,13 @@ preflight(){
         hard_miss=$((hard_miss+1))
     fi
     check_hard "感知主节点"              "[ -f '$PERC_DIR/perception_real.py' ]"
+    if [[ "$PR_DISTRACTOR_MODE" =~ ^(off|shadow|enforce)$ ]] && \
+       { [ "$PR_DISTRACTOR_MODE" = off ] || [ -f "$PR_DISTRACTOR_WEIGHTS" ]; }; then
+        ok "雕塑外观复核: $PR_DISTRACTOR_MODE ($PR_DISTRACTOR_WEIGHTS)"
+    else
+        err "雕塑复核模式或权重无效"
+        hard_miss=$((hard_miss+1))
+    fi
     # 双目相机补丁：感知订阅 /<uav>/stereo_camera/left/image_raw，原厂 typhoon_h480
     # 只有 cgo3 云台相机、无 stereo_camera → 不打补丁则话题发布者为空、整局零检测。
     # 补丁脚本只读检查，不改任何文件；NOT_INSTALLED 即硬失败，避免盲飞整场。
