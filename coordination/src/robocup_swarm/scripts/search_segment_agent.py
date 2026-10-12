@@ -147,6 +147,9 @@ class SearchSegmentAgent:
         self._search_scan_yaw0 = None
         self._search_scan_started_t = None
         self._search_scan_settle_t = None
+        self._search_scan_directed_first = None
+        self._search_scan_directed_last = None
+        self._search_scan_directed_done = False
         self._search_scan_phase = 0
         self._search_scan_done = self._search_scan_failed = False
         self._search_scan_seen,self._search_scan_first = set(),{}
@@ -185,6 +188,8 @@ class SearchSegmentAgent:
         point = task['points'][i]
         distance = math.dist(self.world_xy,point)
         if distance < arrive:
+            directed = (task.get('purpose') == 'south_patrol' and
+                        i < len(task.get('look_points', ())))
             camera = getattr(self,'_search_camera_pose',None)
             fresh = camera is not None and 0 <= now-camera[0] <= .5
             missing = None
@@ -193,9 +198,11 @@ class SearchSegmentAgent:
                 if math.dist((x,y),self.world_xy) <= 1.:
                     observable = self._search_observable_points(x,y,height,pitch)
                     missing = set(observable)-self._search_scan_seen
-            if missing == set() or self._search_scan_done or self._search_scan_failed:
-                # Empty observable set is a visit, never image coverage. The
-                # manager explicitly queues the unobserved cell for a side view.
+            if self._search_scan_done or self._search_scan_failed or (
+                    not directed and missing == set()):
+                # An ordinary empty observable set is only a visit. A directed
+                # patrol must first point its camera at the explicit region
+                # and receive processed frames, or end with a bounded failure.
                 self._segment_next()
                 if task['state'] == DONE:
                     self._send_vel(0.,0.)

@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'coordination/src/robocup_swarm/scripts'))
-from search_segments import SegmentBook, TRAVEL, YIELD, DONE, FAILED, clear_line, path_remaining
+from search_segments import SegmentBook, TRAVEL, LOOK, YIELD, DONE, FAILED, clear_line, path_remaining
 import swarm_task as tasklib
 import swarm_manager as sm
 import swarm_agent as sa
@@ -332,6 +332,22 @@ class AgentSegmentTests(unittest.TestCase):
         a._apply_friend_avoidance=lambda vx,vy:(vx,vy)
         return a
 
+    def directed_fixture(self):
+        a=self.control_fixture()
+        a._search_segment.update(
+            purpose='south_patrol',
+            points=((3.5,-8.5),(10.5,-8.5),(17.5,-8.5)),
+            look_points=((3.5,0.),(10.5,0.),(17.5,0.)))
+        a.assignment.target_y=-8.5
+        a.local_xy=(3.5,-8.5)
+        a.yaw=0.
+        a._search_scan_key=(0,0,3.5,-8.5)
+        a._search_camera_pose=(100.,3.5,-8.5,0.,3.,0.)
+        a._search_scan_yaw0=None
+        a._search_scan_started_t=None
+        a._search_scan_step=sa.SwarmAgent._search_scan_step.__get__(a)
+        return a
+
     def test_safe_intermediate_visit_continues_without_zero_command(self):
         a=self.control_fixture()
         self.assertTrue(a._segment_control(3.,5.,.8,2.,2.))
@@ -369,6 +385,74 @@ class AgentSegmentTests(unittest.TestCase):
         a.local_xy=(3.5,0.);a._search_observable_points.return_value={0:(8.,-6.)}
         a._segment_control(3.,5.,.8,2.,2.)
         a._search_scan_step.assert_called_once()
+
+    def test_directed_patrol_does_not_skip_an_unseen_cell_at_arrival(self):
+        a=self.directed_fixture()
+        a._segment_control(3.,5.,.8,2.,2.)
+        self.assertEqual(a._search_segment['index'],0)
+        self.assertEqual(a._search_segment['state'],LOOK)
+        a._set_search_heading.assert_called_with(math.pi/2)
+        self.assertFalse(a._search_scan_done)
+        a._send_vel.assert_called_with(0.,0.)
+
+    def test_directed_patrol_requires_new_aligned_processed_frames(self):
+        a=self.directed_fixture()
+        a._search_scan_step()
+        a._search_camera_pose=(99.9,3.5,-8.5,math.pi/2,3.,0.)
+        a._search_scan_step()
+        self.assertFalse(a._search_scan_done)
+        t1=sa.rospy.Time.from_sec(100.1)
+        a._search_camera_pose=(t1.to_sec(),3.5,-8.5,math.pi/2,3.,0.)
+        with patch.object(sa.rospy.Time,'now',return_value=t1):
+            a._search_scan_step()
+        self.assertFalse(a._search_scan_done)
+        with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(100.35)):
+            a._search_scan_step()  # repeated image cannot finish the dwell
+        self.assertFalse(a._search_scan_done)
+        t2=sa.rospy.Time.from_sec(100.4)
+        a._search_camera_pose=(t2.to_sec(),3.5,-8.5,math.pi/2,3.,0.)
+        with patch.object(sa.rospy.Time,'now',return_value=t2):
+            a._search_scan_step()
+        self.assertTrue(a._search_scan_done)
+        self.assertEqual(a._search_scan_seen,set())  # only real image callback credits coverage
+
+    def test_directed_patrol_invalid_vertical_view_times_out_without_credit(self):
+        a=self.directed_fixture()
+        a._search_camera_pose=(100.,3.5,-8.5,math.pi/2,4.5,0.)
+        a._search_scan_step()
+        with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(108.1)):
+            a._search_camera_pose=(108.1,3.5,-8.5,math.pi/2,4.5,0.)
+            a._search_scan_step()
+        self.assertTrue(a._search_scan_failed)
+        self.assertFalse(a._search_scan_done)
+        self.assertEqual(a._search_scan_seen,set())
+        a._send_vel.assert_called_with(0.,0.)
+
+    def test_directed_patrol_break_in_processed_frames_resets_dwell(self):
+        a=self.directed_fixture()
+        a._search_camera_pose=(100.,3.5,-8.5,math.pi/2,3.,0.)
+        a._search_scan_step()
+        t1=sa.rospy.Time.from_sec(100.8)
+        a._search_camera_pose=(t1.to_sec(),3.5,-8.5,math.pi/2,3.,0.)
+        with patch.object(sa.rospy.Time,'now',return_value=t1):
+            a._search_scan_step()
+        self.assertFalse(a._search_scan_done)
+        self.assertEqual(a._search_scan_directed_first,t1.to_sec())
+        t2=sa.rospy.Time.from_sec(101.1)
+        a._search_camera_pose=(t2.to_sec(),3.5,-8.5,math.pi/2,3.,0.)
+        with patch.object(sa.rospy.Time,'now',return_value=t2):
+            a._search_scan_step()
+        self.assertTrue(a._search_scan_done)
+
+    def test_next_patrol_cell_resets_directed_image_evidence(self):
+        a=self.directed_fixture()
+        a._search_scan_directed_first=100.1
+        a._search_scan_directed_done=True
+        a._segment_next()
+        self.assertEqual(a._search_segment['index'],1)
+        self.assertIsNone(a._search_scan_directed_first)
+        self.assertIsNone(a._search_scan_directed_last)
+        self.assertFalse(a._search_scan_directed_done)
 
     def test_safe_prefix_survives_a_blocked_later_goal(self):
         a=self.control_fixture();g=a.grid;data=bytearray(g.cells)

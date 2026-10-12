@@ -1,4 +1,5 @@
 """Optional first southeast leg stays a safe, short, ordinary search task."""
+import math
 import sys
 import threading
 import unittest
@@ -12,6 +13,7 @@ import boundary_patrol as bp
 import swarm_manager as sm
 import swarm_task as st
 from search_segments import SegmentBook, clear_line
+from search_observation import cell_points, in_view
 from robocup_swarm.msg import UavStatus
 
 
@@ -78,7 +80,9 @@ class SoutheastPatrolTests(unittest.TestCase):
             self.assertAlmostEqual(cell.cy, -42.5)
             self.assertEqual(look, (cell.cx, cell.cy))
             self.assertAlmostEqual(point[0], cell.cx)
-            self.assertAlmostEqual(point[1], cell.cy-8.5)
+            self.assertAlmostEqual(point[1], cell.cy-8.95)
+            self.assertGreaterEqual(math.dist(point, look), 8.8)
+            self.assertLess(math.dist(point, look), 9.)
             self.assertGreater(look[1], point[1])
             self.assertTrue(self.m._search_point_free(point))
             self.assertTrue(self.m._blind_viewpoint_valid(cell, point))
@@ -86,6 +90,37 @@ class SoutheastPatrolTests(unittest.TestCase):
             self.assertNotEqual(cell.state, st.STATE_COVERED)
         self.assertFalse(any(key[1] == 0 for key in task.cells))
         self.assertAlmostEqual(task.deadline, 190.)
+
+    def test_realistic_heights_keep_centre_visible_without_claiming_edges(self):
+        proposal = self.m._south_patrol.choose(self.m, self.m.uav_ids,
+                                                self.now)
+        self.assertIsNotNone(proposal)
+        key, point = proposal[1][0], proposal[2][0]
+        cell = self.m.grid.cell(key)
+        yaw = math.pi/2.
+        for height in (2.6, 4.0, 4.45, 4.5):
+            with self.subTest(height=height):
+                self.assertTrue(in_view(*point, yaw, cell.cx, cell.cy,
+                                        height, 0.))
+        self.assertFalse(in_view(*point, yaw, cell.cx, cell.cy, 4.6, 0.))
+        footprint = cell_points(self.m.grid, cell)
+        self.assertEqual(len(footprint), 9)
+        visible = [p for p in footprint
+                   if in_view(*point, yaw, *p, 4.45, 0.)]
+        self.assertEqual(visible, [(cell.cx, cell.cy)])
+        south = min(footprint, key=lambda p: p[1])
+        north = max(footprint, key=lambda p: p[1])
+        self.assertFalse(in_view(*point, yaw, *south, 4.45, 0.))
+        self.assertFalse(in_view(*point, yaw, *north, 4.45, 0.))
+        self.assertNotEqual(cell.state, st.STATE_COVERED)
+
+    def test_aircraft_too_high_for_nine_metre_footprint_uses_edge_band(self):
+        for uid in self.m.uav_ids:
+            self.m.status[uid].z = 4.6
+        proposal = self.m._south_patrol.choose(self.m, self.m.uav_ids,
+                                                self.now)
+        self.assertIsNotNone(proposal)
+        self.assertTrue(all(key[1] == 0 for key in proposal[1]))
 
     def test_completed_inner_leg_reverts_to_south_edge_with_same_budget(self):
         patrol = self.m._south_patrol

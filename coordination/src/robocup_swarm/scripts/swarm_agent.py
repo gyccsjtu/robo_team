@@ -182,6 +182,10 @@ CAMERA_CUE_RETRY_S = 2.0
 SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
 SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
 SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '4.0'))
+# A south-patrol aircraft may arrive facing along the route. At the normal
+# 25 deg/s search-heading rate a 90-degree turn alone takes 3.6 seconds.
+SEARCH_DIRECTED_LOOK_TIMEOUT_S = float(os.environ.get(
+    'SEARCH_DIRECTED_LOOK_TIMEOUT_S', '8.0'))
 PUB_RATE        = 10.0    # 状态发布频率 Hz
 CTRL_RATE       = 20.0    # 控制频率 Hz
 DETECT_RATE     = float(os.environ.get('DETECT_RATE', '3.0'))   # 规则 §2.5(10)：连续 15s 正确广播 → 3Hz × 15s = 45 个采样，远高于裁判认定的连续窗口
@@ -949,6 +953,9 @@ class SwarmAgent(SearchSegmentAgent):
         self._search_scan_failed = False
         self._search_scan_seen = set()
         self._search_scan_first = {}
+        self._search_scan_directed_first = None
+        self._search_scan_directed_last = None
+        self._search_scan_directed_done = False
         self._search_last_frame = 0.0
 
         # ---- A* 避障（合规重构 2026-10-07：雷达 SLAM 实时建图）----
@@ -1491,6 +1498,9 @@ class SwarmAgent(SearchSegmentAgent):
             self._search_scan_failed = False
             self._search_scan_seen = set()
             self._search_scan_first = {}
+            self._search_scan_directed_first = None
+            self._search_scan_directed_last = None
+            self._search_scan_directed_done = False
             self._camera_cue = None
             self._track_assigned_id = None
             self._target_to_orbit = None
@@ -1523,6 +1533,9 @@ class SwarmAgent(SearchSegmentAgent):
                 self._search_scan_failed = False
                 self._search_scan_seen = set()
                 self._search_scan_first = {}
+                self._search_scan_directed_first = None
+                self._search_scan_directed_last = None
+                self._search_scan_directed_done = False
         else:
             self._search_scan_key = None
             self._search_scan_done = False
@@ -4367,12 +4380,12 @@ class SwarmAgent(SearchSegmentAgent):
                          wy + 10.0 * math.sin(heading))
 
     def _search_scan_step(self):
-        """Look only at observable missing subpoints; do not scan blind ground.
+        """Look at a segment's explicit region before scanning missing subpoints.
 
         A transit waypoint directly over its cell cannot image that cell with
-        a forward camera. Release the visit instead of spending 16 seconds on
-        four headings; the manager retains its missing coverage and side-view
-        revisit. Neither a visit nor this bounded look grants coverage credit.
+        a forward camera. Ordinary search releases such a visit; directed
+        patrol waits for processed images at the commanded bearing. Neither a
+        visit nor this bounded look grants coverage credit.
         """
         assignment = getattr(self, 'assignment', None)
         if (assignment is None or getattr(assignment, 'task_type', None) != 0 or
@@ -4380,28 +4393,69 @@ class SwarmAgent(SearchSegmentAgent):
             self._send_vel(0.0, 0.0)
             return
         now = rospy.Time.now().to_sec()
+        segment = getattr(self, '_search_segment', None)
+        look = None
+        if (segment is not None and segment.get('purpose') == 'south_patrol' and
+                segment['index'] < len(segment.get('look_points', ()))):
+            look = segment['look_points'][segment['index']]
         if self._search_scan_yaw0 is None:
             self._search_scan_yaw0 = self.yaw
             self._search_scan_started_t = now
             self._search_scan_phase = None
             self._search_scan_settle_t = None
+            self._search_scan_directed_first = None
+            self._search_scan_directed_last = None
+            self._search_scan_directed_done = False
         if self._search_scan_done or self._search_scan_failed:
             self._send_vel(0.0, 0.0)
             return
-        if now - self._search_scan_started_t > SEARCH_SCAN_TIMEOUT_S:
+        timeout = (max(SEARCH_SCAN_TIMEOUT_S, SEARCH_DIRECTED_LOOK_TIMEOUT_S)
+                   if look is not None else SEARCH_SCAN_TIMEOUT_S)
+        if now - self._search_scan_started_t > timeout:
             self._search_scan_failed = True
             rospy.logwarn('[%s] 搜索视角补看超时，保留未覆盖部分: %s',
                           self.uav_id, self._search_scan_key)
             self._send_vel(0.0, 0.0)
             return
+        if look is not None and not self._search_scan_directed_done:
+            # The route heading is not an observation heading. Command the
+            # reserved cell's centre through the sole search-yaw controller;
+            # the final flight safety chain still handles the zero velocity.
+            wx, wy = self.world_xy
+            self._set_search_heading(math.atan2(look[1]-wy, look[0]-wx))
         camera = getattr(self, '_search_camera_pose', None)
         if camera is None or not 0.0 <= now-camera[0] <= .5:
             self._send_vel(0.0, 0.0)
             return
-        _sample, x, y, _yaw, altitude, down_pitch = camera
+        sample, x, y, yaw, altitude, down_pitch = camera
         if math.hypot(x-self.world_xy[0], y-self.world_xy[1]) > 1.0:
             self._send_vel(0.0, 0.0)
             return
+        if look is not None and not self._search_scan_directed_done:
+            # A commanded bearing or a repeated old image is not proof that
+            # the fixed camera has looked into this region. Require two
+            # distinct processed frames spanning the normal dwell interval.
+            bearing = math.atan2(look[1]-y, look[0]-x)
+            yaw_error = math.atan2(math.sin(bearing-yaw), math.cos(bearing-yaw))
+            if (sample < self._search_scan_started_t or
+                    abs(yaw_error) > SEARCH_SCAN_YAW_TOL or
+                    not in_view(x, y, yaw, *look, altitude, down_pitch)):
+                self._search_scan_directed_first = None
+                self._search_scan_directed_last = None
+                self._send_vel(0.0, 0.0)
+                return
+            first = self._search_scan_directed_first
+            last = self._search_scan_directed_last
+            if first is None or last is None or sample < last or sample-last > .7:
+                self._search_scan_directed_first = sample
+                self._search_scan_directed_last = sample
+                self._send_vel(0.0, 0.0)
+                return
+            self._search_scan_directed_last = sample
+            if sample-first < SEARCH_SCAN_HOLD_S:
+                self._send_vel(0.0, 0.0)
+                return
+            self._search_scan_directed_done = True
         points = self._search_observable_points(x, y, altitude, down_pitch)
         missing = {i: p for i, p in points.items()
                    if i not in getattr(self, '_search_scan_seen', set())}

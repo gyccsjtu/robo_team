@@ -89,8 +89,12 @@ class SouthPatrol:
                 continue
             if southeast:
                 # The front camera looks north from a safe point south of the
-                # reserved *inner* cell. Never credit the separate edge row.
-                point = (cell.cx, cell.cy-8.5)
+                # reserved *inner* cell. At 4.45 m height an 8.5 m standoff
+                # puts its centre below the 27-degree processed-image limit.
+                # 8.95 m keeps the centre within that limit up to about 4.56 m
+                # while retaining 5 cm of the 9 m footprint for pose jitter.
+                # The separate edge row is never credited by this reservation.
+                point = (cell.cx, cell.cy-8.95)
                 viewpoint_valid = getattr(manager, '_blind_viewpoint_valid', None)
                 if (not manager._search_point_free(point) or
                         viewpoint_valid is None or not viewpoint_valid(cell, point) or
@@ -120,6 +124,18 @@ class SouthPatrol:
                 continue
             for key in keys:
                 point = viewpoints[key]
+                if southeast:
+                    # A north-facing fixed stereo camera cannot see this cell
+                    # from <=9 m if the current aircraft is already above the
+                    # feasible altitude. Fall back to the original south row.
+                    cell = manager.grid.cell(key)
+                    height = getattr(s, 'z', float('nan'))
+                    if (not math.isfinite(height) or
+                            not manager._in_processed_view(
+                                point[0], point[1], math.pi/2., cell.cx,
+                                cell.cy, altitude=max(4.5, height),
+                                down_pitch=0.)):
+                        continue
                 if self.direction and self.direction*(point[0]-s.x) < -1.:
                     continue
                 pairs.append((math.dist((s.x, s.y), point), uid, key, point))
