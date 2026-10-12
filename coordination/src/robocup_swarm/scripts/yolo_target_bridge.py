@@ -556,10 +556,47 @@ def parse_report_frame(raw, now):
         if key in rows and rows[key] != row:
             conflicts.add(key)
         rows[key] = row
-    # Repeated identical boxes are one image; contradictory copies of an
-    # instance are no evidence. Neither case depends on input array order.
-    return [rows[key] for key in sorted(rows) if key not in conflicts and
-            rows[key]['appearance_status'] != 'distractor']
+    # Repeated identical boxes are one image — keep one copy.
+    # Contradictory copies of the same (source, candidate_id) on a single image
+    # come from one person whose projection the network disagree on (e.g.
+    # white frames where two boxes share the head anchor but differ at the
+    # feet, blue frames whose box has been enlarged around a shadow). We MUST
+    # not silence the whole image, since that creates a long reporting gap.
+    # Instead pick the box whose projection is the tightest one, by the
+    # supplied `position_uncertainty_m` (footpoint quality). When unavailable,
+    # keep the more confident of the two, but never the larger box — large
+    # boxes that wrapped a shadow have inflated area while still claiming the
+    # same anchor; size is not an authority here. The discarded row still
+    # leaves no stale state in `rows` for downstream identity code.
+    if not conflicts:
+        return [rows[key] for key in sorted(rows)
+                if rows[key]['appearance_status'] != 'distractor']
+    # Group rows by candidate_id: every (source, candidate_id) appears twice
+    # in `rows` with different (x, y). Keep the tightest projection per
+    # candidate; drop the rest. A clean candidate with no contradiction is
+    # kept verbatim.
+    filtered = []
+    by_candidate = {}
+    for key, row in rows.items():
+        if row['appearance_status'] == 'distractor':
+            continue
+        cid = row.get('candidate_id') or key[1]
+        by_candidate.setdefault(cid, []).append((key, row))
+    for cid, group in by_candidate.items():
+        if len(group) == 1:
+            filtered.append(group[0][1])
+            continue
+        # Duplicate candidate on this image. Pick the lowest uncertainty;
+        # break ties by highest visual confidence; never by box area, because
+        # shadow-enlarged boxes claim the same anchor but inflated area.
+        def quality(row):
+            q = row.get('position_uncertainty_m')
+            if q is None or not math.isfinite(q):
+                return (float('inf'), -row.get('visual_conf', 0.))
+            return (q, -row.get('visual_conf', 0.))
+        chosen = min(group, key=lambda kv: quality(kv[1]))[1]
+        filtered.append(chosen)
+    return filtered
 
 
 def parse_left_actors(raw):

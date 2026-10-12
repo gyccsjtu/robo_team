@@ -11,7 +11,7 @@ import yolo_target_bridge as bridge
 
 
 def replay(speed=1., angle=math.pi/2, image_hz=4., latency=.2,
-           corner=8., tick_phase=0.):
+           corner=8., tick_phase=0., noise=None, tag='blue', skip_image=None):
     node = bridge._mk_bridge()
     emitted = []
     node._actor_pubs['blue'].publish = lambda m: emitted.append((node._now(), m.x, m.y))
@@ -25,6 +25,8 @@ def replay(speed=1., angle=math.pi/2, image_hz=4., latency=.2,
     for now, kind, sample in sorted(events):
         node._advance(now-node._now())
         if kind == 0:
+            if skip_image is not None and skip_image(sample):
+                continue
             x, y = position(sample)
             node._report_cb(bridge._FakeString(json.dumps(dict(
                 target_id='blue', xyz=[x, y, 1.25], confidence=.95,

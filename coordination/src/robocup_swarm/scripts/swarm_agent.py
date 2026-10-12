@@ -633,7 +633,7 @@ SPOOK_SPEED     = 0.85    # 接近阶段最大线速度 m/s（离 1.0 m/s 阈值
 # 5min 只覆盖地图 17%（x∈[-44.5,43], y∈[-54.5,-9]），4/6 actor 的活动区
 # 从未被搜索格覆盖 → 全程零观测零派机。恒速 3.0m/s + 2m 减速带（近引导点
 # 切回 P 控制自然减速，防冲过格中心）。
-SEARCH_CRUISE_SPEED = float(os.environ.get('SEARCH_CRUISE_SPEED', '3.0'))
+SEARCH_CRUISE_SPEED = float(os.environ.get('SEARCH_CRUISE_SPEED', '4.5'))  # v20 国家一等奖：3.0→4.5，6 机 240m 扫一遍省 27s
 SEARCH_START_DISTANCE_M = max(0.0, float(os.environ.get('SEARCH_START_DISTANCE_M', '10.0')))
 SEARCH_START_SPEED = max(0.0, float(os.environ.get('SEARCH_START_SPEED', '1.5')))
 SEARCH_DECEL_M      = float(os.environ.get('SEARCH_DECEL_M', '2.0'))
@@ -753,6 +753,9 @@ DWELL_LOOKAHEAD = os.environ.get("DWELL_LOOKAHEAD", "1") not in ("0", "false", "
 STABLE_NEEDED   = 40      # EKF 稳定判定：连续多少次 20Hz 采样高度达标（40 = 2s）
 OFFBOARD_PRESTREAM_S = 2.0  # 与定位稳定检查重叠，按仿真时间累计连续零速输出
 OFFBOARD_PRESTREAM_MAX_GAP_S = 0.25  # 输出间隔过大时重新预热
+# v20 死机 watchdog：local_position 流静止超时阈值。25s 已覆盖 SITL EKF 冷启动；
+# 再久必为死机——强行继续走 OFFBOARD 预热只会被 PX4 静默拒绝。
+DEAD_UAV_S = float(os.environ.get('DEAD_UAV_S', '25.0'))
 # EKF 局部原点跳变判定阈值 m：单帧 local_xy 位移超过此值（且超过物理速度上限）
 # 判定为 EKF 原点重置而非真实运动，触发 offset 重锚定保持 world_xy 连续。
 EKF_JUMP_MIN_M  = float(os.environ.get('EKF_JUMP_MIN_M', '3.0'))
@@ -900,6 +903,9 @@ class SwarmAgent(object):
         self._anchor_done = False   # 起飞前的稳定门；完成后监测局部位姿异常
         self._localization_fault = False  # 粘滞故障，须重启并重新建立合法坐标系
         self._local_prev_t = 0.0    # 上一帧 local_position 的 ROS 时间（跳变检测）
+        self._local_last_t = 0.0    # 任意有效样本最近 ROS 时间（watchdog 用）
+        self._local_first_t = 0.0   # 第一帧有效 local_position 的 ROS 时间
+        self._local_streak_bad = 0  # 连续丢弃的样本数（区分初始冷启动与死机）
         self.local_z = None         # 高度（来自 local_position）
         # v14 Fix D：P 控制连续爬升卡死闩锁状态（EKF z 卡低防真值冲红线）
         self._climb_t0 = None        # 连续爬升计时窗起点
@@ -1263,6 +1269,13 @@ class SwarmAgent(object):
         self._est_track(new_xy, now)
         self.local_xy = new_xy
         self._local_prev_t = now
+        # v20 死机 watchdog：任意有效 local_position 都刷新 watchdog 时戳。
+        # 死机时 _local_last_t 不更新，但 _arm_and_offboard 还在等 z>1.0；现在
+        # 在 _local_stale_cb() 中诊断并直接跳过 25s 的"稳定"闸门重试 OFFBOARD。
+        if self._local_last_t == 0.0:
+            self._local_first_t = now
+        self._local_last_t = now
+        self._local_streak_bad = 0
         q = msg.pose.orientation
         self.yaw = math.atan2(2.0 * (q.w * q.z + q.x * q.y),
                               1.0 - 2.0 * (q.y * q.y + q.z * q.z))
@@ -2491,6 +2504,7 @@ class SwarmAgent(object):
 
         stable = 0
         stream_start = last_setpoint = None
+        no_local_start = None  # v20：累计"无位姿流"时长，>DEAD_UAV_S 报警重启
         while not rospy.is_shutdown():
             if getattr(self, '_localization_fault', False):
                 rospy.logerr('[%s] 起飞预热期间定位失信，终止起飞', self.uav_id)
@@ -2514,6 +2528,29 @@ class SwarmAgent(object):
                                            self.uav_id,
                                            self.local_z if self.local_z is not None else -999)
                 stable = 0
+            # v20 死机 watchdog：local_z 已卡在原地（甚至=0.13）但 _local_cb 完全
+            # 不再 ack——这种"既不报错，也不涨"的真因只能用 wall time 暴露。
+            if self._local_last_t == 0.0:
+                no_local_start = now
+            elif now - self._local_last_t >= DEAD_UAV_S and no_local_start is None:
+                no_local_start = self._local_last_t
+            if (no_local_start is not None and
+                    now - no_local_start >= DEAD_UAV_S and
+                    (self.local_z is None or abs(self.local_z) >= 1.5)):
+                rospy.logerr('[%s] v20 死机告警：%ds 内 local_position 无有效样本（z=%s），'
+                             'EKF 不再更新；继续等 %.1fs 后重试 OFFBOARD',
+                             self.uav_id, DEAD_UAV_S,
+                             self.local_z, DEAD_UAV_S)
+                # v20：累计 25+25=50s 后强制判定死机，主动退出进程让 do_start 重启；
+                # 避免 do_start 端"agents_ready"误以为已就绪、6 机起跑时永远少一架。
+                if now - no_local_start >= 2.0 * DEAD_UAV_S and not getattr(self, '_dead_exiting', False):
+                    self._dead_exiting = True
+                    rospy.logerr('[%s] v20 死机自毁触发，ROS shutdown 让 supervisor 重启',
+                                 self.uav_id)
+                    rospy.signal_shutdown('v20 dead-UAV watchdog')
+                    return False
+                # 让外层 do_start 的"启动"循环能看到这条报警，避免静默卡死。
+                no_local_start = now - DEAD_UAV_S * 0.5
             self.ctrl_rate.sleep()
         if rospy.is_shutdown():
             return False
