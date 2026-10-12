@@ -156,6 +156,8 @@ def retain_pixel_view(previous, data, source, tid, now, max_position_age=2.):
                                math.cos(view['bearing']-previous['bearing']))) > .25):
             return None
         view.update(position_sample_s=anchor,pixel_only=True,
+                    geometry_anchor_ok=previous.get('geometry_anchor_ok',
+                                                    previous.get('geometry_ok',False)),
                     world_candidate_id=previous.get('world_candidate_id'),
                     altitude_goal=previous.get('altitude_goal'),
                     association_error=previous.get('association_error',float('inf')))
@@ -173,13 +175,26 @@ def pixel_recovery_view(previous, data, source, tid, now):
     """
     try:
         if (previous is None or
-                not (previous.get('geometry_ok') or previous.get('image_recovery')) or
+                not (previous.get('geometry_ok') or previous.get('geometry_anchor_ok') or
+                     previous.get('image_recovery')) or
                 data.get('association_unique') is not True or
                 data.get('appearance_status') != 'actor'):
             return None
         down, fy = float(data['foot_down_sin']), float(data['fy'])
         if not math.isfinite(down) or not -1. <= down <= 1. or fy != previous['fy']:
             return None
+        if not previous.get('image_recovery'):
+            anchor=previous.get('position_sample_s',previous['sample_s'])
+            # Pixel cues precede the same image's localized feedback. That
+            # normal callback ordering must never interrupt healthy following.
+            # Start only after localization has actually been absent, and only
+            # for the shallow/full or cropped-foot problem this control solves.
+            _,top,_,bottom=map(float,data['box'])
+            height=float(data['height'])
+            shallow_full=(0. < down < .30 and top >= .04*height and
+                          bottom <= .88*height and bottom-top <= .8*height)
+            if now-anchor < .5 or not (shallow_full or bottom >= .94*height):
+                return None
         view = retain_pixel_view(previous, data, source, tid, now, max_position_age=6.)
         if view is None:
             return None

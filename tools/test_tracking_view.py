@@ -42,7 +42,8 @@ class TrackingViewTests(unittest.TestCase):
                 self.assertEqual(a._tracking_image['position_sample_s'],100.)
                 self.assertFalse(a._tracking_image['geometry_ok'])
                 self.assertFalse(a._tracking_image['report_ok'])
-                self.assertEqual(a._tracking_image['recovery_until'],106.)
+                if i >= 2:
+                    self.assertEqual(a._tracking_image['recovery_until'],106.)
             self.assertGreater(a._tracking_altitude['goal'],a.local_z)
             self.assertLessEqual(a._tracking_altitude['goal'],a.local_z+.25+1e-9)
             a.yaw=0.
@@ -73,7 +74,8 @@ class TrackingViewTests(unittest.TestCase):
 
     def test_recovery_absolute_budget_duplicates_and_geometry_reentry(self):
         previous=parse_tracking_view(self.payload(candidate_id='white:11'),'u0','t3',100.1)
-        for i in range(1,30):
+        previous=retain_pixel_view(previous,self.recovery_payload(),'u0','t3',100.3)
+        for i in range(2,30):
             sample=100.+.2*i
             previous=pixel_recovery_view(previous,self.recovery_payload(sample_s=sample),
                                          'u0','t3',sample+.1)
@@ -98,6 +100,10 @@ class TrackingViewTests(unittest.TestCase):
                 sample=100.+.2*i
                 view=pixel_recovery_view(previous,self.recovery_payload(
                     sample_s=sample,box=box,camera_tilt=tilt),'u0','t3',sample+.1)
+                if view is None:
+                    previous=retain_pixel_view(previous,self.recovery_payload(
+                        sample_s=sample,box=box,camera_tilt=tilt),'u0','t3',sample+.1)
+                    continue
                 state=update_pixel_altitude_hold(state,view,2.6,2.6,4.2)
                 previous=view
             self.assertEqual(state['goal'],2.6)  # no climb from cropped or tilted feet
@@ -106,6 +112,34 @@ class TrackingViewTests(unittest.TestCase):
         with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(106.1)):
             actual=a.altitude_layer+a._compute_desired_altitude()
         self.assertAlmostEqual(actual,a.local_z)
+
+    def test_candidate_before_same_frame_localization_does_not_start_recovery(self):
+        # 232911 green: image1951.260 precedes localized feedback; the last
+        # image1951.088 is only .172s old and its foot ray is already valid.
+        a=self.agent()
+        a._send_vel=Mock()
+        self.send(a,self.payload(candidate_id='white:11'))
+        with patch.object(sa,'PIXEL_VIEW_RECOVERY',True):
+            for sample in (100.2,100.4,100.6):
+                raw=self.recovery_payload(sample_s=sample,foot_down_sin=.384)
+                with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(sample+.1)):
+                    a._visual_candidate_cb(NS(data=json.dumps(raw)))
+                self.assertFalse(a._hold_pixel_recovery(sample+.1))
+                self.send(a,self.payload(candidate_id='white:11',sample_s=sample),now=sample+.1)
+            a._send_vel.assert_not_called()
+            self.assertNotIn('recovery_until',a._tracking_altitude)
+
+    def test_recovery_requires_an_actual_localization_gap_and_bad_geometry(self):
+        previous=parse_tracking_view(self.payload(candidate_id='white:11'),'u0','t3',100.1)
+        self.assertIsNone(pixel_recovery_view(previous,self.recovery_payload(),'u0','t3',100.3))
+        previous=retain_pixel_view(previous,self.recovery_payload(),'u0','t3',100.3)
+        self.assertTrue(previous['geometry_anchor_ok'])
+        # Even a long gap isn't permission to halt a geometrically good view.
+        self.assertIsNone(pixel_recovery_view(previous,self.recovery_payload(
+            sample_s=100.4,foot_down_sin=.35),'u0','t3',100.5))
+        view=pixel_recovery_view(previous,self.recovery_payload(sample_s=100.4),'u0','t3',100.5)
+        self.assertTrue(view['image_recovery'])
+        self.assertEqual(view['position_sample_s'],100.)
 
     def test_image_recovery_reaches_final_position_output_and_obstacle_height_guard(self):
         for obstacle in (False, True):
