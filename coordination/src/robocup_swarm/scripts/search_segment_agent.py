@@ -4,7 +4,36 @@ import rospy
 from search_segments import (SegmentBook, TRAVEL, LOOK, ATTEND, YIELD, DONE, FAILED,
                              clear_line, path_remaining)
 from robocup_navigation.astar import plan
-from search_observation import ground_distance_band, in_view
+from search_observation import cell_points, ground_distance_band, in_view
+from swarm_task import ACTOR_SEARCH_BOUNDS
+
+
+def _reserved_patrol_corner(coverage, key, point):
+    """Admit only the two exact eastern corner subpoints of a legal grid.
+
+    A corner look differs from its cell centre, but remains bound to that
+    same reserved cell. Other points inside that cell are not new protocol
+    permissions; normal coverage observations continue to use the centre.
+    """
+    cell = coverage.cell(key)
+    if cell is None or not hasattr(coverage, 'cell_bounds'):
+        return False
+    xmin, xmax, ymin, ymax = ACTOR_SEARCH_BOUNDS
+    if not xmin <= point[0] <= xmax or not ymin <= point[1] <= ymax:
+        return False
+    if coverage.world_to_cell(*point) != key:
+        return False
+    x0, x1, y0, y1 = coverage.cell_bounds(key)
+    if (not all(math.isfinite(v) for v in (x0, x1, y0, y1)) or
+            not math.isclose(x1, coverage.x_max, abs_tol=1e-6)):
+        return False
+    points = cell_points(coverage, cell)
+    if len(points) != 9:
+        return False
+    return ((math.isclose(y0, coverage.y_min, abs_tol=1e-6) and
+             math.dist(point, points[2]) <= 1e-6) or
+            (math.isclose(y1, coverage.y_max, abs_tol=1e-6) and
+             math.dist(point, points[8]) <= 1e-6))
 
 
 class SearchSegmentAgent:
@@ -47,7 +76,9 @@ class SearchSegmentAgent:
                     return False
                 for key, point in zip(cells, looks):
                     cell = coverage.cell(key)
-                    if cell is None or math.dist(point, (cell.cx, cell.cy)) > 1e-6:
+                    if cell is None or (math.dist(point, (cell.cx, cell.cy)) > 1e-6 and
+                            not (purpose == 'south_patrol' and
+                                 _reserved_patrol_corner(coverage, key, point))):
                         return False  # observation region must match its reservation
             if len(msg.search_cell_ix) != len(msg.search_cell_iy) or revision < 1:
                 return False
@@ -67,10 +98,15 @@ class SearchSegmentAgent:
                     return False  # heartbeat cannot reset index, scan or attention
             elif sample < getattr(self,'_last_task_stamp',-1.):
                 return False
+            old_look = None
+            if current is not None and current['index'] < len(current.get('look_points', ())):
+                old_look = current['look_points'][current['index']]
             same_view = (current is not None and current['id'] == tid and
                          current['index'] < len(current['cells']) and
                          cells[0] == current['cells'][current['index']] and
-                         points[0] == current['points'][current['index']])
+                         points[0] == current['points'][current['index']] and
+                         purpose == current.get('purpose', 'coverage') and
+                         old_look == (looks[0] if looks else None))
             self._close_segment(retire=current is None or current['id'] != tid)
             self._discard_old_plan()
             if not same_view:

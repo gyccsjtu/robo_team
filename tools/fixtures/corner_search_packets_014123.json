@@ -1,0 +1,87 @@
+{
+  "source_run": "logs/logs_20261013_014123",
+  "source_code": "3e96ef4",
+  "source_topic": "/swarm/assignment",
+  "messages": [
+    {
+      "uav": "typhoon_h480_3",
+      "stamp": 2556.956,
+      "type": 0,
+      "target": "",
+      "task": "a47c33db52d4470f80e51f5d3343f3a4",
+      "version": 1,
+      "until": 2576.956,
+      "cells": [
+        [
+          25,
+          17
+        ]
+      ],
+      "points": [
+        [
+          121.16489943400077,
+          58.5
+        ]
+      ],
+      "purpose": "south_patrol",
+      "look_points": [
+        [
+          129.99,
+          59.99
+        ]
+      ]
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "stamp": 2564.068,
+      "type": 0,
+      "target": "",
+      "task": "10c1df6ccb844e7f81c5dd9b78443021",
+      "version": 1,
+      "until": 2584.068,
+      "cells": [
+        [
+          25,
+          0
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          25,
+          2
+        ]
+      ],
+      "points": [
+        [
+          121.16489943400077,
+          -58.5
+        ],
+        [
+          118.55,
+          -49.5
+        ],
+        [
+          118.55,
+          -42.5
+        ]
+      ],
+      "purpose": "south_patrol",
+      "look_points": [
+        [
+          129.99,
+          -59.99
+        ],
+        [
+          127.5,
+          -49.5
+        ],
+        [
+          127.5,
+          -42.5
+        ]
+      ]
+    }
+  ]
+}

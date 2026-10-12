@@ -1,0 +1,96 @@
+{
+  "run": "logs/logs_20261013_014123",
+  "running_code": "3e96ef48685fa2544c5273f028a9c20abcf13772",
+  "note": "Two observed own-camera world-qualified white images withheld by bridge independent new-instance history. Actor truth is absent. Intended change is only a finite local search observation hold; not a six-of-six simulation result.",
+  "source_uav": "typhoon_h480_3",
+  "world_xy": [
+    127.84529876708984,
+    -1.4885272979736328
+  ],
+  "local_z": 4.043281555175781,
+  "search_target": [
+    127.5,
+    -14.5
+  ],
+  "events": [
+    {
+      "event": "tracking_view",
+      "ros": 2812.404,
+      "wall": 1791827286.8510196,
+      "data": {
+        "source_uav": "typhoon_h480_3",
+        "target_id": "t3",
+        "track_id": 6,
+        "candidate_id": null,
+        "world_candidate_id": "2c6ff97ed137487db87bdf87f3fcd76e:6",
+        "real_detection": true,
+        "sample_s": 2812.284,
+        "confidence": 0.753,
+        "hits": 3,
+        "box": [
+          585.3000000000001,
+          195.36,
+          617.9,
+          258.56
+        ],
+        "width": 752,
+        "height": 480,
+        "fy": 376.0,
+        "camera_tilt": 0.3529187240954237,
+        "geometry_ok": true,
+        "report_ok": true,
+        "bearing": -2.127424401808321,
+        "x": 121.55,
+        "y": -11.51,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.753,
+        "distractor_confidence": 0.0
+      }
+    },
+    {
+      "event": "tracking_view",
+      "ros": 2812.604,
+      "wall": 1791827287.049244,
+      "data": {
+        "source_uav": "typhoon_h480_3",
+        "target_id": "t3",
+        "track_id": 6,
+        "candidate_id": null,
+        "world_candidate_id": "2c6ff97ed137487db87bdf87f3fcd76e:6",
+        "real_detection": true,
+        "sample_s": 2812.456,
+        "confidence": 0.851,
+        "hits": 4,
+        "box": [
+          625.6999999999999,
+          208.10500000000002,
+          658.9,
+          276.205
+        ],
+        "width": 752,
+        "height": 480,
+        "fy": 376.0,
+        "camera_tilt": 0.32978836548556817,
+        "geometry_ok": true,
+        "report_ok": true,
+        "bearing": -2.1388317149408036,
+        "x": 121.67,
+        "y": -11.46,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.851,
+        "distractor_confidence": 0.0
+      }
+    }
+  ],
+  "old_bridge_hypothesis": {
+    "x": 61.08,
+    "y": -20.15,
+    "sample_s": 2744.176
+  },
+  "bridge_new_instance_required": {
+    "frames": 6,
+    "span_s": 1.0
+  },
+  "original_trial_visual_source_count_for_these_frames": 0,
+  "pose_sample_s": 2812.336
+}

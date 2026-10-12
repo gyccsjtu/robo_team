@@ -1807,7 +1807,7 @@ class SwarmAgent(SearchSegmentAgent):
         return attempt
 
     def _offer_camera_attention(self, cid, color, bearing, sample, now,
-                                target_id=None, xy=None):
+                                target_id=None, xy=None, same_sample_pixel_id=None):
         """Keep a bounded attention lease, independently of search waypoints.
 
         New frames update where to look, never its absolute deadline. A
@@ -1835,7 +1835,17 @@ class SwarmAgent(SearchSegmentAgent):
                     cue.get('color') == color):
                 error = (bearing - cue['bearing'] + math.pi) % (2*math.pi) - math.pi
                 same = abs(error) <= math.radians(15.)
-            if not same or sample <= cue.get('sample_s', -1e18):
+            # Perception emits the pixel cue before its localized view of the
+            # SAME image. Only its explicit same-frame pixel binding permits
+            # this one promotion; it never counts another image or new lease.
+            same_frame_promotion = (xy is not None and cue.get('xy') is None and
+                same_sample_pixel_id is not None and
+                same_sample_pixel_id == cue.get('candidate_id') and
+                sample == cue.get('sample_s'))
+            if same_frame_promotion:
+                same = True
+            if (not same or sample < cue.get('sample_s', -1e18) or
+                    (sample == cue.get('sample_s') and not same_frame_promotion)):
                 return
             cue.update(bearing=bearing, sample_s=sample)
             if xy is not None:
@@ -1955,10 +1965,75 @@ class SwarmAgent(SearchSegmentAgent):
         except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
             return
 
+    def _offer_localized_search_view(self, raw, now):
+        """Keep a new own-camera person visible while bridge identity matures.
+
+        This is a four-second observation intent, not a target observation,
+        assignment or report. The bridge still requires its six independent
+        images before replacing a distant colour hypothesis. Red camera slots
+        have no global identity here and deliberately retain their old path.
+        """
+        tid = raw.get('target_id')
+        if (getattr(getattr(self, 'assignment', None), 'task_type', None) != 0 or
+                tid not in ('t0', 't1', 't2', 't3') or
+                raw.get('geometry_ok') is not True or raw.get('report_ok') is not True or
+                raw.get('appearance_status') != 'actor' or
+                getattr(self, '_landing', False) or
+                getattr(self, '_track_assigned_id', None) is not None or
+                getattr(self, '_target_to_orbit', None) is not None or
+                getattr(self, '_orbit_target', None) is not None or
+                getattr(getattr(self, 'state', None), 'mode', '') in ('AUTO.LAND', 'LAND', 'AUTO.RTL') or
+                self.world_xy is None or self.local_z is None or not self._world_trusted()):
+            return
+        instance = raw.get('world_candidate_id')
+        if (not isinstance(instance, str) or not instance or len(instance) > 128 or
+                any(c.isspace() or c == '\0' for c in instance)):
+            return
+        view = parse_tracking_view(raw, self.uav_id, tid, now)
+        if (float(raw['confidence']) < .55 or view['track_id'] < 0 or
+                view['sample_s'] < getattr(self, '_hypothesis_switch_s', {}).get(tid, -1e18)):
+            return
+        color = {'t0': 'green', 't1': 'blue', 't2': 'brown', 't3': 'white'}[tid]
+        pixel_id = raw.get('candidate_id')
+        if pixel_id is not None and (not isinstance(pixel_id, str) or
+                                    not pixel_id.startswith(color+':')):
+            return
+        sample = view['sample_s']
+        samples = self.__dict__.setdefault('_localized_search_view_samples', {})
+        if sample <= samples.get(tid, -1e18):
+            return  # repeated or delayed camera output cannot restart a hold
+        samples[tid] = sample
+        cid = 'target:' + tid + ':' + instance
+        cue = getattr(self, '_camera_cue', None)
+        if cue is not None and cue.get('xy') is not None and cue['candidate_id'] != cid:
+            return  # another local world instance cannot steal this active view
+        self._offer_camera_attention(cid, color, view['bearing'], sample, now,
+            target_id=tid, xy=(view['x'], view['y']), same_sample_pixel_id=pixel_id)
+        cue = getattr(self, '_camera_cue', None)
+        if cue is None or cue['candidate_id'] != cid or cue['sample_s'] != sample:
+            return
+        cue['localized_search_view'] = True
+        # This already localized image authorizes yaw/hold only. The existing
+        # candidate_decision returns before exploratory motion whenever xy is
+        # present; its upright/unclipped pixel-approach gate is unchanged.
+        cue['image'] = dict(box=view['box'], width=view['width'],
+                            height=view['height'], camera_tilt=view['camera_tilt'])
+        self.__dict__.setdefault('_camera_frame_origins', CameraOrigins()).attach(cue)
+        rospy.loginfo_throttle(2., '[LOCALIZED_SEARCH_HOLD] uav=%s tid=%s candidate=%s '
+            'image=%.3f until=%.3f; camera intent only, no observation/report credit',
+            self.uav_id, tid, instance, sample, cue['until'])
+
     @serialized_visual_task
     def _tracking_view_cb(self, msg):
         """Image control feedback never creates a detection or confirmation."""
         assignment = getattr(self, 'assignment', None)
+        if getattr(assignment, 'task_type', None) == 0:
+            try:
+                self._offer_localized_search_view(json.loads(msg.data),
+                                                   rospy.Time.now().to_sec())
+            except (ValueError, TypeError, KeyError, AttributeError, OverflowError):
+                pass
+            return
         if (getattr(assignment, 'task_type', None) != 1 or
                 self.world_xy is None or self.local_z is None):
             return
