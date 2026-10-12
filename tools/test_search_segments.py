@@ -341,11 +341,13 @@ class AgentSegmentTests(unittest.TestCase):
         a.assignment.target_y=-8.5
         a.local_xy=(3.5,-8.5)
         a.yaw=0.
+        a._pose_sample_s=100.
         a._search_scan_key=(0,0,3.5,-8.5)
         a._search_camera_pose=(100.,3.5,-8.5,0.,3.,0.)
         a._search_scan_yaw0=None
         a._search_scan_started_t=None
         a._search_scan_step=sa.SwarmAgent._search_scan_step.__get__(a)
+        a.path=list(a._search_segment['points'])
         return a
 
     def test_safe_intermediate_visit_continues_without_zero_command(self):
@@ -411,6 +413,7 @@ class AgentSegmentTests(unittest.TestCase):
         self.assertFalse(a._search_scan_done)
         t2=sa.rospy.Time.from_sec(100.4)
         a._search_camera_pose=(t2.to_sec(),3.5,-8.5,math.pi/2,3.,0.)
+        a._pose_sample_s=t2.to_sec()
         with patch.object(sa.rospy.Time,'now',return_value=t2):
             a._search_scan_step()
         self.assertTrue(a._search_scan_done)
@@ -434,12 +437,14 @@ class AgentSegmentTests(unittest.TestCase):
         a._search_scan_step()
         t1=sa.rospy.Time.from_sec(100.8)
         a._search_camera_pose=(t1.to_sec(),3.5,-8.5,math.pi/2,3.,0.)
+        a._pose_sample_s=t1.to_sec()
         with patch.object(sa.rospy.Time,'now',return_value=t1):
             a._search_scan_step()
         self.assertFalse(a._search_scan_done)
         self.assertEqual(a._search_scan_directed_first,t1.to_sec())
         t2=sa.rospy.Time.from_sec(101.1)
         a._search_camera_pose=(t2.to_sec(),3.5,-8.5,math.pi/2,3.,0.)
+        a._pose_sample_s=t2.to_sec()
         with patch.object(sa.rospy.Time,'now',return_value=t2):
             a._search_scan_step()
         self.assertTrue(a._search_scan_done)
@@ -453,6 +458,127 @@ class AgentSegmentTests(unittest.TestCase):
         self.assertIsNone(a._search_scan_directed_first)
         self.assertIsNone(a._search_scan_directed_last)
         self.assertFalse(a._search_scan_directed_done)
+
+    def northeast_geometry_fixture(self, body_x=3.5):
+        a=self.directed_fixture()
+        a._search_segment.update(points=((3.5,0.),(10.5,0.),(17.5,0.)),
+            look_points=((12.45,0.),(19.45,0.),(26.45,0.)))
+        a.path=list(a._search_segment['points'])
+        a.local_xy=(body_x,0.)
+        a.local_z=4.5
+        a._search_camera_pose=(100.,body_x+.12,.06,0.,4.45,0.)
+        return a
+
+    def test_directed_two_metre_arrival_continues_to_current_checked_waypoint(self):
+        a=self.northeast_geometry_fixture(body_x=1.6)
+        # Previously this stopped 1.9 m early, range 10.73 m, then timed out.
+        a._segment_control(3.,5.,.8,2.,2.)
+        self.assertEqual(a._search_segment['state'],TRAVEL)
+        self.assertEqual(a._search_segment['index'],0)
+        self.assertEqual(a._last_local_goal,(3.5,0.))
+        self.assertGreater(a._send_vel.call_args.args[0],0.)
+        self.assertFalse(a._search_scan_done)
+
+    def test_directed_lookahead_never_selects_the_later_observation_leg(self):
+        a=self.northeast_geometry_fixture(body_x=.6)
+        a._segment_control(3.,5.,.8,2.,2.)
+        self.assertLessEqual(a._last_local_goal[0],3.5)
+        a.local_xy=(3.5,0.)
+        a._search_scan_done=True
+        a._segment_control(3.,5.,.8,2.,2.)
+        self.assertEqual(a._search_segment['index'],1)
+        self.assertGreater(a._last_local_goal[0],3.5)
+        self.assertLessEqual(a._last_local_goal[0],10.5)
+
+    def test_early_arrival_converges_and_requires_processed_image_dwell(self):
+        a=self.northeast_geometry_fixture(body_x=1.6)
+        for n in range(160):
+            stamp=sa.rospy.Time.from_sec(100.+n*.05)
+            now=stamp.to_sec()
+            a._pose_sample_s=now
+            a._search_camera_pose=(now,a.local_xy[0]+.12,.06,0.,4.45,0.)
+            with patch.object(sa.rospy.Time,'now',return_value=stamp):
+                a._segment_control(3.,5.,.8,2.,2.)
+            if a._search_scan_done:
+                break
+            vx,vy=a._send_vel.call_args.args
+            a.local_xy=(a.local_xy[0]+vx*.05,a.local_xy[1]+vy*.05)
+        self.assertTrue(a._search_scan_done)
+        self.assertFalse(a._search_scan_failed)
+        self.assertGreater(a._search_scan_directed_last-a._search_scan_directed_first,.24)
+        self.assertTrue(sa.in_view(*a._search_camera_pose[1:4],12.45,0.,4.45,0.))
+        self.assertEqual(a._search_scan_seen,set())
+
+    def test_rotated_camera_offset_is_corrected_from_actual_aligned_frame(self):
+        a=self.northeast_geometry_fixture()
+        # Before turning east, a lateral installation offset moves the camera
+        # north. Its old pose must not be reused as the aligned camera origin.
+        a._search_camera_pose=(100.,3.5,.3,math.pi/2,4.45,0.)
+        a._search_scan_step()
+        a._send_vel.assert_called_with(0.,0.)
+        stamp=sa.rospy.Time.from_sec(100.1)
+        a._search_camera_pose=(stamp.to_sec(),3.8,0.,0.,4.45,0.)
+        a._pose_sample_s=stamp.to_sec()
+        with patch.object(sa.rospy.Time,'now',return_value=stamp):
+            a._search_scan_step()
+        self.assertLess(a._send_vel.call_args.args[0],0.)
+        self.assertAlmostEqual(a._send_vel.call_args.args[1],0.)
+        self.assertFalse(a._search_scan_done)
+        self.assertEqual(a._search_scan_seen,set())
+
+    def test_small_position_error_servo_reaches_real_view_before_dwell(self):
+        a=self.northeast_geometry_fixture()
+        a._search_camera_pose=(100.,3.8,0.,0.,4.45,0.)
+        for n in range(40):
+            stamp=sa.rospy.Time.from_sec(100.+n*.05)
+            now=stamp.to_sec()
+            a._pose_sample_s=now
+            a._search_camera_pose=(now,a.local_xy[0]+.3,0.,0.,4.45,0.)
+            with patch.object(sa.rospy.Time,'now',return_value=stamp):
+                a._search_scan_step()
+            vx,vy=a._send_vel.call_args.args
+            self.assertLessEqual(math.hypot(vx,vy),.35)
+            a.local_xy=(a.local_xy[0]+vx*.05,a.local_xy[1]+vy*.05)
+            if a._search_scan_done:
+                break
+        self.assertTrue(a._search_scan_done)
+        self.assertTrue(sa.in_view(*a._search_camera_pose[1:4],12.45,0.,4.45,0.))
+        self.assertEqual(a._search_scan_seen,set())
+
+    def test_directed_micro_adjustment_cannot_cross_an_obstacle(self):
+        a=self.northeast_geometry_fixture()
+        a._search_camera_pose=(100.,3.8,0.,0.,4.45,0.)
+        g=sm.GridMap(500,300,.05,(-5.,-5.),bytes(500*300))
+        occupied=bytearray(g.cells)
+        ix,iy=g.world_to_cell((3.38,0.))
+        occupied[iy*g.width+ix]=1
+        a.grid=sm.GridMap(g.width,g.height,g.resolution,g.origin,occupied)
+        a._search_scan_step()
+        a._send_vel.assert_called_with(0.,0.)
+        self.assertFalse(a._search_scan_done)
+
+    def test_directed_old_frame_or_pose_cannot_command_approach_or_correction(self):
+        for kind in ('frame','pose'):
+            with self.subTest(kind=kind):
+                a=self.northeast_geometry_fixture(body_x=1.6)
+                if kind=='frame':
+                    a._search_camera_pose=(99.,1.72,0.,0.,4.45,0.)
+                else:
+                    a._pose_sample_s=99.
+                a._segment_control(3.,5.,.8,2.,2.)
+                a._send_vel.assert_called_with(0.,0.)
+                self.assertFalse(a._search_scan_done)
+
+    def test_impossible_current_pitch_holds_until_existing_timeout(self):
+        a=self.northeast_geometry_fixture()
+        a._search_camera_pose=(100.,3.62,0.,0.,4.45,math.radians(-3.))
+        a._segment_control(3.,5.,.8,2.,2.)
+        a._send_vel.assert_called_with(0.,0.)
+        self.assertFalse(a._search_scan_done)
+        with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(108.1)):
+            a._search_scan_step()
+        self.assertTrue(a._search_scan_failed)
+        self.assertEqual(a._search_scan_seen,set())
 
     def test_safe_prefix_survives_a_blocked_later_goal(self):
         a=self.control_fixture();g=a.grid;data=bytearray(g.cells)

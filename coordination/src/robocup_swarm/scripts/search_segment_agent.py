@@ -4,6 +4,7 @@ import rospy
 from search_segments import (SegmentBook, TRAVEL, LOOK, ATTEND, YIELD, DONE, FAILED,
                              clear_line, path_remaining)
 from robocup_navigation.astar import plan
+from search_observation import ground_distance_band, in_view
 
 
 class SearchSegmentAgent:
@@ -187,9 +188,26 @@ class SearchSegmentAgent:
             return True  # await explicit revision/cancellation of blocked tail
         point = task['points'][i]
         distance = math.dist(self.world_xy,point)
-        if distance < arrive:
-            directed = (task.get('purpose') == 'south_patrol' and
-                        i < len(task.get('look_points', ())))
+        directed = (task.get('purpose') == 'south_patrol' and
+                    i < len(task.get('look_points', ())))
+        at_view = distance < arrive
+        if at_view and directed and task['state'] != LOOK:
+            camera = getattr(self,'_search_camera_pose',None)
+            if (self._world_trusted() and
+                    0. <= now-getattr(self,'_pose_sample_s',-1e18) <= .3 and
+                    camera is not None and 0. <= now-camera[0] <= .5):
+                _,x,y,_yaw,height,pitch = camera
+                band = ground_distance_band(height, pitch)
+                if band is not None and math.dist((x,y),self.world_xy) <= 1.:
+                    look = task['look_points'][i]
+                    bearing = math.atan2(look[1]-y,look[0]-x)
+                    # A 2 m transit tolerance is much wider than the usable
+                    # range band at search height. Continue toward this exact
+                    # planned viewpoint until the camera can see the region,
+                    # or is close enough for the bounded LOOK correction.
+                    at_view = (in_view(x,y,bearing,*look,height,pitch) or
+                               distance <= .5*(band[1]-band[0]))
+        if at_view or (directed and task['state'] == LOOK):
             camera = getattr(self,'_search_camera_pose',None)
             fresh = camera is not None and 0 <= now-camera[0] <= .5
             missing = None
@@ -210,6 +228,7 @@ class SearchSegmentAgent:
                 if task.get('blocked',0) and task['index'] >= task['blocked']-1:
                     self._send_vel(0.,0.)
                     return True
+                point = task['points'][task['index']]
             else:
                 task['state'] = LOOK
                 self._search_scan_step()
@@ -221,14 +240,25 @@ class SearchSegmentAgent:
                 self._request_plan(target)
             self._send_vel(0.,0.)
             return True
-        local = self._pick_local_goal()
+        route = self.path
+        if directed:
+            # The full plan contains later observation points. Its ordinary
+            # lookahead may skip the current one, so use only its verified leg.
+            stop = next((n for n,p in enumerate(route)
+                         if math.dist(p,point) <= 1e-6),None)
+            if stop is None:
+                self._request_plan(target)
+                self._send_vel(0.,0.)
+                return True
+            route = route[:stop+1]
+        local = self._pick_local_goal(route) if directed else self._pick_local_goal()
         if local is None:
             self._send_vel(0.,0.)
             return True
         if not clear_line(self.grid,self.world_xy,local):
-            nearest = min(range(len(self.path)),key=lambda n:math.dist(self.path[n],self.world_xy))
+            nearest = min(range(len(route)),key=lambda n:math.dist(route[n],self.world_xy))
             visible = None
-            for candidate in self.path[nearest+1:]:
+            for candidate in route[nearest+1:]:
                 if not clear_line(self.grid,self.world_xy,candidate):
                     break
                 visible = candidate

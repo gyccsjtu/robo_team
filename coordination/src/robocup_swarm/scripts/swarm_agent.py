@@ -37,7 +37,8 @@ from slam_grid import SlamGrid
 from flight_execution import bounded_step
 from motion_safety import braking_cap, boundary_constraints, scan_constraints, HeightClearanceHold
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M, coverage_bounds
-from search_observation import cell_points, in_view, observable_points, next_heading
+from search_observation import (cell_points, in_view, observable_points,
+                                next_heading, ground_distance_band)
 from csv_logger import logger
 from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
@@ -46,6 +47,7 @@ from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
+from search_segments import clear_line
 from camera_attention import approach_image, candidate_velocity, candidate_decision, candidate_reposition
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
@@ -4312,28 +4314,29 @@ class SwarmAgent(SearchSegmentAgent):
                     best = (wx, wy)
         return best
 
-    def _pick_local_goal(self):
+    def _pick_local_goal(self, route=None):
         """沿全局路径从最近点往前取 LOOKAHEAD 距离的引导目标。"""
-        if not self.path or self.world_xy is None:
+        route = self.path if route is None else route
+        if not route or self.world_xy is None:
             return None
         cx, cy = self.world_xy
         best = 0
         best_dist = float("inf")
-        for i, (px, py) in enumerate(self.path):
+        for i, (px, py) in enumerate(route):
             d = math.hypot(px - cx, py - cy)
             if d < best_dist:
                 best_dist = d
                 best = i
         acc = 0.0
-        for i in range(best, len(self.path) - 1):
-            x0, y0 = self.path[i]
-            x1, y1 = self.path[i + 1]
+        for i in range(best, len(route) - 1):
+            x0, y0 = route[i]
+            x1, y1 = route[i + 1]
             seg = math.hypot(x1 - x0, y1 - y0)
             if acc + seg >= LOOKAHEAD:
                 frac = (LOOKAHEAD - acc) / max(seg, 1e-6)
                 return (x0 + (x1 - x0) * frac, y0 + (y1 - y0) * frac)
             acc += seg
-        return self.path[-1]
+        return route[-1]
 
     def _search_sweep_bearing(self, bearing, distance):
         """A slow search-only look around the route, with no motion changes."""
@@ -4417,10 +4420,15 @@ class SwarmAgent(SearchSegmentAgent):
                           self.uav_id, self._search_scan_key)
             self._send_vel(0.0, 0.0)
             return
+        if look is not None and (not self._world_trusted() or
+                not 0. <= now-getattr(self, '_pose_sample_s', -1e18) <= .3 or
+                self.world_xy is None):
+            self._send_vel(0.0, 0.0)
+            return
         if look is not None and not self._search_scan_directed_done:
             # The route heading is not an observation heading. Command the
             # reserved cell's centre through the sole search-yaw controller;
-            # the final flight safety chain still handles the zero velocity.
+            # the final flight safety chain also owns any local correction.
             wx, wy = self.world_xy
             self._set_search_heading(math.atan2(look[1]-wy, look[0]-wx))
         camera = getattr(self, '_search_camera_pose', None)
@@ -4438,11 +4446,36 @@ class SwarmAgent(SearchSegmentAgent):
             bearing = math.atan2(look[1]-y, look[0]-x)
             yaw_error = math.atan2(math.sin(bearing-yaw), math.cos(bearing-yaw))
             if (sample < self._search_scan_started_t or
-                    abs(yaw_error) > SEARCH_SCAN_YAW_TOL or
-                    not in_view(x, y, yaw, *look, altitude, down_pitch)):
+                    abs(yaw_error) > SEARCH_SCAN_YAW_TOL):
                 self._search_scan_directed_first = None
                 self._search_scan_directed_last = None
                 self._send_vel(0.0, 0.0)
+                return
+            if not in_view(x, y, yaw, *look, altitude, down_pitch):
+                self._search_scan_directed_first = None
+                self._search_scan_directed_last = None
+                band = ground_distance_band(altitude, down_pitch)
+                vx = vy = 0.
+                distance = math.hypot(look[0]-x, look[1]-y)
+                if band is not None and distance > 1e-6:
+                    # Camera installation rotates with the body. Recompute
+                    # the required displacement from the actual aligned frame,
+                    # not from the planned body-to-cell distance. Stay inside
+                    # the original arrival neighbourhood and clear map path.
+                    desired = .5*(band[0]+band[1])
+                    error = distance-desired
+                    ux, uy = (look[0]-x)/distance, (look[1]-y)/distance
+                    own = self.world_xy
+                    corrected = (own[0]+error*ux, own[1]+error*uy)
+                    point = segment['points'][segment['index']]
+                    if (math.dist(corrected, point) <= SEARCH_ARRIVE_TOL and
+                            clear_line(self.grid, own, corrected)):
+                        speed = max(-.35, min(.35, POS_KP*error))
+                        vx, vy = self._apply_friend_avoidance(speed*ux, speed*uy)
+                        rospy.loginfo_throttle(2., '[SEARCH_VIEW_ADJUST] uav=%s '
+                            'range=%.3f band=(%.3f,%.3f) requested=(%.2f,%.2f)',
+                            self.uav_id, distance, band[0], band[1], vx, vy)
+                self._send_vel(vx, vy)
                 return
             first = self._search_scan_directed_first
             last = self._search_scan_directed_last

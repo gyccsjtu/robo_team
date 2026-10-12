@@ -2,6 +2,22 @@
 import math
 
 
+def ground_distance_band(altitude, down_pitch):
+    """Ground ranges admitted by the same vertical/range limits as in_view."""
+    if (not math.isfinite(altitude) or altitude <= 0. or
+            not math.isfinite(down_pitch)):
+        return None
+    low_angle = down_pitch-math.radians(27.)
+    high_angle = down_pitch+math.radians(27.)
+    if high_angle <= 0. or low_angle >= math.pi/2.:
+        return None
+    near = max(.5, altitude/math.tan(high_angle)
+               if high_angle < math.pi/2. else .5)
+    far = min(9., altitude/math.tan(low_angle)
+              if low_angle > 0. else 9.)
+    return (near, far) if far-near > 1e-6 else None
+
+
 def cell_points(grid, cell):
     if hasattr(grid, 'cell_bounds'):
         key=grid.world_to_cell(cell.cx,cell.cy)
