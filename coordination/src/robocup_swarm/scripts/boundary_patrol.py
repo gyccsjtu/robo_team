@@ -76,7 +76,8 @@ class SouthPatrol:
         if self.east:
             # A route expires, not the regional responsibility. Failed cells
             # have a finite retry delay; reservations/coverage stay in manager.
-            if reason != 'complete' or not self._fresh_image_gain(task):
+            if reason not in ('person_task', 'released_for_new_task', 'camera_unavailable') and (
+                    reason != 'complete' or not self._fresh_image_gain(task)):
                 if self._manager is not None:
                     for key in task.cells[task.index:]:
                         self._manager.allocator.failed_visit[key] = now
@@ -155,7 +156,8 @@ class SouthPatrol:
             received = manager.last_report.get(self.uid)
             healthy = (st is not None and st.connected and st.z >= 1. and
                        received is not None and 0. <= now-received.to_sec() < 3. and
-                       all(math.isfinite(v) for v in (st.x, st.y, st.z)))
+                       all(math.isfinite(v) for v in (st.x, st.y, st.z)) and
+                       manager._tracking_uav_available(self.uid, now))
             if (not healthy or self.uid in manager._tracking.values() or
                     self.uid in manager._backup.values()):
                 self.uid = None

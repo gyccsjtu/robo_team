@@ -1,5 +1,7 @@
 """Offline regressions for overlapping EKF checks and zero-setpoint prestream."""
 import sys
+import os
+import json
 import unittest
 from contextlib import ExitStack
 from pathlib import Path
@@ -12,6 +14,37 @@ import swarm_agent
 
 
 class TakeoffReadinessTests(unittest.TestCase):
+    def test_camera_gate_rejects_lost_calibration_stale_or_unstable_ground(self):
+        agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
+        agent._takeoff_camera_frames = (98., 99.9)
+        agent._takeoff_ground_samples = [(98.+k*.05, -.1, 0.) for k in range(41)]
+        with patch.dict(os.environ, {'TAKEOFF_REQUIRE_CAMERA': '1'}):
+            self.assertTrue(agent._camera_takeoff_ready(100.))
+            agent._takeoff_camera_frames = (96., 98.)
+            self.assertFalse(agent._camera_takeoff_ready(100.))
+            agent._takeoff_camera_frames = (98., 99.9)
+            agent._takeoff_ground_samples[-1] = (100., -.15, 0.)
+            self.assertFalse(agent._camera_takeoff_ready(100.))
+            agent._takeoff_ground_samples[-1] = (100., -.1, .1)
+            self.assertFalse(agent._camera_takeoff_ready(100.))
+
+    def test_ground_camera_sequence_uses_new_own_frames_without_assignment(self):
+        agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
+        agent.uav_id = 'u0'
+        agent.state = SimpleNamespace(armed=False)
+        data = dict(source_uav='u0', processed=True, x=0., y=0., z=.17,
+                    yaw=0., down_pitch=0., sample_s=100.)
+        for now in (100., 100.2, 100.4, 100.6, 100.8, 101., 101.):
+            data['sample_s'] = now
+            with patch.object(swarm_agent.rospy.Time, 'now',
+                              return_value=swarm_agent.rospy.Time.from_sec(now)):
+                agent._processed_camera_frame_cb(SimpleNamespace(data=json.dumps(data)))
+        self.assertEqual(agent._takeoff_camera_frames, (100., 101.))
+        data['sample_s'] = 103.
+        with patch.object(swarm_agent.rospy.Time, 'now', return_value=swarm_agent.rospy.Time(103)):
+            agent._processed_camera_frame_cb(SimpleNamespace(data=json.dumps(data)))
+        self.assertEqual(agent._takeoff_camera_frames, (103., 103.))
+
     def run_start(self, hook=None, origin=(0.0, 0.0), reject_first=False):
         agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
         agent.uav_id = 'test_uav'

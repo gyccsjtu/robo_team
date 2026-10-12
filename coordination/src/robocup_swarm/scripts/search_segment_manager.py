@@ -154,7 +154,7 @@ class SearchSegmentManager:
             self.allocator.revisit_jobs.items() if key in cells and
             kind in ('lost','unconfirmed') and ready<=stamp<expires]
         max_hold=self._segment_max_hold if max_hold is None else max_hold
-        if evidence_deadlines:
+        if evidence_deadlines and purpose == 'coverage':
             max_hold=min(max_hold,min(evidence_deadlines)-stamp)
         look = [(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
         task = self._segments.reserve(uid,cells,points,stamp,min(20.,max_hold),max_hold,
@@ -215,6 +215,9 @@ class SearchSegmentManager:
             if stamp >= task.deadline or stamp >= task.expires or age >= 3. or st is None or not st.connected:
                 self._drop_segment(uid,'timeout_or_unavailable')
                 continue
+            if not self._tracking_uav_available(uid, stamp):
+                self._drop_segment(uid, 'camera_unavailable')
+                continue
             sample = st.header.stamp.to_sec()
             valid = (self._segments.matches(uid,st.search_task_id,st.search_revision) and
                      task.created <= sample <= stamp+.05 and sample > task.feedback_s and
@@ -247,6 +250,10 @@ class SearchSegmentManager:
                             self._send_segment(task)
                             continue
                     if blocked > task.index:
+                        # Keep the reachable prefix, but remember the exact
+                        # failed destination. Releasing it without this record
+                        # let the very next auction issue the same blocked goal.
+                        self.allocator.failed_visit[task.cells[blocked]] = stamp
                         self._revise_segment(task,task.cells[task.index:blocked],
                             task.points[task.index:blocked],stamp,'local_'+st.search_blocked_reason)
                     else:

@@ -92,6 +92,23 @@ class OutputTests(unittest.TestCase):
         a._local_cb(m)
         self.assertEqual(a.local_xy,(0.,0.));self.assertEqual(a._pose_sample_s,100.)
 
+    def test_batched_pose_callbacks_use_sampling_time_and_still_reject_jump(self):
+        a=self.a
+        a._anchor_done=True;a._localization_fault=False
+        a._pose_sample_s=a._local_prev_t=99.7
+        a._last_cmd_v=(3.,0.)
+        a._mark_localization_fault=Mock()
+        for stamp,x in ((99.8,.3),(99.9,.6)):
+            m=PoseStamped();m.header.stamp=sa.rospy.Time.from_sec(stamp)
+            m.pose.orientation.w=1.;m.pose.position.x=x;m.pose.position.z=3.
+            a._local_cb(m)  # both delivered at receipt time 100
+        a._mark_localization_fault.assert_not_called()
+        self.assertAlmostEqual(a._local_prev_t,99.9)
+        self.assertAlmostEqual(a._est_recent_speed(),3.)
+        m.header.stamp=sa.rospy.Time.from_sec(99.95);m.pose.position.x=3.
+        a._local_cb(m)
+        a._mark_localization_fault.assert_called_once()
+
 
 class HeightHoldTests(unittest.TestCase):
     def test_vanished_return_cannot_release_hold_without_horizontal_escape(self):

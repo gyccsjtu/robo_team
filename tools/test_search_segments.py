@@ -227,6 +227,7 @@ class ManagerSegmentTests(unittest.TestCase):
         self.assertEqual(t.cells,((0,0),))
         self.assertEqual(set(self.m._segments.reserved),{(0,0)})
         self.assertEqual(t.deadline,190.)
+        self.assertEqual(self.m.allocator.failed_visit, {(1,0): 101.})
 
     def test_current_goal_failure_releases_promptly_without_coverage_credit(self):
         t=self.reserve();self.now=101.;st=self.feedback(t)

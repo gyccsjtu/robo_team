@@ -341,6 +341,7 @@ class SwarmManager(SearchSegmentManager):
         self.uav_ids = uav_ids
         # 每机最新状态
         self.status = {}          # uav_id -> UavStatus
+        self._processed_frame_times = {}  # actual own-camera health, never a detection
         # 每机最近一次上报时间（用于租约续租判定）
         self.last_report = {}     # uav_id -> rospy.Time
         self._active_leases = {}  # uav_id -> cell key currently leased to that UAV
@@ -1155,6 +1156,7 @@ class SwarmManager(SearchSegmentManager):
                 return
             if not hasattr(self, '_slam_lock'):
                 return
+            self.__dict__.setdefault('_processed_frame_times', {})[uid] = sample
             grid_map = self._merged_grid()
             if grid_map is None:
                 return
@@ -3060,7 +3062,9 @@ class SwarmManager(SearchSegmentManager):
         if st is None or not getattr(st, 'connected', False):
             return False
         last = self.last_report.get(uid)
-        return last is not None and 0.0 <= now - last.to_sec() < 3.0
+        frames = getattr(self, '_processed_frame_times', None)
+        return (last is not None and 0.0 <= now - last.to_sec() < 3.0 and
+                (frames is None or 0. <= now-frames.get(uid, -1e18) <= 2.))
 
     def _cancel_unavailable_owner(self, uid, tid, now):
         """Cancel one failed owner without interrupting a healthy backup."""
@@ -3379,7 +3383,7 @@ class SwarmManager(SearchSegmentManager):
         _now = rospy.Time.now()
         _cool = float(os.environ.get("LEASE_RELEASE_COOLDOWN_S", "6.0"))
         for uid in self.uav_ids:
-            if uid not in self.status or not self.status[uid].connected:
+            if not self._tracking_uav_available(uid, _now.to_sec()):
                 continue
             received = self.last_report.get(uid)
             if (received is None or not 0. <= (_now-received).to_sec() < 3. or

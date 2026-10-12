@@ -68,7 +68,13 @@ class EastPatrolTests(unittest.TestCase):
         second = self.allocate()[0]
         self.assertEqual(second.uid, other)
         self.assertEqual(self.m._tracking['person'], t.uid)
-        self.assertTrue(set(t.cells).isdisjoint(self.m._segments.reserved))
+        self.assertNotIn(t.uid, self.m._segments.tasks)
+        self.assertNotEqual(second.task_id, t.task_id)
+        # A person preemption releases unseen cells for the replacement;
+        # it must not mark them as failed or keep the old owner's lease.
+        for key in t.cells:
+            self.assertNotIn(key, self.m.allocator.failed_visit)
+            self.assertNotEqual(self.m.grid.cell(key).owner, t.uid)
 
     def test_dead_owner_is_replaced_without_reusing_old_task(self):
         t = self.allocate()[0]
@@ -81,6 +87,15 @@ class EastPatrolTests(unittest.TestCase):
         result = self.allocate()
         self.assertEqual(len(result), 1)
         self.assertNotEqual(result[0].uid, t.uid)
+
+    def test_pose_heartbeat_without_fresh_images_cannot_own_new_work(self):
+        self.m._processed_frame_times = {uid: 100. for uid in self.m.uav_ids}
+        self.m._processed_frame_times['typhoon_h480_5'] = 90.
+        self.m.status['typhoon_h480_5'].x = 110.
+        t = self.allocate()[0]
+        self.assertNotEqual(t.uid, 'typhoon_h480_5')
+        self.assertNotIn('typhoon_h480_5', self.m._segments.tasks)
+        self.assertFalse(self.m._tracking_uav_available('typhoon_h480_5', 100.))
 
     def test_stale_covered_region_can_be_revisited_without_erasing_coverage(self):
         for c in self.m.grid.cells.values():
@@ -103,6 +118,14 @@ class EastPatrolTests(unittest.TestCase):
         self.assertIsNone(p.choose(self.m, [t.uid], self.now))
         self.assertIsNone(p.uid)
         self.assertGreater(p.owner_retry[t.uid], self.now)
+
+    def test_old_candidate_deadline_does_not_shorten_independent_patrol(self):
+        proposal = self.m._south_patrol.choose(self.m, self.m.uav_ids, self.now)
+        uid, cells, points, _ = proposal
+        self.m.allocator.revisit_jobs[('unconfirmed', cells[0])] = (99., 100.8)
+        task = self.m._start_search_segment(uid, cells, points, self.now,
+            purpose='south_patrol', max_hold=120.)
+        self.assertEqual(task.deadline, 220.)
 
 
 class EastPersonDispatchTests(unittest.TestCase):

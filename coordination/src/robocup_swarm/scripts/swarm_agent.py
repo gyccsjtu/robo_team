@@ -1239,8 +1239,19 @@ class SwarmAgent(SearchSegmentAgent):
                 return  # receipt time cannot turn a delayed pose into fresh data
             self._pose_sample_s = sample
         self.local_z = msg.pose.position.z
+        if not getattr(getattr(self, 'state', None), 'armed', True):
+            stamp = msg.header.stamp.to_sec()
+            q = msg.pose.orientation
+            tilt = math.acos(max(-1., min(1., 1.-2.*(q.x*q.x+q.y*q.y))))
+            samples = getattr(self, '_takeoff_ground_samples', [])
+            if not samples or stamp > samples[-1][0]:
+                samples = [p for p in samples if stamp-p[0] <= 2.]
+                samples.append((stamp, self.local_z, tilt))
+                self._takeoff_ground_samples = samples
         new_xy = (msg.pose.position.x, msg.pose.position.y)
-        now = rospy.Time.now().to_sec()
+        # Freshness above uses receipt time; displacement and velocity must
+        # use the sampled pose time. Queued callbacks can arrive together.
+        now = sample if MOTION_SAFETY else rospy.Time.now().to_sec()
         # The camera and the agent use the same official spawn offset. A pose
         # jump has no legal independent world reference, so do not rewrite that
         # offset to make an impossible MAVROS trajectory look continuous.
@@ -2163,6 +2174,13 @@ class SwarmAgent(SearchSegmentAgent):
                     altitude <= 0.0 or
                     not -0.05 <= now - sample <= 0.5):
                 return
+            if not getattr(getattr(self, 'state', None), 'armed', True):
+                first, last = getattr(self, '_takeoff_camera_frames', (sample, sample))
+                if sample > last:
+                    first = first if sample-last <= .5 else sample
+                    self._takeoff_camera_frames = (first, sample)
+                elif not hasattr(self, '_takeoff_camera_frames'):
+                    self._takeoff_camera_frames = (sample, sample)
             origins = self.__dict__.setdefault('_camera_frame_origins', CameraOrigins())
             origins.remember(sample, x, y, now)
             cue = getattr(self, '_camera_cue', None)
@@ -2526,6 +2544,25 @@ class SwarmAgent(SearchSegmentAgent):
         rospy.loginfo("[%s] 飞控参数已读回验证：NAV_RCL_ACT=0 COM_RCL_EXCEPT=4",
                       self.uav_id)
 
+    def _camera_takeoff_ready(self, now):
+        """Live processed images prove the ground datum still works now.
+
+        A historical FIRST_INFERENCE/HEIGHT_DATUM log is insufficient: the
+        datum can become invalid again before arming and then freeze empty.
+        This checks the existing legal image channel, without recalibrating
+        an airborne camera or relaxing pose/geometry thresholds.
+        """
+        if os.environ.get('TAKEOFF_REQUIRE_CAMERA', '0') != '1':
+            return True
+        first, last = getattr(self, '_takeoff_camera_frames', (0., 0.))
+        samples = getattr(self, '_takeoff_ground_samples', [])
+        stable_ground = (len(samples) >= 15 and
+                         0. <= now-samples[-1][0] <= .2 and
+                         samples[-1][0]-samples[0][0] >= 1.9 and
+                         max(p[1] for p in samples)-min(p[1] for p in samples) <= .04 and
+                         max(abs(p[2]) for p in samples) <= math.radians(3.))
+        return stable_ground and 0. <= now-last <= .3 and last-first >= 1.
+
     def _arm_and_offboard(self):
         """预热 setpoint → 切 OFFBOARD → 解锁。与单机避障已验证的时序一致。
 
@@ -2565,7 +2602,8 @@ class SwarmAgent(SearchSegmentAgent):
             if self.local_z is not None and abs(self.local_z) < 1.5:
                 stable += 1
                 if (stable >= STABLE_NEEDED and
-                        now - stream_start >= OFFBOARD_PRESTREAM_S):
+                        now - stream_start >= OFFBOARD_PRESTREAM_S and
+                        self._camera_takeoff_ready(now)):
                     break
             else:
                 if stable > 0:
@@ -2625,6 +2663,12 @@ class SwarmAgent(SearchSegmentAgent):
         # Roll failure 拒解锁，等 EKF 稳了自然会成功。
         attempt = 0
         while not rospy.is_shutdown() and not self.state.armed:
+            if not self._camera_takeoff_ready(rospy.Time.now().to_sec()):
+                rospy.logwarn_throttle(3., '[TAKEOFF_CAMERA_WAIT] uav=%s '
+                                       'waiting for current calibrated image sequence', self.uav_id)
+                self._send_vel(0.0, 0.0, vz=0.0)
+                self.ctrl_rate.sleep()
+                continue
             attempt += 1
             if not self.arm_srv(True).success:
                 rospy.logwarn_throttle(10, "[%s] 解锁请求失败（第 %d 次），等待 EKF 稳定后重试",
