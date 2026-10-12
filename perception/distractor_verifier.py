@@ -55,8 +55,10 @@ class DistractorVerifier:
     def __init__(self):
         self.history = []
         self.last_sample = -math.inf
+        self.confirmed_samples = {}
 
     def update(self, primary, secondary, sample_s):
+        self.confirmed_samples = {}
         if not math.isfinite(sample_s) or sample_s <= self.last_sample:
             return set()  # repeated/out-of-order images cannot manufacture votes
         self.last_sample = sample_s
@@ -81,6 +83,7 @@ class DistractorVerifier:
             next_history.append(dict(box=list(box), sample_s=sample_s, samples=samples))
             if len(samples) >= 3 and samples[-1]-samples[0] >= .30-1e-6:
                 rejected.add(i)
+                self.confirmed_samples[i] = samples
         self.history = next_history
         return rejected
 
@@ -126,6 +129,7 @@ class SecondaryAppearance:
         strong=strong_decoys(primary,secondary)
         rejected=history.update(primary,secondary,sample_s)
         evidence=[dict(box=primary[i]['box'],confidence=c,
+                       evidence_samples=history.confirmed_samples.get(i, []),
                        status='secondary_distractor' if i in rejected else 'secondary_pending')
                   for i,c in strong.items()]
         # A lone negative is diagnostic only: the 121245 trial contains a real
@@ -135,3 +139,26 @@ class SecondaryAppearance:
         # secondary observation breaks the negative streak immediately.
         if self.mode=='enforce':boxes=[b for i,b in enumerate(boxes) if i not in rejected]
         return boxes,evidence
+
+
+def rejected_instances(candidates, evidence, sample_s):
+    """Associate confirmed image evidence to recent existing camera tracks.
+
+    Only unique box associations qualify. The caller supplies original image
+    boxes and image timestamps, never predicted world coordinates. Old or
+    crowded/ambiguous tracks are left untouched for ordinary expiry.
+    """
+    recent = [c for c in candidates if 0. < sample_s-c['sample_s'] <= .8]
+    result = {}
+    for item in evidence:
+        if item['status'] != 'secondary_distractor':
+            continue
+        matches = [c for c in recent if same_object(c['box'], item['box'])]
+        if len(matches) != 1:
+            continue
+        candidate = matches[0]
+        result[candidate['candidate_id']] = dict(
+            candidate_id=candidate['candidate_id'],
+            last_positive_s=candidate['sample_s'], confidence=item['confidence'],
+            evidence_samples=item['evidence_samples'])
+    return list(result.values())

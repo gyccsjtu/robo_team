@@ -33,6 +33,7 @@ import re
 import statistics
 import sys
 import threading
+from appearance_rejection import RejectionBook, parse_rejections
 
 # ---- 身份映射 ----
 # 四个不同颜色的官方身份固定。红色在队内使用两个稳定的视觉槽，
@@ -725,6 +726,56 @@ class TargetBridgeCore(object):
         self._hypothesis_switches = {}
         self._local_continuations = {}
 
+    def reject_instance(self, source, cid, sample):
+        """Withdraw only this camera instance; never announce elimination."""
+        key = self._source_key(source, cid)
+        affected = []
+        for tag, tr in self.tracks.items():
+            tracking = (key == self._source_key(tr.tracking_source, tr.tracking_candidate_id)
+                        and tr.t_obs <= sample)
+            official = (key == self._source_key(tr.official_source, tr.official_candidate_id)
+                        and tr.good_t <= sample)
+            # Other sources' history and newer samples of this source survive.
+            for name in ('source_history', 'source_quality', 'pursuit_history'):
+                records = getattr(tr, name)
+                if key in records:
+                    records[key] = [p for p in records[key] if p[0] > sample]
+                    if not records[key]:
+                        records.pop(key)
+            if tr.accepted_source_samples.get(key, float('inf')) <= sample:
+                tr.accepted_source_samples.pop(key, None)
+            self._alternate_history.pop((tag, key), None)
+            if not (tracking or official):
+                continue
+            affected.append(tag)
+            self._local_continuations.pop(tag, None)
+            if official:
+                tr.good_x = tr.good_y = None
+                tr.good_t = -1e18
+                tr.good_history = []
+                tr.segment_anchor_t = None
+                tr.official_source = tr.official_candidate_id = None
+            if tracking:
+                tr.obs = []
+                tr.vx = tr.vy = 0.
+                tr._last_fx = tr._last_fy = tr._last_ft = None
+                tr._motion_history = []
+                tr._last_vel_mag = 0.
+                tr._high_conf_count = 0
+                tr.camera_confirmed = False
+                tr.alive = False
+                tr.t_obs = -1e18
+                tr.tracking_source = tr.tracking_candidate_id = None
+                if tr.good_x is not None and 0. <= sample-tr.good_t <= .8:
+                    # A separately qualified camera remains authoritative.
+                    tr.x, tr.y, tr.t_obs = tr.good_x, tr.good_y, tr.good_t
+                    tr.tracking_source = tr.official_source
+                    tr.tracking_candidate_id = tr.official_candidate_id
+                    tr.alive = True
+            if tr.source_candidates.get(source) == cid and key not in tr.source_history:
+                tr.source_candidates.pop(source, None)
+        return affected
+
     def _continue_local_instance(self, tr, rows):
         """Rejoin one rebuilt camera ID on the existing motion trajectory.
 
@@ -1414,6 +1465,8 @@ class YoloTargetBridge(object):
                 "/actor_%s_info" % tag, ActorInfo, queue_size=3)
         rospy.Subscriber("/coordination/target_report",
                          _msg_string_cls(), self._report_cb, queue_size=50)
+        rospy.Subscriber("/swarm/appearance_rejection", _msg_string_cls(),
+                         self._appearance_rejection_cb, queue_size=20)
         rospy.Subscriber("/swarm/rejected_visual", _msg_string_cls(),
                          self._rejected_visual_cb, queue_size=5)
 
@@ -1577,6 +1630,26 @@ class YoloTargetBridge(object):
                 return chosen
         return None
 
+    def _appearance_rejection_cb(self, msg):
+        with self.__dict__.setdefault('_report_lock', threading.RLock()):
+            try:
+                now = self._now()
+                events = parse_rejections(msg.data, now)
+            except (ValueError, KeyError, TypeError, OverflowError):
+                return
+            book = self.__dict__.setdefault('_appearance_rejections', RejectionBook())
+            for event in events:
+                if not book.record(event, now):
+                    continue
+                affected = self.core.reject_instance(event['source_uav'],
+                    event['candidate_id'], event['sample_s'])
+                for tag in affected:
+                    if self.core.tracks[tag].good_x is None:
+                        self._gate_live[tag] = False
+                self._rospy.loginfo('[APPEARANCE_WITHDRAW] source=%s candidate=%s '
+                    'image=%.3f affected=%s; no elimination', event['source_uav'],
+                    event['candidate_id'], event['sample_s'], affected)
+
     def _report_cb(self, msg):
         # ROS invokes different camera publishers concurrently. Parsing,
         # arbitration and source publication form one image transaction.
@@ -1597,6 +1670,9 @@ class YoloTargetBridge(object):
                 local_tag = row['local_tag']
                 instance = row['candidate_id'] or 'legacy:'+local_tag
                 key = (source, instance)
+                book = getattr(self, '_appearance_rejections', None)
+                if book is not None and book.blocks(source, instance, sample):
+                    continue
                 if sample <= seen.get(key, -1e18):
                     continue
                 seen[key] = sample

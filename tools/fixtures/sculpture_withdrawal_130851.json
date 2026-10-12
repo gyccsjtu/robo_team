@@ -1,0 +1,244 @@
+{
+  "origin": "logs/logs_20261012_130851; three actual consecutive native frames re-inferred with primary v3 and secondary v7",
+  "limits": "Replays this negative-evidence/dispatch sequence only; does not measure full-game completion or recall.",
+  "frames": [
+    {
+      "image": "artifacts/c37_trial_20261012_130851/frames/0085_typhoon_h480_2.png",
+      "image_sha256": "638539ac121a072305525b0ab3904985fb3d405326fddf9b0cd3a8d876a891c5",
+      "sample_s": 1993.408,
+      "primary": [
+        {
+          "label": "blue",
+          "confidence": 0.6546030044555664,
+          "box": [
+            353.8783874511719,
+            364.7129211425781,
+            401.0059509277344,
+            439.0696716308594
+          ]
+        },
+        {
+          "label": "blue",
+          "confidence": 0.49931761622428894,
+          "box": [
+            353.655029296875,
+            366.83953857421875,
+            400.8482971191406,
+            479.6339416503906
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "box": [
+            353.655029296875,
+            366.83953857421875,
+            400.8482971191406,
+            479.6339416503906
+          ],
+          "confidence": 0.9332883954048157,
+          "evidence_samples": [],
+          "status": "secondary_pending"
+        }
+      ],
+      "kept": 2
+    },
+    {
+      "image": "artifacts/c37_trial_20261012_130851/frames/0087_typhoon_h480_2.png",
+      "image_sha256": "789cc3bca8fcd87e88878e746828d08345d605389376cf003d15fb9bf7609b7c",
+      "sample_s": 1993.608,
+      "primary": [
+        {
+          "label": "blue",
+          "confidence": 0.743407130241394,
+          "box": [
+            356.8617858886719,
+            358.9085998535156,
+            401.0234680175781,
+            433.9473876953125
+          ]
+        },
+        {
+          "label": "blue",
+          "confidence": 0.708526611328125,
+          "box": [
+            356.3946228027344,
+            360.23602294921875,
+            401.0882873535156,
+            478.4147644042969
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "box": [
+            356.3946228027344,
+            360.23602294921875,
+            401.0882873535156,
+            478.4147644042969
+          ],
+          "confidence": 0.9087513089179993,
+          "evidence_samples": [],
+          "status": "secondary_pending"
+        }
+      ],
+      "kept": 2
+    },
+    {
+      "image": "artifacts/c37_trial_20261012_130851/frames/0088_typhoon_h480_2.png",
+      "image_sha256": "74a3104aa1dce4599634f63b90a8ffb5cd622e59201bc8eefde64ebcd63d94af",
+      "sample_s": 1993.816,
+      "primary": [
+        {
+          "label": "blue",
+          "confidence": 0.566329836845398,
+          "box": [
+            358.4639892578125,
+            348.8841857910156,
+            401.4538879394531,
+            463.3613586425781
+          ]
+        },
+        {
+          "label": "blue",
+          "confidence": 0.33848103880882263,
+          "box": [
+            358.3251037597656,
+            347.4886779785156,
+            401.3815002441406,
+            415.8832092285156
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "box": [
+            358.4639892578125,
+            348.8841857910156,
+            401.4538879394531,
+            463.3613586425781
+          ],
+          "confidence": 0.9175966382026672,
+          "evidence_samples": [
+            1993.408,
+            1993.608,
+            1993.816
+          ],
+          "status": "secondary_distractor"
+        }
+      ],
+      "kept": 1
+    }
+  ],
+  "observations": [
+    {
+      "event": "discovery",
+      "ros": 1993.712,
+      "wall": 1791781851.9906032,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_2",
+        "sample_s": 1993.608,
+        "real_detection": true,
+        "candidates": [
+          {
+            "source_uav": "typhoon_h480_2",
+            "target_id": "t1",
+            "candidate_id": "7a4b8c4fe5b44286826f73cd5dd0cc89:4",
+            "box": [
+              356.79999999999995,
+              358.95,
+              401.0,
+              433.95
+            ],
+            "real_detection": true,
+            "sample_s": 1993.608,
+            "confidence": 0.743,
+            "hits": 12,
+            "x": -28.64,
+            "y": 14.78,
+            "range_m": 8.3,
+            "geometry_ok": true,
+            "official_view_ok": false,
+            "purpose": "discovery_only",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.743,
+            "distractor_confidence": 0.0
+          }
+        ],
+        "purpose": "discovery_only"
+      }
+    },
+    {
+      "event": "tracking_view",
+      "ros": 1993.712,
+      "wall": 1791781851.990805,
+      "data": {
+        "source_uav": "typhoon_h480_2",
+        "target_id": "t1",
+        "track_id": 4,
+        "candidate_id": "blue:16",
+        "world_candidate_id": "7a4b8c4fe5b44286826f73cd5dd0cc89:4",
+        "real_detection": true,
+        "sample_s": 1993.608,
+        "confidence": 0.743,
+        "hits": 12,
+        "box": [
+          356.79999999999995,
+          358.95,
+          401.0,
+          433.95
+        ],
+        "width": 752,
+        "height": 480,
+        "fy": 376.0,
+        "camera_tilt": 0.11624688887135452,
+        "geometry_ok": true,
+        "report_ok": true,
+        "bearing": 2.5457247684759325,
+        "x": -28.64,
+        "y": 14.78,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.743,
+        "distractor_confidence": 0.0
+      }
+    },
+    {
+      "event": "image_report",
+      "ros": 1993.712,
+      "wall": 1791781851.9913106,
+      "data": {
+        "schema_version": 2,
+        "source_uav": "typhoon_h480_2",
+        "sample_s": 1993.608,
+        "real_detection": true,
+        "candidates": [
+          {
+            "target_id": "blue",
+            "candidate_id": "7a4b8c4fe5b44286826f73cd5dd0cc89:4",
+            "frame_id": "world_enu",
+            "xyz": [
+              -28.64,
+              14.78,
+              1.25
+            ],
+            "confidence": 0.743,
+            "visual_confidence": 0.743,
+            "track_confirmed": true,
+            "sample_s": 1993.608,
+            "source_uav": "typhoon_h480_2",
+            "real_detection": true,
+            "position_uncertainty_m": 0.5404938049813953,
+            "track_hits": 12,
+            "range_m": 7.77,
+            "official_view_ok": true,
+            "observation_id": "obs-typhoon_h480_2-7a4b8c4fe5b44286826f73cd5dd0cc89:4-1993.608000000",
+            "appearance_status": "actor",
+            "appearance_confidence": 0.743,
+            "distractor_confidence": 0.0
+          }
+        ]
+      }
+    }
+  ]
+}

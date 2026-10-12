@@ -36,6 +36,7 @@ from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager, coverage_boun
 from cooperative_tracker import CooperativeTracker, CONFIRM_HOLD_TIMEOUT
 from csv_logger import logger
 from visual_evidence import parse_visual_evidence
+from appearance_rejection import RejectionBook, parse_rejections
 
 # 地图（用于过滤「格中心落在建筑内」的格子，与 agent 的 A* 膨胀判定一致）
 from robocup_navigation.astar import load_metadata, GridMap, plan
@@ -450,6 +451,8 @@ class SwarmManager(SearchSegmentManager):
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._status_cb)
         rospy.Subscriber("/swarm/detection", TargetDetection, self._detection_cb)
         rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb)
+        rospy.Subscriber("/swarm/appearance_rejection", String,
+                         self._appearance_rejection_cb, queue_size=20)
         self._discovery_state_pub = rospy.Publisher(
             '/swarm/discovery_states', TargetState, queue_size=12)
         rospy.Subscriber("/swarm/discovery_observation", String,
@@ -1219,6 +1222,92 @@ class SwarmManager(SearchSegmentManager):
                           data['x'], data['y'], now+8.)
         self._candidate_looks = attempts
 
+    def _appearance_blocks(self, data):
+        book = getattr(self, '_appearance_rejections', None)
+        return (book is not None and book.blocks(data['source_uav'],
+                data.get('candidate_id'), data['sample_s']))
+
+    @serialized_tasks
+    def _appearance_rejection_cb(self, msg):
+        """Cancel disproved instances, not all same-colour people or a place."""
+        now = rospy.Time.now().to_sec()
+        try:
+            events = parse_rejections(msg.data, now, self.uav_ids)
+        except (ValueError, KeyError, TypeError, OverflowError):
+            return
+        book = self.__dict__.setdefault('_appearance_rejections', RejectionBook())
+        for event in events:
+            if not book.record(event, now):
+                continue
+            uid, cid, sample = event['source_uav'], event['candidate_id'], event['sample_s']
+            selected = set()
+            for key, view in list(self._visual_observations.items()):
+                if (key[0] != uid or view.get('candidate_id') != cid or
+                        view['sample_s'] > sample):
+                    continue
+                tid = key[1]
+                source = self._visual_source.get(tid)
+                if source is not None and source[0] == uid and source[1] <= sample:
+                    selected.add(tid)
+                self._visual_observations.pop(key, None)
+                accepted = getattr(self, '_eligible_observations', {}).get(key)
+                rejected_qualified = (accepted is not None and
+                    accepted.get('candidate_id') == cid and accepted['sample_s'] <= sample)
+                if rejected_qualified:
+                    self._eligible_observations.pop(key, None)
+                for name in ('_last_detection_sample', '_qualified_detection_sample'):
+                    getattr(self, name, {}).pop(key, None)
+                ct = self.tracker.targets.get(tid)
+                if ct is not None and rejected_qualified:
+                    ct.last_obs.pop(uid, None)
+                    ct.fx = ct.fy = ct.t_fuse = None
+                    ct.vx = ct.vy = 0.
+                    ct.confirm_since = ct.last_ok_t = None
+                    ct.confirmation_pending = False
+                    getattr(self, '_target_hist', {}).get(tid, {}).pop(uid, None)
+            pool = getattr(self, '_discovery_pool', {})
+            for key, view in list(pool.items()):
+                if key[1:] == (uid, cid) and view['sample_s'] <= sample:
+                    pool.pop(key, None)
+            attempt = getattr(self, '_candidate_looks', {}).pop((uid, cid), None)
+            jobs = getattr(getattr(self, 'allocator', None), 'revisit_jobs', {})
+            if attempt is not None:
+                job = ('unconfirmed', attempt['job'])
+                if jobs.get(job, (None, None))[1] == attempt['expires_s']:
+                    jobs.pop(job, None)
+            for tid in selected:
+                peers = [v for (camera, target), v in self._visual_observations.items()
+                         if target == tid and 0. <= now-v['sample_s'] <= 1.]
+                peers += [v for (camera, target), v in
+                          getattr(self, '_eligible_observations', {}).items()
+                          if target == tid and 0. <= now-v['sample_s'] <= 1.]
+                self._discard_reacquire_site(tid)
+                # TargetState lacks instance provenance. Its queued old state
+                # must not resurrect a withdrawn anchor after the camera veto.
+                floors = self.__dict__.setdefault('_appearance_state_floor', {})
+                floors[tid] = max(sample, floors.get(tid, -1e18))
+                if peers:
+                    peer = max(peers, key=lambda v:(v['eligible'], v['sample_s']))
+                    p = (peer['x'], peer['y'], peer['sample_s'])
+                    self._visual_source[tid] = (peer['source_uav'], p[2], p[0], p[1])
+                    self._truth_cache[tid] = p
+                    self._cur_targets[tid] = (p[0], p[1], peer['source_uav'])
+                    self._remember_reacquire_site(tid, p[2], p[0], p[1])
+                    self._update_tracker_position(tid, p[0], p[1])
+                    continue
+                # This is negative appearance evidence, not temporary visual
+                # loss. The normal 'lost' branch would queue the sculpture.
+                self._release_tracker(tid, reason='appearance_rejected')
+                self.tracker.targets.pop(tid, None)
+                getattr(self, '_seen_target_slots', set()).discard(tid)
+                for name in ('_visual_source', '_truth_cache', '_cur_targets',
+                             '_visual_candidate', '_last_detect', '_visual_near_seen',
+                             '_target_hist', '_discovery_selected_s'):
+                    getattr(self, name, {}).pop(tid, None)
+            rospy.loginfo('[APPEARANCE_WITHDRAW] source=%s candidate=%s image=%.3f '
+                          'selected=%s; no lost revisit, no elimination',
+                          uid, cid, sample, sorted(selected))
+
     @serialized_tasks
     def _discovery_cb(self, msg):
         """Ingest every instance in a frame before choosing any color anchor."""
@@ -1252,6 +1341,8 @@ class SwarmManager(SearchSegmentManager):
                             int(raw.get('hits', 0)) < 4):
                         continue
                     data = parse_visual_evidence(json.dumps(raw), now, self.uav_ids)
+                    if self._appearance_blocks(data):
+                        continue
                     tid, uid = data['target_id'], data['source_uav']
                     if not self._hypothesis_sample_current(tid, data['sample_s'], data['x'], data['y']):
                         continue
@@ -1359,6 +1450,8 @@ class SwarmManager(SearchSegmentManager):
             data['discovery_only'] = (not data['eligible'] and
                                      json.loads(msg.data).get('purpose') == 'discovery_only')
             tid, uid, sample = data['target_id'], data['source_uav'], data['sample_s']
+            if self._appearance_blocks(data):
+                return
             if tid in getattr(self, '_eliminated', set()):
                 return
             event = data.get('hypothesis_switch')
@@ -1574,6 +1667,8 @@ class SwarmManager(SearchSegmentManager):
                 not all(math.isfinite(v) for v in (sample, msg.x, msg.y)) or
                 not 0. <= now-sample <= 1.):
             return
+        if sample <= getattr(self, '_appearance_state_floor', {}).get(msg.target_id, -1e18):
+            return
         # Use capture time, not receipt/loss time. Repeated early keepalives
         # retain this exact deadline and cannot sustain a frozen pursuit.
         self._remember_reacquire_site(msg.target_id, sample, msg.x, msg.y)
@@ -1717,6 +1812,8 @@ class SwarmManager(SearchSegmentManager):
         sample = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
         if (tid not in ('t0', 't1', 't2', 't3', 't4', 't5') or
                 not all(math.isfinite(v) for v in (sample, now, msg.x, msg.y))):
+            return
+        if sample <= getattr(self, '_appearance_state_floor', {}).get(tid, -1e18):
             return
         if self._quarantined_visual(tid, msg.x, msg.y, now):
             return

@@ -1958,7 +1958,7 @@ def main():
     _model = YOLO(WEIGHTS)
     configure_cpu_inference_threads(_model, TORCH_THREADS)
     class_mapping = target_class_mapping(_model.names)
-    from distractor_verifier import SecondaryAppearance
+    from distractor_verifier import SecondaryAppearance, rejected_instances
     secondary_appearance = SecondaryAppearance(configure_model=lambda model:
         configure_cpu_inference_threads(model, TORCH_THREADS))
     print('[pr] CLASS_MAP names=%s canonical=%s; non-target classes excluded' %
@@ -1984,6 +1984,7 @@ def main():
     frame_pub = rospy.Publisher("/swarm/processed_camera_frame", String, queue_size=6)
     view_pub = rospy.Publisher("/swarm/tracking_view", String, queue_size=6)
     discovery_pub = rospy.Publisher("/swarm/discovery_observation", String, queue_size=30)
+    rejection_pub = rospy.Publisher("/swarm/appearance_rejection", String, queue_size=20)
     view_csv = logger('tracking_view_%s' % UAV, [
         'ros_time', 'sample_s', 'target_id', 'track_id', 'x1', 'y1', 'x2', 'y2',
         'camera_x', 'camera_y', 'camera_z', 'qx', 'qy', 'qz', 'qw',
@@ -2146,6 +2147,17 @@ def main():
                         actor_boxes, secondary_evidence = secondary_appearance.filter(
                             img, actor_boxes, CLASSES, frame_stamp)
                         appearance_evidence.extend(secondary_evidence)
+                        if secondary_appearance.mode == 'enforce':
+                            rejected = rejected_instances([
+                                dict(candidate_id=candidate_identity(candidate_session, tk),
+                                     sample_s=tk.observed_s, box=box_from_foot(tk.uv, tk.wh))
+                                for tk in tracks], secondary_evidence, frame_stamp)
+                            if rejected:
+                                rejection_pub.publish(String(data=json.dumps(dict(
+                                    schema_version=1, source_uav=UAV, sample_s=frame_stamp,
+                                    real_detection=True,
+                                    reason='confirmed_secondary_distractor',
+                                    rejected_candidates=rejected))))
                         if any(e['status'] == 'secondary_distractor'
                                for e in secondary_evidence):
                             rospy.loginfo_throttle(2.,
