@@ -1847,6 +1847,12 @@ class SwarmAgent(SearchSegmentAgent):
             if (not same or sample < cue.get('sample_s', -1e18) or
                     (sample == cue.get('sample_s') and not same_frame_promotion)):
                 return
+            # A six-second pixel approach can outlive the four-second
+            # localized hold. Do not replace its valid remaining budget with
+            # an already-expired deadline when localization arrives late.
+            if (xy is not None and cue.get('xy') is None and
+                    now >= cue['started'] + CAMERA_HANDOFF_HOLD_S):
+                return
             cue.update(bearing=bearing, sample_s=sample)
             if xy is not None:
                 cue.update(xy=xy, target_id=target_id, candidate_id=cid,
