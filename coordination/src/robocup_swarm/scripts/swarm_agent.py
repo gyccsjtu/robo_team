@@ -4802,14 +4802,18 @@ class SwarmAgent(SearchSegmentAgent):
             if not in_view(x, y, yaw, *look, altitude, down_pitch):
                 self._search_scan_directed_first = None
                 self._search_scan_directed_last = None
-                band = ground_distance_band(altitude, down_pitch)
+                # Move only for a neutral-pose distance error. Transient pitch
+                # can make the actual band empty after arrival; stopping there
+                # cannot recover a camera that has drifted too near the look.
+                # A neutral-valid distance instead waits for actual new frames
+                # to settle. Actual in_view/dwell alone still grants credit.
+                band = ground_distance_band(altitude, 0.)
                 vx = vy = 0.
                 distance = math.hypot(look[0]-x, look[1]-y)
-                if band is not None and distance > 1e-6:
-                    # Camera installation rotates with the body. Recompute
-                    # the required displacement from the actual aligned frame,
-                    # not from the planned body-to-cell distance. Stay inside
-                    # the original arrival neighbourhood and clear map path.
+                if (band is not None and distance > 1e-6 and
+                        not band[0] <= distance <= band[1]):
+                    # Use the aligned image origin, not its planned body range;
+                    # keep the original arrival neighbourhood and clear path.
                     desired = .5*(band[0]+band[1])
                     error = distance-desired
                     ux, uy = (look[0]-x)/distance, (look[1]-y)/distance

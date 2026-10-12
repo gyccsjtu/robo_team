@@ -1,0 +1,722 @@
+{
+  "source_run": "random_tracking_20261013_050056",
+  "source_commit": "eab7415",
+  "scope": "Original processed camera/UavStatus/MAVROS packets only; no actor truth. Unit-test occupancy is synthetic and separately tests blocked paths; this is not a physical flight replay.",
+  "source_uav": "typhoon_h480_0",
+  "initial_assignment": {
+    "event": "assignment",
+    "ros": 1966.32,
+    "wall": 1791838950.183713,
+    "data": {
+      "uav": "typhoon_h480_0",
+      "stamp": 1966.316,
+      "type": 0,
+      "target": "",
+      "task": "21da2ea03e654e0cb3496c31688d0e70",
+      "version": 1,
+      "until": 1986.316,
+      "cells": [
+        [
+          7,
+          5
+        ]
+      ],
+      "points": [
+        [
+          -7.318605691619601,
+          -24.338605691619602
+        ]
+      ],
+      "purpose": "building_review",
+      "look_points": [
+        [
+          -0.99,
+          -18.01
+        ]
+      ]
+    }
+  },
+  "look_started_s": 1973.056,
+  "manager_leg_end_s": 1981.112,
+  "focus_frame": {
+    "event": "processed_frame",
+    "ros": 1974.404,
+    "wall": 1791838958.4166589,
+    "data": {
+      "source_uav": "typhoon_h480_0",
+      "sample_s": 1974.292,
+      "x": -6.7247607458618,
+      "y": -23.62951685667513,
+      "z": 4.417156271061151,
+      "yaw": 0.7683683539751391,
+      "down_pitch": -0.017345913186765614,
+      "processed": true
+    }
+  },
+  "closest_status": {
+    "event": "status",
+    "ros": 1974.356,
+    "wall": 1791838958.3649807,
+    "data": {
+      "uav": "typhoon_h480_0",
+      "stamp": 1974.356,
+      "connected": true,
+      "x": -6.7668681144714355,
+      "y": -23.757568359375,
+      "z": 4.162565231323242,
+      "task": "21da2ea03e654e0cb3496c31688d0e70",
+      "version": 1,
+      "index": 0,
+      "state": 2,
+      "path_version": 4,
+      "remaining": 0.11206118762493134,
+      "blocked": 0,
+      "blocked_reason": "",
+      "cell": [
+        7,
+        5
+      ],
+      "point": [
+        -7.318605899810791,
+        -24.338605880737305
+      ]
+    }
+  },
+  "pose_before_focus": {
+    "ros": 1974.348,
+    "state": {
+      "mode": "OFFBOARD",
+      "armed": true,
+      "connected": true
+    },
+    "pose": {
+      "sample_s": 1974.324330749,
+      "frame": "map",
+      "xyz": [
+        -6.7668681144714355,
+        -20.757568359375,
+        4.162565231323242
+      ],
+      "quaternion": [
+        0.008108162560458567,
+        -0.005418356121485661,
+        0.3723974151498885,
+        0.9280221850547032
+      ]
+    }
+  },
+  "fixed_world_offset": [
+    0.0,
+    -3.0
+  ],
+  "processed_frames": [
+    {
+      "event": "processed_frame",
+      "ros": 1973.204,
+      "wall": 1791838957.1979172,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1973.1,
+        "x": -7.115563929325094,
+        "y": -24.095688426883495,
+        "z": 4.425127725974249,
+        "yaw": 1.2024384881332961,
+        "down_pitch": -0.04808795482984885,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1973.4,
+      "wall": 1791838957.4003692,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1973.304,
+        "x": -6.96008014979313,
+        "y": -23.869521796489536,
+        "z": 4.4374998386406235,
+        "yaw": 1.1969133627682704,
+        "down_pitch": -0.19964204656439577,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1973.604,
+      "wall": 1791838957.611456,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1973.52,
+        "x": -6.871248861921911,
+        "y": -23.748017658465304,
+        "z": 4.4097401595924755,
+        "yaw": 1.089746079560768,
+        "down_pitch": -0.08173420757104845,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1973.808,
+      "wall": 1791838957.8140357,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1973.696,
+        "x": -6.812720467578208,
+        "y": -23.68089405445657,
+        "z": 4.399727749137897,
+        "yaw": 1.0073890661798168,
+        "down_pitch": -0.05197002151446203,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1974.0,
+      "wall": 1791838958.0099936,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1973.9,
+        "x": -6.776612938005096,
+        "y": -23.645291247551704,
+        "z": 4.4125516039872,
+        "yaw": 0.9169988156977161,
+        "down_pitch": -0.03375239775449127,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1974.216,
+      "wall": 1791838958.2247396,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1974.112,
+        "x": -6.7381908795042165,
+        "y": -23.628884035364322,
+        "z": 4.424292172229047,
+        "yaw": 0.8251514856071867,
+        "down_pitch": -0.022410356152795144,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1974.404,
+      "wall": 1791838958.4166589,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1974.292,
+        "x": -6.7247607458618,
+        "y": -23.62951685667513,
+        "z": 4.417156271061151,
+        "yaw": 0.7683683539751391,
+        "down_pitch": -0.017345913186765614,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1974.612,
+      "wall": 1791838958.6253161,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1974.524,
+        "x": -6.710091144559011,
+        "y": -23.63791453442655,
+        "z": 4.414440144269945,
+        "yaw": 0.7629333965690142,
+        "down_pitch": -0.013636637963877056,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1974.8,
+      "wall": 1791838958.813098,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1974.724,
+        "x": -6.712018953190442,
+        "y": -23.648975589274926,
+        "z": 4.414296499394275,
+        "yaw": 0.7707733847518285,
+        "down_pitch": -0.011511473699647435,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1975.008,
+      "wall": 1791838959.0199752,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1974.92,
+        "x": -6.712505987672306,
+        "y": -23.662200292538245,
+        "z": 4.432134075686114,
+        "yaw": 0.772586676052804,
+        "down_pitch": -0.09741746901013619,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1975.2,
+      "wall": 1791838959.211961,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1975.112,
+        "x": -6.738951991636153,
+        "y": -23.69246505138314,
+        "z": 4.433052903978992,
+        "yaw": 0.7747911534947076,
+        "down_pitch": -0.08049416657837084,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1975.404,
+      "wall": 1791838959.4164577,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1975.3,
+        "x": -6.764439357720967,
+        "y": -23.729604899607878,
+        "z": 4.422900568675224,
+        "yaw": 0.7766805162399053,
+        "down_pitch": 0.032261582499384114,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1975.6,
+      "wall": 1791838959.6147933,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1975.52,
+        "x": -6.788154969928279,
+        "y": -23.758552341368443,
+        "z": 4.4250195728316015,
+        "yaw": 0.7782934653209208,
+        "down_pitch": 0.013739952280189791,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1975.8,
+      "wall": 1791838959.8150182,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1975.72,
+        "x": -6.794902858065384,
+        "y": -23.77639399134635,
+        "z": 4.4351687444656225,
+        "yaw": 0.780191525270872,
+        "down_pitch": -0.01567558488953584,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1976.008,
+      "wall": 1791838960.0259268,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1975.908,
+        "x": -6.810010479900288,
+        "y": -23.794769163102142,
+        "z": 4.447303551485909,
+        "yaw": 0.7810049711936329,
+        "down_pitch": -0.06907188505648527,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1976.2,
+      "wall": 1791838960.2213106,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1976.12,
+        "x": -6.825651371601846,
+        "y": -23.82573139069129,
+        "z": 4.442406034146503,
+        "yaw": 0.783776925222153,
+        "down_pitch": 0.02259459420843935,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1976.4,
+      "wall": 1791838960.4234385,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1976.336,
+        "x": -6.839319874931289,
+        "y": -23.84606965283933,
+        "z": 4.449436171848255,
+        "yaw": 0.7848388234724227,
+        "down_pitch": -0.021233116410334173,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1976.632,
+      "wall": 1791838960.6595938,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1976.528,
+        "x": -6.853209520304308,
+        "y": -23.869124843094042,
+        "z": 4.457464592100572,
+        "yaw": 0.7858347549879937,
+        "down_pitch": -0.03840242193609672,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1976.836,
+      "wall": 1791838960.8628476,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1976.732,
+        "x": -6.877173168957214,
+        "y": -23.896736780514487,
+        "z": 4.453560513112002,
+        "yaw": 0.7880845168812175,
+        "down_pitch": 0.0267029404386142,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1977.028,
+      "wall": 1791838961.0607045,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1976.924,
+        "x": -6.884147436449812,
+        "y": -23.914332288453412,
+        "z": 4.4635044339230525,
+        "yaw": 0.787859638688107,
+        "down_pitch": 0.008628992125616077,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1977.2,
+      "wall": 1791838961.2318482,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1977.124,
+        "x": -6.891711544534864,
+        "y": -23.926076723070004,
+        "z": 4.464577434772655,
+        "yaw": 0.7889143447712796,
+        "down_pitch": 0.002500238241616625,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1977.4,
+      "wall": 1791838961.4347854,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1977.332,
+        "x": -6.8928294041049325,
+        "y": -23.941961260383994,
+        "z": 4.475584706325515,
+        "yaw": 0.7894148228699763,
+        "down_pitch": -0.08974642811669957,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1977.632,
+      "wall": 1791838961.6692593,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1977.54,
+        "x": -6.916247666695909,
+        "y": -23.97283702885056,
+        "z": 4.463608323404848,
+        "yaw": 0.7929485959099236,
+        "down_pitch": -0.0013574488077283938,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1977.828,
+      "wall": 1791838961.8661096,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1977.72,
+        "x": -6.926583458913825,
+        "y": -23.99797177568703,
+        "z": 4.461710297610185,
+        "yaw": 0.7934549937396119,
+        "down_pitch": 0.03671912757181415,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1978.032,
+      "wall": 1791838962.077554,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1977.912,
+        "x": -6.935297906606163,
+        "y": -24.01510019460896,
+        "z": 4.473141625975353,
+        "yaw": 0.7936272875172726,
+        "down_pitch": -0.0718554857068907,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1978.244,
+      "wall": 1791838962.290188,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1978.136,
+        "x": -6.947730410039016,
+        "y": -24.051349283985914,
+        "z": 4.462883815153415,
+        "yaw": 0.7954883470285588,
+        "down_pitch": 0.02808623314245611,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1978.424,
+      "wall": 1791838962.4744425,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1978.332,
+        "x": -6.95605910620451,
+        "y": -24.072564744327824,
+        "z": 4.463320246014795,
+        "yaw": 0.7971502909156066,
+        "down_pitch": 0.015956864580761693,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1978.604,
+      "wall": 1791838962.6563497,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1978.516,
+        "x": -6.955827410853586,
+        "y": -24.09195639880642,
+        "z": 4.46642567613641,
+        "yaw": 0.7980747673192291,
+        "down_pitch": 0.007594713638412066,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1978.832,
+      "wall": 1791838962.8834493,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1978.72,
+        "x": -6.957434736709249,
+        "y": -24.10649168693095,
+        "z": 4.46594226175787,
+        "yaw": 0.8009803986044465,
+        "down_pitch": 0.005027746551271371,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1979.0,
+      "wall": 1791838963.0530338,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1978.92,
+        "x": -6.952053216198014,
+        "y": -24.126814345842718,
+        "z": 4.477227738222307,
+        "yaw": 0.8010435942926364,
+        "down_pitch": -0.05601584234060976,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1979.204,
+      "wall": 1791838963.2593446,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1979.128,
+        "x": -6.964220327014819,
+        "y": -24.154144302058764,
+        "z": 4.473035235368953,
+        "yaw": 0.8035000833172243,
+        "down_pitch": -0.008590046549851621,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1979.4,
+      "wall": 1791838963.4551463,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1979.332,
+        "x": -6.968620256468373,
+        "y": -24.17780807625968,
+        "z": 4.470912603398612,
+        "yaw": 0.8049034351199366,
+        "down_pitch": 0.02596901915251316,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1979.604,
+      "wall": 1791838963.6600847,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1979.512,
+        "x": -6.972633833347102,
+        "y": -24.19080512398755,
+        "z": 4.478343523527715,
+        "yaw": 0.8063979312200916,
+        "down_pitch": -0.03966440179737294,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1979.804,
+      "wall": 1791838963.85997,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1979.708,
+        "x": -6.972740503571407,
+        "y": -24.20888578456547,
+        "z": 4.469208073720789,
+        "yaw": 0.8076935123958419,
+        "down_pitch": 0.025007778119734154,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1980.004,
+      "wall": 1791838964.0621598,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1979.908,
+        "x": -6.9732231331324925,
+        "y": -24.21894325622976,
+        "z": 4.466813002817818,
+        "yaw": 0.8091901042070005,
+        "down_pitch": 0.014053301337343749,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1980.204,
+      "wall": 1791838964.2643874,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1980.108,
+        "x": -6.965571447920947,
+        "y": -24.222920558871706,
+        "z": 4.4616338374295275,
+        "yaw": 0.8097277332950674,
+        "down_pitch": 0.006323714287178864,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1980.404,
+      "wall": 1791838964.464683,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1980.32,
+        "x": -6.962213152181796,
+        "y": -24.226179295326137,
+        "z": 4.455020897192299,
+        "yaw": 0.8110641484890063,
+        "down_pitch": 0.005600919919723937,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1980.596,
+      "wall": 1791838964.661601,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1980.52,
+        "x": -6.957185694127462,
+        "y": -24.2313914722043,
+        "z": 4.457215144741139,
+        "yaw": 0.8113307755891159,
+        "down_pitch": -0.035238002901660036,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1980.808,
+      "wall": 1791838964.8733974,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1980.736,
+        "x": -6.964952133093054,
+        "y": -24.24477641482901,
+        "z": 4.449006986819093,
+        "yaw": 0.8126477107109626,
+        "down_pitch": 0.00208567586133433,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 1981.0,
+      "wall": 1791838965.0678596,
+      "data": {
+        "source_uav": "typhoon_h480_0",
+        "sample_s": 1980.936,
+        "x": -6.970288203918689,
+        "y": -24.252977105688473,
+        "z": 4.443443394850169,
+        "yaw": 0.813818389025254,
+        "down_pitch": 0.015240853268036921,
+        "processed": true
+      }
+    }
+  ],
+  "expected": {
+    "range_m": 8.029100230706632,
+    "neutral_band": [
+      8.66915730204257,
+      9.0
+    ],
+    "actual_band": null
+  }
+}
