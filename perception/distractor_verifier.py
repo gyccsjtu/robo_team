@@ -7,6 +7,8 @@ import math
 import os
 import time
 
+ACTOR_LABELS = ('red', 'green', 'blue', 'white', 'brown')
+
 
 def iou(a, b):
     inter = max(0., min(a[2], b[2])-max(a[0], b[0])) * max(0., min(a[3], b[3])-max(a[1], b[1]))
@@ -48,6 +50,29 @@ def strong_decoys(primary, secondary):
         if any(iou(primary[i]['box'], b['box']) >= .30 for b in actors):
             continue  # conflicting secondary classification: retain primary
         result[i] = decoys[j]['confidence']
+    return result
+
+
+def unique_actor_evidence(primary, secondary):
+    """Same-image, same-colour actor matches with no competing object owner."""
+    usable = [b for b in secondary if math.isfinite(b['confidence'])
+              and b['confidence'] >= .30]
+    matches = [[j for j, b in enumerate(usable)
+                if same_object(a['box'], b['box'])] for a in primary]
+    result = {}
+    for i, choices in enumerate(matches):
+        if len(choices) != 1 or primary[i]['label'] not in ACTOR_LABELS:
+            continue
+        j = choices[0]
+        candidate = usable[j]
+        if candidate['label'] != primary[i]['label']:
+            continue
+        if sum(j in peers for peers in matches) != 1:
+            continue  # even coincident cross-colour primary boxes are ambiguous
+        if any(b['label'] != candidate['label']
+               and iou(primary[i]['box'], b['box']) >= .30 for b in usable):
+            continue  # a nearby, overlapping decoy/other colour cannot certify
+        result[i] = candidate
     return result
 
 
@@ -123,12 +148,21 @@ class SecondaryAppearance:
     def filter(self, image, boxes, names, sample_s, camera='stereo'):
         boxes=list(boxes)
         self.last_inference_s=0.0
+        for b in boxes:
+            # Box objects can be reused by callers; proof belongs to this image.
+            b.secondary_actor_confirmed = False
+            b.secondary_actor_label = ''
+            b.secondary_actor_sample_s = None
+            b.secondary_actor_camera = ''
+            b.secondary_actor_confidence = 0.
+            b.secondary_actor_box = None
         if self.model is None:return boxes,[]
         history=self.histories.setdefault(camera,DistractorVerifier())
+        fresh = math.isfinite(sample_s) and sample_s > history.last_sample
         if not boxes:
             history.update([],[],sample_s)
             return boxes,[]
-        primary=[dict(label=names[int(b.cls)],confidence=float(b.conf),
+        primary=[dict(label=str(names[int(b.cls)]).strip().lower(),confidence=float(b.conf),
                       box=[float(v) for v in b.xyxy[0]]) for b in boxes]
         started=time.perf_counter()
         try:
@@ -145,8 +179,18 @@ class SecondaryAppearance:
             return boxes,[]
         finally:
             self.last_inference_s=time.perf_counter()-started
-        secondary=[dict(label=result.names[int(b.cls)],confidence=float(b.conf),
+        secondary=[dict(label=str(result.names[int(b.cls)]).strip().lower(),confidence=float(b.conf),
                         box=[float(v) for v in b.xyxy[0]]) for b in result.boxes]
+        if fresh:
+            for i, proof in unique_actor_evidence(primary, secondary).items():
+                if getattr(boxes[i], 'appearance_status', 'actor') != 'actor':
+                    continue
+                boxes[i].secondary_actor_confirmed = True
+                boxes[i].secondary_actor_label = proof['label']
+                boxes[i].secondary_actor_sample_s = sample_s
+                boxes[i].secondary_actor_camera = camera
+                boxes[i].secondary_actor_confidence = proof['confidence']
+                boxes[i].secondary_actor_box = list(proof['box'])
         strong=strong_decoys(primary,secondary)
         rejected=history.update(primary,secondary,sample_s)
         evidence=[]
