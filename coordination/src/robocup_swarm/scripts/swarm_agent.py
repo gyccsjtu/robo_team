@@ -1478,6 +1478,78 @@ class SwarmAgent(SearchSegmentAgent):
         self._last_local_goal = None
         self._last_flight_v = (0.0, 0.0)
 
+    def _stage_interrupted_camera_cue(self, now):
+        """Keep one exact-image direction while search cancellation precedes pursuit."""
+        cue = getattr(self, '_camera_cue', None)
+        if (getattr(self, '_interrupted_camera_cue', None) is not None or cue is None or
+                getattr(getattr(self, 'assignment', None), 'task_type', None) not in (None, 0) or
+                getattr(self, '_landing', False) or not getattr(self, '_takeoff_done', False) or
+                not self._world_trusted() or self.world_xy is None or
+                not getattr(getattr(self, 'state', None), 'armed', False) or
+                getattr(getattr(self, 'state', None), 'mode', '') != 'OFFBOARD' or
+                cue.get('xy') is not None or not cue.get('interrupt_revisit_ok', False)):
+            return
+        try:
+            if attention_expired(cue, now) or failed_view(cue, self.uav_id, now) is None:
+                return
+            saved = dict(cue, view_origin=dict(cue['view_origin']))
+        except (KeyError, TypeError, ValueError, OverflowError):
+            return
+        # Single bounded slot; no movement, new person position or renewed deadline.
+        self._interrupted_camera_cue = dict(cue=saved, ready_s=now+.25)
+
+    @serialized_visual_task
+    def _finish_interrupted_camera_cue(self, assignment=None):
+        pending = getattr(self, '_interrupted_camera_cue', None)
+        if pending is None:
+            return
+        now = rospy.Time.now().to_sec()
+        wait_age = now-(pending['ready_s']-.25)
+        if not math.isfinite(wait_age) or wait_age < 0.:
+            self.__dict__.pop('_interrupted_camera_cue', None)
+            return  # a ROS clock reset cannot keep the slot occupied indefinitely
+        if assignment is None and wait_age < .25:
+            return
+        # Consume once before validating/publishing, including cancellation-only
+        # control sweeps. Assignment and control callbacks share this RLock.
+        pending = self.__dict__.pop('_interrupted_camera_cue', None)
+        cue = pending['cue']
+        if (getattr(assignment, 'task_type', 0) not in (0, 1) or
+                getattr(self, '_landing', False) or not getattr(self, '_takeoff_done', False) or
+                not self._world_trusted() or self.world_xy is None or
+                not getattr(getattr(self, 'state', None), 'armed', False) or
+                getattr(getattr(self, 'state', None), 'mode', '') != 'OFFBOARD'):
+            return
+        try:
+            if attention_expired(cue, now) or cue.get('xy') is not None:
+                return
+            paired = failed_view(cue, self.uav_id, now)
+            if paired is None:
+                return  # never fall back to receipt-time position or a renewed image age
+            tid = cue.get('target_id')
+            if cue['color'] != 'red' and tid:
+                if self._stable_other_owner(tid, now, bearing=cue['bearing']):
+                    return
+                own = getattr(self, '_visual_observations', {}).get(tid, {})
+                if (own.get('eligible', False) and own.get('source_uav') == self.uav_id and
+                        cue['sample_s'] <= own.get('sample_s', -1e18) <= now and
+                        now-own['sample_s'] <= 1.0):
+                    dx, dy = own['x']-paired['x'], own['y']-paired['y']
+                    angle = math.atan2(math.sin(math.atan2(dy, dx)-cue['bearing']),
+                                       math.cos(math.atan2(dy, dx)-cue['bearing']))
+                    if math.hypot(dx, dy) <= 20. and abs(angle) <= math.radians(15.):
+                        return  # fresh, spatially matching localization already reached the manager
+            # An unlocalized red cue has no global t4/t5 instance binding;
+            # a same-colour assignment alone must not erase the other red person.
+            publisher = getattr(self, '_candidate_missed_pub', None)
+            if publisher is not None:
+                publisher.publish(String(data=json.dumps(paired)))
+                rospy.loginfo('[INTERRUPTED_VIEW_REVISIT] uav=%s candidate=%s image=%.3f; '
+                              'camera origin/direction only, no person coordinate',
+                              self.uav_id, cue['candidate_id'], cue['sample_s'])
+        except (KeyError, TypeError, ValueError, AttributeError, OverflowError):
+            return
+
     @serialized_visual_task
     def _assign_cb(self, msg):
         if not self._accept_segment_message(msg):
@@ -1512,6 +1584,7 @@ class SwarmAgent(SearchSegmentAgent):
             old_tid = getattr(self, '_track_assigned_id', None)
             if old_tid and msg.target_id and msg.target_id != old_tid:
                 return
+            self._stage_interrupted_camera_cue(rospy.Time.now().to_sec())
             self.__dict__.setdefault('_search_view_inbox', SearchViewInbox()).assign(
                 msg, rospy.Time.now().to_sec())
             self._discard_old_plan()
@@ -1543,6 +1616,9 @@ class SwarmAgent(SearchSegmentAgent):
             self._look_at = None
             self._last_local_goal = None
             return
+        if msg.task_type == 1 and tid != getattr(self, '_track_assigned_id', None):
+            self._stage_interrupted_camera_cue(rospy.Time.now().to_sec())
+        self._finish_interrupted_camera_cue(msg)
         self.__dict__.setdefault('_search_view_inbox', SearchViewInbox()).assign(
             msg, rospy.Time.now().to_sec())
         if msg.task_type == 0:
@@ -1958,6 +2034,10 @@ class SwarmAgent(SearchSegmentAgent):
             if (cue is not None and cue['candidate_id'] == cid and
                     cue['sample_s'] == sample and now < cue['until']):
                 self.__dict__.setdefault('_camera_frame_origins', CameraOrigins()).attach(cue)
+                # This marker only permits a later direction revisit. Existing
+                # attention/approach and official localization gates are unchanged.
+                cue['interrupt_revisit_ok'] = (data.get('appearance_status') == 'actor' and
+                                               data.get('association_unique') is True)
                 # Invalid/clipped new frames clear permission to move at once.
                 cue['image'] = approach_image(data)
                 if (cue['image'] is not None and confidence >= .65 and
@@ -4821,6 +4901,7 @@ class SwarmAgent(SearchSegmentAgent):
     @serialized_visual_task
     def _control(self):
         """有任务 → A* 绕障飞向格中心；无任务 → 原地悬停。"""
+        self._finish_interrupted_camera_cue()
         # === 降落模式 ===
         if self._landing:
             self._look_at = None

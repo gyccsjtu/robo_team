@@ -1,0 +1,775 @@
+{
+  "source_run": "logs_20261013_044046",
+  "source_commit": "574769b",
+  "source_uav": "typhoon_h480_1",
+  "scope": "Actual sensor/assignment packets only; no actor truth. Camera sampler transport producer=/perception_real_2550456_1791837681764.",
+  "initial_search_assignment": {
+    "uav": "typhoon_h480_1",
+    "stamp": 2475.596,
+    "type": 0,
+    "target": "",
+    "task": "f927c1adf1cb42ee9509e04cfb45fbab",
+    "version": 1,
+    "until": 2495.596,
+    "cells": [
+      [
+        25,
+        17
+      ]
+    ],
+    "points": [
+      [
+        121.16489943400077,
+        58.5
+      ]
+    ],
+    "purpose": "south_patrol",
+    "look_points": [
+      [
+        129.99,
+        59.99
+      ]
+    ]
+  },
+  "events": [
+    {
+      "event": "processed_frame",
+      "ros": 2564.74,
+      "wall": 1791837794.4628928,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2564.672,
+        "x": 121.67740526365053,
+        "y": 58.586040211381885,
+        "z": 2.9973258846930895,
+        "yaw": -0.39751474478794246,
+        "down_pitch": -0.07339632177626221,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2564.74,
+      "wall": 1791837794.463168,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2564.672,
+        "bearing": -1.0193112469773138,
+        "confidence": 0.8339697122573853,
+        "hits": 3,
+        "u": 654.1991577148438,
+        "v": 333.45709228515625,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          641.4025268554688,
+          303.5971374511719,
+          666.9957885742188,
+          363.3170471191406
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.08365984150874203,
+        "fy": 376.0,
+        "foot_down_sin": 0.2200891581316522,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8339697122573853,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2564.948,
+      "wall": 1791837794.6705964,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2564.848,
+        "x": 121.84652845689277,
+        "y": 58.56334330697865,
+        "z": 3.0248475872155223,
+        "yaw": -0.43137387927984305,
+        "down_pitch": -0.15249633243300287,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2564.948,
+      "wall": 1791837794.6706693,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2564.848,
+        "bearing": -1.0006213034495721,
+        "confidence": 0.8890959620475769,
+        "hits": 3,
+        "u": 631.6645202636719,
+        "v": 354.15997314453125,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          618.0931396484375,
+          323.2431335449219,
+          645.2359008789062,
+          385.0768127441406
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.1594306762044541,
+        "fy": 376.0,
+        "foot_down_sin": 0.2051546872337881,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8890959620475769,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2565.156,
+      "wall": 1791837794.882596,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2565.036,
+        "x": 121.9219799353451,
+        "y": 58.51457625315703,
+        "z": 3.11001676606154,
+        "yaw": -0.697771836957958,
+        "down_pitch": -0.038547975980277885,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2565.156,
+      "wall": 1791837794.8827982,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2565.036,
+        "bearing": -0.9827536496932026,
+        "confidence": 0.8448760509490967,
+        "hits": 3,
+        "u": 488.7053985595703,
+        "v": 309.88063049316406,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          477.71185302734375,
+          282.9317932128906,
+          499.6989440917969,
+          336.8294677734375
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.04618779674988489,
+        "fy": 376.0,
+        "foot_down_sin": 0.21049389436908464,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8448760509490967,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2565.356,
+      "wall": 1791837795.0832417,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2565.244,
+        "bearing": -0.9930602547656862,
+        "confidence": 0.8637005090713501,
+        "hits": 3,
+        "u": 397.67567443847656,
+        "v": 296.1920623779297,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          387.30126953125,
+          270.9478759765625,
+          408.0500793457031,
+          321.4362487792969
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.04041914241313566,
+        "fy": 376.0,
+        "foot_down_sin": 0.22396240566355854,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8637005090713501,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2565.356,
+      "wall": 1791837795.0834424,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2565.244,
+        "x": 121.9665839584003,
+        "y": 58.473498433565396,
+        "z": 3.1388305427471255,
+        "yaw": -0.9412306022522198,
+        "down_pitch": 0.010866295374208626,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2565.56,
+      "wall": 1791837795.2857459,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2565.46,
+        "bearing": -1.004063167670108,
+        "confidence": 0.842115044593811,
+        "hits": 3,
+        "u": 372.1280975341797,
+        "v": 252.3929443359375,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          361.2172546386719,
+          226.29824829101562,
+          383.0389404296875,
+          278.4876403808594
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.11478342211496224,
+        "fy": 376.0,
+        "foot_down_sin": 0.2121786911518502,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.842115044593811,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2565.56,
+      "wall": 1791837795.285841,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2565.46,
+        "x": 121.99241849041013,
+        "y": 58.44657181622518,
+        "z": 3.0520612704023913,
+        "yaw": -1.015283663672268,
+        "down_pitch": 0.11209905828686594,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2565.744,
+      "wall": 1791837795.4706342,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2565.66,
+        "bearing": -0.9948801846837609,
+        "confidence": 0.848737359046936,
+        "hits": 3,
+        "u": 372.9049377441406,
+        "v": 215.78575897216797,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          362.2947998046875,
+          189.5287322998047,
+          383.51507568359375,
+          242.04278564453125
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.2174969236882447,
+        "fy": 376.0,
+        "foot_down_sin": 0.22096193413651907,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.848737359046936,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2565.744,
+      "wall": 1791837795.47074,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2565.66,
+        "x": 122.0306930482506,
+        "y": 58.404520137773034,
+        "z": 2.9790695425657874,
+        "yaw": -1.0028192515259706,
+        "down_pitch": 0.21742273830839293,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2565.944,
+      "wall": 1791837795.6763518,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2565.852,
+        "bearing": -0.9858837322742309,
+        "confidence": 0.862677276134491,
+        "hits": 3,
+        "u": 367.7232971191406,
+        "v": 244.43258666992188,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          356.9877624511719,
+          218.562255859375,
+          378.4588317871094,
+          270.30291748046875
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.17049654926054433,
+        "fy": 376.0,
+        "foot_down_sin": 0.2481119671630454,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.862677276134491,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2565.944,
+      "wall": 1791837795.6764593,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2565.852,
+        "x": 122.08912394086221,
+        "y": 58.30936285266607,
+        "z": 2.965319310413842,
+        "yaw": -1.0083055566663033,
+        "down_pitch": 0.17045666354193614,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2566.152,
+      "wall": 1791837795.8885486,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2566.04,
+        "bearing": -0.974885806401278,
+        "confidence": 0.8602102994918823,
+        "hits": 3,
+        "u": 364.44183349609375,
+        "v": 350.63214111328125,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          350.7806701660156,
+          321.4933776855469,
+          378.1029968261719,
+          379.7709045410156
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.11498760856846445,
+        "fy": 376.0,
+        "foot_down_sin": 0.2384785337164136,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8602102994918823,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2566.152,
+      "wall": 1791837795.8886344,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2566.04,
+        "x": 122.15517411427693,
+        "y": 58.20135161475822,
+        "z": 3.0017905084454726,
+        "yaw": -1.0049430058596882,
+        "down_pitch": -0.1149865882194979,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2566.36,
+      "wall": 1791837796.1028934,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2566.236,
+        "bearing": -0.9725493993776693,
+        "confidence": 0.8450272083282471,
+        "hits": 3,
+        "u": 367.1082458496094,
+        "v": 323.26698303222656,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          354.9365234375,
+          294.0787658691406,
+          379.27996826171875,
+          352.4552001953125
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.05901641662290128,
+        "fy": 376.0,
+        "foot_down_sin": 0.2295876078219537,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8450272083282471,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2566.36,
+      "wall": 1791837796.1029875,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2566.236,
+        "x": 122.18637687347875,
+        "y": 58.14248215193842,
+        "z": 2.9999541567798906,
+        "yaw": -0.9953631221247032,
+        "down_pitch": -0.0589598669789906,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2566.568,
+      "wall": 1791837796.3120875,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2566.436,
+        "x": 122.20726173413752,
+        "y": 58.10110735700534,
+        "z": 2.987686993940458,
+        "yaw": -0.9829799240413915,
+        "down_pitch": 0.07990826138166669,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2566.568,
+      "wall": 1791837796.312198,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2566.436,
+        "bearing": -0.9707411349139626,
+        "confidence": 0.8415172100067139,
+        "hits": 3,
+        "u": 371.375,
+        "v": 267.606689453125,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          359.7663879394531,
+          239.69454956054688,
+          382.9836120605469,
+          295.5188293457031
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.07994248528351053,
+        "fy": 376.0,
+        "foot_down_sin": 0.22458499254582714,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8415172100067139,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2566.752,
+      "wall": 1791837796.499498,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2566.648,
+        "bearing": -0.9720967254229802,
+        "confidence": 0.8543353080749512,
+        "hits": 3,
+        "u": 373.94708251953125,
+        "v": 224.78910064697266,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          361.7969055175781,
+          196.38137817382812,
+          386.0972595214844,
+          253.1968231201172
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.20866734302666112,
+        "fy": 376.0,
+        "foot_down_sin": 0.2413347928936056,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8543353080749512,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2566.752,
+      "wall": 1791837796.4995897,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2566.648,
+        "x": 122.23410691830719,
+        "y": 58.04968919004049,
+        "z": 2.9836127487728703,
+        "yaw": -0.9777585942698107,
+        "down_pitch": 0.20864417981707367,
+        "processed": true
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2566.944,
+      "wall": 1791837796.6934688,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2566.844,
+        "x": 122.29025176342114,
+        "y": 57.9564324114386,
+        "z": 2.9996552726559433,
+        "yaw": -0.9744047977966757,
+        "down_pitch": 0.18665218826183047,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2566.944,
+      "wall": 1791837796.693681,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2566.844,
+        "bearing": -0.97985136312542,
+        "confidence": 0.8696815967559814,
+        "hits": 3,
+        "u": 377.9907684326172,
+        "v": 245.7514877319336,
+        "association_unique": true,
+        "attention_only": true,
+        "box": [
+          366.8053283691406,
+          217.6271209716797,
+          389.17620849609375,
+          273.8758544921875
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.1866721417769731,
+        "fy": 376.0,
+        "foot_down_sin": 0.2729766808044749,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8696815967559814,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2567.148,
+      "wall": 1791837796.896951,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2567.06,
+        "x": 122.36184884491993,
+        "y": 57.839354123837154,
+        "z": 3.053623247567808,
+        "yaw": -0.9737190176800758,
+        "down_pitch": -0.11522118402154023,
+        "processed": true
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2567.148,
+      "wall": 1791837796.8970268,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2567.06,
+        "bearing": -0.9950409247209552,
+        "confidence": 0.8620067238807678,
+        "hits": 3,
+        "u": 383.8386993408203,
+        "v": 361.63169860839844,
+        "association_unique": true,
+        "attention_only": false,
+        "box": [
+          370.5157775878906,
+          328.9584045410156,
+          397.16162109375,
+          394.30499267578125
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.11527381136490987,
+        "fy": 376.0,
+        "foot_down_sin": 0.2706632996488087,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.8620067238807678,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "candidate",
+      "ros": 2567.352,
+      "wall": 1791837797.106528,
+      "data": {
+        "candidate_id": "white:19",
+        "sample_s": 2567.264,
+        "bearing": -0.9892748407959983,
+        "confidence": 0.9068414568901062,
+        "hits": 3,
+        "u": 378.6599884033203,
+        "v": 326.40760803222656,
+        "association_unique": true,
+        "attention_only": false,
+        "box": [
+          365.5071105957031,
+          294.0393981933594,
+          391.8128662109375,
+          358.77581787109375
+        ],
+        "width": 752,
+        "height": 480,
+        "camera_tilt": 0.04207910739011351,
+        "fy": 376.0,
+        "foot_down_sin": 0.260941027707478,
+        "appearance_status": "actor",
+        "appearance_confidence": 0.9068414568901062,
+        "distractor_confidence": 0.0,
+        "source_uav": "typhoon_h480_1",
+        "real_detection": true,
+        "purpose": "camera_reacquire"
+      }
+    },
+    {
+      "event": "processed_frame",
+      "ros": 2567.352,
+      "wall": 1791837797.1066418,
+      "data": {
+        "source_uav": "typhoon_h480_1",
+        "sample_s": 2567.264,
+        "x": 122.40040185848295,
+        "y": 57.77832665056098,
+        "z": 3.0359707158605307,
+        "yaw": -0.9814967439006929,
+        "down_pitch": -0.04194489075408748,
+        "processed": true
+      }
+    },
+    {
+      "event": "assignment",
+      "ros": 2567.396,
+      "wall": 1791837797.1502655,
+      "data": {
+        "uav": "typhoon_h480_1",
+        "stamp": 2567.396,
+        "type": 255,
+        "target": "",
+        "task": "f927c1adf1cb42ee9509e04cfb45fbab",
+        "version": 1,
+        "until": 0.0,
+        "cells": [],
+        "points": [],
+        "purpose": "",
+        "look_points": []
+      }
+    },
+    {
+      "event": "assignment",
+      "ros": 2567.4,
+      "wall": 1791837797.151594,
+      "data": {
+        "uav": "typhoon_h480_1",
+        "stamp": 2567.396,
+        "type": 1,
+        "target": "t1",
+        "task": "",
+        "version": 0,
+        "until": 0.0,
+        "cells": [],
+        "points": [],
+        "purpose": "",
+        "look_points": []
+      }
+    },
+    {
+      "event": "assignment",
+      "ros": 2567.432,
+      "wall": 1791837797.185499,
+      "data": {
+        "uav": "typhoon_h480_1",
+        "stamp": 2567.432,
+        "type": 1,
+        "target": "t1",
+        "task": "",
+        "version": 0,
+        "until": 0.0,
+        "cells": [],
+        "points": [],
+        "purpose": "",
+        "look_points": []
+      }
+    }
+  ],
+  "official_white_completion_s": 444.432,
+  "first_reviewed_world_view_s": 2658.056,
+  "safety_state_near_interrupt": {
+    "ros": 2567.36,
+    "wall": 1791837797.113284,
+    "uav": 1,
+    "state": {
+      "mode": "OFFBOARD",
+      "armed": true,
+      "connected": true
+    }
+  },
+  "task_goal_test_limit": "Source assignment sampler omits tracking goalXY; dedicated tests use rounded114.5,42.3 from source agent log only to verify unchanged task ownership, not position precision or flight performance."
+}
