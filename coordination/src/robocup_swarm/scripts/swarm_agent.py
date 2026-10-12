@@ -1977,6 +1977,7 @@ class SwarmAgent(SearchSegmentAgent):
         if (getattr(getattr(self, 'assignment', None), 'task_type', None) != 0 or
                 tid not in ('t0', 't1', 't2', 't3') or
                 raw.get('geometry_ok') is not True or raw.get('report_ok') is not True or
+                raw.get('person_verdict_ok') is not True or raw.get('person_verdict_reason') != '' or
                 raw.get('appearance_status') != 'actor' or
                 getattr(self, '_landing', False) or
                 getattr(self, '_track_assigned_id', None) is not None or

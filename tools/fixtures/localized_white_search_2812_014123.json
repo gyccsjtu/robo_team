@@ -44,7 +44,38 @@
         "y": -11.51,
         "appearance_status": "actor",
         "appearance_confidence": 0.753,
-        "distractor_confidence": 0.0
+        "distractor_confidence": 0.0,
+        "person_verdict_ok": true,
+        "person_verdict_reason": ""
+      },
+      "qualification_witness": {
+        "wall_time": "1791827286.851723",
+        "ros_time": "2812.404",
+        "event": "coord_report",
+        "target_id": "white",
+        "class_name": "white",
+        "confidence": "0.753",
+        "bbox_u": "601.6",
+        "bbox_v": "255.4",
+        "bbox_w": "32.6",
+        "bbox_h": "63.2",
+        "target_x": "121.55",
+        "target_y": "-11.51",
+        "target_z": "1.25",
+        "range_m": "11.79",
+        "height_m": "1.84",
+        "strict": "True",
+        "track_id": "6",
+        "hits": "3",
+        "image_stamp": "2812.284",
+        "image_age_s": "0.11999999999989086",
+        "inference_s": "0.030450105667114258",
+        "source": "coordination/target_report",
+        "sin_down": "",
+        "range_method": "foot_ground",
+        "assoc_residual_m": "",
+        "assoc_gate_m": "",
+        "observation_gap_s": ""
       }
     },
     {
@@ -78,7 +109,38 @@
         "y": -11.46,
         "appearance_status": "actor",
         "appearance_confidence": 0.851,
-        "distractor_confidence": 0.0
+        "distractor_confidence": 0.0,
+        "person_verdict_ok": true,
+        "person_verdict_reason": ""
+      },
+      "qualification_witness": {
+        "wall_time": "1791827287.0497308",
+        "ros_time": "2812.604",
+        "event": "coord_report",
+        "target_id": "white",
+        "class_name": "white",
+        "confidence": "0.851",
+        "bbox_u": "642.3",
+        "bbox_v": "272.8",
+        "bbox_w": "33.2",
+        "bbox_h": "68.1",
+        "target_x": "121.67",
+        "target_y": "-11.46",
+        "target_z": "1.25",
+        "range_m": "11.34",
+        "height_m": "1.84",
+        "strict": "True",
+        "track_id": "6",
+        "hits": "4",
+        "image_stamp": "2812.456",
+        "image_age_s": "0.1479999999996835",
+        "inference_s": "0.028645753860473633",
+        "source": "coordination/target_report",
+        "sin_down": "",
+        "range_method": "foot_ground",
+        "assoc_residual_m": "",
+        "assoc_gate_m": "",
+        "observation_gap_s": ""
       }
     }
   ],
@@ -92,5 +154,6 @@
     "span_s": 1.0
   },
   "original_trial_visual_source_count_for_these_frames": 0,
-  "pose_sample_s": 2812.336
+  "pose_sample_s": 2812.336,
+  "qualification_note": "New person fields derived from archived same-image coord_report strict=True (official_view_ok includes existing Track.verdict); original GUI packet lacked these fields. No actor truth or new localization permission."
 }

@@ -9,13 +9,18 @@ import threading
 import unittest
 from pathlib import Path
 from types import SimpleNamespace as NS
+from unittest.mock import Mock, patch
 
 from tools import test_attention_priority as attention_fixture
 from tools import test_search_segments as segment_fixture
+from tools import test_tracking_view as tracking_fixture
 
 sa = attention_fixture.sa
 FIXTURE = json.loads((Path(__file__).parent / 'fixtures' /
                      'localized_white_search_2812_014123.json').read_text())
+PERSON_FIXTURE = json.loads((Path(__file__).parent / 'fixtures' /
+                            'person_verdict_views_022140.json').read_text())
+pr = tracking_fixture.pr
 
 
 class LocalizedSearchAttentionTests(unittest.TestCase):
@@ -81,6 +86,9 @@ class LocalizedSearchAttentionTests(unittest.TestCase):
             dict(sample_s=0.), dict(sample_s=float('nan')),
             dict(geometry_ok=False), dict(report_ok=False),
             dict(geometry_ok=1), dict(report_ok=1),
+            dict(person_verdict_ok=False), dict(person_verdict_ok=None),
+            dict(person_verdict_ok=1), dict(person_verdict_ok='true'),
+            dict(person_verdict_reason='height'), dict(person_verdict_reason=None),
             dict(appearance_status='ambiguous'), dict(appearance_status='distractor'),
             dict(appearance_status=None), dict(hits=2), dict(confidence=.54),
             dict(confidence=1.1), dict(x=float('nan')), dict(y=float('inf')),
@@ -97,6 +105,97 @@ class LocalizedSearchAttentionTests(unittest.TestCase):
                 self.assertIsNone(self.a._camera_cue)
                 self.assertEqual(before, self.snapshot())
                 self.assertEqual(self.detections, [])
+
+    def test_legacy_geometry_only_packet_cannot_claim_qualified_search_hold(self):
+        for field in ('person_verdict_ok','person_verdict_reason'):
+            data=self.payload()
+            del data[field]
+            self.send(data)
+            self.assertIsNone(self.a._camera_cue)
+        self.assertEqual(self.detections,[])
+
+    def test_actual_same_frame_scaffold_height_rejection_cannot_hold_search(self):
+        case=PERSON_FIXTURE['cases'][0]
+        data=case['data']
+        self.assertEqual(case['qualification_witness']['source'],'verdict_height')
+        self.assertEqual(float(case['qualification_witness']['image_stamp']),data['sample_s'])
+        self.assertTrue(data['geometry_ok'] and data['report_ok'])
+        self.assertEqual(data['appearance_status'],'actor')
+        self.a.uav_id=data['source_uav']
+        self.now=case['ros']
+        before=self.snapshot()
+        self.send(data)
+        self.assertIsNone(self.a._camera_cue)
+        self.assertEqual(self.snapshot(),before)
+        self.assertEqual(self.detections,[])
+
+    def test_actual_blue_and_white_person_gate_witnesses_keep_localized_hold(self):
+        before=self.snapshot()
+        for case in PERSON_FIXTURE['cases'][1:]:
+            with self.subTest(case=case['name']):
+                data=case['data']
+                witness=case['qualification_witness']
+                self.assertEqual(witness['event'],'coord_report')
+                self.assertEqual(witness['strict'],'True')
+                self.assertEqual(float(witness['image_stamp']),data['sample_s'])
+                self.a.uav_id=data['source_uav']
+                self.a._camera_cue=None
+                self.a._camera_cue_retry_after={}
+                self.a._camera_attention_attempts=[]
+                self.a._localized_search_view_samples={}
+                self.now=case['ros']
+                self.send(data)
+                self.assertEqual(self.a._camera_cue['xy'],(data['x'],data['y']))
+                self.assertEqual(self.snapshot(),before)
+                self.assertEqual(self.detections,[])
+
+    def test_producer_uses_existing_person_gate_and_assignment_attachment_exception(self):
+        for cls,assigned,rng,attach in (
+                ('blue',None,9.06,True), ('blue','t1',9.06,False),
+                ('blue','t2',9.06,True), ('blue','t1',12.1,True),
+                ('red','t4',8.,False), ('red','t5',8.,False)):
+            with self.subTest(cls=cls,assigned=assigned,rng=rng):
+                tr=NS(cls=cls,rng=rng,verdict=Mock(return_value=(False,'self')))
+                fields=pr.person_verdict_fields(tr,2698.992,assigned)
+                tr.verdict.assert_called_once_with(2698.992,max_coast=0,
+                    attach_check=attach,motion_independent=True)
+                self.assertEqual(fields,dict(person_verdict_ok=False,person_verdict_reason='self'))
+
+    def test_recorded_height_and_confidence_snapshot_reproduces_existing_verdict(self):
+        # Replay the captured current-frame geometry/height inputs. The old
+        # Track parallax history is not reconstructed here; forwarding of its
+        # real attachment gate is tested independently above. Positive verdicts
+        # also have same-image official_view_ok=True CSV witnesses.
+        with patch.object(pr,'CONFIRM_HITS',PERSON_FIXTURE['runtime_profile']['CONFIRM_HITS']):
+            for case in PERSON_FIXTURE['cases']:
+                with self.subTest(case=case['name']):
+                    data=case['data']
+                    row=next((r for r in case['csv_evidence'] if r['event']=='track_publish'),
+                             case['qualification_witness'])
+                    tr=pr.Track(row['class_name'],data['x'],data['y'],data['confidence'],
+                        (float(row['bbox_u']),float(row['bbox_v'])),
+                        (float(row['bbox_w']),float(row['bbox_h'])),
+                        float(row['range_m']),float(row['height_m']),data['sample_s'],
+                        observation_s=data['sample_s'],loc_ok=True,
+                        appearance_status=data['appearance_status'])
+                    tr.hits=data['hits']
+                    self.assertTrue(tr.can_report_image())
+                    fields=pr.person_verdict_fields(tr,data['sample_s'])
+                    self.assertEqual(fields,dict(person_verdict_ok=data['person_verdict_ok'],
+                        person_verdict_reason=data['person_verdict_reason']))
+
+    def test_assigned_person_keeps_failed_geometry_and_verdict_recovery_feedback(self):
+        fixture=tracking_fixture.TrackingViewTests()
+        a=fixture.agent()
+        # These failure flags must not remove an already-associated assigned
+        # image needed to recover its view. They grant no new report credit.
+        data=fixture.payload(geometry_ok=False,report_ok=False,
+            person_verdict_ok=False,person_verdict_reason='height')
+        fixture.send(a,data)
+        self.assertIsNotNone(a._tracking_image)
+        self.assertFalse(a._tracking_image['geometry_ok'])
+        self.assertFalse(a._tracking_image['report_ok'])
+        self.assertEqual(a._visual_observations,{})
 
     def test_four_nonred_colors_can_hold_but_never_create_target_evidence(self):
         before=self.snapshot()

@@ -1921,6 +1921,21 @@ def appearance_fields(track):
                 distractor_confidence=float(getattr(track, 'distractor_confidence', 0.)))
 
 
+def person_verdict_fields(track, sample, assigned_target=None):
+    """Export the existing person gate separately from steering geometry.
+
+    A real image with usable foot geometry can still fail the body-height or
+    camera-attachment gate. Assigned tracking keeps that image for recovery;
+    search attention must not mistake it for a qualified new person. Reuse
+    exactly the same-image verdict used by report_candidate_frame, including
+    its assigned-person attachment exception. This grants no report credit.
+    """
+    ok, reason = track.verdict(sample, max_coast=0, attach_check=not
+                              skip_attached_verdict(track.cls, assigned_target, track.rng),
+                              motion_independent=True)
+    return dict(person_verdict_ok=bool(ok), person_verdict_reason=reason)
+
+
 def candidate_frame(source, sample, candidates, purpose=None):
     """One complete camera frame; neither callback nor detector order ranks it."""
     payload = dict(schema_version=2, source_uav=source, sample_s=float(sample),
@@ -2742,6 +2757,7 @@ def main():
                     geometry_ok=bool(tk.observation_view_ok),
                     report_ok=bool(tk.can_report_image()),
                     bearing=image_world_bearing(u, v, R), x=ox, y=oy,
+                    **person_verdict_fields(tk, frame_stamp, _cur_tid_for_verdict),
                     **appearance_fields(tk)))))
                 view_csv.write(ros_time=rospy.Time.now().to_sec(), sample_s=tk.observed_s,
                     target_id=tid, track_id=tk.id, x1=box[0], y1=box[1], x2=box[2], y2=box[3],
