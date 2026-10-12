@@ -135,7 +135,9 @@ class SearchSegmentManager:
         ordered = []
         for name, key, _, look in corners:
             last = self._west_corner_image_time(name, stamp)
+            blind = self.allocator.revisit_jobs.get(('blind', key))
             if (key in self._blocked_cells or key in self._segments.reserved or
+                    (blind is not None and stamp < blind[0]) or
                     (last is not None and stamp-last < 60.) or
                     stamp-self.allocator.failed_visit.get(key, -1e18) <
                     self.allocator.failed_novelty_ttl):
@@ -239,7 +241,7 @@ class SearchSegmentManager:
                         index = task.cells.index(key)
                         safe_interruption = (
                             not failed and reason in ('yield_reallocate', 'person_task',
-                                                      'released_for_new_task') and
+                                                      'released_for_new_task', 'observation_timeout') and
                             task.look_points[index] == look and
                             valid_view(self._merged_grid(), getattr(self, '_g_infl', None),
                                        look, task.points[index], self._segment_flight_waypoint))
@@ -361,6 +363,12 @@ class SearchSegmentManager:
         max_hold=self._segment_max_hold if max_hold is None else max_hold
         if evidence_deadlines and purpose == 'coverage':
             max_hold=min(max_hold,min(evidence_deadlines)-stamp)
+        if purpose == 'building_review':
+            blind_deadlines = [expires for (kind, key), (_, expires) in
+                self.allocator.revisit_jobs.items()
+                if kind == 'blind' and key in cells and expires > stamp]
+            if blind_deadlines:
+                max_hold = min(max_hold, min(blind_deadlines)-stamp)
         look = ([(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
                 if look_points is None else look_points)
         task = self._segments.reserve(uid,cells,points,stamp,min(20.,max_hold),max_hold,
@@ -430,6 +438,13 @@ class SearchSegmentManager:
                      st.search_state in (TRAVEL,LOOK,ATTEND,YIELD,DONE,FAILED) and
                      all(math.isfinite(v) for v in (st.x,st.y,st.z,st.search_path_remaining)))
             if valid:
+                if (task.purpose == 'building_review' and st.search_state == FAILED and
+                        st.search_blocked_reason == 'observation_timeout'):
+                    if st.search_index != task.index or task.index >= len(task.cells):
+                        continue  # this failure cannot advance or complete a leg
+                    task.feedback_s = sample
+                    self._observation_timeout(task, stamp)
+                    continue
                 visited = self._segments.advance(uid,task.task_id,task.revision,st.search_index)
                 if visited is None:
                     continue
@@ -511,6 +526,42 @@ class SearchSegmentManager:
                     self.lease.grant(uid,key,stamp,max(0.,task.expires-stamp))
             self._send_segment(task)
         self._last_lease_t = now
+
+    def _observation_timeout(self, task, stamp):
+        """Recover a safe missed image using the original finite blind job."""
+        key = task.cells[task.index]
+        look, point = task.look_points[task.index], task.points[task.index]
+        job = self.allocator.revisit_jobs.get(('blind', key))
+        review = getattr(self, '_review_subpoint_views', {}).get(key)
+        deadlines = [stamp+90.]
+        if job is not None:
+            deadlines.append(job[1])
+        if review is not None:
+            deadlines.append(review['expires_s'])
+        expires = min(deadlines)
+        safe = (expires > stamp and key not in self._blocked_cells and
+                valid_view(self._merged_grid(), getattr(self, '_g_infl', None),
+                           look, point, self._segment_flight_waypoint))
+        self._drop_segment(task.uid, 'observation_timeout', failed=not safe)
+        cell = self.grid.cell(key)
+        if not safe or cell.state == STATE_COVERED:
+            return
+        # Unlike _segment_visit, a timeout records no arrival, image or search
+        # progress. Preserve historical credit and reopen only the missed view.
+        self.grid.mark_review(key, 0.)
+        status = self.status[task.uid]
+        side = self._choose_blind_viewpoint(key, cell, (status.x, status.y))
+        if side is not None:
+            self._blind_viewpoints[key] = side
+        review = getattr(self, '_review_subpoint_views', {}).get(key)
+        if review is not None:
+            review['expires_s'] = min(review['expires_s'], expires)
+        if job is None:
+            self.allocator.queue_revisit('blind', cell.cx, cell.cy, now=stamp,
+                delay_s=8., ttl_s=expires-stamp, blocked=self._blocked_cells)
+        else:
+            # Retrying may postpone readiness but never renew the episode TTL.
+            self.allocator.revisit_jobs[('blind', key)] = (max(job[0], stamp+8.), expires)
 
     def _revise_segment(self, task, cells, points, now, reason):
         old = set(task.cells[task.index:])

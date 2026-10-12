@@ -264,6 +264,15 @@ class SearchSegmentAgent:
                     missing = set(observable)-self._search_scan_seen
             if self._search_scan_done or self._search_scan_failed or (
                     not directed and missing == set()):
+                if task.get('purpose') == 'building_review' and self._search_scan_failed:
+                    # A failed observation is not a completed route step.
+                    # Keep this index so the manager can recover its original
+                    # finite blind-view job without granting image credit.
+                    task['state'] = FAILED
+                    task['reason'] = 'observation_timeout'
+                    self._discard_old_plan()
+                    self._send_vel(0., 0.)
+                    return True
                 # A forward camera can arrive facing the outer wall. Reuse
                 # the same bounded yaw executor for a useful inward/edge look
                 # before advancing; a person cue preempts this in _control.
