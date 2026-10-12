@@ -38,6 +38,7 @@ subs += [rospy.Subscriber(topic,String,evidence,event,queue_size=60) for topic,e
          [('/swarm/processed_camera_frame','processed_frame'),('/swarm/discovery_observation','discovery'),
           ('/swarm/visual_candidate','candidate'),('/swarm/visual_candidate_missed','candidate_missed'),
           ('/coordination/target_report','image_report'),('/swarm/report_telemetry','report'),
+          ('/swarm/appearance_rejection','appearance_rejection'),
           ('/swarm/tracking_view','tracking_view')]]
 try:
     end=time.monotonic()+args.seconds

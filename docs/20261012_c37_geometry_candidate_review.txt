@@ -1,0 +1,42 @@
+2026-10-12: offline geometry experiments after 749fe61
+
+Production inference remains v3_clean at its existing 640 input size. Neither
+the nested-box experiment nor an input-size change is enabled by this review.
+
+1. Nested full-body / partial-body conflicts
+   Replayed the actual image_report stream through the fresh bridge, retaining
+   recorded aircraft motion. The candidate suppressed ambiguous same-image
+   positions while leaving image cues available in its proposed design.
+   White reports fell from 161 to 159, but reports with >=1 m error remained 19.
+   Long gaps were unchanged. Do not enable this candidate: its raw-point
+   improvement did not improve the actual formal output in this replay.
+   Evidence: artifacts/c37_geometry_followup_20261012/extent_bridge_replay.json
+
+2. Same native images, same v3 weights, input sizes 640 / 768 / 960
+   616 saved images had exact image-time camera pose records. Each image was
+   inferred at all three sizes; ground-ray errors were evaluated offline only.
+   White frames with at least one full-foot position within 1 m: 150/152/157.
+   Compared with 640, both larger sizes lost 21 previously good white frames;
+   they gained 23/28 other white frames. Thus the gain is not monotonic.
+   Blue geometric errors >=1 m: 45/41/57 (including distant false identities).
+   Green good frames: 40/40/40. Red good frames: 210/220/227.
+   CPU median inference: 12.3/14.3/19.0 ms in this offline process, not a
+   six-aircraft latency measurement. Archival ran concurrently.
+   This is not full-pipeline recall or a competition result: samples were
+   event-triggered, tracking/appearance filters were not replayed, and the
+   frame-level good-point count does not include every formal reporting gate.
+   Evidence: artifacts/c37_geometry_followup_20261012/image_size_comparison.json
+
+3. Why a seemingly better second camera did not automatically rescue white
+   At ROS 2148, aircraft 5 had sporadic usable white observations but was
+   assigned red after 2128.452. Many white observations were geometrically
+   unqualified. Aircraft 3's white source produced the erroneous short body
+   boxes. Offline proximity to truth alone cannot justify forcibly swapping
+   the source or interrupting aircraft 5's current person task.
+
+Next GUI run keeps inference size, weights, speeds, map and reporting policy
+fixed and tests 749fe61's scoped negative-evidence withdrawal. The read-only
+search recorder now records appearance_rejection so an actual negative event
+can be joined to cancellation, subsequent assignments and formal output.
+Official 6/6 and elapsed time remain the acceptance criteria; unit tests and
+these candidate comparisons are not substitutes for that result.
