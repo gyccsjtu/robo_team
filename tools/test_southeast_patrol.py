@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] /
 import boundary_patrol as bp
 import swarm_manager as sm
 import swarm_task as st
-from search_segments import SegmentBook, clear_line
+from search_segments import SegmentBook, clear_line, TRAVEL
 from search_observation import cell_points, in_view
 from robocup_swarm.msg import UavStatus
 
@@ -130,7 +130,7 @@ class SoutheastPatrolTests(unittest.TestCase):
         task = NS(uid=uid, task_id='inner', deadline=190., expires=120.)
         patrol.started(task, direction, self.now)
         patrol.ended(task, 'complete', 105.)
-        self.assertEqual(patrol.completed, 1)
+        self.assertEqual(patrol.attempts, 1)
         self.assertAlmostEqual(patrol.deadline, 190.)
         self.now = 105.
         self.m.last_report[uid] = sm.rospy.Time.from_sec(self.now)
@@ -248,7 +248,7 @@ class SoutheastPatrolTests(unittest.TestCase):
                                  len(first_keys))
         self.m._segments.release(uid)
         patrol.ended(task, 'complete', 102.)
-        self.assertEqual(patrol.completed, 1)
+        self.assertEqual(patrol.attempts, 1)
         self.now = 102.
         self.m.last_report[uid] = sm.rospy.Time.from_sec(self.now)
         self.m.status[uid].x, self.m.status[uid].y = first_points[-1]
@@ -325,6 +325,131 @@ class SoutheastPatrolTests(unittest.TestCase):
     def test_initial_regions_are_mutually_exclusive(self):
         with self.assertRaises(ValueError):
             bp.SouthPatrol((-50, 150, -60, 60), southeast=True, northeast=True)
+
+    def nearby_northeast_task(self):
+        m=self.m
+        m._south_patrol=bp.SouthPatrol((-50,150,-60,60),
+                                       southeast=False,northeast=True)
+        uid=m.uav_ids[4]
+        m.status[uid].x,m.status[uid].y=98.55,20.5
+        m._allocate()
+        task=m._segments.tasks[uid]
+        self.assertEqual(task.purpose,'south_patrol')
+        return task
+
+    def refresh_statuses(self, now):
+        self.now=now
+        for uid,status in self.m.status.items():
+            status.header.stamp=sm.rospy.Time.from_sec(now)
+            self.m.last_report[uid]=sm.rospy.Time.from_sec(now)
+
+    def block_current_ne_task(self, task, now):
+        self.refresh_statuses(now)
+        status=self.m.status[task.uid]
+        status.search_task_id=task.task_id
+        status.search_revision=task.revision
+        status.search_state=TRAVEL
+        status.search_index=0
+        status.search_path_remaining=12.
+        status.search_blocked_waypoint=1
+        status.search_blocked_reason='GOAL_OCCUPIED'
+        self.m._renew_segments(sm.rospy.Time.from_sec(now))
+
+    def test_new_obstacle_retries_same_owner_after_real_release_cooldown(self):
+        first=self.nearby_northeast_task()
+        uid=first.uid
+        self.block_current_ne_task(first,101.)
+        patrol=self.m._south_patrol
+        self.assertEqual(patrol.uid,uid)
+        self.assertEqual(patrol.attempts,1)
+        self.assertNotIn(uid,self.m._segments.tasks)
+        self.assertTrue(set(first.cells).isdisjoint(self.m._segments.reserved))
+        self.assertTrue(all(self.m.allocator.failed_visit[k]==101. for k in first.cells))
+        # Ensure choose runs while the owner is excluded by its real cooldown.
+        other=next(name for name in self.m._segments.tasks if name!=uid)
+        self.m._drop_segment(other,'test_release')
+        self.refresh_statuses(102.)
+        self.m._allocate()
+        self.assertEqual(patrol.uid,uid)
+        self.assertNotIn(uid,self.m._segments.tasks)
+        self.assertAlmostEqual(patrol.deadline,190.)
+        self.refresh_statuses(103.1)
+        self.m._allocate()
+        second=self.m._segments.tasks[uid]
+        self.assertEqual(second.purpose,'south_patrol')
+        self.assertEqual(patrol.attempts,2)
+        self.assertEqual(second.uid,uid)
+        self.assertTrue(set(second.cells).isdisjoint(first.cells))
+        self.assertAlmostEqual(second.deadline,190.)
+        self.assertTrue(all(self.m.grid.cell(k).state!=st.STATE_COVERED
+                            for k in first.cells))
+
+    def test_northeast_three_obstacle_attempts_end_without_restart(self):
+        task=self.nearby_northeast_task()
+        uid=task.uid
+        attempts=[]
+        for n in range(3):
+            attempts.append(task)
+            self.assertEqual(self.m._south_patrol.attempts,n+1)
+            self.assertAlmostEqual(task.deadline,190.)
+            self.block_current_ne_task(task,101.+n*3.1)
+            self.refresh_statuses(103.1+n*3.1)
+            self.m._allocate()
+            if n<2:
+                task=self.m._segments.tasks[uid]
+                self.assertEqual(task.purpose,'south_patrol')
+                self.assertTrue(all(set(task.cells).isdisjoint(old.cells)
+                                    for old in attempts))
+        self.assertIsNone(self.m._south_patrol.uid)
+        self.assertTrue(all(t.purpose!='south_patrol'
+                            for t in self.m._segments.tasks.values()))
+        self.refresh_statuses(180.)
+        self.assertIsNone(self.m._south_patrol.choose(self.m,[uid],self.now))
+
+    def test_northeast_cooldown_does_not_block_person_owner(self):
+        first=self.nearby_northeast_task()
+        uid=first.uid
+        self.block_current_ne_task(first,101.)
+        self.m._tracking['white-person']=uid
+        self.refresh_statuses(102.)
+        self.assertIsNone(self.m._south_patrol.choose(self.m,[],self.now))
+        self.assertIsNone(self.m._south_patrol.uid)
+        self.assertEqual(self.m._tracking['white-person'],uid)
+
+    def test_northeast_cooldown_cannot_extend_original_deadline(self):
+        first=self.nearby_northeast_task()
+        uid=first.uid
+        first.expires=190.
+        self.block_current_ne_task(first,189.)
+        self.assertEqual(self.m._south_patrol.uid,uid)
+        self.refresh_statuses(190.1)
+        self.assertIsNone(self.m._south_patrol.choose(self.m,[],self.now))
+        self.assertIsNone(self.m._south_patrol.uid)
+
+    def test_disconnected_northeast_owner_is_released_during_cooldown(self):
+        first=self.nearby_northeast_task()
+        self.block_current_ne_task(first,101.)
+        self.refresh_statuses(102.)
+        self.m.status[first.uid].connected=False
+        self.assertIsNone(self.m._south_patrol.choose(self.m,[],self.now))
+        self.assertIsNone(self.m._south_patrol.uid)
+
+    def test_reconcile_blocked_directed_view_uses_original_selector_not_grid_centre(self):
+        first=self.nearby_northeast_task()
+        original=self.m._search_point_free
+        with patch.object(self.m,'_search_point_free',
+                          side_effect=lambda p:p!=first.points[0] and original(p)), \
+             patch.object(self.m,'_segment_point',
+                          side_effect=AssertionError('ordinary replacement for directed view')):
+            self.refresh_statuses(101.)
+            self.m._reconcile_segments()
+        self.assertEqual(self.m._south_patrol.uid,first.uid)
+        self.assertNotIn(first.uid,self.m._segments.tasks)
+        self.m._allocate()
+        second=self.m._segments.tasks[first.uid]
+        self.assertEqual(second.purpose,'south_patrol')
+        self.assertTrue(set(first.cells).isdisjoint(second.cells))
+        self.assertAlmostEqual(second.deadline,190.)
 
 
 if __name__ == '__main__':

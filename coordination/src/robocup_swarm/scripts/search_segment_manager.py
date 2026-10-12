@@ -313,6 +313,12 @@ class SearchSegmentManager:
             cells = list(task.cells[task.index:])
             points = list(task.points[task.index:])
             if not self._search_point_free(points[0]):
+                if task.purpose == 'south_patrol':
+                    # A normal cell-centre replacement loses the checked
+                    # camera standoff. Release it through the same regional
+                    # allocator, preserving its original attempt/time budget.
+                    self._drop_segment(uid,'blocked_viewpoint',failed=True)
+                    continue
                 replacement = self._segment_point(cells[0])
                 if not self._search_point_free(replacement):
                     self._drop_segment(uid,'blocked_viewpoint',failed=True)

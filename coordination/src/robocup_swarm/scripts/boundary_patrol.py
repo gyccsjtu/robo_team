@@ -29,7 +29,7 @@ class SouthPatrol:
         self.uid = None
         self.deadline = 0.
         self.task_id = None
-        self.completed = 0
+        self.attempts = 0
         self.next_s = 0.
         self.empty_rounds = 0
         self.direction = 0
@@ -40,7 +40,7 @@ class SouthPatrol:
         self.empty_rounds = 0 if productive else min(3, self.empty_rounds+1)
         self.next_s = now+60.*max(1, self.empty_rounds)
         self.uid = self.task_id = None
-        self.completed = self.direction = 0
+        self.attempts = self.direction = 0
         self._manager = None
         self.proposal_region = None
 
@@ -63,12 +63,13 @@ class SouthPatrol:
         if task.task_id != self.task_id:
             return
         self.task_id = None
-        if reason == 'complete':
-            self.completed += 1
-            if self.northeast and not self._fresh_image_gain(task):
+        obstacle_retry = (self.northeast and reason in
+                          ('local_GOAL_OCCUPIED', 'blocked_viewpoint'))
+        if reason == 'complete' or obstacle_retry:
+            if reason == 'complete' and self.northeast and not self._fresh_image_gain(task):
                 self.finish(now)
                 return
-            if self.completed < self.max_segments and now < self.deadline:
+            if self.attempts < self.max_segments and now < self.deadline:
                 return
         self.finish(now, productive=reason in ('person_task', 'released_for_new_task'))
 
@@ -76,9 +77,27 @@ class SouthPatrol:
         """Return one checked proposal. Manager holds its task lock throughout."""
         if self.task_id is not None or now < self.next_s:
             return None
-        if self.uid is not None and (self.uid not in idle or now >= self.deadline):
-            self.finish(now)
-            return None
+        if self.uid is not None:
+            if now >= self.deadline:
+                self.finish(now)
+                return None
+            if self.uid not in idle:
+                # The ordinary obstacle release imposes a 2 s cooldown. It
+                # does not transfer the regional responsibility to a peer or
+                # buy another time budget. A real person task takes priority.
+                status = manager.status.get(self.uid)
+                received = manager.last_report.get(self.uid)
+                cooldown = getattr(manager, '_release_cooldown', {}).get(self.uid)
+                cooling = (self.northeast and cooldown is not None and
+                           now < cooldown.to_sec() and status is not None and
+                           status.connected and status.z >= 1. and
+                           received is not None and 0. <= now-received.to_sec() < 3. and
+                           self.uid not in manager._tracking.values() and
+                           self.uid not in manager._backup.values() and
+                           self.uid not in manager._segments.tasks)
+                if not cooling:
+                    self.finish(now)
+                return None
         grid = getattr(manager, '_g_infl', None)
         if grid is None:
             return None
@@ -248,10 +267,11 @@ class SouthPatrol:
         if self.uid is None:
             self.uid = task.uid
             self.deadline = now+self.max_hold
-            self.completed = 0
+            self.attempts = 0
         # A failed/person-preempted first task cannot regrant the special
         # priority in a later patrol episode.
         self._first_leg_started = True
+        self.attempts += 1
         self.task_id = task.task_id
         self.direction = direction
         task.deadline = min(task.deadline, self.deadline)
