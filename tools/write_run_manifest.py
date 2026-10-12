@@ -31,7 +31,7 @@ def main():
                    'coordination/src/robocup_navigation/src/robocup_navigation'):
         paths.extend(sorted((root/folder).glob('*.py')))
     weights = ([Path(os.environ['PR_WEIGHTS'])] if os.environ.get('PR_WEIGHTS') else
-               [root/'weights/best_yolo11n_bino_v1.pt',
+               [root/'weights/best_yolo11n_bino_sculpture_v3.pt',
                 Path.home()/'catkin_ws/src/yolov11_ros/weights/best.pt'])
     chosen = next((p for p in weights if p.is_file()), None)
     result = dict(

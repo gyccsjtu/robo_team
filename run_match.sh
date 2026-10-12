@@ -41,8 +41,8 @@ PERC_DIR="$REPO_ROOT/perception"
 RADAR_DIR="$REPO_ROOT/radar"
 ENV_SCRIPT="$PERC_DIR/scripts/env_robocup.sh"
 # One resolved path for preflight, the run manifest and all perception nodes.
-# Keep v1 as the baseline until a candidate has passed the offline/live gates.
-WEIGHTS="${PR_WEIGHTS:-$REPO_ROOT/weights/best_yolo11n_bino_v1.pt}"
+# User-selected six-class primary: five actor colours + distractor_person.
+WEIGHTS="${PR_WEIGHTS:-$REPO_ROOT/weights/best_yolo11n_bino_sculpture_v3.pt}"
 case "$WEIGHTS" in /*) ;; *) WEIGHTS="$PWD/$WEIGHTS" ;; esac
 export PR_WEIGHTS="$WEIGHTS"
 OFFICIAL_WORLD="$PX4_ROOT/Tools/sitl_gazebo/worlds/robocup.world"

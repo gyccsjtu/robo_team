@@ -80,12 +80,12 @@ from height_datum import GroundHeightDatum
 
 # ---------------- 参数 ----------------
 # 权重查找顺序（本仓库自包含优先，找不到才退回部署位置）：
-#   1. <仓库根>/weights/best_yolo11n_bino_v1.pt   —— 与 perception/ 同级，clone 即用
+#   1. <仓库根>/weights/best_yolo11n_bino_sculpture_v3.pt —— 五色人物＋雕塑
 #   2. ~/catkin_ws/src/yolov11_ros/weights/best.pt —— 部署进 catkin 工作空间后的常规位置
 # 想让感知节点指向别处（比如自己重训的权重），设 PR_WEIGHTS 即可，跳过这两步。
 def _resolve_weights():
     here = os.path.dirname(os.path.abspath(__file__))
-    cands = [os.path.join(here, os.pardir, "weights", "best_yolo11n_bino_v1.pt"),
+    cands = [os.path.join(here, os.pardir, "weights", "best_yolo11n_bino_sculpture_v3.pt"),
              os.path.expanduser("~/catkin_ws/src/yolov11_ros/weights/best.pt")]
     for c in cands:
         c = os.path.abspath(c)
