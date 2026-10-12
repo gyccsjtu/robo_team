@@ -5238,8 +5238,15 @@ class SwarmAgent(SearchSegmentAgent):
         forced = request is not None and request[0] == tid and now < request[1]
         quality=getattr(self,'_report_view_window',None)
         degraded=quality is not None and quality.degraded(tid,now)
+        active = getattr(self, '_reobserve_view', None)
+        recovering = (active is not None and active['tid'] == tid and
+                      now < active['until'])
+        # A narrow walking person alternates good and rejected geometry. One
+        # good frame used to cancel a safe side move before it improved the
+        # view, while the ten-second retry cooldown remained in force.
+        hold_recovery = recovering and not (quality is not None and quality.recovered(tid, now))
         image = self._fresh_tracking_view(now)
-        if (not forced and not degraded and image is not None and image.get('geometry_ok') and
+        if (not forced and not degraded and not hold_recovery and image is not None and image.get('geometry_ok') and
                 image.get('report_ok', image.get('geometry_ok')) and
                 not view_needs_space(image)):
             # A pixel-only view cannot veto a request to recover geometry.
@@ -5251,7 +5258,7 @@ class SwarmAgent(SearchSegmentAgent):
             last = max(last, evidence['sample_s'])
         forced = getattr(self, '_reobserve_forced', None)
         forced = forced is not None and forced[0] == tid and now < forced[1]
-        if 0.0 <= now - last <= 3.0 and not forced and not degraded:
+        if 0.0 <= now - last <= 3.0 and not forced and not degraded and not hold_recovery:
             self._reobserve_view = None
             return None
         entered = getattr(self, '_orbit_entered_t', now)

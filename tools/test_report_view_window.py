@@ -48,4 +48,35 @@ class ReportViewWindowTests(unittest.TestCase):
         a._report_view_window=self.window(good_every=1)
         self.assertIsNone(a._reobserve_goal(0.,0.,100.1))
 
+    def test_recovery_requires_elapsed_good_images_and_survives_duplicates(self):
+        w=ReportViewWindow()
+        for i in range(5):
+            w.observe(dict(target_id='t3', world_candidate_id='white-A',
+                           sample_s=100.+i*.2, geometry_ok=True, report_ok=i>0))
+            self.assertEqual(w.recovered('t3',100.+i*.2+.01),i==4)
+        self.assertFalse(w.recovered('t3',101.4))
+        self.assertFalse(w.recovered('t2',100.9))
+        w.observe(dict(target_id='t3',world_candidate_id='white-B',sample_s=100.9,
+                       geometry_ok=True,report_ok=True))
+        self.assertFalse(w.recovered('t3',100.91))
+
+    def test_single_good_frame_cannot_cancel_active_side_move_or_extend_deadline(self):
+        a=sa.SwarmAgent.__new__(sa.SwarmAgent)
+        a.uav_id='u3';a.local_xy=(8.,0.);a.offset=(0.,0.)
+        a._orbit_target='t3';a._orbit_entered_t=90.
+        a._last_eligible_image={'t3':100.};a._t_seen={'t3':100.}
+        a._fresh_tracking_view=lambda now:dict(geometry_ok=True,report_ok=True,
+                                               box=(300,220,340,330),height=480)
+        a._safe_reobserve_segment=lambda *args:True
+        a._reobserve_view=dict(tid='t3',goal=(7.,4.),tx=0.,ty=0.,until=102.)
+        a._reobserve_next=106.
+        a._report_view_window=ReportViewWindow()
+        a._report_view_window.observe(dict(target_id='t3',world_candidate_id='A',
+                          sample_s=100.,geometry_ok=True,report_ok=True))
+        self.assertEqual(a._reobserve_goal(0.,0.,100.1),(7.,4.))
+        self.assertEqual(a._reobserve_view['until'],102.)
+        # Real safety changes and expired targets still veto the motion.
+        a._safe_reobserve_segment=lambda *args:False
+        self.assertIsNone(a._reobserve_goal(0.,0.,100.2))
+
 if __name__=='__main__':unittest.main()

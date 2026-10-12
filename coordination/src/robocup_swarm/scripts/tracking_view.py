@@ -35,6 +35,18 @@ class ReportViewWindow:
             good_duration+=dt*int(a[1])
         return duration>0. and good_duration/duration < .60
 
+    def recovered(self, tid, now):
+        """End reimaging after sustained good images, never one lucky frame."""
+        if (not self.samples or self.identity[0] != tid or
+                not 0. <= now-self.samples[-1][0] <= .5):
+            return False
+        recent = []
+        for point in reversed(self.samples):
+            if not point[1] or (recent and recent[-1][0]-point[0] > .7):
+                break
+            recent.append(point)
+        return len(recent) >= 3 and recent[0][0]-recent[-1][0] >= .6-1e-6
+
 
 def box_from_foot(uv, wh):
     """Undo perception's 5 percent foot inset; uv[1] is NOT box centre."""
