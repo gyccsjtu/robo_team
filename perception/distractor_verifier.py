@@ -77,15 +77,27 @@ def unique_actor_evidence(primary, secondary):
 
 
 class DistractorVerifier:
-    """Three fresh, associated images spanning .30 s; no sticky blacklists."""
+    """Three fresh images confirm a box; a fixed 2 s hold cannot renew itself."""
+    CONFIRMED_HOLD_S = 2.
+
     def __init__(self):
         self.history = []
         self.last_sample = -math.inf
+        self.confirmed = []
+        self.held_rejections = {}
 
     def update(self, primary, secondary, sample_s):
+        self.held_rejections = {}
         if not math.isfinite(sample_s) or sample_s <= self.last_sample:
+            if math.isfinite(sample_s) and sample_s < self.last_sample:
+                self.confirmed = []  # do not carry an old clock epoch's hold
             return set()  # repeated/out-of-order images cannot manufacture votes
         self.last_sample = sample_s
+        actor_proof = unique_actor_evidence(primary, secondary)
+        self.confirmed = [h for h in self.confirmed
+                          if 0. <= sample_s-h['confirmed_s'] <= self.CONFIRMED_HOLD_S
+                          and not any(same_object(primary[i]['box'], h['box'])
+                                      for i in actor_proof)]
         evidence = strong_decoys(primary, secondary)
         previous = [h for h in self.history if 0. < sample_s-h['sample_s'] <= .40]
         next_history, rejected = [], set()
@@ -107,7 +119,29 @@ class DistractorVerifier:
             next_history.append(dict(box=list(box), sample_s=sample_s, samples=samples))
             if len(samples) >= 3 and samples[-1]-samples[0] >= .30-1e-6:
                 rejected.add(i)
+                # Only a new three-image negative can renew the fixed deadline.
+                # Empty/pending images and held half-body boxes never move it.
+                self.confirmed = [h for h in self.confirmed
+                                  if not same_object(box, h['box'])]
+                self.confirmed.append(dict(box=list(box), confirmed_s=sample_s,
+                                           confidence=confidence))
         self.history = next_history
+        # A camera's old box must have exactly one current owner, and that owner
+        # exactly one old box. Coincident/nearby people cannot share a hold.
+        matches = [[j for j, h in enumerate(self.confirmed)
+                    if same_object(a['box'], h['box'])] for a in primary]
+        for i, choices in enumerate(matches):
+            if i in rejected or len(choices) != 1:
+                continue
+            j = choices[0]
+            if sum(j in peers for peers in matches) != 1:
+                continue
+            if any(b['label'] in ACTOR_LABELS and math.isfinite(b['confidence'])
+                   and b['confidence'] >= .30
+                   and iou(primary[i]['box'], b['box']) >= .30 for b in secondary):
+                continue  # an ambiguous fresh actor is not sticky decoy evidence
+            rejected.add(i)
+            self.held_rejections[i] = self.confirmed[j]['confidence']
         return rejected
 
 
@@ -195,7 +229,8 @@ class SecondaryAppearance:
         rejected=history.update(primary,secondary,sample_s)
         evidence=[]
         for i,c in strong.items():
-            status='secondary_distractor' if i in rejected else 'secondary_pending'
+            status=('secondary_distractor_hold' if i in history.held_rejections else
+                    'secondary_distractor' if i in rejected else 'secondary_pending')
             evidence.append(dict(box=primary[i]['box'],confidence=c,
                                  primary_label=primary[i]['label'],status=status))
             if self.mode=='enforce':
@@ -207,4 +242,15 @@ class SecondaryAppearance:
                 boxes[i].distractor_confidence=max(
                     float(getattr(boxes[i],'distractor_confidence',0.)),c)
                 boxes[i].secondary_decoy_confirmed=i in rejected
+        for i, confidence in history.held_rejections.items():
+            if i in strong:
+                continue
+            evidence.append(dict(box=primary[i]['box'], confidence=confidence,
+                                 primary_label=primary[i]['label'],
+                                 status='secondary_distractor_hold'))
+            if self.mode == 'enforce':
+                boxes[i].appearance_status = 'distractor'
+                boxes[i].distractor_confidence = max(
+                    float(getattr(boxes[i], 'distractor_confidence', 0.)), confidence)
+                boxes[i].secondary_decoy_confirmed = True
         return boxes,evidence
