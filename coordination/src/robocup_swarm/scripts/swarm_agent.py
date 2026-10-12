@@ -2072,7 +2072,10 @@ class SwarmAgent(SearchSegmentAgent):
         if (not PIXEL_VIEW_RECOVERY or view is None or
                 not view.get('image_recovery') or now >= view['recovery_until']):
             return False
-        wx, wy = self.world_xy
+        world = self.world_xy
+        if world is None:
+            return False
+        wx, wy = world
         self._look_at = (wx+10.*math.cos(view['bearing']),
                          wy+10.*math.sin(view['bearing']))
         self._send_vel(0., 0.)
@@ -5052,7 +5055,16 @@ class SwarmAgent(SearchSegmentAgent):
         wx = self.world_xy
         if wx is None or not self.targets:
             return MAX_SPEED
+        now = rospy.Time.now().to_sec()
         for tid, (tx, ty, vx, vy) in self.targets.items():
+            # 225123 east transit stayed at .85 m/s beside the green
+            # coordinate after its last image (1981.928) had expired.
+            # Cached/predicted positions cannot keep slowing unrelated
+            # searches. Fresh people retain the existing escape protection.
+            sample = self._t_seen.get(tid, 0.)
+            if not (math.isfinite(sample) and sample > 0. and
+                    0. <= now-sample <= TARGET_TTL):
+                continue
             d = math.hypot(tx - wx[0], ty - wx[1])
             if d > SPOOK_DIST:
                 continue

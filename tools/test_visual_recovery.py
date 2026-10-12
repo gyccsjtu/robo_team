@@ -237,14 +237,22 @@ class VisualRecoveryTests(unittest.TestCase):
         a.los = SimpleNamespace(visible=lambda *args: True)
         return a
 
-    def test_blind_fixed_view_moves_laterally_then_stops_on_good_image(self):
+    def test_blind_fixed_view_moves_laterally_until_sustained_good_images(self):
         a = self.agent()
         goal = a._reobserve_goal(50.0, 20.0, 100.0)
         self.assertIsNotNone(goal)
         self.assertGreater(abs(goal[1]-20.0), 3.0)
         self.assertEqual(goal, a._reobserve_goal(50.0, 20.0, 100.5))
         a._last_eligible_image = {'t0': 100.5}
-        self.assertIsNone(a._reobserve_goal(50.0, 20.0, 100.6))
+        # A single qualified image must not cancel a six-second recovery.
+        from tracking_view import ReportViewWindow
+        a._report_view_window=ReportViewWindow()
+        for sample in (100.5,100.8,101.1):
+            a._report_view_window.observe(dict(target_id='t0',track_id=1,
+                sample_s=sample,geometry_ok=True,report_ok=True))
+            if sample==100.5:
+                self.assertEqual(goal,a._reobserve_goal(50.,20.,100.6))
+        self.assertIsNone(a._reobserve_goal(50.0, 20.0, 101.2))
 
     def test_reobserve_rejects_obstacles_on_segment_and_map_exit(self):
         a = self.agent()
@@ -260,9 +268,16 @@ class VisualRecoveryTests(unittest.TestCase):
         a._tracking_image = dict(target_id='t0', sample_s=100., geometry_ok=True,
                                 report_ok=False, box=(300., 200., 340., 300.),
                                 height=480., width=752.)
-        self.assertIsNotNone(a._reobserve_goal(50., 20., 100.))
+        goal=a._reobserve_goal(50., 20., 100.)
+        self.assertIsNotNone(goal)
         a._tracking_image['report_ok'] = True
-        self.assertIsNone(a._reobserve_goal(50., 20., 100.))
+        self.assertEqual(goal,a._reobserve_goal(50., 20., 100.))
+        from tracking_view import ReportViewWindow
+        a._report_view_window=ReportViewWindow()
+        for sample in (100.2,100.5,100.8):
+            a._tracking_image.update(sample_s=sample,track_id=1)
+            a._report_view_window.observe(a._tracking_image)
+        self.assertIsNone(a._reobserve_goal(50., 20., 100.9))
 
     def test_stale_team_target_or_close_blind_zone_does_not_trigger_side_move(self):
         a = self.agent()
