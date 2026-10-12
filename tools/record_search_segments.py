@@ -11,6 +11,8 @@ from robocup_swarm.msg import SearchAssignment, UavStatus
 parser=argparse.ArgumentParser()
 parser.add_argument('output')
 parser.add_argument('--seconds',type=float,default=800.)
+parser.add_argument('--occupancy-snapshots', action='store_true',
+                    help='Record legal lidar maps for offline reachability analysis')
 args=parser.parse_args()
 rospy.init_node('search_segments_read_only',anonymous=True)
 lock=threading.Lock()
@@ -39,6 +41,9 @@ subs += [rospy.Subscriber(topic,String,evidence,event,queue_size=60) for topic,e
           ('/swarm/visual_candidate','candidate'),('/swarm/visual_candidate_missed','candidate_missed'),
           ('/coordination/target_report','image_report'),('/swarm/report_telemetry','report'),
           ('/swarm/tracking_view','tracking_view')]]
+if args.occupancy_snapshots:
+    subs.append(rospy.Subscriber('/swarm/occupancy_grid', String, evidence,
+                                'occupancy_grid', queue_size=12))
 try:
     end=time.monotonic()+args.seconds
     while not rospy.is_shutdown() and time.monotonic()<end:time.sleep(.2)
