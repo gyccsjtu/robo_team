@@ -9,7 +9,9 @@ from geometry_msgs.msg import Point
 from robocup_swarm.msg import SearchAssignment
 from search_segments import TRAVEL, LOOK, ATTEND, YIELD, DONE, FAILED, aligned, clear_line
 from swarm_task import STATE_FREE, STATE_REVIEW, STATE_COVERED
-from building_viewpoints import boundary_corner, valid_view
+from building_viewpoints import boundary_corner, valid_view, view_options
+from search_observation import cell_points
+from swarm_task import ACTOR_SEARCH_BOUNDS
 from robocup_navigation.astar import plan
 
 
@@ -65,6 +67,103 @@ class SearchSegmentManager:
         status = self.status[uid]
         return self._reachable_subpoint_view(key, (status.x, status.y),
                                              self._subpoint_views(key))
+
+    def _west_corner_subpoints(self):
+        """The two public actor-area corners, using the existing nine samples."""
+        xmin, _, ymin, ymax = ACTOR_SEARCH_BOUNDS
+        result = []
+        for name, look in (('southwest', (xmin+.01, ymin+.01)),
+                           ('northwest', (xmin+.01, ymax-.01))):
+            key = self.grid.world_to_cell(*look)
+            cell = self.grid.cell(key) if key is not None else None
+            samples = cell_points(self.grid, cell) if cell is not None else ()
+            if look in samples and boundary_corner(self.grid, key, look):
+                result.append((name, key, samples.index(look), look))
+        return tuple(result)
+
+    def _west_corner_image_time(self, name, now):
+        book = self.__dict__.setdefault('_west_corner_seen', {})
+        sample = book.get(name)
+        if sample is not None and (isinstance(sample, bool) or not isinstance(sample, (int, float)) or
+                not math.isfinite(sample) or not 0. < sample <= now+.05):
+            book.pop(name, None)  # a clock reset cannot permanently hide a corner
+            sample = None
+        return sample
+
+    def _west_corner_has_person(self, uid, stamp):
+        views = [view for view in getattr(self, '_discovery_pool', {}).values()
+                 if isinstance(view, dict) and view.get('appearance_status') == 'actor']
+        views += [view for view in getattr(self, '_eligible_observations', {}).values()]
+        views += [view for view in getattr(self, '_visual_observations', {}).values()
+                  if isinstance(view, dict) and view.get('eligible')]
+        for view in views:
+            if not isinstance(view, dict) or view.get('source_uav') != uid:
+                continue
+            sample = view.get('sample_s')
+            if (not isinstance(sample, bool) and isinstance(sample, (int, float)) and
+                    math.isfinite(sample) and 0. <= stamp-sample <= 1.):
+                return True
+        return False
+
+    def _allocate_west_corner_review(self, idle, stamp):
+        """One additional checked corner look, leaving ordinary search capacity."""
+        corners = self._west_corner_subpoints()
+        if any(task.purpose == 'building_review' and any(
+                key in task.cells and look in task.look_points
+                for _, key, _, look in corners)
+                for task in self._segments.tasks.values()):
+            return
+        busy = set(self._tracking.values()) | set(self._backup.values())
+        busy.update(p.uid for p in self._regional_search_patrols()
+                    if p.east and p.uid is not None)
+        available = [uid for uid in idle if uid not in busy and
+            uid not in self._segments.tasks and
+            getattr(self.status[uid], 'search_state', None) != ATTEND and
+            self._tracking_uav_available(uid, stamp) and
+            not self._west_corner_has_person(uid, stamp)]
+        ordinary = sum(task.purpose in ('coverage', 'building_review') and
+            task.uid not in busy and self._tracking_uav_available(task.uid, stamp) and
+            getattr(self.status[task.uid], 'search_state', None) != ATTEND and
+            not self._west_corner_has_person(task.uid, stamp)
+            for task in self._segments.tasks.values())
+        if (not available or len(available)+ordinary < 2 or
+                getattr(self, '_g_infl', None) is None):
+            return
+        raw = self._merged_grid()
+        if raw is None:
+            return
+        ordered = []
+        for name, key, _, look in corners:
+            last = self._west_corner_image_time(name, stamp)
+            if (key in self._blocked_cells or key in self._segments.reserved or
+                    (last is not None and stamp-last < 60.) or
+                    stamp-self.allocator.failed_visit.get(key, -1e18) <
+                    self.allocator.failed_novelty_ttl):
+                continue
+            ordered.append((last is not None, last or -1e18, name, key, look))
+        for _, last, name, key, look in sorted(ordered):
+            options = tuple((point, sample) for point, sample in view_options(
+                self.grid, key, raw, self._g_infl, self._segment_flight_waypoint)
+                if sample == look)
+            for uid in sorted(available, key=lambda u:
+                    (math.dist((self.status[u].x, self.status[u].y), look), u)):
+                st = self.status[uid]
+                view = self._reachable_subpoint_view(key, (st.x, st.y), options)
+                if view is None:
+                    continue
+                point, sample = view
+                task = self._start_search_segment(uid, [key], [point], stamp,
+                    purpose='building_review', look_points=[sample])
+                if task is not None:
+                    idle.remove(uid)
+                    rospy.loginfo('[WEST_CORNER_REVIEW] uav=%s task=%s corner=%s '
+                        'cell=%s point=%s look=%s last_image=%s; checked path, no coverage credit',
+                        uid, task.task_id, name, key, point, sample,
+                        None if last == -1e18 else last)
+                    return
+            # No camera can reach this view this tick. Reuse normal failure
+            # novelty/cooldown; ordinary search remains available immediately.
+            self.allocator.failed_visit[key] = stamp
 
     def _segment_cells(self, uid, first, now):
         cells = [first]
@@ -129,6 +228,12 @@ class SearchSegmentManager:
         if task is None:
             return
         now = rospy.Time.now().to_sec()
+        if task.purpose == 'building_review':
+            for name, key, _, look in self._west_corner_subpoints():
+                if key in task.cells and look in task.look_points:
+                    image = self._west_corner_image_time(name, now)
+                    if image is None or image < task.created:
+                        self.allocator.failed_visit[key] = now
         for patrol in self._regional_search_patrols():
             patrol.ended(task, reason, now)
         for key in task.cells[task.index:]:
@@ -150,7 +255,7 @@ class SearchSegmentManager:
         rospy.loginfo('[SEARCH_SEGMENT_END] uav=%s task=%s v=%d visited=%d/%d reason=%s',
                       uid,task.task_id,task.revision,task.index,len(task.cells),reason)
 
-    def _allocate_segments(self, now):
+    def _allocate_segments(self, now, west_corner_review=False):
         stamp = now.to_sec()
         self._renew_segments(now)
         idle = self._idle_uavs()
@@ -191,6 +296,8 @@ class SearchSegmentManager:
             # when no route could be issued on this particular scheduler tick.
             if patrol.east and patrol.uid in idle:
                 idle.remove(patrol.uid)
+        if west_corner_review:
+            self._allocate_west_corner_review(idle, stamp)
         positions = {uid:(self.status[uid].x,self.status[uid].y) for uid in idle}
         # Outer task lock covers allocator selection, segment extension and
         # whole-segment reservation. No callback can see a half-reserved route.

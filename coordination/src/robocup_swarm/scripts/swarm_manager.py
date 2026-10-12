@@ -1213,6 +1213,8 @@ class SwarmManager(SearchSegmentManager):
             seen = getattr(self, '_camera_point_seen', None)
             if seen is None:
                 seen = self._camera_point_seen = {}
+            west_corners = {(key, point): name for name, key, point, _ in
+                            self._west_corner_subpoints()} if BUILDING_SUBPOINT_REVIEW else {}
             # Independent subpoints preserve the unseen far edge of a cell.
             # Credit expires so an old pass cannot complete a new blind sweep.
             for book in (evidence, seen):
@@ -1247,6 +1249,11 @@ class SwarmManager(SearchSegmentManager):
                     evidence[ek] = (first, sample)
                     if sample-first >= .2-1e-6:
                         seen[(key, point)] = sample
+                        corner = west_corners.get((key, point))
+                        if corner is not None:
+                            prior_corner = self._west_corner_image_time(corner, now)
+                            if prior_corner is None or sample > prior_corner:
+                                self.__dict__.setdefault('_west_corner_seen', {})[corner] = sample
                 if not required or any((key, p) not in seen for p in required):
                     continue
                 owner = cell.owner if cell.state == STATE_ASSIGNED else None
@@ -3466,7 +3473,7 @@ class SwarmManager(SearchSegmentManager):
         """只给空闲机拍卖分配未搜索格 → 授租约 → 发布 assignment。"""
         now = rospy.Time.now()
         if getattr(self, '_segments', None) is not None:
-            return self._allocate_segments(now)
+            return self._allocate_segments(now, west_corner_review=BUILDING_SUBPOINT_REVIEW)
 
         # 到期租约先回退（掉线/卡死的机占用的格释放回候选池）
         expired = self.lease.expire(now.to_sec())
