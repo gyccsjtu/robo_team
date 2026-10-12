@@ -419,6 +419,7 @@ def observation_altitude_cap(range_m):
     return ORBIT_ALT_MAX + frac * (ORBIT_FAR_ALT_MAX - ORBIT_ALT_MAX)
 # 平稳近距速度保持 0.95m/s；距离持续拉大时短时使用追逃速度。
 CLOSE_TRANSIT_SPEED = float(os.environ.get('CLOSE_TRANSIT_SPEED', '0.95'))
+EARLY_VIEW_PURSUIT = os.environ.get('EARLY_VIEW_PURSUIT', '0') == '1'
 CLOSE_BACKOFF_SPEED = float(os.environ.get('CLOSE_BACKOFF_SPEED', '1.8'))
 CLOSE_RECEDING_MIN_DIST = 6.0
 CLOSE_RECEDING_RATE = 0.45
@@ -901,6 +902,8 @@ class SwarmAgent(SearchSegmentAgent):
         self.uav_id = uav_id
         rospy.loginfo('[FINAL_SAFETY_CONFIG] uav=%s enabled=%s decel=%.2f delay=%.2f lidar_margin=%.2f',
                       uav_id,MOTION_SAFETY,BRAKE_DECEL,BRAKE_DELAY,RADAR_STOP_R)
+        rospy.loginfo('[TRACKING_CONFIG] uav=%s early_view_pursuit=%s',
+                      uav_id, EARLY_VIEW_PURSUIT)
         self.model_name = model_name
 
         # ---- 高度层分配（基于 ID，6m 以内）----
@@ -5436,14 +5439,17 @@ class SwarmAgent(SearchSegmentAgent):
                 old_uy = (ref[4] - ref[6]) / max(ref[2], 1e-6)
                 away_rate = ((tx - ref[3]) * old_ux +
                              (ty - ref[4]) * old_uy) / (now - ref[1])
-                # A normally walking actor can open range when the UAV is
-                # braking or avoiding a wall.  Chasing that 1 m/s walk at
-                # 2.6 m/s inside the 7 m push zone drives it to the boundary.
-                # Reserve this burst for an actor whose 2 m/s escape has
-                # actually been observed; the ordinary ring follower remains
-                # below the escape trigger speed.
+                # Optional experiment: keep an already localized full-body
+                # view before it opens beyond the observation ring. Never
+                # accelerate toward a cropped/close person using team-only
+                # coordinates. The preference still passes all final guards.
                 _run_seen = self._flee_run_t.get(self._orbit_target)
-                if (_run_seen is not None and now - _run_seen <= 3.0 and
+                image = self._fresh_tracking_view(now)
+                early = (EARLY_VIEW_PURSUIT and view_motion is not None and
+                         image.get('report_ok') and not view_needs_space(image) and
+                         image['sample_s'] >= ref[1] + .5 and
+                         orbit_dist >= max(7.5, ring_radius - .5))
+                if (((_run_seen is not None and now - _run_seen <= 3.0) or early) and
                         self._orbit_target not in self._escape_spent and
                         close_target_is_receding(
                         orbit_dist, ref[2], now - ref[1], obs_age,
@@ -5452,9 +5458,9 @@ class SwarmAgent(SearchSegmentAgent):
                     self._close_chase_until = now + CLOSE_CHASE_HOLD_S
                     self._spend_mode.add(self._orbit_target)
                     rospy.logwarn_throttle(2.0,
-                        '[%s] %s 近距目标远离 %.2fm/s（距离 %.1fm）→ 短时追赶',
+                        '[%s] %s 近距目标远离 %.2fm/s（距离 %.1fm）→ 短时追赶 early_view=%s',
                         self.uav_id, self._orbit_target,
-                        (orbit_dist - ref[2]) / (now - ref[1]), orbit_dist)
+                        (orbit_dist - ref[2]) / (now - ref[1]), orbit_dist, early)
                 self._close_range_ref = (self._orbit_target, now, orbit_dist,
                                          tx, ty, wx, wy)
         # The close cap is below a walking actor's nominal 1m/s speed.  If

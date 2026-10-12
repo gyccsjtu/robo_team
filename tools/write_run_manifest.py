@@ -51,6 +51,7 @@ def main():
         east_persistent_patrol=os.environ.get('EAST_PATROL','0'),
         takeoff_require_camera=os.environ.get('TAKEOFF_REQUIRE_CAMERA','0'),
         orbit_radius_close_m=os.environ.get('ORBIT_RADIUS_CLOSE','8.0'),
+        early_view_pursuit=os.environ.get('EARLY_VIEW_PURSUIT','0'),
         flight_boundary={key:os.environ.get(key, default) for key, default in (
             ('FLIGHT_X_MIN','-50.0'), ('FLIGHT_X_MAX','150.0'),
             ('FLIGHT_Y_MIN','-60.0'), ('FLIGHT_Y_MAX','60.0'),
