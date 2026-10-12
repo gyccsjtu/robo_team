@@ -25,6 +25,7 @@ class ImageEvidenceTests(unittest.TestCase):
         self.assertIsNone(q.reserve(SOURCES[0], 't4', 104., 4.))
         args = parse_args(['/tmp/evidence'])
         self.assertEqual((args.limit, args.seconds, args.fair_quota), (180, 650., False))
+        self.assertFalse(args.spread_quota)
 
     def test_red_flood_cannot_spend_blue_or_late_or_other_camera_slots(self):
         q = ImageQuota(900, 650., fair=True)
@@ -78,6 +79,90 @@ class ImageEvidenceTests(unittest.TestCase):
         self.assertIsNone(q.reserve('arbitrary_source', 'blue', 104., 1.))
         self.assertIsNone(q.reserve(SOURCES[0], 'arbitrary_color', 104., 1.))
 
+    def test_spread_opens_at_twelve_seconds_and_resets_only_at_window_boundary(self):
+        q = ImageQuota(1800, 720., fair=True, windows=6, spread=True)
+        self.assertIsNotNone(q.reserve(SOURCES[0], 'red:1', 100., 0.))
+        self.assertIsNone(q.reserve(SOURCES[0], 'red:1', 111.999, 11.999))
+        self.assertEqual(q.rejected['fair_slot_wait'], 1)
+        for elapsed in range(12, 109, 12):
+            self.assertIsNotNone(q.reserve(SOURCES[0], 'red:1', 100.+elapsed, elapsed))
+        self.assertEqual(q.used[(0, 'red', SOURCES[0])], 10)
+        self.assertIsNone(q.reserve(SOURCES[0], 'red:1', 219.999, 119.999))
+        self.assertIsNotNone(q.reserve(SOURCES[0], 'red:1', 220., 120.))
+        self.assertEqual(q.used[(1, 'red', SOURCES[0])], 1)
+        self.assertIsNone(q.reserve(SOURCES[0], 'red:1', 221., 121.))
+        self.assertIsNotNone(q.reserve(SOURCES[0], 'red:1', 232., 132.))
+        self.assertIsNone(q.reserve(SOURCES[0], 'red:1', 820., 720.))
+
+    def test_spread_early_flood_cannot_exhaust_late_budget_but_old_fair_can(self):
+        spread = ImageQuota(1800, 720., fair=True, windows=6, spread=True)
+        old = ImageQuota(1800, 720., fair=True, windows=6)
+        for elapsed in range(0, 21, 2):
+            spread.reserve(SOURCES[0], 'red:1', 100.+elapsed, elapsed)
+            old.reserve(SOURCES[0], 'red:1', 100.+elapsed, elapsed)
+        self.assertEqual(spread.used[(0, 'red', SOURCES[0])], 2)
+        self.assertEqual(old.used[(0, 'red', SOURCES[0])], 10)
+        self.assertIsNotNone(spread.reserve(SOURCES[0], 'red:1', 208., 108.))
+        self.assertIsNone(old.reserve(SOURCES[0], 'red:1', 208., 108.))
+
+    def test_spread_colour_source_and_window_slots_open_independently(self):
+        q = ImageQuota(1800, 720., fair=True, windows=6, spread=True)
+        self.assertIsNotNone(q.reserve(SOURCES[0], 't4', 100., 0.))
+        self.assertIsNotNone(q.reserve(SOURCES[0], 't1', 102., 0.))
+        self.assertIsNotNone(q.reserve(SOURCES[1], 't4', 100., 0.))
+        self.assertIsNone(q.reserve(SOURCES[0], 't5', 104., 2.))
+        self.assertIsNotNone(q.reserve(SOURCES[0], 't5', 220., 120.))
+        self.assertEqual(q.count, 4)
+        self.assertEqual(sum(q.caps.values()), 1800)
+
+    def test_spread_new_allowance_never_renews_duplicate_frame_or_two_second_cadence(self):
+        q = ImageQuota(1800, 720., fair=True, windows=6, spread=True)
+        self.assertIsNotNone(q.reserve(SOURCES[0], 'red:1', 100., 0.))
+        self.assertIsNone(q.reserve(SOURCES[0], 'red:2', 100., 12.))
+        self.assertEqual(q.count, 1)
+        self.assertEqual(q.rejected['sample_interval'], 1)
+        self.assertIsNone(q.reserve(SOURCES[0], 'red:2', 101.999999, 24.))
+        self.assertIsNotNone(q.reserve(SOURCES[0], 'red:2', 102., 24.))
+        self.assertIsNone(q.reserve(SOURCES[0], 'red:3', 102., 36.))
+        # Crossing a wall window does not reset acquisition-time spacing.
+        self.assertIsNone(q.reserve(SOURCES[0], 'red:4', 103.999999, 120.))
+        self.assertIsNotNone(q.reserve(SOURCES[0], 'red:4', 104., 120.))
+
+    def test_spread_wait_observes_ros_reset_and_invalid_wall_time_remains_bounded(self):
+        q = ImageQuota(1800, 720., fair=True, windows=6, spread=True)
+        self.assertIsNotNone(q.reserve(SOURCES[0], 'blue:1', 100., 0.))
+        self.assertIsNone(q.reserve(SOURCES[0], 'blue:1', 200., 1.))
+        self.assertIsNone(q.reserve(SOURCES[0], 'white:1', 150., 12.))
+        self.assertIsNone(q.reserve(SOURCES[0], 'blue:1', 1., 120.))
+        self.assertEqual(q.rejected['source_stamp_regressed'], 2)
+        for elapsed in (-1., 720., math.nan, math.inf):
+            self.assertIsNone(q.reserve(SOURCES[1], 'blue:1', 500., elapsed))
+        self.assertEqual(q.count, 1)
+
+    def test_spread_cli_requires_fair_and_preserves_requested_next_run_budget(self):
+        with self.assertRaises(ValueError):
+            ImageQuota(1800, 720., spread=True)
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            parse_args(['/tmp/evidence', '--spread-quota'])
+        args = parse_args(['/tmp/evidence', '--fair-quota', '--spread-quota',
+                           '--limit', '1800', '--seconds', '720', '--quota-windows', '6'])
+        self.assertTrue(args.fair_quota and args.spread_quota)
+        self.assertEqual((args.limit, args.seconds, args.quota_windows), (1800, 720., 6))
+
+    def test_spread_total_and_remainder_remain_bounded_after_all_slots_open(self):
+        q = ImageQuota(1801, 720., fair=True, windows=6, spread=True)
+        self.assertEqual(sum(q.caps.values()), 1801)
+        stamps = dict.fromkeys(SOURCES, 100.)
+        for (window, color, source), cap in q.caps.items():
+            for _ in range(cap):
+                stamps[source] += 2.
+                self.assertIsNotNone(q.reserve(source, color, stamps[source],
+                                              (window+1)*120.-.001))
+            stamps[source] += 2.
+            self.assertIsNone(q.reserve(source, color, stamps[source],
+                                        (window+1)*120.-.001))
+        self.assertEqual(q.count, 1801)
+
     def test_matching_is_exact_not_nearest_and_respects_acquisition_stamp(self):
         def frame(stamp):
             return NS(header=NS(stamp=NS(to_sec=lambda: stamp)))
@@ -103,7 +188,8 @@ class ImageEvidenceTests(unittest.TestCase):
 
     def test_candidate_and_view_recorders_save_exact_image_and_transport_identity(self):
         # Exercise actual recorder callbacks and files with a fake read-only ROS bus.
-        for candidates in (False, True):
+        for candidates, spread in ((False, False), (True, False),
+                                   (False, True), (True, True)):
             subscribers = []
             def subscribe(topic, kind, callback, callback_args=None, **kwargs):
                 subscribers.append(topic)
@@ -135,6 +221,8 @@ class ImageEvidenceTests(unittest.TestCase):
                 argv = ['record_tracking_images.py', directory, '--fair-quota', '--limit', '90']
                 if candidates:
                     argv.append('--candidates')
+                if spread:
+                    argv.append('--spread-quota')
                 with patch.dict(sys.modules, modules), patch.object(sys, 'argv', argv):
                     recorder.main()
                 rows = [json.loads(line) for line in (Path(directory)/'images.jsonl').read_text().splitlines()]
@@ -142,6 +230,8 @@ class ImageEvidenceTests(unittest.TestCase):
                 self.assertTrue(all(row['publisher_callerid']=='/actual_perception' for row in rows))
                 self.assertEqual((Path(directory)/'0000.jpg').read_text(), '200.0')
                 summary = json.loads((Path(directory)/'summary.json').read_text())
+                config = json.loads((Path(directory)/'config.json').read_text())
+                self.assertEqual(config['spread_quota'], spread)
                 self.assertEqual(summary['exact_image_missing'], 1)
                 self.assertEqual(summary['images_written'], 2)
                 self.assertEqual(subscribers[-1], '/swarm/visual_candidate' if candidates

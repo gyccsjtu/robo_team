@@ -26,9 +26,11 @@ def evidence_color(target):
 class ImageQuota:
     """Bound total images; optional hard reservations protect colours and late time."""
 
-    def __init__(self, limit, seconds, fair=False, windows=3):
+    def __init__(self, limit, seconds, fair=False, windows=3, spread=False):
+        if spread and not fair:
+            raise ValueError('spread quota requires fair quota')
         self.limit, self.seconds = limit, seconds
-        self.fair, self.windows = fair, windows
+        self.fair, self.windows, self.spread = fair, windows, spread
         self.count = 0
         self.saved_at, self.latest_source_stamp = {}, {}
         self.used, self.rejected = Counter(), Counter()
@@ -60,6 +62,15 @@ class ImageQuota:
                 slot = (window, color, source)
                 if self.used[slot] >= self.caps[slot]:
                     reason = 'fair_slot_full'
+                elif self.spread:
+                    # Open one slot immediately, then release the rest evenly.
+                    # Sampling bursts cannot spend the whole late-view budget.
+                    window_seconds = self.seconds / self.windows
+                    offset = elapsed - window * window_seconds
+                    released = min(self.caps[slot], 1 + int(
+                        offset * self.caps[slot] / window_seconds))
+                    if self.used[slot] >= released:
+                        reason = 'fair_slot_wait'
         key = (source, color if self.fair else target)
         if reason is None and self.count >= self.limit:
             reason = 'total_limit'
@@ -99,6 +110,8 @@ def parse_args(argv=None):
                         help='Capture pixel discovery candidates instead of established tracks.')
     parser.add_argument('--fair-quota', action='store_true',
                         help='Reserve the image limit across five colours, six cameras and time windows.')
+    parser.add_argument('--spread-quota', action='store_true',
+                        help='Open each fair slot evenly across its wall-time window; requires --fair-quota.')
     parser.add_argument('--quota-windows', type=int, default=3,
                         help='Wall-time quota windows in fair mode; unused early quotas stay reserved.')
     args = parser.parse_args(argv)
@@ -106,6 +119,8 @@ def parse_args(argv=None):
         parser.error('--seconds must be positive and finite; --limit must be positive')
     if not 1 <= args.quota_windows <= 10:
         parser.error('--quota-windows must be between 1 and 10')
+    if args.spread_quota and not args.fair_quota:
+        parser.error('--spread-quota requires --fair-quota')
     if args.fair_quota and args.limit < len(COLORS) * len(SOURCES) * args.quota_windows:
         parser.error('fair quota requires at least one image per colour, camera and time window')
     return args
@@ -124,11 +139,13 @@ def main():
     rospy.init_node('tracking_images_read_only', anonymous=True)
     bridge, lock = CvBridge(), threading.Lock()
     cache, stats = {}, Counter()
-    quota = ImageQuota(args.limit, args.seconds, args.fair_quota, args.quota_windows)
+    quota = ImageQuota(args.limit, args.seconds, args.fair_quota,
+                       args.quota_windows, args.spread_quota)
     started = time.monotonic()
     (args.output/'config.json').write_text(json.dumps(dict(
         limit=args.limit, seconds=args.seconds, candidates=args.candidates,
         fair_quota=args.fair_quota, quota_windows=args.quota_windows,
+        spread_quota=args.spread_quota,
         colors=COLORS, sources=SOURCES, cache_frames=16,
         quota_clock='monotonic_wall_elapsed', exact_image_stamp_tolerance_s=1e-6,
         subscriptions_only=True), indent=2)+'\n')
