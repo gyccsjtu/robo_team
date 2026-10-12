@@ -127,6 +127,31 @@ class EastPatrolTests(unittest.TestCase):
             purpose='south_patrol', max_hold=120.)
         self.assertEqual(task.deadline, 220.)
 
+    def test_first_pass_reaches_unvisited_far_cell_before_old_near_cell(self):
+        near, far = (22, 8), (24, 15)
+        self.m._blocked_cells = set(self.m.grid.cells)-{near, far}
+        self.m.allocator.visit_time[near] = 10.
+        uid = self.m.uav_ids[0]
+        self.m.status[uid].x, self.m.status[uid].y = 98.55, -.5
+        patrol = self.m._south_patrol
+        proposal = patrol.choose(self.m, [uid], self.now)
+        self.assertEqual(proposal[1], [far])
+
+    def test_unreachable_new_cell_still_allows_safe_old_view(self):
+        near, far = (22, 8), (24, 15)
+        self.m._blocked_cells = set(self.m.grid.cells)-{near, far}
+        self.m.allocator.visit_time[near] = 10.
+        uid = self.m.uav_ids[0]
+        self.m.status[uid].x, self.m.status[uid].y = 98.55, -.5
+        original = bp.plan
+        def reachable(grid, start, goal, **kwargs):
+            if goal[1] > 40.:
+                return NS(success=False)
+            return original(grid, start, goal, **kwargs)
+        with patch.object(bp, 'plan', side_effect=reachable):
+            proposal = self.m._south_patrol.choose(self.m, [uid], self.now)
+        self.assertEqual(proposal[1], [near])
+
 
 class EastPersonDispatchTests(unittest.TestCase):
     def setUp(self):

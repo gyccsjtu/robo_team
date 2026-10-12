@@ -176,6 +176,19 @@ class ManagerSegmentTests(unittest.TestCase):
         self.assertEqual(t.index,0)
         self.assertEqual(t.expires,120.)
 
+    def test_low_altitude_images_keep_camera_healthy_without_search_coverage(self):
+        import json
+        m=self.m
+        m.status[self.uid].z=1.94
+        m._slam_lock=threading.Lock()
+        m._merged_grid=Mock(return_value=m._g_infl)
+        m._processed_frame_times={self.uid:90.}
+        m._processed_camera_frame_cb(NS(data=json.dumps(dict(processed=True,
+            source_uav=self.uid,sample_s=100.,x=-3.5,y=3.5,yaw=0.,z=2.2,down_pitch=0.))))
+        self.assertTrue(m._tracking_uav_available(self.uid,100.))
+        m._merged_grid.assert_not_called()
+        self.assertFalse(any(c.state==tasklib.STATE_COVERED for c in m.grid.cells.values()))
+
     def test_completion_reopens_unseen_cells_and_does_not_credit_camera(self):
         t=self.reserve();self.now=101.;self.feedback(t,index=3,state=DONE)
         self.m._renew_leases()

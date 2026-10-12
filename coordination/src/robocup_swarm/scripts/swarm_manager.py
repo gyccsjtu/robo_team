@@ -1147,7 +1147,6 @@ class SwarmManager(SearchSegmentManager):
             now = rospy.Time.now().to_sec()
             st = self.status.get(uid)
             if (st is None or not getattr(st, 'connected', False) or
-                    float(getattr(st, 'z', 0.0) or 0.0) < 2.0 or
                     not all(math.isfinite(v) for v in
                             (sample, ux, uy, yaw, altitude, down_pitch)) or
                     altitude <= 0.0 or
@@ -1157,6 +1156,8 @@ class SwarmManager(SearchSegmentManager):
             if not hasattr(self, '_slam_lock'):
                 return
             self.__dict__.setdefault('_processed_frame_times', {})[uid] = sample
+            if float(getattr(st, 'z', 0.0) or 0.0) < 2.0:
+                return  # coverage altitude gate is not a camera-health gate
             grid_map = self._merged_grid()
             if grid_map is None:
                 return

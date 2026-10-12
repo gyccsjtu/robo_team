@@ -274,7 +274,18 @@ class SouthPatrol:
         # Bounded planning work. A nearby building may make the nearest
         # straight-line candidate unreachable; spread the inner-band probes
         # across aircraft and subregions before filling the candidate limit.
-        ordered = sorted(pairs)
+        def revisited(key):
+            return (region == 'east' and
+                    (manager.allocator.visit_time.get(key, 0.) > 0. or
+                     manager.grid.cell(key).covered_t > 0.))
+
+        def priority(candidate):
+            return (revisited(candidate[2]),) + candidate
+
+        # A 60-second cooldown alone favors the nearest old strip again
+        # while distant corners still have no visit. Finish reachable new
+        # viewpoints first, keeping old views as a fallback, not deleting them.
+        ordered = sorted(pairs, key=priority)
         if region in ('southeast', 'northeast', 'east'):
             spread = {}
             for candidate in ordered:
@@ -286,18 +297,20 @@ class SouthPatrol:
                 else:
                     bucket = (uid, min(3, max(0, int((point[1]-20.)/7.))))
                 spread.setdefault(bucket, candidate)
-            selected = sorted(spread.values())
+            selected = sorted(spread.values(), key=priority)
             selected_set = {(uid, key) for _, uid, key, _ in selected}
             selected.extend(candidate for candidate in ordered
                             if (candidate[1], candidate[2]) not in selected_set)
-            selected = sorted(selected[:24])
+            selected = sorted(selected[:24], key=priority)
         else:
             selected = ordered[:8]
         # A straight distance is only a lower bound; select by checked path
         # length amongst the candidates actually reached by safe A* legs.
         checked = []
+        checked_revisit = None
         for distance, uid, key, point in selected:
-            if checked and distance > min(row[0] for row in checked)+1.:
+            if checked and (revisited(key) != checked_revisit or
+                            distance > min(row[0] for row in checked)+1.):
                 break
             s = manager.status[uid]
             route = plan(grid, (s.x, s.y), point, connectivity=8,
@@ -308,6 +321,7 @@ class SouthPatrol:
             if not all(clear_line(grid, a, b) for a, b in zip(route_points, route_points[1:])):
                 continue
             checked.append((route.path_length_m, uid, key, point))
+            checked_revisit = revisited(key)
         if not checked:
             return None
         length, uid, key, point = min(checked)
@@ -321,6 +335,8 @@ class SouthPatrol:
                 nxt = ((ks[-1][0], ks[-1][1]+direction) if region == 'east'
                        else (ks[-1][0]+direction, ks[-1][1]))
                 if nxt not in keys:
+                    break
+                if region == 'east' and not revisited(key) and revisited(nxt):
                     break
                 p = viewpoints[nxt]
                 if not .6*manager.grid.cell_m <= math.dist(ps[-1], p) <= 1.6*manager.grid.cell_m:
