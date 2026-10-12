@@ -55,6 +55,7 @@ def main():
         early_view_pursuit=os.environ.get('EARLY_VIEW_PURSUIT','0'),
         pixel_view_recovery=os.environ.get('PIXEL_VIEW_RECOVERY','0'),
         pixel_recovery_approach=os.environ.get('PIXEL_RECOVERY_APPROACH','0'),
+        edge_search_review=os.environ.get('EDGE_SEARCH_REVIEW','0'),
         flight_boundary={key:os.environ.get(key, default) for key, default in (
             ('FLIGHT_X_MIN','-50.0'), ('FLIGHT_X_MAX','150.0'),
             ('FLIGHT_Y_MIN','-60.0'), ('FLIGHT_Y_MAX','60.0'),

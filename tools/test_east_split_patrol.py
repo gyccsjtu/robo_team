@@ -216,6 +216,117 @@ class EastSplitPatrolTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 bp.SouthPatrol((-50, 150, -60, 60), southeast=False, northeast=False, **kwargs)
 
+    def edge_and_inner(self):
+        edge, inner = (22, 15), (22, 10)
+        self.m._blocked_cells = set(self.m.grid.cells)-{edge, inner}
+        uid = self.m.uav_ids[0]
+        self.m.status[uid].x, self.m.status[uid].y = 98.55, 13.5
+        return self.m._regional_patrols[0], uid, edge, inner
+
+    def test_unobserved_edge_precedes_nearer_middle_even_after_waypoint_visit(self):
+        patrol, uid, edge, inner = self.edge_and_inner()
+        self.m.allocator.visit_time[edge] = self.now-.1
+        self.m._camera_point_seen = {(edge, 4): self.now-1.}  # not a task-bound view
+        proposal = patrol.choose(self.m, [uid], self.now)
+        self.assertEqual(proposal[1], [edge])
+        legacy = bp.SouthPatrol((-50, 150, -60, 60),
+            southeast=False, northeast=False, east=True)
+        self.assertEqual(legacy.choose(self.m, [uid], self.now)[1], [inner])
+
+    def test_actual_fresh_task_view_removes_first_edge_priority_after_cache_pruning(self):
+        patrol, uid, edge, inner = self.edge_and_inner()
+        proposal = patrol.choose(self.m, [uid], self.now)
+        task = self.m._start_search_segment(uid, proposal[1], proposal[2], self.now,
+            purpose='south_patrol', publish=False, max_hold=90.)
+        patrol.started(task, proposal[3], self.now)
+        self.m._camera_point_seen = {(edge, 4): 100.8}
+        self.refresh(101.)
+        self.m._drop_segment(uid, 'complete')
+        self.assertIn(edge, patrol._edge_observed)
+        self.m._camera_point_seen.clear()
+        self.assertFalse(patrol._edge_needs_first_view(self.m, edge))
+        self.assertEqual(patrol.choose(self.m, [uid], self.now)[1], [inner])
+
+    def test_old_missing_or_future_images_cannot_waive_edge_first_view(self):
+        for sample in (None, 99.9, 102., math.nan, math.inf):
+            with self.subTest(sample=sample):
+                self.refresh(100.)
+                patrol, uid, edge, _ = self.edge_and_inner()
+                patrol.uid = patrol.task_id = None
+                patrol.next_s = 0.
+                self.m.allocator.failed_visit.clear()
+                self.m._camera_point_seen = {} if sample is None else {(edge, 4): sample}
+                proposal = patrol.choose(self.m, [uid], 100.)
+                task = self.m._start_search_segment(uid, proposal[1], proposal[2], 100.,
+                    purpose='south_patrol', publish=False, max_hold=90.)
+                patrol.started(task, proposal[3], 100.)
+                self.refresh(101.)
+                self.m._drop_segment(uid, 'complete')
+                self.assertNotIn(edge, patrol._edge_observed)
+                self.assertTrue(patrol._edge_needs_first_view(self.m, edge))
+                self.assertEqual(self.m.allocator.failed_visit[edge], 101.)
+
+    def test_earlier_leg_processed_image_remains_valid_at_later_task_completion(self):
+        patrol, uid, edge, inner = self.edge_and_inner()
+        proposal = patrol.choose(self.m, [uid], self.now)
+        task = self.m._start_search_segment(uid, proposal[1], proposal[2], self.now,
+            purpose='south_patrol', publish=False, max_hold=90.)
+        patrol.started(task, proposal[3], self.now)
+        # This is manager-accepted image evidence from this task, already
+        # fresh when received. Reaching later legs must not erase the first
+        # actual view just because the image is now more than .7 seconds old.
+        self.m._camera_point_seen = {(edge, 4): 100.01}
+        self.refresh(120.)
+        self.m._drop_segment(uid, 'complete')
+        self.assertIn(edge, patrol._edge_observed)
+        self.assertNotIn(edge, self.m.allocator.failed_visit)
+        self.m._camera_point_seen.clear()
+        self.assertFalse(patrol._edge_needs_first_view(self.m, edge))
+        self.assertEqual(patrol.choose(self.m, [uid], self.now)[1], [inner])
+
+    def test_unreachable_edge_uses_safe_middle_and_existing_failure_cooldown(self):
+        patrol, uid, edge, inner = self.edge_and_inner()
+        original = bp.plan
+        probes = []
+        def reachable(grid, start, goal, **kwargs):
+            probes.append(goal)
+            if goal[1] > 46.:
+                return type('FailedRoute', (), {'success': False})()
+            return original(grid, start, goal, **kwargs)
+        with patch.object(bp, 'plan', side_effect=reachable):
+            self.assertEqual(patrol.choose(self.m, [uid], self.now)[1], [inner])
+        self.assertEqual(self.m.allocator.failed_visit[edge], self.now)
+        probes.clear()
+        with patch.object(bp, 'plan', side_effect=reachable):
+            self.assertEqual(patrol.choose(self.m, [uid], self.now)[1], [inner])
+        self.assertTrue(all(point[1] <= 46. for point in probes))
+        self.refresh(self.now+self.m.allocator.failed_novelty_ttl+.1)
+        self.assertEqual(patrol.choose(self.m, [uid], self.now)[1], [edge])
+
+    def test_outer_strip_uses_bounds_and_cell_size_not_fixed_compass_coordinates(self):
+        self.m.grid = st.CoverageGrid(-40, 160, -30, 70, 7, 6)
+        self.m._camera_point_seen = {}
+        north = bp.SouthPatrol((-40, 160, -30, 70), southeast=False,
+                              northeast=False, east=True, east_half='north')
+        south = bp.SouthPatrol((-40, 160, -30, 70), southeast=False,
+                              northeast=False, east=True, east_half='south')
+        for key, cell in self.m.grid.cells.items():
+            self.assertEqual(north._edge_needs_first_view(self.m, key), cell.cy >= 56.)
+            self.assertEqual(south._edge_needs_first_view(self.m, key), cell.cy <= -16.)
+
+    def test_equal_length_extension_points_outward_in_both_lanes(self):
+        for half, row, direction in (('north', 15, 1), ('south', 1, -1)):
+            with self.subTest(half=half):
+                patrol = self.m._regional_patrols[0 if half == 'north' else 1]
+                keys = {(22, row-1), (22, row), (22, row+1)}
+                self.m._blocked_cells = set(self.m.grid.cells)-keys
+                uid = self.m.uav_ids[0]
+                self.m.status[uid].x = 98.55
+                self.m.status[uid].y = self.m.grid.cell((22, row)).cy
+                proposal = patrol.choose(self.m, [uid], self.now)
+                self.assertEqual(proposal[1], [(22, row), (22, row+direction)])
+                self.assertEqual(proposal[3], direction)
+
 
 class EastSplitPersonDispatchTests(unittest.TestCase):
     def setUp(self):

@@ -39,6 +39,7 @@ from motion_safety import braking_cap, boundary_constraints, scan_constraints, H
 from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M, coverage_bounds
 from search_observation import (cell_points, in_view, observable_points,
                                 next_heading, ground_distance_band)
+from edge_search_review import EdgeReview
 from csv_logger import logger
 from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
@@ -180,6 +181,7 @@ ARRIVE_TOL      = 0.8     # 到达格中心判定半径 m（< 此值视为已到
 SEARCH_ARRIVE_TOL = float(os.environ.get('SEARCH_ARRIVE_TOL', '2.0'))
 SEARCH_SWEEP_DEG = float(os.environ.get('SEARCH_SWEEP_DEG', '20.0'))
 SEARCH_SWEEP_PERIOD_S = float(os.environ.get('SEARCH_SWEEP_PERIOD_S', '12.0'))
+EDGE_SEARCH_REVIEW = os.environ.get('EDGE_SEARCH_REVIEW', '0') == '1'
 SEARCH_HEADING_RATE = math.radians(25.0)
 CAMERA_CUE_HOLD_S = 2.0
 CAMERA_HANDOFF_HOLD_S = 4.0
@@ -4494,6 +4496,50 @@ class SwarmAgent(SearchSegmentAgent):
         self._look_at = (wx + 10.0 * math.cos(heading),
                          wy + 10.0 * math.sin(heading))
 
+    def _hold_edge_review(self):
+        """Finite inward/corner look after a search visit, below human attention."""
+        assignment = getattr(self, 'assignment', None)
+        review = getattr(self, '_edge_review', None)
+        if (not EDGE_SEARCH_REVIEW or
+                getattr(assignment, 'task_type', None) != 0 or
+                getattr(self, '_camera_cue', None) is not None or
+                getattr(self, '_orbit_target', None) is not None):
+            if review is not None:
+                review.cancel('person_or_task')
+            return False
+        now = rospy.Time.now().to_sec()
+        own = self.world_xy
+        clearance = getattr(self, '_radar_prev', None)
+        if (own is None or not self._world_trusted() or
+                not 0. <= now-getattr(self, '_pose_sample_s', -1e18) <= .3 or
+                getattr(self, '_radar_strict', False) or
+                not 0. <= now-getattr(self, '_scan_t', -1e18) <= .3 or
+                clearance is None or min(clearance) < RADAR_STOP_R or
+                not self.grid.is_free(self.grid.world_to_cell(own))):
+            if review is not None:
+                review.cancel('pose_or_clearance_unavailable')
+            return False
+        if review is None:
+            review = self._edge_review = EdgeReview(flight_bounds(), dwell=SEARCH_SCAN_HOLD_S)
+        key = (getattr(assignment, 'search_task_id', ''),
+               getattr(assignment, 'search_revision', 0), self._search_scan_key)
+        heading = review.step(key, now, own,
+            getattr(self, '_search_camera_pose', None), self.cov_grid, self.los.visible)
+        if review.last_result is not None:
+            rospy.loginfo('[EDGE_SEARCH_REVIEW_END] uav=%s result=%s elapsed=%.2f; '
+                          'coverage uses processed frames', self.uav_id,
+                          review.last_result['reason'], now-review.last_result['started'])
+            review.last_result = None
+        if heading is None:
+            return False
+        if math.isfinite(heading):
+            self._set_search_heading(heading)
+        rospy.loginfo_throttle(1., '[EDGE_SEARCH_REVIEW] uav=%s cell=%s '
+                              'looking inward/along edge; bounded yaw, no target credit',
+                              self.uav_id, self._search_scan_key)
+        self._send_vel(0., 0.)
+        return True
+
     def _search_scan_step(self):
         """Look at a segment's explicit region before scanning missing subpoints.
 
@@ -4522,6 +4568,8 @@ class SwarmAgent(SearchSegmentAgent):
             self._search_scan_directed_last = None
             self._search_scan_directed_done = False
         if self._search_scan_done or self._search_scan_failed:
+            if self._search_scan_done and self._hold_edge_review():
+                return
             self._send_vel(0.0, 0.0)
             return
         timeout = (max(SEARCH_SCAN_TIMEOUT_S, SEARCH_DIRECTED_LOOK_TIMEOUT_S)
@@ -4610,6 +4658,8 @@ class SwarmAgent(SearchSegmentAgent):
                           'coverage credited by processed images only',
                           self.uav_id, self._search_scan_key,
                           len(getattr(self, '_search_scan_seen', set())), len(points))
+            if self._hold_edge_review():
+                return
             self._send_vel(0.0, 0.0)
             return
         desired = next_heading(missing, x, y, self.yaw)

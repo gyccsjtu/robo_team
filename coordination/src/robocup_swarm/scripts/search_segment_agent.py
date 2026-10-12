@@ -218,6 +218,12 @@ class SearchSegmentAgent:
                     missing = set(observable)-self._search_scan_seen
             if self._search_scan_done or self._search_scan_failed or (
                     not directed and missing == set()):
+                # A forward camera can arrive facing the outer wall. Reuse
+                # the same bounded yaw executor for a useful inward/edge look
+                # before advancing; a person cue preempts this in _control.
+                if not self._search_scan_failed and self._hold_edge_review():
+                    task['state'] = LOOK
+                    return True
                 # An ordinary empty observable set is only a visit. A directed
                 # patrol must first point its camera at the explicit region
                 # and receive processed frames, or end with a bounded failure.

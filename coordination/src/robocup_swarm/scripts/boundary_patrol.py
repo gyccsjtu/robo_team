@@ -45,6 +45,7 @@ class SouthPatrol:
         self.proposal_budget = max_hold
         self.unreachable_since = None
         self.owner_retry = {}
+        self._edge_observed = set()
 
     def accepts_target(self, uid, x, y, has_camera=False):
         """Real local images preempt patrol; blind western errands do not."""
@@ -59,26 +60,63 @@ class SouthPatrol:
         self._manager = None
         self.proposal_region = None
 
-    def _fresh_image_gain(self, task):
-        """Require actual processed image coverage before another NE leg."""
+    def _fresh_image_keys(self, task, now=None):
+        """Task-bound processed-image evidence, never a passed waypoint.
+
+        The manager already rejects stale images when receiving them. A
+        successful first visit remains evidence when an earlier leg's image
+        ages while the aircraft completes later legs of the same task.
+        """
         manager = self._manager
         if manager is None:
-            return False
+            return set()
         # A whole-cell credit comes only from the processed-frame callback;
         # retain it even if its short-lived subpoint evidence was pruned.
-        if any((cell := manager.grid.cell(key)) is not None and
-               cell.state == STATE_COVERED and cell.covered_t >= task.created
-               for key in task.cells):
-            return True
+        seen_keys = {key for key in task.cells
+                     if (cell := manager.grid.cell(key)) is not None and
+                     cell.state == STATE_COVERED and cell.covered_t >= task.created and
+                     (now is None or (math.isfinite(cell.covered_t) and
+                                      cell.covered_t <= now+.05))}
         seen = getattr(manager, '_camera_point_seen', {}) or {}
-        return any(key in task.cells and sample >= task.created
-                   for (key, _subpoint), sample in seen.items())
+        seen_keys.update(key for (key, _subpoint), sample in seen.items()
+                         if key in task.cells and sample >= task.created and
+                         (now is None or (math.isfinite(sample) and
+                                          sample <= now+.05)))
+        return seen_keys
+
+    def _fresh_image_gain(self, task):
+        """Require actual processed image coverage before another NE leg."""
+        return bool(self._fresh_image_keys(task))
+
+    def _edge_needs_first_view(self, manager, key):
+        """Prioritize unseen outer lane rows using lawful map bounds."""
+        if self.east_half is None:
+            return False
+        cell = manager.grid.cell(key)
+        width = 2.*manager.grid.cell_m
+        at_edge = (cell.cy >= self.bounds[3]-width if self.east_half == 'north'
+                   else cell.cy <= self.bounds[2]+width)
+        if not at_edge or key in self._edge_observed or cell.state == STATE_COVERED:
+            return False
+        return True  # an old/unbound subpoint cannot waive the first directed look
 
     def ended(self, task, reason, now):
         if task.task_id != self.task_id:
             return
         self.task_id = None
         if self.east:
+            if self.east_half is not None:
+                # Preserve first actual image visits after the coverage
+                # callback prunes short-lived subpoint history or hands the
+                # regional responsibility to another aircraft.
+                self._edge_observed.update(self._fresh_image_keys(task, now))
+                if reason == 'complete' and self._manager is not None:
+                    # Completion can mean every point timed out without a
+                    # usable frame. Apply the existing finite failed-view
+                    # cooldown to unseen edge cells even after index==len.
+                    for key in task.cells:
+                        if self._edge_needs_first_view(self._manager, key):
+                            self._manager.allocator.failed_visit[key] = now
             # A route expires, not the regional responsibility. Failed cells
             # have a finite retry delay; reservations/coverage stay in manager.
             if reason not in ('person_task', 'released_for_new_task', 'camera_unavailable') and (
@@ -222,7 +260,8 @@ class SouthPatrol:
                     cell.state == STATE_ASSIGNED or cell.owner is not None or
                     (cell.state == STATE_COVERED and
                      (region != 'east' or now-cell.covered_t < 60.)) or
-                    now-manager.allocator.visit_time.get(key, -1e18) < 60. or
+                    (now-manager.allocator.visit_time.get(key, -1e18) < 60. and
+                     not self._edge_needs_first_view(manager, key)) or
                     now-manager.allocator.failed_visit.get(key, -1e18) <
                         manager.allocator.failed_novelty_ttl):
                 continue
@@ -303,48 +342,71 @@ class SouthPatrol:
                      manager.grid.cell(key).covered_t > 0.))
 
         def priority(candidate):
-            return (revisited(candidate[2]),) + candidate
+            return tier(candidate[2]) + candidate
+
+        def tier(key):
+            return ((not self._edge_needs_first_view(manager, key), revisited(key))
+                    if region == 'east' and self.east_half is not None
+                    else (revisited(key),))
 
         # A 60-second cooldown alone favors the nearest old strip again
         # while distant corners still have no visit. Finish reachable new
         # viewpoints first, keeping old views as a fallback, not deleting them.
         ordered = sorted(pairs, key=priority)
         if region in ('southeast', 'northeast', 'east'):
-            spread = {}
-            for candidate in ordered:
-                _, uid, _, point = candidate
-                if region == 'southeast':
-                    bucket = (uid, min(2, max(0, int((point[0]-50.)/20.))))
-                elif region == 'east':
-                    bucket = (uid, min(3, max(0, int((point[1]-ymin)/30.))))
-                else:
-                    bucket = (uid, min(3, max(0, int((point[1]-20.)/7.))))
-                spread.setdefault(bucket, candidate)
-            selected = sorted(spread.values(), key=priority)
-            selected_set = {(uid, key) for _, uid, key, _ in selected}
-            selected.extend(candidate for candidate in ordered
-                            if (candidate[1], candidate[2]) not in selected_set)
-            selected = sorted(selected[:24], key=priority)
+            def spread_candidates(candidates, limit):
+                spread = {}
+                for candidate in candidates:
+                    _, uid, _, point = candidate
+                    if region == 'southeast':
+                        bucket = (uid, min(2, max(0, int((point[0]-50.)/20.))))
+                    elif region == 'east':
+                        bucket = (uid, min(3, max(0, int((point[1]-ymin)/30.))))
+                    else:
+                        bucket = (uid, min(3, max(0, int((point[1]-20.)/7.))))
+                    spread.setdefault(bucket, candidate)
+                selected = sorted(spread.values(), key=priority)
+                selected_set = {(uid, key) for _, uid, key, _ in selected}
+                selected.extend(candidate for candidate in candidates
+                                if (candidate[1], candidate[2]) not in selected_set)
+                return sorted(selected[:limit], key=priority)
+
+            if region == 'east' and self.east_half is not None:
+                edge = [c for c in ordered if self._edge_needs_first_view(manager, c[2])]
+                other = [c for c in ordered if not self._edge_needs_first_view(manager, c[2])]
+                # A blocked/unreachable outer strip cannot consume every
+                # bounded planning attempt and pin this aircraft forever.
+                edge_limit = 12 if other else 24
+                selected = spread_candidates(edge, edge_limit)
+                selected += spread_candidates(other, 24-len(selected))
+            else:
+                selected = spread_candidates(ordered, 24)
         else:
             selected = ordered[:8]
         # A straight distance is only a lower bound; select by checked path
         # length amongst the candidates actually reached by safe A* legs.
         checked = []
-        checked_revisit = None
+        checked_tier = None
+        failed_edges, reachable_edges = set(), set()
         for distance, uid, key, point in selected:
-            if checked and (revisited(key) != checked_revisit or
+            if checked and (tier(key) != checked_tier or
                             distance > min(row[0] for row in checked)+1.):
                 break
             s = manager.status[uid]
             route = plan(grid, (s.x, s.y), point, connectivity=8,
                          prevent_corner_cutting=True, max_expansions=2500)
             if not route.success:
+                if self._edge_needs_first_view(manager, key):
+                    failed_edges.add(key)
                 continue
             route_points = [(s.x, s.y)]+list(route.points)+[point]
             if not all(clear_line(grid, a, b) for a, b in zip(route_points, route_points[1:])):
                 continue
             checked.append((route.path_length_m, uid, key, point))
-            checked_revisit = revisited(key)
+            reachable_edges.add(key)
+            checked_tier = tier(key)
+        for key in failed_edges-reachable_edges:
+            manager.allocator.failed_visit[key] = now
         if not checked:
             return None
         length, uid, key, point = min(checked)
@@ -368,7 +430,10 @@ class SouthPatrol:
                     break
                 ks.append(nxt); ps.append(p)
             extensions.append((len(ks), direction, ks, ps))
-        _, direction, cells, points = max(extensions)
+        extension = (max(extensions, key=lambda e: (
+            e[0], e[1] == (1 if self.east_half == 'north' else -1)))
+            if region == 'east' and self.east_half is not None else max(extensions))
+        _, direction, cells, points = extension
         self.proposal_region = region
         # Conservative measured transit speed, plus turning/observation time.
         # The ordinary heartbeat and no-progress watchdog still apply.

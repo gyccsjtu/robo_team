@@ -24,5 +24,5 @@ if [ "${ACTUAL%% *}" != "$EXPECTED" ]; then
     exit 1
 fi
 cd "$ROOT"
-echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; search_segments=1 motion_safety=1 south_patrol=1 east_persistent=$EAST_PATROL east_split=${EAST_SPLIT_PATROL:-0} pixel_recovery=${PIXEL_VIEW_RECOVERY:-0} pixel_approach=${PIXEL_RECOVERY_APPROACH:-0} southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
+echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; search_segments=1 motion_safety=1 south_patrol=1 east_persistent=$EAST_PATROL east_split=${EAST_SPLIT_PATROL:-0} edge_review=${EDGE_SEARCH_REVIEW:-0} pixel_recovery=${PIXEL_VIEW_RECOVERY:-0} pixel_approach=${PIXEL_RECOVERY_APPROACH:-0} southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
 exec "$ROOT/run_match.sh" "$@"
