@@ -2037,6 +2037,49 @@ class SwarmManager(SearchSegmentManager):
                 0.0 <= now - detected <= VISUAL_REACQUIRE_HOLD_S and
                 math.hypot(observer.x - near[0], observer.y - near[1]) <= 12.0)
 
+    def _hold_pending_owner_instance(self, tid, now):
+        """Keep the seeing owner briefly while the bridge validates a rebuilt ID.
+
+        This is an attention lease, not an identity merge or a measurement.
+        One nearby, unambiguous instance from the current owner's full frame
+        gets six seconds. New frames/IDs cannot extend that deadline. The
+        bridge still decides whether any position may enter the team track.
+        """
+        uid = self._tracking.get(tid)
+        source = self._visual_source.get(tid)
+        old = getattr(self, '_visual_observations', {}).get((uid, tid))
+        if (tid not in ('t0', 't1', 't2', 't3') or source is None or
+                uid != source[0] or old is None or not old.get('candidate_id') or
+                not self._tracking_uav_available(uid, now)):
+            return False
+        rows = [v for (target, camera, _), v in
+                getattr(self, '_discovery_pool', {}).items()
+                if target == tid and camera == uid and 0. <= now-v['sample_s'] <= 1.]
+        if not rows:
+            return False
+        newest = max(v['sample_s'] for v in rows)
+        rows = [v for v in rows if v['sample_s'] == newest]
+        if len(rows) != 1:
+            return False  # two same-colour people are not a rebuilt single ID
+        view = rows[0]
+        st = self.status[uid]
+        if (not view.get('complete_frame') or view.get('appearance_status') != 'actor' or
+                view.get('hits', 0) < 4 or view['confidence'] < .65 or
+                view['candidate_id'] == old['candidate_id'] or
+                math.hypot(view['x']-source[2], view['y']-source[3]) > 3. or
+                math.hypot(view['x']-st.x, view['y']-st.y) > 12.):
+            return False
+        leases = self.__dict__.setdefault('_pending_owner_instances', {})
+        lease = leases.get(tid)
+        if lease is None or lease['owner'] != uid or source[1] > lease['anchor_s']:
+            if not 0. <= now-source[1] <= VISUAL_REACQUIRE_HOLD_S+.3:
+                return False
+            lease = leases[tid] = dict(owner=uid, anchor_s=source[1], until=now+6.)
+            rospy.loginfo('[PENDING_INSTANCE_HOLD] tid=%s owner=%s image=%.3f '
+                          'until=%.3f; new local ID awaits bridge, no report credit',
+                          tid, uid, newest, lease['until'])
+        return now < lease['until']
+
     @serialized_tasks
     def _dispatch_pending_targets(self):
         """给「已知但未消除」的目标派追踪机（只派一次，已在追的只更新位置）。
@@ -2074,7 +2117,8 @@ class SwarmManager(SearchSegmentManager):
                 # 目标已跟丢（缓存过期 + 融合无观测）：释放追踪/备份机去搜别的，
                 # 避免飞机继续追一个不存在的过期坐标。
                 if (self._hold_approaching_target(tid, now) or
-                        self._hold_near_visual_target(tid, now)):
+                        self._hold_near_visual_target(tid, now) or
+                        self._hold_pending_owner_instance(tid, now)):
                     continue
                 if tid in self._tracking or tid in self._backup:
                     self._release_tracker(tid, reason="lost")

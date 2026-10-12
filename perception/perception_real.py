@@ -413,7 +413,14 @@ class PixelCueTracker:
                                                  math.cos(box['bearing'] - expected))))
                 angle = min(errors)
                 angle_gate = 0.08 + 0.10 * min(dt, 0.8)
-            vdiff = abs(box['v'] - tr['v'])
+            # Braking changes camera pitch and moves a person vertically in
+            # pixels without changing their world ray. Use image-time attitude
+            # for elevation, as for azimuth, rather than splitting that ID.
+            elevations = (box.get('elevation', float('nan')),
+                          tr.get('elevation', float('nan')))
+            vdiff = (FY * abs(elevations[0] - elevations[1])
+                     if all(math.isfinite(v) for v in elevations)
+                     else abs(box['v'] - tr['v']))
             ratio = box['h'] / max(tr['h'], 1.0)
             if (angle > angle_gate or vdiff > max(90.0, 0.8 * box['h']) or
                     not 0.55 <= ratio <= 1.8):
@@ -478,6 +485,7 @@ class PixelCueTracker:
                 self.tracks.append(best)
             best.update(sample_s=sample_s, u=box['u'], v=box['v'],
                         h=box['h'], bearing=box.get('bearing', float('nan')),
+                        elevation=box.get('elevation', float('nan')),
                         cam_x=box.get('cam_x', float('nan')),
                         cam_y=box.get('cam_y', float('nan')))
             best['history'] = [p for p in best['history'] if sample_s - p[0] <= 1.1]
@@ -2192,10 +2200,13 @@ def main():
                                 bx1, by1, bx2, by2, allow_small_continuation=True)):
                             continue
                         bu, bv = (bx1 + bx2) / 2.0, (by1 + by2) / 2.0
+                        centre_ray = foot_ground_ray(bu, bv, R)
                         raw_cue_boxes.append(dict(
                             cls=CLASSES[cid], conf=conf, u=bu, v=bv,
                             small_box_continuation_only=not ordinary_cue,
                             h=bh, bearing=image_world_bearing(bu, bv, R),
+                            elevation=math.atan2(float(centre_ray[2]),
+                                math.hypot(float(centre_ray[0]), float(centre_ray[1]))),
                             cam_x=px, cam_y=py, box=[bx1, by1, bx2, by2],
                             appearance_status=b.appearance_status,
                             appearance_confidence=b.appearance_confidence,

@@ -723,6 +723,65 @@ class TargetBridgeCore(object):
         self._alternate_history = {}
         self._deferred_sites = {}
         self._hypothesis_switches = {}
+        self._local_continuations = {}
+
+    def _continue_local_instance(self, tr, rows):
+        """Rejoin one rebuilt camera ID on the existing motion trajectory.
+
+        This short path never applies to red slots, co-visible people, another
+        camera, a stale anchor or a spatial relocation. Reporting still uses
+        the independent official source/coordinate guards below.
+        """
+        if tr.tag in RED_TAGS or len(rows) != 1 or tr.good_x is None:
+            self._local_continuations.pop(tr.tag, None)
+            return
+        r = rows[0]
+        source, cid, t = r['source_uav'], r.get('candidate_id'), r['sample_s']
+        old = tr.source_candidates.get(source)
+        age = t-tr.good_t
+        model = _robust_official_fit(tr.good_history, tr.good_t)
+        if (source != tr.official_source or not old or not cid or cid == old or
+                not .0 < age <= 2. or not r['official_ok'] or
+                not r.get('camera_confirmed') or r.get('appearance_status') != 'actor' or
+                r['conf'] < .65 or r['range_m'] is None or not 0. < r['range_m'] <= 12. or
+                model is None):
+            self._local_continuations.pop(tr.tag, None)
+            return
+        px, py = model[0]+model[2]*age, model[1]+model[3]*age
+        if (math.hypot(r['x']-px, r['y']-py) > .75+.35*age or
+                math.hypot(r['x']-tr.good_x,r['y']-tr.good_y) > .45+VEL_MAX*age):
+            self._local_continuations.pop(tr.tag, None)
+            return
+        key = (source, old, cid, tr.good_t)
+        previous = self._local_continuations.get(tr.tag)
+        history = list(previous[1]) if previous and previous[0] == key else []
+        if history and t <= history[-1][0]:
+            return
+        if history and (t-history[-1][0] > .45 or
+                math.hypot(r['x']-history[-1][1],r['y']-history[-1][2]) >
+                VEL_MAX*(t-history[-1][0])+.3):
+            history = []
+        history.append((t,r['x'],r['y']))
+        self._local_continuations[tr.tag] = (key,history[-8:])
+        if len(history) < 3 or history[-1][0]-history[0][0] < .35:
+            return
+        segment = _confirmed_official_segment(history)
+        dt = history[-1][0]-history[0][0]
+        vx,vy = ((history[-1][k]-history[0][k])/dt for k in (1,2))
+        if (segment is None or math.hypot(vx-model[2],vy-model[3]) > .8):
+            return
+        # Preserve the team identity and its owner; do not emit a relocation
+        # event, defer the old site, or merge old/new camera motion baselines.
+        tr.source_candidates[source] = cid
+        new_key = self._source_key(source,cid)
+        tr.source_history[new_key] = history[:-1]
+        tr.pursuit_history = {k:v for k,v in tr.pursuit_history.items()
+                              if k != self._source_key(source,old)}
+        tr.pursuit_history[new_key] = history[:-1]
+        self._local_continuations.pop(tr.tag,None)
+        _core_log('[LOCAL_INSTANCE_REBIND] tag=%s source=%s old=%s new=%s '
+                  'image=%.3f frames=%d; preserve owner, report guards unchanged',
+                  tr.tag,source,old,cid,t,len(history))
 
     @staticmethod
     def _source_key(source, candidate_id=None):
@@ -812,6 +871,7 @@ class TargetBridgeCore(object):
                         math.hypot(row['x']-deferred[0], row['y']-deferred[1]) > 5.]
             if not rows:
                 continue
+            self._continue_local_instance(tr, rows)
             bound = self._source_key(tr.official_source, tr.official_candidate_id)
             if tr.official_source is None:
                 bound = self._source_key(tr.tracking_source, tr.tracking_candidate_id)
