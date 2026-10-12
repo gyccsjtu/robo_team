@@ -911,7 +911,8 @@ class SwarmAgent(SearchSegmentAgent):
         self._offset_param = None   # 官方固定出生点；运行中绝不按 EKF 漂移修改
         self._anchor_done = False   # 起飞前的稳定门；完成后监测局部位姿异常
         self._localization_fault = False  # 粘滞故障，须重启并重新建立合法坐标系
-        self._local_prev_t = 0.0    # 上一帧 local_position 的 ROS 时间（跳变检测）
+        self._local_prev_t = 0.0    # 有效位姿接收时间，仅用于通信/恢复超时
+        self._pose_sample_s = -1e18  # 运动估计一律使用消息采样时间
         self.local_z = None         # 高度（来自 local_position）
         # v14 Fix D：P 控制连续爬升卡死闩锁状态（EKF z 卡低防真值冲红线）
         self._climb_t0 = None        # 连续爬升计时窗起点
@@ -1218,34 +1219,33 @@ class SwarmAgent(SearchSegmentAgent):
         self.state = msg
 
     def _local_cb(self, msg):
-        if MOTION_SAFETY:
-            sample = msg.header.stamp.to_sec()
-            now = rospy.Time.now().to_sec()
-            q = msg.pose.orientation
-            p = msg.pose.position
-            if (not 0. <= now-sample <= .5 or
-                    sample <= getattr(self,'_pose_sample_s',-1e18) or
-                    not all(math.isfinite(v) for v in (p.x,p.y,p.z,q.x,q.y,q.z,q.w)) or
-                    abs(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w-1.) > .02):
-                return  # receipt time cannot turn a delayed pose into fresh data
-            self._pose_sample_s = sample
+        sample = msg.header.stamp.to_sec()
+        now = rospy.Time.now().to_sec()
+        q = msg.pose.orientation
+        p = msg.pose.position
+        previous_sample = getattr(self, '_pose_sample_s', -1e18)
+        if (not all(math.isfinite(v) for v in (now,sample,p.x,p.y,p.z,q.x,q.y,q.z,q.w)) or
+                sample <= 0. or not 0. <= now-sample <= .5 or
+                sample <= previous_sample or
+                abs(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w-1.) > .02):
+            return  # Invalid arrivals cannot refresh pose or movement history.
+        self._pose_sample_s = sample
         self.local_z = msg.pose.position.z
         new_xy = (msg.pose.position.x, msg.pose.position.y)
-        now = rospy.Time.now().to_sec()
         # The camera and the agent use the same official spawn offset. A pose
         # jump has no legal independent world reference, so do not rewrite that
         # offset to make an impossible MAVROS trajectory look continuous.
         if (self._anchor_done and self.local_xy is not None and
                 not getattr(self, '_localization_fault', False)):
-            dt = now - self._local_prev_t
+            dt = sample - previous_sample
             if 0.0 < dt < 1.0:
                 step = math.hypot(new_xy[0] - self.local_xy[0],
                                   new_xy[1] - self.local_xy[1])
                 window = getattr(self, '_ekf_window', None)
                 if window is None:
                     window = []
-                window.append((new_xy, now))
-                while len(window) > 2 and now - window[0][1] > 1.0:
+                window.append((new_xy, sample))
+                while len(window) > 2 and sample - window[0][1] > 1.0:
                     window.pop(0)
                 self._ekf_window = window
                 reason = None
@@ -1255,7 +1255,7 @@ class SwarmAgent(SearchSegmentAgent):
                         step, dt, single_limit)
                 elif len(window) >= 3:
                     origin_xy, origin_t = window[0]
-                    window_dt = now - origin_t
+                    window_dt = sample - origin_t
                     if window_dt > 0.10:
                         window_dist = math.hypot(new_xy[0] - origin_xy[0],
                                                  new_xy[1] - origin_xy[1])
@@ -1277,16 +1277,18 @@ class SwarmAgent(SearchSegmentAgent):
                     reason = '位姿位移超出指令物理上限 %.2fm（%.2fm / %.3fs）' % (
                         step - allowed, step, dt)
                 if reason is not None:
-                    self._mark_localization_fault(reason)
+                    self._mark_localization_fault(
+                        reason + ' [sample=%.3f receipt=%.3f age=%.3f]' %
+                        (sample, now, now-sample))
             elif dt >= 1.0:
-                # Callback gap is not a measurable velocity; the next fresh
+                # A sampling gap is not a measurable velocity; the next fresh
                 # sequence starts a new window, while stale-pose gating holds.
-                self._ekf_window = [(new_xy, now)]
+                self._ekf_window = [(new_xy, sample)]
         elif not getattr(self, '_anchor_done', False):
-            self._ekf_window = [(new_xy, now)]
+            self._ekf_window = [(new_xy, sample)]
         # 维护位置估计轨迹（EST_GUARD 闸门的数据源；必须在 anchor 闸门之外每帧调用，
         # 否则 _est_hist 恒为空 → _est_trustworthy 恒 False → 飞机永远悬停不走）
-        self._est_track(new_xy, now)
+        self._est_track(new_xy, sample)
         self.local_xy = new_xy
         self._local_prev_t = now
         q = msg.pose.orientation
@@ -4768,8 +4770,9 @@ class SwarmAgent(SearchSegmentAgent):
         if wx is None or not self.targets:
             return None
         best = None
+        now = rospy.Time.now().to_sec()
         for tid, (tx, ty, _, _) in self.targets.items():
-            if rospy.Time.now().to_sec() - self._t_seen.get(tid, 0.0) > TARGET_TTL:
+            if not 0. <= now - self._t_seen.get(tid, -math.inf) <= TARGET_TTL:
                 continue
             d = math.hypot(tx - wx[0], ty - wx[1])
             if best is None or d < best[1]:
@@ -4877,7 +4880,14 @@ class SwarmAgent(SearchSegmentAgent):
         wx = self.world_xy
         if wx is None or not self.targets:
             return MAX_SPEED
+        now = rospy.Time.now().to_sec()
         for tid, (tx, ty, vx, vy) in self.targets.items():
+            # Discovery positions remain cached after task release. They are
+            # not permanent speed zones: use the same image-age contract as
+            # nearest-target selection. This changes no live-person cap or
+            # downstream obstacle/aircraft safety constraint.
+            if not 0. <= now - self._t_seen.get(tid, -math.inf) <= TARGET_TTL:
+                continue
             d = math.hypot(tx - wx[0], ty - wx[1])
             if d > SPOOK_DIST:
                 continue

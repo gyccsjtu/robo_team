@@ -1,0 +1,24 @@
+test_airborne_restart_and_unstable_ground_cannot_invent_reference (tools.test_height_datum.HeightDatumTests) ... ok
+test_armed_state_precedes_delayed_unarmed_pose_callback (tools.test_height_datum.HeightDatumTests) ... ok
+test_ground_reference_shift_can_recover_before_arming (tools.test_height_datum.HeightDatumTests) ... ok
+test_individual_ground_bias_is_removed_and_then_frozen (tools.test_height_datum.HeightDatumTests) ... ok
+test_last_ground_tilt_cannot_freeze_an_empty_reference (tools.test_height_datum.HeightDatumTests) ... ok
+test_real_ground_reference_shift_still_requires_recalibration (tools.test_height_datum.HeightDatumTests) ... ok
+test_reordered_bad_sample_cannot_invalidate_current_reference (tools.test_height_datum.HeightDatumTests) ... ok
+test_unknown_arming_and_repeated_time_are_not_calibration_samples (tools.test_height_datum.HeightDatumTests) ... ok
+test_unstable_candidates_do_not_replace_valid_reference (tools.test_height_datum.HeightDatumTests) ... ok
+test_explicit_calibration_remains_opt_in (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+test_formal_perception_has_no_gazebo_truth_service (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+test_ground_estimator_settling_does_not_latch_fault (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+test_ground_tilt_before_arming_does_not_strand_image_pose_on_ground (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+test_image_uses_its_own_pose_time_not_latest_position (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+test_in_flight_ekf_jump_disables_camera_reports (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+test_left_camera_extrinsic_and_fixed_spawn_offset_rotate_together (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+test_metric_camera_pose_does_not_shrink_ground_projection (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+test_stale_image_and_reordered_pose_cannot_create_new_observation (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+test_yaw_slerp_matches_image_time (tools.test_perception_pose_source.ImageTimePoseTests) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.035s
+
+OK
