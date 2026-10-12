@@ -7,7 +7,8 @@ export PR_WEIGHTS="$ROOT/weights/best_yolo11n_bino_v3_clean.pt"
 export PR_DISTRACTOR_WEIGHTS="$ROOT/weights/best_yolo11n_bino_sculpture_v3.pt"
 export SEARCH_SEGMENTS=1 MOTION_SAFETY=1 SOUTH_PATROL=1
 export SOUTH_PATROL_SOUTHEAST="${SOUTH_PATROL_SOUTHEAST:-0}"
-export SOUTH_PATROL_NORTHEAST="${SOUTH_PATROL_NORTHEAST:-1}"
+export SOUTH_PATROL_NORTHEAST="${SOUTH_PATROL_NORTHEAST:-0}"
+export EAST_PATROL="${EAST_PATROL:-1}"
 export BRIDGE_REPORT_POLICY=fresh
 export PR_DISTRACTOR_MODE=enforce GIMBAL_AUX_MODE=off FAST_VISUAL_YAW=0
 export CANDIDATE_VIEW_RECOVERY=0 GAZEBO_GUI=true
@@ -22,5 +23,5 @@ if [ "${ACTUAL%% *}" != "$EXPECTED" ]; then
     exit 1
 fi
 cd "$ROOT"
-echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; search_segments=1 motion_safety=1 south_patrol=1 southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
+echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; search_segments=1 motion_safety=1 south_patrol=1 east_persistent=$EAST_PATROL southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
 exec "$ROOT/run_match.sh" "$@"

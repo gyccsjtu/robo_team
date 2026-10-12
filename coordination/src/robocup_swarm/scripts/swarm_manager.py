@@ -2724,6 +2724,9 @@ class SwarmManager(SearchSegmentManager):
             cameras = {uid for uid, _ in self._camera_candidates(tid, tx, ty, now, busy)}
             edges = {}
             for uid in available:
+                patrol = getattr(self, '_south_patrol', None)
+                if patrol is not None and not patrol.accepts_target(uid, tx, ty, uid in cameras):
+                    continue
                 if not self._failed_view_dispatch_ok(tid, tx, ty, now, uid=uid):
                     continue
                 st = self.status[uid]
@@ -2930,6 +2933,9 @@ class SwarmManager(SearchSegmentManager):
                 visual = self._last_eligible(uid, tid)
                 seen = bool(visual is not None and visual.get('eligible') and
                             0.0 <= now - visual['sample_s'] <= 2.0)
+                patrol = getattr(self, '_south_patrol', None)
+                if patrol is not None and not patrol.accepts_target(uid, tx, ty, seen):
+                    continue
                 if best_d is None or (seen and not best_seen) or \
                         (seen == best_seen and d < best_d):
                     best, best_d, best_seen = uid, d, seen

@@ -112,7 +112,8 @@ class SearchSegmentManager:
             if proposed is not None:
                 uid, cells, points, direction = proposed
                 task = self._start_search_segment(uid, cells, points, stamp,
-                    purpose='south_patrol', publish=False)
+                    purpose='south_patrol', publish=False,
+                    max_hold=patrol.proposal_budget if patrol.east else None)
                 if task is not None:
                     patrol.started(task, direction, stamp)
                     self._send_segment(task)
@@ -120,6 +121,10 @@ class SearchSegmentManager:
                     rospy.loginfo('[SOUTH_PATROL] uav=%s task=%s region=%s cells=%s deadline=%.3f '
                         'ENU_south=-Y; short transit then directed image observation',
                         uid, task.task_id, patrol.proposal_region, cells, task.deadline)
+            # A cooldown/replan is still an eastern responsibility, even
+            # when no route could be issued on this particular scheduler tick.
+            if patrol.east and patrol.uid in idle:
+                idle.remove(patrol.uid)
         positions = {uid:(self.status[uid].x,self.status[uid].y) for uid in idle}
         # Outer task lock covers allocator selection, segment extension and
         # whole-segment reservation. No callback can see a half-reserved route.
@@ -142,12 +147,13 @@ class SearchSegmentManager:
         if any(key is None for key in seeds.values()):
             self._reopen_covered_cells(force=True)
 
-    def _start_search_segment(self, uid, cells, points, stamp, purpose='coverage', publish=True):
+    def _start_search_segment(self, uid, cells, points, stamp, purpose='coverage', publish=True,
+                              max_hold=None):
         """Single reservation/lease entry for internal and boundary search."""
         evidence_deadlines=[expires for (kind,key),(ready,expires) in
             self.allocator.revisit_jobs.items() if key in cells and
             kind in ('lost','unconfirmed') and ready<=stamp<expires]
-        max_hold=self._segment_max_hold
+        max_hold=self._segment_max_hold if max_hold is None else max_hold
         if evidence_deadlines:
             max_hold=min(max_hold,min(evidence_deadlines)-stamp)
         look = [(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
@@ -156,7 +162,10 @@ class SearchSegmentManager:
         if task is None:
             return None
         for cell in cells:
-            self.lease.grant(uid,cell,stamp,task.expires-stamp)
+            # SegmentBook already excludes other routes. A revisit must not
+            # erase historical image coverage merely by reserving a cell.
+            if self.grid.cell(cell).state != STATE_COVERED:
+                self.lease.grant(uid,cell,stamp,task.expires-stamp)
         self._active_leases[uid] = cells[0]
         if publish:
             self._send_segment(task)
