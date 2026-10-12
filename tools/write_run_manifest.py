@@ -46,6 +46,10 @@ def main():
         search_segments=os.environ.get('SEARCH_SEGMENTS','0'),
         motion_safety=os.environ.get('MOTION_SAFETY','0'),
         south_patrol=os.environ.get('SOUTH_PATROL','0'),
+        flight_boundary={key:os.environ.get(key, default) for key, default in (
+            ('FLIGHT_X_MIN','-50.0'), ('FLIGHT_X_MAX','150.0'),
+            ('FLIGHT_Y_MIN','-60.0'), ('FLIGHT_Y_MAX','60.0'),
+            ('FLIGHT_INSET','2.0'), ('MAP_GUARD_MARGIN','2.0'))},
         report_policy=os.environ.get('BRIDGE_REPORT_POLICY','fit'),
         weights={'path':str(chosen),'sha256':digest(chosen)} if chosen else None,
         note='Disk snapshot before process startup; includes dirty working-tree content. '

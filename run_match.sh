@@ -435,10 +435,11 @@ preflight(){
             [ "${FLIGHT_X_MAX:-150.0}" = "150.0" ] && \
             [ "${FLIGHT_Y_MIN:--60.0}" = "-60.0" ] && \
             [ "${FLIGHT_Y_MAX:-60.0}" = "60.0" ] && \
-            [ "${FLIGHT_INSET:-2.0}" = "2.0" ]; then
-        ok "位置输出与官方人物活动范围护栏固定"
+            { [ "${FLIGHT_INSET:-2.0}" = "2.0" ] ||
+              [ "${FLIGHT_INSET:-2.0}" = "1.5" ]; }; then
+        ok "位置输出与队伍飞行外框固定；内部余量 ${FLIGHT_INSET:-2.0}m"
     else
-        err "正式启动禁用 FLIGHT_OUTPUT 或 FLIGHT_[XY] 边界参数覆盖"
+        err "正式启动禁用 FLIGHT_OUTPUT/FLIGHT_[XY] 覆盖；FLIGHT_INSET 仅允许 2.0 或 1.5"
         hard_miss=$((hard_miss+1))
     fi
     if python3 -c 'import netifaces; netifaces.interfaces()' >/dev/null 2>&1; then
@@ -721,7 +722,9 @@ do_start(){
     ros_env
     # 正式执行的环境与 preflight 核对值保持一致，防止外部 shell 配置渗入子进程。
     export FLIGHT_OUTPUT=pos FLIGHT_X_MIN=-50.0 FLIGHT_X_MAX=150.0
-    export FLIGHT_Y_MIN=-60.0 FLIGHT_Y_MAX=60.0 FLIGHT_INSET=2.0
+    export FLIGHT_Y_MIN=-60.0 FLIGHT_Y_MAX=60.0
+    export FLIGHT_INSET="${FLIGHT_INSET:-2.0}"
+    export MAP_GUARD_MARGIN="$FLIGHT_INSET"
     # ros_env 才加载 robocup_swarm 的生成消息；此处用运行时实际导入的类核对类型名和 MD5。
     if ! python3 -c 'from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo; print("%s %s" % (ActorInfo._type, ActorInfo._md5sum))' \
         >"$RUN_DIR/actorinfo_contract.txt" 2>&1; then
@@ -1049,7 +1052,8 @@ do_start(){
         #      飞机在进入软带到硬停之间的刹车距离不足会冲出硬边界。8m 软带提供 1.3s
         #      缓冲，允许 MAX_ACC=2.5 m/s² 把横向速度从 6 m/s 降到 4 m/s 进入硬边界。
         export MAP_GUARD_SOFT=6.0
-        export MAP_GUARD_MARGIN=2.0
+        # Keep waypoint clipping, final braking and map guard on one inset.
+        export MAP_GUARD_MARGIN="$FLIGHT_INSET"
         # (11) RADAR_WARN_R 4.0→5.5：规则 §2.5(7) 碰撞扣 30/次，雷达预警半径扩到 5.5m
         #      （车体级别障碍），留 1.5m 减速带宽。
         export RADAR_WARN_R=5.5
