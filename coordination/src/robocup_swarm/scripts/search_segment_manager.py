@@ -45,18 +45,21 @@ class SearchSegmentManager:
                              if now-seen.get((key, samples.index(look)), -1e18) > 30.)
         return getattr(self, '_building_viewpoints', {}).get(key, ())
 
-    def _reachable_subpoint_view(self, key, origin, options):
+    def _reachable_subpoint_view(self, key, origin, options, max_path_m=None):
         """A free ground sample is useful only with a checked safe flight path."""
         raw = self._merged_grid() if options else None
         grid = getattr(self, '_g_infl', None)
         for point, look in sorted(options,
                 key=lambda option: (not boundary_corner(self.grid, key, option[1]),
                                     math.dist(origin, option[0])))[:24]:
+            if max_path_m is not None and math.dist(origin,point) > max_path_m:
+                continue
             if not valid_view(raw, grid, look, point, self._segment_flight_waypoint):
                 continue
             route = plan(grid, origin, point, connectivity=8,
                          prevent_corner_cutting=True, max_expansions=2500)
-            if not route.success:
+            if (not route.success or
+                    (max_path_m is not None and route.path_length_m > max_path_m)):
                 continue
             points = [origin]+list(route.points)+[point]
             if all(clear_line(grid, a, b) for a, b in zip(points, points[1:])):
@@ -185,7 +188,10 @@ class SearchSegmentManager:
             for uid in sorted(available+list(borrowing), key=lambda u:
                     (math.dist((self.status[u].x, self.status[u].y), look), u)):
                 st = self.status[uid]
-                view = self._reachable_subpoint_view(key, (st.x, st.y), options)
+                # A corner revisit is a local supplement, never a 143 m
+                # cross-map errand taking a scarce aircraft out of the east.
+                view = self._reachable_subpoint_view(key, (st.x, st.y), options,
+                                                    max_path_m=60.)
                 if view is None:
                     continue
                 point, sample = view

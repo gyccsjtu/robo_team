@@ -262,6 +262,8 @@ class WestCornerReviewTests(unittest.TestCase):
         self.refresh()
         peer = next(uid for uid in self.m.uav_ids if uid != task.uid)
         self.m._drop_segment(peer, 'new_idle')
+        # A peer can take the view only when it is locally reachable.
+        self.m.status[peer].x,self.m.status[peer].y = task.points[0]
         self.m._allocate_west_corner_review(self.m._idle_uavs(), self.now)
         replacement = self.corner_tasks()[0]
         self.assertEqual(replacement.uid, peer)
@@ -277,7 +279,7 @@ class WestCornerReviewTests(unittest.TestCase):
     def test_released_for_new_person_task_preserves_safe_corner_for_idle_peer(self):
         self.assert_safe_person_interruption_can_be_reassigned(release=True)
 
-    def test_actual_050056_northwest_yield_eight_seconds_releases_for_reachable_peer(self):
+    def test_actual_050056_northwest_yield_releases_without_remote_corner_errand(self):
         # Legal sensor replay: first YIELD 1933.744, manager drop 1942.012.
         # Source 1's start is occupied; the exact NW air/ground pair is free.
         self.now = 1932.412
@@ -337,16 +339,11 @@ class WestCornerReviewTests(unittest.TestCase):
         self.refresh()
         self.m._drop_segment(peer, 'new_idle')
         self.m._allocate_west_corner_review(self.m._idle_uavs(), self.now)
-        replacement = self.corner_tasks()[0]
-        self.assertEqual(replacement.uid, peer)
-        self.assertEqual(replacement.look_points, (look,))
-        route = sm.plan(self.m._g_infl, (self.m.status[peer].x, self.m.status[peer].y),
-            replacement.points[0], connectivity=8, prevent_corner_cutting=True,
-            max_expansions=2500)
-        self.assertTrue(route.success)
+        self.assertEqual(self.corner_tasks(), [])
+        self.assertNotIn(key, self.m._segments.reserved)
         self.assertNotIn('northwest', self.m._west_corner_seen)
         self.assertEqual(self.m.grid.cell(key).covered_t, 0.)
-        self.assertEqual(len(self.corner_tasks()), 1)
+        self.assertEqual(len(self.corner_tasks()), 0)
 
     def test_safe_interrupt_never_clears_preexisting_failure(self):
         self.allocate()

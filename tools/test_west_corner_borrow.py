@@ -184,7 +184,7 @@ class WestCornerBorrowTests(unittest.TestCase):
         self.assertTrue(all(self.m._segments.tasks[uid] is old for uid, old in self.old.items()))
         self.m._merged_grid.return_value = self.raw
         self.m.allocator.failed_visit.clear()
-        def new_attention(key, origin, options):
+        def new_attention(key, origin, options, **kwargs):
             for status in self.m.status.values(): status.search_state = ATTEND
             return options[0]
         with patch.object(self.m, '_reachable_subpoint_view', side_effect=new_attention):

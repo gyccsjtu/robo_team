@@ -431,7 +431,21 @@ class SouthPatrol:
         def priority(candidate):
             return tier(candidate[2]) + candidate
 
+        # Reach the east with useful images before making a long diagonal
+        # trip to its corner. Once an aircraft has entered the eastern band,
+        # the existing unseen-corner/edge priority applies unchanged.
+        entering_east = (region == 'east' and self.east_half is not None and
+                         os.environ.get('EAST_FIRST_ENTRY','1') == '1' and
+                         bool(idle) and all(manager.status[u].x < self.bounds[1]-55.
+                                            for u in idle
+                                            if self.uid is None or u == self.uid))
+
         def tier(key):
+            if entering_east:
+                point = viewpoints[key]
+                entry = (self.bounds[1]-35. <= point[0] <= self.bounds[1]-15. and
+                         abs(point[1]-.5*(self.bounds[2]+self.bounds[3])) <= 25.)
+                return (not entry,revisited(key))
             return ((not self._corner_needs_first_view(manager, key),
                      not self._corner_review_due(manager, key, now),
                      not self._edge_needs_first_view(manager, key), revisited(key))
