@@ -2422,7 +2422,10 @@ class SwarmAgent(SearchSegmentAgent):
         samples = cell_points(self.cov_grid, cell)
         segment = getattr(self, '_search_segment', None)
         if segment is not None and segment.get('purpose') == 'building_review':
-            look = segment['look_points'][segment['index']]
+            index = segment['index']
+            if not 0 <= index < len(segment['look_points']):
+                return {}  # images can arrive after DONE, before its cancellation ACK
+            look = segment['look_points'][index]
             raw = getattr(self, 'slam', None)
             if raw is None or not raw.is_free_raw(raw.world_to_cell(look)):
                 return {}

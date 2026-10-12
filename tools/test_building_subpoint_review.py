@@ -319,6 +319,18 @@ class BuildingSubpointReviewTests(unittest.TestCase):
         self.assertIsNone(a._search_scan_started_t)
         self.assertEqual(a._search_segment['index'],0)
 
+    def test_camera_frame_after_completed_review_cannot_index_expired_waypoint(self):
+        a = self.scan_agent()
+        a._search_segment['index'] = len(a._search_segment['look_points'])
+        a._search_segment['state'] = DONE
+        self.assertEqual(a._search_observable_points(3.5, -8.95, 4.45, 0.), {})
+        with patch.object(sa.rospy.Time, 'now', return_value=sa.rospy.Time.from_sec(100.5)):
+            a._processed_camera_frame_cb(NS(data=json.dumps(dict(processed=True,
+                source_uav=a.uav_id, sample_s=100.5, x=3.5, y=-8.95,
+                z=4.45, yaw=math.pi/2, down_pitch=0.))))
+        self.assertEqual(a._search_scan_seen, set())
+        self.assertEqual(a._search_segment['state'], DONE)
+
     def test_building_review_uses_original_two_frame_dwell_without_fake_credit(self):
         a=self.scan_agent()
         a._segment_control(3.,5.,.8,2.,2.)
