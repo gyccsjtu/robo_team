@@ -18,6 +18,42 @@ from perception import perception_real as pr
 
 
 class TrackingViewTests(unittest.TestCase):
+    def test_recorded_red_crop_requests_space_even_when_height_interval_exists(self):
+        # 212319: UAV0 red, image 2258.448, bottom=480, altitude goal=4.03.
+        for tilt in (0.064, .2):
+            v=self.payload(sample_s=2258.448, box=[370.,420.6,410.,480.],
+                           camera_tilt=tilt, report_ok=False)
+            state=update_altitude_hold(None,v,4.03,7.24,2.6,4.2)
+            self.assertTrue(state['needs_space'])
+            self.assertGreater(state['range_floor'],9.5)
+            self.assertAlmostEqual(state['goal'],4.03)  # no sudden height jump
+            self.assertFalse(v['report_ok'])  # a control fix never grants reporting
+
+    def test_crop_margin_reaches_actual_flight_observation_radius(self):
+        a=self.agent()
+        a._t_seen={'t3':100.}
+        self.send(a,self.payload(box=[340.,400.,380.,480.],report_ok=False))
+        context=a._view_motion_context(100.1)
+        self.assertIsNotNone(context)
+        self.assertGreater(context['radius'],context['distance'])
+        self.assertGreater(context['radius'],sa.ORBIT_RADIUS_CLOSE)
+        # The existing safety preference still preserves a stop command.
+        self.assertEqual(a._view_follow_velocity(0.,0.),(0.,0.))
+
+    def test_crop_recovery_has_margin_hysteresis_without_growing_on_border_frames(self):
+        v=self.payload(sample_s=100.,box=[340.,380.,380.,480.])
+        state=update_altitude_hold(None,v,4.,8.,2.6,4.2)
+        floor=state['range_floor']
+        for i in range(1,5):
+            v=self.payload(sample_s=100.+i*.2,box=[340.,340.,380.,440.])
+            state=update_altitude_hold(state,v,4.,floor,2.6,4.2)
+            self.assertTrue(state['needs_space'])
+            self.assertAlmostEqual(state['range_floor'],floor)
+        v=self.payload(sample_s=101.,box=[340.,300.,380.,410.])
+        state=update_altitude_hold(state,v,4.,floor,2.6,4.2)
+        self.assertFalse(state['needs_space'])
+        self.assertEqual(state['range_floor'],0.)
+
     def test_repeated_tilt_pauses_but_does_not_erase_height_intent(self):
         state = None
         for i in range(50):

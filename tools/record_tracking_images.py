@@ -18,6 +18,8 @@ def main():
     parser.add_argument('output', type=Path)
     parser.add_argument('--seconds', type=float, default=650.)
     parser.add_argument('--limit', type=int, default=180)
+    parser.add_argument('--candidates', action='store_true',
+                        help='Capture pixel discovery candidates instead of established tracks.')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     rospy.init_node('tracking_images_read_only', anonymous=True)
@@ -34,7 +36,9 @@ def main():
         nonlocal count
         try:
             view = json.loads(msg.data)
-            uid, tid, stamp = view['source_uav'], view['target_id'], float(view['sample_s'])
+            uid, stamp = view['source_uav'], float(view['sample_s'])
+            tid = (view['candidate_id'].split(':', 1)[0] if args.candidates
+                   else view['target_id'])
             key = (uid, tid)
             with lock:
                 if count >= args.limit or stamp-saved_at.get(key, -1e9) < 2.:
@@ -61,7 +65,8 @@ def main():
     subs = [rospy.Subscriber('/typhoon_h480_%d/stereo_camera/left/image_raw'%i,
                 Image, receive_image, 'typhoon_h480_%d'%i, queue_size=1,
                 buff_size=2**22) for i in range(6)]
-    subs.append(rospy.Subscriber('/swarm/tracking_view', String,
+    topic = '/swarm/visual_candidate' if args.candidates else '/swarm/tracking_view'
+    subs.append(rospy.Subscriber(topic, String,
                                 receive_view, queue_size=4))
     try:
         end = time.monotonic()+args.seconds

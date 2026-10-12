@@ -229,7 +229,21 @@ def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
         return previous
     goal = previous['goal'] if dt <= 2. else min(maximum, max(minimum, altitude))
     lower, upper = view_height_window(view, range_m, minimum, maximum)
-    needs_space = lower > upper or view['box'][3]-view['box'][1] > .8*view['height']
+    _, top, _, bottom = view['box']
+    height = view['height']
+    edge_pressure = view_needs_space(view)
+    # In 212319, bottom=480 while needs_space=False: a mathematically feasible
+    # height interval was mistaken for an actually complete camera image.
+    # Keep some hysteresis so one image just inside the border does not draw
+    # the UAV back into the same crop. This affects observation motion only.
+    hold_space = (previous.get('needs_space', False) and
+                  (bottom > .88*height or top < .08*height))
+    needs_space = lower > upper or edge_pressure or hold_space
+    range_floor = 0.
+    if needs_space and lower <= maximum:
+        range_floor = max(view_distance_floor(view, altitude),
+                          range_m+.5 if edge_pressure or lower > upper
+                          else previous.get('range_floor', range_m))
     proposed = image_altitude_goal(view, goal, range_m, minimum, maximum)
     delta = proposed-goal
     # The image dead band must not leave the goal just outside a hard geometry
@@ -242,7 +256,7 @@ def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
         return dict(previous, sample_s=sample, goal=goal,
                     pressure_since=previous['pressure_since']+max(0., dt),
                     needs_space=needs_space,
-                    range_floor=previous.get('range_floor', 0.))
+                    range_floor=range_floor)
     since = previous['pressure_since']
     if direction != previous['direction'] or dt > .5:
         since = sample
@@ -254,8 +268,7 @@ def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
                 goal=min(maximum, max(minimum, goal)),
                 direction=direction, pressure_since=since,
                 needs_space=needs_space,
-                range_floor=(max(range_m+.5, view_distance_floor(view, altitude))
-                             if needs_space and lower <= maximum else 0.))
+                range_floor=range_floor)
 
 
 def view_needs_space(view):
