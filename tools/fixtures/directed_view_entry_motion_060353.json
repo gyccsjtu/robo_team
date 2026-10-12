@@ -1,0 +1,290 @@
+{
+  "run": "060353",
+  "source": "f33593c",
+  "no_actor_truth": true,
+  "scope": "Recorded team camera, UavStatus and own MAVROS velocity at first LOOK of actual observation timeouts; counterfactual entry checks, not full flight replay",
+  "entries": [
+    {
+      "uav": "typhoon_h480_0",
+      "task": "baac1175b2d6471faa4fbd25e91954f1",
+      "purpose": "south_patrol",
+      "index": 0,
+      "firstlook": 2060.104,
+      "status": {
+        "uav": "typhoon_h480_0",
+        "stamp": 2060.104,
+        "connected": true,
+        "x": 105.3134536743164,
+        "y": -49.45356750488281,
+        "z": 4.147954940795898,
+        "task": "baac1175b2d6471faa4fbd25e91954f1",
+        "version": 1,
+        "index": 0,
+        "state": 2,
+        "path_version": 5,
+        "remaining": 15.280624389648438,
+        "blocked": 0,
+        "blocked_reason": "",
+        "cell": [
+          23,
+          1
+        ],
+        "point": [
+          105.55000305175781,
+          -49.5
+        ],
+        "receive": 2060.104
+      },
+      "camera": {
+        "sample_s": 2059.972,
+        "receive": 2060.064,
+        "camera_world_z": 4.4423888777862395,
+        "range": 8.974246482500611,
+        "yaw_error_deg": 93.87632714936373,
+        "down_pitch_deg": 0.19416694709844567,
+        "neutral_band": [
+          8.718679081082511,
+          9.0
+        ],
+        "neutral_width": 0.2813209189174888,
+        "neutral_range_ok": true,
+        "actual_in_view": false,
+        "yaw_aligned": false,
+        "vertical_actual_deg": 26.141944914151757,
+        "frame": {
+          "source_uav": "typhoon_h480_0",
+          "sample_s": 2059.972,
+          "x": 105.52593556572813,
+          "y": -49.55716168481897,
+          "z": 4.4423888777862395,
+          "yaw": -1.6320814306448612,
+          "down_pitch": 0.0033888525254135273,
+          "processed": true,
+          "receive": 2060.064
+        }
+      },
+      "measured_velocity": {
+        "receive_ros": 2060.104,
+        "velocity_sample_s": 2060.088161912,
+        "sample_age_at_entry": 0.015838087999782147,
+        "velocity_frame": "base_link",
+        "velocity_xyz": [
+          -1.216666340827942,
+          -0.1366651952266693,
+          -0.1123737096786499
+        ],
+        "horizontal_speed": 1.2243179164293876,
+        "local_body_z": 4.147954940795898,
+        "local_pose_xy": [
+          105.3134536743164,
+          -46.45356750488281
+        ],
+        "position_command": {
+          "sample_s": 2060.104,
+          "frame": "map",
+          "xyz": [
+            105.3134536743164,
+            -46.45356750488281,
+            4.347954940795899
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            -0.6614720690791668,
+            0.7499698006107486
+          ]
+        },
+        "record": {
+          "ros": 2060.104,
+          "wall": 1791842821.8313985,
+          "pose": {
+            "sample_s": 2060.088161912,
+            "frame": "map",
+            "xyz": [
+              105.3134536743164,
+              -46.45356750488281,
+              4.147954940795898
+            ],
+            "quaternion": [
+              0.018664947618693844,
+              -0.017846508998081313,
+              0.7418491659839265,
+              -0.6700694161940535
+            ]
+          },
+          "velocity": {
+            "sample_s": 2060.088161912,
+            "frame": "base_link",
+            "xyz": [
+              -1.216666340827942,
+              -0.1366651952266693,
+              -0.1123737096786499
+            ],
+            "yaw_rate": -0.19965671370938357
+          },
+          "position_command": {
+            "sample_s": 2060.104,
+            "frame": "map",
+            "xyz": [
+              105.3134536743164,
+              -46.45356750488281,
+              4.347954940795899
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              -0.6614720690791668,
+              0.7499698006107486
+            ]
+          }
+        },
+        "projection_toward_look_if_ENU": -1.2159600480845039
+      },
+      "look": [
+        114.5,
+        -49.5
+      ]
+    },
+    {
+      "uav": "typhoon_h480_0",
+      "task": "eb7275e5362243f8bf0f6f7010c20a1f",
+      "purpose": "building_review",
+      "index": 0,
+      "firstlook": 2439.504,
+      "status": {
+        "uav": "typhoon_h480_0",
+        "stamp": 2439.504,
+        "connected": true,
+        "x": 110.30387878417969,
+        "y": 3.6897969245910645,
+        "z": 4.197729110717773,
+        "task": "eb7275e5362243f8bf0f6f7010c20a1f",
+        "version": 1,
+        "index": 0,
+        "state": 2,
+        "path_version": 18,
+        "remaining": 0.032602448016405106,
+        "blocked": 0,
+        "blocked_reason": "",
+        "cell": [
+          22,
+          10
+        ],
+        "point": [
+          110.33860778808594,
+          3.681394338607788
+        ],
+        "receive": 2439.504
+      },
+      "camera": {
+        "sample_s": 2439.36,
+        "receive": 2439.464,
+        "camera_world_z": 4.484822090879731,
+        "range": 8.949453696332677,
+        "yaw_error_deg": 51.7864981742868,
+        "down_pitch_deg": 3.2092700493888215,
+        "neutral_band": [
+          8.801958950882135,
+          9.0
+        ],
+        "neutral_width": 0.19804104911786524,
+        "neutral_range_ok": true,
+        "actual_in_view": false,
+        "yaw_aligned": false,
+        "vertical_actual_deg": 23.407462831954792,
+        "frame": {
+          "source_uav": "typhoon_h480_0",
+          "sample_s": 2439.36,
+          "x": 110.23794291636918,
+          "y": 3.583068500968004,
+          "z": 4.484822090879731,
+          "yaw": 1.4366266210142165,
+          "down_pitch": 0.056012328947475966,
+          "processed": true,
+          "receive": 2439.464
+        }
+      },
+      "measured_velocity": {
+        "receive_ros": 2439.46,
+        "velocity_sample_s": 2439.4521207,
+        "sample_age_at_entry": 0.05187930000010965,
+        "velocity_frame": "base_link",
+        "velocity_xyz": [
+          0.1668711006641388,
+          1.7430427074432373,
+          -0.13455693423748016
+        ],
+        "horizontal_speed": 1.751012234168543,
+        "local_body_z": 4.200933933258057,
+        "local_pose_xy": [
+          110.29845428466797,
+          6.633523941040039
+        ],
+        "position_command": {
+          "sample_s": 2439.452,
+          "frame": "map",
+          "xyz": [
+            110.40638191251988,
+            7.553776192733384,
+            4.2
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.5575543790626399,
+            0.8301404184763407
+          ]
+        },
+        "record": {
+          "ros": 2439.46,
+          "wall": 1791843204.280622,
+          "pose": {
+            "sample_s": 2439.4521207,
+            "frame": "map",
+            "xyz": [
+              110.29845428466797,
+              6.633523941040039,
+              4.200933933258057
+            ],
+            "quaternion": [
+              0.006057620668862367,
+              -0.014988632040185282,
+              -0.6514044788651174,
+              -0.7585584895419569
+            ]
+          },
+          "velocity": {
+            "sample_s": 2439.4521207,
+            "frame": "base_link",
+            "xyz": [
+              0.1668711006641388,
+              1.7430427074432373,
+              -0.13455693423748016
+            ],
+            "yaw_rate": -0.2698298715016453
+          },
+          "position_command": {
+            "sample_s": 2439.452,
+            "frame": "map",
+            "xyz": [
+              110.40638191251988,
+              7.553776192733384,
+              4.2
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.5575543790626399,
+              0.8301404184763407
+            ]
+          }
+        },
+        "projection_toward_look_if_ENU": 1.1173375801037078
+      },
+      "look": [
+        104.01,
+        10.01
+      ]
+    }
+  ]
+}

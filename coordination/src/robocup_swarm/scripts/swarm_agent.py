@@ -1105,6 +1105,9 @@ class SwarmAgent(SearchSegmentAgent):
         self._claim_pub = rospy.Publisher("/swarm/orbit_claim", String, queue_size=10)
         rospy.Subscriber("/%s/mavros/local_position/pose" % uav_id, PoseStamped, self._local_cb)
         if MOTION_SAFETY:
+            self._directed_view_settle_enabled = True
+            self._directed_view_settle_timeout = SEARCH_DIRECTED_LOOK_TIMEOUT_S
+            self._directed_view_settle_yaw_tol = SEARCH_SCAN_YAW_TOL
             rospy.Subscriber("/%s/mavros/local_position/velocity_local" % uav_id,
                              TwistStamped,self._measured_velocity_cb,queue_size=1)
         rospy.Subscriber("/%s/scan" % uav_id, LaserScan, self._scan_cb,
@@ -4807,26 +4810,8 @@ class SwarmAgent(SearchSegmentAgent):
                 # cannot recover a camera that has drifted too near the look.
                 # A neutral-valid distance instead waits for actual new frames
                 # to settle. Actual in_view/dwell alone still grants credit.
-                band = ground_distance_band(altitude, 0.)
-                vx = vy = 0.
-                distance = math.hypot(look[0]-x, look[1]-y)
-                if (band is not None and distance > 1e-6 and
-                        not band[0] <= distance <= band[1]):
-                    # Use the aligned image origin, not its planned body range;
-                    # keep the original arrival neighbourhood and clear path.
-                    desired = .5*(band[0]+band[1])
-                    error = distance-desired
-                    ux, uy = (look[0]-x)/distance, (look[1]-y)/distance
-                    own = self.world_xy
-                    corrected = (own[0]+error*ux, own[1]+error*uy)
-                    point = segment['points'][segment['index']]
-                    if (math.dist(corrected, point) <= SEARCH_ARRIVE_TOL and
-                            clear_line(self.grid, own, corrected)):
-                        speed = max(-.35, min(.35, POS_KP*error))
-                        vx, vy = self._apply_friend_avoidance(speed*ux, speed*uy)
-                        rospy.loginfo_throttle(2., '[SEARCH_VIEW_ADJUST] uav=%s '
-                            'range=%.3f band=(%.3f,%.3f) requested=(%.2f,%.2f)',
-                            self.uav_id, distance, band[0], band[1], vx, vy)
+                vx, vy = self._directed_view_range_velocity(camera, look,
+                    segment['points'][segment['index']], SEARCH_ARRIVE_TOL, POS_KP)
                 self._send_vel(vx, vy)
                 return
             first = self._search_scan_directed_first

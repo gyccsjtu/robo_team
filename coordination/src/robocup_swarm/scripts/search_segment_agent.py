@@ -121,6 +121,11 @@ class SearchSegmentAgent:
             self._search_segment = dict(id=tid,revision=revision,cells=cells,points=points,
                 index=0,until=until,state=TRAVEL,created=sample,blocked=0,reason='',
                 purpose=purpose,look_points=looks)
+            if (same_view and current.get('view_entry') is not None and
+                    current['view_entry'][0] == current['index']):
+                # A heartbeat/revision of this exact view cannot buy a new
+                # braking/turning budget. A different view has its own budget.
+                self._search_segment['view_entry'] = (0, current['view_entry'][1])
             self._segment_path_key = None
             self._last_task_stamp = max(sample,getattr(self,'_last_task_stamp',-1.))
             return True
@@ -176,6 +181,7 @@ class SearchSegmentAgent:
     def _segment_next(self):
         task = self._search_segment
         task['index'] += 1
+        task.pop('view_entry', None)
         with self._plan_lock:
             self._plan_epoch += 1
             self._plan_pending = None
@@ -233,6 +239,22 @@ class SearchSegmentAgent:
         distance = math.dist(self.world_xy,point)
         directed = (task.get('purpose') in DIRECTED_PURPOSES and
                     i < len(task.get('look_points', ())))
+        settle = directed and getattr(self, '_directed_view_settle_enabled', False)
+        entry = task.get('view_entry') if settle else None
+        if entry is not None and entry[0] != i:
+            task.pop('view_entry', None)
+            entry = None
+        if (entry is not None and task['state'] != LOOK and
+                (now < entry[1] or now-entry[1] >
+                 getattr(self, '_directed_view_settle_timeout', 8.))):
+            # A missed view is a failure at this index, never an imaged visit.
+            task['state'], task['reason'] = FAILED, 'observation_timeout'
+            rospy.logwarn('[SEARCH_VIEW_PREPARE_TIMEOUT] uav=%s task=%s '
+                          'index=%d elapsed=%.3f; no image credit',
+                          self.uav_id, task['id'], i, now-entry[1])
+            self._discard_old_plan()
+            self._send_vel(0., 0.)
+            return True
         at_view = distance < arrive
         if at_view and directed and task['state'] != LOOK:
             # A transit tolerance is not proof of an observable viewpoint.
@@ -253,6 +275,32 @@ class SearchSegmentAgent:
                     # same geometry at the fixed camera's level hover pose.
                     at_view = (in_view(x,y,bearing,*look,height,pitch) and
                                in_view(x,y,bearing,*look,height,0.))
+                    if settle and (at_view or entry is not None):
+                        if entry is None:
+                            entry = task['view_entry'] = (i, now)
+                        self._set_search_heading(bearing)
+                        measured = getattr(self, '_measured_velocity', None)
+                        stopped = (measured is not None and
+                            0. <= now-measured[0] <= .3 and
+                            all(math.isfinite(v) for v in measured[1]) and
+                            math.hypot(*measured[1]) <= .35)
+                        yaw_error = math.atan2(math.sin(bearing-_yaw),
+                                              math.cos(bearing-_yaw))
+                        if (not at_view or not stopped or abs(yaw_error) >
+                                getattr(self, '_directed_view_settle_yaw_tol', math.radians(12.))):
+                            # Braking/turning precedes the existing image dwell
+                            # timer. Fresh actual velocity and camera yaw, not
+                            # a zero intent or desired yaw, establish readiness.
+                            velocity = (self._directed_view_range_velocity(
+                                camera, look, point, arrive, kp)
+                                if stopped and not at_view else (0., 0.))
+                            rospy.loginfo_throttle(2., '[SEARCH_VIEW_PREPARE] '
+                                'uav=%s task=%s index=%d elapsed=%.3f '
+                                'stopped=%s yaw_error=%.3f geometry=%s',
+                                self.uav_id, task['id'], i, now-entry[1],
+                                stopped, yaw_error, at_view)
+                            self._send_vel(*velocity)
+                            return True
         if at_view or (directed and task['state'] == LOOK):
             camera = getattr(self,'_search_camera_pose',None)
             fresh = camera is not None and 0 <= now-camera[0] <= .5
@@ -349,6 +397,30 @@ class SearchSegmentAgent:
         task['state'] = YIELD if desired>.3 and math.hypot(vx,vy)<.25 else TRAVEL
         self._send_vel(vx,vy)
         return True
+
+    def _directed_view_range_velocity(self, camera, look, point, arrive, kp):
+        """Recover a drifted range inside the original checked arrival area.
+
+        The neutral-pose band permits motion; only real processed frames can
+        credit an observation. Pitch-only rejection cannot demand motion.
+        """
+        _, x, y, _, height, _ = camera
+        band = ground_distance_band(height, 0.)
+        distance = math.dist((x, y), look)
+        if band is None or distance <= 1e-6 or band[0] <= distance <= band[1]:
+            return 0., 0.
+        error = distance-.5*(band[0]+band[1])
+        ux, uy = (look[0]-x)/distance, (look[1]-y)/distance
+        own = self.world_xy
+        corrected = (own[0]+error*ux, own[1]+error*uy)
+        if math.dist(corrected, point) > arrive or not clear_line(self.grid, own, corrected):
+            return 0., 0.
+        speed = max(-.35, min(.35, kp*error))
+        velocity = self._apply_friend_avoidance(speed*ux, speed*uy)
+        rospy.loginfo_throttle(2., '[SEARCH_VIEW_ADJUST] uav=%s '
+            'range=%.3f band=(%.3f,%.3f) requested=(%.2f,%.2f)',
+            self.uav_id, distance, band[0], band[1], *velocity)
+        return velocity
 
     def _segment_status(self, st):
         task = getattr(self,'_search_segment',None)
