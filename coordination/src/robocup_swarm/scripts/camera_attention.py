@@ -2,6 +2,18 @@
 import math
 
 
+def attention_expired(cue, now):
+    """An extended pixel-only approach requires continuing image evidence.
+
+    Two seconds without the bound candidate ends this exploratory look;
+    fresh frames cannot extend the original absolute deadline. Localized
+    dispatch holds retain their separate budget. This is no identity verdict.
+    """
+    return (now >= cue['until'] or
+            (cue.get('approach_started', False) and cue.get('xy') is None and
+             now - cue['sample_s'] >= 2.0))
+
+
 def approach_image(data):
     """Only a full, modest-size, upright view permits an exploratory approach."""
     try:

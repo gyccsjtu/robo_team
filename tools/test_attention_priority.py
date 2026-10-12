@@ -93,6 +93,51 @@ class AttentionPriorityTests(unittest.TestCase):
         self.a._control()
         self.assertEqual(self.commands[-1],(0.,0.))
 
+    def start_recorded_pillar_look(self):
+        self.now = 2015.144
+        self.a._visual_candidate_cb(NS(data=json.dumps(dict(
+            source_uav='u0', real_detection=True, purpose='camera_reacquire',
+            candidate_id='blue:13', hits=3, sample_s=2015.032,
+            bearing=2.0668, confidence=.7011,
+            box=[147.60,316.77,165.29,357.74],
+            width=752, height=480, camera_tilt=.01396))))
+        self.assertEqual(self.a._camera_cue['until'],2021.144)
+        self.now = 2015.76
+        self.cue(cid='blue:13', sample=2015.644, bearing=2.0668)
+
+    def test_extended_look_ends_when_bound_images_stop_without_resetting_retry(self):
+        self.start_recorded_pillar_look()
+        retry = self.a._camera_cue['attempt']['retry_at']
+        self.now = 2017.60
+        self.assertTrue(self.a._hold_camera_candidate())
+        self.now = 2017.70
+        self.assertFalse(self.a._hold_camera_candidate())
+        self.assertIsNone(self.a._camera_cue)
+        self.assertEqual(len(self.revisits),1)
+        self.assertEqual(self.detections,[])
+        self.cue(cid='blue:99',bearing=2.0668)
+        self.assertIsNone(self.a._camera_cue)
+        self.assertEqual(self.a._camera_attention_attempts[0]['retry_at'],retry)
+
+    def test_different_candidate_cannot_keep_expired_look_alive(self):
+        self.start_recorded_pillar_look()
+        self.now = 2017.70
+        self.cue(cid='red:14',bearing=2.0668)
+        self.assertEqual(self.a._camera_cue['candidate_id'],'blue:13')
+        self.assertFalse(self.a._hold_camera_candidate())
+        self.cue(cid='red:14',bearing=2.0668)
+        self.assertEqual(self.a._camera_cue['candidate_id'],'red:14')
+
+    def test_continuing_bound_images_keep_look_but_never_extend_deadline(self):
+        self.start_recorded_pillar_look()
+        for stamp in (2017.,2018.5,2020.,2021.):
+            self.now = stamp
+            self.cue(cid='blue:13',bearing=2.0668)
+            self.assertTrue(self.a._hold_camera_candidate())
+            self.assertEqual(self.a._camera_cue['until'],2021.144)
+        self.now = 2021.20
+        self.assertFalse(self.a._hold_camera_candidate())
+
     def test_multiframe_moderate_confidence_interrupts_search_for_every_color(self):
         for color in ('blue', 'green', 'brown', 'red', 'white'):
             with self.subTest(color=color):

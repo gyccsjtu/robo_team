@@ -48,7 +48,8 @@ from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
 from search_segments import clear_line
-from camera_attention import approach_image, candidate_velocity, candidate_decision, candidate_reposition
+from camera_attention import (approach_image, candidate_velocity, candidate_decision,
+                              candidate_reposition, attention_expired)
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
@@ -1807,7 +1808,7 @@ class SwarmAgent(SearchSegmentAgent):
         if target_id and self._stable_other_owner(target_id, now, xy, bearing):
             return
         cue = getattr(self, '_camera_cue', None)
-        if cue is not None and now >= cue['until']:
+        if cue is not None and attention_expired(cue, now):
             return  # control consumes expiry and records a missed-view revisit
         if cue is not None and now < cue['until']:
             if xy is not None and cue.get('xy') is not None:
@@ -2288,7 +2289,7 @@ class SwarmAgent(SearchSegmentAgent):
                 cue.get('candidate_id'), None)
             self._camera_cue = None
             return False
-        if now >= cue['until']:
+        if attention_expired(cue, now):
             self._camera_cue = None
             # Only a real own-camera localization resolves a pixel cue. If
             # the 2 s look ended without one, remember this CAMERA POSITION
