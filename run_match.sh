@@ -78,6 +78,8 @@ MOTION_SAFETY="${MOTION_SAFETY:-0}"
 export MOTION_SAFETY
 SOUTH_PATROL="${SOUTH_PATROL:-0}"
 export SOUTH_PATROL
+SOUTH_PATROL_SOUTHEAST="${SOUTH_PATROL_SOUTHEAST:-0}"
+export SOUTH_PATROL_SOUTHEAST
 # 导航包源码目录：manager/agent 均 import robocup_navigation，必须进 PYTHONPATH
 NAV_SRC="$REPO_ROOT/coordination/src/robocup_navigation/src"
 # 合规地图元数据（2026-10-07 重构，规则 §2.4/§2.5 无预读随机地图）：
@@ -364,6 +366,11 @@ fast_visual_config_valid(){
     done
     case "$SOUTH_PATROL" in 0|1) ;; *)
         err "SOUTH_PATROL 只能为0或1"; return 1 ;; esac
+    case "$SOUTH_PATROL_SOUTHEAST" in 0|1) ;; *)
+        err "SOUTH_PATROL_SOUTHEAST 只能为0或1"; return 1 ;; esac
+    if [ "$SOUTH_PATROL_SOUTHEAST" = 1 ] && [ "$SOUTH_PATROL" != 1 ]; then
+        err "SOUTH_PATROL_SOUTHEAST 需要 SOUTH_PATROL=1"; return 1
+    fi
     if [ "$SOUTH_PATROL" = 1 ] && { [ "$MOTION_SAFETY" != 1 ] || [ "$SEARCH_SEGMENTS" != 1 ]; }; then
         err "SOUTH_PATROL 需要 MOTION_SAFETY=1 且 SEARCH_SEGMENTS=1"; return 1
     fi

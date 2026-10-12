@@ -46,6 +46,8 @@ def main():
         search_segments=os.environ.get('SEARCH_SEGMENTS','0'),
         motion_safety=os.environ.get('MOTION_SAFETY','0'),
         south_patrol=os.environ.get('SOUTH_PATROL','0'),
+        southeast_inner_patrol=os.environ.get('SOUTH_PATROL_SOUTHEAST','0'),
+        orbit_radius_close_m=os.environ.get('ORBIT_RADIUS_CLOSE','8.0'),
         flight_boundary={key:os.environ.get(key, default) for key, default in (
             ('FLIGHT_X_MIN','-50.0'), ('FLIGHT_X_MAX','150.0'),
             ('FLIGHT_Y_MIN','-60.0'), ('FLIGHT_Y_MAX','60.0'),

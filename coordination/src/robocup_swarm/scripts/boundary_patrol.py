@@ -4,16 +4,24 @@ No actor positions, independent controller, reservations or coverage writes.
 ENU negative Y identifies the south side of the allowed search region.
 """
 import math
+import os
 from robocup_navigation.astar import plan
 from search_segments import clear_line
 from swarm_task import STATE_ASSIGNED, STATE_COVERED
 
 
 class SouthPatrol:
-    def __init__(self, flight_bounds, max_hold=90., max_segments=3):
+    def __init__(self, flight_bounds, max_hold=90., max_segments=3,
+                 southeast=None):
         self.bounds = tuple(flight_bounds)
         self.max_hold = max_hold
         self.max_segments = max_segments
+        # A single initial leg is optional. Later patrol episodes use the
+        # original south-edge band even after a failed or preempted leg.
+        self.southeast = (os.environ.get('SOUTH_PATROL_SOUTHEAST', '0') == '1'
+                          if southeast is None else bool(southeast))
+        self._first_leg_started = False
+        self._first_deadline = None
         self.uid = None
         self.deadline = 0.
         self.task_id = None
@@ -48,27 +56,57 @@ class SouthPatrol:
         grid = getattr(manager, '_g_infl', None)
         if grid is None:
             return None
+        if self.southeast and not self._first_leg_started:
+            proposal = self._choose_band(manager, idle, now, grid, southeast=True)
+            if proposal is not None:
+                return proposal
+        proposal = self._choose_band(manager, idle, now, grid, southeast=False)
+        if proposal is None:
+            if self.uid is not None:
+                self.finish(now)
+            else:
+                self.next_s = now+5.
+        return proposal
+
+    def _choose_band(self, manager, idle, now, grid, southeast):
+        """Check one camera band; row 2 always remains a distinct reservation."""
         keys = []
         viewpoints = {}
         ymin = self.bounds[2]
         for key, cell in manager.grid.cells.items():
-            if (abs(cell.cy-ymin) > manager.grid.cell_m*.5 or
-                    key in manager._blocked_cells or key in manager._segments.reserved or
+            if southeast:
+                in_band = (key[1] == 2 and 50. <= cell.cx <= 110. and
+                           abs(cell.cy-(ymin+2.5*manager.grid.cell_m)) <=
+                           manager.grid.cell_m)
+            else:
+                in_band = abs(cell.cy-ymin) <= manager.grid.cell_m*.5
+            if (not in_band or key in manager._blocked_cells or
+                    key in manager._segments.reserved or
                     cell.state in (STATE_ASSIGNED, STATE_COVERED) or cell.owner is not None or
                     now-manager.allocator.visit_time.get(key, -1e18) < 60. or
                     now-manager.allocator.failed_visit.get(key, -1e18) <
                         manager.allocator.failed_novelty_ttl):
                 continue
-            point = manager._segment_point(key)
-            # A clipped last/first coverage row may be narrower than 7m.
-            # Keep an observable standoff instead of flying over its centre.
-            point=(point[0],max(point[1],cell.cy+8.))
-            # Preserve an interior standoff and observe the cell from there.
-            # If the live map cannot supply this viewpoint, leave a blind job
-            # to the ordinary allocator rather than camping on a wall.
-            if (not point[1] > cell.cy or math.dist(point, (cell.cx, cell.cy)) > 14. or
-                    not manager._search_point_free(point)):
-                continue
+            if southeast:
+                # The front camera looks north from a safe point south of the
+                # reserved *inner* cell. Never credit the separate edge row.
+                point = (cell.cx, cell.cy-8.5)
+                viewpoint_valid = getattr(manager, '_blind_viewpoint_valid', None)
+                if (not manager._search_point_free(point) or
+                        viewpoint_valid is None or not viewpoint_valid(cell, point) or
+                        not clear_line(grid, point, (cell.cx, cell.cy))):
+                    continue
+            else:
+                point = manager._segment_point(key)
+                # A clipped last/first coverage row may be narrower than 7m.
+                # Keep an observable standoff instead of flying over its centre.
+                point=(point[0],max(point[1],cell.cy+8.))
+                # Preserve an interior standoff and observe the cell from there.
+                # If the live map cannot supply this viewpoint, leave a blind job
+                # to the ordinary allocator rather than camping on a wall.
+                if (not point[1] > cell.cy or math.dist(point, (cell.cx, cell.cy)) > 14. or
+                        not manager._search_point_free(point)):
+                    continue
             keys.append(key)
             viewpoints[key]=point
         pairs = []
@@ -85,10 +123,28 @@ class SouthPatrol:
                 if self.direction and self.direction*(point[0]-s.x) < -1.:
                     continue
                 pairs.append((math.dist((s.x, s.y), point), uid, key, point))
-        # Bounded planning work. A straight distance is only a lower bound;
-        # select by checked path length amongst these nearest candidates.
+        # Bounded planning work. A near building can make all of the nearest
+        # straight-line candidates unreachable. Spread the new inner-band
+        # probes across UAVs and three eastward bins before filling the limit
+        # with ordinary nearest candidates.
+        ordered = sorted(pairs)
+        if southeast:
+            spread = {}
+            for candidate in ordered:
+                _, uid, _, point = candidate
+                bucket = (uid, min(2, max(0, int((point[0]-50.)/20.))))
+                spread.setdefault(bucket, candidate)
+            selected = sorted(spread.values())
+            selected_set = {(uid, key) for _, uid, key, _ in selected}
+            selected.extend(candidate for candidate in ordered
+                            if (candidate[1], candidate[2]) not in selected_set)
+            selected = sorted(selected[:24])
+        else:
+            selected = ordered[:8]
+        # A straight distance is only a lower bound; select by checked path
+        # length amongst the candidates actually reached by safe A* legs.
         checked = []
-        for distance, uid, key, point in sorted(pairs)[:8]:
+        for distance, uid, key, point in selected:
             if checked and distance > min(row[0] for row in checked)+1.:
                 break
             s = manager.status[uid]
@@ -101,10 +157,6 @@ class SouthPatrol:
                 continue
             checked.append((route.path_length_m, uid, key, point))
         if not checked:
-            if self.uid is not None:
-                self.finish(now)
-            else:
-                self.next_s = now+5.
             return None
         _, uid, key, point = min(checked)
         cells, points = [key], [point]
@@ -129,8 +181,15 @@ class SouthPatrol:
     def started(self, task, direction, now):
         if self.uid is None:
             self.uid = task.uid
-            self.deadline = now+self.max_hold
+            if self._first_deadline is None:
+                self._first_deadline = now+self.max_hold
+                self.deadline = self._first_deadline
+            else:
+                self.deadline = now+self.max_hold
             self.completed = 0
+        # A failed/person-preempted first task cannot regrant the southeast
+        # priority in a later patrol episode.
+        self._first_leg_started = True
         self.task_id = task.task_id
         self.direction = direction
         task.deadline = min(task.deadline, self.deadline)
