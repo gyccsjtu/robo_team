@@ -204,6 +204,7 @@ def plan(grid, start_world, goal_world, connectivity=8,
     open_heap = []
     sequence = 0
     g_score = {start: 0.0}
+    move_counts = {start: (0, 0)}
     came_from = {}
     start_h = _heuristic(start, goal, connectivity)
     heapq.heappush(open_heap, (start_h, start_h, sequence, start))
@@ -235,15 +236,26 @@ def plan(grid, start_world, goal_world, connectivity=8,
                     continue
                 if not grid.is_free((current[0], current[1] + dy)):
                     continue
-            step = diagonal_cost if diagonal else 1.0
-            tentative = g_score[current] + step
+            axes, diagonals = move_counts[current]
+            axes += int(not diagonal)
+            diagonals += int(diagonal)
+            # Accumulating sqrt(2) one edge at a time gives different tiny
+            # rounding errors to identical paths. In the 150 m empty-map
+            # corner leg those errors defeated the h tie-break and exhausted
+            # 2500 nodes. Evaluate each cost once from integer move counts.
+            tentative = axes + diagonal_cost * diagonals
             if tentative + 1e-12 >= g_score.get(neighbor, float("inf")):
                 continue
             came_from[neighbor] = current
             g_score[neighbor] = tentative
+            move_counts[neighbor] = (axes, diagonals)
             h_score = _heuristic(neighbor, goal, connectivity)
+            dx_goal, dy_goal = abs(neighbor[0]-goal[0]), abs(neighbor[1]-goal[1])
+            h_diagonals = min(dx_goal, dy_goal) if connectivity == 8 else 0
+            h_axes = dx_goal+dy_goal-2*h_diagonals
+            priority = axes+h_axes+diagonal_cost*(diagonals+h_diagonals)
             sequence += 1
-            heapq.heappush(open_heap, (tentative + h_score, h_score, sequence, neighbor))
+            heapq.heappush(open_heap, (priority, h_score, sequence, neighbor))
 
     return _failure("NO_PATH", start, goal, expanded)
 
@@ -253,7 +265,7 @@ def _heuristic(cell, goal, connectivity):
     if connectivity == 4:
         return float(dx + dy)
     smaller, larger = min(dx, dy), max(dx, dy)
-    return larger + (math.sqrt(2.0) - 1.0) * smaller
+    return larger-smaller+math.sqrt(2.0)*smaller
 
 
 def _reconstruct(came_from, current):
