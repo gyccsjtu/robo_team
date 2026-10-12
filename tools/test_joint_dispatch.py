@@ -64,14 +64,75 @@ class JointDispatchTests(unittest.TestCase):
         self.assertTrue(m._failed_view_dispatch_ok('t1',18.,0.,121.))
         self.assertTrue(m._failed_view_dispatch_ok('t1',8.,0.,136.))
 
-    def test_lost_view_does_not_restore_never_discovered_search_reserve(self):
+    def test_historical_six_sightings_do_not_permanently_remove_search_reserve(self):
         m = self.m
         m._eligible_observations = {('u0','t%d'%i):dict(eligible=True,sample_s=50.)
                                     for i in range(6)}
         self.assertEqual(len(m._observed_target_slots()),6)
         m._eligible_observations.clear()
-        self.assertTrue(m._backup_search_capacity())
+        self.assertFalse(m._backup_search_capacity())
         self.assertEqual(len(m._observed_target_slots()),6)
+
+    def test_search_reserve_uses_current_qualified_images_and_official_removals(self):
+        m = self.m
+        m._seen_target_slots = {'t%d'%i for i in range(6)}
+        m._eliminated = {'t0', 't1', 't2'}
+        m._eligible_observations = {
+            ('u0', 't3'): dict(eligible=True, sample_s=99.5),
+            ('u0', 't4'): dict(eligible=True, sample_s=98.5),
+            ('u0', 't5'): dict(eligible=True, sample_s=100.1),
+        }
+        self.assertEqual(m._currently_qualified_target_slots(100.),
+                         {'t0', 't1', 't2', 't3'})
+        self.assertFalse(m._backup_search_capacity())
+        m._eligible_observations[('u0', 't4')]['sample_s'] = 99.8
+        self.assertTrue(m._backup_search_capacity())
+
+    def test_new_close_primary_keeps_recent_unreportable_view_for_three_seconds(self):
+        m = self.m
+        m.status['u0'].x, m.status['u1'].x = 0., 10.
+        m._tracking = {'t0': 'u0'}
+        m._tracking_since = {'t0': 99.8}
+        m.tracker.targets['t0'].observers = {'u0'}
+        m._visual_observations[('u0', 't0')] = dict(
+            sample_s=99.9, eligible=False, x=5., y=0., candidate_id='person')
+        m._eligible_observations[('u1', 't0')] = dict(
+            sample_s=99.9, eligible=True, x=5., y=0.,
+            candidate_id='peer', hits=4, since_s=99.3)
+        m._handoff_distant_tracker('t0', 5., 0., m.tracker.targets['t0'])
+        self.assertEqual(m._tracking, {'t0': 'u0'})
+        m.assign_pub.publish.assert_not_called()
+
+        # Fresh raw frames do not extend the assignment grace indefinitely.
+        m._visual_observations[('u0', 't0')]['sample_s'] = 103.0
+        m._eligible_observations[('u1', 't0')]['sample_s'] = 103.0
+        m.last_report = {uid: sm.rospy.Time(103.1) for uid in m.uav_ids}
+        with patch.object(sm.rospy.Time, 'now', return_value=sm.rospy.Time(103.1)):
+            m._handoff_distant_tracker('t0', 5., 0., m.tracker.targets['t0'])
+        self.assertEqual(m._tracking, {'t0': 'u1'})
+        self.assertEqual([(call.args[0].uav_id, call.args[0].task_type)
+                          for call in m.assign_pub.publish.call_args_list],
+                         [('u1', 1), ('u0', 255)])
+
+    def _assert_raw_does_not_block_handoff(self, raw_sample, raw_id):
+        m = self.m
+        m._tracking, m._tracking_since = {'t0': 'u0'}, {'t0': 99.8}
+        m.tracker.targets['t0'].observers = {'u0'}
+        m._visual_observations[('u0', 't0')] = dict(
+            sample_s=raw_sample, eligible=False, x=5., y=0., candidate_id=raw_id)
+        m._eligible_observations[('u0', 't0')] = dict(
+            sample_s=98.5, eligible=True, x=5., y=0., candidate_id='person')
+        m._eligible_observations[('u1', 't0')] = dict(
+            sample_s=99.9, eligible=True, x=5., y=0.,
+            candidate_id='peer', hits=4, since_s=99.3)
+        m._handoff_distant_tracker('t0', 5., 0., m.tracker.targets['t0'])
+        self.assertEqual(m._tracking['t0'], 'u1')
+
+    def test_stale_raw_view_cannot_block_handoff(self):
+        self._assert_raw_does_not_block_handoff(98.9, 'person')
+
+    def test_different_instance_raw_view_cannot_block_handoff(self):
+        self._assert_raw_does_not_block_handoff(99.9, 'other')
 
     def test_recorded_red_slot_rename_keeps_search_capacity_for_second_person(self):
         root = Path(__file__).resolve().parents[1]

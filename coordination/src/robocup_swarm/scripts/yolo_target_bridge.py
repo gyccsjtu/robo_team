@@ -152,7 +152,10 @@ RED_OFFICIAL_FRESH_S = float(os.environ.get("RED_OFFICIAL_FRESH_S", "1.0"))
 # 2026-10-01 复盘：3 条 0.43~0.61 的 red1 误检（真身为 green 演员）建出鬼影轨
 # t4，全队盘旋假目标并广播假消除。已激活轨不受此限（延续观测允许低置信度）。
 NEW_TRACK_CONF = float(os.environ.get("BRIDGE_NEW_TRACK_CONF", "0.7"))
-APPEARANCE_REJECT_IDLE_S = 8.0  # one local visual ID; refreshed only by its own images
+# A mistaken secondary verdict must eventually let the same real person
+# recover. After expiry, two actor images can reactivate pursuit; the official
+# source still needs its independent three-image qualification gate.
+APPEARANCE_REJECT_TTL_S = 8.0  # fixed from the verdict; never renewed by images
 
 # One fixed object in the 22:45 match was seen by UAV3 as blue and then white
 # at (-27.1, 13.2).  It passed the ordinary geometry and stationary-person
@@ -1420,7 +1423,7 @@ class YoloTargetBridge(object):
         self._red_source_map = {}   # (source, local red slot) -> global red track
         self._red_source_observations = {}  # accepted local slot -> (image time, x, y)
         self._rejected_visual = {}  # tag -> (x, y, expiry); 本队视觉冲突位置冷却
-        self._appearance_rejected = {}  # (camera, local ID) -> last rejected image time
+        self._appearance_rejected = {}  # (camera, local ID) -> fixed expiry time
         self._String = _msg_string_cls()
         self.report_pub = rospy.Publisher("/swarm/report_telemetry",
                                           self._String, queue_size=30)
@@ -1481,7 +1484,7 @@ class YoloTargetBridge(object):
         if self.__dict__.setdefault('_candidate_sample_s', {}).get(key, sample) > sample+1e-6:
             return
         rejected = self.__dict__.setdefault('_appearance_rejected', {})
-        rejected[key] = max(sample, rejected.get(key, -1e18))
+        rejected[key] = now + APPEARANCE_REJECT_TTL_S
         reset = self.core.revoke_visual_instance(source, candidate_id)
         for tag in reset:
             self._gate_live.pop(tag, None)
@@ -1650,7 +1653,7 @@ class YoloTargetBridge(object):
                 if now-seen[key] > 30.:
                     del seen[key]
             for key in list(rejected):
-                if now-rejected[key] > APPEARANCE_REJECT_IDLE_S:
+                if now >= rejected[key]:
                     del rejected[key]
             admitted = []
             for row in rows:
@@ -1661,8 +1664,7 @@ class YoloTargetBridge(object):
                 if sample <= seen.get(key, -1e18):
                     continue
                 seen[key] = sample
-                if key in rejected and sample-rejected[key] <= APPEARANCE_REJECT_IDLE_S:
-                    rejected[key] = sample  # continuously visible decoy remains suppressed
+                if key in rejected:
                     continue
                 self._last_source_sample[(source, local_tag)] = sample
                 if row['tag'] in RED_TAGS:

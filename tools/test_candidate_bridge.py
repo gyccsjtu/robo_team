@@ -393,18 +393,25 @@ class CandidateBridgeTests(unittest.TestCase):
                                 self.candidate('red-b', 30., tag='red2')])
         self.assertEqual(node.core.tracks['red2'].official_candidate_id, 'red-b')
 
-    def test_rejected_local_id_stays_blocked_while_it_keeps_appearing(self):
+    def test_rejected_local_id_recovers_on_fixed_expiry_despite_continuous_images(self):
         node = self.node()
         for k in range(4):
             self.send(node, 100.+k*.2, [self.candidate('statue', 10.)])
         self.reject(node, 'u0', 'statue', 'blue', 100.6)
-        for k in range(65):  # longer than the idle timeout, but no visual gap
+        expiry = node._appearance_rejected[('u0', 'statue')]
+        for k in range(37):
             self.send(node, 101.+k*.2, [self.candidate('statue', 10.)])
         self.assertIsNone(node.core.tracks['blue'].official_candidate_id)
+        self.assertEqual(node._appearance_rejected[('u0', 'statue')], expiry)
         self.assertFalse(any(r['candidate_id'] == 'statue' for r in self.evidence(node)
                              if r['sample_s'] >= 101.))
-        for k in range(4):
-            self.send(node, 122.+k*.2, [self.candidate('statue', 10.)])
+        self.send(node, 108.8, [self.candidate('statue', 10.)])
+        # One post-expiry actor frame is a tentative candidate, not a report.
+        self.assertFalse(node.core.tracks['blue'].alive)
+        self.send(node, 109., [self.candidate('statue', 10.)])
+        self.assertTrue(node.core.tracks['blue'].alive)
+        self.assertIsNone(node.core.tracks['blue'].official_candidate_id)
+        self.send(node, 109.2, [self.candidate('statue', 10.)])
         self.assertEqual(node.core.tracks['blue'].official_candidate_id, 'statue')
 
     def test_rejection_arriving_before_same_image_blocks_only_that_id(self):

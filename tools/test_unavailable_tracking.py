@@ -162,7 +162,7 @@ class UnavailableTrackingTests(unittest.TestCase):
         self.assertEqual(manager._backup, {})
         manager.assign_pub.publish.assert_not_called()
 
-    def test_all_slots_seen_allows_remote_relief_without_resetting_primary_clock(self):
+    def test_only_currently_qualified_slots_allow_remote_relief(self):
         manager, target = self._backup_manager(primary_sample=95.)
         manager.status['u4'].connected = False
         manager.status['u3'].x = -40.
@@ -171,6 +171,11 @@ class UnavailableTrackingTests(unittest.TestCase):
         manager._visual_observations[('u2','t0')] = dict(eligible=True,sample_s=100.)
         manager._tracking_since = {'t0':50.}
         manager._view_recovery = {'t0':85.}
+        manager._dispatch_backup()
+        self.assertEqual(manager._backup, {})  # historical sightings cannot consume search
+        for i in range(1, 6):
+            manager._visual_observations[('u2', 't%d'%i)] = dict(
+                eligible=True, sample_s=100.)
         manager._dispatch_backup()
         self.assertEqual(manager._backup, {'t0':'u3'})
         self.assertEqual(manager._tracking_since['t0'],50.)

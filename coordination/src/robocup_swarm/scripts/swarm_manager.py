@@ -424,6 +424,7 @@ class SwarmManager(SearchSegmentManager):
         self._visual_near_seen = {}  # tid -> (x, y, t) observed within 12m by a real UAV
         self._visual_quarantine = {}  # tid -> (x, y, expires)
         self._visual_conflict_sites = []  # (x, y, radius, expires, affected IDs)
+        self._appearance_rejections = {}  # (camera uid, candidate id) -> (expiry, last image)
         # tid -> 最近一次收到 /swarm/detection 的 wall 时刻（断流检测用）
         self._last_detect = {}
         # 本队真实图像连续观测时长仅用于维持视角，不代表裁判确认。
@@ -456,6 +457,8 @@ class SwarmManager(SearchSegmentManager):
                          self._discovery_cb, queue_size=30)
         rospy.Subscriber("/swarm/visual_conflict", String,
                          self._visual_conflict_cb, queue_size=6)
+        rospy.Subscriber("/swarm/appearance_rejection", String,
+                         self._appearance_rejection_cb, queue_size=12)
         rospy.Subscriber("/swarm/visual_candidate_missed", String,
                          self._visual_candidate_missed_cb, queue_size=6)
         rospy.Subscriber("/swarm/processed_camera_frame", String,
@@ -911,6 +914,165 @@ class SwarmManager(SearchSegmentManager):
             return
 
     @serialized_tasks
+    def _appearance_rejection_cb(self, msg):
+        """Withdraw only one camera instance identified as a distractor.
+
+        A camera's red1/red2 label is not the team's t4/t5 identity. Resolve
+        the rejection by camera and candidate ID across all slots, and require
+        an event at least as new as that instance's latest original image.
+        Other cameras and other same-colour candidates remain available.
+        """
+        try:
+            event = json.loads(msg.data)
+            if event.get('reason') != 'distractor':
+                return
+            uid, cid = event['source_uav'], event['candidate_id']
+            sample = float(event['sample_s'])
+            now = rospy.Time.now().to_sec()
+            if (uid not in self.uav_ids or not isinstance(cid, str) or
+                    not cid.strip() or len(cid) > 128 or
+                    not math.isfinite(sample) or not 0. <= now-sample <= 3.):
+                return
+            books = ('_visual_observations', '_eligible_observations')
+            pool = getattr(self, '_discovery_pool', {})
+            latest_sample = max(
+                [float(view['sample_s']) for book in books
+                 for (camera, _), view in getattr(self, book, {}).items()
+                 if camera == uid and view.get('candidate_id') == cid] +
+                [float(view['sample_s']) for (_, camera, candidate), view in pool.items()
+                 if camera == uid and candidate == cid] + [-1e18])
+            if latest_sample > sample + 1e-6:
+                return
+            # ROS subscribers may deliver this event before an older frame.
+            # Reject only this visual instance for a bounded time; a new ID
+            # at the same place or of the same colour remains discoverable.
+            rejected = self.__dict__.setdefault('_appearance_rejections', {})
+            rejected[(uid, cid)] = (now + 8.0, sample)
+            tids = {tid for book in books for (camera, tid), view in
+                    getattr(self, book, {}).items()
+                    if camera == uid and view.get('candidate_id') == cid}
+            tids.update(tid for tid, camera, candidate in pool
+                        if camera == uid and candidate == cid)
+            for tid in sorted(tids):
+                records = [getattr(self, book, {}).get((uid, tid)) for book in books]
+                records += [item for (target, camera, candidate), item in pool.items()
+                            if (target, camera, candidate) == (tid, uid, cid)]
+                matching = [view for view in records if view is not None and
+                            view.get('candidate_id') == cid]
+                if not matching or any(float(view['sample_s']) > sample + 1e-6
+                                       for view in matching):
+                    continue  # a delayed rejection cannot erase newer evidence
+                latest = max(matching, key=lambda view: view['sample_s'])
+                current = getattr(self, '_visual_observations', {}).get((uid, tid))
+                current_instance = (current is not None and
+                                    current.get('candidate_id') == cid)
+                if current is not None and current.get('candidate_id') != cid:
+                    current_instance = False
+                for book in books:
+                    entries = getattr(self, book, {})
+                    view = entries.get((uid, tid))
+                    if view is not None and view.get('candidate_id') == cid:
+                        entries.pop((uid, tid), None)
+                pool.pop((tid, uid, cid), None)
+                ct = self.tracker.targets.get(tid)
+                old_obs = ct.last_obs.get(uid) if ct is not None else None
+                withdraw_obs = (old_obs is not None and
+                                old_obs.t <= latest['sample_s'] + 1e-6)
+                if withdraw_obs:
+                    ct.last_obs.pop(uid, None)
+                if ct is not None and (withdraw_obs or current_instance):
+                    # An independent qualified camera can continue its own
+                    # real streak. Re-seed the estimate from that camera so
+                    # the withdrawn decoy cannot bias future dispatch.
+                    peers = []
+                    for peer_uid, observation in ct.last_obs.items():
+                        image = self._last_eligible(peer_uid, tid)
+                        if (image is not None and image.get('eligible') and
+                                0.0 <= now-image['sample_s'] <= 1.0 and
+                                abs(observation.t-image['sample_s']) <= 1e-6):
+                            peers.append(observation)
+                    if peers:
+                        peer = max(peers, key=lambda observation: observation.t)
+                        ct.fx, ct.fy, ct.t_fuse = peer.x, peer.y, peer.t
+                        ct.vx = ct.vy = 0.0
+                    else:
+                        ct.fx = ct.fy = ct.t_fuse = None
+                        ct.vx = ct.vy = 0.0
+                        ct.confirm_since = ct.last_ok_t = None
+                        ct.confirmation_pending = False
+                grid = getattr(self, 'grid', None)
+                if grid is not None and hasattr(grid, 'world_to_cell'):
+                    key = grid.world_to_cell(latest['x'], latest['y'])
+                    cell = grid.cell(key) if key is not None else None
+                    if cell is not None and cell.state == STATE_COVERED:
+                        grid.mark_review(key, 0.0)
+                if not current_instance:
+                    continue  # an older decoy cannot cancel a new same-colour owner
+
+                source = getattr(self, '_visual_source', {}).get(tid)
+                if (source is not None and source[0] == uid and
+                        source[1] <= sample + 1e-6):
+                    self._visual_source.pop(tid, None)
+                    cached = getattr(self, '_truth_cache', {}).get(tid)
+                    if cached is not None and cached[2] <= sample + 1e-6:
+                        self._truth_cache.pop(tid, None)
+                    getattr(self, '_cur_targets', {}).pop(tid, None)
+                    getattr(self, '_target_hist', {}).pop(tid, None)
+                    getattr(self, '_visual_candidate', {}).pop(tid, None)
+                    self._discard_reacquire_site(tid)
+                selected = getattr(self, '_discovery_selected_s', {}).get(tid)
+                if selected is not None and selected <= sample + 1e-6:
+                    self._discovery_selected_s.pop(tid, None)
+                for book in ('_last_detection_sample', '_qualified_detection_sample'):
+                    getattr(self, book, {}).pop((uid, tid), None)
+
+                if ct is not None:
+                    ct.observers.discard(uid)
+                if self._tracking.get(tid) == uid:
+                    backup = self._backup.pop(tid, None)
+                    self._tracking.pop(tid, None)
+                    getattr(self, '_approach_leases', {}).pop(tid, None)
+                    getattr(self, '_tracking_since', {}).pop(tid, None)
+                    if backup is not None and backup != uid:
+                        self._tracking[tid] = backup
+                        self._tracking_since[tid] = now
+                        getattr(self, '_backup_approach_leases', {}).pop(tid, None)
+                        if ct is not None:
+                            ct.observers.add(backup)
+                    self._cancel_rejected_observer(uid, tid, now)
+                elif self._backup.get(tid) == uid:
+                    self._backup.pop(tid, None)
+                    getattr(self, '_backup_approach_leases', {}).pop(tid, None)
+                    self._cancel_rejected_observer(uid, tid, now)
+
+                rospy.loginfo('[APPEARANCE_REJECT] camera=%s candidate=%s '
+                              'slot=%s image=%.3f; exact instance withdrawn',
+                              uid, cid, tid, sample)
+        except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
+            return
+
+    def _cancel_rejected_observer(self, uid, tid, now):
+        """Release a healthy aircraft promptly after its exact view was vetoed."""
+        self._free_search_lease(uid)
+        self._release_cooldown[uid] = rospy.Time.from_sec(now) + rospy.Duration(1.0)
+        self._publish_target_cancel(uid, tid, now)
+
+    def _appearance_rejected(self, uid, cid, now):
+        if not cid:
+            return False
+        rejected = getattr(self, '_appearance_rejections', {})
+        for key, (expiry, _) in list(rejected.items()):
+            if now >= expiry:
+                rejected.pop(key, None)
+        record = rejected.get((uid, cid))
+        if record is None:
+            return False
+        expiry, _ = record
+        # One appearance decision cannot block a genuine person indefinitely.
+        # The bridge uses the same fixed eight-second lifetime.
+        return now < expiry
+
+    @serialized_tasks
     def _visual_candidate_missed_cb(self, msg):
         """Queue a short re-image of the aircraft viewpoint after failed cue.
 
@@ -1257,6 +1419,8 @@ class SwarmManager(SearchSegmentManager):
                         continue
                     rng = float(raw['range_m'])
                     cid = str(raw['candidate_id'])
+                    if self._appearance_rejected(uid, cid, now):
+                        continue
                     appearance = raw.get('appearance_status', 'actor')
                     if (tid not in ('t0', 't1', 't2', 't3') or
                             not math.isfinite(rng) or not 0. < rng <= 12. or
@@ -1359,6 +1523,8 @@ class SwarmManager(SearchSegmentManager):
             data['discovery_only'] = (not data['eligible'] and
                                      json.loads(msg.data).get('purpose') == 'discovery_only')
             tid, uid, sample = data['target_id'], data['source_uav'], data['sample_s']
+            if self._appearance_rejected(uid, data.get('candidate_id'), now):
+                return
             if tid in getattr(self, '_eliminated', set()):
                 return
             event = data.get('hypothesis_switch')
@@ -2099,27 +2265,42 @@ class SwarmManager(SearchSegmentManager):
         但原指派永久占位，导致这架近机又回搜索。只有差距足够明显时接棒，
         避免两机距离接近时任务来回切换。
         """
+        now = rospy.Time.now()
+        now_s = now.to_sec()
         old = self._tracking.get(tid)
         old_st = self.status.get(old)
         if old_st is None:
             return
         old_d = math.hypot(old_st.x - tx, old_st.y - ty)
-        if self._recent_eligible(
-                tid, rospy.Time.now().to_sec(), 1.0, old):
+        if self._recent_eligible(tid, now_s, 1.0, old):
+            return
+        # A close primary that has just acquired this person must be allowed
+        # a few seconds to recover a cropped/unreportable view. Raw images
+        # grant no report credit and cannot renew this assignment grace.
+        assigned = getattr(self, '_tracking_since', {}).get(tid, -1e18)
+        raw = getattr(self, '_visual_observations', {}).get((old, tid))
+        accepted = getattr(self, '_eligible_observations', {}).get((old, tid))
+        same_instance = (raw is not None and
+                         (accepted is None or not raw.get('candidate_id') or
+                          not accepted.get('candidate_id') or
+                          raw['candidate_id'] == accepted['candidate_id']))
+        if (self._tracking_uav_available(old, now_s) and old_d <= 8.0 and
+                0.0 <= now_s-assigned < 3.0 and same_instance and
+                0.0 <= now_s-raw['sample_s'] <= 1.0 and
+                math.hypot(raw['x']-tx, raw['y']-ty) <= 4.0):
             return
         busy = set(self._tracking.values()) | set(self._backup.values())
         best, best_d = None, float(os.environ.get("HANDOFF_NEAR_M", "20.0"))
         borrowed_from = None
-        now = rospy.Time.now()
         for uid, st in self.status.items():
-            if not self._tracking_uav_available(uid, now.to_sec()):
+            if not self._tracking_uav_available(uid, now_s):
                 continue
-            old_backup_tid = (self._redeployable_backup(uid, tid, now.to_sec())
+            old_backup_tid = (self._redeployable_backup(uid, tid, now_s)
                               if uid in busy else None)
             if uid in busy and old_backup_tid is None:
                 continue
             image = self._last_eligible(uid, tid)
-            if (image is None or not 0.0 <= now.to_sec() - image['sample_s'] <= 1.0 or
+            if (image is None or not 0.0 <= now_s - image['sample_s'] <= 1.0 or
                     image.get('hits', 0) < 3 or
                     image['sample_s'] - image.get('since_s', image['sample_s']) < 0.4 - 1e-6 or
                     math.hypot(image['x'] - tx, image['y'] - ty) > 4.0):
@@ -2128,7 +2309,7 @@ class SwarmManager(SearchSegmentManager):
                 continue
             if now < self._release_cooldown.get(uid, rospy.Time(0)):
                 continue
-            if not self._failed_view_dispatch_ok(tid, tx, ty, now.to_sec(), uid=uid):
+            if not self._failed_view_dispatch_ok(tid, tx, ty, now_s, uid=uid):
                 continue
             d = math.hypot(st.x - tx, st.y - ty)
             if d < best_d:  # A continuous new image beats a blind incumbent, even nearby.
@@ -2143,8 +2324,8 @@ class SwarmManager(SearchSegmentManager):
             if previous is not None:
                 previous.observers.discard(best)
         self._tracking[tid] = best
-        self._record_approach(tid, best, tx, ty, now.to_sec())
-        self._tracking_since[tid] = now.to_sec()
+        self._record_approach(tid, best, tx, ty, now_s)
+        self._tracking_since[tid] = now_s
         getattr(self, '_confirm_done_t', {}).pop(tid, None)
         self._free_search_lease(best)
         self._release_cooldown[old] = now + rospy.Duration(1.0)
@@ -2159,7 +2340,7 @@ class SwarmManager(SearchSegmentManager):
         if borrowed_from is not None:
             # New ownership is already reserved and its task sent. The
             # target-scoped cancellation cannot erase the new camera task.
-            self._publish_target_cancel(best, borrowed_from, now.to_sec())
+            self._publish_target_cancel(best, borrowed_from, now_s)
             rospy.loginfo('[BACKUP_RETASK] uav=%s old=%s new=%s '
                           'old_primary=%s image=%.3f; 连续新视角接棒，保留原主追',
                           best, borrowed_from, tid, self._tracking.get(borrowed_from),
@@ -2635,7 +2816,7 @@ class SwarmManager(SearchSegmentManager):
                         not (relief and d <= BACKUP_MAX_DIST)):
                     continue
                 if (d > BACKUP_MAX_DIST and
-                        (len(self._observed_target_slots()) < 6 or
+                        (len(self._currently_qualified_target_slots(now)) < 6 or
                          not self._has_fresh_visual(tid, now))):
                     continue
                 visual = self._last_eligible(uid, tid)
@@ -2697,9 +2878,30 @@ class SwarmManager(SearchSegmentManager):
         self._seen_target_slots = known
         return known
 
+    def _currently_qualified_target_slots(self, now=None):
+        """Slots with fresh original camera evidence, plus official removals.
+
+        Historical sightings include old misidentifications and cannot consume
+        search capacity forever. A recent accepted image is only a scheduling
+        signal; it does not claim judge accuracy or completion.
+        """
+        if now is None:
+            now = rospy.Time.now().to_sec()
+        slots = {'t0', 't1', 't2', 't3', 't4', 't5'}
+        current = set(getattr(self, '_eliminated', set())) & slots
+        for (uid, tid), image in getattr(self, '_eligible_observations', {}).items():
+            if (tid in slots and image.get('eligible') and
+                    0.0 <= now-image['sample_s'] <= 1.0):
+                current.add(tid)
+        for (uid, tid), image in getattr(self, '_visual_observations', {}).items():
+            if (tid in slots and image.get('eligible') and
+                    0.0 <= now-image['sample_s'] <= 1.0):
+                current.add(tid)
+        return current
+
     def _backup_search_capacity(self):
-        """Reserve searchers for slots never observed, not temporarily out of view."""
-        unknown_count = 6 - len(self._observed_target_slots())
+        """Keep searchers for slots without a current qualified camera view."""
+        unknown_count = 6 - len(self._currently_qualified_target_slots())
         reserve = min(max(0, SEARCH_RESERVE_MAX), unknown_count)
         busy = set(self._tracking.values()) | set(self._backup.values())
         searching = sum(1 for uid, st in self.status.items()
@@ -2712,10 +2914,8 @@ class SwarmManager(SearchSegmentManager):
         grid = getattr(self, 'grid', None)
         if grid is None or not hasattr(grid, 'zone_cells'):
             return False
-        # Once all six visual slots have supplied eligible camera images,
-        # searchers can travel farther to provide another view. Slot history
-        # does not establish six official identities or any elimination.
-        if len(self._observed_target_slots()) == 6:
+        # An old false sighting cannot permanently remove this zone guard.
+        if len(self._currently_qualified_target_slots()) == 6:
             return False
         zone = grid.get_uav_zone(uid)
         visit = getattr(self.allocator, 'visit_time', {})
