@@ -1873,7 +1873,7 @@ class SwarmManager(SearchSegmentManager):
         # Current continuous own-camera discovery can choose a responsible
         # aircraft before bridge reporting matures. It grants no report or
         # confirmation credit, and never replaces another live target task.
-        for uid in self.uav_ids:
+        for uid in self.status:
             image = self._continuous_discovery_view(uid, tid, now, tx, ty)
             if image is not None:
                 sources[uid] = (image['sample_s'],image['x'],image['y'])
