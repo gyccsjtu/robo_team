@@ -247,7 +247,12 @@ class SearchSegmentAgent:
                 if math.dist((x,y),self.world_xy) <= 1.:
                     look = task['look_points'][i]
                     bearing = math.atan2(look[1]-y,look[0]-x)
-                    at_view = in_view(x,y,bearing,*look,height,pitch)
+                    # Braking can briefly tilt the forward camera down and
+                    # make a still-too-close waypoint appear observable.
+                    # Preserve that real-image check and also require the
+                    # same geometry at the fixed camera's level hover pose.
+                    at_view = (in_view(x,y,bearing,*look,height,pitch) and
+                               in_view(x,y,bearing,*look,height,0.))
         if at_view or (directed and task['state'] == LOOK):
             camera = getattr(self,'_search_camera_pose',None)
             fresh = camera is not None and 0 <= now-camera[0] <= .5
