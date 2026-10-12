@@ -111,13 +111,23 @@ class SearchCell(object):
         self.covered_t = 0.0  # COVERED 状态进入时刻（仿真钟，供 reopen）
 
 
-def coverage_bounds(map_bounds, flight_bounds):
-    """Coverage jobs stay in the configured flight envelope; sensor map stays wide."""
-    if not all(math.isfinite(v) for v in tuple(map_bounds)+tuple(flight_bounds)):
+ACTOR_SEARCH_BOUNDS = (-50.0, 130.0, -60.0, 60.0)
+
+
+def coverage_bounds(map_bounds, flight_bounds, search_bounds=None):
+    """Routine jobs cover the public actor region, separately from UAV flight.
+
+    The sensor map retains its padding. Aircraft may use that legal padding
+    to observe the region; it does not create extra routine search jobs.
+    """
+    search_bounds = ACTOR_SEARCH_BOUNDS if search_bounds is None else search_bounds
+    if not all(math.isfinite(v) for v in tuple(map_bounds)+tuple(flight_bounds)+tuple(search_bounds)):
         raise ValueError('search and flight bounds must be finite')
     xmin,xmax,ymin,ymax=map_bounds
     fx0,fx1,fy0,fy1=flight_bounds
-    bounds=(max(xmin,fx0),min(xmax,fx1),max(ymin,fy0),min(ymax,fy1))
+    sx0,sx1,sy0,sy1=search_bounds
+    bounds=(max(xmin,fx0,sx0),min(xmax,fx1,sx1),
+            max(ymin,fy0,sy0),min(ymax,fy1,sy1))
     if not all(math.isfinite(v) for v in bounds) or bounds[0]>=bounds[1] or bounds[2]>=bounds[3]:
         raise ValueError('search and flight bounds must have a finite intersection')
     return bounds

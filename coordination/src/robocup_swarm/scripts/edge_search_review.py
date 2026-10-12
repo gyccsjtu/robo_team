@@ -5,11 +5,17 @@ from search_observation import cell_points, in_view, observable_points, next_hea
 
 
 def review_points(grid, camera, bounds, visible):
-    """Legal ground points behind/along the nearest edges, never beyond them."""
+    """Look into the actor region, including its real boundary/corner points.
+
+    These are search bounds, not a flight fence. A safe aircraft outside the
+    region can look back into it, and an inward aircraft can look at its edge.
+    Filtering the look by its direction relative to the aircraft would hide
+    exactly those real actor corners. Safety remains in the motion outlet.
+    """
     _, x, y, _, altitude, pitch = camera
     xmin, xmax, ymin, ymax = bounds
     margins = (x-xmin, xmax-x, y-ymin, ymax-y)
-    if min(margins) < 0. or min(margins) > 9.:
+    if min(margins) < -9. or min(margins) > 9.:
         return {}
     points = []
     for cell in grid.cells.values():
@@ -17,13 +23,6 @@ def review_points(grid, camera, bounds, visible):
             continue
         for px, py in cell_points(grid, cell):
             if not xmin <= px <= xmax or not ymin <= py <= ymax:
-                continue
-            # At a corner both edge normals apply. Along-edge bearings are
-            # allowed; a search look must not continue towards an outer wall.
-            if ((margins[0] <= 9. and px < x-.1) or
-                    (margins[1] <= 9. and px > x+.1) or
-                    (margins[2] <= 9. and py < y-.1) or
-                    (margins[3] <= 9. and py > y+.1)):
                 continue
             points.append((px, py))
     return observable_points(points, x, y, altitude, pitch, visible)

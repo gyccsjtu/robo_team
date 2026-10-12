@@ -5,15 +5,17 @@ ENU negative Y identifies south and positive X/Y identifies northeast.
 """
 import math
 import os
+from types import SimpleNamespace
 from robocup_navigation.astar import plan
 from search_segments import clear_line
+from search_observation import cell_points
 from swarm_task import STATE_ASSIGNED, STATE_COVERED
 
 
 class SouthPatrol:
-    def __init__(self, flight_bounds, max_hold=90., max_segments=3,
+    def __init__(self, search_bounds, max_hold=90., max_segments=3,
                  southeast=None, northeast=None, east=None, east_half=None):
-        self.bounds = tuple(flight_bounds)
+        self.bounds = tuple(search_bounds)
         self.max_hold = max_hold
         self.max_segments = max_segments
         # Southeast begins with one inner leg, then visits the south edge.
@@ -42,10 +44,12 @@ class SouthPatrol:
         self.direction = 0
         self._manager = None
         self.proposal_region = None
+        self.proposal_look_points = None
         self.proposal_budget = max_hold
         self.unreachable_since = None
         self.owner_retry = {}
         self._edge_observed = set()
+        self._corner_observed = set()
 
     def accepts_target(self, uid, x, y, has_camera=False):
         """Real local images preempt patrol; blind western errands do not."""
@@ -59,6 +63,51 @@ class SouthPatrol:
         self.attempts = self.direction = 0
         self._manager = None
         self.proposal_region = None
+        self.proposal_look_points = None
+
+    def _corner_target(self, manager, key):
+        """The actual eastern corner subpoint, independent of its cell centre."""
+        if self.east_half is None:
+            return None
+        grid = manager.grid
+        cell = grid.cell(key)
+        if cell is None or not hasattr(grid, 'cell_bounds'):
+            return None
+        _, x1, y0, y1 = grid.cell_bounds(key)
+        outer_y = y1 if self.east_half == 'north' else y0
+        boundary_y = self.bounds[3] if self.east_half == 'north' else self.bounds[2]
+        if (not math.isclose(x1, self.bounds[1], abs_tol=1e-6) or
+                not math.isclose(outer_y, boundary_y, abs_tol=1e-6)):
+            return None
+        points = cell_points(grid, cell)
+        index = 8 if self.east_half == 'north' else 2
+        return (points[index], index) if len(points) == 9 else None
+
+    def _corner_needs_first_view(self, manager, key):
+        corner = self._corner_target(manager, key)
+        return bool(corner is not None and key not in self._corner_observed and
+                    manager.grid.cell(key).state != STATE_COVERED)
+
+    def _fresh_corner_keys(self, task, now):
+        """Only task-bound corner images or full coverage remove this priority."""
+        manager = self._manager
+        if manager is None:
+            return set()
+        seen = getattr(manager, '_camera_point_seen', {}) or {}
+        observed = set()
+        for key in task.cells:
+            corner = self._corner_target(manager, key)
+            if corner is None:
+                continue
+            cell = manager.grid.cell(key)
+            sample = seen.get((key, corner[1]))
+            if (sample is not None and math.isfinite(sample) and
+                    task.created <= sample <= now+.05):
+                observed.add(key)
+            elif (cell.state == STATE_COVERED and math.isfinite(cell.covered_t) and
+                  task.created <= cell.covered_t <= now+.05):
+                observed.add(key)
+        return observed
 
     def _fresh_image_keys(self, task, now=None):
         """Task-bound processed-image evidence, never a passed waypoint.
@@ -92,6 +141,8 @@ class SouthPatrol:
         """Prioritize unseen outer lane rows using lawful map bounds."""
         if self.east_half is None:
             return False
+        if self._corner_needs_first_view(manager, key):
+            return True
         cell = manager.grid.cell(key)
         width = 2.*manager.grid.cell_m
         at_edge = (cell.cy >= self.bounds[3]-width if self.east_half == 'north'
@@ -110,6 +161,7 @@ class SouthPatrol:
                 # callback prunes short-lived subpoint history or hands the
                 # regional responsibility to another aircraft.
                 self._edge_observed.update(self._fresh_image_keys(task, now))
+                self._corner_observed.update(self._fresh_corner_keys(task, now))
                 if reason == 'complete' and self._manager is not None:
                     # Completion can mean every point timed out without a
                     # usable frame. Apply the existing finite failed-view
@@ -233,6 +285,8 @@ class SouthPatrol:
         """Check one camera band with safe flight points and real image geometry."""
         keys = []
         viewpoints = {}
+        look_points = {}
+        self.proposal_look_points = None
         ymin = self.bounds[2]
         for key, cell in manager.grid.cells.items():
             if region == 'southeast':
@@ -271,8 +325,10 @@ class SouthPatrol:
                 # 8.95 m keeps the centre inside the 27-degree vertical limit
                 # and leaves 5 cm within the 9 m horizontal footprint. Other
                 # cells are never credited merely because this route flew by.
-                point = ((cell.cx, cell.cy-8.95) if region == 'southeast'
-                         else (cell.cx-8.95, cell.cy))
+                corner = self._corner_target(manager, key) if region == 'east' else None
+                look = corner[0] if corner is not None else (cell.cx, cell.cy)
+                point = ((look[0], look[1]-8.95) if region == 'southeast'
+                         else (look[0]-8.95, look[1]))
                 if region == 'east' and self.east_half is not None:
                     # A clipped outer row has centre y=59.5 while the legal
                     # aircraft inset ends at 58/58.5. Keep the observed cell
@@ -280,16 +336,21 @@ class SouthPatrol:
                     # 8.95 m horizontal standoff rather than moving the cell
                     # or weakening the 9 m image/range gate.
                     _, safe_y = manager._segment_flight_waypoint(*point)
-                    dy = cell.cy-safe_y
+                    dy = look[1]-safe_y
                     if not math.isfinite(dy) or abs(dy) >= 8.95:
                         continue
-                    point = (cell.cx-math.sqrt(8.95**2-dy**2), safe_y)
+                    point = (look[0]-math.sqrt(8.95**2-dy**2), safe_y)
                 viewpoint_valid = getattr(manager, '_blind_viewpoint_valid', None)
+                # Reuse the exact flight/clearance/image checks for the region
+                # being observed, without changing the coverage cell itself.
+                observation = (SimpleNamespace(cx=look[0], cy=look[1])
+                               if corner is not None else cell)
                 if (not manager._search_point_free(point) or
-                        viewpoint_valid is None or not viewpoint_valid(cell, point) or
-                        not clear_line(grid, point, (cell.cx, cell.cy))):
+                        viewpoint_valid is None or not viewpoint_valid(observation, point) or
+                        not clear_line(grid, point, look)):
                     continue
             else:
+                look = (cell.cx, cell.cy)
                 point = manager._segment_point(key)
                 # A clipped last/first coverage row may be narrower than 7m.
                 # Keep an observable standoff instead of flying over its centre.
@@ -305,6 +366,7 @@ class SouthPatrol:
                     continue
             keys.append(key)
             viewpoints[key]=point
+            look_points[key]=look
         pairs = []
         for uid in idle:
             if self.uid is not None and uid != self.uid:
@@ -320,11 +382,12 @@ class SouthPatrol:
                 # safe waypoint alone cannot credit a cell or find a person.
                 cell = manager.grid.cell(key)
                 height = getattr(s, 'z', float('nan'))
-                yaw = math.atan2(cell.cy-point[1], cell.cx-point[0])
+                look = look_points[key]
+                yaw = math.atan2(look[1]-point[1], look[0]-point[0])
                 if (not math.isfinite(height) or
                         not manager._in_processed_view(
-                            point[0], point[1], yaw, cell.cx,
-                            cell.cy, altitude=max(4.5, height),
+                            point[0], point[1], yaw, look[0],
+                            look[1], altitude=max(4.5, height),
                             down_pitch=0.)):
                     continue
                 # A northeast sweep may need to reverse along the next row;
@@ -345,7 +408,8 @@ class SouthPatrol:
             return tier(candidate[2]) + candidate
 
         def tier(key):
-            return ((not self._edge_needs_first_view(manager, key), revisited(key))
+            return ((not self._corner_needs_first_view(manager, key),
+                     not self._edge_needs_first_view(manager, key), revisited(key))
                     if region == 'east' and self.east_half is not None
                     else (revisited(key),))
 
@@ -443,6 +507,7 @@ class SouthPatrol:
             extension = max(extensions)
         _, direction, cells, points = extension
         self.proposal_region = region
+        self.proposal_look_points = [look_points[key] for key in cells]
         # Conservative measured transit speed, plus turning/observation time.
         # The ordinary heartbeat and no-progress watchdog still apply.
         travel = length+sum(math.dist(a, b) for a, b in zip(points, points[1:]))

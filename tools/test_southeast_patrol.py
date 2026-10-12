@@ -22,16 +22,18 @@ class SoutheastPatrolTests(unittest.TestCase):
     def setUp(self):
         self.now = 100.
         # Historical algorithm fixtures deliberately exercise the old wider
-        # rectangle; default-profile tests skip this override and use 200x100.
+        # rectangle; default-profile tests use the official actor search area.
         bounds = (-50., 150., -60., 60.)
         if getattr(self, 'use_default_flight_bounds', False):
-            bounds = sa.flight_bounds()
+            bounds = st.coverage_bounds((-55., 155., -65., 65.), sa.flight_bounds())
         else:
             for module in (sm, sa):
                 context = patch.multiple(module, FLIGHT_Y_MIN=bounds[2],
                                          FLIGHT_Y_MAX=bounds[3])
                 context.start()
                 self.addCleanup(context.stop)
+            bounds = st.coverage_bounds((-55., 155., -65., 65.), sa.flight_bounds(),
+                                        search_bounds=bounds)
         for context in (
                 patch.object(sm.rospy.Time, 'now',
                              side_effect=lambda: sm.rospy.Time.from_sec(self.now)),

@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'coordination/src/robocup_swarm/scripts'))
-from swarm_task import CoverageGrid,coverage_bounds
+from swarm_task import ACTOR_SEARCH_BOUNDS,CoverageGrid,coverage_bounds
 from search_observation import cell_points
 import swarm_manager as sm
 import swarm_agent as sa
@@ -14,17 +14,40 @@ class CoverageExtentTests(unittest.TestCase):
     def test_map_margin_does_not_create_outside_search_jobs(self):
         bounds=coverage_bounds((-55.,155.,-65.,65.),sa.flight_bounds())
         g=CoverageGrid(*bounds,cell_m=7.)
-        self.assertEqual(bounds,(-50.,150.,-50.,50.))
-        self.assertEqual(len(g.cells),435)
+        self.assertEqual(bounds,ACTOR_SEARCH_BOUNDS)
+        self.assertEqual(bounds,(-50.,130.,-60.,60.))
+        self.assertEqual(len(g.cells),468)
         for key,c in g.cells.items():
-            self.assertTrue(-50<c.cx<150 and -50<c.cy<50)
+            self.assertTrue(-50<c.cx<130 and -60<c.cy<60)
             self.assertEqual(g.world_to_cell(c.cx,c.cy),key)
             for x,y in cell_points(g,c):
                 self.assertEqual(g.world_to_cell(x,y),key)
-        self.assertAlmostEqual(g.cells[(28,14)].cx,148.)
-        self.assertAlmostEqual(g.cells[(28,14)].cy,49.)
-        self.assertEqual(sa.flight_waypoint(148.,49.),(148.,48.))
+        self.assertAlmostEqual(g.cells[(25,17)].cx,127.5)
+        self.assertAlmostEqual(g.cells[(25,17)].cy,59.5)
+        self.assertEqual(sa.flight_waypoint(127.5,59.5),(127.5,58.))
         self.assertIsNone(g.world_to_cell(128.,60.))
+        self.assertIsNone(g.world_to_cell(135.,0.))
+        self.assertEqual(sa.search_bounds((-55.,155.,-65.,65.)),bounds)
+
+    def test_explicit_generic_search_extent_retains_historical_algorithm_semantics(self):
+        wide_flight=(-50.,150.,-60.,60.)
+        bounds=coverage_bounds((-55.,155.,-65.,65.),wide_flight,
+                               search_bounds=wide_flight)
+        self.assertEqual(bounds,wide_flight)
+        self.assertEqual(len(CoverageGrid(*bounds,7.).cells),522)
+
+    def test_actor_map_and_narrower_flight_ranges_are_all_intersected(self):
+        self.assertEqual(coverage_bounds((-55.,155.,-65.,65.),
+                         (-45.,125.,-58.,58.)),(-45.,125.,-58.,58.))
+        self.assertEqual(sa.search_bounds((-40.,120.,-55.,55.)),
+                         (-40.,120.,-55.,55.))
+
+    def test_navigation_padding_remains_available_without_becoming_search_jobs(self):
+        sensed=sm.GridMap(420,260,.5,(-55.,-65.),bytes(420*260))
+        self.assertTrue(sensed.is_free(sensed.world_to_cell((145.,63.))))
+        search=CoverageGrid(*sa.search_bounds((-55.,155.,-65.,65.)),7.)
+        self.assertIsNone(search.world_to_cell(145.,63.))
+        self.assertIsNone(search.world_to_cell(135.,0.))
 
     def test_ceil_storage_does_not_accept_outside_world_coordinates(self):
         g=CoverageGrid(-55.,155.,-65.,65.,7.)
@@ -37,7 +60,13 @@ class CoverageExtentTests(unittest.TestCase):
     def test_manager_uses_same_intersection_as_agent(self):
         path=Path(__file__).resolve().parents[1]/'coordination/src/robocup_training_worlds/worlds/generated/robocup_base.json'
         with patch.object(sm,'METADATA_PATH',str(path)),patch.object(sm,'MAP_BOUNDS_FROM_META',True):
-            self.assertEqual(sm._search_bounds(),sa.flight_bounds())
+            self.assertEqual(sm._search_bounds(),sa.search_bounds())
+            self.assertEqual(sm._search_bounds(),ACTOR_SEARCH_BOUNDS)
+
+    def test_missing_metadata_uses_actor_region_instead_of_old_x100_fallback(self):
+        with patch.object(sm,'METADATA_PATH','/missing/actor-region-test.json'), \
+                patch.object(sm,'MAP_BOUNDS_FROM_META',True):
+            self.assertEqual(sm._search_bounds(),ACTOR_SEARCH_BOUNDS)
 
     def test_invalid_or_disjoint_extents_fail_instead_of_assigning_outside(self):
         for b in ((5,4,0,1),(0,float('nan'),0,1),(0,1,0,0)):

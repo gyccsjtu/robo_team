@@ -29,7 +29,7 @@ from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDe
 from std_msgs.msg import String
 
 # 直接 import 同目录的纯逻辑模块（scripts 目录已加进 PYTHONPATH）
-from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager, coverage_bounds,
+from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager, coverage_bounds, ACTOR_SEARCH_BOUNDS,
                         STATE_FREE, STATE_ASSIGNED, STATE_COVERED, STATE_REVIEW,
                         W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE, W_DISTANCE, W_ZONE, LEASE_DURATION,
                         CONFIRM_TIME, EVADE_TIME, DETECT_RADIUS, DETECT_RADIUS_MARGIN)
@@ -49,12 +49,12 @@ from boundary_patrol import SouthPatrol
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 
-# Coverage intersects the metadata with the team's engineering flight limits.
-# Observed person positions remain independent from aircraft waypoints.
+# Routine coverage is limited separately to the public actor activity box.
+# Flight viewpoints and observed person positions have independent bounds.
 FLIGHT_X_MIN = max(-50.0, float(os.environ.get('FLIGHT_X_MIN', '-50.0')))
 FLIGHT_X_MAX = min(150.0, float(os.environ.get('FLIGHT_X_MAX', '150.0')))
-FLIGHT_Y_MIN = max(-50.0, float(os.environ.get('FLIGHT_Y_MIN', '-50.0')))
-FLIGHT_Y_MAX = min(50.0, float(os.environ.get('FLIGHT_Y_MAX', '50.0')))
+FLIGHT_Y_MIN = max(-60.0, float(os.environ.get('FLIGHT_Y_MIN', '-60.0')))
+FLIGHT_Y_MAX = min(60.0, float(os.environ.get('FLIGHT_Y_MAX', '60.0')))
 FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
 SEARCH_BOUNDARY_INSET_M = max(FLIGHT_INSET, float(
     os.environ.get('SEARCH_BOUNDARY_INSET_M', '8.5')))
@@ -275,8 +275,8 @@ def inflate_grid(grid, inflation_m):
 
 
 def _search_bounds():
-    """Same clipped coverage extent as every agent; never shrink the sensor map."""
-    bounds=(MAP_X_MIN,MAP_X_MAX,MAP_Y_MIN,MAP_Y_MAX)
+    """Actor search region intersected with sensor-map and flight extents."""
+    bounds=ACTOR_SEARCH_BOUNDS
     if MAP_BOUNDS_FROM_META:
         try:
             with open(METADATA_PATH) as stream:
@@ -284,7 +284,7 @@ def _search_bounds():
             if b:
                 bounds=tuple(float(b[k]) for k in ('x_min','x_max','y_min','y_max'))
         except (OSError,ValueError,KeyError,TypeError) as exc:
-            print('[manager] map bounds unavailable, intersecting fallback with flight limits: %s'%exc)
+            print('[manager] map bounds unavailable, using public actor search bounds: %s'%exc)
     return coverage_bounds(bounds,(FLIGHT_X_MIN,FLIGHT_X_MAX,FLIGHT_Y_MIN,FLIGHT_Y_MAX))
 
 
@@ -336,14 +336,14 @@ class SwarmManager(SearchSegmentManager):
         patrol_enabled = os.environ.get('SOUTH_PATROL', '0') == '1'
         if patrol_enabled and (self._segments is None or os.environ.get('MOTION_SAFETY', '0') != '1'):
             raise ValueError('SOUTH_PATROL requires SEARCH_SEGMENTS=1 and MOTION_SAFETY=1')
-        self._south_patrol = (SouthPatrol((FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN, FLIGHT_Y_MAX))
+        self._south_patrol = (SouthPatrol(_search_bounds())
                               if patrol_enabled else None)
         split_east = os.environ.get('EAST_SPLIT_PATROL', '0') == '1'
         self._regional_patrols = None
         if split_east:
             if not patrol_enabled or not self._south_patrol.east:
                 raise ValueError('EAST_SPLIT_PATROL requires SOUTH_PATROL=1 and EAST_PATROL=1')
-            bounds = (FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN, FLIGHT_Y_MAX)
+            bounds = _search_bounds()
             self._regional_patrols = tuple(SouthPatrol(
                 bounds, southeast=False, northeast=False, east=True, east_half=half)
                 for half in ('north', 'south'))
@@ -370,7 +370,7 @@ class SwarmManager(SearchSegmentManager):
         _bx0, _bx1, _by0, _by1 = _search_bounds()
         rospy.loginfo("[manager] 搜索栅格边界 x[%.0f,%.0f] y[%.0f,%.0f]（%s）",
                       _bx0, _bx1, _by0, _by1,
-                      "元数据" if MAP_BOUNDS_FROM_META else "硬编码")
+                      "官方演员区域与地图/飞行范围交集")
         self.grid = CoverageGrid(_bx0, _bx1, _by0, _by1, GRID_SIZE_M, len(uav_ids))
         self.allocator = TaskAllocator(self.grid, W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE,
                                        w_distance=W_DISTANCE, w_zone=W_ZONE, cruise_speed=CRUISE_SPEED)

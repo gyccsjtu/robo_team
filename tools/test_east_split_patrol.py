@@ -2,6 +2,7 @@
 import math
 import threading
 import unittest
+from types import SimpleNamespace as NS
 from unittest.mock import patch
 
 import test_southeast_patrol as patrol_fixture
@@ -55,7 +56,7 @@ class EastSplitPatrolTests(unittest.TestCase):
                 self.assertEqual(look[1] >= 0., patrol.east_half == 'north')
                 self.assertAlmostEqual(math.dist(point, look), 8.95)
                 self.assertTrue(self.m._search_point_free(point))
-                self.assertTrue(self.m._blind_viewpoint_valid(self.m.grid.cell(key), point))
+                self.assertTrue(self.m._blind_viewpoint_valid(NS(cx=look[0], cy=look[1]), point))
                 self.assertNotEqual(self.m.grid.cell(key).state, st.STATE_COVERED)
 
     def test_concurrent_scheduler_calls_cannot_duplicate_lanes_or_cells(self):
@@ -99,14 +100,14 @@ class EastSplitPatrolTests(unittest.TestCase):
                         self.assertIsNotNone(proposal)
                         self.assertEqual(proposal[1], [key])
                         point = proposal[2][0]
-                        look = self.m.grid.cell(key)
+                        look = patrol.proposal_look_points[0]
                         self.assertEqual(legal(*point), point)
-                        self.assertAlmostEqual(math.dist(point, (look.cx, look.cy)), 8.95)
+                        self.assertAlmostEqual(math.dist(point, look), 8.95)
                         self.assertGreater(point[0], 133.)  # old band's omitted outer strip
-                        self.assertTrue(self.m._blind_viewpoint_valid(look, point))
+                        self.assertTrue(self.m._blind_viewpoint_valid(NS(cx=look[0], cy=look[1]), point))
                         self.assertTrue(self.m._in_processed_view(
-                            *point, math.atan2(look.cy-point[1], look.cx-point[0]),
-                            look.cx, look.cy, 4.5, 0.))
+                            *point, math.atan2(look[1]-point[1], look[0]-point[0]),
+                            *look, 4.5, 0.))
                         self.assertEqual((cell.cx, cell.cy), (148., 59.5))
 
     def test_empty_map_corner_deployment_can_plan_from_the_initial_aircraft_positions(self):
@@ -383,17 +384,21 @@ class EastSplitPatrolTests(unittest.TestCase):
 
 class DefaultEastSplitPatrolTests(unittest.TestCase):
     use_default_flight_bounds = True
+    allocate = EastSplitPatrolTests.allocate
+    refresh = EastSplitPatrolTests.refresh
 
     def setUp(self):
         patrol_fixture.SoutheastPatrolTests.setUp(self)
-        self.m._regional_patrols = tuple(bp.SouthPatrol(sa.flight_bounds(),
+        bounds = (self.m.grid.x_min, self.m.grid.x_max,
+                  self.m.grid.y_min, self.m.grid.y_max)
+        self.m._regional_patrols = tuple(bp.SouthPatrol(bounds,
             southeast=False, northeast=False, east=True, east_half=half)
             for half in ('north', 'south'))
         self.m._south_patrol = self.m._regional_patrols[0]
 
-    def test_default_two_lanes_allocate_in_435_cell_rectangle_with_legal_points(self):
-        self.assertEqual(sa.flight_bounds(), (-50., 150., -50., 50.))
-        self.assertEqual(len(self.m.grid.cells), 435)
+    def test_default_two_lanes_allocate_in_468_actor_cells_with_legal_points(self):
+        self.assertEqual(sa.flight_bounds(), (-50., 150., -60., 60.))
+        self.assertEqual(len(self.m.grid.cells), 468)
         self.m._allocate()
         tasks = [t for t in self.m._segments.tasks.values() if t.purpose == 'south_patrol']
         self.assertEqual(len(tasks), 2)
@@ -402,16 +407,17 @@ class DefaultEastSplitPatrolTests(unittest.TestCase):
         for patrol in self.m._regional_patrols:
             task = self.m._segments.tasks[patrol.uid]
             for key, point, look in zip(task.cells, task.points, task.look_points):
-                self.assertTrue(-48. <= point[1] <= 48.)
-                self.assertTrue(-50. < look[1] < 50.)
+                self.assertTrue(-58. <= point[1] <= 58.)
+                self.assertTrue(-60. < look[1] < 60.)
+                self.assertLess(look[0], 130.)
                 self.assertEqual(look[1] >= 0., patrol.east_half == 'north')
-                self.assertTrue(self.m._blind_viewpoint_valid(self.m.grid.cell(key), point))
+                self.assertTrue(self.m._blind_viewpoint_valid(NS(cx=look[0], cy=look[1]), point))
                 self.assertAlmostEqual(math.dist(point, look), 8.95)
 
-    def test_default_partial_north_corner_keeps_cell49_and_clamps_aircraft_inside(self):
-        north, south = (28, 14), (28, 0)
+    def test_default_true_corner_keeps_cell59_5_and_clamps_aircraft_inside(self):
+        north, south = (25, 17), (25, 0)
         self.m._blocked_cells = set(self.m.grid.cells)-{north, south}
-        self.assertEqual(self.m.grid.cell(north).cy, 49.)
+        self.assertEqual((self.m.grid.cell(north).cx, self.m.grid.cell(north).cy), (127.5, 59.5))
         original = sm.flight_waypoint
         for patrol, key in zip(self.m._regional_patrols, (north, south)):
             for margin in (1.5, 2.):
@@ -423,13 +429,130 @@ class DefaultEastSplitPatrolTests(unittest.TestCase):
                     self.assertIsNotNone(proposal)
                     self.assertEqual(proposal[1], [key])
                     point = proposal[2][0]
-                    look = self.m.grid.cell(key)
+                    look = patrol.proposal_look_points[0]
                     self.assertEqual(legal(*point), point)
-                    self.assertLessEqual(abs(point[1]), 50.-margin)
-                    self.assertAlmostEqual(math.dist(point, (look.cx, look.cy)), 8.95)
+                    self.assertLessEqual(abs(point[1]), 60.-margin)
+                    self.assertAlmostEqual(math.dist(point, look), 8.95)
+                    self.assertEqual(look, (129.99, 59.99 if patrol.east_half == 'north' else -59.99))
                     with patch.object(sm, 'flight_waypoint', side_effect=legal):
-                        self.assertTrue(self.m._blind_viewpoint_valid(look, point))
-                    self.assertEqual(self.m.grid.cell(north).cy, 49.)
+                        self.assertTrue(self.m._blind_viewpoint_valid(NS(cx=look[0], cy=look[1]), point))
+                    actual = (130., 60. if patrol.east_half == 'north' else -60.)
+                    yaw = math.atan2(actual[1]-point[1], actual[0]-point[0])
+                    self.assertTrue(self.m._in_processed_view(*point, yaw, *actual, 4.5, 0.))
+                    self.assertLess(math.dist(point, actual), 9.)
+                    self.assertEqual(self.m.grid.cell(north).cy, 59.5)
+
+    def test_cell_centre_standoff_misses_actual_corners_but_explicit_look_does_not(self):
+        corners = {(25, 17), (25, 0)}
+        self.m._blocked_cells = set(self.m.grid.cells)-corners
+        tasks = [task for task in self.allocate()]
+        self.assertEqual({task.cells[0] for task in tasks}, corners)
+        for task in tasks:
+            cell = self.m.grid.cell(task.cells[0])
+            actual = (130., 60. if cell.cy > 0. else -60.)
+            _, safe_y = self.m._segment_flight_waypoint(cell.cx-8.95, cell.cy)
+            old_point = (cell.cx-math.sqrt(8.95**2-(cell.cy-safe_y)**2), safe_y)
+            self.assertGreater(math.dist(old_point, actual), 9.5)
+            point, look = task.points[0], task.look_points[0]
+            self.assertLess(math.dist(point, actual), 9.)
+            self.assertNotEqual(look, (cell.cx, cell.cy))
+            self.assertEqual(self.m.grid.world_to_cell(*look), task.cells[0])
+            self.assertNotEqual(cell.state, st.STATE_COVERED)
+            messages = [call.args[0] for call in self.m.assign_pub.publish.call_args_list
+                        if call.args[0].search_task_id == task.task_id]
+            self.assertTrue(messages)
+            self.assertEqual([(p.x, p.y) for p in messages[-1].search_look_points],
+                             list(task.look_points))
+
+    def corner_and_near_edge(self):
+        patrol = self.m._regional_patrols[0]
+        uid = self.m.uav_ids[0]
+        self.m.status[uid].x, self.m.status[uid].y = 84., 55.
+        corner, near = (25, 17), (20, 17)
+        self.m._blocked_cells = set(self.m.grid.cells)-{corner, near}
+        return patrol, uid, corner, near
+
+    def test_unseen_actual_corner_precedes_nearest_outer_strip(self):
+        patrol, uid, corner, near = self.corner_and_near_edge()
+        proposal = patrol.choose(self.m, [uid], self.now)
+        self.assertEqual(proposal[1], [corner])
+        self.assertEqual(patrol.proposal_look_points, [(129.99, 59.99)])
+        self.assertLess(math.dist((self.m.status[uid].x, self.m.status[uid].y),
+                                 self.m._segment_point(near)),
+                        math.dist((self.m.status[uid].x, self.m.status[uid].y), proposal[2][0]))
+
+    def test_centre_only_image_does_not_waive_true_corner_priority(self):
+        patrol, uid, corner, _ = self.corner_and_near_edge()
+        proposal = patrol.choose(self.m, [uid], self.now)
+        task = self.m._start_search_segment(uid, proposal[1], proposal[2], self.now,
+            purpose='south_patrol', publish=False,
+            look_points=patrol.proposal_look_points)
+        patrol.started(task, proposal[3], self.now)
+        self.m._camera_point_seen = {(corner, 4): 100.4}
+        self.refresh(101.)
+        self.m._drop_segment(uid, 'complete')
+        self.assertIn(corner, patrol._edge_observed)
+        self.assertNotIn(corner, patrol._corner_observed)
+        self.assertTrue(patrol._corner_needs_first_view(self.m, corner))
+        self.assertTrue(patrol._edge_needs_first_view(self.m, corner))
+        self.assertEqual(self.m.allocator.failed_visit[corner], 101.)
+        self.assertNotEqual(self.m.grid.cell(corner).state, st.STATE_COVERED)
+
+    def test_real_task_corner_image_survives_pruning_and_revision(self):
+        patrol, uid, corner, _ = self.corner_and_near_edge()
+        proposal = patrol.choose(self.m, [uid], self.now)
+        task = self.m._start_search_segment(uid, proposal[1], proposal[2], self.now,
+            purpose='south_patrol', publish=False,
+            look_points=patrol.proposal_look_points)
+        patrol.started(task, proposal[3], self.now)
+        look, deadline = task.look_points, task.deadline
+        self.m._revise_segment(task, list(task.cells), list(task.points), 100.1,
+                               'test_prefix_preserves_corner')
+        self.assertEqual(task.look_points, look)
+        self.assertEqual(task.deadline, deadline)
+        self.m._camera_point_seen = {(corner, 8): 100.4}
+        self.refresh(101.)
+        self.m._drop_segment(uid, 'complete')
+        self.assertIn(corner, patrol._corner_observed)
+        self.m._camera_point_seen.clear()
+        self.assertFalse(patrol._corner_needs_first_view(self.m, corner))
+        self.assertNotIn(corner, self.m.allocator.failed_visit)
+        self.assertNotEqual(self.m.grid.cell(corner).state, st.STATE_COVERED)
+
+    def test_both_corners_require_their_exact_current_subpoint(self):
+        for patrol, key, index in zip(self.m._regional_patrols,
+                                     ((25, 17), (25, 0)), (8, 2)):
+            patrol._manager = self.m
+            task = NS(cells=(key,), created=100.)
+            for point, sample in ((4, 100.4), (10-index, 100.4),
+                                  (index, 99.9), (index, 101.1),
+                                  (index, math.nan), (index, math.inf)):
+                with self.subTest(lane=patrol.east_half, point=point, sample=sample):
+                    self.m._camera_point_seen = {(key, point): sample}
+                    self.assertEqual(patrol._fresh_corner_keys(task, 101.), set())
+            self.m._camera_point_seen = {(key, index): 100.4}
+            self.assertEqual(patrol._fresh_corner_keys(task, 101.), {key})
+
+    def test_blocked_actual_corner_falls_back_and_keeps_finite_retry(self):
+        patrol, uid, corner, near = self.corner_and_near_edge()
+        original = bp.plan
+        probes = []
+        def reachable(grid, start, goal, **kwargs):
+            probes.append(goal)
+            if goal[0] > 120.:
+                return NS(success=False)
+            return original(grid, start, goal, **kwargs)
+        with patch.object(bp, 'plan', side_effect=reachable):
+            proposal = patrol.choose(self.m, [uid], self.now)
+        self.assertEqual(proposal[1], [near])
+        self.assertEqual(self.m.allocator.failed_visit[corner], self.now)
+        self.assertLessEqual(len(probes), 24)
+        probes.clear()
+        with patch.object(bp, 'plan', side_effect=reachable):
+            self.assertEqual(patrol.choose(self.m, [uid], self.now)[1], [near])
+        self.assertTrue(all(point[0] < 120. for point in probes))
+        self.refresh(self.now+self.m.allocator.failed_novelty_ttl+.1)
+        self.assertEqual(patrol.choose(self.m, [uid], self.now)[1], [corner])
 
 
 class EastSplitPersonDispatchTests(unittest.TestCase):

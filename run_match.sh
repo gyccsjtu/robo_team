@@ -464,11 +464,11 @@ preflight(){
     if [ "${FLIGHT_OUTPUT:-pos}" = "pos" ] && \
             [ "${FLIGHT_X_MIN:--50.0}" = "-50.0" ] && \
             [ "${FLIGHT_X_MAX:-150.0}" = "150.0" ] && \
-            [ "${FLIGHT_Y_MIN:--50.0}" = "-50.0" ] && \
-            [ "${FLIGHT_Y_MAX:-50.0}" = "50.0" ] && \
+            [ "${FLIGHT_Y_MIN:--60.0}" = "-60.0" ] && \
+            [ "${FLIGHT_Y_MAX:-60.0}" = "60.0" ] && \
             { [ "${FLIGHT_INSET:-2.0}" = "2.0" ] ||
               [ "${FLIGHT_INSET:-2.0}" = "1.5" ]; }; then
-        ok "搜索与飞行采用200×100m场地外框；内部余量 ${FLIGHT_INSET:-2.0}m"
+        ok "搜索限官方演员区 X[-50,130]/Y[-60,60]；飞机观察范围独立，内部余量 ${FLIGHT_INSET:-2.0}m"
     else
         err "正式启动禁用 FLIGHT_OUTPUT/FLIGHT_[XY] 覆盖；FLIGHT_INSET 仅允许 2.0 或 1.5"
         hard_miss=$((hard_miss+1))
@@ -771,7 +771,7 @@ do_start(){
     ros_env
     # 正式执行的环境与 preflight 核对值保持一致，防止外部 shell 配置渗入子进程。
     export FLIGHT_OUTPUT=pos FLIGHT_X_MIN=-50.0 FLIGHT_X_MAX=150.0
-    export FLIGHT_Y_MIN=-50.0 FLIGHT_Y_MAX=50.0
+    export FLIGHT_Y_MIN=-60.0 FLIGHT_Y_MAX=60.0
     export FLIGHT_INSET="${FLIGHT_INSET:-2.0}"
     export MAP_GUARD_MARGIN="$FLIGHT_INSET"
     # ros_env 才加载 robocup_swarm 的生成消息；此处用运行时实际导入的类核对类型名和 MD5。

@@ -21,9 +21,9 @@ class SearchReachabilityTests(unittest.TestCase):
 
     def manager(self, occupied=False, outer=False):
         m = sm.SwarmManager.__new__(sm.SwarmManager)
-        m.grid = st.CoverageGrid(-55, -48, -55, -48, cell_m=7, num_uavs=1) \
+        m.grid = st.CoverageGrid(-55, -48, -65, -58, cell_m=7, num_uavs=1) \
             if outer else st.CoverageGrid(0, 7, 0, 7, cell_m=7, num_uavs=1)
-        origin = (-70., -70.) if outer else (-20., -20.)
+        origin = (-70., -80.) if outer else (-20., -20.)
         raw = sm.GridMap(80, 80, 1., origin,
                          bytes([int(occupied)]) * (80*80))
         m._merged_grid = Mock(return_value=raw)

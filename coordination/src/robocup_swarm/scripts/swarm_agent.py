@@ -36,7 +36,8 @@ from robocup_navigation.astar import load_metadata, GridMap, plan
 from slam_grid import SlamGrid
 from flight_execution import bounded_step
 from motion_safety import braking_cap, boundary_constraints, scan_constraints, HeightClearanceHold
-from swarm_task import LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M, coverage_bounds
+from swarm_task import (LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M,
+                        coverage_bounds, ACTOR_SEARCH_BOUNDS)
 from search_observation import (cell_points, in_view, observable_points,
                                 next_heading, ground_distance_band)
 from edge_search_review import EdgeReview
@@ -70,13 +71,12 @@ def serialized_visual_task(method):
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 
-# Search coverage and flight use the same envelope; sensed maps can be wider.
-# The requested 200 x 100 m city profile is distinct from the actor's wider
-# motion box and the sensing-map padding. Neither can enlarge UAV flight.
+# Search uses the public actor box. Safe flight viewpoints and sensor-map
+# padding are independent; neither creates extra routine search jobs.
 FLIGHT_X_MIN = max(-50.0, float(os.environ.get('FLIGHT_X_MIN', '-50.0')))
 FLIGHT_X_MAX = min(150.0, float(os.environ.get('FLIGHT_X_MAX', '150.0')))
-FLIGHT_Y_MIN = max(-50.0, float(os.environ.get('FLIGHT_Y_MIN', '-50.0')))
-FLIGHT_Y_MAX = min(50.0, float(os.environ.get('FLIGHT_Y_MAX', '50.0')))
+FLIGHT_Y_MIN = max(-60.0, float(os.environ.get('FLIGHT_Y_MIN', '-60.0')))
+FLIGHT_Y_MAX = min(60.0, float(os.environ.get('FLIGHT_Y_MAX', '60.0')))
 FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
 MOTION_SAFETY = os.environ.get('MOTION_SAFETY','0') == '1'
 # Trial bounds, kept separate from the command slew limit. The recorded 13
@@ -88,6 +88,11 @@ BRAKE_DELAY = float(os.environ.get('BRAKE_DELAY','0.25'))
 
 def flight_bounds():
     return FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN, FLIGHT_Y_MAX
+
+
+def search_bounds(map_bounds=None):
+    return coverage_bounds(ACTOR_SEARCH_BOUNDS if map_bounds is None else map_bounds,
+                           flight_bounds())
 
 
 def flight_waypoint(x, y, inset=FLIGHT_INSET):
@@ -1022,9 +1027,9 @@ class SwarmAgent(SearchSegmentAgent):
         # ---- 覆盖栅格（与 manager 一致，10m 格）----
         # 覆盖格与 manager 使用同一份 metadata 边界；固定 ±100 的旧边界
         # 会让 x>100 的扫描状态 confidence 恒为 0，边缘格永远无法完成。
-        _coverage_bounds=coverage_bounds((
-            _b.get("x_min", MAP_X_MIN), _b.get("x_max", MAP_X_MAX),
-            _b.get("y_min", MAP_Y_MIN), _b.get("y_max", MAP_Y_MAX)),flight_bounds())
+        _coverage_bounds=search_bounds((
+            _b.get("x_min", ACTOR_SEARCH_BOUNDS[0]), _b.get("x_max", ACTOR_SEARCH_BOUNDS[1]),
+            _b.get("y_min", ACTOR_SEARCH_BOUNDS[2]), _b.get("y_max", ACTOR_SEARCH_BOUNDS[3])))
         self.cov_grid = CoverageGrid(*_coverage_bounds,cell_m=GRID_SIZE_M)
 
         # ---- 目标检测（规则3 几何判定：距离 + 视线遮挡）----
@@ -4520,7 +4525,9 @@ class SwarmAgent(SearchSegmentAgent):
                 review.cancel('pose_or_clearance_unavailable')
             return False
         if review is None:
-            review = self._edge_review = EdgeReview(flight_bounds(), dwell=SEARCH_SCAN_HOLD_S)
+            review = self._edge_review = EdgeReview((self.cov_grid.x_min,
+                self.cov_grid.x_max, self.cov_grid.y_min, self.cov_grid.y_max),
+                dwell=SEARCH_SCAN_HOLD_S)
         key = (getattr(assignment, 'search_task_id', ''),
                getattr(assignment, 'search_revision', 0), self._search_scan_key)
         heading = review.step(key, now, own,

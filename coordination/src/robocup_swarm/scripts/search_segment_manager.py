@@ -126,15 +126,18 @@ class SearchSegmentManager:
                 uid, cells, points, direction = proposed
                 task = self._start_search_segment(uid, cells, points, stamp,
                     purpose='south_patrol', publish=False,
-                    max_hold=patrol.proposal_budget if patrol.east else None)
+                    max_hold=patrol.proposal_budget if patrol.east else None,
+                    look_points=patrol.proposal_look_points)
                 if task is not None:
                     patrol.started(task, direction, stamp)
                     self._send_segment(task)
                     idle.remove(uid)
-                    rospy.loginfo('[SOUTH_PATROL] uav=%s task=%s region=%s cells=%s deadline=%.3f '
+                    rospy.loginfo('[SOUTH_PATROL] uav=%s task=%s region=%s cells=%s points=%s '
+                        'look_points=%s deadline=%.3f '
                         'ENU_south=-Y; short transit then directed image observation lane=%s',
                         uid, task.task_id, patrol.proposal_region,
-                        cells, task.deadline, patrol.east_half or 'full')
+                        cells, task.points, task.look_points, task.deadline,
+                        patrol.east_half or 'full')
             # A cooldown/replan is still an eastern responsibility, even
             # when no route could be issued on this particular scheduler tick.
             if patrol.east and patrol.uid in idle:
@@ -162,7 +165,7 @@ class SearchSegmentManager:
             self._reopen_covered_cells(force=True)
 
     def _start_search_segment(self, uid, cells, points, stamp, purpose='coverage', publish=True,
-                              max_hold=None):
+                              max_hold=None, look_points=None):
         """Single reservation/lease entry for internal and boundary search."""
         evidence_deadlines=[expires for (kind,key),(ready,expires) in
             self.allocator.revisit_jobs.items() if key in cells and
@@ -170,7 +173,8 @@ class SearchSegmentManager:
         max_hold=self._segment_max_hold if max_hold is None else max_hold
         if evidence_deadlines and purpose == 'coverage':
             max_hold=min(max_hold,min(evidence_deadlines)-stamp)
-        look = [(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
+        look = ([(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
+                if look_points is None else look_points)
         task = self._segments.reserve(uid,cells,points,stamp,min(20.,max_hold),max_hold,
                                       purpose=purpose, look_points=look)
         if task is None:
