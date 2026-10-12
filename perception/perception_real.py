@@ -377,6 +377,43 @@ def cue_body_height(box, camera_z, rotation):
     return projected_body_height((-camera_z/ray[2])*ray, y1, rotation)
 
 
+def pixel_foot_angle_score(box, previous, sample_s):
+    """Match a recent complete image after pitch/roll moves its pixel row.
+
+    foot_down_sin is recomputed from this image's pose and foot ray upstream.
+    asin converts it to world elevation, invariant under pure camera rotation.
+    This supplies association evidence only, never depth or report eligibility.
+    """
+    try:
+        if not 0.0 < sample_s-previous['sample_s'] <= .35+1e-9:
+            return None
+        angles = []
+        focals = []
+        dimensions = []
+        for image in (box, previous):
+            bounds = tuple(float(v) for v in image['box'])
+            width, height, fy = (float(image[k]) for k in ('width', 'height', 'fy'))
+            sine = float(image['foot_down_sin'])
+            if (len(bounds) != 4 or
+                    not all(math.isfinite(v) for v in (*bounds, width, height, fy, sine)) or
+                    width <= 0. or height <= 0. or fy <= 0. or not 0. < sine <= 1. or
+                    image.get('appearance_status', 'actor') != 'actor' or
+                    not 6. <= bounds[0] < bounds[2] <= width-6. or
+                    not 6. <= bounds[1] < bounds[3] <= height-6. or
+                    bounds[3]-bounds[1] < 40.):
+                return None
+            angles.append(math.asin(sine))
+            focals.append(fy)
+            dimensions.append((width, height))
+        if dimensions[0] != dimensions[1] or abs(focals[0]-focals[1]) > 1e-6:
+            return None
+        angle_gate = math.atan(max(90., .8*box['h'])/focals[0])
+        distance = abs(angles[0]-angles[1])
+        return distance/angle_gate if distance <= angle_gate else None
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return None
+
+
 class PixelCueTracker:
     """Associate fresh YOLO boxes by world bearing before ground range is known."""
 
@@ -387,7 +424,7 @@ class PixelCueTracker:
         self.rejections = []
 
     @staticmethod
-    def _association_distance(box, tr, sample_s):
+    def _association_distance(box, tr, sample_s, compensate_vertical=False):
         """Existing image/bearing gates, shared by ordinary and small views."""
         if tr['cls'] != box['cls']:
             return None
@@ -419,10 +456,15 @@ class PixelCueTracker:
                 angle_gate = 0.08 + 0.10 * min(dt, 0.8)
             vdiff = abs(box['v'] - tr['v'])
             ratio = box['h'] / max(tr['h'], 1.0)
-            if (angle > angle_gate or vdiff > max(90.0, 0.8 * box['h']) or
-                    not 0.55 <= ratio <= 1.8):
+            if angle > angle_gate or not 0.55 <= ratio <= 1.8:
                 return None
-            return angle / angle_gate + vdiff / max(90.0, 0.8 * box['h'])
+            vertical = vdiff/max(90.0, 0.8*box['h'])
+            if vertical > 1.:
+                vertical = (pixel_foot_angle_score(box, tr, sample_s)
+                            if compensate_vertical else None)
+                if vertical is None:
+                    return None
+            return angle / angle_gate + vertical
         distance = math.hypot(box['u'] - tr['u'], box['v'] - tr['v'])
         return distance if distance < max(65.0, 1.2 * box['h']) else None
 
@@ -451,6 +493,26 @@ class PixelCueTracker:
         # box needs a unique match in both directions, independent of ordering.
         scores = [{tr['id']: self._association_distance(box, tr, sample_s)
                    for tr in self.tracks} for box in boxes]
+        # Preserve every original passing pair. A rotation-compensated rescue
+        # must be mutually unique across the whole frozen image transaction;
+        # it cannot merge two people sharing a colour/azimuth (especially red).
+        extended = [dict(row) for row in scores]
+        rescued = []
+        for index, box in enumerate(boxes):
+            if box['h'] < 40. or box.get('small_box_continuation_only') is True:
+                continue
+            for tr in self.tracks:
+                if scores[index][tr['id']] is not None:
+                    continue
+                score = self._association_distance(box, tr, sample_s,
+                                                   compensate_vertical=True)
+                if score is not None:
+                    extended[index][tr['id']] = score
+                    rescued.append((index, tr['id'], score))
+        for index, track_id, score in rescued:
+            if (sum(value is not None for value in extended[index].values()) == 1 and
+                    sum(row.get(track_id) is not None for row in extended) == 1):
+                scores[index][track_id] = score
         for box_index, box in enumerate(boxes):
             best, best_d = None, float('inf')
             small = box['h'] < 40.0 or box.get('small_box_continuation_only') is True
@@ -473,7 +535,7 @@ class PixelCueTracker:
                     break
                 if tr['id'] in used or tr['cls'] != box['cls']:
                     continue
-                d = self._association_distance(box, tr, sample_s)
+                d = scores[box_index].get(tr['id'])
                 if d is not None and d < best_d:
                     best, best_d = tr, d
             if best is None:
@@ -484,6 +546,10 @@ class PixelCueTracker:
                         h=box['h'], bearing=box.get('bearing', float('nan')),
                         cam_x=box.get('cam_x', float('nan')),
                         cam_y=box.get('cam_y', float('nan')))
+            # Clear missing metadata instead of attaching an old foot ray to
+            # a new image. Every rescue uses the two actual sampled images.
+            for key in ('box', 'width', 'height', 'fy', 'foot_down_sin', 'appearance_status'):
+                best[key] = box.get(key)
             best['history'] = [p for p in best['history'] if sample_s - p[0] <= 1.1]
             height_m = box.get('body_height_m')
             contradiction = (height_m is not None and math.isfinite(height_m) and

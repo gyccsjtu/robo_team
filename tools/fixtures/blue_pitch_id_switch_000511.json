@@ -1,0 +1,36 @@
+{
+  "runtime_commit": "455d562d86cc59209a67394df8b03a6d43d1cb87",
+  "trial": "logs/logs_20261013_000511",
+  "source_uav": "typhoon_h480_1",
+  "source": "perception CSV projection/yolo rows; pixel IDs from recorded camera candidate messages",
+  "scope": "Exact vertical component only. Full raw pre-cue bearings are not recorded for the new track's first image; this fixture does not claim a complete runtime association replay.",
+  "complete_pair": [
+    {
+      "sample_s": 2006.824,
+      "box": [350.34405517578125, 254.47015380859375, 374.3347473144531, 309.8722839355469],
+      "foot_down_sin": 0.3229627013209159,
+      "pixel_candidate_id": "blue:6"
+    },
+    {
+      "sample_s": 2007.012,
+      "box": [356.7601623535156, 343.21380615234375, 389.54498291015625, 404.5028381347656],
+      "foot_down_sin": 0.2958713124173699,
+      "pixel_candidate_id_after_three_images": "blue:7"
+    }
+  ],
+  "clipped_pair_must_not_be_rescued": [
+    {
+      "sample_s": 2001.0,
+      "box": [574.2609252929688, 116.02425384521484, 596.1356811523438, 169.47579956054688],
+      "foot_down_sin": 0.23603918055768439
+    },
+    {
+      "sample_s": 2001.2,
+      "box": [450.82232666015625, 420.48431396484375, 482.6661071777344, 480.0],
+      "foot_down_sin": 0.2960380593450213
+    }
+  ],
+  "width": 752,
+  "height": 480,
+  "fy": 376.0
+}
