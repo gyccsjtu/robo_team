@@ -2974,12 +2974,25 @@ class SwarmManager(SearchSegmentManager):
             return True
         started = getattr(self, '_tracking_since', {}).get(tid, now)
         ct = self.tracker.targets.get(tid)
-        if ct is None or now-started < self.tracker.confirm_time+BACKUP_AFTER:
+        if ct is None:
             return False
         since, last = ct.confirm_since, ct.last_ok_t
         # The strict tracker uses accepted original camera timestamps. Its
         # progress is merely a health metric and cannot declare elimination.
         span = 0. if since is None or last is None else max(0., last-since)
+        if now-started < self.tracker.confirm_time+BACKUP_AFTER:
+            primary = self._last_eligible(self._tracking.get(tid), tid)
+            if (primary is None or not primary.get('eligible') or
+                    primary['sample_s'] < started):
+                return False  # old resets cannot shorten a new blind approach
+            # 213549: repeated view resets happened before the 20 s grace,
+            # but waiting out that grace expired the last 3 s position before
+            # a nearby backup could be dispatched. Prepare another angle
+            # only after the existing stale-image threshold; a current good
+            # image still gets its full initial attempt. All dispatch gates
+            # and the qualified-image handoff remain unchanged.
+            if now-primary['sample_s'] < BACKUP_STALE:
+                return False
         return ct.resets >= 3 and span < BACKUP_AFTER
 
     def _observed_target_slots(self):

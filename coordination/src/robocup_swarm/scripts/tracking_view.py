@@ -130,7 +130,7 @@ def bind_red_instance_view(view, instance, binding, assigned_tid, now):
     return dict(view, local_target_id=view['target_id'], target_id=assigned_tid)
 
 
-def retain_pixel_view(previous, data, source, tid, now):
+def retain_pixel_view(previous, data, source, tid, now, max_position_age=2.):
     """At most 2s of yaw-only continuity for an explicitly bound image track.
 
     Position time never advances. No new association, localization, report or
@@ -145,7 +145,7 @@ def retain_pixel_view(previous, data, source, tid, now):
         sample = float(data['sample_s'])
         anchor = previous.get('position_sample_s',previous['sample_s'])
         if (not 0. < sample-previous['sample_s'] <= .5 or
-                not 0. <= now-anchor <= 2.):
+                not 0. <= now-anchor <= max_position_age):
             return None
         payload = dict(data, target_id=tid, track_id=previous['track_id'],
                        x=previous['x'], y=previous['y'], fy=previous['fy'],
@@ -162,6 +162,76 @@ def retain_pixel_view(previous, data, source, tid, now):
         return view
     except (KeyError,ValueError,TypeError,OverflowError):
         return None
+
+
+def pixel_recovery_view(previous, data, source, tid, now):
+    """Six seconds of unambiguous same-instance images, never new positions.
+
+    The longer budget is solely for restoring observation geometry. An
+    ambiguous association, changed pixel ID, image gap or appearance conflict
+    cannot acquire it. Its deadline stays anchored to the localized image.
+    """
+    try:
+        if (previous is None or
+                not (previous.get('geometry_ok') or previous.get('image_recovery')) or
+                data.get('association_unique') is not True or
+                data.get('appearance_status') != 'actor'):
+            return None
+        down, fy = float(data['foot_down_sin']), float(data['fy'])
+        if not math.isfinite(down) or not -1. <= down <= 1. or fy != previous['fy']:
+            return None
+        view = retain_pixel_view(previous, data, source, tid, now, max_position_age=6.)
+        if view is None:
+            return None
+        view.update(image_recovery=True, foot_down_sin=down,
+                    recovery_until=view['position_sample_s']+6.)
+        return view
+    except (KeyError, ValueError, TypeError, OverflowError):
+        return None
+
+
+def update_pixel_altitude_hold(previous, view, altitude, minimum, maximum):
+    """Improve a bound image's vertical view without estimating actor depth.
+
+    A shallow, complete foot ray can request a slow climb; a bottom crop can
+    request a small descent. Pitch/roll transients cannot drive either. The
+    absolute episode budget, flight floor and ceiling remain independent of
+    how many camera messages arrive.
+    """
+    sample = view['sample_s']
+    anchor = view['position_sample_s']
+    if previous is None or previous['target_id'] != view['target_id']:
+        previous = dict(target_id=view['target_id'], sample_s=anchor,
+                        goal=altitude, direction=0, pressure_since=sample)
+    if sample <= previous['sample_s']:
+        return previous
+    dt = sample-previous['sample_s']
+    baseline = previous.get('recovery_altitude', altitude)
+    goal = previous['goal']
+    _, top, _, bottom = view['box']
+    height = view['height']
+    if bottom >= .92*height:
+        direction = -1
+    elif (bottom <= .88*height and top >= .04*height and
+          bottom-top <= .8*height and 0. < view['foot_down_sin'] < VIEW_MIN_DOWN_SIN):
+        direction = 1
+    else:
+        direction = 0
+    since = previous['pressure_since']
+    if abs(view['camera_tilt']) > math.radians(8.):
+        since += dt  # tilted frames add no sustained-pressure time
+        direction = previous['direction']
+    else:
+        if direction != previous['direction'] or dt > .5:
+            since = sample
+        if direction and sample-since >= .6-1e-9:
+            goal += direction*.15*min(dt, .25)
+    goal = min(maximum, baseline+.6, altitude+.25,
+               max(minimum, baseline-.3, altitude-.25, goal))
+    return dict(target_id=view['target_id'], sample_s=sample, goal=goal,
+                direction=direction, pressure_since=since,
+                needs_space=bottom >= .92*height, range_floor=0.,
+                recovery_altitude=baseline, recovery_until=anchor+6.)
 
 
 VIEW_MIN_DOWN_SIN = .33

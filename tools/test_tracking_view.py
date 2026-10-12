@@ -13,11 +13,136 @@ sys.path.insert(0, str(ROOT / 'coordination/src/robocup_swarm/scripts'))
 import swarm_agent as sa
 from tracking_view import (box_from_foot, parse_tracking_view, image_altitude_goal,
                            view_needs_space, update_altitude_hold,
-                           bound_pixel_candidate, retain_pixel_view)
+                           bound_pixel_candidate, retain_pixel_view,
+                           pixel_recovery_view, update_pixel_altitude_hold)
 from perception import perception_real as pr
 
 
 class TrackingViewTests(unittest.TestCase):
+    def recovery_payload(self, **changes):
+        raw = self.payload(candidate_id='white:11', sample_s=100.2,
+            purpose='camera_reacquire', association_unique=True,
+            appearance_status='actor', foot_down_sin=.27,
+            box=[325.,290.,375.,366.])
+        raw.update(changes)
+        for key in ('x', 'y', 'target_id'):
+            raw.pop(key, None)
+        return raw
+
+    def test_bound_shallow_images_restore_height_without_refreshing_world_position(self):
+        a = self.agent()
+        self.send(a, self.payload(candidate_id='white:11'))
+        a._t_seen = {'t3':100.}
+        before = dict(a.targets)
+        with patch.object(sa, 'PIXEL_VIEW_RECOVERY', True):
+            for i in range(1,20):
+                sample = 100.+.2*i
+                with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(sample+.1)):
+                    a._visual_candidate_cb(NS(data=json.dumps(self.recovery_payload(sample_s=sample))))
+                self.assertEqual(a._tracking_image['position_sample_s'],100.)
+                self.assertFalse(a._tracking_image['geometry_ok'])
+                self.assertFalse(a._tracking_image['report_ok'])
+                self.assertEqual(a._tracking_image['recovery_until'],106.)
+            self.assertGreater(a._tracking_altitude['goal'],a.local_z)
+            self.assertLessEqual(a._tracking_altitude['goal'],a.local_z+.25+1e-9)
+            a.yaw=0.
+            a._send_vel=Mock()
+            self.assertTrue(a._hold_pixel_recovery(103.9))
+            a._send_vel.assert_called_once_with(0.,0.)
+            self.assertFalse(a._hold_pixel_recovery(106.))
+        self.assertEqual(a.targets,before)
+        self.assertEqual(a._t_seen,{'t3':100.})
+        self.assertEqual(a._visual_observations,{})
+        self.assertEqual((a._confirm_start,a._last_confirm_t),(0.,0.))
+
+    def test_recovery_cannot_use_alias_ambiguity_missing_pose_or_appearance_conflict(self):
+        previous=parse_tracking_view(self.payload(candidate_id='white:11'),'u0','t3',100.1)
+        changes=(dict(candidate_id='white:12'),dict(source_uav='u1'),
+                 dict(sample_s=101.),dict(association_unique=False),
+                 dict(appearance_status='ambiguous'),dict(appearance_status='distractor'),
+                 dict(foot_down_sin=float('nan')),dict(foot_down_sin=1.1),
+                 dict(fy=400.),dict(real_detection=False))
+        for change in changes:
+            self.assertIsNone(pixel_recovery_view(previous,self.recovery_payload(**change),
+                                                 'u0','t3',100.3),change)
+        raw=self.recovery_payload()
+        raw.pop('foot_down_sin')
+        self.assertIsNone(pixel_recovery_view(previous,raw,'u0','t3',100.3))
+        previous['geometry_ok']=False
+        self.assertIsNone(pixel_recovery_view(previous,self.recovery_payload(),'u0','t3',100.3))
+
+    def test_recovery_absolute_budget_duplicates_and_geometry_reentry(self):
+        previous=parse_tracking_view(self.payload(candidate_id='white:11'),'u0','t3',100.1)
+        for i in range(1,30):
+            sample=100.+.2*i
+            previous=pixel_recovery_view(previous,self.recovery_payload(sample_s=sample),
+                                         'u0','t3',sample+.1)
+            self.assertIsNotNone(previous)
+            self.assertIsNone(pixel_recovery_view(previous,self.recovery_payload(sample_s=sample),
+                                                 'u0','t3',sample+.1))
+        self.assertIsNone(pixel_recovery_view(previous,self.recovery_payload(sample_s=106.1),
+                                             'u0','t3',106.2))
+        a=self.agent()
+        a._tracking_image=previous
+        a._tracking_altitude=update_pixel_altitude_hold(None,previous,a.local_z,2.6,4.2)
+        self.send(a,self.payload(candidate_id='white:11',sample_s=105.8),now=105.9)
+        self.assertFalse(a._tracking_image.get('image_recovery',False))
+        self.assertNotIn('recovery_until',a._tracking_altitude)
+
+    def test_recovery_crop_tilt_bounds_and_expired_height_hold(self):
+        for box,tilt in (([325.,390.,375.,480.],0.),
+                         ([325.,290.,375.,366.],math.radians(9.))):
+            state=None
+            previous=parse_tracking_view(self.payload(candidate_id='white:11'),'u0','t3',100.1)
+            for i in range(1,20):
+                sample=100.+.2*i
+                view=pixel_recovery_view(previous,self.recovery_payload(
+                    sample_s=sample,box=box,camera_tilt=tilt),'u0','t3',sample+.1)
+                state=update_pixel_altitude_hold(state,view,2.6,2.6,4.2)
+                previous=view
+            self.assertEqual(state['goal'],2.6)  # no climb from cropped or tilted feet
+        a=self.agent()
+        a._tracking_altitude=dict(state,target_id='t3',goal=3.6)
+        with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(106.1)):
+            actual=a.altitude_layer+a._compute_desired_altitude()
+        self.assertAlmostEqual(actual,a.local_z)
+
+    def test_image_recovery_reaches_final_position_output_and_obstacle_height_guard(self):
+        for obstacle in (False, True):
+            with self.subTest(obstacle=obstacle):
+                a=self.agent()
+                a.yaw,a._look_at=0.,(8.,0.)
+                a._takeoff_done,a._landing=True,False
+                a._est_trustworthy=lambda:True
+                a._bounds_recovery_velocity=lambda:None
+                a._radar_guard_velocity=lambda vx,vy:(vx,vy)
+                a._grid_guard_velocity=lambda vx,vy:(vx,vy)
+                a._map_guard_velocity=lambda vx,vy:(vx,vy)
+                a._final_scan_cap=lambda vx,vy:(vx,vy)
+                a._last_cmd_v=(1.,0.)
+                a._last_csv_t=103.9
+                a._climb_latch,a._climb_t0,a._alt_sag=False,None,0.
+                a._scan_t=103.8
+                a._scan=NS(angle_min=-math.pi,angle_increment=math.pi/180.,
+                           range_min=.1,range_max=20.,ranges=[1. if obstacle else 20.]*361)
+                a.pos_pub=Mock()
+                a._tracking_image=dict(parse_tracking_view(self.payload(),'u0','t3',100.1),
+                    sample_s=103.8,geometry_ok=False,report_ok=False,pixel_only=True,
+                    image_recovery=True,recovery_until=106.,position_sample_s=100.)
+                a._tracking_altitude=dict(target_id='t3',sample_s=103.8,
+                                          goal=3.5,recovery_until=106.)
+                with patch.object(sa,'PIXEL_VIEW_RECOVERY',True), \
+                     patch.object(sa,'FLIGHT_OUTPUT','pos'), \
+                     patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(103.9)):
+                    self.assertTrue(a._hold_pixel_recovery(103.9))
+                output=a.pos_pub.publish.call_args.args[0].pose
+                self.assertEqual((output.position.x,output.position.y),a.local_xy)
+                if obstacle:
+                    self.assertAlmostEqual(output.position.z,a.local_z)
+                else:
+                    self.assertGreater(output.position.z,a.local_z)
+                self.assertGreater(output.orientation.z,0.)
+
     def test_recorded_red_crop_requests_space_even_when_height_interval_exists(self):
         # 212319: UAV0 red, image 2258.448, bottom=480, altitude goal=4.03.
         for tilt in (0.064, .2):

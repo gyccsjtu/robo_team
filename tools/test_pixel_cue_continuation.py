@@ -5,6 +5,18 @@ from perception import perception_real as pr
 
 
 class PixelCueContinuationTests(unittest.TestCase):
+    def test_recovery_metadata_uses_same_image_and_mutually_unique_association(self):
+        tracker=self.established(self.box(fy=376.,foot_down_sin=.27))
+        cue=tracker.update(100.6,[self.box(fy=376.,foot_down_sin=.28)])[0]
+        self.assertTrue(cue['association_unique'])
+        self.assertEqual(cue['foot_down_sin'],.28)
+        self.assertEqual(cue['fy'],376.)
+        tracker=self.established(self.box(color='red',u=350.,bearing=-.08),
+                                 self.box(color='red',u=402.,bearing=.08))
+        cues=tracker.update(100.6,[self.box(color='red',u=376.,bearing=0.)])
+        self.assertTrue(cues)
+        self.assertFalse(cues[0]['association_unique'])
+
     def box(self, height=44., color='brown', u=376., bearing=0., confidence=.9,
             continuation=None, **kwargs):
         width = 16.

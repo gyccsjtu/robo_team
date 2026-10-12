@@ -530,13 +530,17 @@ class PixelCueTracker:
                                  sample_s=sample_s, bearing=box['bearing'],
                                  confidence=box['conf'], hits=len(recent),
                                  u=box['u'], v=box['v'],
+                                 association_unique=(
+                                     scores[box_index].get(best['id']) is not None and
+                                     sum(v is not None for v in scores[box_index].values()) == 1 and
+                                     sum(s.get(best['id']) is not None for s in scores) == 1),
                                  attention_only=(small or not normal_cue or
                                      box.get('appearance_status', 'actor') != 'actor')))
                 if small:
                     cues[-1].update(small_box_continuation=True,
                                     normal_anchor_s=best['normal_anchor_s'],
                                     report_eligible=False, footpoint_valid=False)
-                for key in ('box', 'width', 'height', 'camera_tilt',
+                for key in ('box', 'width', 'height', 'camera_tilt', 'fy', 'foot_down_sin',
                             'appearance_status', 'appearance_confidence',
                             'distractor_confidence'):
                     if key in box:
@@ -1769,9 +1773,23 @@ def control_tracks(tracks, red_slots, sample):
     """
     result = []
     for tr in tracks:
-        if (tr.miss or tr.observed_s != sample or tr.hits < 3 or
-                not .45 <= tr.conf <= 1.):
+        if tr.miss or tr.observed_s != sample or tr.hits < 3:
             continue
+        if not .45 <= tr.conf <= 1.:
+            # 225123, image 2290.700: mature white track 6 (30 hits) had
+            # valid foot geometry at conf=.423, but never published camera
+            # feedback. Continue only an already established, currently
+            # associated white instance; this grants no discovery/report
+            # permission and cannot mature a new weak detector track.
+            weak_white_view = (
+                tr.cls == 'white' and WHITE_CONF <= tr.conf < .45 and
+                tr.hits >= CONFIRM_HITS and tr.world_ready and
+                tr.observation_view_ok and not tr.loc_suspect and
+                tr.appearance_status == 'actor' and
+                tr.range_method == 'foot_ground' and 0. < tr.rng <= 12. and
+                0. <= sample-tr.last_strict_s <= 2.)
+            if not weak_white_view:
+                continue
         if tr.cls == 'red':
             if tr.id not in red_slots:
                 continue
@@ -2224,6 +2242,7 @@ def main():
                                 bx1, by1, bx2, by2, allow_small_continuation=True)):
                             continue
                         bu, bv = (bx1 + bx2) / 2.0, (by1 + by2) / 2.0
+                        foot_ray = foot_ground_ray(bu, by2, R)
                         raw_cue_boxes.append(dict(
                             cls=CLASSES[cid], conf=conf, u=bu, v=bv,
                             small_box_continuation_only=not ordinary_cue,
@@ -2235,6 +2254,7 @@ def main():
                             body_height_m=cue_body_height(
                                 (bx1, by1, bx2, by2), pz, R),
                             width=IMG_W, height=IMG_H,
+                            fy=FY, foot_down_sin=float(-foot_ray[2]/np.linalg.norm(foot_ray)),
                             camera_tilt=math.acos(max(-1., min(1., float(R[2, 2]))))))
                     frame_cues = cue_tracker.update(frame_stamp, raw_cue_boxes)
                     if fast_seed_pub is not None:

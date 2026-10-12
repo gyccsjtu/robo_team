@@ -147,6 +147,144 @@ class UnavailableTrackingTests(unittest.TestCase):
         manager._dispatch_backup()
         self.assertEqual(manager._backup, {})
 
+    def _red_gap_manager(self, now=2164.788):
+        """213549: helper enters 20m before the last position's 3s TTL ends.
+
+        Positions/stamps come from search.jsonl.gz at 2164.788; assignment,
+        reset count and last image come from manager/perception logs. Free
+        zone cells isolate the existing sole-searcher guard: this is a
+        dispatch regression, not a replay of the whole randomized map.
+        """
+        manager, _ = self._backup_manager(primary_sample=2155.896)
+        positions = [
+            (-38.7122688293457, -16.01413059234619, 4.064043998718262, 2164.692),
+            (115.86557006835938, 23.470178604125977, 2.93780517578125, 2164.784),
+            (106.18412780761719, -28.304006576538086, 3.3692359924316406, 2164.76),
+            (93.2374496459961, 41.78734588623047, 3.954939126968384, 2164.74),
+            (9.144892692565918, 41.63108444213867, 4.126482963562012, 2164.744),
+            (106.65939331054688, 26.859935760498047, 2.7682313919067383, 2164.784),
+        ]
+        manager.uav_ids = ['typhoon_h480_%d' % i for i in range(6)]
+        manager.status = {uid: SimpleNamespace(x=x, y=y, z=z, connected=True)
+                          for uid, (x, y, z, _) in zip(manager.uav_ids, positions)}
+        manager.last_report = {uid: swarm_manager.rospy.Time(sample)
+                              for uid, (_, _, _, sample) in zip(manager.uav_ids, positions)}
+        manager._processed_frame_times = {uid: now-.2 for uid in manager.uav_ids}
+        cells = {(i, 0): SimpleNamespace(state=swarm_manager.STATE_FREE, owner=None)
+                 for i in range(6)}
+        manager.grid = SimpleNamespace(
+            zone_cells={i: [(i, 0)] for i in range(6)}, visit_time={},
+            get_uav_zone=lambda uid: int(uid[-1]), cell=cells.get)
+        owner = manager.uav_ids[1]
+        manager._tracking, manager._backup = {'t5': owner}, {}
+        manager._tracking_since = {'t5': 2145.692}
+        candidate = '9c599a50de6b4abe83e5eadb4745ce0e:1'
+        manager._eligible_observations = {(owner, 't5'): dict(
+            eligible=True, sample_s=2155.896, candidate_id=candidate)}
+        manager._visual_observations = {(owner, 't5'): dict(
+            eligible=False, sample_s=2162.272, candidate_id=candidate,
+            x=124.82, y=25.15)}
+        manager._truth_cache = {'t5': (124.82, 25.15, 2162.272)}
+        manager._backup_search_capacity = swarm_manager.SwarmManager._backup_search_capacity.__get__(manager)
+        manager.tracker = cooperative_tracker.CooperativeTracker(
+            official_only=True, strict_samples=True)
+        target = manager.tracker.add_target('t5', now=2145.692)
+        target.set_observers([owner])
+        target.resets = 4
+        return manager, target
+
+    def test_repeated_stale_red_gets_relief_before_position_expires(self):
+        manager, target = self._red_gap_manager()
+        before = dict(manager._eligible_observations)
+        with patch.object(swarm_manager.rospy.Time, 'now',
+                          return_value=swarm_manager.rospy.Time(2164.788)):
+            self.assertTrue(manager._sole_first_pass_zone_searcher(
+                'typhoon_h480_5', {'typhoon_h480_1'}))
+            manager._dispatch_backup()
+        self.assertEqual(manager._backup, {'t5': 'typhoon_h480_5'})
+        self.assertEqual(manager._tracking, {'t5': 'typhoon_h480_1'})
+        self.assertEqual(manager._tracking_since['t5'], 2145.692)
+        self.assertEqual(manager._eligible_observations, before)
+        self.assertIsNone(target.last_ok_t)
+        self.assertFalse(target.eliminated)
+        msg = manager.assign_pub.publish.call_args.args[0]
+        self.assertEqual((msg.uav_id, msg.target_id, msg.task_type),
+                         ('typhoon_h480_5', 't5', 1))
+        self.assertEqual((msg.target_x, msg.target_y), (124.82, 25.15))
+        # Repeated failures authorize preparation, never a blind ownership
+        # switch or any synthetic qualified observation for the backup.
+        with patch.object(swarm_manager.rospy.Time, 'now',
+                          return_value=swarm_manager.rospy.Time(2164.788)):
+            self.assertTrue(manager._recover_tracking_view(
+                't5', 2164.788, 'unverified_visual'))
+        self.assertEqual(manager._tracking, {'t5': 'typhoon_h480_1'})
+        self.assertEqual(manager.assign_pub.publish.call_count, 1)
+
+    def test_early_red_relief_cannot_take_the_other_red_owner(self):
+        manager, _ = self._red_gap_manager()
+        manager._tracking['t4'] = 'typhoon_h480_5'
+        other = manager.tracker.add_target('t4', now=2164.788)
+        other.set_observers(['typhoon_h480_5'])
+        manager._tracking_since['t4'] = 2164.788
+        with patch.object(swarm_manager.rospy.Time, 'now',
+                          return_value=swarm_manager.rospy.Time(2164.788)):
+            manager._dispatch_backup()
+        self.assertEqual(manager._backup, {})
+        self.assertEqual(manager._tracking, {
+            't4': 'typhoon_h480_5', 't5': 'typhoon_h480_1'})
+        manager.assign_pub.publish.assert_not_called()
+
+    def test_early_relief_preserves_fresh_owner_and_long_qualified_streak(self):
+        for fresh, long_streak in ((True, False), (False, True)):
+            with self.subTest(fresh=fresh, long_streak=long_streak):
+                manager, target = self._red_gap_manager()
+                if fresh:
+                    manager._eligible_observations[('typhoon_h480_1', 't5')]['sample_s'] = 2164.6
+                if long_streak:
+                    target.confirm_since, target.last_ok_t = 2150., 2156.
+                with patch.object(swarm_manager.rospy.Time, 'now',
+                                  return_value=swarm_manager.rospy.Time(2164.788)):
+                    manager._dispatch_backup()
+                self.assertEqual(manager._backup, {})
+                manager.assign_pub.publish.assert_not_called()
+
+    def test_historical_resets_do_not_shorten_a_new_blind_approach(self):
+        manager, _ = self._red_gap_manager()
+        manager._tracking_since['t5'] = 2160.
+        with patch.object(swarm_manager.rospy.Time, 'now',
+                          return_value=swarm_manager.rospy.Time(2164.788)):
+            manager._dispatch_backup()
+        self.assertEqual(manager._backup, {})
+        manager.assign_pub.publish.assert_not_called()
+
+    def test_early_relief_does_not_bypass_reset_threshold_or_coordinate_expiry(self):
+        for resets, now in ((2, 2164.788), (4, 2165.788)):
+            with self.subTest(resets=resets, now=now):
+                manager, target = self._red_gap_manager(now)
+                target.resets = resets
+                with patch.object(swarm_manager.rospy.Time, 'now',
+                                  return_value=swarm_manager.rospy.Time(now)):
+                    manager._dispatch_backup()
+                self.assertEqual(manager._backup, {})
+                manager.assign_pub.publish.assert_not_called()
+
+    def test_early_relief_keeps_search_reserve_distance_and_cooldown(self):
+        for veto in ('reserve', 'range', 'cooldown'):
+            with self.subTest(veto=veto):
+                manager, _ = self._red_gap_manager()
+                if veto == 'reserve':
+                    for index in (0, 2, 3):
+                        manager.status['typhoon_h480_%d' % index].connected = False
+                elif veto == 'range':
+                    manager.status['typhoon_h480_5'].x = 103.
+                else:
+                    manager._release_cooldown['typhoon_h480_5'] = swarm_manager.rospy.Time(2170.)
+                with patch.object(swarm_manager.rospy.Time, 'now',
+                                  return_value=swarm_manager.rospy.Time(2164.788)):
+                    manager._dispatch_backup()
+                self.assertEqual(manager._backup, {})
+                manager.assign_pub.publish.assert_not_called()
+
     def test_stale_primary_preserves_only_unseen_zone_searcher(self):
         manager, target = self._backup_manager(primary_sample=95.0)
         self.assertTrue(manager._sole_first_pass_zone_searcher('u3', {'u0'}))

@@ -109,6 +109,70 @@ class CameraAttentionTests(unittest.TestCase):
         self.assertEqual(pr.control_tracks([t],[None,None],100.), [])
         self.assertEqual(pr.control_tracks([t],[None,t.id],100.)[0][:2], ('red',1))
 
+    def recorded_weak_white(self, **changes):
+        # 225123/perception_typhoon_h480_2.csv: image 2290.700 was
+        # strict=True at raw confidence .4226698, range 11.254201 m;
+        # track_publish confirms existing track 6 had 30 lifetime hits.
+        # Establish identity with actual Track.update calls before replaying
+        # this final observation. This is a producer fixture, not actor truth.
+        sample = 2290.700
+        x, y = 89.17203847186536, 41.85064785998252
+        uv = (384.2190399169922, 299.99767684936523)
+        wh = (26.834686279296875, 57.48176574707031)
+        rng, height = 11.254201043554712, 1.7327573441522528
+        tr = pr.Track('white', x-.6, y, .8, uv, wh, rng, height, sample-1.2)
+        for i in range(1, 6):
+            tr.update(x-.6+.1*i, y, .2, .8, uv, wh, rng, height, sample-1.2+.2*i)
+        self.assertTrue(tr.world_candidate_ready())
+        tr.update(x, y, .2, .42266982793807983, uv, wh, rng, height, sample)
+        for key, value in changes.items():
+            setattr(tr, key, value)
+        return tr, sample
+
+    def test_recorded_mature_white_reaches_camera_control_at_detector_threshold(self):
+        for confidence in (.30, .35, .42266982793807983, .423, .44):
+            tr, sample = self.recorded_weak_white(conf=confidence)
+            before = dict(tr.__dict__)
+            chosen = pr.control_tracks([tr], [None, None], sample)
+            self.assertEqual(chosen, [('white', 0, tr)])
+            self.assertIs(chosen[0][2], tr)
+            self.assertEqual(pr.candidate_identity('session', chosen[0][2]),
+                             pr.candidate_identity('session', tr))
+            self.assertEqual(tr.__dict__, before)
+            # The dispatch .55 floor remains independent of image control.
+            self.assertEqual(pr.discovery_candidate_frame(
+                chosen, 'u2', sample, 'session')['candidates'], [])
+
+    def test_weak_white_cannot_create_identity_or_use_failed_current_geometry(self):
+        for changes in (dict(hits=1), dict(hits=3), dict(world_ready=False),
+                        dict(miss=1), dict(observation_view_ok=False),
+                        dict(loc_suspect=True), dict(appearance_status='ambiguous'),
+                        dict(appearance_status='distractor'), dict(rng=12.01),
+                        dict(range_method='head_height'), dict(last_strict_s=2288.699),
+                        dict(last_strict_s=2290.701), dict(conf=.29),
+                        dict(conf=math.nan), dict(observed_s=2290.5)):
+            with self.subTest(changes=changes):
+                tr, sample = self.recorded_weak_white(**changes)
+                self.assertEqual(pr.control_tracks([tr], [None, None], sample), [])
+        for color in ('red', 'blue', 'green', 'brown'):
+            tr, sample = self.recorded_weak_white(cls=color)
+            self.assertEqual(pr.control_tracks([tr], [None, tr.id], sample), [])
+
+    def test_weak_white_control_cannot_upgrade_report_geometry_or_other_instance(self):
+        tr, sample = self.recorded_weak_white(observation_loc_ok=False)
+        tr.last_strict_s = sample-.2
+        self.assertFalse(tr.can_report_image())
+        peer = self.track('white', 90., .44)  # unestablished nearby white box
+        peer.observed_s = sample
+        chosen = pr.control_tracks([peer, tr], [None, None], sample)
+        self.assertEqual(chosen, [('white', 0, tr)])
+        self.assertFalse(tr.can_report_image())
+        self.assertEqual(peer.hits, 3)
+        self.assertFalse(peer.world_ready)
+        # Camera selection does not invoke the separate report-candidate path.
+        self.assertFalse(pr.report_candidate_frame(chosen, 'u2', sample,
+            'session', (80., 40.), assigned_target='t3')['candidates'][0]['official_view_ok'])
+
     def test_pixel_association_preserves_full_frame_metadata(self):
         tracker = pr.PixelCueTracker()
         box = dict(cls='brown', conf=.8, u=360., v=250., h=100.,
