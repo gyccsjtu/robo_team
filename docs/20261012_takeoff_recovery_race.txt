@@ -1,0 +1,38 @@
+2026-10-12 起飞停滞与恢复时间竞争
+
+基线：275.652 秒存档 0d846ce。实验提交 8a1a393 只增加可关闭的提前追赶。
+204032 轮 2 号机未离地；其余五机完成官方 6/6，307.836 秒。
+该轮不能作为完整六机的性能对照或起飞成功证据。
+
+实测链路：
+1. agent_2 于 ROS 1959.780 解锁并进入 OFFBOARD，后续仍停地面。
+2. 黑匣子 land_detected 于 PX4 开机 36.488 秒变为 landed=0；
+   takeoff_status 于 37.176 秒进入 READY_FOR_TAKEOFF=3 后一直未推进。
+   PX4 位置控制器 OFFBOARD want_takeoff 要求 landed=true；
+   本地位置 x/y 均在约 ±0.08 m 内，z 在 -0.225..0.167 m（NED）之间。
+3. ROS 1969.780 触发已有有界 AUTO.TAKEOFF 恢复。
+   1969.784 立即 FAILED，甚至没有发送 AUTO.TAKEOFF 请求；
+   后续永久走 failed 分支发零爬升。相机和 FCU 心跳一直在。
+
+代码漏洞：恢复函数在 ParamGet 前捕获 now，服务等待时位姿回调可更新。
+后续用旧 now 减新位姿采样时间，负值被判作位姿异常并锁死恢复。
+回归输入在 ParamGet 期间推进 4 ms，旧代码可稳定复现 failed=true。
+另一个旧代码反例：服务耗时 0.4 秒而无新位姿，仍错用旧时间放行。
+
+修复：先截取位姿时间，再读取新的当前时间；保留原始 15 秒恢复预算。
+真过期、真未来时间、失联、落地、定位失信、越高仍拒绝恢复。
+失败日志分别记录原因、位姿年龄和恢复耗时。
+不修改 PX4、着陆判据、演员、裁判、出生点，不强制解锁。
+
+启动/状态检查新增 airborne：验证六路新鲜己方 UavStatus，要求实际爬升完成、
+已解锁、OFFBOARD、定位可信；仅连接不算成功。失败点名缺席飞机，
+保留已飞飞机控制程序。就绪即返回，不固定增加 45 秒等待。
+
+离线：28 项起飞/就绪测试通过，含时间竞争、服务延迟、超时、失效保护、
+不同飞机身份、旧消息与当前可用性失效。bash -n 与 git diff --check 通过。
+GUI 重启验证待追加结果；离线测试不等于实机恢复已验证。
+
+证据：logs/logs_20261012_204032/06_swarm_agent_2.log
+      artifacts/random_tracking_20261012_204032/uav2_takeoff_ulog.json
+      artifacts/random_tracking_20261012_204032/result_before_stop.json
+      tools/test_stalled_takeoff_recovery.py

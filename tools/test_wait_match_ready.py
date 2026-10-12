@@ -8,6 +8,7 @@ import sys
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -57,6 +58,27 @@ class ReadyProbeTest(unittest.TestCase):
         tracker.on_message(SimpleNamespace(ranges=[2.0]), ("scan", "typhoon_h480_0"))
         self.assertEqual(tracker.missing(), [
             (("state", "typhoon_h480_0"), "/typhoon_h480_0/mavros/state")])
+
+    def test_airborne_requires_each_aircraft_currently_above_ground(self):
+        args = parse_arguments(['--kind', 'airborne', '--uavs', 'u0', 'u1'])
+        tracker = ReadyTracker(expected_topics(args.kinds, args.uavs), ros_now=lambda:100.)
+        def status(uid, z=2.5, connected=True, sample=100.):
+            return SimpleNamespace(uav_id=uid, z=z, connected=connected,
+                header=SimpleNamespace(stamp=SimpleNamespace(to_sec=lambda:sample)))
+        for z,connected,sample in ((.1,True,100.),(2.5,False,100.),
+                                   (2.5,True,98.),(2.5,True,101.)):
+            tracker.on_message(status('u0', z, connected, sample), ('airborne','u0'))
+            self.assertEqual(len(tracker.ready), 0)
+        with patch('wait_match_ready.time.monotonic', return_value=10.):
+            tracker.on_message(status('u0'), ('airborne','u0'))
+            tracker.on_message(status('u0'), ('airborne','u1'))
+            self.assertEqual(len(tracker.missing()), 1)
+            tracker.on_message(status('u1'), ('airborne','u1'))
+            self.assertEqual(tracker.missing(), [])
+            tracker.on_message(status('u1',connected=False), ('airborne','u1'))
+            self.assertEqual(len(tracker.missing()), 1)
+        with patch('wait_match_ready.time.monotonic', return_value=11.1):
+            self.assertEqual(len(tracker.missing()), 2)
 
 
 if __name__ == "__main__":

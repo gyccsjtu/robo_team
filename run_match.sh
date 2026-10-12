@@ -1210,10 +1210,27 @@ do_start(){
             || partial_fail "启动验收时 actor 控制器不足六个；检查 $LOGDIR/02_actors.log"
     fi
 
+    # Connection/arming are not flight: catch a grounded OFFBOARD aircraft.
+    # Keep healthy aircraft under their agents if this read-only check fails;
+    # killing flight nodes here would remove their safety/setpoint streams.
+    local fleet_airborne=0
+    if timeout 47s python3 -u "$READY_SCRIPT" --kind airborne --timeout 45 \
+            --uavs "${UAVS[@]}" >"$LOGDIR/07_airborne.log" 2>&1; then
+        fleet_airborne=1
+        ok "六机均已实际完成爬升，可参与任务"
+    else
+        cat "$LOGDIR/07_airborne.log" >&2
+        warn "六机起飞验收未通过：缺席飞机见上；已飞飞机继续受控，查看对应 agent 日志"
+    fi
+
     # ============================ 完成横幅 ==================================
     echo
     echo "${C_G}==============================================================${C_0}"
-    ok "比赛栈编排完成。日志目录: $LOGDIR （最新入口: $RUN_DIR/latest）"
+    if [ "$fleet_airborne" = 1 ]; then
+        ok "比赛栈编排完成，六机起飞验收通过。日志目录: $LOGDIR （最新入口: $RUN_DIR/latest）"
+    else
+        warn "比赛栈已运行，但六机起飞验收失败。日志目录: $LOGDIR"
+    fi
     echo
     if [ "$TEAM_ONLY" = 1 ]; then
         echo "  队伍状态:    $0 status-team"
@@ -1286,6 +1303,14 @@ do_status(){
         printf '%s\n' "$_state_probe" | grep '^\[ready\] MISSING' || true
     fi
     info "actor 控制器: $(count_pattern '[c]ontrol_actor.py')/6"
+    _flight_probe="$(timeout 5s python3 -u "$READY_SCRIPT" --kind airborne --timeout 3 \
+        --uavs "${UAVS[@]}" 2>&1 || true)"
+    if printf '%s\n' "$_flight_probe" | grep -q '^\[ready\] PASS 6/6'; then
+        info "实际爬升且可执行任务: 6/6"
+    else
+        warn "六机飞行可用性不完整（MAVROS 已连接不等于已经起飞）"
+        printf '%s\n' "$_flight_probe" | grep '^\[ready\]' || true
+    fi
     info "感知进程: $(count_pattern '[p]erception_real')"
     info "雷达进程: $(count_pattern '[r]adar_avoid')"
     info "协同 agent: $(count_pattern '[s]warm_agent.py')"

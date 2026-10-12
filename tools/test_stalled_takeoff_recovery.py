@@ -49,6 +49,43 @@ class StalledTakeoffRecoveryTests(unittest.TestCase):
         a.arm_srv.assert_not_called()
         a._send_vel.assert_called_with(0.,0.,vz=0.)
 
+    def test_pose_callback_during_param_read_does_not_lock_recovery(self):
+        a=self.agent()
+        def read_param(*args):
+            # Logged failure: callback advances by one 4 ms simulation step
+            # while ParamGet runs, after the caller captured its original now.
+            self.time=100.004
+            a._local_prev_t=100.004
+            return NS(success=True,value=NS(real=2.5))
+        self.param.side_effect=read_param
+        self.assertTrue(a._recover_stalled_takeoff())
+        self.assertFalse(a._takeoff_recovery['failed'])
+        a.mode_srv.assert_called_once_with(0,'AUTO.TAKEOFF')
+
+    def test_param_wait_cannot_hide_stale_pose_or_extend_timeout(self):
+        for delay in (.4,16.):
+            with self.subTest(delay=delay):
+                self.time=100.
+                a=self.agent()
+                def read_param(*args):
+                    self.time=100.+delay
+                    if delay>15.:a._local_prev_t=self.time
+                    return NS(success=True,value=NS(real=2.5))
+                self.param.side_effect=read_param
+                self.assertTrue(a._recover_stalled_takeoff())
+                self.assertTrue(a._takeoff_recovery['failed'])
+                a.mode_srv.assert_not_called()
+
+    def test_real_future_pose_remains_invalid(self):
+        a=self.agent()
+        def read_param(*args):
+            a._local_prev_t=100.1
+            return NS(success=True,value=NS(real=2.5))
+        self.param.side_effect=read_param
+        self.assertTrue(a._recover_stalled_takeoff())
+        self.assertTrue(a._takeoff_recovery['failed'])
+        a.mode_srv.assert_not_called()
+
     def test_mode_acceptance_is_not_taken_as_success_and_normal_handback_needs_stream(self):
         a=self.agent();a._recover_stalled_takeoff()
         self.assertTrue(self.tick(a,100.05,'OFFBOARD',-.1))

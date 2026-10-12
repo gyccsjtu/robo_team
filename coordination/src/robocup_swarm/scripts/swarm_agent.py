@@ -5919,20 +5919,36 @@ class SwarmAgent(SearchSegmentAgent):
             if self.state.mode == 'OFFBOARD':
                 self._send_vel(0., 0., vz=0.)
             return True
+        # ParamGet above yields to ROS callbacks. A new pose can arrive after
+        # the original `now`: comparing it to that old time falsely latches
+        # failure. Snapshot the sample first, then read the current clock;
+        # do not extend the original recovery deadline or allow future poses.
+        pose_sample = getattr(self, '_local_prev_t', -1e18)
+        now = rospy.Time.now().to_sec()
         mode = self.state.mode
-        invalid = (getattr(self, '_localization_fault', False) or
-                   getattr(self, '_ekf_frozen', False) or
-                   getattr(self, '_landing', False) or not self.state.connected or
-                   not self.state.armed or now < recovery['started'] or
-                   now-recovery['started'] > 15. or
-                   mode not in ('OFFBOARD', 'AUTO.TAKEOFF', 'AUTO.LOITER') or
-                   self.local_z is None or not math.isfinite(self.local_z) or
-                   self.local_z > ALT_HARD_CEIL-ALT_HARD_MARGIN or
-                   not 0. <= now-getattr(self, '_local_prev_t', -1e18) <= .3)
-        if invalid:
+        reasons = []
+        if (getattr(self, '_localization_fault', False) or
+                getattr(self, '_ekf_frozen', False)):
+            reasons.append('localization_fault')
+        if getattr(self, '_landing', False):
+            reasons.append('landing')
+        if not self.state.connected or not self.state.armed:
+            reasons.append('disconnected_or_disarmed')
+        if not 0. <= now-recovery['started'] <= 15.:
+            reasons.append('clock_reset_or_timeout')
+        if mode not in ('OFFBOARD', 'AUTO.TAKEOFF', 'AUTO.LOITER'):
+            reasons.append('flight_mode')
+        if (self.local_z is None or not math.isfinite(self.local_z) or
+                self.local_z > ALT_HARD_CEIL-ALT_HARD_MARGIN):
+            reasons.append('altitude')
+        if not 0. <= now-pose_sample <= .3:
+            reasons.append('pose_time')
+        if reasons:
             recovery['failed'] = True
-            rospy.logerr('[TAKEOFF_RECOVERY_FAILED] uav=%s mode=%s z=%s; no takeover '
-                         'of landing/failsafe', self.uav_id, mode, self.local_z)
+            rospy.logerr('[TAKEOFF_RECOVERY_FAILED] uav=%s reason=%s mode=%s z=%s '
+                         'pose_age=%.4f elapsed=%.3f; no takeover of landing/failsafe',
+                         self.uav_id, ','.join(reasons), mode, self.local_z,
+                         now-pose_sample, now-recovery['started'])
             # The existing localization-failure path retains authority.
             if getattr(self, '_localization_fault', False):
                 self._send_vel(0., 0.)
