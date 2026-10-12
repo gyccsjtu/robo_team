@@ -152,6 +152,7 @@ RED_OFFICIAL_FRESH_S = float(os.environ.get("RED_OFFICIAL_FRESH_S", "1.0"))
 # 2026-10-01 复盘：3 条 0.43~0.61 的 red1 误检（真身为 green 演员）建出鬼影轨
 # t4，全队盘旋假目标并广播假消除。已激活轨不受此限（延续观测允许低置信度）。
 NEW_TRACK_CONF = float(os.environ.get("BRIDGE_NEW_TRACK_CONF", "0.7"))
+APPEARANCE_REJECT_IDLE_S = 8.0  # one local visual ID; refreshed only by its own images
 
 # One fixed object in the 22:45 match was seen by UAV3 as blue and then white
 # at (-27.1, 13.2).  It passed the ordinary geometry and stationary-person
@@ -721,6 +722,8 @@ class TargetBridgeCore(object):
         self.tracks = dict((tag, _Track(tag)) for tag in TAG_TO_TID)
         self.eliminated = set()     # 已消除 tag，后续 YOLO 鬼影直接忽略
         self._alternate_history = {}
+        self._alternate_visual = {}   # same camera/local ID, image times only
+        self._alternate_spikes = {}   # at most one excluded coordinate per trial
         self._deferred_sites = {}
         self._hypothesis_switches = {}
 
@@ -729,6 +732,39 @@ class TargetBridgeCore(object):
         # Preserve legacy callers' string keys while v2 histories distinguish
         # two people of the same colour observed by one camera.
         return source if candidate_id is None else (source, candidate_id)
+
+    def revoke_visual_instance(self, source, candidate_id):
+        """Remove one camera-local false person, never a colour or map region.
+
+        A bound false instance may have contaminated the fused position and
+        official fit, so that slot must restart. Independent local candidates
+        and the second red slot keep their own evidence and identity mapping.
+        """
+        key = self._source_key(source, candidate_id)
+        for evidence in (self._alternate_history, self._alternate_visual,
+                         self._alternate_spikes):
+            for trial_key in list(evidence):
+                if trial_key[1] == key:
+                    del evidence[trial_key]
+        reset = []
+        for tag, tr in self.tracks.items():
+            tracking = self._source_key(tr.tracking_source, tr.tracking_candidate_id) == key
+            official = self._source_key(tr.official_source, tr.official_candidate_id) == key
+            if tracking or official:
+                switch = self._hypothesis_switches.get(tag)
+                if switch is not None and (switch.get('source_uav'),
+                                           switch.get('candidate_id')) == (source, candidate_id):
+                    self._hypothesis_switches.pop(tag, None)
+                    self._deferred_sites.pop(tag, None)
+                self.tracks[tag] = _Track(tag)
+                reset.append(tag)
+                continue
+            for evidence in (tr.source_history, tr.source_quality,
+                             tr.accepted_source_samples, tr.pursuit_history):
+                evidence.pop(key, None)
+            if tr.source_candidates.get(source) == candidate_id:
+                tr.source_candidates.pop(source, None)
+        return reset
 
     @staticmethod
     def _different_candidate(tr, source, candidate_id, sample, x, y):
@@ -760,27 +796,64 @@ class TargetBridgeCore(object):
         replace a live track. This bounded trial uses only camera evidence;
         it does not classify a stationary person as a decoy or mark it removed.
         """
-        if (tr.tag in RED_TAGS or tr.t_obs < 0. or
-                not official_ok or source is None or
-                conf < NEW_TRACK_CONF or range_m is None or not 0. < range_m <= 12. or
+        if (tr.tag in RED_TAGS or tr.t_obs < 0. or source is None or
+                conf < NEW_TRACK_CONF or
                 t < tr.t_obs or
                 (not identity_change and math.hypot(x-tr.x, y-tr.y) <= 10.)):
             return
         key = (tr.tag, self._source_key(source, candidate_id))
         self._alternate_history = {k: points for k, points in self._alternate_history.items()
                                    if points and t-points[-1][0] <= 3.+1e-6}
+        for stale_key, times in list(self._alternate_visual.items()):
+            if not times or t-times[-1] > 3.+1e-6:
+                self._alternate_visual.pop(stale_key, None)
+                self._alternate_spikes.pop(stale_key, None)
         history = [p for p in self._alternate_history.get(key, [])
                    if 0. <= t-p[0] <= 3.+1e-6]
-        if history and (t-history[-1][0] > .6+1e-6 or
-                        math.hypot(x-history[-1][1], y-history[-1][2]) >
-                        VEL_MAX*max(0., t-history[-1][0])+.5):
+        if not history:
+            self._alternate_spikes.pop(key, None)
+        visual = [s for s in self._alternate_visual.get(key, [])
+                  if 0. <= t-s <= 3.+1e-6]
+        if visual and t <= visual[-1]:
+            return  # the same or an older image is never a second vote
+        if visual and t-visual[-1] > .85+1e-6:
             history = []
-        if not history or t > history[-1][0]:
-            history.append((float(t), x, y, conf, range_m))
+            visual = []
+            self._alternate_spikes.pop(key, None)
+        visual.append(float(t))
+        self._alternate_visual[key] = visual[-20:]
+        # A cropped image can confirm that this *same local visual instance*
+        # remained in view. It never contributes a world coordinate or an
+        # official timestamp; only qualified original images enter history.
+        if not official_ok or range_m is None or not 0. < range_m <= 12.:
+            self._alternate_history[key] = history[-16:]
+            return
+        if history:
+            dt = t-history[-1][0]
+            step = math.hypot(x-history[-1][1], y-history[-1][2])
+            if step > VEL_MAX*dt+.5:
+                if self._alternate_spikes.get(key, 0) == 0:
+                    self._alternate_spikes[key] = 1
+                    self._alternate_history[key] = history[-16:]
+                    return  # one bad depth point does not erase five good images
+                history = []
+                self._alternate_spikes.pop(key, None)
+            elif dt > .65+1e-6:
+                between = [s for s in visual if history[-1][0] < s < t]
+                previous_long_gap = any(b[0]-a[0] > .65+1e-6
+                                        for a, b in zip(history, history[1:]))
+                if dt > 1.25+1e-6 or not between or previous_long_gap:
+                    history = []
+                    self._alternate_spikes.pop(key, None)
+        history.append((float(t), x, y, conf, range_m))
         self._alternate_history[key] = history[-16:]
         if (len(history) < 6 or
                 history[-1][0]-history[0][0] < 1.0-1e-6 or
-                any(b[0]-a[0] > .6+1e-6 for a,b in zip(history,history[1:]))):
+                any(b[0]-a[0] > 1.25+1e-6 for a,b in zip(history,history[1:]))):
+            return
+        long_gaps = [i for i, (a, b) in enumerate(zip(history, history[1:]))
+                     if b[0]-a[0] > .65+1e-6]
+        if len(long_gaps) > 1 or (long_gaps and len(history)-long_gaps[0]-1 < 3):
             return
         incumbent = _robust_official_fit(tr.good_history, tr.good_t)
         candidate = _robust_official_fit(history, t)
@@ -877,6 +950,10 @@ class TargetBridgeCore(object):
         self.tracks[tr.tag] = _Track(tr.tag)
         self._alternate_history = {k:v for k,v in self._alternate_history.items()
                                    if k[0] != tr.tag}
+        self._alternate_visual = {k:v for k,v in self._alternate_visual.items()
+                                  if k[0] != tr.tag}
+        self._alternate_spikes = {k:v for k,v in self._alternate_spikes.items()
+                                  if k[0] != tr.tag}
         _core_log('[%s] tag=%s old=(%.2f,%.2f) new=(%.2f,%.2f) '
                   'source=%s candidate=%s frames=%d; independent visual instance',
                   'HYPOTHESIS_SWITCH' if disjoint else 'CANDIDATE_REBIND',
@@ -1343,6 +1420,7 @@ class YoloTargetBridge(object):
         self._red_source_map = {}   # (source, local red slot) -> global red track
         self._red_source_observations = {}  # accepted local slot -> (image time, x, y)
         self._rejected_visual = {}  # tag -> (x, y, expiry); 本队视觉冲突位置冷却
+        self._appearance_rejected = {}  # (camera, local ID) -> last rejected image time
         self._String = _msg_string_cls()
         self.report_pub = rospy.Publisher("/swarm/report_telemetry",
                                           self._String, queue_size=30)
@@ -1356,6 +1434,8 @@ class YoloTargetBridge(object):
                          _msg_string_cls(), self._report_cb, queue_size=50)
         rospy.Subscriber("/swarm/rejected_visual", _msg_string_cls(),
                          self._rejected_visual_cb, queue_size=5)
+        rospy.Subscriber("/swarm/appearance_rejection", _msg_string_cls(),
+                         self._appearance_rejection_cb, queue_size=10)
 
         # 2026-10-08 消除 actor 冲刺：PUB_HZ 10→15（间隔 0.067s ≪ 裁判 1s 阈值，
         # 防止 tick 抖动导致 discontinuous 清零 15s 计数）。
@@ -1371,6 +1451,43 @@ class YoloTargetBridge(object):
     def _rejected_visual_cb(self, msg):
         with self.__dict__.setdefault('_report_lock', threading.RLock()):
             self._rejected_visual_locked(msg)
+
+    def _appearance_rejection_cb(self, msg):
+        with self.__dict__.setdefault('_report_lock', threading.RLock()):
+            self._appearance_rejection_locked(msg)
+
+    def _appearance_rejection_locked(self, msg):
+        """A secondary appearance verdict withdraws just its original ID."""
+        try:
+            item = json.loads(msg.data)
+            source = item['source_uav']
+            candidate_id = item['candidate_id']
+            target_id = item['target_id']
+            sample = float(item['sample_s'])
+            now = self._now()
+            if (not isinstance(source, str) or not source or
+                    not isinstance(candidate_id, str) or not candidate_id or
+                    len(candidate_id) > 128 or
+                    target_id not in TAG_TO_TID and target_id not in TID_TO_TAG or
+                    item.get('reason') != 'distractor' or
+                    not math.isfinite(sample) or not 0. < sample <= now+.05 or
+                    now-sample > 2.0):
+                return
+        except (ValueError, KeyError, TypeError):
+            return
+        key = (source, candidate_id)
+        # A delayed verdict must not undo a newer image (or another local ID)
+        # after the verifier's original camera frame has gone stale.
+        if self.__dict__.setdefault('_candidate_sample_s', {}).get(key, sample) > sample+1e-6:
+            return
+        rejected = self.__dict__.setdefault('_appearance_rejected', {})
+        rejected[key] = max(sample, rejected.get(key, -1e18))
+        reset = self.core.revoke_visual_instance(source, candidate_id)
+        for tag in reset:
+            self._gate_live.pop(tag, None)
+            self._pub_last.pop(tag, None)
+        self._rospy.logwarn('[APPEARANCE_REJECT] source=%s candidate=%s sample=%.3f '
+                            'reset=%s', source, candidate_id, sample, ','.join(reset) or '-')
 
     def _rejected_visual_locked(self, msg):
         try:
@@ -1528,9 +1645,13 @@ class YoloTargetBridge(object):
             now = self._now()
             rows = parse_report_frame(msg.data, now)
             seen = self.__dict__.setdefault('_candidate_sample_s', {})
+            rejected = self.__dict__.setdefault('_appearance_rejected', {})
             for key in list(seen):
                 if now-seen[key] > 30.:
                     del seen[key]
+            for key in list(rejected):
+                if now-rejected[key] > APPEARANCE_REJECT_IDLE_S:
+                    del rejected[key]
             admitted = []
             for row in rows:
                 source, sample = row['source_uav'], row['sample_s']
@@ -1540,6 +1661,9 @@ class YoloTargetBridge(object):
                 if sample <= seen.get(key, -1e18):
                     continue
                 seen[key] = sample
+                if key in rejected and sample-rejected[key] <= APPEARANCE_REJECT_IDLE_S:
+                    rejected[key] = sample  # continuously visible decoy remains suppressed
+                    continue
                 self._last_source_sample[(source, local_tag)] = sample
                 if row['tag'] in RED_TAGS:
                     assigned = self._associate_red(source, local_tag, sample,
@@ -2127,6 +2251,7 @@ def _mk_bridge():
     b._red_source_observations = {}
     b._last_source_sample = {}
     b._rejected_visual = {}
+    b._appearance_rejected = {}
     # 2026-10-06 修：可推进的假时钟 —— PUB_MIN_INTERVAL 节流需要时间前进
     # 才能连续发布（_advance 由自测在每次期望发布前调用）。
     _clock = {"t": 0.0}

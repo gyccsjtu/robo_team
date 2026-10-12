@@ -258,6 +258,197 @@ class CandidateBridgeTests(unittest.TestCase):
         self.assertTrue(all(p[1] == 2. for p in tr.good_history))
         self.assertNotIn('blue', node.core._hypothesis_switches)
 
+    def test_white_rebind_keeps_six_qualified_images_across_one_depth_spike(self):
+        node = self.node()
+        tr = node.core.tracks['white']
+        tr.x, tr.y, tr.t_obs = 127.06, 49.08, 2382.632
+        tr.good_x, tr.good_y, tr.good_t = 127.06, 49.08, 2382.632
+        tr.good_history = [(2382.632, 127.06, 49.08)]
+        tr.official_source, tr.official_candidate_id = 'u5', 'old'
+        tr.tracking_source, tr.tracking_candidate_id = 'u5', 'old'
+        tr.source_candidates.update(u5='old', u1='old')
+        tr.alive, tr.started_s = True, 2377.632
+        samples = [(2403.560, 129.05, 48.69), (2403.984, 128.69, 48.66),
+                   (2404.160, 128.98, 48.64), (2404.380, 128.89, 48.56),
+                   (2404.588, 128.33, 48.63),
+                   (2404.776, 127.35, 49.11),  # one bad foot projection
+                   (2405.192, 128.15, 48.20)]
+        for sample, x, y in samples:
+            self.send(node, sample, [self.candidate('new', x, y, tag='white')], source='u1')
+        tr = node.core.tracks['white']
+        self.assertEqual(tr.official_candidate_id, 'new')
+        self.assertEqual(tr.good_t, 2405.192)
+        self.assertNotIn(2404.776, [p[0] for p in tr.good_history])
+        self.assertEqual(len(tr.source_history[('u1', 'new')]), 6)
+
+    def test_brown_rebind_uses_cropped_image_only_for_visual_continuity(self):
+        node = self.node()
+        tr = node.core.tracks['brown']
+        tr.x, tr.y, tr.t_obs = 127.319, 44.29, 2486.184
+        tr.good_x, tr.good_y, tr.good_t = 127.319, 44.29, 2486.184
+        tr.good_history = [(2486.184, 127.319, 44.29)]
+        tr.official_source, tr.official_candidate_id = 'u1', 'old'
+        tr.tracking_source, tr.tracking_candidate_id = 'u1', 'old'
+        tr.source_candidates.update(u1='old', u5='old')
+        tr.alive, tr.started_s = True, 2481.184
+        samples = [(2489.232, 124.84, 44.40, True),
+                   (2489.412, 124.71, 44.27, True),
+                   (2489.636, 124.56, 44.42, True),
+                   (2489.848, 124.19, 44.37, True),
+                   (2490.208, 124.02, 44.37, False),  # cropped foot
+                   (2491.036, 124.70, 44.19, True),
+                   (2491.220, 124.82, 44.33, True),
+                   (2491.452, 125.16, 44.40, True)]
+        for sample, x, y, qualified in samples:
+            self.send(node, sample, [self.candidate(
+                'new', x, y, tag='brown', official_view_ok=qualified)], source='u5')
+            if not qualified:
+                self.assertEqual(node.core.tracks['brown'].good_t, 2486.184)
+                self.assertFalse(any(p[0] == sample for p in
+                                     node.core._alternate_history.get(('brown', ('u5', 'new')), [])))
+        tr = node.core.tracks['brown']
+        self.assertEqual(tr.official_candidate_id, 'new')
+        self.assertEqual(tr.good_t, 2491.452)
+        self.assertNotIn(2490.208, [p[0] for p in tr.good_history])
+
+    def test_rebind_does_not_bridge_a_missing_image_or_pool_competing_ids(self):
+        for competing in (False, True):
+            node, t = self.incumbent()
+            for k in range(4):
+                self.send(node, t+3.+k*.2, [self.candidate('new', 2.)])
+            if competing:
+                self.send(node, t+3.8, [self.candidate('other', 2., official_view_ok=False)])
+            else:
+                # A blank camera frame contains no evidence for the old ID.
+                self.send(node, t+3.8, [])
+            self.send(node, t+4.8, [self.candidate('new', 2.)])
+            self.send(node, t+5., [self.candidate('new', 2.)])
+            self.assertEqual(node.core.tracks['blue'].official_candidate_id, 'old')
+
+    def test_red_rebind_still_requires_its_own_spatial_association(self):
+        node = self.node()
+        for k in range(6):
+            self.send(node, 100.+k*.2, [self.candidate('red-a', 10., tag='red1'),
+                                        self.candidate('red-b', 30., tag='red2')])
+        for k in range(8):
+            self.send(node, 102.+k*.2, [self.candidate('red-c', 30., tag='red1')])
+        self.assertEqual(node.core.tracks['red1'].good_x, 10.)
+        self.assertEqual(node.core.tracks['red2'].good_x, 30.)
+
+    def reject(self, node, source, candidate_id, tag, sample):
+        node._appearance_rejection_cb(NS(data=json.dumps(dict(
+            source_uav=source, candidate_id=candidate_id, target_id=tag,
+            sample_s=sample, reason='distractor'))))
+
+    def test_appearance_rejection_clears_only_the_named_instance(self):
+        node = self.node()
+        for k in range(4):
+            self.send(node, 100.+k*.2, [self.candidate('statue', 10.)])
+        tr = node.core.tracks['blue']
+        self.assertEqual(tr.official_candidate_id, 'statue')
+        self.reject(node, 'u0', 'statue', 'blue', 100.6)
+        self.assertIsNone(node.core.tracks['blue'].official_candidate_id)
+        self.assertNotIn('blue', node._gate_live)
+        self.assertNotIn('blue', node._pub_last)
+        for k in range(4):
+            self.send(node, 101.+k*.2, [self.candidate('person', 10.)])
+        self.assertEqual(node.core.tracks['blue'].official_candidate_id, 'person')
+        self.assertEqual(node.core.tracks['blue'].good_t, 101.6)
+        self.send(node, 101.8, [self.candidate('statue', 10.)])
+        self.assertEqual(node.core.tracks['blue'].official_candidate_id, 'person')
+
+    def test_appearance_rejection_removes_only_matching_alternative(self):
+        node, t = self.incumbent()
+        for k in range(3):
+            self.send(node, t+3.+k*.2, [self.candidate('maybe-decoy', 100.)])
+        self.assertEqual(len(node.core._alternate_history[('blue', ('u0', 'maybe-decoy'))]), 3)
+        self.reject(node, 'u0', 'maybe-decoy', 'blue', t+3.4)
+        self.assertNotIn(('blue', ('u0', 'maybe-decoy')), node.core._alternate_history)
+        self.assertEqual(node.core.tracks['blue'].official_candidate_id, 'old')
+        self.send(node, t+3.6, [self.candidate('other', 101.)])
+        self.assertIn(('blue', ('u0', 'other')), node.core._alternate_history)
+
+    def test_old_appearance_rejection_does_not_kill_newer_image_or_identity(self):
+        node = self.node()
+        for k in range(6):
+            self.send(node, 100.+k*.2, [self.candidate('new', 2.)])
+        before = node.core.tracks['blue'].good_t
+        self.reject(node, 'u0', 'old', 'blue', 100.2)
+        self.reject(node, 'u0', 'new', 'blue', 100.8)
+        self.assertEqual(node.core.tracks['blue'].official_candidate_id, 'new')
+        self.assertEqual(node.core.tracks['blue'].good_t, before)
+
+    def test_red_rejection_keeps_other_person_and_local_slot_mapping(self):
+        node = self.node()
+        for k in range(6):
+            self.send(node, 100.+k*.2, [self.candidate('red-a', 10., tag='red1'),
+                                        self.candidate('red-b', 30., tag='red2')])
+        mapping = dict(node._red_source_map)
+        self.reject(node, 'u0', 'red-a', 'red1', 101.0)
+        self.assertEqual(node._red_source_map, mapping)
+        self.assertEqual(node.core.tracks['red2'].official_candidate_id, 'red-b')
+        self.assertEqual(node.core.tracks['red2'].good_x, 30.)
+        self.assertIsNone(node.core.tracks['red1'].official_candidate_id)
+        self.send(node, 101.2, [self.candidate('red-c', 10., tag='red1'),
+                                self.candidate('red-b', 30., tag='red2')])
+        self.assertEqual(node.core.tracks['red2'].official_candidate_id, 'red-b')
+
+    def test_rejected_local_id_stays_blocked_while_it_keeps_appearing(self):
+        node = self.node()
+        for k in range(4):
+            self.send(node, 100.+k*.2, [self.candidate('statue', 10.)])
+        self.reject(node, 'u0', 'statue', 'blue', 100.6)
+        for k in range(65):  # longer than the idle timeout, but no visual gap
+            self.send(node, 101.+k*.2, [self.candidate('statue', 10.)])
+        self.assertIsNone(node.core.tracks['blue'].official_candidate_id)
+        self.assertFalse(any(r['candidate_id'] == 'statue' for r in self.evidence(node)
+                             if r['sample_s'] >= 101.))
+        for k in range(4):
+            self.send(node, 122.+k*.2, [self.candidate('statue', 10.)])
+        self.assertEqual(node.core.tracks['blue'].official_candidate_id, 'statue')
+
+    def test_rejection_arriving_before_same_image_blocks_only_that_id(self):
+        node = self.node()
+        node._advance(100.01)
+        self.reject(node, 'u0', 'statue', 'blue', 100.)
+        for k in range(4):
+            self.send(node, 100.+k*.2, [self.candidate('statue', 10.),
+                                        self.candidate('person', 20.)])
+        self.assertEqual(node.core.tracks['blue'].official_candidate_id, 'person')
+        self.assertFalse(any(r['candidate_id'] == 'statue' for r in self.evidence(node)))
+
+    def test_distractor_frames_do_not_refresh_tombstone_and_one_miss_cannot_report(self):
+        node = self.node()
+        for k in range(4):
+            self.send(node, 100.+k*.2, [self.candidate('statue', 10.)])
+        self.reject(node, 'u0', 'statue', 'blue', 100.6)
+        for k in range(45):
+            # Real producer omits confirmed distractors from target_report.
+            self.send(node, 101.+k*.2, [self.candidate(
+                'statue', 10., appearance_status='distractor')])
+        self.assertIsNone(node.core.tracks['blue'].official_candidate_id)
+        actor_count = len(node._actor_pubs['blue'].msgs)
+        self.send(node, 110., [self.candidate('statue', 10.)])
+        self.assertFalse(node.core.tracks['blue'].alive)
+        self.assertEqual(len(node._actor_pubs['blue'].msgs), actor_count)
+        self.reject(node, 'u0', 'statue', 'blue', 110.)
+        self.assertIsNone(node.core.tracks['blue'].official_candidate_id)
+
+    def test_red_rejection_uses_local_id_when_global_slot_is_swapped(self):
+        node = self.node()
+        for k in range(6):
+            self.send(node, 100.+k*.2, [self.candidate('red-a', 10., tag='red1'),
+                                        self.candidate('red-b', 30., tag='red2')])
+        self.send(node, 101.2, [self.candidate('local-red1-sees-b', 30., tag='red1')],
+                  source='u1')
+        self.assertEqual(node._red_source_map[('u1', 'red1')], 'red2')
+        self.assertEqual(node.core.tracks['red2'].tracking_candidate_id,
+                         'local-red1-sees-b')
+        self.reject(node, 'u1', 'local-red1-sees-b', 'red1', 101.2)
+        self.assertEqual(node._red_source_map[('u1', 'red1')], 'red2')
+        self.assertEqual(node.core.tracks['red1'].official_candidate_id, 'red-a')
+        self.assertIsNone(node.core.tracks['red2'].official_candidate_id)
+
     def test_legacy_single_row_remains_supported_and_publicly_identified(self):
         node = self.node()
         for k in range(4):
