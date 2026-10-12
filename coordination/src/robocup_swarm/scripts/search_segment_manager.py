@@ -117,9 +117,9 @@ class SearchSegmentManager:
                     patrol.started(task, direction, stamp)
                     self._send_segment(task)
                     idle.remove(uid)
-                    rospy.loginfo('[SOUTH_PATROL] uav=%s task=%s cells=%s deadline=%.3f '
+                    rospy.loginfo('[SOUTH_PATROL] uav=%s task=%s region=%s cells=%s deadline=%.3f '
                         'ENU_south=-Y; short transit then directed image observation',
-                        uid, task.task_id, cells, task.deadline)
+                        uid, task.task_id, patrol.proposal_region, cells, task.deadline)
         positions = {uid:(self.status[uid].x,self.status[uid].y) for uid in idle}
         # Outer task lock covers allocator selection, segment extension and
         # whole-segment reservation. No callback can see a half-reserved route.

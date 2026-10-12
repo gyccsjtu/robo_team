@@ -1,7 +1,7 @@
-"""One bounded south-search itinerary inside the normal task allocator.
+"""One bounded directed-search itinerary inside the normal task allocator.
 
 No actor positions, independent controller, reservations or coverage writes.
-ENU negative Y identifies the south side of the allowed search region.
+ENU negative Y identifies south and positive X/Y identifies northeast.
 """
 import math
 import os
@@ -12,16 +12,20 @@ from swarm_task import STATE_ASSIGNED, STATE_COVERED
 
 class SouthPatrol:
     def __init__(self, flight_bounds, max_hold=90., max_segments=3,
-                 southeast=None):
+                 southeast=None, northeast=None):
         self.bounds = tuple(flight_bounds)
         self.max_hold = max_hold
         self.max_segments = max_segments
-        # A single initial leg is optional. Later patrol episodes use the
-        # original south-edge band even after a failed or preempted leg.
+        # Southeast begins with one inner leg, then visits the south edge.
+        # Northeast retains one aircraft for a bounded, productive visit to
+        # nearby cells; it never sends that aircraft onward to the south edge.
         self.southeast = (os.environ.get('SOUTH_PATROL_SOUTHEAST', '0') == '1'
                           if southeast is None else bool(southeast))
+        self.northeast = (os.environ.get('SOUTH_PATROL_NORTHEAST', '0') == '1'
+                          if northeast is None else bool(northeast))
+        if self.southeast and self.northeast:
+            raise ValueError('choose only one initial patrol region')
         self._first_leg_started = False
-        self._first_deadline = None
         self.uid = None
         self.deadline = 0.
         self.task_id = None
@@ -29,12 +33,31 @@ class SouthPatrol:
         self.next_s = 0.
         self.empty_rounds = 0
         self.direction = 0
+        self._manager = None
+        self.proposal_region = None
 
     def finish(self, now, productive=False):
         self.empty_rounds = 0 if productive else min(3, self.empty_rounds+1)
         self.next_s = now+60.*max(1, self.empty_rounds)
         self.uid = self.task_id = None
         self.completed = self.direction = 0
+        self._manager = None
+        self.proposal_region = None
+
+    def _fresh_image_gain(self, task):
+        """Require actual processed image coverage before another NE leg."""
+        manager = self._manager
+        if manager is None:
+            return False
+        # A whole-cell credit comes only from the processed-frame callback;
+        # retain it even if its short-lived subpoint evidence was pruned.
+        if any((cell := manager.grid.cell(key)) is not None and
+               cell.state == STATE_COVERED and cell.covered_t >= task.created
+               for key in task.cells):
+            return True
+        seen = getattr(manager, '_camera_point_seen', {}) or {}
+        return any(key in task.cells and sample >= task.created
+                   for (key, _subpoint), sample in seen.items())
 
     def ended(self, task, reason, now):
         if task.task_id != self.task_id:
@@ -42,6 +65,9 @@ class SouthPatrol:
         self.task_id = None
         if reason == 'complete':
             self.completed += 1
+            if self.northeast and not self._fresh_image_gain(task):
+                self.finish(now)
+                return
             if self.completed < self.max_segments and now < self.deadline:
                 return
         self.finish(now, productive=reason in ('person_task', 'released_for_new_task'))
@@ -56,11 +82,22 @@ class SouthPatrol:
         grid = getattr(manager, '_g_infl', None)
         if grid is None:
             return None
+        self._manager = manager
+        if self.northeast:
+            if self._first_leg_started and self.uid is None:
+                return None
+            proposal = self._choose_band(manager, idle, now, grid, 'northeast')
+            if proposal is None:
+                if self.uid is not None:
+                    self.finish(now)
+                else:
+                    self.next_s = now+5.
+            return proposal
         if self.southeast and not self._first_leg_started:
-            proposal = self._choose_band(manager, idle, now, grid, southeast=True)
+            proposal = self._choose_band(manager, idle, now, grid, 'southeast')
             if proposal is not None:
                 return proposal
-        proposal = self._choose_band(manager, idle, now, grid, southeast=False)
+        proposal = self._choose_band(manager, idle, now, grid, 'south')
         if proposal is None:
             if self.uid is not None:
                 self.finish(now)
@@ -68,16 +105,20 @@ class SouthPatrol:
                 self.next_s = now+5.
         return proposal
 
-    def _choose_band(self, manager, idle, now, grid, southeast):
-        """Check one camera band; row 2 always remains a distinct reservation."""
+    def _choose_band(self, manager, idle, now, grid, region):
+        """Check one camera band with safe flight points and real image geometry."""
         keys = []
         viewpoints = {}
         ymin = self.bounds[2]
         for key, cell in manager.grid.cells.items():
-            if southeast:
+            if region == 'southeast':
                 in_band = (key[1] == 2 and 50. <= cell.cx <= 110. and
                            abs(cell.cy-(ymin+2.5*manager.grid.cell_m)) <=
                            manager.grid.cell_m)
+            elif region == 'northeast':
+                # The northeast actor corridor is inside the legal map, not
+                # along the outer wall. Use contiguous east-west cells.
+                in_band = 105. <= cell.cx <= 133. and 20. <= cell.cy <= 42.
             else:
                 in_band = abs(cell.cy-ymin) <= manager.grid.cell_m*.5
             if (not in_band or key in manager._blocked_cells or
@@ -87,14 +128,14 @@ class SouthPatrol:
                     now-manager.allocator.failed_visit.get(key, -1e18) <
                         manager.allocator.failed_novelty_ttl):
                 continue
-            if southeast:
-                # The front camera looks north from a safe point south of the
-                # reserved *inner* cell. At 4.45 m height an 8.5 m standoff
-                # puts its centre below the 27-degree processed-image limit.
-                # 8.95 m keeps the centre within that limit up to about 4.56 m
-                # while retaining 5 cm of the 9 m footprint for pose jitter.
-                # The separate edge row is never credited by this reservation.
-                point = (cell.cx, cell.cy-8.95)
+            if region in ('southeast', 'northeast'):
+                # The front camera looks north (southeast leg) or east
+                # (northeast leg) from an inner, checked viewpoint. At 4.45 m,
+                # 8.95 m keeps the centre inside the 27-degree vertical limit
+                # and leaves 5 cm within the 9 m horizontal footprint. Other
+                # cells are never credited merely because this route flew by.
+                point = ((cell.cx, cell.cy-8.95) if region == 'southeast'
+                         else (cell.cx-8.95, cell.cy))
                 viewpoint_valid = getattr(manager, '_blind_viewpoint_valid', None)
                 if (not manager._search_point_free(point) or
                         viewpoint_valid is None or not viewpoint_valid(cell, point) or
@@ -104,12 +145,15 @@ class SouthPatrol:
                 point = manager._segment_point(key)
                 # A clipped last/first coverage row may be narrower than 7m.
                 # Keep an observable standoff instead of flying over its centre.
-                point=(point[0],max(point[1],cell.cy+8.))
+                point=(point[0],max(point[1],cell.cy+8.95))
                 # Preserve an interior standoff and observe the cell from there.
                 # If the live map cannot supply this viewpoint, leave a blind job
                 # to the ordinary allocator rather than camping on a wall.
-                if (not point[1] > cell.cy or math.dist(point, (cell.cx, cell.cy)) > 14. or
-                        not manager._search_point_free(point)):
+                viewpoint_valid = getattr(manager, '_blind_viewpoint_valid', None)
+                if (not point[1] > cell.cy or
+                        not manager._search_point_free(point) or
+                        viewpoint_valid is None or not viewpoint_valid(cell, point) or
+                        not clear_line(grid, point, (cell.cx, cell.cy))):
                     continue
             keys.append(key)
             viewpoints[key]=point
@@ -124,31 +168,35 @@ class SouthPatrol:
                 continue
             for key in keys:
                 point = viewpoints[key]
-                if southeast:
-                    # A north-facing fixed stereo camera cannot see this cell
-                    # from <=9 m if the current aircraft is already above the
-                    # feasible altitude. Fall back to the original south row.
-                    cell = manager.grid.cell(key)
-                    height = getattr(s, 'z', float('nan'))
-                    if (not math.isfinite(height) or
-                            not manager._in_processed_view(
-                                point[0], point[1], math.pi/2., cell.cx,
-                                cell.cy, altitude=max(4.5, height),
-                                down_pitch=0.)):
-                        continue
-                if self.direction and self.direction*(point[0]-s.x) < -1.:
+                # All three bands need the same processed-image geometry; a
+                # safe waypoint alone cannot credit a cell or find a person.
+                cell = manager.grid.cell(key)
+                height = getattr(s, 'z', float('nan'))
+                yaw = math.atan2(cell.cy-point[1], cell.cx-point[0])
+                if (not math.isfinite(height) or
+                        not manager._in_processed_view(
+                            point[0], point[1], yaw, cell.cx,
+                            cell.cy, altitude=max(4.5, height),
+                            down_pitch=0.)):
+                    continue
+                # A northeast sweep may need to reverse along the next row;
+                # recent-visit and reservation checks prevent duplication.
+                if (region != 'northeast' and self.direction and
+                        self.direction*(point[0]-s.x) < -1.):
                     continue
                 pairs.append((math.dist((s.x, s.y), point), uid, key, point))
-        # Bounded planning work. A near building can make all of the nearest
-        # straight-line candidates unreachable. Spread the new inner-band
-        # probes across UAVs and three eastward bins before filling the limit
-        # with ordinary nearest candidates.
+        # Bounded planning work. A nearby building may make the nearest
+        # straight-line candidate unreachable; spread the inner-band probes
+        # across aircraft and subregions before filling the candidate limit.
         ordered = sorted(pairs)
-        if southeast:
+        if region in ('southeast', 'northeast'):
             spread = {}
             for candidate in ordered:
                 _, uid, _, point = candidate
-                bucket = (uid, min(2, max(0, int((point[0]-50.)/20.))))
+                if region == 'southeast':
+                    bucket = (uid, min(2, max(0, int((point[0]-50.)/20.))))
+                else:
+                    bucket = (uid, min(3, max(0, int((point[1]-20.)/7.))))
                 spread.setdefault(bucket, candidate)
             selected = sorted(spread.values())
             selected_set = {(uid, key) for _, uid, key, _ in selected}
@@ -176,7 +224,8 @@ class SouthPatrol:
             return None
         _, uid, key, point = min(checked)
         cells, points = [key], [point]
-        directions = [self.direction] if self.direction else [1, -1]
+        directions = ([self.direction] if self.direction and region != 'northeast'
+                      else [1, -1])
         extensions = []
         for direction in directions:
             ks, ps = list(cells), list(points)
@@ -192,18 +241,15 @@ class SouthPatrol:
                 ks.append(nxt); ps.append(p)
             extensions.append((len(ks), direction, ks, ps))
         _, direction, cells, points = max(extensions)
+        self.proposal_region = region
         return uid, cells, points, direction
 
     def started(self, task, direction, now):
         if self.uid is None:
             self.uid = task.uid
-            if self._first_deadline is None:
-                self._first_deadline = now+self.max_hold
-                self.deadline = self._first_deadline
-            else:
-                self.deadline = now+self.max_hold
+            self.deadline = now+self.max_hold
             self.completed = 0
-        # A failed/person-preempted first task cannot regrant the southeast
+        # A failed/person-preempted first task cannot regrant the special
         # priority in a later patrol episode.
         self._first_leg_started = True
         self.task_id = task.task_id
