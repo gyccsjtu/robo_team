@@ -1435,6 +1435,7 @@ class Track(object):
         sample_s = t if observation_s is None else observation_s
         if t <= self.t or sample_s <= self.observed_s or dt <= 0.0:
             return False
+        observation_dt = sample_s - self.observed_s
         self.observed_s = sample_s
         self.observation_loc_ok = bool(loc_ok)
         self.observation_view_ok = bool(loc_ok if view_ok is None else view_ok)
@@ -1451,9 +1452,12 @@ class Track(object):
         rx, ry = zx - px, zy - py
         self.x = px + ALPHA * rx
         self.y = py + ALPHA * ry
-        if dt > 1e-3:
-            self.vx += BETA * rx / dt
-            self.vy += BETA * ry / dt
+        # The state can coast through empty processing loops between images.
+        # Velocity correction must use the interval between actual images;
+        # the last coast step can be much shorter and amplify foot-pixel noise.
+        if observation_dt > 1e-3:
+            self.vx += BETA * rx / observation_dt
+            self.vy += BETA * ry / observation_dt
         sp = math.hypot(self.vx, self.vy)
         if sp > V_MAX:
             self.vx *= V_MAX / sp
