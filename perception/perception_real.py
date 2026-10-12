@@ -1986,8 +1986,7 @@ def main():
         globals()['_height_datum'] = GroundHeightDatum(float(os.environ['PR_GROUND_BODY_HEIGHT']))
         def height_state(msg):
             globals()['_height_armed'] = bool(msg.armed)
-            if msg.armed:
-                globals()['_height_datum'].frozen = True
+            globals()['_height_datum'].set_armed(bool(msg.armed))
         rospy.Subscriber('/%s/mavros/state' % UAV, State, height_state, queue_size=1)
     rospy.Subscriber(POSE_TOPIC, PoseStamped, on_pose,
                      callback_args=world_offset, queue_size=100)
@@ -2857,6 +2856,19 @@ def main():
             _last_live_loop = n_loop
             _last_live_det = _stat.get("n_det", 0)
             _img_stamp = _latest.get("stamp", 0.0) if _latest else 0.0
+            with _lock:
+                _pose_stamp = _pose_history[-1][0] if _pose_history else None
+                _pose_failure = _pose_fault
+            _datum = globals().get('_height_datum')
+            _pose_age = (_now - _pose_stamp) if _pose_stamp is not None else float('inf')
+            if not 0.0 <= _pose_age <= .5 or _pose_failure is not None:
+                print('[pr] PERCEPTION_HEALTH pose_age=%.3f image_age=%.3f '
+                      'datum=%s datum_valid=%s pose_fault=%s; '
+                      'image heartbeat is not localization readiness' %
+                      (_pose_age, _now - _img_stamp if _img_stamp else float('inf'),
+                       _datum.reason if _datum is not None else 'disabled',
+                       _datum.offset is not None if _datum is not None else True,
+                       _pose_failure), flush=True)
             with arb_lock:
                 _live_tid = arb["tid"]
             with tstate_lock:

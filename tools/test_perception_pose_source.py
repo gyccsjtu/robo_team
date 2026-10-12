@@ -7,6 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
+from height_datum import GroundHeightDatum
 
 
 SOURCE = Path(__file__).resolve().parents[1] / "perception/perception_real.py"
@@ -61,6 +62,25 @@ class ImageTimePoseTests(unittest.TestCase):
     def setUp(self):
         self.api = load_pose_functions()
         self.offset = (-50.0, -25.0, 0.0)
+
+    def test_ground_tilt_before_arming_does_not_strand_image_pose_on_ground(self):
+        datum = GroundHeightDatum(.22)
+        self.api.update(_height_datum=datum, _height_armed=False, _height_logged=True)
+        for k in range(41):
+            self.api['on_pose'](local_pose(100.+k*.05, 0., 0., -.08, 0.), self.offset)
+        msg = local_pose(102.05, 0., 0., -.08, 0.)
+        msg.pose.orientation.x = math.sin(math.radians(3.1)/2.)
+        msg.pose.orientation.w = math.cos(math.radians(3.1)/2.)
+        self.api['on_pose'](msg, self.offset)
+        datum.set_armed(True)
+        self.api['_height_armed'] = True
+        for k in range(1, 61):
+            stamp = 102.05+k*.05
+            self.api['on_pose'](local_pose(stamp, 0., 0., -.08+k*.025, 0.), self.offset)
+        pose = self.api['pose_at_stamp'](stamp)
+        self.assertIsNotNone(pose)
+        self.assertAlmostEqual(pose[2], 1.67)
+        self.assertIsNone(self.api['_pose_fault'])
 
     def test_left_camera_extrinsic_and_fixed_spawn_offset_rotate_together(self):
         msg = local_pose(100.0, 2.0, 3.0, 4.0, math.pi / 2.0)
