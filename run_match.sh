@@ -1403,6 +1403,8 @@ do_stop(){
     pkill -9 -x gzserver        2>/dev/null || true
     pkill -9 -x gzclient        2>/dev/null || true
     pkill -9 -f '[r]osmaster'   2>/dev/null || true
+    # Full match teardown also closes logging daemons orphaned by roslaunch.
+    pkill -TERM -x rosout       2>/dev/null || true
     mv "$REG" "$REG.stopped.$STAMP" 2>/dev/null || true
     ok "已停止全场比赛。"
 }

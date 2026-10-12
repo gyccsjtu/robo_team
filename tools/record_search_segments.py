@@ -39,6 +39,7 @@ subs=[rospy.Subscriber('/swarm/uav_status',UavStatus,status,queue_size=100),
 subs += [rospy.Subscriber(topic,String,evidence,event,queue_size=60) for topic,event in
          [('/swarm/processed_camera_frame','processed_frame'),('/swarm/discovery_observation','discovery'),
           ('/swarm/visual_candidate','candidate'),('/swarm/visual_candidate_missed','candidate_missed'),
+          ('/swarm/visual_source','accepted_source'),
           ('/coordination/target_report','image_report'),('/swarm/report_telemetry','report'),
           ('/swarm/tracking_view','tracking_view')]]
 if args.occupancy_snapshots:
