@@ -2688,9 +2688,15 @@ class SwarmAgent(SearchSegmentAgent):
             resp = get_srv(name)
             return resp.value.integer if resp.success else None
 
+        # PX4 also checks the Hold exception during AUTO.TAKEOFF. The logged
+        # grounded recovery switched commander main_state to takeoff, but
+        # without bit 1 its missing RC/datalink enabled failsafe and left the
+        # actual navigation state in OFFBOARD. Cover only the two autonomous
+        # modes we use; OFFBOARD signal-loss and positioning guards stay intact.
+        rc_exceptions = (1 << 1) | (1 << 2)  # Hold + Offboard, never Mission
         configure_fcu_parameters(_pull, self._set_param, _get,
-                                 {"NAV_RCL_ACT": 0, "COM_RCL_EXCEPT": 4})
-        rospy.loginfo("[%s] 飞控参数已读回验证：NAV_RCL_ACT=0 COM_RCL_EXCEPT=4",
+                                 {"NAV_RCL_ACT": 0, "COM_RCL_EXCEPT": rc_exceptions})
+        rospy.loginfo("[%s] 飞控参数已读回验证：NAV_RCL_ACT=0 COM_RCL_EXCEPT=6 (Hold+Offboard)",
                       self.uav_id)
 
     def _camera_takeoff_ready(self, now):
@@ -6196,9 +6202,10 @@ class SwarmAgent(SearchSegmentAgent):
             if mode != desired:
                 recovery['last_request'] = now
                 try:
-                    accepted = self.mode_srv(0, desired).mode_sent
-                    rospy.loginfo('[TAKEOFF_RECOVERY_REQUEST] uav=%s mode=%s accepted=%s',
-                                  self.uav_id, desired, accepted)
+                    sent = self.mode_srv(0, desired).mode_sent
+                    rospy.loginfo('[TAKEOFF_RECOVERY_REQUEST] uav=%s mode=%s sent=%s; '
+                                  'wait for observed FCU mode',
+                                  self.uav_id, desired, sent)
                 except Exception as exc:
                     rospy.logwarn('[TAKEOFF_RECOVERY_REQUEST] uav=%s %s', self.uav_id, exc)
         return True

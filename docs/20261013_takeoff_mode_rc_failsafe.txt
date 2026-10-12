@@ -1,0 +1,23 @@
+025212三号起飞失败的FCU根因与最小修复
+
+实际记录：官方随机新图GUI轮c585a1c，3号未起飞；其余5架完成官方
+6/6，356.664秒。源码没有恢复期间反复请求OFFBOARD的路径。
+
+3号ULog对齐ROS1968.812：commander main_state 7→10（AUTO_TAKEOFF），
+实际nav_state仍14（OFFBOARD），failsafe=True；日志为no RC and no
+datalink。local/global/home位置均有效，rc_signal_lost/data_link_lost
+为True。故MAVROS mode_sent=True只证明请求发送，不证明起飞已执行。
+
+PX4源码src/modules/commander/state_machine_helper.cpp:575–582在自动
+起飞分支检查RCL_EXCEPT_HOLD；commander_params.c:889定义bit1=Hold、
+bit2=Offboard。原COM_RCL_EXCEPT=4只包含Offboard，无遥控仿真中的
+自动起飞恢复因此触发缺遥控保护；NAV_RCL_ACT=0使nav_state仍留旧值。
+
+修复：既有启动参数检查改为COM_RCL_EXCEPT=6，即Hold+Offboard，设置
+后必须读回匹配；错误读回仍拒绝启动。请求日志改成sent并等待实际
+模式反馈。未修改COM_OF_LOSS_T、COM_OBL_ACT、COM_OBL_RC_ACT，未改变
+定位、高度、避障、起飞15秒预算或失败锁；未强制解锁/解除保护。
+
+测试含真实失败状态序列回放、参数6读回及错误读回、自动模式实际
+反馈后受控接管、超时仍失败锁、定位失信及降落期间禁止恢复。
+离线通过不等于这类故障已在新的六机启动中复验，需下一轮GUI实测。
