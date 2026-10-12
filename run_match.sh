@@ -1273,7 +1273,8 @@ do_start(){
         ' _ "$MATCH_HARD_CAP" "$REG"
         ok "hard_cap=${MATCH_HARD_CAP}s 已启动独立 session watcher（主控 Ctrl-C 不影响）"
     fi
-
+    # Report failure to callers too, without terminating airborne agents.
+    [ "$fleet_airborne" = 1 ]
 }
 
 # ============================ 状态查询 ======================================
