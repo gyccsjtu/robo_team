@@ -1579,6 +1579,7 @@ class Track(object):
         sample_s = t if observation_s is None else observation_s
         if t <= self.t or sample_s <= self.observed_s or dt <= 0.0:
             return False
+        observation_dt = sample_s - self.observed_s
         self.observed_s = sample_s
         self.observation_loc_ok = bool(loc_ok)
         self.observation_view_ok = bool(loc_ok if view_ok is None else view_ok)
@@ -1598,9 +1599,14 @@ class Track(object):
         rx, ry = zx - px, zy - py
         self.x = px + ALPHA * rx
         self.y = py + ALPHA * ry
-        if dt > 1e-3:
-            self.vx += BETA * rx / dt
-            self.vy += BETA * ry / dt
+        # Coast advances the state clock between images. Its last loop step
+        # is not the measurement interval: dividing the image residual by
+        # that step made identical detections alternate between +/- V_MAX
+        # when the loop ran faster. Predict over the remaining state dt,
+        # but correct velocity over elapsed time between real images.
+        if observation_dt > 1e-3:
+            self.vx += BETA * rx / observation_dt
+            self.vy += BETA * ry / observation_dt
         sp = math.hypot(self.vx, self.vy)
         if sp > V_MAX:
             self.vx *= V_MAX / sp
