@@ -2419,7 +2419,17 @@ class SwarmAgent(SearchSegmentAgent):
         cell = self.cov_grid.cell(key)
         if cell is None:
             return {}
-        return observable_points(cell_points(self.cov_grid, cell), x, y,
+        samples = cell_points(self.cov_grid, cell)
+        segment = getattr(self, '_search_segment', None)
+        if segment is not None and segment.get('purpose') == 'building_review':
+            look = segment['look_points'][segment['index']]
+            raw = getattr(self, 'slam', None)
+            if raw is None or not raw.is_free_raw(raw.world_to_cell(look)):
+                return {}
+            return {i: point for i, point in observable_points(samples, x, y,
+                altitude, down_pitch, self.los.visible).items()
+                if math.dist(point, look) <= 1e-6}
+        return observable_points(samples, x, y,
                                  altitude, down_pitch, self.los.visible)
 
     def _hold_camera_candidate(self):
@@ -4651,7 +4661,7 @@ class SwarmAgent(SearchSegmentAgent):
         now = rospy.Time.now().to_sec()
         segment = getattr(self, '_search_segment', None)
         look = None
-        if (segment is not None and segment.get('purpose') == 'south_patrol' and
+        if (segment is not None and segment.get('purpose') in ('south_patrol', 'building_review') and
                 segment['index'] < len(segment.get('look_points', ()))):
             look = segment['look_points'][segment['index']]
         if self._search_scan_yaw0 is None:
@@ -4745,6 +4755,11 @@ class SwarmAgent(SearchSegmentAgent):
                 return
             self._search_scan_directed_done = True
         points = self._search_observable_points(x, y, altitude, down_pitch)
+        if segment is not None and segment.get('purpose') == 'building_review' and not points:
+            # A newly blocked/missing ground ray cannot be treated as an
+            # empty successfully observed region. Keep the same 8 s budget.
+            self._send_vel(0.0, 0.0)
+            return
         missing = {i: p for i, p in points.items()
                    if i not in getattr(self, '_search_scan_seen', set())}
         if not missing:

@@ -6,6 +6,7 @@ from search_segments import (SegmentBook, TRAVEL, LOOK, ATTEND, YIELD, DONE, FAI
 from robocup_navigation.astar import plan
 from search_observation import cell_points, ground_distance_band, in_view
 from swarm_task import ACTOR_SEARCH_BOUNDS
+from building_viewpoints import DIRECTED_PURPOSES, reserved_subpoint
 
 
 def _reserved_patrol_corner(coverage, key, point):
@@ -68,7 +69,9 @@ class SearchSegmentAgent:
                     SegmentBook.validate(cells, looks)
             except (ValueError,TypeError):
                 return False
-            if purpose not in ('coverage', 'south_patrol') or (purpose == 'south_patrol' and not looks):
+            if (purpose not in ('coverage', *DIRECTED_PURPOSES) or
+                    (purpose in DIRECTED_PURPOSES and not looks) or
+                    (purpose == 'building_review' and len(cells) != 1)):
                 return False
             if looks:
                 coverage = getattr(self, 'cov_grid', None)
@@ -76,9 +79,13 @@ class SearchSegmentAgent:
                     return False
                 for key, point in zip(cells, looks):
                     cell = coverage.cell(key)
+                    if purpose == 'building_review' and not reserved_subpoint(coverage,key,point):
+                        return False
                     if cell is None or (math.dist(point, (cell.cx, cell.cy)) > 1e-6 and
                             not (purpose == 'south_patrol' and
-                                 _reserved_patrol_corner(coverage, key, point))):
+                                 _reserved_patrol_corner(coverage, key, point)) and
+                            not (purpose == 'building_review' and
+                                 reserved_subpoint(coverage, key, point))):
                         return False  # observation region must match its reservation
             if len(msg.search_cell_ix) != len(msg.search_cell_iy) or revision < 1:
                 return False
@@ -224,7 +231,7 @@ class SearchSegmentAgent:
             return True  # await explicit revision/cancellation of blocked tail
         point = task['points'][i]
         distance = math.dist(self.world_xy,point)
-        directed = (task.get('purpose') == 'south_patrol' and
+        directed = (task.get('purpose') in DIRECTED_PURPOSES and
                     i < len(task.get('look_points', ())))
         at_view = distance < arrive
         if at_view and directed and task['state'] != LOOK:
@@ -316,7 +323,7 @@ class SearchSegmentAgent:
         # bounded scan executor observes its explicit ground region. No second
         # yaw publisher or inferred coverage is introduced.
         heading = math.atan2(dy,dx)
-        if task.get('purpose') != 'south_patrol':
+        if task.get('purpose') not in DIRECTED_PURPOSES:
             heading = self._search_sweep_bearing(heading,distance)
         self._set_search_heading(heading)
         self._last_local_goal = local

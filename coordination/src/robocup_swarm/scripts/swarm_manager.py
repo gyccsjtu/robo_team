@@ -131,6 +131,7 @@ METADATA_PATH = os.environ.get(
     os.path.join(os.environ.get("ROBOCUP_WS", "/home/ros/team_ws/robocup"),
                  "src/robocup_training_worlds/worlds/generated/robocup_base.json"))
 INFLATE_M = float(os.environ.get('INFLATE_M', '2.0'))     # 与 agent 一致：A* 障碍膨胀半径 m（2026-10-05 灯杆排查：0.6m 灯杆半径+0.37m 桨尖+0.68m 切角超调+0.35m 余量，原 1.5 实测贴到 front=0.31m）
+BUILDING_SUBPOINT_REVIEW = os.environ.get('BUILDING_SUBPOINT_REVIEW', '0') == '1'
 
 # ---- 合规 SLAM 栅格合并（2026-10-07 重构，规则 §2.4/§2.5 无预读）----
 # metadata 障碍恒为空；阻塞格来自各 agent /swarm/occupancy_grid 上报的
@@ -507,6 +508,7 @@ class SwarmManager(SearchSegmentManager):
         blocked = set()
         waypoint = {}
         edge = {}
+        subpoint_views = {}
         try:
             g_raw = self._merged_grid()
             if g_raw is None:
@@ -514,6 +516,7 @@ class SwarmManager(SearchSegmentManager):
                     60, "[manager] SLAM 栅格未就绪（等待 agent 上报），暂不过滤建筑格")
                 self._cell_waypoint = waypoint
                 self._cell_edge = edge
+                self._building_viewpoints = subpoint_views
                 return blocked
             g = inflate_grid(g_raw, INFLATE_M)
             self._g_infl = g
@@ -553,8 +556,16 @@ class SwarmManager(SearchSegmentManager):
                         if wp is not None:
                             break
                 if wp is None:
-                    blocked.add(key)
-                    continue
+                    if BUILDING_SUBPOINT_REVIEW:
+                        from building_viewpoints import view_options
+                        options = view_options(self.grid, key, g_raw, g,
+                                               self._segment_flight_waypoint)
+                        if options:
+                            subpoint_views[key] = options
+                            wp = options[0][0]
+                    if wp is None:
+                        blocked.add(key)
+                        continue
                 waypoint[key] = wp
                 if EDGE_ENABLE:
                     d = clearance.clearance(wp)
@@ -568,6 +579,7 @@ class SwarmManager(SearchSegmentManager):
             rospy.logwarn("[manager] 合并 SLAM 栅格过滤建筑格失败: %s（将不过滤）", exc)
         self._cell_waypoint = waypoint
         self._cell_edge = edge
+        self._building_viewpoints = subpoint_views
         n_alt = 0
         for _k, _wp in waypoint.items():
             _c = self.grid.cell(_k)
@@ -780,6 +792,22 @@ class SwarmManager(SearchSegmentManager):
         image coverage enters here. Obstacle checks use the inflated lidar map;
         no map means we cannot safely choose a new flight point.
         """
+        if BUILDING_SUBPOINT_REVIEW and getattr(self, '_g_infl', None) is not None:
+            from building_viewpoints import view_options
+            now = rospy.Time.now().to_sec()
+            raw = self._merged_grid()
+            samples = cell_points(self.grid, cell)
+            seen = getattr(self, '_camera_point_seen', {})
+            options = tuple((point, look) for point, look in view_options(
+                self.grid, key, raw, self._g_infl, self._segment_flight_waypoint)
+                if now-seen.get((key, samples.index(look)), -1e18) > 30.)
+            choice = self._reachable_subpoint_view(key, observer_xy, options)
+            if choice is not None:
+                views = self.__dict__.setdefault('_review_subpoint_views', {})
+                old = views.get(key)
+                expires = old['expires_s'] if old is not None and now < old['expires_s'] else now+90.
+                views[key] = {'options': options, 'expires_s': expires}
+                return choice[0]
         if (search_viewpoint(cell.cx, cell.cy) != (cell.cx, cell.cy) or
                 getattr(self, '_g_infl', None) is None):
             return None

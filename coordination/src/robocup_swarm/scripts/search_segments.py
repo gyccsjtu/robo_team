@@ -66,8 +66,10 @@ class SegmentBook:
             look_points = tuple(look_points)
             if look_points:
                 self.validate(cells, look_points)
-            if purpose not in ('coverage', 'south_patrol'):
+            if purpose not in ('coverage', 'south_patrol', 'building_review'):
                 raise ValueError('unknown search purpose')
+            if purpose == 'building_review' and (len(cells) != 1 or not look_points):
+                raise ValueError('building review needs one reserved cell and ground sample')
             if uid in self.tasks or any(k in self.reserved for k in cells):
                 return None
             task = Segment(uid, uuid.uuid4().hex, 1, cells, points, now,

@@ -9,6 +9,8 @@ from geometry_msgs.msg import Point
 from robocup_swarm.msg import SearchAssignment
 from search_segments import TRAVEL, LOOK, ATTEND, YIELD, DONE, FAILED, aligned, clear_line
 from swarm_task import STATE_FREE, STATE_REVIEW, STATE_COVERED
+from building_viewpoints import boundary_corner, valid_view
+from robocup_navigation.astar import plan
 
 
 class SearchSegmentManager:
@@ -26,6 +28,43 @@ class SearchSegmentManager:
 
     def _segment_point(self, key):
         return self._segment_flight_waypoint(*self._search_waypoint(key,self.grid.cell(key)))
+
+    def _subpoint_views(self, key):
+        review = getattr(self, '_review_subpoint_views', {}).get(key)
+        now = rospy.Time.now().to_sec()
+        if review is not None:
+            if now >= review['expires_s']:
+                self._review_subpoint_views.pop(key, None)
+            else:
+                from search_observation import cell_points
+                samples = cell_points(self.grid, self.grid.cell(key))
+                seen = getattr(self, '_camera_point_seen', {})
+                return tuple((point, look) for point, look in review['options']
+                             if now-seen.get((key, samples.index(look)), -1e18) > 30.)
+        return getattr(self, '_building_viewpoints', {}).get(key, ())
+
+    def _reachable_subpoint_view(self, key, origin, options):
+        """A free ground sample is useful only with a checked safe flight path."""
+        raw = self._merged_grid() if options else None
+        grid = getattr(self, '_g_infl', None)
+        for point, look in sorted(options,
+                key=lambda option: (not boundary_corner(self.grid, key, option[1]),
+                                    math.dist(origin, option[0])))[:24]:
+            if not valid_view(raw, grid, look, point, self._segment_flight_waypoint):
+                continue
+            route = plan(grid, origin, point, connectivity=8,
+                         prevent_corner_cutting=True, max_expansions=2500)
+            if not route.success:
+                continue
+            points = [origin]+list(route.points)+[point]
+            if all(clear_line(grid, a, b) for a, b in zip(points, points[1:])):
+                return point, look
+        return None
+
+    def _select_building_view(self, uid, key):
+        status = self.status[uid]
+        return self._reachable_subpoint_view(key, (status.x, status.y),
+                                             self._subpoint_views(key))
 
     def _segment_cells(self, uid, first, now):
         cells = [first]
@@ -47,6 +86,7 @@ class SearchSegmentManager:
                 cell = self.grid.cell(key)
                 if (cell is None or key in blocked or key in cells or
                         cell.state != STATE_FREE or cell.owner is not None or
+                        self._subpoint_views(key) or
                         self.grid.get_zone_id(key) != self.grid.get_zone_id(first) or
                         key in getattr(self, '_blind_viewpoints', {}) or
                         key in revisit_cells or
@@ -158,6 +198,25 @@ class SearchSegmentManager:
         self._auction_cycle += 1
         for uid,key in seeds.items():
             if key is None:
+                continue
+            if self._subpoint_views(key) and self._search_view_job(key) is None:
+                view = self._select_building_view(uid, key)
+                if view is None:
+                    self.lease.force_expire(uid, key)
+                    self.allocator.failed_visit[key] = stamp
+                    continue
+                point, look = view
+                review = getattr(self, '_review_subpoint_views', {}).get(key)
+                max_hold = (min(self._segment_max_hold, review['expires_s']-stamp)
+                            if review is not None else None)
+                task = self._start_search_segment(uid, [key], [point], stamp,
+                    purpose='building_review', look_points=[look], max_hold=max_hold)
+                if task is None:
+                    self.lease.force_expire(uid, key)
+                    continue
+                rospy.loginfo('[BUILDING_REVIEW] uav=%s task=%s cell=%s point=%s look=%s; '
+                              'free ground, checked path, no coverage credit',
+                              uid, task.task_id, key, point, look)
                 continue
             cells,points = self._segment_cells(uid,key,stamp)
             task = self._start_search_segment(uid,cells,points,stamp)
@@ -356,7 +415,7 @@ class SearchSegmentManager:
             cells = list(task.cells[task.index:])
             points = list(task.points[task.index:])
             if not self._search_point_free(points[0]):
-                if task.purpose == 'south_patrol':
+                if task.purpose in ('south_patrol', 'building_review'):
                     # A normal cell-centre replacement loses the checked
                     # camera standoff. Release it through the same regional
                     # allocator, preserving its original attempt/time budget.
@@ -368,6 +427,12 @@ class SearchSegmentManager:
                     continue
                 self._revise_segment(task,cells[:1],[replacement],now,'new_obstacle')
                 continue
+            if task.purpose == 'building_review':
+                look = task.look_points[task.index]
+                if not valid_view(self._merged_grid(), grid, look, points[0],
+                                  self._segment_flight_waypoint):
+                    self._drop_segment(uid, 'blocked_ground_view', failed=True)
+                    continue
             for i in range(1,len(points)):
                 if not clear_line(grid,points[i-1],points[i]):
                     self._revise_segment(task,cells[:i],points[:i],now,'blocked_connection')
