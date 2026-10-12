@@ -73,6 +73,25 @@ class SearchProgressSupportTests(unittest.TestCase):
         self.assertEqual(grid.get_zone_id(key), 4)
         self.assertIsNone(a._search_support_active)
 
+    def test_completed_unseen_waypoints_cannot_hide_lack_of_camera_coverage(self):
+        grid, a, _, _, _ = self.fixture()
+        keys = [k for k in grid.zone_cells[5]
+                if grid.cell(k).state == swarm_task.STATE_FREE][:8]
+        for i, key in enumerate(keys):
+            a.complete_waypoint('typhoon_h480_5', key, observed=False, now=177.+i)
+        with patch.object(swarm_task, '_now', return_value=190.):
+            key = a.allocate({'typhoon_h480_4': (39.5, 29.5)})['typhoon_h480_4']
+        self.assertEqual(grid.get_zone_id(key), 5)
+
+    def test_helper_needs_observed_coverage_not_just_flight_progress(self):
+        grid, a, _, _, _ = self.fixture()
+        a._search_image_first = {k:t for k,t in a._search_image_first.items()
+                                 if grid.get_zone_id(k) != 4}
+        with patch.object(swarm_task, '_now', return_value=190.):
+            key = a.allocate({'typhoon_h480_4': (39.5, 29.5)})['typhoon_h480_4']
+        self.assertEqual(grid.get_zone_id(key), 4)
+        self.assertIsNone(a._search_support_active)
+
     def test_long_initial_transit_has_distance_based_grace(self):
         grid = swarm_task.CoverageGrid(-55,155,-65,65,cell_m=7,num_uavs=6)
         a = swarm_task.TaskAllocator(grid)
@@ -92,6 +111,7 @@ class SearchProgressSupportTests(unittest.TestCase):
     def test_no_new_evidence_and_assignments_never_advance_progress_clock(self):
         _, a, _, _, _ = self.fixture()
         a._search_progress_first.clear()
+        a._search_image_first.clear()
         with patch.object(swarm_task, '_now', return_value=190.):
             a.allocate({'typhoon_h480_4': (39.5, 29.5)})
         self.assertEqual(a._search_progress_first, {})

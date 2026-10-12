@@ -989,8 +989,9 @@ class TaskAllocator(object):
 
         Entry travel gets its own conservative allowance. During the next
         search phase, repeated views of the same cell cannot hide a stalled
-        frontier. Only actual completed waypoints / processed views count;
-        assignments, leases, target candidates and world truth never count.
+        frontier. Only new processed camera coverage counts as search progress;
+        completing a flight waypoint is logged separately and cannot excuse
+        missing coverage or qualify a helper to leave its own unseen sector.
         """
         if (not uavs or self.mission_start is None or
                 not math.isfinite(now) or
@@ -1012,7 +1013,8 @@ class TaskAllocator(object):
                 if 0.0 <= now-stamp <= self.search_support_window:
                     tally[self.grid.get_zone_id(key)] += 1
             counts.append(tally)
-        progress, routes, images = counts
+        _, routes, images = counts
+        progress = images
         fresh = {zone: [] for zone in self.grid.zone_cells}
         for key in remaining:
             if (self.grid.cell(key).state == STATE_FREE and
