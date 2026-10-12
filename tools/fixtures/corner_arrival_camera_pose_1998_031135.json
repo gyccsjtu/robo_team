@@ -1,0 +1,70 @@
+{
+  "source_run": "logs/logs_20261013_031135",
+  "source_commit": "d5a4838",
+  "source_records": "artifacts/random_tracking_20261013_031135/search.jsonl.gz",
+  "note": "UAV status and processed fixed-camera metadata only; no actor truth. The second camera frame arrived after the first recorded LOOK status and must not be used for that earlier decision.",
+  "task_id": "f413a491be2048dbb8ab0e126db5bfc3",
+  "task_created_s": 1932.324,
+  "task_version": 1,
+  "purpose": "south_patrol",
+  "reservation": [25, 0],
+  "viewpoint": [121.16489943400077, -58.5],
+  "look_point": [129.99, -59.99],
+  "status_received_ros": 1998.572,
+  "status_sample_s": 1998.572,
+  "status_world_xyz": [119.46260833740234, -58.17681121826172, 4.1842041015625],
+  "recorded_status_state": "LOOK",
+  "latest_camera_before_status": {
+    "received_ros": 1998.44,
+    "data": {
+      "source_uav": "typhoon_h480_0",
+      "sample_s": 1998.364,
+      "x": 119.09408230827817,
+      "y": -58.10544922037086,
+      "z": 4.3750910397048655,
+      "yaw": -0.027723548187569256,
+      "down_pitch": 0.3368386018902883,
+      "processed": true
+    }
+  },
+  "camera_after_status": {
+    "received_ros": 1998.636,
+    "data": {
+      "source_uav": "typhoon_h480_0",
+      "sample_s": 1998.556,
+      "x": 119.62135228223296,
+      "y": -58.12655196148424,
+      "z": 4.3974967699263185,
+      "yaw": -0.10470083192741192,
+      "down_pitch": 0.1465927597775686,
+      "processed": true
+    }
+  },
+  "later_observable_status": {
+    "received_ros": 2004.624,
+    "sample_s": 2004.624,
+    "world_xyz": [121.10224914550781, -58.19298553466797, 4.2307844161987305]
+  },
+  "later_observable_camera": {
+    "received_ros": 2004.64,
+    "data": {
+      "source_uav": "typhoon_h480_0",
+      "sample_s": 2004.584,
+      "x": 121.2232321813327,
+      "y": -58.157283824313694,
+      "z": 4.451784352717126,
+      "yaw": -0.198457832994147,
+      "down_pitch": 0.04242918984253561,
+      "processed": true
+    }
+  },
+  "corner_geometric_frame_clusters": [
+    [2004.584, 2004.748],
+    [2006.172, 2006.372, 2006.572]
+  ],
+  "scan_timeout_ros": 2006.572,
+  "last_corner_frame_received_ros": 2006.64,
+  "current_band_m": [4.1810110448281685, 9.0],
+  "current_half_band_allowance_m": 2.4094944775859157,
+  "camera_cache_only_is_insufficient": true
+}

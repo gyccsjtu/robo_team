@@ -498,6 +498,7 @@ class AgentSegmentTests(unittest.TestCase):
         a._segment_control(3.,5.,.8,2.,2.)
         self.assertLessEqual(a._last_local_goal[0],3.5)
         a.local_xy=(3.5,0.)
+        a._search_segment['state']=LOOK  # the completed image visit already entered LOOK
         a._search_scan_done=True
         a._segment_control(3.,5.,.8,2.,2.)
         self.assertEqual(a._search_segment['index'],1)
@@ -575,6 +576,7 @@ class AgentSegmentTests(unittest.TestCase):
         for kind in ('frame','pose'):
             with self.subTest(kind=kind):
                 a=self.northeast_geometry_fixture(body_x=1.6)
+                a._search_segment['state']=LOOK  # test existing correction, not first arrival
                 if kind=='frame':
                     a._search_camera_pose=(99.,1.72,0.,0.,4.45,0.)
                 else:
@@ -585,6 +587,7 @@ class AgentSegmentTests(unittest.TestCase):
 
     def test_impossible_current_pitch_holds_until_existing_timeout(self):
         a=self.northeast_geometry_fixture()
+        a._search_segment['state']=LOOK  # an established view can later lose pitch geometry
         a._search_camera_pose=(100.,3.62,0.,0.,4.45,math.radians(-3.))
         a._segment_control(3.,5.,.8,2.,2.)
         a._send_vel.assert_called_with(0.,0.)

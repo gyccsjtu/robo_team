@@ -228,21 +228,19 @@ class SearchSegmentAgent:
                     i < len(task.get('look_points', ())))
         at_view = distance < arrive
         if at_view and directed and task['state'] != LOOK:
+            # A transit tolerance is not proof of an observable viewpoint.
+            # Start the bounded scan only when a fresh aligned camera can
+            # actually view the reserved region after turning toward it.
+            at_view = False
             camera = getattr(self,'_search_camera_pose',None)
             if (self._world_trusted() and
                     0. <= now-getattr(self,'_pose_sample_s',-1e18) <= .3 and
                     camera is not None and 0. <= now-camera[0] <= .5):
                 _,x,y,_yaw,height,pitch = camera
-                band = ground_distance_band(height, pitch)
-                if band is not None and math.dist((x,y),self.world_xy) <= 1.:
+                if math.dist((x,y),self.world_xy) <= 1.:
                     look = task['look_points'][i]
                     bearing = math.atan2(look[1]-y,look[0]-x)
-                    # A 2 m transit tolerance is much wider than the usable
-                    # range band at search height. Continue toward this exact
-                    # planned viewpoint until the camera can see the region,
-                    # or is close enough for the bounded LOOK correction.
-                    at_view = (in_view(x,y,bearing,*look,height,pitch) or
-                               distance <= .5*(band[1]-band[0]))
+                    at_view = in_view(x,y,bearing,*look,height,pitch)
         if at_view or (directed and task['state'] == LOOK):
             camera = getattr(self,'_search_camera_pose',None)
             fresh = camera is not None and 0 <= now-camera[0] <= .5
