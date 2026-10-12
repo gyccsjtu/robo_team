@@ -1782,7 +1782,11 @@ class Track(object):
     def remember_parallax(self):
         """记录相机系下的物体位移 d_rel 与相机自身视点变化 d_view（见 VERDICT_ATTACH_ON）"""
         ux, uy, uyaw = self.uav
-        rx, ry = cam_rel(ux, uy, uyaw, self.x, self.y)
+        # uav is the camera pose at observed_s. Association x/y may already
+        # be smoothed or coasted to processing time; pairing those clocks
+        # can falsely classify a walking person as camera-attached.
+        ox, oy = self.observation_xy()
+        rx, ry = cam_rel(ux, uy, uyaw, ox, oy)
         self.d_rel = math.hypot(rx - self.rel0[0], ry - self.rel0[1])
         dyaw = wrap_pi(uyaw - self.uav0[2])
         self.d_view = (math.hypot(ux - self.uav0[0], uy - self.uav0[1])
