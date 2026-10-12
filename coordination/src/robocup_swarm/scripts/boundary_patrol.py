@@ -433,8 +433,8 @@ class SouthPatrol:
 
         def tier(key):
             return ((not self._corner_needs_first_view(manager, key),
-                     not self._edge_needs_first_view(manager, key),
-                     not self._corner_review_due(manager, key, now), revisited(key))
+                     not self._corner_review_due(manager, key, now),
+                     not self._edge_needs_first_view(manager, key), revisited(key))
                     if region == 'east' and self.east_half is not None
                     else (revisited(key),))
 
@@ -468,6 +468,7 @@ class SouthPatrol:
                 edge_limit = 12 if other else 24
                 selected = spread_candidates(edge, edge_limit)
                 selected += spread_candidates(other, 24-len(selected))
+                selected.sort(key=priority)
             else:
                 selected = spread_candidates(ordered, 24)
         else:
@@ -501,12 +502,16 @@ class SouthPatrol:
             return None
         length, uid, key, point = min(checked)
         cells, points = [key], [point]
+        # An expired corner view must not wait behind the entire first edge
+        # sweep again. Re-image it as one bounded job, then resume new strips.
+        corner_review = (region == 'east' and
+                         self._corner_review_due(manager, key, now))
         directions = ([self.direction] if self.direction and region not in ('northeast', 'east')
                       else [1, -1])
         extensions = []
         for direction in directions:
             ks, ps = list(cells), list(points)
-            for _ in range(2):
+            for _ in range(0 if corner_review else 2):
                 nxt = ((ks[-1][0], ks[-1][1]+direction) if region == 'east'
                        else (ks[-1][0]+direction, ks[-1][1]))
                 if nxt not in keys:

@@ -68,10 +68,39 @@ class CornerReviewAgeTests(unittest.TestCase):
         proposal = self.p.choose(self.m, [self.uid], self.now)
         self.assertEqual(proposal[1][0], self.corner)
 
-    def test_unseen_outer_strip_precedes_due_corner(self):
+    def test_due_corner_precedes_unseen_outer_strip(self):
         self.image_memory(self.corner, 10.)
         proposal = self.p.choose(self.m, [self.uid], self.now)
+        self.assertEqual(proposal[1], [self.corner])
+        self.assertEqual(self.p.proposal_look_points, [(129.99, 59.99)])
+        self.assertNotEqual(self.m.grid.cell(self.corner).state, st.STATE_COVERED)
+
+    def test_current_corner_does_not_displace_unseen_outer_strip(self):
+        self.image_memory(self.corner, 80.)
+        proposal = self.p.choose(self.m, [self.uid], self.now)
         self.assertEqual(proposal[1][0], self.edge)
+
+    def test_recorded_south_corner_review_cannot_wait_for_every_new_edge_row(self):
+        # 034453: the healthy south owner kept receiving first-pass edge
+        # rows after this real corner-image time. A route visit is no renewal.
+        self.p = self.m._regional_patrols[1]
+        self.corner, self.edge = (25, 0), (20, 0)
+        self.m._blocked_cells = set(self.m.grid.cells)-{self.corner, self.edge}
+        self.image_memory(self.corner, 2568.636)
+        self.refresh(2651.336)
+        self.m.status[self.uid].x, self.m.status[self.uid].y = 88., -49.
+        proposal = self.p.choose(self.m, [self.uid], self.now)
+        self.assertEqual(proposal[1], [self.corner])
+        self.assertEqual(self.p.proposal_look_points, [(129.99, -59.99)])
+        self.assertEqual(self.p._corner_observed_at[self.corner], 2568.636)
+
+    def test_corner_review_is_one_point_even_when_adjacent_strip_is_reachable(self):
+        adjacent = (25, 16)
+        self.m._blocked_cells = set(self.m.grid.cells)-{self.corner, adjacent}
+        self.image_memory(self.corner, 10.)
+        proposal = self.p.choose(self.m, [self.uid], self.now)
+        self.assertEqual(proposal[1], [self.corner])
+        self.assertEqual(len(proposal[2]), 1)
 
     def test_due_corner_precedes_nearer_new_inner_cell(self):
         self.m._blocked_cells.add(self.edge)
