@@ -1686,6 +1686,8 @@ class YoloTargetBridge(object):
                     self._rospy.loginfo('[SOURCE_QUALITY_HANDOFF] tag=%s source=%s image=%.3f quality=%s',
                                          tag, source, sample, row.get('position_uncertainty_m'))
                 source_accepted = tr.accepted_source_samples.get(key) == sample
+                if source_accepted:
+                    self._handoff_range_blocked_source(tr, row, now)
                 tracking_matches = (tr.t_obs == sample and
                                     self.core._source_key(tr.tracking_source,
                                                           tr.tracking_candidate_id) == key)
@@ -1731,6 +1733,47 @@ class YoloTargetBridge(object):
                         self._publish_actor(tag, *point)
         except (ValueError, KeyError, TypeError) as exc:
             self._rospy.logwarn_throttle(5, "丢弃 target_report：%s", exc)
+
+    def _handoff_range_blocked_source(self, tr, row, now):
+        """A range-blocked reporter cannot monopolize independently valid images.
+
+        This does not widen the report range or qualify a rejected observation.
+        Keep a live incumbent (including its range hysteresis); only a blocked
+        one can yield to an already associated, fresh, coherent camera segment.
+        """
+        sample = row['sample_s']
+        key = self.core._source_key(row['source_uav'], row['candidate_id'])
+        incumbent = self.core._source_key(tr.official_source, tr.official_candidate_id)
+        rng = row['range_m']
+        if (key == incumbent or not tr.alive or
+                tr.accepted_source_samples.get(key) != sample or
+                sample < tr.good_t or not 0. <= now-sample <= FRESH_REPORT_MAX_AGE or
+                rng is None or not 0. < rng <= ACTOR_PUB_MAX_RANGE_M or
+                self._pub_gate_ok(tr.tag)):
+            return False
+        segment = _confirmed_official_segment(tr.source_history.get(key, []))
+        if segment is None or segment[-1][0] != sample:
+            return False
+        # Existing identity admission is necessary, but source agreement is
+        # checked again here before discarding the incumbent's motion history.
+        old = _robust_official_fit(tr.good_history, tr.good_t)
+        ax, ay = tr.good_x, tr.good_y
+        if old is not None and old[5]:
+            dt = sample-tr.good_t
+            ax, ay = old[0]+old[2]*dt, old[1]+old[3]*dt
+        if ax is None or math.hypot(row['x']-ax, row['y']-ay) > (.5 if tr.tag in RED_TAGS else .75):
+            return False
+        previous_source, previous_range = tr.official_source, tr.range_m
+        tr.official_source, tr.official_candidate_id = row['source_uav'], row['candidate_id']
+        tr.good_x, tr.good_y, tr.good_t = row['x'], row['y'], sample
+        tr.good_history = list(segment)
+        tr.segment_anchor_t = None
+        tr.range_m = rng
+        self._rospy.loginfo('[SOURCE_BLOCKED_HANDOFF] tag=%s old=%s range=%s '
+                            'new=%s range=%.2f image=%.3f reason=range_gate_closed',
+                            tr.tag, previous_source, previous_range,
+                            tr.official_source, rng, sample)
+        return True
 
     # ---- 红球双流：焦点选择 ----
     def _red_eligible(self, tag):

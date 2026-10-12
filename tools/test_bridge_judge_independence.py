@@ -223,6 +223,7 @@ class BridgeJudgeIndependenceTests(unittest.TestCase):
 
         self.assertEqual(set(subscriptions), {
             '/coordination/target_report', '/swarm/rejected_visual',
+            '/swarm/appearance_rejection',
         })
         self.assertIn('/swarm/report_telemetry', publications)
         self.assertEqual(len([name for name in publications
