@@ -1222,14 +1222,23 @@ do_start(){
         cat "$LOGDIR/07_airborne.log" >&2
         warn "六机起飞验收未通过：缺席飞机见上；已飞飞机继续受控，查看对应 agent 日志"
     fi
+    local fleet_perception=0
+    if timeout 12s python3 -u "$READY_SCRIPT" --kind perception --timeout 10 \
+            --uavs "${UAVS[@]}" >"$LOGDIR/07_perception.log" 2>&1; then
+        fleet_perception=1
+        ok "六机起飞后均有新鲜、位姿对齐的连续处理画面"
+    else
+        cat "$LOGDIR/07_perception.log" >&2
+        warn "起飞后感知验收未通过：相机有帧或首次推理成功不等于当前能搜索；已飞飞机继续受控"
+    fi
 
     # ============================ 完成横幅 ==================================
     echo
     echo "${C_G}==============================================================${C_0}"
-    if [ "$fleet_airborne" = 1 ]; then
-        ok "比赛栈编排完成，六机起飞验收通过。日志目录: $LOGDIR （最新入口: $RUN_DIR/latest）"
+    if [ "$fleet_airborne" = 1 ] && [ "$fleet_perception" = 1 ]; then
+        ok "比赛栈编排完成，六机起飞与当前感知验收通过。日志目录: $LOGDIR （最新入口: $RUN_DIR/latest）"
     else
-        warn "比赛栈已运行，但六机起飞验收失败。日志目录: $LOGDIR"
+        warn "比赛栈已运行，但六机起飞或当前感知验收失败。日志目录: $LOGDIR"
     fi
     echo
     if [ "$TEAM_ONLY" = 1 ]; then
@@ -1274,7 +1283,7 @@ do_start(){
         ok "hard_cap=${MATCH_HARD_CAP}s 已启动独立 session watcher（主控 Ctrl-C 不影响）"
     fi
     # Report failure to callers too, without terminating airborne agents.
-    [ "$fleet_airborne" = 1 ]
+    [ "$fleet_airborne" = 1 ] && [ "$fleet_perception" = 1 ]
 }
 
 # ============================ 状态查询 ======================================
@@ -1313,6 +1322,14 @@ do_status(){
         printf '%s\n' "$_flight_probe" | grep '^\[ready\]' || true
     fi
     info "感知进程: $(count_pattern '[p]erception_real')"
+    _perception_probe="$(timeout 5s python3 -u "$READY_SCRIPT" --kind perception --timeout 3 \
+        --uavs "${UAVS[@]}" 2>&1 || true)"
+    if printf '%s\n' "$_perception_probe" | grep -q '^\[ready\] PASS 6/6'; then
+        info "当前有效感知: 6/6（新鲜、位姿对齐的连续处理画面）"
+    else
+        warn "当前感知不完整；进程存活不能证明六机都能搜索"
+        printf '%s\n' "$_perception_probe" | grep '^\[ready\]' || true
+    fi
     info "雷达进程: $(count_pattern '[r]adar_avoid')"
     info "协同 agent: $(count_pattern '[s]warm_agent.py')"
     if timeout 5 rostopic info /swarm/target_states 2>/dev/null | grep -q ' \* '; then

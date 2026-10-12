@@ -6,6 +6,7 @@ ground-truth topics. The wall-clock timeout includes ROS initialization.
 """
 
 import argparse
+import json
 import math
 import re
 import sys
@@ -20,6 +21,7 @@ TOPIC_SUFFIX = {
     "scan": "/scan",
 }
 AIRBORNE_KIND = 'airborne'
+PERCEPTION_KIND = 'perception'
 NAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
 
 
@@ -36,7 +38,7 @@ def positive_seconds(value):
 def parse_arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--kind", action="append", choices=("state", "camera", "scan", "airborne", "all"),
+        "--kind", action="append", choices=("state", "camera", "scan", "airborne", "perception", "all"),
         help="readiness kind; repeat to check several kinds (default: all)")
     parser.add_argument(
         "--uavs", nargs="+", default=DEFAULT_UAVS, metavar="UAV",
@@ -46,7 +48,7 @@ def parse_arguments(argv=None):
         help="overall wall-clock deadline, including ROS initialization (default: 30)")
     args = parser.parse_args(argv)
     args.kinds = tuple(TOPIC_SUFFIX) if not args.kind or "all" in args.kind else tuple(
-        kind for kind in (*TOPIC_SUFFIX, AIRBORNE_KIND) if kind in args.kind)
+        kind for kind in (*TOPIC_SUFFIX, AIRBORNE_KIND, PERCEPTION_KIND) if kind in args.kind)
     names = [part for value in args.uavs for part in value.split(",")]
     if not names or any(not NAME_PATTERN.fullmatch(name) for name in names):
         parser.error("--uavs must contain nonempty ROS namespace names")
@@ -58,7 +60,9 @@ def parse_arguments(argv=None):
 
 def expected_topics(kinds, uavs):
     """Return {(kind, UAV): absolute ROS topic} without requiring ROS imports."""
-    return {(kind, uav): ('/swarm/uav_status' if kind == AIRBORNE_KIND else
+    shared = {AIRBORNE_KIND: '/swarm/uav_status',
+              PERCEPTION_KIND: '/swarm/processed_camera_frame'}
+    return {(kind, uav): (shared[kind] if kind in shared else
                          "/%s%s" % (uav, TOPIC_SUFFIX[kind]))
             for kind in kinds for uav in uavs}
 
@@ -88,11 +92,16 @@ class ReadyTracker:
         self.topics = topics
         self.ready = set()
         self.received = {}
+        self.perception_samples = {}
         self.ros_now = ros_now
         self.condition = threading.Condition()
 
     def on_message(self, message, key):
         with self.condition:
+            if key[0] == PERCEPTION_KIND:
+                self._on_processed_frame(message, key)
+                self.condition.notify_all()
+                return
             valid = is_real_message(key[0], message)
             if key[0] == AIRBORNE_KIND:
                 if getattr(message, 'uav_id', None) != key[1]:
@@ -107,10 +116,39 @@ class ReadyTracker:
                 self.received[key] = time.monotonic()
             self.condition.notify_all()
 
+    def _on_processed_frame(self, message, key):
+        try:
+            data = json.loads(message.data)
+            if not isinstance(data, dict) or data.get('source_uav') != key[1]:
+                return
+            sample = data.get('sample_s')
+            numbers = [data.get(name) for name in ('sample_s', 'x', 'y', 'z', 'yaw', 'down_pitch')]
+            valid = (data.get('processed') is True and
+                     all(not isinstance(v, bool) and isinstance(v, (int, float))
+                         and math.isfinite(v) for v in numbers) and
+                     self.ros_now is not None and 0. <= self.ros_now()-sample <= .5 and
+                     data['z'] >= 2.)
+        except (ValueError, TypeError, AttributeError):
+            return
+        if not valid:
+            self.ready.discard(key)
+            self.perception_samples.pop(key, None)
+            return
+        first, last = self.perception_samples.get(key, (sample, -math.inf))
+        if sample <= last:
+            return  # repeated images cannot renew readiness
+        if sample-last > .7:
+            first = sample
+            self.ready.discard(key)
+        self.perception_samples[key] = (first, sample)
+        self.received[key] = time.monotonic()
+        if sample-first >= .1-1e-6:
+            self.ready.add(key)
+
     def _expire_airborne(self):
         now = time.monotonic()
         for key in tuple(self.ready):
-            if key[0] == AIRBORNE_KIND and now-self.received[key] > 1.:
+            if key[0] in (AIRBORNE_KIND, PERCEPTION_KIND) and now-self.received[key] > 1.:
                 self.ready.discard(key)
 
     def wait(self, deadline, is_shutdown):
@@ -142,6 +180,8 @@ def main(argv=None):
         from sensor_msgs.msg import Image, LaserScan
         if AIRBORNE_KIND in args.kinds:
             from robocup_swarm.msg import UavStatus
+        if PERCEPTION_KIND in args.kinds:
+            from std_msgs.msg import String
     except ImportError as exc:
         print("[ready] ROS Python packages unavailable: %s; source ROS and catkin setup.bash" % exc,
               file=sys.stderr)
@@ -151,10 +191,14 @@ def main(argv=None):
     subscribers = []
     try:
         rospy.init_node("wait_match_ready", anonymous=True, disable_signals=False,
-                        disable_rostime=AIRBORNE_KIND not in args.kinds, disable_rosout=True)
+                        disable_rostime=not any(k in args.kinds for k in
+                                               (AIRBORNE_KIND, PERCEPTION_KIND)),
+                        disable_rosout=True)
         classes = {"state": State, "camera": Image, "scan": LaserScan}
         if AIRBORNE_KIND in args.kinds:
             classes[AIRBORNE_KIND] = UavStatus
+        if PERCEPTION_KIND in args.kinds:
+            classes[PERCEPTION_KIND] = String
         for key, topic in topics.items():
             # Camera images can exceed rospy's small default TCP buffer. Never log
             # image payloads; the callback only checks that a nonempty frame arrived.

@@ -4,6 +4,7 @@
 import argparse
 import contextlib
 import io
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -79,6 +80,77 @@ class ReadyProbeTest(unittest.TestCase):
             self.assertEqual(len(tracker.missing()), 1)
         with patch('wait_match_ready.time.monotonic', return_value=11.1):
             self.assertEqual(len(tracker.missing()), 2)
+
+    def perception_tracker(self, names=('u0',)):
+        return ReadyTracker(expected_topics(('perception',), names), ros_now=lambda:100.)
+
+    def frame(self, uid='u0', sample=99.9, **changes):
+        data = dict(source_uav=uid, processed=True, sample_s=sample,
+                    x=2., y=3., z=4., yaw=0., down_pitch=0.)
+        data.update(changes)
+        return SimpleNamespace(data=json.dumps(data))
+
+    def test_perception_requires_two_new_aligned_airborne_frames(self):
+        args = parse_arguments(['--kind', 'perception', '--uavs', 'u0'])
+        self.assertEqual(args.kinds, ('perception',))
+        self.assertEqual(expected_topics(args.kinds,args.uavs)[('perception','u0')],
+                         '/swarm/processed_camera_frame')
+        tracker = self.perception_tracker()
+        key = ('perception','u0')
+        tracker.on_message(self.frame(sample=99.8), key)
+        self.assertEqual(tracker.ready,set())
+        tracker.on_message(self.frame(sample=99.9), key)
+        self.assertEqual(tracker.ready,{key})
+
+    def test_frozen_ground_camera_is_not_ready_despite_airborne_status(self):
+        tracker = self.perception_tracker()
+        key = ('perception','u0')
+        for sample in (99.8,99.9,100.):
+            tracker.on_message(self.frame(sample=sample,z=.13), key)
+        self.assertEqual(tracker.ready,set())
+        self.assertEqual(len(tracker.missing()),1)
+
+    def test_other_aircraft_frames_cannot_fill_missing_camera(self):
+        tracker = self.perception_tracker(('u0','u1'))
+        for sample in (99.8,99.9):
+            for uid in ('u0','u1'):
+                tracker.on_message(self.frame(sample=sample), ('perception',uid))
+        self.assertEqual(tracker.ready,{('perception','u0')})
+        self.assertEqual(tracker.missing(),[(('perception','u1'),'/swarm/processed_camera_frame')])
+
+    def test_duplicate_and_reordered_frames_do_not_renew_validity(self):
+        tracker = self.perception_tracker()
+        key = ('perception','u0')
+        with patch('wait_match_ready.time.monotonic', return_value=10.):
+            for sample in (99.8,99.9):tracker.on_message(self.frame(sample=sample), key)
+        with patch('wait_match_ready.time.monotonic', return_value=10.9):
+            for sample in (99.9,99.8):tracker.on_message(self.frame(sample=sample), key)
+        with patch('wait_match_ready.time.monotonic', return_value=11.1):
+            self.assertEqual(len(tracker.missing()),1)
+
+    def test_bad_geometry_stale_future_or_unprocessed_frames_cannot_pass(self):
+        key = ('perception','u0')
+        cases = ({'x':float('nan')},{'z':float('inf')},{'sample':99.4},
+                 {'sample':100.1},{'sample_s':True},{'z':True},{'processed':False})
+        for changes in cases:
+            with self.subTest(changes=changes):
+                tracker=self.perception_tracker()
+                tracker.on_message(self.frame(sample=99.8),key)
+                tracker.on_message(self.frame(**changes),key)
+                self.assertEqual(tracker.ready,set())
+        for payload in ('{','[]','null'):
+            tracker.on_message(SimpleNamespace(data=payload),key)
+            self.assertEqual(tracker.ready,set())
+
+    def test_invalid_frame_clears_old_readiness_and_requires_new_sequence(self):
+        tracker=self.perception_tracker();key=('perception','u0')
+        for sample in (99.7,99.8):tracker.on_message(self.frame(sample=sample),key)
+        tracker.on_message(self.frame(sample=99.9,z=.13),key)
+        self.assertEqual(tracker.ready,set())
+        tracker.on_message(self.frame(sample=99.9),key)
+        self.assertEqual(tracker.ready,set())
+        tracker.on_message(self.frame(sample=100.),key)
+        self.assertEqual(tracker.ready,{key})
 
 
 if __name__ == "__main__":
