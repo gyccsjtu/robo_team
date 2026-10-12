@@ -141,6 +141,7 @@ def configure_cpu_inference_threads(model, count):
 TORCH_THREADS = parse_cpu_thread_count(os.environ.get("PR_TORCH_THREADS", "2"))
 WEIGHTS = os.environ.get("PR_WEIGHTS") or _resolve_weights()
 CONF = float(os.environ.get("PR_CONF", "0.40"))
+DISTANT_SMALL_CUES = bool(int(os.environ.get('PR_DISTANT_SMALL_CUES', '1')))
 # 白衣人历史真检置信度常在 0.34～0.40；统一 0.40 推理阈值会在建轨前
 # 丢掉这些框。仅对白类放宽，其他颜色仍按 CONF 过滤。
 WHITE_CONF = float(os.environ.get("PR_WHITE_CONF", "0.30"))
@@ -351,6 +352,143 @@ def pixel_cue_box_ok(cls, confidence, x1, y1, x2, y2,
     return (y2 >= ROI_TOP and y1 <= ROI_BOT and width >= 9.0 and
             height >= (32.0 if allow_small_continuation else 40.0) and y1 >= 4.0 and
             1.1 <= height / max(width, 1.0) <= 4.0)
+
+
+class DistantSmallCueTracker:
+    """Independent dual-model small-image looks; never a normal/world track.
+
+    The ordinary 40 px entry and anchored 32 px continuation stay untouched.
+    Three current, unambiguous images can ask search to inspect a 24--40 px
+    person. Every image needs positive secondary evidence on that SAME image;
+    absence of sculpture evidence does not qualify. No depth is inferred.
+    """
+
+    def __init__(self):
+        self.context = None
+        self.last_sample = -math.inf
+        self.last_now = -math.inf
+        self.next_id = 0
+        self.tracks = []
+
+    @staticmethod
+    def _input_ok(box, source, sample):
+        try:
+            if any(isinstance(v, bool) or not isinstance(v, (int, float))
+                   for v in (*box['box'], box['conf'], box['width'], box['height'],
+                             box['fy'], box['foot_down_sin'], box['camera_tilt'],
+                             box['bearing'])):
+                return False
+            bounds = tuple(float(v) for v in box['box'])
+            confidence = float(box['conf'])
+            width, height, fy, sine, tilt, bearing = (
+                float(box[k]) for k in ('width', 'height', 'fy',
+                                       'foot_down_sin', 'camera_tilt', 'bearing'))
+            h, w = bounds[3]-bounds[1], bounds[2]-bounds[0]
+            return (len(bounds) == 4 and box['cls'] in CLASSES and
+                    all(math.isfinite(v) for v in (*bounds, confidence, width,
+                                                  height, fy, sine, tilt, bearing)) and
+                    width > 0. and height > 0. and fy > 0. and
+                    .45 <= confidence <= 1. and 24. <= h < 40. and w >= 9. and
+                    1.1 <= h/w <= 4. and
+                    6. <= bounds[0] < bounds[2] <= width-6. and
+                    6. <= bounds[1] < bounds[3] <= height-6. and
+                    bounds[3] >= ROI_TOP and bounds[1] <= ROI_BOT and
+                    0. < sine <= 1. and 0. <= tilt <= math.pi and
+                    box.get('appearance_status') == 'actor' and
+                    box.get('secondary_actor_confirmed') is True and
+                    box.get('secondary_actor_label') == box['cls'] and
+                    box.get('secondary_actor_camera') == source and
+                    not isinstance(box.get('secondary_actor_sample_s'), bool) and
+                    box.get('secondary_actor_sample_s') == sample)
+        except (KeyError, TypeError, ValueError, IndexError, OverflowError):
+            return False
+
+    @staticmethod
+    def _same_ray(a, b):
+        """Image-time world angles, with no range or target XY prediction."""
+        if a['cls'] != b['cls'] or a['width'] != b['width'] or a['height'] != b['height']:
+            return False
+        ah, bh = a['box'][3]-a['box'][1], b['box'][3]-b['box'][1]
+        if not .55 <= ah/bh <= 1.8 or abs(a['fy']-b['fy']) > 1e-6:
+            return False
+        bearing = abs(math.atan2(math.sin(a['bearing']-b['bearing']),
+                                 math.cos(a['bearing']-b['bearing'])))
+        elevation = abs(math.asin(a['foot_down_sin'])-math.asin(b['foot_down_sin']))
+        return (bearing <= .08 and
+                elevation <= math.atan(.8*min(ah, bh)/a['fy']))
+
+    def update(self, source, epoch, sample, now, boxes, reserved=(), active_person=False):
+        """Produce only own-camera finite-look messages, with an independent clock."""
+        if (not isinstance(source, str) or not source or
+                not isinstance(epoch, str) or not epoch or
+                any(isinstance(v, bool) or not isinstance(v, (int, float)) or
+                    not math.isfinite(v) for v in (sample, now))):
+            return []
+        context = (source, epoch)
+        if context != self.context:
+            self.context, self.tracks = context, []
+            self.last_sample = self.last_now = -math.inf
+        if now < self.last_now:
+            self.tracks = []  # a clock reset cannot lend old image votes
+            self.last_sample, self.last_now = sample, now
+            return []
+        self.last_now = now
+        if active_person:
+            self.tracks = []  # even a repeated frame cannot retain pre-task votes
+        if sample <= self.last_sample or sample <= 0. or not 0. <= now-sample <= .35:
+            return []
+        self.last_sample = sample
+        if active_person:
+            self.tracks = []  # do not leave a ready cue waiting behind a real task
+            return []
+        boxes = [dict(b) for b in boxes if self._input_ok(b, source, sample)]
+        self.tracks = [t for t in self.tracks if 0. < sample-t['sample_s'] <= .35+1e-9]
+        # Existing ordinary/anchored pixel cues own their original path.
+        boxes = [b for b in boxes if not any(
+            r.get('box') is not None and _box_iou(b['box'], r['box']) >= .60
+            for r in reserved)]
+        # A near-identical cross-colour box or two inseparable same-colour
+        # rays cannot start new local identities by confidence ordering.
+        ambiguous = {i for i, a in enumerate(boxes) for j, b in enumerate(boxes)
+                     if i != j and (_box_iou(a['box'], b['box']) >= .60 or
+                                     self._same_ray(a, b))}
+        scores = [[j for j, t in enumerate(self.tracks) if self._same_ray(b, t['box'])]
+                  for b in boxes]
+        following, cues = [], []
+        for i, box in enumerate(boxes):
+            if i in ambiguous or len(scores[i]) > 1:
+                continue
+            if scores[i]:
+                j = scores[i][0]
+                if sum(j in row for row in scores) != 1:
+                    continue
+                track = self.tracks[j]
+            else:
+                track = dict(id=self.next_id, started_s=sample, samples=[])
+                self.next_id += 1
+            samples = [t for t in track['samples'] if sample-t <= 1.1]
+            samples.append(sample)
+            track.update(sample_s=sample, box=box, samples=samples)
+            following.append(track)
+            if len(samples) < 3 or sample-samples[0] < .3-1e-9 or box['conf'] < .55:
+                continue
+            bounds = box['box']
+            cues.append(dict(
+                candidate_id='%s:distant:%s:%d' % (box['cls'], epoch, track['id']),
+                source_uav=source, source_epoch=epoch, sample_s=sample,
+                real_detection=True, purpose='camera_reacquire',
+                confidence=box['conf'], hits=len(samples), bearing=box['bearing'],
+                u=(bounds[0]+bounds[2])/2., v=(bounds[1]+bounds[3])/2.,
+                box=list(bounds), width=box['width'], height=box['height'],
+                fy=box['fy'], foot_down_sin=box['foot_down_sin'],
+                camera_tilt=box['camera_tilt'], appearance_status='actor',
+                secondary_actor_confirmed=True, secondary_actor_label=box['cls'],
+                secondary_actor_sample_s=sample, secondary_actor_camera=source,
+                seed_started_s=track['started_s'], association_unique=True,
+                distant_small_seed=True, attention_only=True,
+                control_eligible=False, report_eligible=False, footpoint_valid=False))
+        self.tracks = following
+        return cues
 
 
 def foot_ground_ray(u, bottom, rotation):
@@ -626,6 +764,7 @@ def pixel_promoted_strict(cues, cls, u, v, conf, rng, height_m,
         return False
     return any(c['candidate_id'].startswith(cls + ':') and
                not c.get('small_box_continuation', False) and
+               not c.get('distant_small_seed', False) and
                not c.get('attention_only', False) and
                abs(c['u'] - u) < 20.0 and abs(c['v'] - v) < 30.0
                for c in cues)
@@ -1897,7 +2036,8 @@ def fast_tracker_seed_frame(cues, source, sample, session):
     """
     detections = []
     for cue in cues:
-        if (cue.get('appearance_status', 'actor') != 'actor' or
+        if (cue.get('distant_small_seed', False) or
+                cue.get('appearance_status', 'actor') != 'actor' or
                 float(cue.get('sample_s', -1.)) != sample):
             continue
         box = cue.get('box')
@@ -2163,6 +2303,9 @@ def main():
     frame_stamp = 0.0         # 当前检测图像的 ROS 采集时间
     processed_image_stamp = 0.0
     cue_tracker = PixelCueTracker()
+    distant_cue_tracker = DistantSmallCueTracker()
+    print('[pr] DISTANT_SMALL_CUES enabled=%s; same-image dual-model evidence; attention only'
+          % DISTANT_SMALL_CUES, flush=True)
     appearance_resolver = ActorDistractorResolver()
     active_appearance_rejections = set()
     frame_age = None
@@ -2197,6 +2340,7 @@ def main():
         now = rospy.Time.now().to_sec()
         dets = []
         raw_cue_boxes = []
+        distant_small_boxes = []
         frame_cues = []
         frame_was_processed = False
 
@@ -2318,12 +2462,15 @@ def main():
                         bw, bh = bx2 - bx1, by2 - by1
                         ordinary_cue = pixel_cue_box_ok(CLASSES[cid], conf,
                                                         bx1, by1, bx2, by2)
-                        if (not ordinary_cue and not pixel_cue_box_ok(CLASSES[cid], conf,
-                                bx1, by1, bx2, by2, allow_small_continuation=True)):
+                        continuation_input = pixel_cue_box_ok(CLASSES[cid], conf,
+                                bx1, by1, bx2, by2, allow_small_continuation=True)
+                        distant_input = (DISTANT_SMALL_CUES and 24. <= bh < 40. and
+                            getattr(b, 'secondary_actor_confirmed', False) is True)
+                        if not (ordinary_cue or continuation_input or distant_input):
                             continue
                         bu, bv = (bx1 + bx2) / 2.0, (by1 + by2) / 2.0
                         foot_ray = foot_ground_ray(bu, by2, R)
-                        raw_cue_boxes.append(dict(
+                        cue_box = dict(
                             cls=CLASSES[cid], conf=conf, u=bu, v=bv,
                             small_box_continuation_only=not ordinary_cue,
                             h=bh, bearing=image_world_bearing(bu, bv, R),
@@ -2335,12 +2482,28 @@ def main():
                                 (bx1, by1, bx2, by2), pz, R),
                             width=IMG_W, height=IMG_H,
                             fy=FY, foot_down_sin=float(-foot_ray[2]/np.linalg.norm(foot_ray)),
-                            camera_tilt=math.acos(max(-1., min(1., float(R[2, 2]))))))
+                            camera_tilt=math.acos(max(-1., min(1., float(R[2, 2])))),
+                            secondary_actor_confirmed=getattr(b, 'secondary_actor_confirmed', False),
+                            secondary_actor_label=getattr(b, 'secondary_actor_label', ''),
+                            secondary_actor_sample_s=getattr(b, 'secondary_actor_sample_s', None),
+                            secondary_actor_camera=getattr(b, 'secondary_actor_camera', ''))
+                        if ordinary_cue or continuation_input:
+                            raw_cue_boxes.append(cue_box)
+                        if distant_input:
+                            distant_small_boxes.append(cue_box)
                     frame_cues = cue_tracker.update(frame_stamp, raw_cue_boxes)
                     if fast_seed_pub is not None:
                         fast_seed_pub.publish(String(data=json.dumps(
                             fast_tracker_seed_frame(frame_cues, UAV, frame_stamp,
                                                     candidate_session))))
+                    # A small seed is only a bounded search look. It does not
+                    # feed the normal tracker, shadow seeds or world geometry.
+                    with arb_lock:
+                        small_active_person = arb['tid'] is not None
+                    frame_cues.extend(distant_cue_tracker.update(
+                        UAV, candidate_session, frame_stamp, rospy.Time.now().to_sec(),
+                        distant_small_boxes, reserved=frame_cues,
+                        active_person=small_active_person))
                     for rejection in cue_tracker.rejections:
                         _CSV.write(ros_time=rospy.Time.now().to_sec(),
                             event='candidate_geometry_reject',
@@ -2507,7 +2670,8 @@ def main():
                     bbox_h=cue['box'][3]-cue['box'][1] if 'box' in cue else '',
                     track_id=cue['candidate_id'], hits=cue['hits'],
                     image_stamp=frame_stamp, image_age_s=frame_age,
-                    source=('pixel_small_continuation_only' if cue.get('small_box_continuation')
+                    source=('pixel_distant_dual_model_attention' if cue.get('distant_small_seed')
+                            else 'pixel_small_continuation_only' if cue.get('small_box_continuation')
                             else 'pixel_attention_only'))
 
         # ---------- 2) 关联（位置 + 身高 + 外观；v4新增多层次匹配）----------
