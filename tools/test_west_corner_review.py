@@ -11,7 +11,7 @@ import swarm_manager as sm
 import swarm_task as st
 from building_viewpoints import valid_view
 from robocup_swarm.msg import UavStatus
-from search_segments import ATTEND, DONE, FAILED, TRAVEL
+from search_segments import ATTEND, DONE, FAILED, TRAVEL, YIELD
 
 
 class WestCornerReviewTests(unittest.TestCase):
@@ -236,6 +236,178 @@ class WestCornerReviewTests(unittest.TestCase):
         self.m._g_infl = None
         self.m._allocate_west_corner_review(list(self.m.uav_ids), self.now)
         self.assertEqual(self.corner_tasks(), [])
+
+    def assert_safe_person_interruption_can_be_reassigned(self, release):
+        self.allocate()
+        task = self.corner_tasks()[0]
+        key, look = task.cells[0], task.look_points[0]
+        self.m._tracking = {'t0': task.uid}
+        if release:
+            self.m._free_search_lease(task.uid)
+        else:
+            self.m._renew_segments(sm.rospy.Time.from_sec(self.now))
+        self.assertNotIn(task.uid, self.m._segments.tasks)
+        self.assertNotIn(key, self.m._segments.reserved)
+        self.assertNotIn(key, self.m.allocator.failed_visit)
+        self.assertEqual(self.m._west_corner_seen, {})
+        self.assertEqual(self.m.grid.cell(key).covered_t, 0.)
+        cancellations = [call.args[0] for call in self.m.assign_pub.publish.call_args_list
+                         if call.args[0].task_type == 255 and
+                         call.args[0].search_task_id == task.task_id]
+        self.assertEqual(len(cancellations), 1)
+        self.assertEqual(cancellations[0].search_revision, task.revision)
+        # A later idle aircraft may take the safe corner, but the actual
+        # person owner remains busy and is never taken back for search.
+        self.now += .5
+        self.refresh()
+        peer = next(uid for uid in self.m.uav_ids if uid != task.uid)
+        self.m._drop_segment(peer, 'new_idle')
+        self.m._allocate_west_corner_review(self.m._idle_uavs(), self.now)
+        replacement = self.corner_tasks()[0]
+        self.assertEqual(replacement.uid, peer)
+        self.assertEqual(replacement.look_points, (look,))
+        self.assertNotEqual(replacement.task_id, task.task_id)
+        self.assertEqual(self.m._tracking, {'t0': task.uid})
+        self.assertEqual(self.m._west_corner_seen, {})
+        self.assertEqual(self.m.grid.cell(key).covered_t, 0.)
+
+    def test_person_task_interrupts_safe_corner_without_global_failure_cooldown(self):
+        self.assert_safe_person_interruption_can_be_reassigned(release=False)
+
+    def test_released_for_new_person_task_preserves_safe_corner_for_idle_peer(self):
+        self.assert_safe_person_interruption_can_be_reassigned(release=True)
+
+    def test_actual_050056_northwest_yield_eight_seconds_releases_for_reachable_peer(self):
+        # Legal sensor replay: first YIELD 1933.744, manager drop 1942.012.
+        # Source 1's start is occupied; the exact NW air/ground pair is free.
+        self.now = 1932.412
+        self.refresh()
+        positions = ((2.1794066429138184, -8.334422588348389),
+                     (3.536715090274811, -3.5460264682769775),
+                     (-.5565613508224487, -.962228000164032))
+        for uid, (x, y) in zip(self.m.uav_ids, positions):
+            self.m.status[uid].x, self.m.status[uid].y = x, y
+        self.raw = sm.GridMap(420, 260, .5, (-55., -65.), bytes(420*260))
+        self.m._merged_grid.return_value = self.raw
+        self.m._g_infl = sm.inflate_grid(self.raw, sm.INFLATE_M)
+        source, peer = self.m.uav_ids[1], self.m.uav_ids[0]
+        key, point, look = ((0, 17), (-43.6613943083804, 53.6613943083804),
+                            (-49.99, 59.99))
+        task = self.m._start_search_segment(source, [key], [point], self.now,
+            purpose='building_review', look_points=[look])
+        self.ordinary_task(peer)
+        self.ordinary_task(self.m.uav_ids[2], (12, 8))
+        self.m._west_corner_seen['southwest'] = self.now
+        status = self.m.status[source]
+        status.search_task_id, status.search_revision = task.task_id, task.revision
+        status.search_index, status.search_state = 0, YIELD
+        status.search_path_revision, status.search_path_remaining = 2, 79.31145477294922
+        self.now = 1933.744
+        self.refresh()
+        self.m._renew_segments(sm.rospy.Time.from_sec(self.now))
+        self.assertIs(self.m._segments.tasks[source], task)
+        self.assertAlmostEqual(task.wait_since, self.now)
+
+        self.now = 1942.012
+        self.refresh()
+        status.x, status.y, status.z = 3.300871580839157, -3.5828279852867126, 2.8409461975097656
+        status.search_path_revision, status.search_path_remaining = 3, 77.74333953857422
+        cells = bytearray(self.raw.cells)
+        ix, iy = self.raw.world_to_cell((status.x, status.y))
+        cells[iy*self.raw.width+ix] = 1
+        self.raw = sm.GridMap(self.raw.width, self.raw.height, self.raw.resolution,
+                              self.raw.origin, bytes(cells))
+        self.m._merged_grid.return_value = self.raw
+        self.m._g_infl = sm.inflate_grid(self.raw, sm.INFLATE_M)
+        self.assertTrue(valid_view(self.raw, self.m._g_infl, look, point,
+                                  self.m._segment_flight_waypoint))
+        origin = (status.x, status.y)
+        self.assertEqual(sm.plan(self.m._g_infl, origin, point, connectivity=8,
+            prevent_corner_cutting=True, max_expansions=2500).reason, 'START_OCCUPIED')
+        self.m._renew_segments(sm.rospy.Time.from_sec(self.now))
+        self.assertNotIn(source, self.m._segments.tasks)
+        self.assertNotIn(key, self.m._segments.reserved)
+        self.assertNotIn(key, self.m.allocator.failed_visit)
+        self.assertAlmostEqual(self.m._release_cooldown[source].to_sec(), 1945.012)
+        self.assertNotIn(source, self.m._idle_uavs())
+        self.assertNotIn('northwest', self.m._west_corner_seen)
+        self.assertEqual(self.m.grid.cell(key).covered_t, 0.)
+
+        self.now += .5
+        self.refresh()
+        self.m._drop_segment(peer, 'new_idle')
+        self.m._allocate_west_corner_review(self.m._idle_uavs(), self.now)
+        replacement = self.corner_tasks()[0]
+        self.assertEqual(replacement.uid, peer)
+        self.assertEqual(replacement.look_points, (look,))
+        route = sm.plan(self.m._g_infl, (self.m.status[peer].x, self.m.status[peer].y),
+            replacement.points[0], connectivity=8, prevent_corner_cutting=True,
+            max_expansions=2500)
+        self.assertTrue(route.success)
+        self.assertNotIn('northwest', self.m._west_corner_seen)
+        self.assertEqual(self.m.grid.cell(key).covered_t, 0.)
+        self.assertEqual(len(self.corner_tasks()), 1)
+
+    def test_safe_interrupt_never_clears_preexisting_failure(self):
+        self.allocate()
+        task = self.corner_tasks()[0]
+        self.m.allocator.failed_visit[task.cells[0]] = self.now-2.
+        self.m._drop_segment(task.uid, 'yield_reallocate')
+        self.assertEqual(self.m.allocator.failed_visit[task.cells[0]], self.now-2.)
+
+    def test_interrupt_with_new_ground_or_viewpoint_obstacle_keeps_global_cooldown(self):
+        for reason in ('yield_reallocate', 'person_task', 'released_for_new_task'):
+            for where in ('ground', 'viewpoint'):
+                with self.subTest(reason=reason, where=where):
+                    task = self.m._start_search_segment(self.m.uav_ids[0], [(0, 0)],
+                        [(-43.6613943083804, -53.6613943083804)], self.now,
+                        purpose='building_review', look_points=[(-49.99, -59.99)])
+                    original = self.raw
+                    point = task.look_points[0] if where == 'ground' else task.points[0]
+                    ix, iy = self.raw.world_to_cell(point)
+                    cells = bytearray(self.raw.cells)
+                    cells[iy*self.raw.width+ix] = 1
+                    blocked = sm.GridMap(self.raw.width, self.raw.height,
+                        self.raw.resolution, self.raw.origin, bytes(cells))
+                    self.m._merged_grid.return_value = blocked
+                    self.m._g_infl = sm.inflate_grid(blocked, sm.INFLATE_M)
+                    self.m._drop_segment(task.uid, reason)
+                    self.assertEqual(self.m.allocator.failed_visit[task.cells[0]], self.now)
+                    self.assertNotIn(task.cells[0], self.m._segments.reserved)
+                    self.assertEqual(self.m._west_corner_seen, {})
+                    self.assertEqual(self.m.grid.cell(task.cells[0]).covered_t, 0.)
+                    self.m.allocator.failed_visit.clear()
+                    self.m._merged_grid.return_value = original
+                    self.m._g_infl = sm.inflate_grid(original, sm.INFLATE_M)
+
+    def test_interrupt_without_raw_or_inflated_map_keeps_global_cooldown(self):
+        for missing in ('raw', 'inflated'):
+            with self.subTest(missing=missing):
+                task = self.m._start_search_segment(self.m.uav_ids[0], [(0, 0)],
+                    [(-43.6613943083804, -53.6613943083804)], self.now,
+                    purpose='building_review', look_points=[(-49.99, -59.99)])
+                self.m._merged_grid.return_value = None if missing == 'raw' else self.raw
+                self.m._g_infl = None if missing == 'inflated' else sm.inflate_grid(self.raw, sm.INFLATE_M)
+                self.m._drop_segment(task.uid, 'yield_reallocate')
+                self.assertEqual(self.m.allocator.failed_visit[task.cells[0]], self.now)
+                self.assertEqual(self.m._west_corner_seen, {})
+                self.m.allocator.failed_visit.clear()
+                self.m._merged_grid.return_value = self.raw
+                self.m._g_infl = sm.inflate_grid(self.raw, sm.INFLATE_M)
+
+    def test_failed_true_interrupt_keeps_failure_even_when_original_view_is_safe(self):
+        for reason in ('yield_reallocate', 'person_task', 'released_for_new_task'):
+            with self.subTest(reason=reason):
+                task = self.m._start_search_segment(self.m.uav_ids[0], [(0, 0)],
+                    [(-43.6613943083804, -53.6613943083804)], self.now,
+                    purpose='building_review', look_points=[(-49.99, -59.99)])
+                self.assertTrue(valid_view(self.raw, self.m._g_infl, task.look_points[0],
+                    task.points[0], self.m._segment_flight_waypoint))
+                self.m._drop_segment(task.uid, reason, failed=True)
+                self.assertEqual(self.m.allocator.failed_visit[task.cells[0]], self.now)
+                self.assertNotIn(task.cells[0], self.m._segments.reserved)
+                self.assertEqual(self.m._west_corner_seen, {})
+                self.m.allocator.failed_visit.clear()
 
     def test_expansion_limit_does_not_hide_safe_corner_from_later_reachable_idle(self):
         with patch('search_segment_manager.plan',

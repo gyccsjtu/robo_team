@@ -236,7 +236,17 @@ class SearchSegmentManager:
                 if key in task.cells and look in task.look_points:
                     image = self._west_corner_image_time(name, now)
                     if image is None or image < task.created:
-                        self.allocator.failed_visit[key] = now
+                        index = task.cells.index(key)
+                        safe_interruption = (
+                            not failed and reason in ('yield_reallocate', 'person_task',
+                                                      'released_for_new_task') and
+                            task.look_points[index] == look and
+                            valid_view(self._merged_grid(), getattr(self, '_g_infl', None),
+                                       look, task.points[index], self._segment_flight_waypoint))
+                        # A safe view survives a source aircraft yielding or
+                        # taking a person task; it is not a failed destination.
+                        if not safe_interruption:
+                            self.allocator.failed_visit[key] = now
         for patrol in self._regional_search_patrols():
             patrol.ended(task, reason, now)
         for key in task.cells[task.index:]:
