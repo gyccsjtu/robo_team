@@ -41,10 +41,16 @@ PERC_DIR="$REPO_ROOT/perception"
 RADAR_DIR="$REPO_ROOT/radar"
 ENV_SCRIPT="$PERC_DIR/scripts/env_robocup.sh"
 # One resolved path for preflight, the run manifest and all perception nodes.
-# User-selected six-class primary: five actor colours + distractor_person.
-WEIGHTS="${PR_WEIGHTS:-$REPO_ROOT/weights/best_yolo11n_bino_sculpture_v3.pt}"
+# Five-class v3 remains the source of actor detections and world coordinates.
+# The six-class model only verifies a uniquely overlapping sculpture on the
+# same camera image; it never creates an actor target or official position.
+WEIGHTS="${PR_WEIGHTS:-$REPO_ROOT/weights/best_yolo11n_bino_v3_clean.pt}"
 case "$WEIGHTS" in /*) ;; *) WEIGHTS="$PWD/$WEIGHTS" ;; esac
 export PR_WEIGHTS="$WEIGHTS"
+PR_DISTRACTOR_MODE="${PR_DISTRACTOR_MODE:-enforce}"
+PR_DISTRACTOR_WEIGHTS="${PR_DISTRACTOR_WEIGHTS:-$REPO_ROOT/weights/best_yolo11n_bino_sculpture_v3.pt}"
+case "$PR_DISTRACTOR_WEIGHTS" in /*) ;; *) PR_DISTRACTOR_WEIGHTS="$PWD/$PR_DISTRACTOR_WEIGHTS" ;; esac
+export PR_DISTRACTOR_MODE PR_DISTRACTOR_WEIGHTS
 OFFICIAL_WORLD="$PX4_ROOT/Tools/sitl_gazebo/worlds/robocup.world"
 MAP_GENERATOR="$ROBO_DIR/map_generator.py"
 ACTOR_MODEL_DIR="$XTDRONE_DIR/sitl_config/models/actor"
@@ -511,6 +517,17 @@ preflight(){
         err "YOLO 权重缺失: $WEIGHTS"
         hard_miss=$((hard_miss+1))
     fi
+    case "$PR_DISTRACTOR_MODE" in
+        off) ok "雕塑同帧复核: off" ;;
+        shadow|enforce)
+            if [ -f "$PR_DISTRACTOR_WEIGHTS" ] && [ -f "$PERC_DIR/distractor_verifier.py" ]; then
+                ok "雕塑同帧复核: $PR_DISTRACTOR_MODE ($PR_DISTRACTOR_WEIGHTS)"
+            else
+                err "雕塑同帧复核依赖缺失: $PR_DISTRACTOR_WEIGHTS / $PERC_DIR/distractor_verifier.py"
+                hard_miss=$((hard_miss+1))
+            fi ;;
+        *) err "PR_DISTRACTOR_MODE 只能为 off、shadow 或 enforce"; hard_miss=$((hard_miss+1)) ;;
+    esac
     check_hard "感知主节点"              "[ -f '$PERC_DIR/perception_real.py' ]"
     # 双目相机补丁：感知订阅 /<uav>/stereo_camera/left/image_raw，原厂 typhoon_h480
     # 只有 cgo3 云台相机、无 stereo_camera → 不打补丁则话题发布者为空、整局零检测。
@@ -684,6 +701,13 @@ team_preflight(){
                 "$SWARM_SCRIPTS/boundary_patrol.py"; do
         [ -f "$file" ] || { err "队伍依赖缺失: $file"; return 1; }
     done
+    case "$PR_DISTRACTOR_MODE" in
+        off) ;;
+        shadow|enforce)
+            [ -f "$PR_DISTRACTOR_WEIGHTS" ] && [ -f "$PERC_DIR/distractor_verifier.py" ] || {
+                err "雕塑复核依赖缺失: $PR_DISTRACTOR_WEIGHTS"; return 1; } ;;
+        *) err "PR_DISTRACTOR_MODE 无效: $PR_DISTRACTOR_MODE"; return 1 ;;
+    esac
     [ "${PR_UAV_ARR[*]}" = "${UAVS[*]}" ] && [ "$YOLO_BRIDGE" = 1 ] && \
         [ "$REQUIRE_SWARM" = 1 ] && [ "$SKIP_RADAR" = 2 ] && [ "$MATCH_HARD_CAP" = 0 ] \
         || { err "队伍入口要求六机、视觉桥、协同与雷达，禁止环境硬停计时器"; return 1; }

@@ -77,15 +77,19 @@ from csv_logger import logger
 from tracking_view import box_from_foot, bound_pixel_candidate
 from camera_attention import ImagePublishClock
 from height_datum import GroundHeightDatum
+if __package__:
+    from .distractor_verifier import SecondaryAppearance
+else:
+    from distractor_verifier import SecondaryAppearance
 
 # ---------------- 参数 ----------------
 # 权重查找顺序（本仓库自包含优先，找不到才退回部署位置）：
-#   1. <仓库根>/weights/best_yolo11n_bino_sculpture_v3.pt —— 五色人物＋雕塑
+#   1. <仓库根>/weights/best_yolo11n_bino_v3_clean.pt —— 五色人物主检测
 #   2. ~/catkin_ws/src/yolov11_ros/weights/best.pt —— 部署进 catkin 工作空间后的常规位置
 # 想让感知节点指向别处（比如自己重训的权重），设 PR_WEIGHTS 即可，跳过这两步。
 def _resolve_weights():
     here = os.path.dirname(os.path.abspath(__file__))
-    cands = [os.path.join(here, os.pardir, "weights", "best_yolo11n_bino_sculpture_v3.pt"),
+    cands = [os.path.join(here, os.pardir, "weights", "best_yolo11n_bino_v3_clean.pt"),
              os.path.expanduser("~/catkin_ws/src/yolov11_ros/weights/best.pt")]
     for c in cands:
         c = os.path.abspath(c)
@@ -1329,7 +1333,7 @@ class Track(object):
     """alpha-beta 匀速跟踪器：状态 (x, y, vx, vy) + 身高 H + 外观特征（v4 新增多层次关联）。"""
     _seq = 0
 
-    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None):
+    def __init__(self, cls, x, y, conf, uv, wh, rng, h, t, uav=(0.0, 0.0, 0.0), appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None, secondary_decoy_confirmed=False):
         """appearance_feat: 外观特征向量（颜色直方图/深度特征），用于外观关联"""
         Track._seq += 1
         self.id = Track._seq
@@ -1344,6 +1348,7 @@ class Track(object):
         self.conf = conf
         self.appearance_status = appearance_status
         self.distractor_confidence = float(distractor_confidence)
+        self.secondary_decoy_confirmed = bool(secondary_decoy_confirmed)
         self.uv, self.wh, self.rng = uv, wh, rng
         self.h = h                      # 归一化身高 (m)
         self.loc_suspect = not loc_ok
@@ -1430,7 +1435,7 @@ class Track(object):
             self._pub_result = (px, py)
         return self._pub_result
 
-    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None, view_ok=None):
+    def update(self, zx, zy, dt, conf, uv, wh, rng, h, t, uav=None, appearance_feat=None, observation_s=None, loc_ok=True, range_method='foot_ground', appearance_status='actor', distractor_confidence=0., position_uncertainty_m=None, view_ok=None, secondary_decoy_confirmed=False):
         """更新track状态，可选更新外观特征用于多层次关联"""
         sample_s = t if observation_s is None else observation_s
         if t <= self.t or sample_s <= self.observed_s or dt <= 0.0:
@@ -1443,6 +1448,7 @@ class Track(object):
             self.last_strict_s = sample_s
         self.appearance_status = appearance_status
         self.distractor_confidence = float(distractor_confidence)
+        self.secondary_decoy_confirmed = bool(secondary_decoy_confirmed)
         self.range_method = range_method
         self.position_uncertainty_m = position_uncertainty_m
         self.recent_observed_xy = [p for p in self.recent_observed_xy
@@ -1782,6 +1788,21 @@ def candidate_identity(session, track):
     return '%s:%s' % (session, track.id)
 
 
+def appearance_rejection_events(entries, source, sample, session):
+    """Only confirmed secondary appearance evidence rejects one image instance."""
+    events = []
+    for cls, slot, track in entries:
+        if (track.observed_s != sample or track.hits < 3 or
+                track.appearance_status != 'distractor' or
+                not getattr(track, 'secondary_decoy_confirmed', False)):
+            continue
+        target = 'red%d' % (slot+1) if cls == 'red' else cls
+        events.append(dict(source_uav=source, target_id=target,
+                           candidate_id=candidate_identity(session, track),
+                           sample_s=float(sample), reason='distractor'))
+    return events
+
+
 def fast_tracker_seed_frame(cues, source, sample, session):
     """YOLO pixel seeds for a read-only experiment; no location or task credit.
 
@@ -1950,6 +1971,7 @@ def main():
     class_mapping = target_class_mapping(_model.names)
     print('[pr] CLASS_MAP names=%s canonical=%s; non-target classes excluded' %
           (_model.names, class_mapping), flush=True)
+    secondary_appearance = SecondaryAppearance()
     print("[pr] MODEL_READY load_s=%.3f" % (time.monotonic() - _load_wall),
           flush=True)
 
@@ -1971,6 +1993,7 @@ def main():
     frame_pub = rospy.Publisher("/swarm/processed_camera_frame", String, queue_size=6)
     view_pub = rospy.Publisher("/swarm/tracking_view", String, queue_size=6)
     discovery_pub = rospy.Publisher("/swarm/discovery_observation", String, queue_size=30)
+    rejection_pub = rospy.Publisher("/swarm/appearance_rejection", String, queue_size=6)
     view_csv = logger('tracking_view_%s' % UAV, [
         'ros_time', 'sample_s', 'target_id', 'track_id', 'x1', 'y1', 'x2', 'y2',
         'camera_x', 'camera_y', 'camera_z', 'qx', 'qy', 'qz', 'qw',
@@ -2035,7 +2058,7 @@ def main():
         'image_stamp', 'receive_ros_s', 'inference_start_ros_s', 'report_ros_s',
         'receive_wall_s', 'inference_start_wall_s', 'inference_end_wall_s',
         'geometry_end_wall_s', 'report_wall_s', 'inference_s', 'image_age_s',
-        'candidate_count', 'qualified_count'])
+        'secondary_inference_s', 'candidate_count', 'qualified_count'])
     candidate_session = uuid.uuid4().hex
     annot_img = None          # 最近一次参与检测的图像，供标注帧使用
     annot_z = 0.0             # 该帧对应的相机高度
@@ -2043,6 +2066,7 @@ def main():
     processed_image_stamp = 0.0
     cue_tracker = PixelCueTracker()
     appearance_resolver = ActorDistractorResolver()
+    active_appearance_rejections = set()
     frame_age = None
     inference_s = None
     _first_inference_logged = False
@@ -2129,6 +2153,13 @@ def main():
                     # v4新增：对同类别的检测结果做IOU去重（解决YOLO同一目标多次检测问题）
                     actor_boxes, appearance_evidence = appearance_resolver.resolve(
                         res.boxes, class_mapping, _model.names, frame_stamp)
+                    actor_boxes, secondary_evidence = secondary_appearance.filter(
+                        img, actor_boxes, CLASSES, frame_stamp, camera=UAV)
+                    appearance_evidence.extend(secondary_evidence)
+                    _CSV.write(ros_time=rospy.Time.now().to_sec(),
+                        event='secondary_inference', image_stamp=frame_stamp,
+                        inference_s=secondary_appearance.last_inference_s,
+                        source=secondary_appearance.mode)
                     for evidence in appearance_evidence:
                         ex1, ey1, ex2, ey2 = evidence['box']
                         _CSV.write(ros_time=rospy.Time.now().to_sec(),
@@ -2182,6 +2213,8 @@ def main():
                         cid = int(b.cls)
                         conf = float(b.conf)
                         if cid < 0 or cid >= len(CLASSES):
+                            continue
+                        if b.appearance_status == 'distractor':
                             continue
                         bx1, by1, bx2, by2 = [float(v) for v in b.xyxy[0]]
                         bw, bh = bx2 - bx1, by2 - by1
@@ -2339,6 +2372,8 @@ def main():
                                      "score": round(conf * person_likelihood(impl_h), 3),
                                      "appearance_status": b.appearance_status,
                                      "distractor_confidence": b.distractor_confidence,
+                                     "secondary_decoy_confirmed": getattr(
+                                         b, 'secondary_decoy_confirmed', False),
                                      "appearance": appearance_feat})
                         _CSV.write(
                             ros_time=rospy.Time.now().to_sec(), event="yolo_detection",
@@ -2444,6 +2479,7 @@ def main():
                           range_method=d['range_method'],
                           appearance_status=d['appearance_status'],
                           distractor_confidence=d['distractor_confidence'],
+                          secondary_decoy_confirmed=d.get('secondary_decoy_confirmed', False),
                           position_uncertainty_m=d.get('position_uncertainty_m'))
             else:
                 tk.coast(dt)
@@ -2463,6 +2499,7 @@ def main():
                                     loc_ok=d.get('loc_ok', True), range_method=d['range_method'],
                                     appearance_status=d['appearance_status'],
                                     distractor_confidence=d['distractor_confidence'],
+                                    secondary_decoy_confirmed=d.get('secondary_decoy_confirmed', False),
                           position_uncertainty_m=d.get('position_uncertainty_m')))
 
         # ---------- 3) 清理 ----------
@@ -2573,6 +2610,18 @@ def main():
         # and per-colour winner selection. The assigned agent associates by
         # world position and keeps the nearest matching image for this frame.
         control_views = control_tracks(tracks, red_slots, frame_stamp)
+        if frame_was_processed:
+            rejected = appearance_rejection_events(
+                control_views, UAV, frame_stamp, candidate_session)
+            current_rejected_ids = {event['candidate_id'] for event in rejected}
+            active_appearance_rejections.intersection_update(current_rejected_ids)
+            for event in rejected:
+                if event['candidate_id'] not in active_appearance_rejections:
+                    rejection_pub.publish(String(data=json.dumps(event)))
+                    active_appearance_rejections.add(event['candidate_id'])
+        # A confirmed sculpture should not keep steering an assigned camera.
+        control_views = [entry for entry in control_views
+                         if entry[2].appearance_status != 'distractor']
         if frame_was_processed:
             discovery_batch = discovery_candidate_frame(
                 control_views, UAV, frame_stamp, candidate_session)
@@ -2763,6 +2812,7 @@ def main():
                 inference_end_wall_s=inference_end_wall,
                 geometry_end_wall_s=geometry_end_wall, report_wall_s=report_wall,
                 inference_s=inference_s, image_age_s=report_ros-frame_stamp,
+                secondary_inference_s=secondary_appearance.last_inference_s,
                 candidate_count=len(report_batch['candidates']),
                 qualified_count=sum(c['official_view_ok'] for c in report_batch['candidates']))
             report_by_id = {c['candidate_id']: c for c in report_batch['candidates']}
