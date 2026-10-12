@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] /
                        'coordination/src/robocup_swarm/scripts'))
 import boundary_patrol as bp
 import swarm_manager as sm
+import swarm_agent as sa
 import swarm_task as st
 from search_segments import SegmentBook, clear_line, TRAVEL
 from search_observation import cell_points, in_view
@@ -20,6 +21,17 @@ from robocup_swarm.msg import UavStatus
 class SoutheastPatrolTests(unittest.TestCase):
     def setUp(self):
         self.now = 100.
+        # Historical algorithm fixtures deliberately exercise the old wider
+        # rectangle; default-profile tests skip this override and use 200x100.
+        bounds = (-50., 150., -60., 60.)
+        if getattr(self, 'use_default_flight_bounds', False):
+            bounds = sa.flight_bounds()
+        else:
+            for module in (sm, sa):
+                context = patch.multiple(module, FLIGHT_Y_MIN=bounds[2],
+                                         FLIGHT_Y_MAX=bounds[3])
+                context.start()
+                self.addCleanup(context.stop)
         for context in (
                 patch.object(sm.rospy.Time, 'now',
                              side_effect=lambda: sm.rospy.Time.from_sec(self.now)),
@@ -31,8 +43,7 @@ class SoutheastPatrolTests(unittest.TestCase):
         manager._segments = SegmentBook(manager._task_lock)
         manager._segment_max_hold = 90.
         manager._segment_stall_s = 20.
-        # These are the clipped flight bounds used with the official map.
-        manager.grid = st.CoverageGrid(-50, 150, -60, 60, 7, 6)
+        manager.grid = st.CoverageGrid(*bounds, 7, 6)
         manager.allocator = st.TaskAllocator(manager.grid)
         manager.lease = st.LeaseManager(manager.grid)
         manager._g_infl = sm.GridMap(420, 260, .5, (-55., -65.),
@@ -50,7 +61,7 @@ class SoutheastPatrolTests(unittest.TestCase):
         manager.assign_pub = NS(publish=Mock())
         manager._auction_cycle = 0
         manager._reopen_covered_cells = Mock()
-        manager._south_patrol = bp.SouthPatrol((-50, 150, -60, 60),
+        manager._south_patrol = bp.SouthPatrol(bounds,
                                                southeast=True)
         manager.uav_ids = [f'typhoon_h480_{i}' for i in range(6)]
         manager.status = {}

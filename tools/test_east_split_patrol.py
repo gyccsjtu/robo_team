@@ -8,6 +8,7 @@ import test_southeast_patrol as patrol_fixture
 import test_joint_dispatch as dispatch_fixture
 import boundary_patrol as bp
 import swarm_manager as sm
+import swarm_agent as sa
 import swarm_task as st
 
 
@@ -378,6 +379,57 @@ class EastSplitPatrolTests(unittest.TestCase):
                 self.assertEqual(proposal[1], [(22, row), (22, row-outward),
                                               (22, row-2*outward)])
                 self.assertEqual(proposal[3], -outward)
+
+
+class DefaultEastSplitPatrolTests(unittest.TestCase):
+    use_default_flight_bounds = True
+
+    def setUp(self):
+        patrol_fixture.SoutheastPatrolTests.setUp(self)
+        self.m._regional_patrols = tuple(bp.SouthPatrol(sa.flight_bounds(),
+            southeast=False, northeast=False, east=True, east_half=half)
+            for half in ('north', 'south'))
+        self.m._south_patrol = self.m._regional_patrols[0]
+
+    def test_default_two_lanes_allocate_in_435_cell_rectangle_with_legal_points(self):
+        self.assertEqual(sa.flight_bounds(), (-50., 150., -50., 50.))
+        self.assertEqual(len(self.m.grid.cells), 435)
+        self.m._allocate()
+        tasks = [t for t in self.m._segments.tasks.values() if t.purpose == 'south_patrol']
+        self.assertEqual(len(tasks), 2)
+        all_keys = [key for t in self.m._segments.tasks.values() for key in t.cells]
+        self.assertEqual(len(all_keys), len(set(all_keys)))
+        for patrol in self.m._regional_patrols:
+            task = self.m._segments.tasks[patrol.uid]
+            for key, point, look in zip(task.cells, task.points, task.look_points):
+                self.assertTrue(-48. <= point[1] <= 48.)
+                self.assertTrue(-50. < look[1] < 50.)
+                self.assertEqual(look[1] >= 0., patrol.east_half == 'north')
+                self.assertTrue(self.m._blind_viewpoint_valid(self.m.grid.cell(key), point))
+                self.assertAlmostEqual(math.dist(point, look), 8.95)
+
+    def test_default_partial_north_corner_keeps_cell49_and_clamps_aircraft_inside(self):
+        north, south = (28, 14), (28, 0)
+        self.m._blocked_cells = set(self.m.grid.cells)-{north, south}
+        self.assertEqual(self.m.grid.cell(north).cy, 49.)
+        original = sm.flight_waypoint
+        for patrol, key in zip(self.m._regional_patrols, (north, south)):
+            for margin in (1.5, 2.):
+                with self.subTest(lane=patrol.east_half, margin=margin):
+                    legal = lambda x, y: original(x, y, inset=margin)
+                    self.m._segment_flight_waypoint = legal
+                    with patch.object(sm, 'flight_waypoint', side_effect=legal):
+                        proposal = patrol.choose(self.m, self.m.uav_ids, self.now)
+                    self.assertIsNotNone(proposal)
+                    self.assertEqual(proposal[1], [key])
+                    point = proposal[2][0]
+                    look = self.m.grid.cell(key)
+                    self.assertEqual(legal(*point), point)
+                    self.assertLessEqual(abs(point[1]), 50.-margin)
+                    self.assertAlmostEqual(math.dist(point, (look.cx, look.cy)), 8.95)
+                    with patch.object(sm, 'flight_waypoint', side_effect=legal):
+                        self.assertTrue(self.m._blind_viewpoint_valid(look, point))
+                    self.assertEqual(self.m.grid.cell(north).cy, 49.)
 
 
 class EastSplitPersonDispatchTests(unittest.TestCase):

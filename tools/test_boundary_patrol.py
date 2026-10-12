@@ -18,6 +18,11 @@ from robocup_swarm.msg import UavStatus
 class PatrolTests(unittest.TestCase):
     def setUp(self):
         self.now=100.
+        # Explicit historical algorithm envelope, independent of the formal
+        # default flight/coverage rectangle tested in test_coverage_extent.
+        for module in (sm, sa):
+            p=patch.multiple(module,FLIGHT_Y_MIN=-60.,FLIGHT_Y_MAX=60.)
+            p.start();self.addCleanup(p.stop)
         for p in (patch.object(sm.rospy.Time,'now',side_effect=lambda:sm.rospy.Time.from_sec(self.now)),
                   patch.object(st.rospy,'get_time',side_effect=lambda:self.now)):
             p.start();self.addCleanup(p.stop)

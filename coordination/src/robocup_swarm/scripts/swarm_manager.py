@@ -51,10 +51,10 @@ MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 
 # Coverage intersects the metadata with the team's engineering flight limits.
 # Observed person positions remain independent from aircraft waypoints.
-FLIGHT_X_MIN = float(os.environ.get('FLIGHT_X_MIN', '-50.0'))
-FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
-FLIGHT_Y_MIN = float(os.environ.get('FLIGHT_Y_MIN', '-60.0'))
-FLIGHT_Y_MAX = float(os.environ.get('FLIGHT_Y_MAX', '60.0'))
+FLIGHT_X_MIN = max(-50.0, float(os.environ.get('FLIGHT_X_MIN', '-50.0')))
+FLIGHT_X_MAX = min(150.0, float(os.environ.get('FLIGHT_X_MAX', '150.0')))
+FLIGHT_Y_MIN = max(-50.0, float(os.environ.get('FLIGHT_Y_MIN', '-50.0')))
+FLIGHT_Y_MAX = min(50.0, float(os.environ.get('FLIGHT_Y_MAX', '50.0')))
 FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
 SEARCH_BOUNDARY_INSET_M = max(FLIGHT_INSET, float(
     os.environ.get('SEARCH_BOUNDARY_INSET_M', '8.5')))
@@ -2449,7 +2449,7 @@ class SwarmManager(SearchSegmentManager):
         new_msg.header.stamp = now
         new_msg.uav_id, new_msg.target_id, new_msg.task_type = best, tid, 1
         new_msg.cell_ix = new_msg.cell_iy = -1
-        new_msg.target_x, new_msg.target_y = flight_waypoint(tx, ty)
+        new_msg.target_x, new_msg.target_y = tx, ty
         self.assign_pub.publish(new_msg)
         if borrowed_from is not None:
             # New ownership is already reserved and its task sent. The
@@ -2661,16 +2661,18 @@ class SwarmManager(SearchSegmentManager):
         # agent holds its own camera while the manager compares all people.
 
     def _sanitize_dispatch_xy(self, tx, ty, target_id=""):
-        """派机坐标硬护栏：超界坐标夹回地图内。
+        """Validate the observed person, without moving it into the flight box.
 
-        === 2026-10-05 比赛规则硬约束 ===
-        truth_cache 在 EKF 漂移 / 上报噪声下可能落到地图外（实测 actor 坐标
-        偶尔被写到 (135, -81)）。把这种坐标原样发给 agent 会触发 A*
-        START_OUT_OF_BOUNDS + 撞墙停止行为。这里做兜底：
-        - 落在地图内（含 inset）：原样返回
-        - 落在地图外：夹到最近边界内 + log 一次
-        - 完全离谱（> 1.5×MAP）：返回 None 让调用方放弃派机
+        A person can move outside the aircraft's permitted city profile.
+        Preserve that bearing/position; the agent separately computes a legal
+        observation goal and its planner/final output enforce flight bounds.
         """
+        try:
+            tx, ty = float(tx), float(ty)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        if not all(math.isfinite(v) for v in (tx, ty)):
+            return None
         try:
             bx0, bx1, by0, by1 = _search_bounds()
         except Exception:
@@ -2682,16 +2684,7 @@ class SwarmManager(SearchSegmentManager):
                 "[manager] 目标 %s 坐标 (%.1f, %.1f) 极端离谱 > 1.5xMAP，放弃派机",
                 target_id, tx, ty)
             return None
-        # 轻微越界 -> 夹回
-        if (tx < bx0 or tx > bx1 or ty < by0 or ty > by1):
-            cx, cy = flight_waypoint(tx, ty)
-            rospy.logwarn_throttle(2.0,
-                "[manager] 目标 %s 坐标 (%.1f, %.1f) 越过搜索范围，飞行航点夹到 (%.1f, %.1f)",
-                target_id, tx, ty, cx, cy)
-            return (cx, cy)
-        # A target may be visible in the wider search grid, but the aircraft
-        # assigned to it must receive an interior flight waypoint.
-        return flight_waypoint(tx, ty)
+        return tx, ty
 
     @serialized_tasks
     def _dispatch_tracker(self, target_id, tx, ty):
@@ -2770,7 +2763,7 @@ class SwarmManager(SearchSegmentManager):
         msg.header.stamp = rospy.Time.from_sec(now)
         msg.uav_id, msg.target_id, msg.task_type = uid, tid, 1
         msg.cell_ix = msg.cell_iy = -1
-        msg.target_x, msg.target_y = flight_waypoint(tx, ty)
+        msg.target_x, msg.target_y = tx, ty
         self.assign_pub.publish(msg)
 
     def _record_target_observation(self, tid, source, sample, x, y):
@@ -2850,7 +2843,7 @@ class SwarmManager(SearchSegmentManager):
         msg.uav_id = uid
         msg.cell_ix = -1
         msg.cell_iy = -1
-        msg.target_x, msg.target_y = flight_waypoint(tx, ty)
+        msg.target_x, msg.target_y = tx, ty
         if hasattr(msg, "target_id"):
             msg.target_id = target_id
         msg.task_type = 1  # 目标确认/追踪
@@ -2863,7 +2856,7 @@ class SwarmManager(SearchSegmentManager):
             msg2.uav_id = bid
             msg2.cell_ix = -1
             msg2.cell_iy = -1
-            msg2.target_x, msg2.target_y = flight_waypoint(tx, ty)
+            msg2.target_x, msg2.target_y = tx, ty
             if hasattr(msg2, "target_id"):
                 msg2.target_id = target_id
             msg2.task_type = 1
@@ -2959,7 +2952,7 @@ class SwarmManager(SearchSegmentManager):
             self._record_approach(tid, best, tx, ty, now, backup=True)
             self._free_search_lease(best)
             busy.add(best)
-            tx_c, ty_c = flight_waypoint(tx, ty)
+            tx_c, ty_c = tx, ty
             msg = SearchAssignment()
             msg.header.stamp = rospy.Time.now()
             msg.uav_id = best

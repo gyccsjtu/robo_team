@@ -17,6 +17,10 @@ import test_search_segments as segment_fixture
 
 class EdgeReviewTests(unittest.TestCase):
     def setUp(self):
+        # Preserve the real 000511 Y=56.67 regression as an explicit historical
+        # envelope; new formal-profile tests exercise the current +/-50 box.
+        p=patch.multiple(sa,FLIGHT_Y_MIN=-60.,FLIGHT_Y_MAX=60.)
+        p.start();self.addCleanup(p.stop)
         self.grid = CoverageGrid(-50., 150., -60., 60., 7., 6)
         self.bounds = (-50., 150., -60., 60.)
         self.visible = lambda *args: True

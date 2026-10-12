@@ -71,12 +71,12 @@ MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
 MAP_Y_MIN, MAP_Y_MAX = -50.0, 50.0
 
 # Search coverage and flight use the same envelope; sensed maps can be wider.
-# Keep UAV flight inside the team's configured engineering XY envelope;
-# these are engineering flight limits, not a judge XY penalty threshold.
-FLIGHT_X_MIN = float(os.environ.get('FLIGHT_X_MIN', '-50.0'))
-FLIGHT_X_MAX = float(os.environ.get('FLIGHT_X_MAX', '150.0'))
-FLIGHT_Y_MIN = float(os.environ.get('FLIGHT_Y_MIN', '-60.0'))
-FLIGHT_Y_MAX = float(os.environ.get('FLIGHT_Y_MAX', '60.0'))
+# The requested 200 x 100 m city profile is distinct from the actor's wider
+# motion box and the sensing-map padding. Neither can enlarge UAV flight.
+FLIGHT_X_MIN = max(-50.0, float(os.environ.get('FLIGHT_X_MIN', '-50.0')))
+FLIGHT_X_MAX = min(150.0, float(os.environ.get('FLIGHT_X_MAX', '150.0')))
+FLIGHT_Y_MIN = max(-50.0, float(os.environ.get('FLIGHT_Y_MIN', '-50.0')))
+FLIGHT_Y_MAX = min(50.0, float(os.environ.get('FLIGHT_Y_MAX', '50.0')))
 FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
 MOTION_SAFETY = os.environ.get('MOTION_SAFETY','0') == '1'
 # Trial bounds, kept separate from the command slew limit. The recorded 13

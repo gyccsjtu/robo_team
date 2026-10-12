@@ -14,15 +14,17 @@ class CoverageExtentTests(unittest.TestCase):
     def test_map_margin_does_not_create_outside_search_jobs(self):
         bounds=coverage_bounds((-55.,155.,-65.,65.),sa.flight_bounds())
         g=CoverageGrid(*bounds,cell_m=7.)
-        self.assertEqual(bounds,(-50.,150.,-60.,60.))
-        self.assertEqual(len(g.cells),522)
+        self.assertEqual(bounds,(-50.,150.,-50.,50.))
+        self.assertEqual(len(g.cells),435)
         for key,c in g.cells.items():
-            self.assertTrue(-50<c.cx<150 and -60<c.cy<60)
+            self.assertTrue(-50<c.cx<150 and -50<c.cy<50)
             self.assertEqual(g.world_to_cell(c.cx,c.cy),key)
             for x,y in cell_points(g,c):
                 self.assertEqual(g.world_to_cell(x,y),key)
-        self.assertAlmostEqual(g.cells[(28,17)].cx,148.)
-        self.assertAlmostEqual(g.cells[(28,17)].cy,59.5)
+        self.assertAlmostEqual(g.cells[(28,14)].cx,148.)
+        self.assertAlmostEqual(g.cells[(28,14)].cy,49.)
+        self.assertEqual(sa.flight_waypoint(148.,49.),(148.,48.))
+        self.assertIsNone(g.world_to_cell(128.,60.))
 
     def test_ceil_storage_does_not_accept_outside_world_coordinates(self):
         g=CoverageGrid(-55.,155.,-65.,65.,7.)

@@ -1,6 +1,8 @@
 """Flight envelope regressions; source ROS and catkin environments before running."""
 
 import math
+import os
+import subprocess
 import sys
 import threading
 import unittest
@@ -24,6 +26,17 @@ class _Publisher:
 
 
 class FlightBoundsTests(unittest.TestCase):
+    def test_old_external_envelope_cannot_enlarge_actual_imported_flight_limits(self):
+        code = ('import sys; sys.path.insert(0, %r); '
+                'import swarm_agent as a, swarm_manager as m; '
+                'assert a.flight_bounds()==(-50.,150.,-50.,50.); '
+                'assert (m.FLIGHT_X_MIN,m.FLIGHT_X_MAX,m.FLIGHT_Y_MIN,m.FLIGHT_Y_MAX)'
+                '==a.flight_bounds()') % str(ROOT/'coordination/src/robocup_swarm/scripts')
+        env=dict(os.environ, FLIGHT_X_MIN='-100', FLIGHT_X_MAX='200',
+                 FLIGHT_Y_MIN='-60', FLIGHT_Y_MAX='60')
+        subprocess.run([sys.executable,'-c',code],env=env,check=True,
+                       capture_output=True,text=True,timeout=15.)
+
     def setUp(self):
         self.now_patch = patch.object(
             swarm_agent.rospy.Time, 'now',
@@ -33,7 +46,9 @@ class FlightBoundsTests(unittest.TestCase):
 
     def test_official_spawn_is_legal_and_moves_inward(self):
         self.assertEqual(swarm_agent.flight_bounds(),
-                         (-50.0, 150.0, -60.0, 60.0))
+                         (-50.0, 150.0, -50.0, 50.0))
+        self.assertEqual((swarm_manager.FLIGHT_Y_MIN, swarm_manager.FLIGHT_Y_MAX),
+                         (-50.0, 50.0))
         self.assertEqual(swarm_agent.flight_waypoint(-50.0, -25.0),
                          (-48.0, -25.0))
         agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
@@ -49,8 +64,8 @@ class FlightBoundsTests(unittest.TestCase):
         for xy, velocity, sign in (
                 ((-50.5, 0.0), (-6.0, 0.0), 1),
                 ((150.5, 0.0), (6.0, 0.0), -1),
-                ((0.0, -60.5), (0.0, -6.0), 1),
-                ((0.0, 60.5), (0.0, 6.0), -1)):
+                ((0.0, -50.5), (0.0, -6.0), 1),
+                ((0.0, 50.5), (0.0, 6.0), -1)):
             with patch.object(swarm_agent.SwarmAgent, 'world_xy',
                               new_callable=PropertyMock, return_value=xy):
                 inward = agent._bounds_recovery_velocity()
@@ -59,13 +74,13 @@ class FlightBoundsTests(unittest.TestCase):
                 guarded = agent._map_guard_velocity(*velocity)
                 self.assertEqual(guarded, (0.0, 0.0))
         with patch.object(swarm_agent.SwarmAgent, 'world_xy',
-                          new_callable=PropertyMock, return_value=(-43.0, -53.0)):
+                          new_callable=PropertyMock, return_value=(-43.0, -43.0)):
             self.assertEqual(agent._map_guard_velocity(-6.0, -6.0),
                              (-0.5, -0.5))
 
     def test_edge_actor_observed_from_inside_flight_box(self):
-        for actor in ((150.0, 60.0), (-50.0, -60.0),
-                      (150.0, 0.0), (0.0, 60.0)):
+        for actor in ((150.0, 50.0), (-50.0, -50.0),
+                      (150.0, 0.0), (0.0, 50.0)):
             wx, wy = swarm_agent.flight_waypoint(*actor)
             goal = swarm_agent.observation_ring_goal(
                 wx, wy, actor[0], actor[1], 8.0,
@@ -78,11 +93,32 @@ class FlightBoundsTests(unittest.TestCase):
             (0.0, 10.0, 0.0, 10.0), margin=2.0)
         self.assertEqual(impossible, (8.0, 8.0))
 
-    def test_search_grid_stays_wide_while_manager_assignments_are_inside(self):
+    def test_external_actor_estimate_is_retained_without_guaranteeing_report_range(self):
+        # The official actor implementation can exceed the flight rectangle.
+        # Its observed position is not a UAV waypoint and must not be moved
+        # to Y=48 merely to make an eight-metre ring appear attainable.
+        actor = (128.0, 60.0)
+        manager = swarm_manager.SwarmManager.__new__(swarm_manager.SwarmManager)
+        self.assertEqual(manager._sanitize_dispatch_xy(*actor, 't0'), actor)
+        manager._tracking, manager._backup = {'t0': 'u0'}, {'t0': 'u1'}
+        manager.status = {}
+        manager.assign_pub = _Publisher()
+        manager._update_tracker_position('t0', *actor)
+        self.assertEqual(len(manager.assign_pub.messages), 2)
+        for message in manager.assign_pub.messages:
+            self.assertEqual((message.target_x, message.target_y), actor)
+        goal = swarm_agent.observation_ring_goal(128., 48., *actor, 8.,
+            swarm_agent.flight_bounds(), margin=2.)
+        self.assertEqual(swarm_agent.flight_waypoint(*goal), goal)
+        self.assertEqual(goal[1], 48.)
+        self.assertGreaterEqual(math.dist(goal, actor), 12.)
+        self.assertGreater(math.dist(goal, actor), 9.5)
+
+    def test_even_old_wide_extent_cannot_put_search_assignment_outside(self):
+        # An old caller or wider sensor extent cannot enlarge aircraft jobs.
+        # The actual shared coverage intersection is tested separately.
         with patch.object(swarm_manager, '_search_bounds',
                           return_value=(-55.0, 155.0, -65.0, 65.0)):
-            self.assertEqual(swarm_manager._search_bounds(),
-                             (-55.0, 155.0, -65.0, 65.0))
             manager = swarm_manager.SwarmManager.__new__(swarm_manager.SwarmManager)
             manager._cell_waypoint = {}
             manager.assign_pub = _Publisher()
@@ -92,9 +128,9 @@ class FlightBoundsTests(unittest.TestCase):
             self.assertEqual((msg.target_x, msg.target_y),
                              swarm_manager.search_viewpoint(154.0, 64.0))
             self.assertLessEqual(msg.target_x, 148.0)
-            self.assertLessEqual(msg.target_y, 58.0)
+            self.assertLessEqual(msg.target_y, 48.0)
             self.assertEqual(manager._sanitize_dispatch_xy(150.0, 60.0, 't0'),
-                             (148.0, 58.0))
+                             (150.0, 60.0))
 
     def test_planner_and_position_output_cannot_target_outside(self):
         agent = swarm_agent.SwarmAgent.__new__(swarm_agent.SwarmAgent)
@@ -102,7 +138,7 @@ class FlightBoundsTests(unittest.TestCase):
         agent._plan_epoch = 0
         agent._plan_event = threading.Event()
         agent._request_plan((155.0, 65.0))
-        self.assertEqual(agent._plan_pending, (148.0, 58.0))
+        self.assertEqual(agent._plan_pending, (148.0, 48.0))
 
         agent.local_xy = (0.0, 0.0)
         agent.offset = (-50.0, -25.0)
