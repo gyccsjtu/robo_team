@@ -19,6 +19,7 @@
 #   PR_UAVS="typhoon_h480_0 typhoon_h480_1 ..."  感知节点服务的飞机（默认 6 机全起）
 #   COORD_WS_SETUP=<path>       协同层 catkin devel/setup.bash（未编译则第⑥步跳过）
 #   YOLO_BRIDGE=1              起 yolo_target_bridge（YOLO target_report → /swarm/target_states）
+#   PR_DISTRACTOR_MODE=enforce  默认启用独立雕塑复核（off/shadow 可用于对照）
 #   MAX_SPEED=6.0              巡航速度上限 m/s（规则 §2.5(4)：恐怖分子 2m/s 逃逸，本机留 3x 余量）
 #   ALT_HARD_CEIL=5.7         飞行高度硬护栏 m（规则 §2.5(3)：限高 6m，留 0.3m 抖动空间）
 #   RADAR_WARN_R=5.5          雷达预警半径 m（规则 §2.5(7)：碰撞扣30/次，扩到车体级）
@@ -41,11 +42,11 @@ PERC_DIR="$REPO_ROOT/perception"
 RADAR_DIR="$REPO_ROOT/radar"
 ENV_SCRIPT="$PERC_DIR/scripts/env_robocup.sh"
 # One resolved path for preflight, the run manifest and all perception nodes.
-# Keep v1 as the baseline until a candidate has passed the offline/live gates.
+# Preserve the v3_clean primary and separate v3 verifier used by the 285 s run.
 WEIGHTS="${PR_WEIGHTS:-$REPO_ROOT/weights/best_yolo11n_bino_v3_clean.pt}"
 case "$WEIGHTS" in /*) ;; *) WEIGHTS="$PWD/$WEIGHTS" ;; esac
 export PR_WEIGHTS="$WEIGHTS"
-export PR_DISTRACTOR_MODE="${PR_DISTRACTOR_MODE:-off}"
+export PR_DISTRACTOR_MODE="${PR_DISTRACTOR_MODE:-enforce}"
 export PR_DISTRACTOR_WEIGHTS="${PR_DISTRACTOR_WEIGHTS:-$REPO_ROOT/weights/distractor_verifier_v3.pt}"
 PR_DISTRACTOR_WEIGHTS="$(realpath -m "$PR_DISTRACTOR_WEIGHTS")"
 OFFICIAL_WORLD="$PX4_ROOT/Tools/sitl_gazebo/worlds/robocup.world"
