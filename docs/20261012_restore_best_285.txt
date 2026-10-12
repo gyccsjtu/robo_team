@@ -1,0 +1,45 @@
+Requested rollback: preserve/upload the current code, then restore the best
+complete six-actor run. Simulation remains stopped.
+
+Uploaded old working version:
+  48ef86b655fd75686b3a17db0f2f68e889ebc8d2
+  origin/archive/before-best-rollback-20261012-1454
+  Last official result: 535.940 s, six actors, logs_20261012_141332.
+
+Restored runtime:
+  193294f004db5c4aa41a7fe1ccac0882598ba8ae
+  Commit time: 2026-10-12 05:10:54 +0800
+  Run: logs/logs_20261012_051351 (started 05:13:51 +0800)
+  Official eliminations: white 123.816, blue 142.200, green 170.004,
+    red actor5 238.904, red actor4 249.272, brown 285.872 seconds.
+  All 64 source hashes in the run's startup manifest match this commit.
+  The official judge/controller hashes match the pinned official environment.
+  This is the fastest complete 6/6 found in local logs with startup manifests.
+  The 02:02:11 c37b916 run had three early eliminations but ended at 5/6;
+  it is not the complete-match baseline restored here.
+
+Use ./run_best_285.sh preflight, then ./run_best_285.sh start --gui when ready.
+The wrapper restores the manifest's recorded configuration without editing
+the 64 runtime files: short search segments, motion safety, south patrol,
+fresh reports, candidate view recovery, primary v3_clean, sculpture verifier
+v3 in enforce mode, and gimbal auxiliary off. Both weights are hash checked.
+Parameters absent from the historical manifest use this commit's defaults;
+an unrecorded historical shell override cannot be independently verified.
+
+Only the wrapper and this record are added on the recovery branch. No new
+tracking, geometry, timing or sculpture fixes are mixed into the rollback.
+Untracked experiments and all local run evidence are retained in place.
+The old branch/commit and GitHub backup remain available; no force push,
+repository clean, or history rewrite was used.
+
+Restoring this code/configuration does not replay the exact actor trajectories
+or prove that future random-map runs will repeat the measured 285.872 seconds.
+
+Rollback verification:
+  Runtime disk hashes: 64/64 match the historical startup manifest.
+  Primary/secondary weights and official judge/controller: hashes match.
+  Python runtime source parsing and Bash syntax checks: passed.
+  catkin_make -C coordination -j4: passed; message protocol check: passed.
+  Preflight: all dependency/configuration checks passed except disk space
+  (1042 MiB available, required 2048 MiB). This is an environment startup
+  blocker, not a missing code dependency. No simulation was started.
