@@ -41,7 +41,7 @@ from visual_evidence import parse_visual_evidence
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from search_observation import cell_points, in_view
 from search_view_hint import parse_failed_view, make_hint, ViewRevisitBudget
-from search_segments import SegmentBook
+from search_segments import SegmentBook, ATTEND
 from search_segment_manager import SearchSegmentManager
 from boundary_patrol import SouthPatrol
 
@@ -886,8 +886,22 @@ class SwarmManager(SearchSegmentManager):
     # ---------------- 回调 ----------------
     @serialized_tasks
     def _status_cb(self, msg):
+        # Only the new dispatch-attention guard uses this high-water mark.
+        # Preserve existing status/receive-time semantics for flight health.
+        now = rospy.Time.now()
+        try:
+            sample = float(msg.header.stamp.to_sec())
+            if (msg.uav_id in self.uav_ids and math.isfinite(sample) and
+                    sample > 0. and 0. <= now.to_sec()-sample <= 1.):
+                samples = self.__dict__.setdefault('_dispatch_status_samples', {})
+                prior = samples.get(msg.uav_id, sample)
+                if prior > now.to_sec():
+                    prior = sample  # simulation clock reset, not a new lease
+                samples[msg.uav_id] = max(prior, sample)
+        except (AttributeError, TypeError, ValueError, OverflowError):
+            pass
         self.status[msg.uav_id] = msg
-        self.last_report[msg.uav_id] = rospy.Time.now()
+        self.last_report[msg.uav_id] = now
 
     @staticmethod
     def _tid_to_actor(tid):
@@ -2760,6 +2774,29 @@ class SwarmManager(SearchSegmentManager):
                      float(getattr(self.status[uid], 'z', 0.) or 0.) >= 1.)
                 and now >= getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec()]
 
+    def _blind_dispatch_interrupts_attention(self, uid, tid, now):
+        """A fresh finite camera look yields only to this camera's qualified person."""
+        status = self.status.get(uid)
+        if getattr(status, 'search_state', None) != ATTEND:
+            return False
+        try:
+            sample = float(status.header.stamp.to_sec())
+        except (AttributeError, TypeError, ValueError, OverflowError):
+            return False
+        latest = getattr(self, '_dispatch_status_samples', {}).get(uid, sample)
+        if (not math.isfinite(sample) or sample <= 0. or
+                not 0. <= now-sample <= 1. or sample < latest):
+            return False  # stale, future or reordered status grants no hold
+        image = self._last_eligible(uid, tid)
+        qualified = bool(image is not None and image.get('eligible') and
+                         0. <= now-image['sample_s'] <= 1.)
+        if qualified or self._sustained_distant_view(uid, tid, now):
+            return False
+        rospy.loginfo_throttle(2., '[ATTENTION_DISPATCH_HOLD] uav=%s tid=%s '
+            'status_sample=%.3f; keep finite camera look, no qualified own image',
+            uid, tid, sample)
+        return True
+
     def _target_assignment_costs(self, positions, now, busy, available):
         # The whole legal arena is dispatchable. Distance is a cost, not a
         # permanent veto on west-side aircraft helping an east-side target.
@@ -2770,6 +2807,8 @@ class SwarmManager(SearchSegmentManager):
             cameras = {uid for uid, _ in self._camera_candidates(tid, tx, ty, now, busy)}
             edges = {}
             for uid in available:
+                if self._blind_dispatch_interrupts_attention(uid, tid, now):
+                    continue
                 if not self._patrol_accepts_target(uid, tx, ty, uid in cameras):
                     continue
                 if not self._failed_view_dispatch_ok(tid, tx, ty, now, uid=uid):
@@ -2964,6 +3003,8 @@ class SwarmManager(SearchSegmentManager):
             best, best_d, best_seen = None, None, False
             for uid, st in self.status.items():
                 if not self._tracking_uav_available(uid, now) or uid in busy:
+                    continue
+                if self._blind_dispatch_interrupts_attention(uid, tid, now):
                     continue
                 if now < getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec():
                     continue

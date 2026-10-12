@@ -73,11 +73,26 @@ class BackupRetaskTests(unittest.TestCase):
         self.handoff()
         self.m.assign_pub.publish.assert_not_called()
 
-    def test_primary_cannot_be_borrowed_even_if_its_old_view_is_stale(self):
+    def test_primary_with_own_fresh_old_person_view_cannot_be_borrowed(self):
+        self.m._backup.clear()
+        self.m._tracking['t2'] = 'typhoon_h480_3'
+        self.m._eligible_observations[('typhoon_h480_3', 't2')]['sample_s'] = self.now-.1
+        self.handoff()
+        self.m.assign_pub.publish.assert_not_called()
+
+    def test_blind_primary_with_no_recent_old_view_may_take_its_new_person(self):
+        # The deployed VISUAL_OWNER_RETASK policy already permits this case.
+        # A role label without a recent image does not prove a judge streak.
         self.m._backup.clear()
         self.m._tracking['t2'] = 'typhoon_h480_3'
         self.handoff()
-        self.m.assign_pub.publish.assert_not_called()
+        self.assertEqual(self.m._tracking['t5'], 'typhoon_h480_3')
+        self.assertNotIn('t2', self.m._tracking)
+        self.assertIn('t2', self.m.tracker.targets)  # pending, never declared eliminated
+        messages = [c.args[0] for c in self.m.assign_pub.publish.call_args_list]
+        self.assertEqual([(d.uav_id, d.target_id, d.task_type) for d in messages], [
+            ('typhoon_h480_3', 't5', 1), ('typhoon_h480_3', 't2', 255),
+            ('typhoon_h480_2', 't5', 255)])
 
     def test_single_stale_future_or_different_place_images_do_not_retask(self):
         original = copy.deepcopy(self.image)
