@@ -105,6 +105,28 @@ class SearchSegmentManager:
                 return True
         return False
 
+    def _west_corner_borrowable(self, task, stamp, busy):
+        """Only a healthy current ordinary transit may yield to an overdue view."""
+        uid = task.uid
+        status = self.status.get(uid)
+        frames = getattr(self, '_processed_frame_times', {})
+        frame = frames.get(uid)
+        if (task.purpose != 'coverage' or uid in busy or status is None or
+                status.search_state != TRAVEL or
+                not self._segments.matches(uid, status.search_task_id, status.search_revision) or
+                status.search_index != task.index or task.index >= len(task.cells) or
+                stamp >= task.deadline or stamp >= task.expires or
+                not all(math.isfinite(v) for v in (status.x, status.y, status.z)) or
+                status.z < 1. or not self._tracking_uav_available(uid, stamp) or
+                self._west_corner_has_person(uid, stamp)):
+            return False
+        pose = status.header.stamp.to_sec()
+        cooldown = getattr(self, '_release_cooldown', {}).get(uid)
+        return (math.isfinite(pose) and task.created <= pose <= stamp and stamp-pose < 1. and
+                not isinstance(frame, bool) and isinstance(frame, (int, float)) and
+                math.isfinite(frame) and 0. <= stamp-frame <= 2. and
+                (cooldown is None or stamp >= cooldown.to_sec()))
+
     def _allocate_west_corner_review(self, idle, stamp):
         """One additional checked corner look, leaving ordinary search capacity."""
         corners = self._west_corner_subpoints()
@@ -126,7 +148,16 @@ class SearchSegmentManager:
             getattr(self.status[task.uid], 'search_state', None) != ATTEND and
             not self._west_corner_has_person(task.uid, stamp)
             for task in self._segments.tasks.values())
-        if (not available or len(available)+ordinary < 2 or
+        started = self.__dict__.get('_west_corner_allocation_started_s')
+        if (isinstance(started, bool) or not isinstance(started, (int, float)) or
+                not math.isfinite(started) or stamp < started):
+            started = None
+        if started is None and (available or ordinary):
+            started = stamp
+            self._west_corner_allocation_started_s = stamp
+        borrowers = [task for task in self._segments.tasks.values()
+                     if self._west_corner_borrowable(task, stamp, busy)]
+        if (not (available or borrowers) or len(available)+ordinary < 2 or
                 getattr(self, '_g_infl', None) is None):
             return
         raw = self._merged_grid()
@@ -147,22 +178,39 @@ class SearchSegmentManager:
             options = tuple((point, sample) for point, sample in view_options(
                 self.grid, key, raw, self._g_infl, self._segment_flight_waypoint)
                 if sample == look)
-            for uid in sorted(available, key=lambda u:
+            # A never-seen corner may borrow only after the first healthy
+            # allocation has run for 60 s. Normal idle first visits stay intact.
+            borrow_due = last != -1e18 or (started is not None and stamp-started >= 60.)
+            borrowing = {task.uid: task for task in borrowers} if borrow_due else {}
+            for uid in sorted(available+list(borrowing), key=lambda u:
                     (math.dist((self.status[u].x, self.status[u].y), look), u)):
                 st = self.status[uid]
                 view = self._reachable_subpoint_view(key, (st.x, st.y), options)
                 if view is None:
                     continue
                 point, sample = view
+                previous = borrowing.get(uid)
+                if previous is not None:
+                    if (self._segments.tasks.get(uid) is not previous or
+                            not self._west_corner_borrowable(previous, stamp, busy)):
+                        continue
+                    # Caller holds the same task lock through safe route check,
+                    # cancellation, release of all remaining cells and reserve.
+                    self._drop_segment(uid, 'yield_reallocate')
                 task = self._start_search_segment(uid, [key], [point], stamp,
                     purpose='building_review', look_points=[sample])
                 if task is not None:
-                    idle.remove(uid)
+                    if uid in idle:
+                        idle.remove(uid)
                     rospy.loginfo('[WEST_CORNER_REVIEW] uav=%s task=%s corner=%s '
-                        'cell=%s point=%s look=%s last_image=%s; checked path, no coverage credit',
+                        'cell=%s point=%s look=%s last_image=%s borrowed=%s; checked path, no coverage credit',
                         uid, task.task_id, name, key, point, sample,
-                        None if last == -1e18 else last)
+                        None if last == -1e18 else last,
+                        previous.task_id if previous is not None else None)
                     return
+                if previous is not None and uid not in idle:
+                    idle.append(uid)  # released work stays open if reserve fails
+                    return  # never cancel a second ordinary task in this tick
             # A blocked start or bounded A* failure belongs to this idle batch,
             # not to the corner. Let ordinary search use these aircraft while
             # a later idle aircraft can still reach an already safe viewpoint.
@@ -274,6 +322,8 @@ class SearchSegmentManager:
         stamp = now.to_sec()
         self._renew_segments(now)
         idle = self._idle_uavs()
+        if not idle and west_corner_review:
+            self._allocate_west_corner_review(idle, stamp)
         if not idle:
             self._last_alloc_t = now
             return
