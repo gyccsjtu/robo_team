@@ -44,7 +44,8 @@ from visual_evidence import parse_visual_evidence
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
                            bind_red_view, bind_red_instance_view,
                            retain_pixel_view, pixel_recovery_view,
-                           update_pixel_altitude_hold, ReportViewWindow)
+                           update_pixel_altitude_hold, ReportViewWindow,
+                           VIEW_MIN_DOWN_SIN)
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
@@ -184,6 +185,7 @@ CAMERA_CUE_HOLD_S = 2.0
 CAMERA_HANDOFF_HOLD_S = 4.0
 CAMERA_CUE_RETRY_S = 2.0
 PIXEL_VIEW_RECOVERY = os.environ.get('PIXEL_VIEW_RECOVERY', '0') == '1'
+PIXEL_RECOVERY_APPROACH = os.environ.get('PIXEL_RECOVERY_APPROACH', '0') == '1'
 SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
 SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
 SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '4.0'))
@@ -1884,6 +1886,8 @@ class SwarmAgent(SearchSegmentAgent):
                                              self.uav_id, assignment.target_id, now)
                 if view is not None:
                     if view.get('image_recovery') and self.local_z is not None:
+                        if view.get('recovery_origin') is None:
+                            view['recovery_origin'] = self.world_xy
                         self._tracking_altitude = update_pixel_altitude_hold(
                             getattr(self, '_tracking_altitude', None), view, self.local_z,
                             max(MIN_CRUISE_ALT, 2.6),
@@ -1891,10 +1895,11 @@ class SwarmAgent(SearchSegmentAgent):
                         view['altitude_goal'] = self._tracking_altitude['goal']
                         rospy.loginfo_throttle(1., '[PIXEL_GEOMETRY_RECOVERY] uav=%s '
                             'tid=%s image=%.3f anchor=%.3f until=%.3f '
-                            'foot_down_sin=%.3f alt_goal=%.3f; horizontal hold, no report',
+                            'foot_down_sin=%.3f alt_goal=%.3f approach=%s; no report',
                             self.uav_id, assignment.target_id, view['sample_s'],
                             view['position_sample_s'], view['recovery_until'],
-                            view['foot_down_sin'], view['altitude_goal'])
+                            view['foot_down_sin'], view['altitude_goal'],
+                            PIXEL_RECOVERY_APPROACH)
                     self._tracking_image = view
                     rospy.loginfo_throttle(2., '[PIXEL_VIEW] uav=%s tid=%s image=%.3f '
                         'position_age=%.2f; yaw only, no coordinate refresh',
@@ -2078,7 +2083,23 @@ class SwarmAgent(SearchSegmentAgent):
         wx, wy = world
         self._look_at = (wx+10.*math.cos(view['bearing']),
                          wy+10.*math.sin(view['bearing']))
-        self._send_vel(0., 0.)
+        vx, vy, reason = 0., 0., 'height_only'
+        if PIXEL_RECOVERY_APPROACH:
+            cue=dict(sample_s=view['sample_s'],bearing=view['bearing'],xy=None,
+                     started=view['position_sample_s'],
+                     approach_origin=view.get('recovery_origin'),
+                     image=approach_image(view))
+            if 0. < view['foot_down_sin'] < VIEW_MIN_DOWN_SIN:
+                vx,vy,reason=candidate_decision(cue,now,self.yaw,world,
+                    getattr(self,'_scan',None),getattr(self,'_scan_t',-1e18))
+            else:
+                reason='not_shallow'
+            if math.hypot(vx,vy) > 0. and getattr(self,'_friend_positions',{}):
+                vx,vy=self._apply_friend_avoidance(vx,vy)
+            rospy.loginfo_throttle(1., '[PIXEL_RECOVERY_MOTION] uav=%s tid=%s '
+                'request=(%.2f,%.2f) remaining=%.2f reason=%s; no world waypoint',
+                self.uav_id,view['target_id'],vx,vy,max(0.,view['recovery_until']-now),reason)
+        self._send_vel(vx, vy)
         return True
 
     @serialized_visual_task

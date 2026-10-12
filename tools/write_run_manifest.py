@@ -49,10 +49,12 @@ def main():
         southeast_inner_patrol=os.environ.get('SOUTH_PATROL_SOUTHEAST','0'),
         northeast_inner_patrol=os.environ.get('SOUTH_PATROL_NORTHEAST','0'),
         east_persistent_patrol=os.environ.get('EAST_PATROL','0'),
+        east_split_patrol=os.environ.get('EAST_SPLIT_PATROL','0'),
         takeoff_require_camera=os.environ.get('TAKEOFF_REQUIRE_CAMERA','0'),
         orbit_radius_close_m=os.environ.get('ORBIT_RADIUS_CLOSE','8.0'),
         early_view_pursuit=os.environ.get('EARLY_VIEW_PURSUIT','0'),
         pixel_view_recovery=os.environ.get('PIXEL_VIEW_RECOVERY','0'),
+        pixel_recovery_approach=os.environ.get('PIXEL_RECOVERY_APPROACH','0'),
         flight_boundary={key:os.environ.get(key, default) for key, default in (
             ('FLIGHT_X_MIN','-50.0'), ('FLIGHT_X_MAX','150.0'),
             ('FLIGHT_Y_MIN','-60.0'), ('FLIGHT_Y_MAX','60.0'),

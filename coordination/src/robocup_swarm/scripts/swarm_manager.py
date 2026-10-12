@@ -338,6 +338,16 @@ class SwarmManager(SearchSegmentManager):
             raise ValueError('SOUTH_PATROL requires SEARCH_SEGMENTS=1 and MOTION_SAFETY=1')
         self._south_patrol = (SouthPatrol((FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN, FLIGHT_Y_MAX))
                               if patrol_enabled else None)
+        split_east = os.environ.get('EAST_SPLIT_PATROL', '0') == '1'
+        self._regional_patrols = None
+        if split_east:
+            if not patrol_enabled or not self._south_patrol.east:
+                raise ValueError('EAST_SPLIT_PATROL requires SOUTH_PATROL=1 and EAST_PATROL=1')
+            bounds = (FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN, FLIGHT_Y_MAX)
+            self._regional_patrols = tuple(SouthPatrol(
+                bounds, southeast=False, northeast=False, east=True, east_half=half)
+                for half in ('north', 'south'))
+            self._south_patrol = self._regional_patrols[0]
         self.uav_ids = uav_ids
         # 每机最新状态
         self.status = {}          # uav_id -> UavStatus
@@ -2727,8 +2737,7 @@ class SwarmManager(SearchSegmentManager):
             cameras = {uid for uid, _ in self._camera_candidates(tid, tx, ty, now, busy)}
             edges = {}
             for uid in available:
-                patrol = getattr(self, '_south_patrol', None)
-                if patrol is not None and not patrol.accepts_target(uid, tx, ty, uid in cameras):
+                if not self._patrol_accepts_target(uid, tx, ty, uid in cameras):
                     continue
                 if not self._failed_view_dispatch_ok(tid, tx, ty, now, uid=uid):
                     continue
@@ -2936,8 +2945,7 @@ class SwarmManager(SearchSegmentManager):
                 visual = self._last_eligible(uid, tid)
                 seen = bool(visual is not None and visual.get('eligible') and
                             0.0 <= now - visual['sample_s'] <= 2.0)
-                patrol = getattr(self, '_south_patrol', None)
-                if patrol is not None and not patrol.accepts_target(uid, tx, ty, seen):
+                if not self._patrol_accepts_target(uid, tx, ty, seen):
                     continue
                 if best_d is None or (seen and not best_seen) or \
                         (seen == best_seen and d < best_d):

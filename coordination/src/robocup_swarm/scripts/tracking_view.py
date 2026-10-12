@@ -199,7 +199,9 @@ def pixel_recovery_view(previous, data, source, tid, now):
         if view is None:
             return None
         view.update(image_recovery=True, foot_down_sin=down,
-                    recovery_until=view['position_sample_s']+6.)
+                    recovery_until=view['position_sample_s']+6.,
+                    recovery_origin=(previous.get('recovery_origin')
+                                     if previous.get('image_recovery') else None))
         return view
     except (KeyError, ValueError, TypeError, OverflowError):
         return None

@@ -141,6 +141,42 @@ class TrackingViewTests(unittest.TestCase):
         self.assertTrue(view['image_recovery'])
         self.assertEqual(view['position_sample_s'],100.)
 
+    def test_shallow_recovery_motion_requires_same_fresh_view_clear_scan_and_budgets(self):
+        a=self.agent()
+        a.yaw=0.
+        a._send_vel=Mock()
+        a._scan_t=103.8
+        a._scan=NS(angle_min=-math.pi,angle_increment=math.pi/180.,
+                   range_min=.1,range_max=20.,ranges=[20.]*361)
+        a._tracking_image=dict(parse_tracking_view(self.payload(),'u0','t3',100.1),
+            sample_s=103.8,box=(325.,290.,375.,366.),bearing=0.,
+            geometry_ok=False,report_ok=False,pixel_only=True,image_recovery=True,
+            recovery_until=106.,position_sample_s=100.,foot_down_sin=.27,
+            recovery_origin=(0.,0.))
+        with patch.object(sa,'PIXEL_VIEW_RECOVERY',True), \
+             patch.object(sa,'PIXEL_RECOVERY_APPROACH',True):
+            self.assertTrue(a._hold_pixel_recovery(103.9))
+            vx,vy=a._send_vel.call_args.args
+            self.assertGreater(vx,0.)
+            self.assertLessEqual(math.hypot(vx,vy),.95)
+            self.assertAlmostEqual(vy,0.)
+            for veto in ('crop','tilt','old_image','old_scan','obstacle','travel'):
+                with self.subTest(veto=veto):
+                    a._tracking_image.update(sample_s=103.8,box=(325.,290.,375.,366.),camera_tilt=0.)
+                    a._scan_t=103.8;a._scan.ranges=[20.]*361;a.local_xy=(0.,0.)
+                    if veto=='crop':a._tracking_image['box']=(325.,390.,375.,480.)
+                    if veto=='tilt':a._tracking_image['camera_tilt']=math.radians(9.)
+                    if veto=='old_image':a._tracking_image['sample_s']=103.5
+                    if veto=='old_scan':a._scan_t=103.5
+                    if veto=='obstacle':a._scan.ranges[180]=3.5
+                    if veto=='travel':a.local_xy=(3.,0.)
+                    self.assertTrue(a._hold_pixel_recovery(103.9))
+                    a._send_vel.assert_called_with(0.,0.)
+            a._tracking_image['sample_s']=105.9
+            self.assertFalse(a._hold_pixel_recovery(106.))
+        self.assertEqual(a.targets,{'t3':(8.,0.,1.,0.)})
+        self.assertEqual(a._visual_observations,{})
+
     def test_image_recovery_reaches_final_position_output_and_obstacle_height_guard(self):
         for obstacle in (False, True):
             with self.subTest(obstacle=obstacle):

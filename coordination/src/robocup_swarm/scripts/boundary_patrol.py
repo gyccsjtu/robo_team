@@ -12,7 +12,7 @@ from swarm_task import STATE_ASSIGNED, STATE_COVERED
 
 class SouthPatrol:
     def __init__(self, flight_bounds, max_hold=90., max_segments=3,
-                 southeast=None, northeast=None, east=None):
+                 southeast=None, northeast=None, east=None, east_half=None):
         self.bounds = tuple(flight_bounds)
         self.max_hold = max_hold
         self.max_segments = max_segments
@@ -27,6 +27,11 @@ class SouthPatrol:
                      if east is None else bool(east))
         if sum((self.southeast, self.northeast, self.east)) > 1:
             raise ValueError('choose only one initial patrol region')
+        if east_half not in (None, 'north', 'south') or (east_half is not None and not self.east):
+            raise ValueError('east_half requires an eastern north/south patrol')
+        # Opt-in complementary regional jobs; the ordinary single east
+        # patrol retains its original band and policy.
+        self.east_half = east_half
         self._first_leg_started = False
         self.uid = None
         self.deadline = 0.
@@ -197,8 +202,15 @@ class SouthPatrol:
                            abs(cell.cy-(ymin+2.5*manager.grid.cell_m)) <=
                            manager.grid.cell_m)
             elif region == 'east':
-                in_band = (self.bounds[1]-45. <= cell.cx <= self.bounds[1]-17. and
-                           self.bounds[2]+8. <= cell.cy <= self.bounds[3]-8.)
+                if self.east_half is None:
+                    in_band = (self.bounds[1]-45. <= cell.cx <= self.bounds[1]-17. and
+                               self.bounds[2]+8. <= cell.cy <= self.bounds[3]-8.)
+                else:
+                    middle = .5*(self.bounds[2]+self.bounds[3])
+                    in_band = (self.bounds[1]-45. <= cell.cx <= self.bounds[1] and
+                               self.bounds[2] <= cell.cy <= self.bounds[3] and
+                               (cell.cy >= middle if self.east_half == 'north'
+                                else cell.cy < middle))
             elif region == 'northeast':
                 # The northeast actor corridor is inside the legal map, not
                 # along the outer wall. Use contiguous east-west cells.
@@ -222,6 +234,17 @@ class SouthPatrol:
                 # cells are never credited merely because this route flew by.
                 point = ((cell.cx, cell.cy-8.95) if region == 'southeast'
                          else (cell.cx-8.95, cell.cy))
+                if region == 'east' and self.east_half is not None:
+                    # A clipped outer row has centre y=59.5 while the legal
+                    # aircraft inset ends at 58/58.5. Keep the observed cell
+                    # unchanged and move the UAV inward in Y, preserving the
+                    # 8.95 m horizontal standoff rather than moving the cell
+                    # or weakening the 9 m image/range gate.
+                    _, safe_y = manager._segment_flight_waypoint(*point)
+                    dy = cell.cy-safe_y
+                    if not math.isfinite(dy) or abs(dy) >= 8.95:
+                        continue
+                    point = (cell.cx-math.sqrt(8.95**2-dy**2), safe_y)
                 viewpoint_valid = getattr(manager, '_blind_viewpoint_valid', None)
                 if (not manager._search_point_free(point) or
                         viewpoint_valid is None or not viewpoint_valid(cell, point) or

@@ -12,6 +12,18 @@ from swarm_task import STATE_FREE, STATE_REVIEW, STATE_COVERED
 
 
 class SearchSegmentManager:
+    def _regional_search_patrols(self):
+        """One default patrol or complementary jobs using the same task book."""
+        patrols = getattr(self, '_regional_patrols', None)
+        if patrols is not None:
+            return tuple(patrols)
+        patrol = getattr(self, '_south_patrol', None)
+        return (patrol,) if patrol is not None else ()
+
+    def _patrol_accepts_target(self, uid, x, y, has_camera=False):
+        return all(patrol.accepts_target(uid, x, y, has_camera)
+                   for patrol in self._regional_search_patrols())
+
     def _segment_point(self, key):
         return self._segment_flight_waypoint(*self._search_waypoint(key,self.grid.cell(key)))
 
@@ -77,8 +89,7 @@ class SearchSegmentManager:
         if task is None:
             return
         now = rospy.Time.now().to_sec()
-        patrol = getattr(self, '_south_patrol', None)
-        if patrol is not None:
+        for patrol in self._regional_search_patrols():
             patrol.ended(task, reason, now)
         for key in task.cells[task.index:]:
             self.lease.force_expire(uid,key)
@@ -106,8 +117,10 @@ class SearchSegmentManager:
         if not idle:
             self._last_alloc_t = now
             return
-        patrol = getattr(self, '_south_patrol', None)
-        if patrol is not None:
+        # Choose and reserve BOTH complementary lanes before ordinary jobs
+        # consume the remaining idle aircraft. _allocate's existing task lock
+        # covers this entire loop; SegmentBook supplies cross-source mutexes.
+        for patrol in self._regional_search_patrols():
             proposed = patrol.choose(self, idle, stamp)
             if proposed is not None:
                 uid, cells, points, direction = proposed
@@ -119,8 +132,9 @@ class SearchSegmentManager:
                     self._send_segment(task)
                     idle.remove(uid)
                     rospy.loginfo('[SOUTH_PATROL] uav=%s task=%s region=%s cells=%s deadline=%.3f '
-                        'ENU_south=-Y; short transit then directed image observation',
-                        uid, task.task_id, patrol.proposal_region, cells, task.deadline)
+                        'ENU_south=-Y; short transit then directed image observation lane=%s',
+                        uid, task.task_id, patrol.proposal_region,
+                        cells, task.deadline, patrol.east_half or 'full')
             # A cooldown/replan is still an eastern responsibility, even
             # when no route could be issued on this particular scheduler tick.
             if patrol.east and patrol.uid in idle:
