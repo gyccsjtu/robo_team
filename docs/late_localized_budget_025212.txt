@@ -1,0 +1,40 @@
+Late localized attention budget protection (sensor replay, not a match result)
+
+Scope: swarm_agent.py _offer_camera_attention only. Formal localization,
+appearance, person verdict, identity, report, task ownership and safety gates
+are unchanged. This fix does not implement the proposed ten-second recovery.
+
+Recorded counterexample:
+  Trial: logs/logs_20261013_025212 (c585a1c).
+  Source: typhoon_h480_5; camera candidate white:6.
+  First attention callback: ROS 1989.500, image 1989.352.
+  Upright raw approach absolute deadline: 1995.500 (started + 6 seconds).
+  Qualified localization callback: agent ROS 1995.488, image 1995.316.
+  Independent search sampler received that image at ROS 1995.492.
+  Old code replaced the still-valid raw deadline with 1993.500 (started + 4).
+  The agent log explicitly printed LOCALIZED_SEARCH_HOLD until=1993.500.
+
+Fix:
+  When an active pixel-only cue receives localization after its original
+  four-second localization window, reject that promotion before changing
+  bearing, sample, identity, image or retry budget. Its original raw deadline
+  remains intact; no fresh lease is created. An early promotion still uses
+  the original started + 4 deadline.
+
+Evidence and validation:
+  tools/fixtures/late_localized_attention_025212.json contains the 31 actual
+  sensor packets required to preserve the continuously observed white:6 cue.
+  The replay uses the agent callback time, preserving the separate sampler
+  receive time; it does not change image timestamps or invent actor truth.
+  tools/test_late_localized_attention.py has six regression tests: actual late
+  packet, repeated/later packets, both same-image callback orders, exact
+  four-second boundary, early promotion, and invalid/unbound packet cases.
+  All 121 attention/view related tests passed in the isolated candidate.
+  Extended search tests are managed separately with the corner arrival fix.
+
+Limits:
+  No GUI match has verified this candidate yet. It cannot recover an already
+  expired cue. The separate red:5 trial 031135 counterexample obtained its
+  first fully qualified frame at 2037.708 after its 2036.028 raw deadline;
+  this patch must not be claimed to fix that case. Restart-safe qualification
+  recovery requires a retained producer epoch and is not included here.
