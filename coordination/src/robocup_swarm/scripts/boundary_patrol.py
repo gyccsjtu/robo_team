@@ -50,6 +50,7 @@ class SouthPatrol:
         self.owner_retry = {}
         self._edge_observed = set()
         self._corner_observed = set()
+        self._corner_observed_at = {}
 
     def accepts_target(self, uid, x, y, has_camera=False):
         """Real local images preempt patrol; blind western errands do not."""
@@ -88,13 +89,31 @@ class SouthPatrol:
         return bool(corner is not None and key not in self._corner_observed and
                     manager.grid.cell(key).state != STATE_COVERED)
 
-    def _fresh_corner_keys(self, task, now):
+    def _corner_review_due(self, manager, key, now):
+        """Recheck a previously imaged corner after the existing 60 s cycle.
+
+        First-visit memory survives cache pruning, but is not permanent
+        evidence that a moving person cannot have entered that corner.
+        Route completion never refreshes the image time.
+        """
+        if (self._corner_target(manager, key) is None or
+                self._corner_needs_first_view(manager, key)):
+            return False
+        samples = [self._corner_observed_at.get(key, float('nan'))]
+        cell = manager.grid.cell(key)
+        if cell.state == STATE_COVERED:
+            samples.append(cell.covered_t)
+        valid = [sample for sample in samples if math.isfinite(sample) and
+                 0. <= sample <= now+.05]
+        return not valid or now-max(valid) >= 60.
+
+    def _fresh_corner_times(self, task, now):
         """Only task-bound corner images or full coverage remove this priority."""
         manager = self._manager
         if manager is None:
-            return set()
+            return {}
         seen = getattr(manager, '_camera_point_seen', {}) or {}
-        observed = set()
+        observed = {}
         for key in task.cells:
             corner = self._corner_target(manager, key)
             if corner is None:
@@ -103,11 +122,14 @@ class SouthPatrol:
             sample = seen.get((key, corner[1]))
             if (sample is not None and math.isfinite(sample) and
                     task.created <= sample <= now+.05):
-                observed.add(key)
-            elif (cell.state == STATE_COVERED and math.isfinite(cell.covered_t) and
-                  task.created <= cell.covered_t <= now+.05):
-                observed.add(key)
+                observed[key] = sample
+            if (cell.state == STATE_COVERED and math.isfinite(cell.covered_t) and
+                    task.created <= cell.covered_t <= now+.05):
+                observed[key] = max(observed.get(key, -float('inf')), cell.covered_t)
         return observed
+
+    def _fresh_corner_keys(self, task, now):
+        return set(self._fresh_corner_times(task, now))
 
     def _fresh_image_keys(self, task, now=None):
         """Task-bound processed-image evidence, never a passed waypoint.
@@ -161,13 +183,16 @@ class SouthPatrol:
                 # callback prunes short-lived subpoint history or hands the
                 # regional responsibility to another aircraft.
                 self._edge_observed.update(self._fresh_image_keys(task, now))
-                self._corner_observed.update(self._fresh_corner_keys(task, now))
+                corner_times = self._fresh_corner_times(task, now)
+                self._corner_observed.update(corner_times)
+                self._corner_observed_at.update(corner_times)
                 if reason == 'complete' and self._manager is not None:
                     # Completion can mean every point timed out without a
                     # usable frame. Apply the existing finite failed-view
                     # cooldown to unseen edge cells even after index==len.
                     for key in task.cells:
-                        if self._edge_needs_first_view(self._manager, key):
+                        if (self._edge_needs_first_view(self._manager, key) or
+                                self._corner_review_due(self._manager, key, now)):
                             self._manager.allocator.failed_visit[key] = now
             # A route expires, not the regional responsibility. Failed cells
             # have a finite retry delay; reservations/coverage stay in manager.
@@ -315,7 +340,8 @@ class SouthPatrol:
                     (cell.state == STATE_COVERED and
                      (region != 'east' or now-cell.covered_t < 60.)) or
                     (now-manager.allocator.visit_time.get(key, -1e18) < 60. and
-                     not self._edge_needs_first_view(manager, key)) or
+                     not self._edge_needs_first_view(manager, key) and
+                     not self._corner_review_due(manager, key, now)) or
                     now-manager.allocator.failed_visit.get(key, -1e18) <
                         manager.allocator.failed_novelty_ttl):
                 continue
@@ -409,7 +435,8 @@ class SouthPatrol:
 
         def tier(key):
             return ((not self._corner_needs_first_view(manager, key),
-                     not self._edge_needs_first_view(manager, key), revisited(key))
+                     not self._edge_needs_first_view(manager, key),
+                     not self._corner_review_due(manager, key, now), revisited(key))
                     if region == 'east' and self.east_half is not None
                     else (revisited(key),))
 
@@ -460,7 +487,8 @@ class SouthPatrol:
             route = plan(grid, (s.x, s.y), point, connectivity=8,
                          prevent_corner_cutting=True, max_expansions=2500)
             if not route.success:
-                if self._edge_needs_first_view(manager, key):
+                if (self._edge_needs_first_view(manager, key) or
+                        self._corner_review_due(manager, key, now)):
                     failed_edges.add(key)
                 continue
             route_points = [(s.x, s.y)]+list(route.points)+[point]

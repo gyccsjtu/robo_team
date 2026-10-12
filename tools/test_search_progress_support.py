@@ -92,6 +92,7 @@ class SearchProgressSupportTests(unittest.TestCase):
     def test_no_new_evidence_and_assignments_never_advance_progress_clock(self):
         _, a, _, _, _ = self.fixture()
         a._search_progress_first.clear()
+        a._search_image_first.clear()
         with patch.object(swarm_task, '_now', return_value=190.):
             a.allocate({'typhoon_h480_4': (39.5, 29.5)})
         self.assertEqual(a._search_progress_first, {})

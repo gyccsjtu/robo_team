@@ -740,8 +740,12 @@ class SwarmManager(SearchSegmentManager):
             rospy.logwarn('[manager] %s 搜索格 %s 已无安全视点，取消并回收租约',
                           uid, key)
 
-    def _blind_viewpoint_valid(self, cell, point):
-        """Require a free flight point and a clear camera ray to this cell."""
+    def _blind_viewpoint_valid(self, cell, point, ray_grid=None):
+        """Inflation protects the aircraft; sensed obstacles occlude images.
+
+        A building's flight clearance margin is not a physical wall. Using
+        it for the camera ray erased legitimate ground beside buildings.
+        """
         g = getattr(self, '_g_infl', None)
         safe_point = flight_waypoint(*point)
         if (g is None or math.hypot(point[0] - safe_point[0],
@@ -762,8 +766,11 @@ class SwarmManager(SearchSegmentManager):
         if not self._in_processed_view(*point, yaw, cell.cx, cell.cy,
                                        altitude=4.0, down_pitch=0.0):
             return False
-        los = LineOfSight(lambda ix, iy: not g.is_free((ix, iy)),
-                          g.resolution, g.origin)
+        if ray_grid is None:
+            ray_grid = self._merged_grid() if hasattr(self, '_slam_lock') else None
+        ray_grid = g if ray_grid is None else ray_grid
+        los = LineOfSight(lambda ix, iy: not ray_grid.is_free((ix, iy)),
+                          ray_grid.resolution, ray_grid.origin)
         return los.visible(point[0], point[1], cell.cx, cell.cy)
 
     def _choose_blind_viewpoint(self, key, cell, observer_xy):
@@ -776,23 +783,21 @@ class SwarmManager(SearchSegmentManager):
         if (search_viewpoint(cell.cx, cell.cy) != (cell.cx, cell.cy) or
                 getattr(self, '_g_infl', None) is None):
             return None
-        normal = self._cell_waypoint.get(key)
-        if normal is not None and math.hypot(normal[0] - cell.cx,
-                                             normal[1] - cell.cy) > 1.0:
-            return None
         old = getattr(self, '_blind_viewpoints', {}).get(key)
         now = rospy.Time.now().to_sec()
         seen = getattr(self, '_camera_point_seen', {})
         grid = self._g_infl
-        los = LineOfSight(lambda ix, iy: not grid.is_free((ix, iy)),
-                          grid.resolution, grid.origin)
+        ray_grid = self._merged_grid() if hasattr(self, '_slam_lock') else None
+        ray_grid = grid if ray_grid is None else ray_grid
+        los = LineOfSight(lambda ix, iy: not ray_grid.is_free((ix, iy)),
+                          ray_grid.resolution, ray_grid.origin)
         points = cell_points(self.grid, cell)
         candidates = []
         for i in range(8):
             angle = i * math.pi / 4.0
             point = (cell.cx + 8.5 * math.cos(angle),
                      cell.cy + 8.5 * math.sin(angle))
-            if not self._blind_viewpoint_valid(cell, point):
+            if not self._blind_viewpoint_valid(cell, point, ray_grid=ray_grid):
                 continue
             repeated = old is not None and math.hypot(
                 point[0] - old[0], point[1] - old[1]) < 1.0

@@ -998,9 +998,9 @@ class TaskAllocator(object):
         """Lend one idle aircraft one viewpoint when a staffed sector lags.
 
         Entry travel gets its own conservative allowance. During the next
-        search phase, repeated views of the same cell cannot hide a stalled
-        frontier. Only actual completed waypoints / processed views count;
-        assignments, leases, target candidates and world truth never count.
+        search phase, completed routes without images cannot hide a stalled
+        observation frontier. Route progress remains diagnostic; only real
+        processed views qualify a sector as making search progress.
         """
         if (not uavs or self.mission_start is None or
                 not math.isfinite(now) or
@@ -1022,11 +1022,12 @@ class TaskAllocator(object):
                 if 0.0 <= now-stamp <= self.search_support_window:
                     tally[self.grid.get_zone_id(key)] += 1
             counts.append(tally)
-        progress, routes, images = counts
+        _, routes, images = counts
+        progress = images
         fresh = {zone: [] for zone in self.grid.zone_cells}
         for key in remaining:
-            if (self.grid.cell(key).state == STATE_FREE and
-                    self.visit_time.get(key, 0.0) <= 0.0):
+            if (self.grid.cell(key).state in (STATE_FREE, STATE_REVIEW) and
+                    key not in self._search_image_first):
                 fresh[self.grid.get_zone_id(key)].append(key)
         owners = {zone: {} for zone in self.grid.zone_cells}
         for key, cell in self.grid.cells.items():
@@ -1166,10 +1167,7 @@ class TaskAllocator(object):
             # remains the priority for distant searchers.
             urgent = self._active_revisit(now, remaining)
             urgent = [key for key in urgent if math.hypot(
-                self.grid.cell(key).cx - ux, self.grid.cell(key).cy - uy) <= 28.0 and
-                (self.grid.cell(key).state != STATE_REVIEW or
-                 any(job[1] == key and job[0] in ('lost', 'unconfirmed')
-                     for job in self.revisit_jobs))]
+                self.grid.cell(key).cx - ux, self.grid.cell(key).cy - uy) <= 28.0]
             if urgent:
                 candidates = [urgent[0]]
             # First sweep genuinely new FREE viewpoints in route order. A
@@ -1254,7 +1252,7 @@ class TaskAllocator(object):
                     self._search_support_active = (uav_id, zone, best_key)
                     self._search_support_next_s[zone] = now+self.search_support_cooldown
                     rospy.loginfo('[SEARCH_PROGRESS_SUPPORT] uav=%s zone=%s '
-                                  'new_route_or_image_%ds=%s routes=%s images=%s '
+                                  'new_imaged_cells_%ds=%s routes=%s images=%s '
                                   'donor=%s donor_routes=%s donor_images=%s '
                                   'distance=%.1f cell=%s zone_cooldown=%.0fs; '
                                   'one bounded search job, no camera credit',
