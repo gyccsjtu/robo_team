@@ -372,8 +372,7 @@ class SouthPatrol:
                 observation = (SimpleNamespace(cx=look[0], cy=look[1])
                                if corner is not None else cell)
                 if (not manager._search_point_free(point) or
-                        viewpoint_valid is None or not viewpoint_valid(observation, point) or
-                        not clear_line(grid, point, look)):
+                        viewpoint_valid is None or not viewpoint_valid(observation, point)):
                     continue
             else:
                 look = (cell.cx, cell.cy)
@@ -387,8 +386,7 @@ class SouthPatrol:
                 viewpoint_valid = getattr(manager, '_blind_viewpoint_valid', None)
                 if (not point[1] > cell.cy or
                         not manager._search_point_free(point) or
-                        viewpoint_valid is None or not viewpoint_valid(cell, point) or
-                        not clear_line(grid, point, (cell.cx, cell.cy))):
+                        viewpoint_valid is None or not viewpoint_valid(cell, point)):
                     continue
             keys.append(key)
             viewpoints[key]=point

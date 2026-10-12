@@ -120,8 +120,17 @@ class SearchSegmentManager:
         # Choose and reserve BOTH complementary lanes before ordinary jobs
         # consume the remaining idle aircraft. _allocate's existing task lock
         # covers this entire loop; SegmentBook supplies cross-source mutexes.
-        for patrol in self._regional_search_patrols():
-            proposed = patrol.choose(self, idle, stamp)
+        patrols = self._regional_search_patrols()
+        for patrol in patrols:
+            # A completed leg releases its cells, not its regional owner.
+            # The preceding lane must not borrow that idle aircraft before
+            # its own lane can issue the next leg. Health/person/failed-entry
+            # cleanup remains in choose; it can release ownership this tick.
+            peer_owners = {peer.uid for peer in patrols
+                           if peer is not patrol and peer.east and
+                           peer.uid is not None}
+            lane_idle = [uid for uid in idle if uid not in peer_owners]
+            proposed = patrol.choose(self, lane_idle, stamp)
             if proposed is not None:
                 uid, cells, points, direction = proposed
                 task = self._start_search_segment(uid, cells, points, stamp,
