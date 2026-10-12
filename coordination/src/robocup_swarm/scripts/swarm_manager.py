@@ -1510,9 +1510,17 @@ class SwarmManager(SearchSegmentManager):
                             box = None
                     except (TypeError, ValueError, OverflowError):
                         box = None
+                    continuous = (prior is not None and
+                        0. < data['sample_s']-prior['sample_s'] <= .7 and
+                        prior['appearance_status'] == appearance == 'actor' and
+                        math.hypot(data['x']-prior['x'],data['y']-prior['y']) <=
+                        .6+2.5*(data['sample_s']-prior['sample_s']))
                     pool[key] = dict(data, range_m=rng, candidate_id=cid,
                                      appearance_status=appearance, box=box,
                                      hits=int(raw['hits']),
+                                     dispatch_hits=prior.get('dispatch_hits',1)+1 if continuous else 1,
+                                     dispatch_since_s=prior.get('dispatch_since_s',prior['sample_s'])
+                                         if continuous else data['sample_s'],
                                      complete_frame=packet.get('schema_version') == 2)
                     changed.add(tid)
                 except (ValueError, KeyError, TypeError, OverflowError):
@@ -1862,6 +1870,13 @@ class SwarmManager(SearchSegmentManager):
         if latest is not None:
             uid, sample, sx, sy = latest
             sources.setdefault(uid, (sample, sx, sy))
+        # Current continuous own-camera discovery can choose a responsible
+        # aircraft before bridge reporting matures. It grants no report or
+        # confirmation credit, and never replaces another live target task.
+        for uid in self.uav_ids:
+            image = self._continuous_discovery_view(uid, tid, now, tx, ty)
+            if image is not None:
+                sources[uid] = (image['sample_s'],image['x'],image['y'])
         candidates = []
         for uid, (sample, sx, sy) in sources.items():
             if (uid in busy or not -0.05 <= now - sample <= 1.5 or
@@ -1874,6 +1889,18 @@ class SwarmManager(SearchSegmentManager):
             if distance <= 20.0:
                 candidates.append((uid, distance))
         return sorted(candidates, key=lambda pair: (pair[1], pair[0]))
+
+    def _continuous_discovery_view(self, uid, tid, now, tx=None, ty=None):
+        """Three coherent real images allow dispatch, never judge eligibility."""
+        candidates = [d for (target,source,_),d in
+                      getattr(self,'_discovery_pool',{}).items()
+                      if target == tid and source == uid and
+                      d.get('appearance_status') == 'actor' and
+                      d.get('dispatch_hits',0) >= 3 and
+                      0. <= now-d['sample_s'] <= .35 and
+                      d['sample_s']-d.get('dispatch_since_s',d['sample_s']) >= .3-1e-6 and
+                      (tx is None or math.hypot(d['x']-tx,d['y']-ty) <= 3.)]
+        return max(candidates,key=lambda d:d['sample_s'],default=None)
 
     def _bridge_distant_accepted(self, image, packet):
         """True only when parser rejection is solely its 12 m range limit."""
@@ -2790,7 +2817,8 @@ class SwarmManager(SearchSegmentManager):
         image = self._last_eligible(uid, tid)
         qualified = bool(image is not None and image.get('eligible') and
                          0. <= now-image['sample_s'] <= 1.)
-        if qualified or self._sustained_distant_view(uid, tid, now):
+        if (qualified or self._sustained_distant_view(uid, tid, now) or
+                self._continuous_discovery_view(uid,tid,now) is not None):
             return False
         rospy.loginfo_throttle(2., '[ATTENTION_DISPATCH_HOLD] uav=%s tid=%s '
             'status_sample=%.3f; keep finite camera look, no qualified own image',
