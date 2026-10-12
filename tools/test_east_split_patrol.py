@@ -327,6 +327,58 @@ class EastSplitPatrolTests(unittest.TestCase):
                 self.assertEqual(proposal[1], [(22, row), (22, row+direction)])
                 self.assertEqual(proposal[3], direction)
 
+    def short_outward_setup(self, half):
+        row, outward = (15, 1) if half == 'north' else (1, -1)
+        patrol = self.m._regional_patrols[0 if half == 'north' else 1]
+        keys = {(22, row), (22, row+outward),
+                (22, row-outward), (22, row-2*outward)}
+        self.m._blocked_cells = set(self.m.grid.cells)-keys
+        uid = self.m.uav_ids[0]
+        self.m.status[uid].x = 98.55
+        self.m.status[uid].y = self.m.grid.cell((22, row)).cy
+        return patrol, uid, row, outward, keys
+
+    def test_first_edge_uses_two_point_outward_leg_instead_of_three_point_inward_leg(self):
+        # Real seven-metre rows from the 004028 run: north 15/16 versus
+        # 15/14/13, south 1/0 versus 1/2/3. Three is a maximum, not a quota.
+        for half in ('north', 'south'):
+            with self.subTest(half=half):
+                patrol, uid, row, outward, _ = self.short_outward_setup(half)
+                proposal = patrol.choose(self.m, [uid], self.now)
+                self.assertEqual(proposal[1], [(22, row), (22, row+outward)])
+                self.assertEqual(proposal[3], outward)
+                self.assertAlmostEqual(math.dist(*proposal[2]), 7.)
+                self.assertTrue(bp.clear_line(self.m._g_infl, *proposal[2]))
+                self.assertTrue(all(self.m._search_point_free(point)
+                                    for point in proposal[2]))
+
+    def test_blocked_outward_link_falls_back_to_checked_three_point_inward_leg(self):
+        original = bp.clear_line
+        for half in ('north', 'south'):
+            with self.subTest(half=half):
+                patrol, uid, row, outward, _ = self.short_outward_setup(half)
+                start = (98.55, self.m.grid.cell((22, row)).cy)
+                outer = (98.55, self.m.grid.cell((22, row+outward)).cy)
+                def clear_except_outer(grid, a, b):
+                    if math.dist(a, start) < .01 and math.dist(b, outer) < .01:
+                        return False
+                    return original(grid, a, b)
+                with patch.object(bp, 'clear_line', side_effect=clear_except_outer):
+                    proposal = patrol.choose(self.m, [uid], self.now)
+                self.assertEqual(proposal[1], [(22, row), (22, row-outward),
+                                              (22, row-2*outward)])
+                self.assertEqual(proposal[3], -outward)
+
+    def test_previously_observed_edge_keeps_longest_safe_leg_policy(self):
+        for half in ('north', 'south'):
+            with self.subTest(half=half):
+                patrol, uid, row, outward, keys = self.short_outward_setup(half)
+                patrol._edge_observed.update(keys)
+                proposal = patrol.choose(self.m, [uid], self.now)
+                self.assertEqual(proposal[1], [(22, row), (22, row-outward),
+                                              (22, row-2*outward)])
+                self.assertEqual(proposal[3], -outward)
+
 
 class EastSplitPersonDispatchTests(unittest.TestCase):
     def setUp(self):

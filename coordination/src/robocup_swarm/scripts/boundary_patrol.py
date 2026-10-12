@@ -430,9 +430,17 @@ class SouthPatrol:
                     break
                 ks.append(nxt); ps.append(p)
             extensions.append((len(ks), direction, ks, ps))
-        extension = (max(extensions, key=lambda e: (
-            e[0], e[1] == (1 if self.east_half == 'north' else -1)))
-            if region == 'east' and self.east_half is not None else max(extensions))
+        if region == 'east' and self.east_half is not None:
+            outward = 1 if self.east_half == 'north' else -1
+            extension = next(e for e in extensions if e[1] == outward)
+            # An unseen edge must continue toward its corner when a safe
+            # outward link exists. Filling the three-point maximum inward
+            # would defer that corner again. A blocked/one-point outward
+            # chain still falls back to the normal checked longest segment.
+            if not (self._edge_needs_first_view(manager, key) and extension[0] >= 2):
+                extension = max(extensions, key=lambda e: (e[0], e[1] == outward))
+        else:
+            extension = max(extensions)
         _, direction, cells, points = extension
         self.proposal_region = region
         # Conservative measured transit speed, plus turning/observation time.
