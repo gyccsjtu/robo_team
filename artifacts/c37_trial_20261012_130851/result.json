@@ -1,0 +1,92 @@
+{
+  "code": "a51ebc7a366dbb3348db3bec242bd9009c0fa61c",
+  "official_eliminations": [
+    [
+      0,
+      159.2199999999998
+    ],
+    [
+      1,
+      198.6239999999998
+    ],
+    [
+      5,
+      373.2199999999998
+    ],
+    [
+      4,
+      391.68399999999974
+    ],
+    [
+      2,
+      404.5239999999999
+    ],
+    [
+      3,
+      451.95600000000013
+    ]
+  ],
+  "official_all_finished": true,
+  "timeout": false,
+  "score": 2119.876,
+  "source_hash_count": 62,
+  "source_files_changed": [],
+  "report_statistics": {
+    "green": {
+      "reports": 76,
+      "max_gap": 1.6399999999998727,
+      "gaps_gt1": 3,
+      "sampled_errors": 76,
+      "errors_ge1": 0,
+      "max_sampled_error": 0.9186847676998473
+    },
+    "blue": {
+      "reports": 46,
+      "max_gap": 38.80799999999999,
+      "gaps_gt1": 4,
+      "sampled_errors": 46,
+      "errors_ge1": 0,
+      "max_sampled_error": 0.5188147245986995
+    },
+    "brown": {
+      "reports": 118,
+      "max_gap": 11.739999999999782,
+      "gaps_gt1": 14,
+      "sampled_errors": 117,
+      "errors_ge1": 9,
+      "max_sampled_error": 1.7576464695271925
+    },
+    "white": {
+      "reports": 161,
+      "max_gap": 70.57600000000002,
+      "gaps_gt1": 25,
+      "sampled_errors": 160,
+      "errors_ge1": 19,
+      "max_sampled_error": 2.385334768907744
+    },
+    "red1": {
+      "reports": 277,
+      "max_gap": 86.63200000000029,
+      "gaps_gt1": 29,
+      "sampled_errors": 277,
+      "errors_ge1": 18,
+      "max_sampled_error": 1.3359056573471724
+    },
+    "red2": {
+      "reports": 42,
+      "max_gap": 15.44800000000032,
+      "gaps_gt1": 9,
+      "sampled_errors": 42,
+      "errors_ge1": 14,
+      "max_sampled_error": 1.649776296184404
+    }
+  },
+  "limitations": [
+    "Read-only truth recorder is isolated and never feeds controller.",
+    "Nearest truth sample within .2s is diagnostic, not exact judge reset causality.",
+    "Red errors use closest of two actors, not proof of stable identity.",
+    "Same random map, different actor trajectories; not deterministic A/B.",
+    "Single successful trial, not reliable 3-4 minute acceptance."
+  ],
+  "end_ros_estimated_from_diagnostic_deletion": 2361.936
+}
