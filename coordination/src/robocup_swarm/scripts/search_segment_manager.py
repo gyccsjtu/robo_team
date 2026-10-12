@@ -161,9 +161,12 @@ class SearchSegmentManager:
                         uid, task.task_id, name, key, point, sample,
                         None if last == -1e18 else last)
                     return
-            # No camera can reach this view this tick. Reuse normal failure
-            # novelty/cooldown; ordinary search remains available immediately.
-            self.allocator.failed_visit[key] = stamp
+            # A blocked start or bounded A* failure belongs to this idle batch,
+            # not to the corner. Let ordinary search use these aircraft while
+            # a later idle aircraft can still reach an already safe viewpoint.
+            # Only absent safe views justify the existing cell-wide cooldown.
+            if not options:
+                self.allocator.failed_visit[key] = stamp
 
     def _segment_cells(self, uid, first, now):
         cells = [first]

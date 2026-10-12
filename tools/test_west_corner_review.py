@@ -11,7 +11,7 @@ import swarm_manager as sm
 import swarm_task as st
 from building_viewpoints import valid_view
 from robocup_swarm.msg import UavStatus
-from search_segments import ATTEND, DONE, TRAVEL
+from search_segments import ATTEND, DONE, FAILED, TRAVEL
 
 
 class WestCornerReviewTests(unittest.TestCase):
@@ -237,14 +237,52 @@ class WestCornerReviewTests(unittest.TestCase):
         self.m._allocate_west_corner_review(list(self.m.uav_ids), self.now)
         self.assertEqual(self.corner_tasks(), [])
 
-    def test_checked_path_failure_uses_existing_failure_memory_and_keeps_normal_search(self):
-        with patch('search_segment_manager.plan', return_value=NS(success=False)):
+    def test_expansion_limit_does_not_hide_safe_corner_from_later_reachable_idle(self):
+        with patch('search_segment_manager.plan',
+                   return_value=NS(success=False, reason='EXPANSION_LIMIT')):
             self.allocate()
         self.assertEqual(self.corner_tasks(), [])
         for _, key, _, _ in self.m._west_corner_subpoints():
-            self.assertEqual(self.m.allocator.failed_visit[key], self.now)
+            self.assertNotIn(key, self.m.allocator.failed_visit)
         self.assertTrue(self.m._segments.tasks)
         self.assertTrue(all(t.purpose == 'coverage' for t in self.m._segments.tasks.values()))
+        self.now += .5
+        self.m._drop_segment(self.m.uav_ids[0], 'new_idle')
+        self.allocate()
+        self.assertEqual(len(self.corner_tasks()), 1)
+        self.assertEqual(self.corner_tasks()[0].uid, self.m.uav_ids[0])
+
+    def test_actual_start_occupied_does_not_cool_corner_for_later_other_aircraft(self):
+        blocked_uid = self.m.uav_ids[2]
+        status = self.m.status[blocked_uid]
+        cells = bytearray(self.raw.cells)
+        x, y = self.raw.world_to_cell((status.x, status.y))
+        cells[y*self.raw.width+x] = 1
+        self.raw = sm.GridMap(self.raw.width, self.raw.height, self.raw.resolution,
+                              self.raw.origin, bytes(cells))
+        self.m._merged_grid.return_value = self.raw
+        self.m._g_infl = sm.inflate_grid(self.raw, sm.INFLATE_M)
+        for uid, key in zip(self.m.uav_ids[:2], ((10, 8), (12, 8))):
+            self.ordinary_task(uid, key)
+        for _, key, _, look in self.m._west_corner_subpoints():
+            from building_viewpoints import view_options
+            points = [point for point, sample in view_options(self.m.grid, key,
+                self.raw, self.m._g_infl, self.m._segment_flight_waypoint) if sample == look]
+            self.assertTrue(points)
+            route = sm.plan(self.m._g_infl, (status.x, status.y), points[0],
+                            connectivity=8, prevent_corner_cutting=True, max_expansions=2500)
+            self.assertEqual(route.reason, 'START_OCCUPIED')
+        self.allocate()
+        self.assertEqual(self.corner_tasks(), [])
+        self.assertEqual(self.m._segments.tasks[blocked_uid].purpose, 'coverage')
+        for _, key, _, _ in self.m._west_corner_subpoints():
+            self.assertNotIn(key, self.m.allocator.failed_visit)
+        self.now += .5
+        reachable_uid = self.m.uav_ids[1]
+        self.m._drop_segment(reachable_uid, 'new_idle')
+        self.allocate()
+        self.assertEqual(len(self.corner_tasks()), 1)
+        self.assertEqual(self.corner_tasks()[0].uid, reachable_uid)
 
     def test_missing_and_unknown_raw_map_cannot_allocate_or_credit_corner(self):
         self.m._merged_grid.return_value = None
@@ -255,6 +293,22 @@ class WestCornerReviewTests(unittest.TestCase):
         self.m._merged_grid.return_value = unknown
         self.m._allocate_west_corner_review(list(self.m.uav_ids), self.now)
         self.assertEqual(self.corner_tasks(), [])
+        self.assertEqual(self.m._west_corner_seen, {})
+        for _, key, _, _ in self.m._west_corner_subpoints():
+            self.assertEqual(self.m.allocator.failed_visit[key], self.now)
+
+    def test_dispatched_agent_failure_still_releases_and_cools_corner(self):
+        self.allocate()
+        task = self.corner_tasks()[0]
+        self.now += .5
+        self.refresh()
+        status = self.m.status[task.uid]
+        status.search_task_id, status.search_revision = task.task_id, task.revision
+        status.search_index, status.search_state = 0, FAILED
+        self.m._renew_segments(sm.rospy.Time.from_sec(self.now))
+        self.assertNotIn(task.uid, self.m._segments.tasks)
+        self.assertNotIn(task.cells[0], self.m._segments.reserved)
+        self.assertEqual(self.m.allocator.failed_visit[task.cells[0]], self.now)
         self.assertEqual(self.m._west_corner_seen, {})
 
     def test_original_deadline_releases_reservation_without_creating_image_credit(self):
