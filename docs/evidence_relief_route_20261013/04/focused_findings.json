@@ -1,0 +1,5 @@
+{
+  "route_choices": [],
+  "occupied_exit_blocked_lines": 0,
+  "meaning": "No route event is not evidence of good tracking; safety stop counts need preceding scan/map context."
+}

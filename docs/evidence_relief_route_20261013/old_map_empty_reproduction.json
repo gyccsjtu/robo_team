@@ -1,0 +1,22 @@
+{
+  "source_sha256": "3545c96aba4fffee44d361448e8c4002559b8a47da357b96d08d186859f6cbb6",
+  "test": "Exact original house generation block with failed placement ten times, valid base world",
+  "output_bytes": 0,
+  "base_bytes": 32,
+  "logs": [
+    " Try again!",
+    " Try again!",
+    " Try again!",
+    " Try again!",
+    " Try again!",
+    " Try again!",
+    " Try again!",
+    " Try again!",
+    " Try again!",
+    " Try again!",
+    "1",
+    "Base world is used!"
+  ],
+  "cause": "content.readlines() already consumed base; fallback reads EOF again and writes empty house.world",
+  "scope": "Offline isolated StringIO reproduction, official source unchanged, does not establish why create_point failed in each old round."
+}

@@ -1,0 +1,7 @@
+{
+  "route_choices": [
+    "[INFO] [1791874910.684243, 2184.772000]: [RELIEF_ROUTE_CHOICE] tid=t2 primary=typhoon_h480_2 backup=typhoon_h480_0 approach_friend_conflicts=0 patrol_loan=False distance=11.70; ranking only, ordinary flight guards retain authority"
+  ],
+  "occupied_exit_blocked_lines": 96,
+  "meaning": "No route event is not evidence of good tracking; safety stop counts need preceding scan/map context."
+}

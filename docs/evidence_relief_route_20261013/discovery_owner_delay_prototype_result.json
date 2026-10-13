@@ -1,0 +1,26 @@
+[
+  {
+    "sample": 2043.544,
+    "confidence": 0.7,
+    "owner": "u2",
+    "seeing_camera": "u0",
+    "seeing_camera_sequence": false,
+    "qualified_reporting_images": 0
+  },
+  {
+    "sample": 2044.144,
+    "confidence": 0.912,
+    "owner": "u2",
+    "seeing_camera": "u0",
+    "seeing_camera_sequence": false,
+    "qualified_reporting_images": 0
+  },
+  {
+    "sample": 2044.728,
+    "confidence": 0.721,
+    "owner": "u0",
+    "seeing_camera": "u0",
+    "seeing_camera_sequence": true,
+    "qualified_reporting_images": 0
+  }
+]

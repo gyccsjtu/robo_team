@@ -1,0 +1,11 @@
+{
+  "root": "/home/gycc/桌面/RoboCup_Team",
+  "batch": "/home/gycc/桌面/RoboCup_Team/artifacts/relief_route_validation_20261013",
+  "ram": "/dev/shm/relief_route_validation_20261013",
+  "code_commit": "5625f979a69c5591ba1b58be1951c7b5f9ea79ba",
+  "official_ref": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+  "trials": 4,
+  "gui": true,
+  "flight_archive_location": "/dev/shm/relief_route_validation_20261013/flight_archives",
+  "policy": "Frozen GUI: round1 replay02 relief-clear-approach OFF control; round2 replay02 ON; round3 native official random ON; round4 old white600-timeout replay18 ON. Same layout is not identical actor trajectory. Existing blocked relief and coherent body enabled. All failures retained."
+}

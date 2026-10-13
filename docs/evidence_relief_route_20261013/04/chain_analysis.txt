@@ -1,0 +1,27 @@
+尝试 04 全链路记录
+结果 official_success；官方各actor用时 {'0': 128.83199999999988, '3': 202.0239999999999, '5': 203.5279999999998, '4': 211.51600000000008, '1': 222.7159999999999, '2': 288.41600000000017}
+
+t0/green: 首报 112.796s；正式37条；最长仅时间连续段 15.788s；>1s断报0段；分类{}
+
+t1/blue: 首报 172.860s；正式79条；最长仅时间连续段 16.000s；>1s断报3段；分类{'report_capable_view_before_bridge_acceptance': 2, 'tracked_view_not_report_capable': 1}
+  192.212→206.404s，断报14.192s：report_capable_view_before_bridge_acceptance；视图12/可报11，裁底0，接纳合格1；原因[{'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 29}, {'event': 'track_reject', 'reason': 'verdict_hits', 'count': 2}, {'event': 'tracking_view_continuation', 'reason': 'confirmed_full_body_shape_change', 'count': 1}]
+  183.056→184.816s，断报1.760s：report_capable_view_before_bridge_acceptance；视图4/可报4，裁底0，接纳合格1；原因[{'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 11}, {'event': 'track_reject', 'reason': 'verdict_hits', 'count': 2}]
+  186.368→187.416s，断报1.048s：tracked_view_not_report_capable；视图5/可报1，裁底0，接纳合格1；原因[{'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 5}]
+
+t2/brown: 首报 268.992s；正式47条；最长仅时间连续段 15.580s；>1s断报1段；分类{'accepted_official_evidence_without_formal_output': 1}
+  271.368→272.588s，断报1.220s：accepted_official_evidence_without_formal_output；视图6/可报4，裁底2，接纳合格2；原因[{'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 3}]
+
+t3/white: 首报 186.384s；正式35条；最长仅时间连续段 15.384s；>1s断报0段；分类{}
+
+t4/red: 首报 195.792s；正式30条；最长仅时间连续段 5.376s；>1s断报3段；分类{'pixel_candidate_without_localized_view': 2, 'accepted_official_evidence_without_formal_output': 1}
+  205.396→207.204s，断报1.808s：pixel_candidate_without_localized_view；视图0/可报0，裁底0，接纳合格1；原因[{'event': 'track_reject', 'reason': 'verdict_self', 'count': 13}, {'event': 'tracking_view_continuation', 'reason': 'confirmed_full_body_shape_change', 'count': 3}, {'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 2}]
+  201.168→202.384s，断报1.216s：pixel_candidate_without_localized_view；视图0/可报0，裁底0，接纳合格3；原因[{'event': 'tracking_view_continuation', 'reason': 'confirmed_full_body_shape_change', 'count': 7}, {'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 1}]
+  204.368→205.396s，断报1.028s：accepted_official_evidence_without_formal_output；视图0/可报0，裁底0，接纳合格2；原因[{'event': 'tracking_view_continuation', 'reason': 'confirmed_full_body_shape_change', 'count': 5}]
+
+t5/red: 首报 138.392s；正式72条；最长仅时间连续段 11.988s；>1s断报7段；分类{'report_capable_view_before_bridge_acceptance': 6, 'tracked_view_not_report_capable': 1}
+  141.768→161.200s，断报19.432s：report_capable_view_before_bridge_acceptance；视图18/可报8，裁底5，接纳合格1；原因[{'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 129}, {'event': 'track_reject', 'reason': 'verdict_height', 'count': 41}, {'event': 'track_reject', 'reason': 'verdict_self', 'count': 37}]
+  175.460→181.388s，断报5.928s：report_capable_view_before_bridge_acceptance；视图19/可报12，裁底0，接纳合格1；原因[{'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 71}, {'event': 'tracking_view_continuation', 'reason': 'confirmed_full_body_shape_change', 'count': 7}, {'event': 'track_reject', 'reason': 'verdict_hits', 'count': 2}]
+  162.600→165.860s，断报3.260s：report_capable_view_before_bridge_acceptance；视图15/可报9，裁底0，接纳合格1；原因[{'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 18}, {'event': 'track_reject', 'reason': 'verdict_hits', 'count': 8}, {'event': 'tracking_view_continuation', 'reason': 'confirmed_full_body_shape_change', 'count': 5}]
+  167.656→170.856s，断报3.200s：report_capable_view_before_bridge_acceptance；视图8/可报4，裁底0，接纳合格1；原因[{'event': 'projection_reject', 'reason': 'sin_down_below_0.30', 'count': 13}, {'event': 'tracking_view_continuation', 'reason': 'confirmed_full_body_shape_change', 'count': 4}]
+
+完整段/事件见 chain_analysis.json；候选和时间连续不等于真值准确。

@@ -1,0 +1,39 @@
+{
+  "actors": {
+    "2": 199.6199999999999,
+    "4": 226.03200000000015,
+    "0": 236.13200000000006,
+    "1": 261.9200000000001,
+    "3": 337.12400000000025,
+    "5": 427.7800000000002
+  },
+  "eliminated": 6,
+  "official_complete": true,
+  "official_timeout": false,
+  "completion_s": 427.7800000000002,
+  "find_counts": {
+    "3": 4,
+    "2": 5,
+    "4": 4,
+    "0": 5,
+    "1": 7,
+    "5": 1
+  },
+  "outcome": "official_success",
+  "round": 1,
+  "map_sha256": "e0a339ee464ac36f8f5cce04d910e3c7bbf06d0e9ff412324ebbcb83b240c528",
+  "code_commit": "5625f979a69c5591ba1b58be1951c7b5f9ea79ba",
+  "started_wall": 1791874085.9602387,
+  "finished_wall": 1791874556.6935441,
+  "wall_elapsed_s": 470.73330545425415,
+  "flight_archive": {
+    "path": "/dev/shm/relief_route_validation_20261013/flight_archives/round_01_ros.tar.xz",
+    "bytes": 156282340,
+    "sha256": "952112132c8a256a0643f2e151780a94b259a31a6bc4fbf234e86bc1a7afbd64"
+  },
+  "evidence_archive": {
+    "path": "/home/gycc/桌面/RoboCup_Team/artifacts/relief_route_validation_20261013/rounds/01/core_evidence.tar.xz",
+    "bytes": 26351900,
+    "sha256": "a5eb07bd6d3d6f072fde43cb4d6ded34dbda9abf55f94f0464e46dc2d278f483"
+  }
+}

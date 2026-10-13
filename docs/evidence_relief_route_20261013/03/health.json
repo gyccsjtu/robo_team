@@ -1,0 +1,38 @@
+{
+  "0": {
+    "first_inference": true,
+    "pose_sync_failures": 1,
+    "auto_land_mentions": 0,
+    "traceback": 1
+  },
+  "1": {
+    "first_inference": true,
+    "pose_sync_failures": 1,
+    "auto_land_mentions": 0,
+    "traceback": 1
+  },
+  "2": {
+    "first_inference": true,
+    "pose_sync_failures": 2,
+    "auto_land_mentions": 0,
+    "traceback": 1
+  },
+  "3": {
+    "first_inference": true,
+    "pose_sync_failures": 2,
+    "auto_land_mentions": 0,
+    "traceback": 1
+  },
+  "4": {
+    "first_inference": true,
+    "pose_sync_failures": 1,
+    "auto_land_mentions": 0,
+    "traceback": 1
+  },
+  "5": {
+    "first_inference": true,
+    "pose_sync_failures": 1,
+    "auto_land_mentions": 0,
+    "traceback": 1
+  }
+}

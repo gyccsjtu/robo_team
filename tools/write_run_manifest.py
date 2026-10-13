@@ -54,6 +54,7 @@ def main():
         coherent_body_attachment=os.environ.get('PR_COHERENT_BODY_ATTACH','0'),
         blocked_tracking_relief=os.environ.get('BLOCKED_TRACKING_RELIEF','0'),
         relief_clear_approach=os.environ.get('RELIEF_CLEAR_APPROACH','0'),
+        discovery_blind_handoff=os.environ.get('DISCOVERY_BLIND_HANDOFF','0'),
         orbit_radius_close_m=os.environ.get('ORBIT_RADIUS_CLOSE','8.0'),
         early_view_pursuit=os.environ.get('EARLY_VIEW_PURSUIT','0'),
         pixel_view_recovery=os.environ.get('PIXEL_VIEW_RECOVERY','0'),

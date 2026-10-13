@@ -1,0 +1,326 @@
+[
+  {
+    "policy": "fit",
+    "latency": 0.1,
+    "speed": 1.0,
+    "angle_deg": 0,
+    "max_gap": 0.49166666666667425,
+    "max_error": 0.34166666666666856,
+    "count": 38
+  },
+  {
+    "policy": "fit",
+    "latency": 0.1,
+    "speed": 1.0,
+    "angle_deg": 90,
+    "max_gap": 0.5416666666666572,
+    "max_error": 0.5121810660737556,
+    "count": 38
+  },
+  {
+    "policy": "fit",
+    "latency": 0.1,
+    "speed": 1.0,
+    "angle_deg": 180,
+    "max_gap": 0.7916666666666572,
+    "max_error": 0.724333333333341,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.1,
+    "speed": 2.0,
+    "angle_deg": 0,
+    "max_gap": 0.49166666666667425,
+    "max_error": 0.6833333333333371,
+    "count": 38
+  },
+  {
+    "policy": "fit",
+    "latency": 0.1,
+    "speed": 2.0,
+    "angle_deg": 90,
+    "max_gap": 0.5416666666666572,
+    "max_error": 1.0250691575585469,
+    "count": 38
+  },
+  {
+    "policy": "fit",
+    "latency": 0.1,
+    "speed": 2.0,
+    "angle_deg": 180,
+    "max_gap": 0.7583333333333258,
+    "max_error": 0.6833333333333371,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.2,
+    "speed": 1.0,
+    "angle_deg": 0,
+    "max_gap": 0.5,
+    "max_error": 0.20000000000000284,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.2,
+    "speed": 1.0,
+    "angle_deg": 90,
+    "max_gap": 0.5083333333333258,
+    "max_error": 0.6955574103631739,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.2,
+    "speed": 1.0,
+    "angle_deg": 180,
+    "max_gap": 0.7583333333333258,
+    "max_error": 0.9846666666666835,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.2,
+    "speed": 2.0,
+    "angle_deg": 0,
+    "max_gap": 0.5,
+    "max_error": 0.4000000000000057,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.2,
+    "speed": 2.0,
+    "angle_deg": 90,
+    "max_gap": 0.5083333333333258,
+    "max_error": 1.3918218675933907,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.2,
+    "speed": 2.0,
+    "angle_deg": 180,
+    "max_gap": 0.7999999999999972,
+    "max_error": 0.5500000000000185,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.3,
+    "speed": 1.0,
+    "angle_deg": 0,
+    "max_gap": 0.5,
+    "max_error": 0.29999999999999716,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.3,
+    "speed": 1.0,
+    "angle_deg": 90,
+    "max_gap": 0.5416666666666572,
+    "max_error": 0.7879526917553196,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.3,
+    "speed": 1.0,
+    "angle_deg": 180,
+    "max_gap": 0.7916666666666572,
+    "max_error": 1.1143333333333416,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.3,
+    "speed": 2.0,
+    "angle_deg": 0,
+    "max_gap": 0.5,
+    "max_error": 0.5999999999999943,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.3,
+    "speed": 2.0,
+    "angle_deg": 90,
+    "max_gap": 0.5416666666666572,
+    "max_error": 1.5751982238577094,
+    "count": 37
+  },
+  {
+    "policy": "fit",
+    "latency": 0.3,
+    "speed": 2.0,
+    "angle_deg": 180,
+    "max_gap": 0.7583333333333258,
+    "max_error": 0.6000000000000014,
+    "count": 37
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.1,
+    "speed": 1.0,
+    "angle_deg": 0,
+    "max_gap": 0.40833333333334565,
+    "max_error": 0.2083333333333428,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.1,
+    "speed": 1.0,
+    "angle_deg": 90,
+    "max_gap": 0.5416666666666572,
+    "max_error": 0.3392915822383159,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.1,
+    "speed": 1.0,
+    "angle_deg": 180,
+    "max_gap": 0.5416666666666572,
+    "max_error": 0.4583333333333428,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.1,
+    "speed": 2.0,
+    "angle_deg": 0,
+    "max_gap": 0.40833333333334565,
+    "max_error": 0.46666666666667567,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.1,
+    "speed": 2.0,
+    "angle_deg": 90,
+    "max_gap": 0.5416666666666572,
+    "max_error": 0.6307617969126331,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.1,
+    "speed": 2.0,
+    "angle_deg": 180,
+    "max_gap": 0.6916666666666629,
+    "max_error": 0.4666666666666828,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.2,
+    "speed": 1.0,
+    "angle_deg": 0,
+    "max_gap": 0.5,
+    "max_error": 0.34166666666666856,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.2,
+    "speed": 1.0,
+    "angle_deg": 90,
+    "max_gap": 0.6416666666666657,
+    "max_error": 0.34166666666666856,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.2,
+    "speed": 1.0,
+    "angle_deg": 180,
+    "max_gap": 0.6416666666666657,
+    "max_error": 0.4583333333333428,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.2,
+    "speed": 2.0,
+    "angle_deg": 0,
+    "max_gap": 0.5,
+    "max_error": 0.6833333333333371,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.2,
+    "speed": 2.0,
+    "angle_deg": 90,
+    "max_gap": 0.6416666666666657,
+    "max_error": 0.6833333333333371,
+    "count": 44
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.2,
+    "speed": 2.0,
+    "angle_deg": 180,
+    "max_gap": 0.75,
+    "max_error": 0.6833333333333371,
+    "count": 43
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.3,
+    "speed": 1.0,
+    "angle_deg": 0,
+    "max_gap": 0.5,
+    "max_error": 0.29999999999999716,
+    "count": 35
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.3,
+    "speed": 1.0,
+    "angle_deg": 90,
+    "max_gap": 1.0,
+    "max_error": 0.29999999999999716,
+    "count": 34
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.3,
+    "speed": 1.0,
+    "angle_deg": 180,
+    "max_gap": 1.0,
+    "max_error": 0.29999999999999716,
+    "count": 34
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.3,
+    "speed": 2.0,
+    "angle_deg": 0,
+    "max_gap": 0.5,
+    "max_error": 0.5999999999999943,
+    "count": 35
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.3,
+    "speed": 2.0,
+    "angle_deg": 90,
+    "max_gap": 1.0,
+    "max_error": 0.5999999999999943,
+    "count": 34
+  },
+  {
+    "policy": "fresh",
+    "latency": 0.3,
+    "speed": 2.0,
+    "angle_deg": 180,
+    "max_gap": 0.75,
+    "max_error": 0.6000000000000014,
+    "count": 35
+  }
+]

@@ -1,0 +1,196 @@
+{
+  "config": {
+    "root": "/home/gycc/桌面/RoboCup_Team",
+    "batch": "/home/gycc/桌面/RoboCup_Team/artifacts/relief_route_validation_20261013",
+    "ram": "/dev/shm/relief_route_validation_20261013",
+    "code_commit": "5625f979a69c5591ba1b58be1951c7b5f9ea79ba",
+    "official_ref": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+    "trials": 4,
+    "gui": true,
+    "flight_archive_location": "/dev/shm/relief_route_validation_20261013/flight_archives",
+    "policy": "Frozen GUI: round1 replay02 relief-clear-approach OFF control; round2 replay02 ON; round3 native official random ON; round4 old white600-timeout replay18 ON. Same layout is not identical actor trajectory. Existing blocked relief and coherent body enabled. All failures retained."
+  },
+  "rounds": [
+    {
+      "actors": {
+        "2": 199.6199999999999,
+        "4": 226.03200000000015,
+        "0": 236.13200000000006,
+        "1": 261.9200000000001,
+        "3": 337.12400000000025,
+        "5": 427.7800000000002
+      },
+      "eliminated": 6,
+      "official_complete": true,
+      "official_timeout": false,
+      "completion_s": 427.7800000000002,
+      "find_counts": {
+        "3": 4,
+        "2": 5,
+        "4": 4,
+        "0": 5,
+        "1": 7,
+        "5": 1
+      },
+      "outcome": "official_success",
+      "round": 1,
+      "map_sha256": "e0a339ee464ac36f8f5cce04d910e3c7bbf06d0e9ff412324ebbcb83b240c528",
+      "code_commit": "5625f979a69c5591ba1b58be1951c7b5f9ea79ba",
+      "started_wall": 1791874085.9602387,
+      "finished_wall": 1791874556.6935441,
+      "wall_elapsed_s": 470.73330545425415,
+      "flight_archive": {
+        "path": "/dev/shm/relief_route_validation_20261013/flight_archives/round_01_ros.tar.xz",
+        "bytes": 156282340,
+        "sha256": "952112132c8a256a0643f2e151780a94b259a31a6bc4fbf234e86bc1a7afbd64"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/relief_route_validation_20261013/rounds/01/core_evidence.tar.xz",
+        "bytes": 26351900,
+        "sha256": "a5eb07bd6d3d6f072fde43cb4d6ded34dbda9abf55f94f0464e46dc2d278f483"
+      }
+    },
+    {
+      "actors": {
+        "3": 114.91999999999985,
+        "1": 255.548,
+        "2": 386.50400000000013,
+        "4": 464.50800000000004,
+        "5": 494.2560000000001,
+        "0": 511.664
+      },
+      "eliminated": 6,
+      "official_complete": true,
+      "official_timeout": false,
+      "completion_s": 511.664,
+      "find_counts": {
+        "3": 3,
+        "1": 2,
+        "2": 28,
+        "4": 25,
+        "5": 1,
+        "0": 1
+      },
+      "outcome": "official_success",
+      "round": 2,
+      "map_sha256": "e0a339ee464ac36f8f5cce04d910e3c7bbf06d0e9ff412324ebbcb83b240c528",
+      "code_commit": "5625f979a69c5591ba1b58be1951c7b5f9ea79ba",
+      "started_wall": 1791874624.9324872,
+      "finished_wall": 1791875185.704189,
+      "wall_elapsed_s": 560.7717018127441,
+      "flight_archive": {
+        "path": "/dev/shm/relief_route_validation_20261013/flight_archives/round_02_ros.tar.xz",
+        "bytes": 182891164,
+        "sha256": "34926e2f27167c73994878e37798fd54e7366879de80f1ed04724915143c35b4"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/relief_route_validation_20261013/rounds/02/core_evidence.tar.xz",
+        "bytes": 35946716,
+        "sha256": "323b524add7b9994f614b8ad4a7ea621ece62f503e2b6d72a546a379e42af589"
+      }
+    },
+    {
+      "actors": {
+        "3": 89.8159999999998,
+        "2": 190.27999999999975,
+        "1": 249.86799999999994,
+        "4": 297.26800000000003,
+        "5": 303.0720000000001,
+        "0": 393.37199999999984
+      },
+      "eliminated": 6,
+      "official_complete": true,
+      "official_timeout": false,
+      "completion_s": 393.37199999999984,
+      "find_counts": {
+        "3": 1,
+        "2": 4,
+        "4": 2,
+        "1": 2,
+        "0": 2,
+        "5": 19
+      },
+      "outcome": "official_success",
+      "round": 3,
+      "map_sha256": "ff77cd5255c8f0d38952a184d8ee162a37e04ca9e8be73b56fffb7e41364e951",
+      "code_commit": "5625f979a69c5591ba1b58be1951c7b5f9ea79ba",
+      "started_wall": 1791875260.8879995,
+      "finished_wall": 1791875700.1474378,
+      "wall_elapsed_s": 439.2594382762909,
+      "flight_archive": {
+        "path": "/dev/shm/relief_route_validation_20261013/flight_archives/round_03_ros.tar.xz",
+        "bytes": 144027716,
+        "sha256": "ad145a6532b59dadc803e2c3737797e20d5df6f94514bffbebbe0ee10b6dd4d8"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/relief_route_validation_20261013/rounds/03/core_evidence.tar.xz",
+        "bytes": 25563020,
+        "sha256": "d8797e2e6a8a5cf149ad963bcbad8e1163a9688758a9c37c3eb346ac2f7a7582"
+      }
+    },
+    {
+      "actors": {
+        "0": 128.83199999999988,
+        "3": 202.0239999999999,
+        "5": 203.5279999999998,
+        "4": 211.51600000000008,
+        "1": 222.7159999999999,
+        "2": 288.41600000000017
+      },
+      "eliminated": 6,
+      "official_complete": true,
+      "official_timeout": false,
+      "completion_s": 288.41600000000017,
+      "find_counts": {
+        "0": 1,
+        "4": 3,
+        "5": 4,
+        "1": 4,
+        "3": 1,
+        "2": 3
+      },
+      "outcome": "official_success",
+      "round": 4,
+      "map_sha256": "e29ea3fd83cc8c42c5897eb4b3743044957bb9b2a8b26c625533687bef807c44",
+      "code_commit": "5625f979a69c5591ba1b58be1951c7b5f9ea79ba",
+      "started_wall": 1791875770.8512394,
+      "finished_wall": 1791876100.1832955,
+      "wall_elapsed_s": 329.3320560455322,
+      "flight_archive": {
+        "path": "/dev/shm/relief_route_validation_20261013/flight_archives/round_04_ros.tar.xz",
+        "bytes": 106977128,
+        "sha256": "d4a68ed296225212ea5ceb04ee664011c35aae991eb5fd3ef3619428033d7cfb"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/relief_route_validation_20261013/rounds/04/core_evidence.tar.xz",
+        "bytes": 18375116,
+        "sha256": "32409e45be73941da7eb5f58f724d163bcca8225b1a3e280248593a59340c314"
+      }
+    }
+  ],
+  "phase": "finished",
+  "started_wall": 1791874085.7731788,
+  "current_round": 4,
+  "round_start_wall": 1791875770.8512394,
+  "live_eliminated": 5,
+  "running_wall_s": 300.2775104045868,
+  "aggregate": {
+    "attempts": 4,
+    "success_6of6": 4,
+    "within300": 1,
+    "timeouts": 0,
+    "nonofficial_failures": 0,
+    "median_success_s": 410.576,
+    "mean_success_s": 405.30800000000005,
+    "worst_success_s": 511.664
+  },
+  "ended_wall": 1791876162.0332723,
+  "source_check_final": {
+    "head": "5625f979a69c5591ba1b58be1951c7b5f9ea79ba",
+    "source_files": 68,
+    "weights": {
+      "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_v3_clean.pt": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+      "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_sculpture_v3.pt": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7"
+    }
+  }
+}

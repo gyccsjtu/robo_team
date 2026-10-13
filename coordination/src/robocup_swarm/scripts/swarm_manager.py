@@ -2459,6 +2459,7 @@ class SwarmManager(SearchSegmentManager):
         borrowed_from = None
         borrowed_primary = None
         best_sample = None
+        best_dispatch_only = False
         for uid, st in self.status.items():
             if not self._tracking_uav_available(uid, now_s):
                 continue
@@ -2491,7 +2492,9 @@ class SwarmManager(SearchSegmentManager):
                 if not (qualified_sequence or distant_sequence):
                     continue
             elif not qualified_sequence:
-                continue
+                view = self._blind_discovery_view(tid, uid, old, now_s, tx, ty)
+                if view is None:
+                    continue
             if float(getattr(st, "z", 0.0) or 0.0) < 1.0:
                 continue
             if now < self._release_cooldown.get(uid, rospy.Time(0)):
@@ -2504,6 +2507,7 @@ class SwarmManager(SearchSegmentManager):
                 borrowed_from = old_backup_tid
                 borrowed_primary = old_primary_tid
                 best_sample = (image if qualified_sequence else view)['sample_s']
+                best_dispatch_only = not qualified_sequence and old_primary_tid is None
         if best is None:
             return
         if borrowed_from is not None:
@@ -2537,6 +2541,11 @@ class SwarmManager(SearchSegmentManager):
         new_msg.cell_ix = new_msg.cell_iy = -1
         new_msg.target_x, new_msg.target_y = tx, ty
         self.assign_pub.publish(new_msg)
+        if best_dispatch_only:
+            rospy.loginfo('[DISCOVERY_OWNER_HANDOFF] tid=%s old=%s new=%s '
+                          'image=%.3f; three coherent camera images, blind owner; '
+                          'dispatch only, no report or confirmation credit',
+                          tid, old, best, best_sample)
         if borrowed_from is not None:
             # New ownership is already reserved and its task sent. The
             # target-scoped cancellation cannot erase the new camera task.
@@ -2564,6 +2573,36 @@ class SwarmManager(SearchSegmentManager):
         self.assign_pub.publish(msg)
         rospy.loginfo("[manager] 近机接棒 %s：%s(%.1fm) → %s(%.1fm)",
                       tid, old, old_d, best, best_d)
+
+    def _blind_discovery_view(self, tid, uid, old, now, tx, ty):
+        """Dispatch-only handoff from a blind owner to a current uncommitted camera."""
+        if os.environ.get('DISCOVERY_BLIND_HANDOFF','0') != '1':
+            return None
+        if (tid not in ('t0','t1','t2','t3') or uid == old or
+                self._tracking.get(tid) != old or
+                uid in set(self._tracking.values()) | set(self._backup.values()) or
+                now-getattr(self,'_tracking_since',{}).get(tid,now) < 1. or
+                self._recent_eligible(tid,now,1.)):
+            return None
+        current=getattr(self,'_visual_observations',{}).get((old,tid))
+        if current is not None and 0. <= now-current['sample_s'] <= 1.5:
+            return None
+        ct=self.tracker.targets.get(tid)
+        last=getattr(ct,'last_ok_t',None)
+        if last is not None and 0. <= now-last <= 1.:
+            return None
+        candidates=[d for (target,camera,_),d in getattr(self,'_discovery_pool',{}).items()
+            if target == tid and camera == uid and d.get('appearance_status') == 'actor'
+            and d.get('dispatch_hits',0) >= 3 and 0. <= now-d['sample_s'] <= .35
+            and d['sample_s']-d.get('dispatch_since_s',d['sample_s']) >= .3-1e-6
+            and math.hypot(d['x']-tx,d['y']-ty) <= 3.]
+        if len(candidates) != 1:
+            return None
+        view=candidates[0]
+        if (self._appearance_rejected(uid,view.get('candidate_id'),now) or
+                math.hypot(self.status[uid].x-view['x'],self.status[uid].y-view['y']) > 12.):
+            return None
+        return view
 
     def _record_approach(self, tid, uid, tx, ty, now, backup=False):
         """Travel budget is separate from visual freshness and judge evidence."""
