@@ -56,6 +56,8 @@ from search_segments import clear_line
 from camera_attention import (approach_image, candidate_velocity, candidate_decision,
                               candidate_reposition, attention_expired,
                               localized_follow_decision)
+CANDIDATE_IMAGE_MAX_TILT = math.radians(max(0., min(18.,
+    float(os.environ.get('CANDIDATE_IMAGE_MAX_TILT_DEG', '8')))))
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
@@ -2044,7 +2046,7 @@ class SwarmAgent(SearchSegmentAgent):
                 cue['interrupt_revisit_ok'] = (data.get('appearance_status') == 'actor' and
                                                data.get('association_unique') is True)
                 # Invalid/clipped new frames clear permission to move at once.
-                cue['image'] = approach_image(data)
+                cue['image'] = approach_image(data, CANDIDATE_IMAGE_MAX_TILT)
                 if (cue['image'] is not None and confidence >= .65 and
                         cue.get('xy') is None and not cue.get('approach_started')):
                     cue['approach_started'] = True
@@ -2282,7 +2284,7 @@ class SwarmAgent(SearchSegmentAgent):
             cue=dict(sample_s=view['sample_s'],bearing=view['bearing'],xy=None,
                      started=view['position_sample_s'],
                      approach_origin=view.get('recovery_origin'),
-                     image=approach_image(view))
+                     image=approach_image(view, CANDIDATE_IMAGE_MAX_TILT))
             if 0. < view['foot_down_sin'] < VIEW_MIN_DOWN_SIN:
                 vx,vy,reason=candidate_decision(cue,now,self.yaw,world,
                     getattr(self,'_scan',None),getattr(self,'_scan_t',-1e18))

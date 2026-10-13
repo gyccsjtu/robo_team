@@ -3,6 +3,7 @@ import copy
 import json
 import math
 import unittest
+from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import patch
 
@@ -23,6 +24,27 @@ class VisibleFollowTests(unittest.TestCase):
         self.a._scan_t = self.now
         self.mode = patch.dict(sa.os.environ, {'LOCALIZED_SEARCH_FOLLOW':'1'})
         self.mode.start(); self.addCleanup(self.mode.stop)
+
+    def test_recorded_brown_image_tilt_can_approach_without_report_credit(self):
+        fixture=json.loads((Path(__file__).parent/'fixtures'/'brown_image_approach_tilt_46273af.json').read_text())
+        raw=next(d for d in fixture['frames'] if abs(d['camera_tilt'])>math.radians(8.))
+        self.assertGreater(abs(raw['camera_tilt']),math.radians(8.))
+        self.assertLess(raw['foot_down_sin'],.30)
+        for limit,moves in ((8.,False),(18.,True)):
+            self.a._camera_cue=None
+            self.a._camera_cue_retry_after={}
+            self.a._camera_attention_attempts=[]
+            self.a.uav_id=raw['source_uav']
+            self.a.yaw=raw['bearing']
+            self.now=raw['sample_s']+.1
+            self.a._scan_t=self.now-.05
+            with patch.object(sa,'CANDIDATE_IMAGE_MAX_TILT',math.radians(limit)):
+                self.a._visual_candidate_cb(NS(data=json.dumps(raw)))
+                self.a._hold_camera_candidate()
+            speed=math.hypot(*self.commands[-1])
+            self.assertEqual(speed>0.,moves)
+            self.assertLessEqual(speed,.95+1e-9)
+            self.assertEqual(self.detections,[])
 
     def payload(self, x, **changes):
         raw = dict(source_uav='u0', target_id='t2', track_id=7,

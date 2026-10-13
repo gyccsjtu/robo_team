@@ -14,19 +14,20 @@ def attention_expired(cue, now):
              now - cue['sample_s'] >= 2.0))
 
 
-def approach_image(data):
+def approach_image(data, max_tilt=math.radians(8.)):
     """Only a full, modest-size, upright view permits an exploratory approach."""
     try:
         box = tuple(float(v) for v in data['box'])
         w, h = float(data['width']), float(data['height'])
         tilt = float(data['camera_tilt'])
-        if len(box) != 4 or not all(math.isfinite(v) for v in (*box, w, h, tilt)):
+        if (len(box) != 4 or not all(math.isfinite(v) for v in (*box, w, h, tilt, max_tilt))
+                or not 0. <= max_tilt <= math.radians(18.)):
             return None
         x1, y1, x2, y2 = box
         if (w <= 0 or h <= 0 or not 8 <= x1 < x2 <= w-8 or
                 not 8 <= y1 < y2 <= .83*h or
                 not 12 <= y2-y1 <= .32*h or
-                abs(tilt) > math.radians(8)):
+                abs(tilt) > max_tilt):
             return None
         return dict(box=box, width=w, height=h, camera_tilt=tilt)
     except (KeyError, TypeError, ValueError, OverflowError):

@@ -54,6 +54,7 @@ def main():
         orbit_radius_close_m=os.environ.get('ORBIT_RADIUS_CLOSE','8.0'),
         early_view_pursuit=os.environ.get('EARLY_VIEW_PURSUIT','0'),
         localized_search_follow=os.environ.get('LOCALIZED_SEARCH_FOLLOW','0'),
+        candidate_image_max_tilt_deg=os.environ.get('CANDIDATE_IMAGE_MAX_TILT_DEG','8'),
         immediate_visible_dispatch=os.environ.get('IMMEDIATE_VISIBLE_DISPATCH','0'),
         pixel_view_recovery=os.environ.get('PIXEL_VIEW_RECOVERY','0'),
         pixel_recovery_approach=os.environ.get('PIXEL_RECOVERY_APPROACH','0'),
