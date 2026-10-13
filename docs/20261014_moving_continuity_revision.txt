@@ -1,0 +1,12 @@
+Baseline: 5b0588a, run_moving_view_candidate.sh (coupled height + passive report diagnostics).
+New switches default off: VIEW_SPACE_BACKOFF, BRIDGE_FRESH_IMAGE_SLOT.
+Candidate wrapper: run_tracking_continuity_candidate.sh.
+
+Evidence: B338 own-camera green instance 6, persistent crop at ~8m and camera height ~4.14m; existing retreat intent was present but urgent range trigger remained 6.5m. Motion recovery now requires at least 3 distinct bound qualified-appearance/localized cropped images spanning .4s, gap <=.5s. Uses current measured view range requirement and existing bounded urgent velocity; same final scan/map/boundary/friend safety applies. No localization or report gate relaxation.
+
+Bridge replay: accurate moving inputs at4/5Hz, delay.3s and receive jitter8ms exposed 1.016s maximum report gap. Qualified current image publication slot now avoids expiration while waiting for .35s throttle, hard minimum .20s. Source/candidate/sample must equal current official input; timer cannot borrow this opportunity. Synthetic turn gap4Hz 1.016->.750s,5Hz .816->.600s; synthetic maximum error .308->.458m. These are offline constructs, not live official performance.
+
+No candidate-ID merge: report payload lacks unique visual proof of old/new aliases; original alternate identity protection stays. Model, sensor calibration, official actor/judge, speed policy and gimbal are unchanged.
+Upstream reviewed (principles only, no copied flight geometry): https://github.com/lansijian/aerial-vision-system/blob/2317e495d221930be4595e573435430699e0a244/catkin_ws/src/yolov11_ros/scripts/human_tracker.py
+
+Targeted tests: crop episode3, urgent intent7, callback integration2, existing tracking/height/safety regressions; fresh image slot13, existing candidate39 and fresh policy4. Runtime GUI verification pending; no completion claim.

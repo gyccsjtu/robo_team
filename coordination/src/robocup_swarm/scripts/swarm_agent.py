@@ -48,7 +48,8 @@ from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs
                            bind_red_view, bind_red_instance_view,
                            retain_pixel_view, pixel_recovery_view,
                            update_pixel_altitude_hold, ReportViewWindow,
-                           VIEW_MIN_DOWN_SIN)
+                           VIEW_MIN_DOWN_SIN, update_cropped_view_pressure,
+                           cropped_view_pressure_ready)
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
@@ -200,6 +201,7 @@ PIXEL_RECOVERY_APPROACH = os.environ.get('PIXEL_RECOVERY_APPROACH', '0') == '1'
 # Control-only candidate; the validated baseline remains the default until
 # paired GUI trials establish whether it improves moving cropped views.
 COUPLED_VIEW_GEOMETRY = os.environ.get('COUPLED_VIEW_GEOMETRY', '0') == '1'
+VIEW_SPACE_BACKOFF = os.environ.get('VIEW_SPACE_BACKOFF', '0') == '1'
 SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
 SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
 SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '4.0'))
@@ -621,13 +623,18 @@ def ring_standoff_velocity(vx, vy, wx, wy, tx, ty, radius,
     return vx, vy
 
 
-def urgent_close_backoff_velocity(vx, vy, wx, wy, tx, ty, tvx, tvy):
+def urgent_close_backoff_velocity(vx, vy, wx, wy, tx, ty, tvx, tvy,
+                                  minimum_view_range=None):
     """Retreat when a walking actor is about to enter the camera's blind spot.
 
     A 0.95 m/s cap cannot preserve standoff from an actor walking toward the
     aircraft at about 1 m/s.  Keep the quiet cap while there is room, then
     spend the actor's one-time escape response if the alternative is losing
     the observation entirely.
+
+    A caller may supply a range required by sustained, fresh own-camera
+    clipping. This changes the trigger distance, never the existing speed
+    ceiling. Missing or invalid image geometry retains the original 6.5 m.
     """
     dx, dy = wx - tx, wy - ty
     dist = math.hypot(dx, dy)
@@ -635,7 +642,13 @@ def urgent_close_backoff_velocity(vx, vy, wx, wy, tx, ty, tvx, tvy):
         return vx, vy, False
     ux, uy = dx / dist, dy / dist
     approaching = tvx * ux + tvy * uy
-    if dist < 6.5 and approaching >= 0.4:
+    trigger_range = 6.5
+    if (isinstance(minimum_view_range, (int, float)) and
+            not isinstance(minimum_view_range, bool) and
+            math.isfinite(minimum_view_range) and
+            0. < minimum_view_range <= VIEW_MOTION_RANGE):
+        trigger_range = max(trigger_range, minimum_view_range)
+    if dist < trigger_range and approaching >= 0.4:
         speed = min(CLOSE_BACKOFF_SPEED, max(1.2, approaching + 0.45))
         return speed * ux, speed * uy, True
     if dist < 5.5:
@@ -2226,6 +2239,8 @@ class SwarmAgent(SearchSegmentAgent):
             view['altitude_goal'] = self._tracking_altitude['goal']
             view['needs_space'] = self._tracking_altitude.get('needs_space', False)
             view['range_floor'] = self._tracking_altitude.get('range_floor', 0.)
+            self._cropped_view_pressure = update_cropped_view_pressure(
+                getattr(self, '_cropped_view_pressure', None), view)
             self._tracking_image = view
             quality=self.__dict__.setdefault('_report_view_window',ReportViewWindow())
             quality.observe(view)
@@ -2404,8 +2419,13 @@ class SwarmAgent(SearchSegmentAgent):
         radius = ORBIT_RADIUS_CLOSE
         if view.get('needs_space'):
             radius = max(radius, min(VIEW_MOTION_RANGE, view.get('range_floor', radius)))
-        return dict(own=own, target=target[:2], velocity=(tvx, tvy),
-                    radius=radius, distance=distance)
+        context = dict(own=own, target=target[:2], velocity=(tvx, tvy),
+                       radius=radius, distance=distance)
+        if (VIEW_SPACE_BACKOFF and cropped_view_pressure_ready(
+                getattr(self, '_cropped_view_pressure', None), view)):
+            context['minimum_view_range'] = min(VIEW_MOTION_RANGE,
+                                               view['range_floor'])
+        return context
 
     def _view_follow_velocity(self, vx, vy):
         context = self._view_motion_context(rospy.Time.now().to_sec())
@@ -5938,7 +5958,14 @@ class SwarmAgent(SearchSegmentAgent):
                     vx, vy, wx, wy, tx, ty, _radius,
                     _tvx, _tvy, speed_cap=follow_cap)
                 vx, vy, _urgent_backoff = urgent_close_backoff_velocity(
-                    vx, vy, wx, wy, tx, ty, _tvx, _tvy)
+                    vx, vy, wx, wy, tx, ty, _tvx, _tvy,
+                    minimum_view_range=(view_motion.get('minimum_view_range')
+                                        if view_motion else None))
+                if _urgent_backoff and view_motion and 'minimum_view_range' in view_motion:
+                    rospy.loginfo_throttle(1., '[VIEW_SPACE_BACKOFF] uav=%s tid=%s '
+                        'range=%.2f required=%.2f intent=(%.2f,%.2f); final safety applies',
+                        self.uav_id, self._orbit_target, orbit_dist,
+                        view_motion['minimum_view_range'], vx, vy)
         else:
             # 8m 外圈也维持固定观察方位，不为产生角速度而绕人。
             # 对移动目标用最近真实图像轨迹作前馈；随后仍统一限速、

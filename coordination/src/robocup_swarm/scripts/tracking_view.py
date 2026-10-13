@@ -398,3 +398,38 @@ def view_needs_space(view):
     _, top, _, bottom = view['box']
     h = view['height']
     return bottom >= .94*h or top <= .04*h or bottom-top > .8*h
+
+
+def update_cropped_view_pressure(previous, view):
+    """Count new bound images, never repeated controls, before faster retreat.
+
+    This supplies observation motion only. It does not qualify a cropped foot
+    for localization or extend any target's report/identity lifetime.
+    """
+    identity = (view['target_id'], view.get('world_candidate_id') or
+                view.get('track_id'))
+    sample = view['sample_s']
+    _, top, _, bottom = view['box']
+    h = view['height']
+    credible = (view.get('geometry_ok') is True and
+                view.get('person_verdict_ok') is True and
+                view.get('report_ok') is False and
+                not view.get('pixel_only') and
+                view.get('needs_space') is True and
+                top >= .04*h and bottom >= .94*h and
+                bottom-top <= .8*h and
+                abs(view.get('camera_tilt', math.pi)) <= math.radians(8.))
+    if not credible:
+        return None
+    if (previous is None or previous['identity'] != identity or
+            sample-previous['last'] > .5 or sample < previous['last']):
+        return dict(identity=identity, first=sample, last=sample, count=1)
+    if sample == previous['last']:
+        return previous
+    return dict(previous, last=sample, count=previous['count']+1)
+
+
+def cropped_view_pressure_ready(pressure, view):
+    return (pressure is not None and pressure['last'] == view['sample_s'] and
+            pressure['count'] >= 3 and
+            pressure['last']-pressure['first'] >= .4-1e-6)

@@ -127,6 +127,11 @@ if REPORT_POLICY not in ('fit', 'fresh'):
 FRESH_REPORT_INTERVAL = .35
 FRESH_REPORT_MAX_AGE = .35
 FRESH_REPORT_MAX_ADVANCE = .15
+# An accepted image can expire before the next ordinary publication slot.
+# This opt-in changes only scheduling of an already qualified point; it grants
+# no identity, geometry, prediction, or freshness exception.
+FRESH_IMAGE_SLOT = os.environ.get('BRIDGE_FRESH_IMAGE_SLOT', '0') == '1'
+FRESH_IMAGE_SLOT_MIN_INTERVAL = .20
 # 2026-10-06 六轮复盘核心修复：官方判据「相邻广播间隔 <=1.0s」（score_cal DETECTION_INTERVAL）
 # 只约束不超 1s，不要求高频。广播 3Hz 时 15s streak 需 45 次连乘全过（单次失败率 20% ->
 # 成功率 0.8^45≈8e-6，必然 0 消除）；节流到 0.75s 一次后 15s 只需 20 次连乘（0.8^20=1.2%），
@@ -443,6 +448,31 @@ def official_report_interval(track, keepalive=False):
     speed=math.hypot(track.vx,track.vy) if track is not None else 0.
     base=ACTOR_KEEPALIVE_DT if keepalive else PUB_MIN_INTERVAL
     return min(base,FAST_PUB_INTERVAL) if speed >= FAST_PUB_SPEED else base
+
+
+def fresh_image_slot_allowed(track, now, last_pub, last_visual):
+    """Use a new same-instance image that would expire while rate-limited.
+
+    Callers must first obtain official_point_at and pass the range gate. Only
+    the image callback may invoke this exception; timers cannot renew it.
+    """
+    if not FRESH_IMAGE_SLOT or REPORT_POLICY != 'fresh' or last_visual is None:
+        return False
+    source = getattr(track, 'official_source', None)
+    candidate = getattr(track, 'official_candidate_id', None)
+    sample = getattr(track, 'good_t', None)
+    if (not isinstance(source, str) or not source or
+            not isinstance(candidate, str) or not candidate or
+            not isinstance(last_visual, tuple) or len(last_visual) != 3 or
+            last_visual[:2] != (source, candidate) or
+            not all(not isinstance(v, bool) and isinstance(v, (int, float)) and math.isfinite(v)
+                    for v in (now, last_pub, sample, last_visual[2]))):
+        return False
+    age, gap = now-sample, now-last_pub
+    return (sample > last_visual[2] and 0. <= age <= FRESH_REPORT_MAX_AGE and
+            FRESH_IMAGE_SLOT_MIN_INTERVAL <= gap < official_report_interval(track) and
+            last_pub+official_report_interval(track) >
+            sample+FRESH_REPORT_MAX_AGE+1e-9)
 
 
 class _Track(object):
@@ -1427,9 +1457,10 @@ class YoloTargetBridge(object):
         self._String = _msg_string_cls()
         self.report_pub = rospy.Publisher("/swarm/report_telemetry",
                                           self._String, queue_size=30)
-        rospy.loginfo('[REPORT_POLICY] policy=%s image_age_limit=%.2f interval=%.2f advance_cap=%s',
+        rospy.loginfo('[REPORT_POLICY] policy=%s image_age_limit=%.2f interval=%.2f advance_cap=%s image_slot=%s',
                       REPORT_POLICY, FRESH_REPORT_MAX_AGE if REPORT_POLICY=='fresh' else OFFICIAL_IMAGE_MAX_AGE,
-                      official_report_interval(None), FRESH_REPORT_MAX_ADVANCE if REPORT_POLICY=='fresh' else 'fit')
+                      official_report_interval(None), FRESH_REPORT_MAX_ADVANCE if REPORT_POLICY=='fresh' else 'fit',
+                      FRESH_IMAGE_SLOT)
         for tag in TAG_TO_TID:
             self._actor_pubs[tag] = rospy.Publisher(
                 "/actor_%s_info" % tag, ActorInfo, queue_size=3)
@@ -1730,7 +1761,10 @@ class YoloTargetBridge(object):
                 if source_accepted and self._pub_gate_ok(tag):
                     point = official_point_at(tr, now)
                     if point is not None:
-                        self._publish_actor(tag, *point)
+                        current_image = (sample == tr.good_t and
+                            key == self.core._source_key(
+                                tr.official_source, tr.official_candidate_id))
+                        self._publish_actor(tag, *point, from_image=current_image)
         except (ValueError, KeyError, TypeError) as exc:
             self._rospy.logwarn_throttle(5, "丢弃 target_report：%s", exc)
 
@@ -1923,7 +1957,7 @@ class YoloTargetBridge(object):
                 st["max_gap"] = gap
         st["last"] = now
 
-    def _publish_actor(self, tag, x, y):
+    def _publish_actor(self, tag, x, y, from_image=False):
         """向官方话题发布一条 ActorInfo（唯一的播报出口，供 _emit 与保持器共用）。
 
         · cls 必须取官方 actor_id_dict 的键（红球是 'red'，不是 'red1'）。
@@ -1952,8 +1986,15 @@ class YoloTargetBridge(object):
         _last_pub = self._pub_last.get(tag)
         tr = self.core.tracks.get(tag)
         _interval = official_report_interval(tr)
+        visual_book = self.__dict__.setdefault('_published_visual', {})
         if _last_pub is not None and now - _last_pub < _interval:
-            return
+            if not (from_image and fresh_image_slot_allowed(
+                    tr, now, _last_pub, visual_book.get(tag))):
+                return
+            self._rospy.loginfo('[FRESH_IMAGE_SLOT] tag=%s source=%s image=%.3f '
+                               'gap=%.3f age=%.3f; qualified same-instance image',
+                               tag, tr.official_source, tr.good_t,
+                               now-_last_pub, now-tr.good_t)
         self._rospy.loginfo('[REPORT_POINT] tag=%s source=%s image=%.3f '
                            'age=%.3f xy=(%.3f,%.3f) rejected=%d',
                            tag, tr.official_source, tr.good_t,
@@ -1962,6 +2003,7 @@ class YoloTargetBridge(object):
         # not assert which official red actor was observed.
         self._actor_pubs[tag].publish(am)
         self._pub_last[tag] = now
+        visual_book[tag] = (tr.official_source, tr.official_candidate_id, tr.good_t)
         self._note_pub(tag, now)
         self._publish_report_telemetry('published', tag, now, tr, am.x, am.y)
 
