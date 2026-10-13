@@ -1,0 +1,8 @@
+{
+  "head": "79c95344e295e0f7152ec742e6c3c3606024b7c2",
+  "source_files": 69,
+  "weights": {
+    "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_v3_clean.pt": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+    "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_sculpture_v3.pt": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7"
+  }
+}

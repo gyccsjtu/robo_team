@@ -1,0 +1,11 @@
+{
+  "root": "/home/gycc/桌面/RoboCup_Team",
+  "batch": "/home/gycc/桌面/RoboCup_Team/artifacts/discovery_owner_combo_20261013",
+  "ram": "/dev/shm/discovery_owner_combo_20261013",
+  "code_commit": "79c95344e295e0f7152ec742e6c3c3606024b7c2",
+  "official_ref": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+  "trials": 3,
+  "gui": true,
+  "flight_archive_location": "/dev/shm/discovery_owner_combo_20261013/flight_archives",
+  "policy": "User requested combined strategy. GUI frozen: round1 original layout02 discovery handoff ON / route choice OFF; round2 same layout both ON; round3 prior native random03 green195s-gap layout both ON. Same layout not identical actor paths. Existing full flight and reporting checks remain."
+}

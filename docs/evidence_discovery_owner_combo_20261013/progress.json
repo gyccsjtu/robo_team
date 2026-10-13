@@ -1,0 +1,169 @@
+{
+  "config": {
+    "root": "/home/gycc/桌面/RoboCup_Team",
+    "batch": "/home/gycc/桌面/RoboCup_Team/artifacts/discovery_owner_combo_20261013",
+    "ram": "/dev/shm/discovery_owner_combo_20261013",
+    "code_commit": "79c95344e295e0f7152ec742e6c3c3606024b7c2",
+    "official_ref": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+    "trials": 3,
+    "gui": true,
+    "flight_archive_location": "/dev/shm/discovery_owner_combo_20261013/flight_archives",
+    "policy": "User requested combined strategy. GUI frozen: round1 original layout02 discovery handoff ON / route choice OFF; round2 same layout both ON; round3 prior native random03 green195s-gap layout both ON. Same layout not identical actor paths. Existing full flight and reporting checks remain."
+  },
+  "rounds": [
+    {
+      "actors": {
+        "4": 202.62800000000016,
+        "2": 207.03600000000006,
+        "5": 279.46799999999985,
+        "3": 291.1800000000003,
+        "0": 318.5920000000001,
+        "1": 405.3879999999999
+      },
+      "eliminated": 6,
+      "official_complete": true,
+      "official_timeout": false,
+      "completion_s": 405.3879999999999,
+      "find_counts": {
+        "3": 3,
+        "2": 5,
+        "4": 4,
+        "1": 14,
+        "0": 9,
+        "5": 1
+      },
+      "outcome": "official_success",
+      "treatment": {
+        "discovery_blind_handoff": "1",
+        "relief_clear_approach": "0"
+      },
+      "round": 1,
+      "map_sha256": "e0a339ee464ac36f8f5cce04d910e3c7bbf06d0e9ff412324ebbcb83b240c528",
+      "code_commit": "79c95344e295e0f7152ec742e6c3c3606024b7c2",
+      "started_wall": 1791876512.404705,
+      "finished_wall": 1791876963.3688817,
+      "wall_elapsed_s": 450.9641766548157,
+      "flight_archive": {
+        "path": "/dev/shm/discovery_owner_combo_20261013/flight_archives/round_01_ros.tar.xz",
+        "bytes": 149323392,
+        "sha256": "402ee48a96f19b3b706cf1b7a75e4dc4a0ed360f683e47a9eaadcb6b2357ff28"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/discovery_owner_combo_20261013/rounds/01/core_evidence.tar.xz",
+        "bytes": 27982444,
+        "sha256": "6c2aa211d8d8aa48b6e5edbe00cd9e089c40e025f02ea50e32df5e508a78942c"
+      }
+    },
+    {
+      "actors": {
+        "1": 195.8399999999997,
+        "0": 298.1279999999997,
+        "3": 336.44000000000005,
+        "2": 408.424,
+        "4": 409.63599999999997,
+        "5": 421.0279999999998
+      },
+      "eliminated": 6,
+      "official_complete": true,
+      "official_timeout": false,
+      "completion_s": 421.0279999999998,
+      "find_counts": {
+        "3": 3,
+        "2": 5,
+        "1": 2,
+        "5": 6,
+        "0": 12,
+        "4": 14
+      },
+      "outcome": "official_success",
+      "treatment": {
+        "discovery_blind_handoff": "1",
+        "relief_clear_approach": "1"
+      },
+      "round": 2,
+      "map_sha256": "e0a339ee464ac36f8f5cce04d910e3c7bbf06d0e9ff412324ebbcb83b240c528",
+      "code_commit": "79c95344e295e0f7152ec742e6c3c3606024b7c2",
+      "started_wall": 1791877032.5526428,
+      "finished_wall": 1791877503.0408785,
+      "wall_elapsed_s": 470.4882357120514,
+      "flight_archive": {
+        "path": "/dev/shm/discovery_owner_combo_20261013/flight_archives/round_02_ros.tar.xz",
+        "bytes": 153850588,
+        "sha256": "0ad6405eaeaa93e84e83e74170c1a328ec3b64177c5f835f96a84de49a0c77bb"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/discovery_owner_combo_20261013/rounds/02/core_evidence.tar.xz",
+        "bytes": 29032480,
+        "sha256": "422edb554644b4a1ee0c18cfeb46e0ee6fe3063dd4d7f8598dabdabe2e0110d7"
+      }
+    },
+    {
+      "actors": {
+        "3": 170.23199999999997,
+        "2": 190.66800000000012,
+        "0": 254.06799999999976,
+        "1": 278.56399999999985,
+        "4": 296.96799999999985,
+        "5": 311.46399999999994
+      },
+      "eliminated": 6,
+      "official_complete": true,
+      "official_timeout": false,
+      "completion_s": 311.46399999999994,
+      "find_counts": {
+        "3": 2,
+        "0": 13,
+        "2": 4,
+        "5": 10,
+        "4": 4,
+        "1": 11
+      },
+      "outcome": "official_success",
+      "treatment": {
+        "discovery_blind_handoff": "1",
+        "relief_clear_approach": "1"
+      },
+      "round": 3,
+      "map_sha256": "ff77cd5255c8f0d38952a184d8ee162a37e04ca9e8be73b56fffb7e41364e951",
+      "code_commit": "79c95344e295e0f7152ec742e6c3c3606024b7c2",
+      "started_wall": 1791877571.0097432,
+      "finished_wall": 1791877926.3094249,
+      "wall_elapsed_s": 355.2996816635132,
+      "flight_archive": {
+        "path": "/dev/shm/discovery_owner_combo_20261013/flight_archives/round_03_ros.tar.xz",
+        "bytes": 116968796,
+        "sha256": "e13a6ec77911140ebe5f2821f929479d524170161605986ae88220fbd9b6a3a6"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/discovery_owner_combo_20261013/rounds/03/core_evidence.tar.xz",
+        "bytes": 21060624,
+        "sha256": "0819bc58f07b635be1651f10a34aa9d7e0d834a0cdbf19e48d5da752470f49e2"
+      }
+    }
+  ],
+  "phase": "finished",
+  "started_wall": 1791876512.210986,
+  "current_round": 3,
+  "round_start_wall": 1791877571.0097432,
+  "live_eliminated": 4,
+  "running_wall_s": 330.29149436950684,
+  "aggregate": {
+    "attempts": 3,
+    "success_6of6": 3,
+    "within300": 0,
+    "timeouts": 0,
+    "nonofficial_failures": 0,
+    "median_success_s": 405.3879999999999,
+    "mean_success_s": 379.29333333333324,
+    "worst_success_s": 421.0279999999998
+  },
+  "ended_wall": 1791877989.9740527,
+  "source_check_final": {
+    "head": "79c95344e295e0f7152ec742e6c3c3606024b7c2",
+    "source_files": 69,
+    "weights": {
+      "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_v3_clean.pt": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+      "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_sculpture_v3.pt": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7"
+    }
+  }
+}

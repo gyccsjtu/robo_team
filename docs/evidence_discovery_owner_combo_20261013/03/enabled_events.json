@@ -1,0 +1,4 @@
+[
+  "[INFO] [1791877760.040231, 2057.708000]: [DISCOVERY_OWNER_HANDOFF] tid=t3 old=typhoon_h480_4 new=typhoon_h480_1 image=2057.456; three coherent camera images, blind owner; dispatch only, no report or confirmation credit",
+  "[INFO] [1791877827.560512, 2123.508000]: [DISCOVERY_OWNER_HANDOFF] tid=t0 old=typhoon_h480_5 new=typhoon_h480_3 image=2123.180; three coherent camera images, blind owner; dispatch only, no report or confirmation credit"
+]

@@ -1,0 +1,27 @@
+{
+  "orca": [
+    1.38,
+    -0.85
+  ],
+  "orca_after_existing_friend_gate": [
+    1.38,
+    -0.85
+  ],
+  "radar": [
+    1.23,
+    -0.36
+  ],
+  "radar_after_existing_friend_gate": [
+    0.0,
+    0.0
+  ],
+  "projection": [
+    1.0525632037559176,
+    -0.6481489535595025
+  ],
+  "projection_after_existing_friend_gate": [
+    1.0525632037559176,
+    -0.6481489535595025
+  ],
+  "limits": "Isolated real recorded friend positions with actual gate; laser/map are intentionally disabled to prove the friend-direction conflict only. This is not proof of full flight clearance; all actual laser/map/final guards must remain."
+}

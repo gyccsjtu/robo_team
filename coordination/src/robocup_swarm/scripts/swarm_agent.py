@@ -45,6 +45,7 @@ from search_observation import (cell_points, in_view, observable_points,
 from edge_search_review import EdgeReview
 from csv_logger import logger
 from visual_evidence import parse_visual_evidence
+from friend_motion import project_no_closing
 from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs_space,
                            bind_red_view, bind_red_instance_view,
                            retain_pixel_view, pixel_recovery_view,
@@ -4010,6 +4011,13 @@ class SwarmAgent(SearchSegmentAgent):
             # Scale the *final* inward velocity before publishing.  Emergency
             # radar and ORCA proximity still retain precedence in the helper.
             vx, vy = self._close_range_final_guard(vx, vy)
+        if vz is None:
+            before_friend_recheck = (vx, vy)
+            vx, vy = self._buffer_friend_velocity(vx, vy)
+            if (vx, vy) != before_friend_recheck:
+                vx, vy = self._map_guard_velocity(vx, vy)
+                if rec is None:
+                    vx, vy = self._close_range_final_guard(vx, vy)
         vx, vy = self._final_motion_gate(vx, vy)
         self._last_cmd_v = (vx, vy)
         # A safe stop is correct, but the view planner must know that its
@@ -6021,6 +6029,48 @@ class SwarmAgent(SearchSegmentAgent):
             vy *= scale
 
         return vx, vy
+
+    def _buffer_friend_velocity(self, vx, vy):
+        """Coordinate a nonzero tracking intent after radar changed direction.
+
+        Only the outer friend buffer uses the no-closing cone. Inner-zone
+        repulsion, all protected stops and final laser/grid/bounds checks keep
+        their authority. No search task, report, source or target state changes.
+        """
+        assignment = getattr(self, 'assignment', None)
+        if (os.environ.get('TRACKING_FRIEND_RECHECK', '0') != '1' or
+                getattr(assignment, 'task_type', None) != 1 or
+                not getattr(self, '_takeoff_done', False) or
+                getattr(self, '_radar_retreating', False) or
+                math.hypot(vx, vy) < 1e-9):
+            return vx, vy
+        own = self.world_xy
+        if own is None or self.local_z is None:
+            return 0., 0.
+        now = rospy.Time.now().to_sec()
+        normals = []
+        for uid, (x, y, z) in list(getattr(self, '_friend_positions', {}).items()):
+            if not 0. <= now-getattr(self, '_friend_seen', {}).get(uid, -1e18) <= 1.:
+                continue
+            if not all(math.isfinite(v) for v in (x, y, self.local_z if z is None else z)):
+                return 0., 0.
+            dx, dy = x-own[0], y-own[1]
+            dz = 0. if z is None else z-self.local_z
+            distance = math.hypot(math.hypot(dx, dy), dz)
+            if distance < FRIEND_SAFE_DIST:
+                return vx, vy  # preserve the existing nonzero inner repulsion requirement
+            if distance < SAFE_3D:
+                if math.hypot(dx, dy) < .01:
+                    return 0., 0.
+                normals.append((dx, dy))
+        projected = project_no_closing((vx, vy), normals)
+        if math.hypot(projected[0]-vx, projected[1]-vy) > 1e-8:
+            rospy.loginfo_throttle(.5, '[FRIEND_BUFFER_RECHECK] uav=%s tid=%s '
+                'in=(%.3f,%.3f) out=(%.3f,%.3f) planes=%d; '
+                'final laser/map/flight checks still required',
+                self.uav_id, assignment.target_id, vx, vy,
+                projected[0], projected[1], len(normals))
+        return projected
 
     def _apply_friend_avoidance(self, vx, vy):
         """ORCA 避碰：修复无解兜底、对称死锁、速度衰减问题"""
