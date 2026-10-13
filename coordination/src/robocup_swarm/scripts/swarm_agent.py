@@ -50,6 +50,7 @@ from tracking_view import (parse_tracking_view, update_altitude_hold, view_needs
                            update_pixel_altitude_hold, ReportViewWindow,
                            VIEW_MIN_DOWN_SIN)
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
+from gimbal_attention import validate_handoff, selected_uavs
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
 from search_segments import clear_line
@@ -968,6 +969,12 @@ class SwarmAgent(SearchSegmentAgent):
         self._team_visual = {}      # (source, target) -> recent accepted image streak
         self._camera_cue = None
         self._camera_cue_retry_after = {}
+        # Auxiliary rays have their own finite lease. A colour match cannot
+        # turn this camera's instance into a fixed-camera person identity.
+        self._gimbal_cue = None
+        self._gimbal_handoff_enabled = (
+            os.environ.get('GIMBAL_AUX_MODE', 'off') == 'handoff' and
+            self.uav_id in selected_uavs(os.environ.get('GIMBAL_AUX_UAVS', '2,5')))
         self._search_scan_key = None
         self._search_scan_yaw0 = None
         self._search_scan_phase = 0
@@ -1127,6 +1134,14 @@ class SwarmAgent(SearchSegmentAgent):
         rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb, queue_size=30)
         rospy.Subscriber("/swarm/visual_candidate", String, self._visual_candidate_cb, queue_size=6)
         rospy.Subscriber("/swarm/tracking_view", String, self._tracking_view_cb, queue_size=6)
+        if self._gimbal_handoff_enabled:
+            self._gimbal_feedback_pub = rospy.Publisher(
+                '/swarm/gimbal_feedback', String, queue_size=6)
+            rospy.Subscriber('/swarm/gimbal_candidate', String,
+                             self._gimbal_candidate_cb, queue_size=3)
+        rospy.loginfo('[GIMBAL_CONFIG] uav=%s handoff=%s; auxiliary rays only, '
+                      'fixed camera retains person identity and reporting',
+                      self.uav_id, self._gimbal_handoff_enabled)
         if self._fast_yaw_enabled:
             rospy.Subscriber('/perception/fast_tracking_view', String,
                              self._fast_tracking_view_cb, queue_size=6)
@@ -1856,6 +1871,95 @@ class SwarmAgent(SearchSegmentAgent):
                     if math.hypot(ex-wx, ey-wy) <= 20.0 and error <= math.radians(15.):
                         return True
         return False
+
+    @serialized_visual_task
+    def _cancel_gimbal_cue(self, result, now):
+        cue = getattr(self, '_gimbal_cue', None)
+        if cue is None:
+            return
+        self._gimbal_cue = None
+        retry = {cid: until for cid, until in
+                 getattr(self, '_gimbal_retry_after', {}).items() if until > now}
+        retry[cue['candidate_id']] = now + 12.
+        self._gimbal_retry_after = dict(sorted(retry.items(),
+                                             key=lambda item: item[1])[-64:])
+        publisher = getattr(self, '_gimbal_feedback_pub', None)
+        if publisher is not None:
+            publisher.publish(String(data=json.dumps(dict(
+                source_uav=self.uav_id, candidate_id=cue['candidate_id'],
+                sample_s=now, result=result))))
+        rospy.loginfo('[GIMBAL_HANDOFF_END] uav=%s cid=%s reason=%s; '
+                      'no cross-camera identity or report credit',
+                      self.uav_id, cue['candidate_id'], result)
+
+    @serialized_visual_task
+    def _gimbal_candidate_cb(self, msg):
+        """Receive measured image rays, never person positions or assignments."""
+        if not getattr(self, '_gimbal_handoff_enabled', False):
+            return
+        try:
+            now = rospy.Time.now().to_sec()
+            data = validate_handoff(json.loads(msg.data), self.uav_id, now)
+            if (getattr(getattr(self, 'assignment', None), 'task_type', None) != 0 or
+                    self.world_xy is None or not self._world_trusted() or
+                    getattr(self, '_landing', False) or
+                    not getattr(self, '_takeoff_done', False) or
+                    getattr(self, '_camera_cue', None) is not None or
+                    getattr(self, '_orbit_target', None) is not None or
+                    getattr(self, '_target_to_orbit', None) is not None):
+                return
+            cue = getattr(self, '_gimbal_cue', None)
+            if cue is not None:
+                if (cue['candidate_id'] != data['candidate_id'] or
+                        now >= cue['until'] or
+                        data['sample_s'] <= cue['sample_s']):
+                    return
+                # New images can update the ray, but cannot extend the lease.
+                cue.update(bearing=data['bearing'], sample_s=data['sample_s'])
+                return
+            if now < getattr(self, '_gimbal_retry_after', {}).get(
+                    data['candidate_id'], -1e18):
+                return
+            self._gimbal_cue = dict(data, started=now,
+                until=min(now + 6., data['until_s']), last_hold_s=now)
+            rospy.loginfo('[GIMBAL_ATTENTION] uav=%s cid=%s image=%.3f '
+                          'until=%.3f; stop search and turn through final safety exit',
+                          self.uav_id, data['candidate_id'], data['sample_s'],
+                          self._gimbal_cue['until'])
+        except (ValueError, TypeError, KeyError, OverflowError):
+            return
+
+    @serialized_visual_task
+    def _hold_gimbal_candidate(self):
+        cue = getattr(self, '_gimbal_cue', None)
+        if cue is None:
+            return False
+        now = rospy.Time.now().to_sec()
+        if (getattr(getattr(self, 'assignment', None), 'task_type', None) != 0 or
+                getattr(self, '_camera_cue', None) is not None or
+                getattr(self, '_orbit_target', None) is not None or
+                getattr(self, '_target_to_orbit', None) is not None or
+                getattr(self, '_landing', False) or not self._world_trusted() or
+                getattr(getattr(self, 'state', None), 'mode', '') != 'OFFBOARD'):
+            self._cancel_gimbal_cue('preempted', now)
+            return False
+        if now >= cue['until'] or not 0. <= now-cue['sample_s'] <= .5:
+            self._cancel_gimbal_cue('expired', now)
+            return False
+        if self.world_xy is None:
+            self._cancel_gimbal_cue('preempted', now)
+            return False
+        wx, wy = self.world_xy
+        self._look_at = (wx + 10.*math.cos(cue['bearing']),
+                         wy + 10.*math.sin(cue['bearing']))
+        last = cue['last_hold_s']
+        if getattr(self, '_search_scan_started_t', None) is not None:
+            self._search_scan_started_t += max(0., min(now-last, .25))
+        cue['last_hold_s'] = now
+        # No cloud range estimate: only braking and measured-ray yaw. The
+        # fixed camera independently establishes identity and localization.
+        self._send_vel(0., 0.)
+        return True
 
     def _attention_attempt(self, color, bearing, xy, now):
         """Bound retries by observed place/view, independently of detector IDs.
@@ -4991,6 +5095,9 @@ class SwarmAgent(SearchSegmentAgent):
         # A real camera cue interrupts travel and scan immediately, even
         # while the manager is changing the search waypoint or assigning work.
         if self._hold_camera_candidate():
+            self._cancel_gimbal_cue('preempted', rospy.Time.now().to_sec())
+            return
+        if self._hold_gimbal_candidate():
             return
 
         if self.assignment is None:

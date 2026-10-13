@@ -81,6 +81,12 @@ if [ "$FAST_VISUAL_YAW" = 1 ]; then
     export PR_FAST_TRACKER_SHADOW=1
 fi
 export FAST_VISUAL_YAW FAST_VISUAL_YAW_UAVS
+# One low-priority native camera worker; fixed stereo alone reports actors.
+GIMBAL_AUX_MODE="${GIMBAL_AUX_MODE:-off}"
+GIMBAL_AUX_UAVS="${GIMBAL_AUX_UAVS:-2,5}"
+GIMBAL_AUX_HZ="${GIMBAL_AUX_HZ:-3}"
+GIMBAL_AUX_IMGSZ="${GIMBAL_AUX_IMGSZ:-960}"
+export GIMBAL_AUX_MODE GIMBAL_AUX_UAVS GIMBAL_AUX_HZ GIMBAL_AUX_IMGSZ
 # Short-segment search is separately gated from auxiliary gimbal observation.
 # Keep the baseline default until the GUI comparison has passed.
 SEARCH_SEGMENTS="${SEARCH_SEGMENTS:-0}"
@@ -379,6 +385,22 @@ topic_publisher_match(){  # topic_publisher_match <topic> <节点名片段>
 }
 
 # ============================ 赛前体检 ======================================
+gimbal_config_valid(){
+    [ "$GIMBAL_AUX_MODE" != off ] || return 0
+    [ -f "$PERC_DIR/gimbal_auxiliary.py" ] && \
+        [ -f "$SWARM_SCRIPTS/gimbal_attention.py" ] \
+        || { err "云台辅助代码缺失"; return 1; }
+    PYTHONPATH="$SWARM_SCRIPTS:${PYTHONPATH:-}" python3 - <<'PY'
+import math, os
+from gimbal_attention import selected_uavs
+assert os.environ['GIMBAL_AUX_MODE'] in ('shadow', 'handoff')
+selected_uavs(os.environ['GIMBAL_AUX_UAVS'])
+hz = float(os.environ['GIMBAL_AUX_HZ'])
+assert math.isfinite(hz) and .5 <= hz <= 4.
+assert int(os.environ['GIMBAL_AUX_IMGSZ']) in (640, 960)
+PY
+}
+
 fast_visual_config_valid(){
     local module
     for module in search_segments search_segment_manager search_segment_agent motion_safety boundary_patrol; do
@@ -430,6 +452,7 @@ preflight(){
     local -a _preflight_errors=()
     echo "${C_B}================ RoboCup 赛前体检 ================${C_0}"
     fast_visual_config_valid || hard_miss=$((hard_miss+1))
+    gimbal_config_valid || hard_miss=$((hard_miss+1))
 
     # 进程残留检查：上一局 stop 没清干净会导致新局 gzserver 被顶掉、rosmaster 冲突。
     # 复盘 2026-10-02 23:29 局：残留 gzserver 顶掉新 gzserver → "new node registered
@@ -742,6 +765,7 @@ team_preflight(){
     clock_permission_check || return 1
     local file nodes
     fast_visual_config_valid || return 1
+    gimbal_config_valid || return 1
     for file in "$ROS_SETUP" "$WS_SETUP" "$COORD_WS_SETUP" "$WEIGHTS" \
                 "$PERC_DIR/perception_real.py" "$BRIDGE_SCRIPT" "$COMM_BRIDGE" \
                 "$SWARM_SCRIPTS/swarm_agent.py" "$SWARM_SCRIPTS/swarm_manager.py" \
@@ -1212,6 +1236,19 @@ do_start(){
         wait_gate "协同层 6 agent ROS 节点注册" 45 agents_ready \
             || partial_fail "agent 不足 6/6，看 $LOGDIR/06_swarm_agent_*.log"
 
+        if [ "$GIMBAL_AUX_MODE" != off ]; then
+            start_group gimbal_auxiliary "$LOGDIR/06_gimbal_auxiliary.log" \
+                python3 -u "$PERC_DIR/gimbal_auxiliary.py" \
+                --mode "$GIMBAL_AUX_MODE" --uavs "$GIMBAL_AUX_UAVS" \
+                --weights "$WEIGHTS" --hz "$GIMBAL_AUX_HZ" --imgsz "$GIMBAL_AUX_IMGSZ"
+            gimbal_model_ready(){
+                alive_pgid "$(group_pgid gimbal_auxiliary)" && \
+                    rg -q '\[GIMBAL_READY\]' "$LOGDIR/06_gimbal_auxiliary.log"
+            }
+            wait_gate "云台模型预热（实际图像与姿态逐帧核验）" 20 gimbal_model_ready \
+                || warn "云台辅助未就绪，双目继续运行；检查06_gimbal_auxiliary.log"
+        fi
+
         if [ "$FAST_VISUAL_YAW" = 1 ]; then
             start_group fast_visual_yaw "$LOGDIR/06_fast_visual_yaw.log" \
                 python3 -u "$PERC_DIR/fast_visual_node.py" \
@@ -1413,6 +1450,7 @@ do_stop(){
     # even when there are no registered process groups.
     if [ ! -s "$REG" ]; then info "无已登记组件，仍检查并清理残留进程。"; fi
     # 先停业务节点（后起的先停），最后停场景
+    stop_group gimbal_auxiliary
     stop_group d2o
     for i in 5 4 3 2 1 0; do stop_group "swarm_agent_$i"; done
     stop_group swarm_manager
@@ -1429,6 +1467,7 @@ do_stop(){
     # 残留兜底：每条单独容错
     pkill -9 -f '[r]adar_avoid.py'          2>/dev/null || true
     pkill -9 -f '[p]erception_real.py'      2>/dev/null || true
+    pkill -9 -f '[g]imbal_auxiliary.py'     2>/dev/null || true
     pkill -9 -f '[m]ultirotor_communication.py' 2>/dev/null || true
     pkill -9 -f '[c]ontrol_actor.py'        2>/dev/null || true
     # When a stop command is run from an isolated PID namespace, it can

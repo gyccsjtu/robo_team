@@ -479,6 +479,7 @@ class TaskAllocator(object):
         # per event; an unconfirmed static decoy cannot hold several aircraft.
         self.revisit_jobs = {}  # (kind, cell_key) -> (ready_s, expires_s)
         self.revisit_last_served = {}  # (kind, cell_key) -> completed simulation time
+        self.search_revisit_evidence = os.environ.get('SEARCH_REVISIT_EVIDENCE', '0') == '1'
         self.failed_novelty_ttl = float(os.environ.get("FAILED_NOVELTY_TTL", "60.0"))
         # v13：近距离惩罚——飞机刚覆盖完脚下，脚下格（ft 很小）不该再拿高分。
         # 破「72% 派格 x=-44.5 / y 全 ≤-5.5」的 spawn 区锁死。
@@ -582,6 +583,18 @@ class TaskAllocator(object):
             self.route_cursor[zone] = rank
         for job in list(self.revisit_jobs):
             if job[1] == cell_key:
+                if self.search_revisit_evidence and job[0] in ('lost', 'unconfirmed') and not observed:
+                    ready, expires = self.revisit_jobs[job]
+                    if now < expires:
+                        # A passed waypoint is not a completed person look.
+                        # Keep the original episode deadline. Two seconds
+                        # leaves a retry window even for an eight-second cue;
+                        # repeated feedback during this delay cannot renew it.
+                        if ready <= now:
+                            self.revisit_jobs[job] = (min(expires, now+2.), expires)
+                    else:
+                        self.revisit_jobs.pop(job, None)
+                    continue  # a missed/expired look earns no served cooldown
                 self.revisit_jobs.pop(job, None)
                 self.revisit_last_served[job] = now
 
@@ -618,6 +631,12 @@ class TaskAllocator(object):
             return None
         if cell.state == STATE_COVERED:
             self.grid.mark_review(key, 0.0)
+        previous = self.revisit_jobs.get((kind, key))
+        if (self.search_revisit_evidence and kind in ('lost', 'unconfirmed') and
+                previous is not None and now < previous[1]):
+            # Repeated requests for the same cell retain its original finite
+            # episode and a failed-attempt delay, rather than restarting both.
+            return key
         self.revisit_jobs[(kind, key)] = (now + max(0.0, delay_s),
                                           now + max(1.0, ttl_s))
         return key
@@ -1095,6 +1114,12 @@ class TaskAllocator(object):
         # old novelty penalty still won beside a wall and reassigned the same
         # unreachable waypoint immediately after every stall timeout.
         blocked = set(blocked)
+        if self.search_revisit_evidence:
+            # A REVIEW cell remains an ordinary search candidate. Exclude a
+            # deferred person look from that pool too, so route selection
+            # cannot immediately bypass its two-second retry delay.
+            blocked.update(key for (kind, key), (ready, expires) in self.revisit_jobs.items()
+                           if kind in ('lost', 'unconfirmed') and now < ready and now < expires)
         remaining = {key for key in self.grid.uncovered_cells()
                      if key not in blocked and
                      (key not in self.failed_visit or

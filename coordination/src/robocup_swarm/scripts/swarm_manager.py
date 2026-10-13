@@ -1723,7 +1723,8 @@ class SwarmManager(SearchSegmentManager):
         flow = getattr(self, '_formal_report_flow', None)
         if flow is not None:
             try:
-                flow.latest(tid, rospy.Time.now().to_sec())
+                # Use the validated image barrier, not a later clock read:
+                # this callback still remembers its first image at original now.
                 flow.reset(tid, event['switch_s'])
             except (TypeError, ValueError, KeyError, OverflowError):
                 rospy.logwarn_throttle(5., '[FORMAL_REPORT_FLOW] diagnostic reset rejected')

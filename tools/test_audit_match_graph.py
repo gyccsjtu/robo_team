@@ -35,6 +35,36 @@ def clock_graph(nodes, topic="/clock", publishers=("/gazebo",),
 
 
 class GraphAuditTests(unittest.TestCase):
+    def test_gimbal_reads_only_measured_native_mavros_and_auxiliary_outputs(self):
+        state, types = valid_graph()
+        topic = '/typhoon_h480_2/mavros/mavlink/from'
+        state[0].extend([[topic, ['/typhoon_h480_2/mavros']],
+                         ['/swarm/gimbal_candidate', ['/gimbal_auxiliary']]])
+        state[1].extend([[topic, ['/gimbal_auxiliary']],
+            ['/typhoon_h480_2/cgo3_camera/image_raw', ['/gimbal_auxiliary']],
+            ['/swarm/processed_camera_frame', ['/gimbal_auxiliary']]])
+        types.append([topic, 'mavros_msgs/Mavlink'])
+        self.assertEqual(audit.audit_graph(state, types), [])
+        state[0][-2][1] = ['/fake_gimbal_pose']
+        self.assertTrue(any('not native MAVROS telemetry' in f
+                            for f in audit.audit_graph(state, types)))
+
+    def test_auxiliary_camera_cannot_write_flight_or_use_gazebo_pose(self):
+        state, types = valid_graph()
+        state[1].append(['/gazebo/link_states', ['/gimbal_auxiliary']])
+        state[0].append(['/typhoon_h480_2/mavros/setpoint_velocity/cmd_vel',
+                         ['/gimbal_auxiliary']])
+        failures = audit.audit_graph(state, types)
+        self.assertTrue(any('unsupported input' in f for f in failures))
+        self.assertTrue(any('unsupported output' in f for f in failures))
+        self.assertTrue(any('forbidden topic' in f for f in failures))
+
+    def test_cloud_discovery_cannot_enter_official_bridge(self):
+        state, types = valid_graph()
+        state[1].append(['/swarm/gimbal_candidate', ['/yolo_target_bridge']])
+        self.assertTrue(any('discovery-only topic' in f
+                            for f in audit.audit_graph(state, types)))
+
     def test_automatic_team_clock_subscriptions_require_permission(self):
         nodes = ["/swarm_manager", "/swarm_agent_0", "/yolo_target_bridge",
                  "/perception_real_123", "/fast_visual_yaw_123",

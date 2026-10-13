@@ -44,6 +44,8 @@
 
     <!-- typhoon_h480_0 -->
     <group ns="typhoon_h480_0">
+        <!-- Native MAVROS telemetry; keep measured gimbal data under MAVROS. -->
+        <remap from="mavlink/from" to="mavros/mavlink/from"/>
         <arg name="ID" value="0"/>
         <arg name="ID_in_group" value="0"/>
         <arg name="fcu_url" default="udp://:24540@localhost:34580"/>
@@ -72,6 +74,7 @@
 
     <!-- typhoon_h480_1 -->
     <group ns="typhoon_h480_1">
+        <remap from="mavlink/from" to="mavros/mavlink/from"/>
         <arg name="ID" value="1"/>
         <arg name="ID_in_group" value="1"/>
         <arg name="fcu_url" default="udp://:24541@localhost:34581"/>
@@ -100,6 +103,7 @@
 
     <!-- typhoon_h480_2 -->
     <group ns="typhoon_h480_2">
+        <remap from="mavlink/from" to="mavros/mavlink/from"/>
         <arg name="ID" value="2"/>
         <arg name="ID_in_group" value="2"/>
         <arg name="fcu_url" default="udp://:24542@localhost:34582"/>
@@ -128,6 +132,7 @@
 
     <!-- typhoon_h480_3 -->
     <group ns="typhoon_h480_3">
+        <remap from="mavlink/from" to="mavros/mavlink/from"/>
         <arg name="ID" value="3"/>
         <arg name="ID_in_group" value="3"/>
         <arg name="fcu_url" default="udp://:24543@localhost:34583"/>
@@ -156,6 +161,7 @@
 
     <!-- typhoon_h480_4 -->
     <group ns="typhoon_h480_4">
+        <remap from="mavlink/from" to="mavros/mavlink/from"/>
         <arg name="ID" value="4"/>
         <arg name="ID_in_group" value="4"/>
         <arg name="fcu_url" default="udp://:24544@localhost:34584"/>
@@ -184,6 +190,7 @@
 
     <!-- typhoon_h480_5 -->
     <group ns="typhoon_h480_5">
+        <remap from="mavlink/from" to="mavros/mavlink/from"/>
         <arg name="ID" value="5"/>
         <arg name="ID_in_group" value="5"/>
         <arg name="fcu_url" default="udp://:24545@localhost:34585"/>

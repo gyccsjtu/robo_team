@@ -19,7 +19,8 @@ export PIXEL_VIEW_RECOVERY="${PIXEL_VIEW_RECOVERY:-1}"
 export PIXEL_RECOVERY_APPROACH="${PIXEL_RECOVERY_APPROACH:-1}"
 export TAKEOFF_REQUIRE_CAMERA=1
 export BRIDGE_REPORT_POLICY=fresh
-export PR_DISTRACTOR_MODE=enforce GIMBAL_AUX_MODE=off FAST_VISUAL_YAW=0
+export PR_DISTRACTOR_MODE=enforce FAST_VISUAL_YAW=0
+export GIMBAL_AUX_MODE="${GIMBAL_AUX_MODE:-off}"
 export CANDIDATE_VIEW_RECOVERY=0 GAZEBO_GUI=true
 # Keep the outer flight envelope; permit only 0.5 m more approach to its edge.
 # Set FLIGHT_INSET=2.0 to restore the original internal margin.

@@ -3,8 +3,10 @@ import copy
 import json
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import test_unavailable_tracking as fixtures
+import swarm_manager
 from formal_report_flow import ReportFlowHealth
 
 
@@ -67,6 +69,16 @@ class ReportFlowManagerTests(unittest.TestCase):
                 self.assertEqual(manager._backup, {})
                 self.assertFalse(target.eliminated)
                 manager.assign_pub.publish.assert_not_called()
+
+    def test_hypothesis_reset_does_not_advance_clock_past_current_callback(self):
+        manager, _ = self.manager()
+        event = dict(switch_s=100., x=10., y=0.)
+        with patch.object(swarm_manager.rospy.Time, 'now',
+                          return_value=swarm_manager.rospy.Time(100.05)):
+            manager._reset_visual_hypothesis('t0', event)
+        image = dict(target_id='t0', source_uav='u0', candidate_id='green:B',
+                     sample_s=100., eligible=True, x=10., y=0.)
+        self.assertTrue(manager._formal_report_flow.remember_image(image, 100.))
 
 
 if __name__ == '__main__':

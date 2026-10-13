@@ -1,0 +1,24 @@
+搜索复查与云台发现→固定双目接力（2026-10-13）
+
+基线保留：6a6c785，标签 baseline/native-clock-6of6-20261013。
+此前同初始地图 A=268.292s、B=338.620s，均官方6/6；第二张地图对照经用户要求中止，不能写成四局通过。两局未记录coupled=True作用样本，裁脚高度候选收益仍未建立。
+
+本次接入
+1. SEARCH_REVISIT_EVIDENCE=1：只到过但未有效观察的格，不删除有效lost/unconfirmed复查线索。保留原截止时间，失败后两秒退避，重复反馈/请求不续期，普通搜索也不能绕过退避。blind原行为保持。连续航段互斥、旧任务版本、覆盖和东侧优先已有实现；区域支援当前已用真实图像进展，此次不重写或虚报为新增。
+2. GIMBAL_AUX_MODE=handoff：一个低优先单CPU worker，默认2、5号云台，最新图像、独立CameraInfo和实测MAVLink285姿态按原图时间匹配。原生CGO3与双目内参不同。相机配置和姿态频率请求查ACK；缺合法姿态不派接力。双目处理延迟升高时暂停辅助推理。
+3. 同帧雕塑复核：五类v3仍是主模型，六类雕塑模型只做同原图、同颜色、同相机的辅助真人证明。复核缺失/失败/不唯一不能产生云台接力；静止本身不是雕塑判据。
+4. 飞机独立_gimbal_cue：三个连续合格云台图像可请求最多六秒的搜索中断、制动和朝向补看，所有输出经原最终安全出口。云台仅提供实测方向，禁止人物坐标、目标身份、确认或ActorInfo。双目候选/人物任务优先；新帧更新方向但不续截止，失去新图超过0.5s退出。同色不能跨相机继承人物身份，双目必须独立检测、定位并交给现有调度和正式桥。相近双红暂停辅助关联，分离后建新实例。
+5. 原生MAVROS raw telemetry在本地六机launch映射到 /typhoon_h480_N/mavros/mavlink/from；数据仍来自各自MAVROS，审计校验类型和发布者。云台不得调用Gazebo状态服务、读取actor真值/裁判反馈或直接写飞控速度；正式桥不得订阅云台候选。官方现有环境如果没有允许的实测姿态接口，云台停用接力，双目继续工作。
+6. 被动上报诊断修复：假设切换使用已验证图像时间作为重置屏障，避免额外较晚Time.now读取造成首帧漏入诊断。此项不改变调度或正式发布。
+
+开源思路来源
+lansijian/aerial-vision-system，2317e495d221930be4595e573435430699e0a244。
+human_tracker.py：图像反馈留住人物；gimbal_controller.py：辅助相机独立控制；target_coordinator.py：任务锁与健康分开。实现复用本队此前738c5fd的实测云台模块，重新审核时间、实例和安全边界；没有复制最大框换人、固定cos45人体测距、同点双红、Gazebo GetLinkState或无后方检查的高速后退。
+https://github.com/lansijian/aerial-vision-system/blob/2317e495d221930be4595e573435430699e0a244/catkin_ws/src/yolov11_ros/scripts/human_tracker.py
+https://github.com/lansijian/aerial-vision-system/blob/2317e495d221930be4595e573435430699e0a244/catkin_ws/src/yolov11_ros/scripts/gimbal_controller.py
+
+验证
+完整tools离线1670项通过，20.290s。云台helper/飞机集成27项、节点18项、搜索复查13项，搜索相关269项；另有原生话题路由/合规审计/诊断首帧回归检查。离线通过不能证明比赛性能。
+候选启动：./run_search_gimbal_candidate.sh start --gui。
+基线启动：./run_stable_6.sh start --gui（新开关默认关闭）。
+后续GUI对照固定源代码/模型/官方控制器与裁判，记录真实GIMBAL_FIRST_INFERENCE、接力、双目独立接住、图像延迟、正式断报与官方6/6时刻。同一初始随机地图不等于同一未固定演员运动轨迹。
