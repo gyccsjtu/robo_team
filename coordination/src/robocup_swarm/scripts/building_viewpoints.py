@@ -3,6 +3,7 @@ import math
 
 from search_observation import cell_points, ground_distance_band, in_view
 from swarm_task import ACTOR_SEARCH_BOUNDS, LineOfSight
+from routine_search import routine_point_allowed
 
 
 DIRECTED_PURPOSES = ('south_patrol', 'building_review', 'coverage_view')
@@ -32,10 +33,12 @@ def reserved_subpoint(coverage, key, point):
                for sample in cell_points(coverage, cell))
 
 
-def valid_view(raw, inflated, look, point, flight_waypoint, altitude=4.5):
+def valid_view(raw, inflated, look, point, flight_waypoint, altitude=4.5,
+               routine_bounds=False):
     """Ground must be raw-free; aircraft clearance remains inflated + 1 m."""
     if (raw is None or inflated is None or
             not all(math.isfinite(v) for v in (*look, *point)) or
+            (routine_bounds and not routine_point_allowed(point, look)) or
             math.dist(point, flight_waypoint(*point)) > 1e-6):
         return False
     ground = raw.world_to_cell(look)

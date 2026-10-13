@@ -21,8 +21,8 @@ class RoadLane:
 
 
 PUBLIC_FIRST_LANES = (
-    RoadLane('west_middle', (-12., 0.), (-45., 0.)),
-    RoadLane('central_east', (12., 0.), (75., 0.)),
+    RoadLane('middle_east', (45., 0.), (90., 0.)),
+    RoadLane('central_east', (12., 0.), (45., 0.)),
     RoadLane('west_north', (-14., 14.), (-14., 48.)),
     RoadLane('west_south', (-14., -14.), (-14., -48.)),
 )
@@ -73,6 +73,10 @@ class RoadFirstPass:
         for lane in self.lanes:
             if lane.name in active:
                 continue
+            owner = self.owners.get(lane.name)
+            if owner is not None and owner not in positions:
+                self.owners.pop(lane.name, None)
+                peer_owners.discard(owner)
             candidates = [key for key in self.lane_cells(lane, coverage)
                           if key not in self.visited[lane.name] and eligible(key) and
                           now >= self.retry_after.get((lane.name, key), -math.inf)]
@@ -86,7 +90,10 @@ class RoadFirstPass:
                 # Try a bounded sensed prefix; unknown/unreachable cells may
                 # not force a blind route or claim this whole public road.
                 for offset in range(min(6, len(candidates))):
-                    proposal = build(uid, candidates[offset:offset+3], lane.heading)
+                    # Look samples on two adjacent grid edges can be only
+                    # .02 m apart. Supply a bounded longer candidate list so
+                    # the builder can skip such a cell without reserving it.
+                    proposal = build(uid, candidates[offset:offset+6], lane.heading)
                     if proposal is not None:
                         cells, points, looks = proposal
                         return lane.name, uid, cells, points, looks

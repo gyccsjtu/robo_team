@@ -45,6 +45,7 @@ from search_view_hint import parse_failed_view, make_hint, ViewRevisitBudget
 from search_segments import SegmentBook, ATTEND
 from search_segment_manager import SearchSegmentManager
 from boundary_patrol import SouthPatrol
+from routine_search import routine_point_allowed, routine_flight_bounds
 
 # ============================ 参数 ============================
 MAP_X_MIN, MAP_X_MAX = -100.0, 100.0
@@ -59,6 +60,7 @@ FLIGHT_Y_MAX = min(60.0, float(os.environ.get('FLIGHT_Y_MAX', '60.0')))
 FLIGHT_INSET = float(os.environ.get('FLIGHT_INSET', '2.0'))
 SEARCH_BOUNDARY_INSET_M = max(FLIGHT_INSET, float(
     os.environ.get('SEARCH_BOUNDARY_INSET_M', '8.5')))
+ROUTINE_SEARCH_BOUNDS = os.environ.get('ROUTINE_SEARCH_BOUNDS', '0') == '1'
 
 
 def flight_waypoint(x, y, inset=FLIGHT_INSET):
@@ -76,15 +78,22 @@ def search_viewpoint(x, y):
     close-boundary viewpoint: flight guards and real image coverage still
     apply. Tracking uses flight_waypoint directly and is unaffected.
     """
-    px, py = flight_waypoint(x, y, inset=SEARCH_BOUNDARY_INSET_M)
+    def point_at_inset(px, py, inset):
+        if not ROUTINE_SEARCH_BOUNDS:
+            return flight_waypoint(px, py, inset=inset)
+        xmin, xmax, ymin, ymax = routine_flight_bounds(
+            (FLIGHT_X_MIN, FLIGHT_X_MAX, FLIGHT_Y_MIN, FLIGHT_Y_MAX))
+        return (min(xmax-inset, max(xmin+inset, px)),
+                min(ymax-inset, max(ymin+inset, py)))
+    px, py = point_at_inset(x, y, SEARCH_BOUNDARY_INSET_M)
     if math.hypot(px - x, py - y) > 9.0:
-        px, py = flight_waypoint(x, y)
+        px, py = point_at_inset(x, y, FLIGHT_INSET)
     dx, dy = px - x, py - y
     distance = math.hypot(dx, dy)
     if distance < 1e-6 or distance >= 8.5:
         return px, py
     scale = 8.5 / distance
-    return flight_waypoint(x + dx * scale, y + dy * scale)
+    return point_at_inset(x + dx * scale, y + dy * scale, FLIGHT_INSET)
 # 2026-09-28：默认必须与 swarm_task.py 一致（那边已是 7.0）。
 # 10.0 vs 7.0 会导致 manager 的栅格与 task 的拍卖栅格错位（不传 env 时必踩）。
 GRID_SIZE_M = float(os.environ.get("GRID_SIZE_M", "7.0"))   # 搜索格边长（与 swarm_task 必须一致，都读同一个环境变量）
@@ -339,11 +348,10 @@ class SwarmManager(SearchSegmentManager):
         self._segment_max_hold = LEASE_MAX_HOLD
         self._segment_stall_s = LEASE_STALL_S
         self._directed_coverage = os.environ.get('SEARCH_DIRECTED_COVERAGE', '0') == '1'
+        self._routine_search_bounds = ROUTINE_SEARCH_BOUNDS
         road_first_pass = os.environ.get('SEARCH_ROAD_FIRST_PASS', '0') == '1'
         if (self._directed_coverage or road_first_pass) and self._segments is None:
             raise ValueError('Directed road search requires SEARCH_SEGMENTS=1')
-        if road_first_pass and not self._directed_coverage:
-            raise ValueError('SEARCH_ROAD_FIRST_PASS requires SEARCH_DIRECTED_COVERAGE=1')
         from road_first_pass import RoadFirstPass
         self._road_first_pass = RoadFirstPass() if road_first_pass else None
         patrol_enabled = os.environ.get('SOUTH_PATROL', '0') == '1'
@@ -366,6 +374,7 @@ class SwarmManager(SearchSegmentManager):
         self.status = {}          # uav_id -> UavStatus
         self._processed_frame_times = {}  # actual own-camera health, never a detection
         self._processed_camera_poses = {}  # fresh sensor geometry for safe viewing points
+        self._processed_camera_height_window = {}  # distinct image samples, bounded six per UAV
         # 每机最近一次上报时间（用于租约续租判定）
         self.last_report = {}     # uav_id -> rospy.Time
         self._active_leases = {}  # uav_id -> cell key currently leased to that UAV
@@ -888,7 +897,9 @@ class SwarmManager(SearchSegmentManager):
             return None
         point = (view['x'], view['y'])
         grid = getattr(self, '_g_infl', None)
-        if (flight_waypoint(*point) != point or grid is None or
+        if (flight_waypoint(*point) != point or
+                (getattr(self, '_routine_search_bounds', ROUTINE_SEARCH_BOUNDS) and
+                 not routine_point_allowed(point)) or grid is None or
                 not grid.is_free(grid.world_to_cell(point))):
             return None
         return view
@@ -899,10 +910,16 @@ class SwarmManager(SearchSegmentManager):
             return (view['x'], view['y'])
         blind = getattr(self, '_blind_viewpoints', {}).get(key)
         if blind is not None:
-            if self._blind_viewpoint_valid(cell, blind):
+            if (self._blind_viewpoint_valid(cell, blind) and
+                    (not getattr(self, '_routine_search_bounds', ROUTINE_SEARCH_BOUNDS) or
+                     routine_point_allowed(blind))):
                 return blind
             self._blind_viewpoints.pop(key, None)
-        return self._cell_waypoint.get(key) or search_viewpoint(cell.cx, cell.cy)
+        point = self._cell_waypoint.get(key)
+        if point and (not getattr(self, '_routine_search_bounds', ROUTINE_SEARCH_BOUNDS) or
+                      routine_point_allowed(point)):
+            return point
+        return search_viewpoint(cell.cx, cell.cy)
 
     # ---------------- 回调 ----------------
     @serialized_tasks
@@ -1238,6 +1255,11 @@ class SwarmManager(SearchSegmentManager):
             if sample > cameras.get(uid, {}).get('sample_s', -1e18):
                 cameras[uid] = dict(sample_s=sample, x=ux, y=uy, z=altitude,
                                     yaw=yaw, down_pitch=down_pitch)
+                windows = self.__dict__.setdefault('_processed_camera_height_window', {})
+                previous = windows.get(uid, [])
+                if previous and sample-previous[-1][0] > .5:
+                    previous = []
+                windows[uid] = (previous+[(sample, altitude)])[-6:]
             if float(getattr(st, 'z', 0.0) or 0.0) < 2.0:
                 return  # coverage altitude gate is not a camera-health gate
             grid_map = self._merged_grid()

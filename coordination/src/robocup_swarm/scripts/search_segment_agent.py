@@ -1,5 +1,6 @@
 """Aircraft execution of versioned short search segments; no gimbal coupling."""
 import math
+import os
 import rospy
 from search_segments import (SegmentBook, TRAVEL, LOOK, ATTEND, YIELD, DONE, FAILED,
                              clear_line, path_remaining)
@@ -8,6 +9,8 @@ from search_observation import cell_points, ground_distance_band, in_view
 from swarm_task import ACTOR_SEARCH_BOUNDS
 from building_viewpoints import DIRECTED_PURPOSES, reserved_subpoint
 from search_transit_view import can_pass_imaged_view
+from routine_observation_heading import routine_observation_heading
+ROUTINE_OBSERVATION_HEADING = os.environ.get('ROUTINE_OBSERVATION_HEADING', '0') == '1'
 
 
 def _reserved_patrol_corner(coverage, key, point):
@@ -405,13 +408,31 @@ class SearchSegmentAgent:
                 heading = look_heading
         if task.get('purpose') not in DIRECTED_PURPOSES:
             heading = self._search_sweep_bearing(heading,distance)
-        self._set_search_heading(heading)
         self._last_local_goal = local
         speed = min(max_speed,cruise if distance>decel else kp*distance,self._transit_cap())
         vx,vy = dx*speed/max(distance,1e-9),dy*speed/max(distance,1e-9)
         vx,vy = self._search_start_cap(vx,vy)
         desired = math.hypot(vx,vy)
         vx,vy = self._apply_friend_avoidance(vx,vy)
+        if (ROUTINE_OBSERVATION_HEADING and task.get('purpose') in DIRECTED_PURPOSES and
+                task['index'] < len(task.get('look_points', ()))):
+            heading, proof = routine_observation_heading(heading, self.world_xy,
+                task['look_points'][task['index']], ACTOR_SEARCH_BOUNDS,
+                purpose=task.get('purpose'), task_type=getattr(self.assignment, 'task_type', None),
+                own_yaw=self.yaw, own_sample_s=getattr(self, '_pose_sample_s', -1e18),
+                camera_pose=getattr(self, '_search_camera_pose', None),
+                scan=getattr(self, '_scan', None), scan_sample_s=getattr(self, '_scan_t', -1e18),
+                now=now, velocity=(vx, vy),
+                measured_velocity=getattr(self, '_measured_velocity', None),
+                attention_active=(getattr(self, '_camera_cue', None) is not None or
+                                  getattr(self, '_orbit_target', None) is not None),
+                brake_delay=getattr(self, '_routine_brake_delay', .25),
+                yaw_rate_limit=getattr(self, '_routine_yaw_rate_limit', 1.5))
+            if proof == 'measured_routine_look':
+                rospy.loginfo_throttle(2., '[ROUTINE_LOOK_HEADING] uav=%s task=%s '
+                    'index=%d moving_heading=%.3f; measured scan, final safety applies',
+                    self.uav_id, task['id'], task['index'], heading)
+        self._set_search_heading(heading)
         task['state'] = YIELD if desired>.3 and math.hypot(vx,vy)<.25 else TRAVEL
         self._send_vel(vx,vy)
         return True

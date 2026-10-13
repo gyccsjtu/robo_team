@@ -55,6 +55,7 @@ from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
 from search_segments import clear_line
 from search_transit_view import remember_transit_views
+from routine_search import routine_flight_bounds, ROUTINE_INSET
 from camera_attention import (approach_image, candidate_velocity, candidate_decision,
                               candidate_reposition, attention_expired,
                               localized_follow_decision)
@@ -203,6 +204,7 @@ PIXEL_RECOVERY_APPROACH = os.environ.get('PIXEL_RECOVERY_APPROACH', '0') == '1'
 # paired GUI trials establish whether it improves moving cropped views.
 COUPLED_VIEW_GEOMETRY = os.environ.get('COUPLED_VIEW_GEOMETRY', '0') == '1'
 VIEW_SPACE_BACKOFF = os.environ.get('VIEW_SPACE_BACKOFF', '0') == '1'
+ROUTINE_SEARCH_BOUNDS = os.environ.get('ROUTINE_SEARCH_BOUNDS', '0') == '1'
 SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
 SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
 SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '4.0'))
@@ -1126,6 +1128,8 @@ class SwarmAgent(SearchSegmentAgent):
         self._claim_pub = rospy.Publisher("/swarm/orbit_claim", String, queue_size=10)
         rospy.Subscriber("/%s/mavros/local_position/pose" % uav_id, PoseStamped, self._local_cb)
         if MOTION_SAFETY:
+            self._routine_brake_delay = BRAKE_DELAY
+            self._routine_yaw_rate_limit = YAW_RATE_MAX
             self._directed_view_settle_enabled = True
             self._directed_view_settle_timeout = SEARCH_DIRECTED_LOOK_TIMEOUT_S
             self._directed_view_settle_yaw_tol = SEARCH_SCAN_YAW_TOL
@@ -4305,6 +4309,13 @@ class SwarmAgent(SearchSegmentAgent):
                         boundary_constraints(own,flight_bounds(),FLIGHT_INSET),
                         0.,delay,BRAKE_DECEL)
                     reason=edge_reason or reason
+                    if (ROUTINE_SEARCH_BOUNDS and getattr(self, '_takeoff_done', False) and
+                            getattr(getattr(self, 'assignment', None), 'task_type', None) == 0):
+                        (vx, vy), search_reason = braking_cap((vx, vy), measured[1],
+                            boundary_constraints(own, routine_flight_bounds(flight_bounds()),
+                                                 max(ROUTINE_INSET, FLIGHT_INSET)),
+                            0., delay, BRAKE_DECEL)
+                        reason=('routine_search:'+search_reason) if search_reason else reason
                     vx,vy=self._final_motion_gate(vx,vy)
             # Crash recovery is not permission to climb beside a scaffold.
             # Hard ceiling descent and landing retain their explicit priority.
@@ -6278,7 +6289,14 @@ class SwarmAgent(SearchSegmentAgent):
         recovery = getattr(self, '_takeoff_recovery', None)
         if recovery is None:
             baseline = getattr(self, '_climb_progress', None)
-            if (baseline is None or now-baseline[0] < 10. or
+            early = getattr(self, '_takeoff_early_progress', {})
+            early_due = (os.environ.get('TAKEOFF_PROGRESS_RECOVERY_EARLY', '0') == '1'
+                         and early.get('ready', False)
+                         and 0. <= now-early.get('checked', -1e18) <= .15
+                         and 0. <= now-getattr(self, '_pose_sample_s', -1e18) <= .3
+                         and 0. <= now-getattr(self, '_pos_sp_t', -1e18) <= .25
+                         and getattr(self.state, 'system_status', 0) not in (5, 6, 7, 8))
+            if (baseline is None or (now-baseline[0] < 10. and not early_due) or
                     getattr(self, '_takeoff_recovery_attempted', False)):
                 return False
             z, xy = self.local_z, self.local_xy
@@ -6294,7 +6312,7 @@ class SwarmAgent(SearchSegmentAgent):
                     self.state.mode != 'OFFBOARD' or
                     z is None or not math.isfinite(z) or not -.3 <= z <= .3 or
                     getattr(self, '_takeoff_max_z', z) > .3 or
-                    abs(z-baseline[1]) > .1 or xy is None or
+                    abs(z-(early['progress_z'] if early_due else baseline[1])) > .1 or xy is None or
                     not all(math.isfinite(v) for v in xy) or
                     math.hypot(*xy) > .5 or speed is None or speed > .15 or
                     not math.isfinite(speed) or
@@ -6320,9 +6338,10 @@ class SwarmAgent(SearchSegmentAgent):
             recovery = self._takeoff_recovery = {
                 'started': now, 'last_request': -1e18, 'auto_seen': False,
                 'phase': 'auto', 'failed': False,
-                'stream_since': now, 'stream_last': now}
+                'stream_since': now, 'stream_last': now, 'early': early_due}
             rospy.logwarn('[TAKEOFF_RECOVERY] uav=%s grounded stall; bounded AUTO.TAKEOFF '
-                          'height=%.2fm, then OFFBOARD', self.uav_id, height)
+                          'height=%.2fm, then OFFBOARD; early=%s', self.uav_id, height,
+                          early_due)
 
         if recovery['failed']:
             if self.state.mode == 'OFFBOARD':
@@ -6343,6 +6362,9 @@ class SwarmAgent(SearchSegmentAgent):
             reasons.append('landing')
         if not self.state.connected or not self.state.armed:
             reasons.append('disconnected_or_disarmed')
+        if (recovery.get('early', False) and
+                getattr(self.state, 'system_status', 0) in (5, 6, 7, 8)):
+            reasons.append('fcu_failsafe')
         if not 0. <= now-recovery['started'] <= 15.:
             reasons.append('clock_reset_or_timeout')
         if mode not in ('OFFBOARD', 'AUTO.TAKEOFF', 'AUTO.LOITER'):
@@ -6407,8 +6429,67 @@ class SwarmAgent(SearchSegmentAgent):
         baseline = getattr(self, '_climb_progress', None)
         if z is None or not math.isfinite(z):
             self._climb_progress = None
+            if hasattr(self, '_takeoff_early_progress'):
+                self._takeoff_early_progress['ready'] = False
             return
         self._takeoff_max_z = max(getattr(self, '_takeoff_max_z', z), z)
+        if os.environ.get('TAKEOFF_PROGRESS_RECOVERY_EARLY', '0') == '1':
+            early = getattr(self, '_takeoff_early_progress', None)
+            if early is None:
+                early = self._takeoff_early_progress = {
+                    'started': baseline[0] if baseline is not None else now,
+                    'start_z': baseline[1] if baseline is not None else z,
+                    'progress_s': now, 'progress_z': z, 'peak_z': z,
+                    'intent_since': None, 'last_output': None,
+                    'checked': now, 'ready': False, 'clock_reset': False}
+            early['ready'] = False
+            if now < early['checked']:
+                early['clock_reset'] = True
+            early['checked'] = now
+            early['peak_z'] = max(early['peak_z'], z)
+            xy = self.local_xy
+            speed = self._est_recent_speed()
+            sp = getattr(self, '_pos_sp', None)
+            output_s = getattr(self, '_pos_sp_t', -1e18)
+            roll, pitch = getattr(self, 'roll', float('inf')), getattr(self, 'pitch', float('inf'))
+            # Only an actual recent upward position output establishes intent.
+            # A safety-vetoed CLIMB_VZ or repeated stale setpoint is no evidence.
+            healthy = (MOTION_SAFETY and FLIGHT_OUTPUT == 'pos'
+                and not early['clock_reset']
+                and not getattr(self, '_takeoff_done', False)
+                and not getattr(self, '_landing', False)
+                and not getattr(self, '_localization_fault', False)
+                and not getattr(self, '_ekf_frozen', False)
+                and getattr(self, '_anchor_done', False)
+                and self.state.connected and self.state.armed and self.state.mode == 'OFFBOARD'
+                and getattr(self.state, 'system_status', 0) not in (5, 6, 7, 8)
+                and -.3 <= z <= .3 and self._takeoff_max_z <= .3
+                and early['peak_z']-early['start_z'] < .4
+                and xy is not None and all(math.isfinite(v) for v in xy)
+                and math.hypot(*xy) <= .5
+                and speed is not None and math.isfinite(speed) and 0. <= speed <= .15
+                and 0. <= now-getattr(self, '_pose_sample_s', -1e18) <= .3
+                and 0. <= now-getattr(self, '_local_prev_t', -1e18) <= .3
+                and math.isfinite(roll) and math.isfinite(pitch)
+                and abs(roll) <= math.radians(10.) and abs(pitch) <= math.radians(10.)
+                and isinstance(sp, (tuple, list)) and len(sp) == 3
+                and all(math.isfinite(v) for v in sp)
+                and 0. <= now-output_s <= .25 and sp[2] > .05 and sp[2]-z >= .2
+                and math.hypot(sp[0]-xy[0], sp[1]-xy[1]) <= .1)
+            if not healthy:
+                early['intent_since'] = early['last_output'] = None
+            else:
+                if z >= early['progress_z']+.1:
+                    early['progress_s'], early['progress_z'] = now, z
+                last = early['last_output']
+                if last is None or output_s < last or output_s-last > .25:
+                    early['intent_since'] = output_s
+                early['last_output'] = output_s
+                # The first-flight start is immutable. Only measured rise or a
+                # break in the executed climb can restart its respective window.
+                early['ready'] = (now-early['started'] >= 4.5
+                    and now-early['progress_s'] >= 4.5
+                    and now-early['intent_since'] >= 4.5)
         if baseline is None or now < baseline[0] or z >= baseline[1] + 0.3:
             self._climb_progress = (now, z)
             return

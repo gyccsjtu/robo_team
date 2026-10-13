@@ -27,6 +27,7 @@ class RoadFirstPassTests(unittest.TestCase):
 
     def build(self, uid, keys, heading):
         # Pure-task fixture; integration cases below check actual SLAM paths.
+        keys = keys[:3]
         points = [(self.grid.cell(k).cx, self.grid.cell(k).cy) for k in keys]
         return keys, points, points
 
@@ -114,6 +115,45 @@ class RoadFirstPassTests(unittest.TestCase):
         self.assertTrue(all(self.road.retry_after[(lane, key)] == 113. for key in task.cells))
         self.assertTrue(all(key not in self.road.visited[lane] for key in task.cells))
 
+    def test_first_available_lane_prioritizes_middle_east_without_a_third_outer_east_job(self):
+        proposal = self.choose({'healthy_near': (44., 0.), 'healthy_far': (0., -8.)})
+        self.assertEqual(proposal[0], 'middle_east')
+        self.assertEqual(proposal[1], 'healthy_near')
+        self.assertTrue(all(41.5 <= self.grid.cell(key).cx <= 93.5 for key in proposal[2]))
+        self.assertEqual({lane.name for lane in self.road.lanes},
+                         {'middle_east', 'central_east', 'west_north', 'west_south'})
+
+    def test_completed_owner_missing_height_or_busy_ordinary_can_be_replaced_without_erasing_progress(self):
+        for reason in ('unknown_height_window', 'ordinary_search'):
+            with self.subTest(reason=reason):
+                self.road=RoadFirstPass();self.book=SegmentBook()
+                task=self.start(self.choose())
+                lane=self.road.bindings[task.task_id]
+                visited=task.cells
+                self.book.advance(task.uid,task.task_id,task.revision,len(task.cells))
+                self.book.release(task.uid)
+                self.road.ended(task,'complete',105.)
+                self.assertEqual(self.road.owners[lane],task.uid)
+                eligible={uid:xy for uid,xy in self.positions.items() if uid!=task.uid}
+                proposal=self.choose(eligible,106.)
+                self.assertEqual(proposal[0],lane)
+                self.assertNotEqual(proposal[1],task.uid)
+                self.assertFalse(set(proposal[2]) & set(visited))
+                self.assertEqual(self.road.visited[lane],set(visited))
+                self.assertEqual(self.road.started_s,100.)
+                self.assertEqual(self.road.remaining(106.),84.)
+
+    def test_active_owner_cannot_be_released_even_if_missing_current_eligible_positions(self):
+        task=self.start(self.choose())
+        lane=self.road.bindings[task.task_id]
+        eligible={uid:xy for uid,xy in self.positions.items() if uid!=task.uid}
+        proposal=self.choose(eligible,104.)
+        self.assertEqual(self.road.owners[lane],task.uid)
+        self.assertEqual(self.road.bindings[task.task_id],lane)
+        self.assertNotEqual(proposal[0],lane)
+        self.assertEqual(self.book.tasks[task.uid],task)
+        self.assertEqual(self.road.started_s,100.)
+
 
 class DirectedViewManagerTests(unittest.TestCase):
     uid = fixture.ManagerSegmentTests.uid
@@ -125,12 +165,15 @@ class DirectedViewManagerTests(unittest.TestCase):
         self.m.lease = st.LeaseManager(self.m.grid)
         self.m._g_infl = sm.GridMap(240, 160, 1., (-70., -80.), bytes(240*160))
         self.m._merged_grid = Mock(return_value=self.m._g_infl)
-        self.m._processed_camera_poses = {self.uid: {'sample_s': self.now, 'z': 4.4}}
+        self.m._processed_camera_poses = {self.uid: {'sample_s': self.now, 'z': 4.4, 'yaw': 0.}}
+        self.m._processed_camera_height_window = {
+            self.uid: [(self.now-.4,4.4),(self.now-.2,4.4),(self.now,4.4)]}
         self.m.status[self.uid].x = 0.
         self.m.status[self.uid].y = 0.
         self.m.status[self.uid].z = 4.4
         self.m._cell_waypoint = {key: (cell.cx, cell.cy) for key, cell in self.m.grid.cells.items()}
         self.m._directed_coverage = True
+        self.m._routine_search_bounds = True
         self.m._road_first_pass = RoadFirstPass()
         self.m._camera_point_seen = {}
 
@@ -270,6 +313,118 @@ class DirectedViewManagerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             SegmentBook().reserve('a', [(i, 0) for i in range(4)], [(float(i), 0.) for i in range(4)],
                 100., 20., 90., purpose='coverage_view', look_points=[(float(i), 0.) for i in range(4)])
+
+    def test_recorded_adjacent_border_views_do_not_issue_point_02m_apart(self):
+        # B1 task48bfdbe... used look12.99 and13.01 in adjacent cells,
+        # issuing flight points only .02m apart and spending5.6s on them.
+        keys = [self.m.grid.world_to_cell(x, 0.) for x in (12., 16., 23., 30.)]
+        cells, points, looks = self.m._directed_segment(self.uid, keys, self.now, 0.)
+        self.assertEqual(len(cells), 3)
+        self.assertNotIn(keys[1], cells)
+        self.assertTrue(all(b[0]-a[0] >= .6*self.m.grid.cell_m
+                            for a, b in zip(points, points[1:])))
+        self.assertTrue(all(math.dist(a,b) >= 2. for a,b in zip(looks,looks[1:])))
+        self.m._start_search_segment(self.uid, cells, points, self.now,
+            purpose='coverage_view', look_points=looks)
+        self.assertNotIn(keys[1], self.m._segments.reserved)
+        self.assertEqual(self.m.grid.cell(keys[1]).state, st.STATE_FREE)
+
+    def test_recorded_82m_west_errand_cannot_fit_9_28s_remaining(self):
+        from unittest.mock import patch
+        # Replay the own start of B1 task3caa261...; no actor coordinates.
+        self.m.status[self.uid].x, self.m.status[self.uid].y = 46.61066055, .46384525
+        self.m.status[self.uid].z = 3.
+        self.m._processed_camera_poses[self.uid]['z'] = 3.
+        key = self.m.grid.world_to_cell(-43.01, 2.99)
+        unbudgeted = self.m._directed_segment(self.uid, [key], self.now, math.pi)
+        self.assertIsNotNone(unbudgeted)
+        self.assertGreater(math.dist((46.61066055,.46384525), unbudgeted[1][0]), 80.)
+        with patch('search_segment_manager.plan',side_effect=AssertionError('unaffordable A*')):
+            self.assertIsNone(self.m._directed_segment(self.uid, [key], self.now,
+                                                     math.pi, budget_s=9.28))
+        self.assertEqual(self.m._segments.reserved, {})
+
+    def test_deadline_shortens_to_affordable_prefix_and_keeps_remaining_cells_free(self):
+        proposal = self.m._directed_segment(self.uid, self.east_cells(), self.now,
+                                           0., budget_s=8.)
+        self.assertIsNotNone(proposal)
+        cells, points, looks = proposal
+        self.assertEqual(len(cells), 1)
+        task = self.m._start_search_segment(self.uid, cells, points, self.now,
+            purpose='coverage_view', look_points=looks, max_hold=8.)
+        self.assertEqual(task.deadline, self.now+8.)
+        self.assertEqual(set(self.m._segments.reserved), {cells[0]})
+        self.assertIsNone(self.m._directed_segment(self.uid, self.east_cells(), self.now,
+                                                 0., budget_s=2.))
+
+    def test_budget_uses_checked_detour_not_straight_goal_distance(self):
+        from unittest.mock import patch
+        # Direct travel10/1.4 + one frame budget would fit10s; the checked
+        # 30m route cannot. This distinguishes ETA from an Euclidean proxy.
+        point, look = (10.,0.), (18.,0.)
+        path = ((0.,0.), (0.,10.), (10.,10.), point)
+        with patch.object(self.m, '_reachable_subpoint_view', return_value=(point,look,path)):
+            self.assertIsNone(self.m._directed_segment(self.uid, self.east_cells()[:1],
+                                                      self.now, 0., budget_s=10.))
+
+    def test_unknown_camera_yaw_cannot_invent_deadline_orientation(self):
+        self.m._processed_camera_poses[self.uid].pop('yaw')
+        self.assertIsNone(self.m._directed_segment(self.uid, self.east_cells(), self.now,
+                                                  0., budget_s=90.))
+
+    def test_new_road_height_window_requires_three_actual_stable_images(self):
+        self.assertTrue(self.m._road_height_stable(self.uid,self.now))
+        for window in ([],[(99.6,4.4),(100.,4.4)],
+                       [(99.6,3.8),(99.8,4.1),(100.,4.3)],
+                       [(99.6,4.4),(99.6,4.4),(100.,4.4)],
+                       [(99.7,4.4),(99.8,4.4),(100.,4.4)],
+                       [(99.,4.4),(99.7,4.4),(100.,4.4)],
+                       [(98.,4.4),(98.2,4.4),(98.4,4.4)],
+                       [(99.6,4.4),(99.8,math.nan),(100.,4.4)]):
+            with self.subTest(window=window):
+                self.m._processed_camera_height_window[self.uid]=window
+                self.assertFalse(self.m._road_height_stable(self.uid,self.now))
+
+    def test_changing_or_unknown_road_height_does_not_pin_idle_aircraft_or_start_budget(self):
+        for window in (None,[(99.6,3.8),(99.8,4.1),(100.,4.3)]):
+            with self.subTest(window=window):
+                self.m._processed_camera_height_window[self.uid]=window
+                idle=[self.uid]
+                self.m._allocate_road_first_pass(idle,self.now)
+                self.assertEqual(idle,[self.uid])
+                self.assertEqual(self.m._segments.tasks,{})
+                self.assertIsNone(self.m._road_first_pass.started_s)
+                # The ordinary path builder itself retains its previous
+                # measured-height contract; the gate is road-only.
+                self.assertIsNotNone(self.m._directed_segment(self.uid,self.east_cells(),self.now,0.))
+
+    def test_single_entry_rejects_outer_routine_without_clipping_ground_or_leaving_lease(self):
+        key = self.m.grid.world_to_cell(129.,20.)
+        point, look = (137.43391575825774,20.5), (129.99,20.5)
+        self.assertIsNone(self.m._start_search_segment(self.uid,[key],[point],self.now,
+            purpose='coverage_view',look_points=[look]))
+        self.assertEqual(self.m._segments.tasks, {})
+        self.assertEqual(self.m._segments.reserved, {})
+        self.assertEqual(self.m.grid.cell(key).state, st.STATE_FREE)
+        self.assertEqual(look,(129.99,20.5))
+        # The disabled option preserves the previous broad-flight behavior.
+        self.m._routine_search_bounds = False
+        task = self.m._start_search_segment(self.uid,[key],[point],self.now,
+            purpose='coverage_view',look_points=[look])
+        self.assertEqual(task.points, (point,))
+        self.assertEqual(task.look_points, (look,))
+
+    def test_outside_first_candidate_does_not_crowd_inner_view_out_of_four_tries(self):
+        key = self.m.grid.world_to_cell(127.,20.)
+        look = (127.5,20.5)
+        outer = (136.45,20.5)
+        inner = (118.55,20.5)
+        options = [(outer,look)]*5+[(inner,look)]
+        self.m.status[self.uid].z = 4.5
+        self.m._processed_camera_poses[self.uid]['z'] = 4.5
+        view = self.m._reachable_subpoint_view(key,(125.,20.5),options,
+                                              max_candidates=4)
+        self.assertEqual(view,(inner,look))
 
 
 if __name__ == '__main__':

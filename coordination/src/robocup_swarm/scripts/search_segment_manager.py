@@ -14,6 +14,10 @@ from search_observation import cell_points, ground_distance_band
 from swarm_task import ACTOR_SEARCH_BOUNDS
 from robocup_navigation.astar import plan
 
+# The search yaw executor limits the commanded heading to 25 degrees/sec.
+# Deadline estimates must use that limit, not the faster general yaw ceiling.
+SEARCH_LOOK_TURN_RATE = math.radians(25.)
+
 
 class SearchSegmentManager:
     def _regional_search_patrols(self):
@@ -46,10 +50,18 @@ class SearchSegmentManager:
         return getattr(self, '_building_viewpoints', {}).get(key, ())
 
     def _reachable_subpoint_view(self, key, origin, options, max_path_m=None,
-                                 altitude=4.5, preferred_heading=None, max_candidates=24):
+                                 altitude=4.5, preferred_heading=None, max_candidates=24,
+                                 with_path=False):
         """A free ground sample is useful only with a checked safe flight path."""
         raw = self._merged_grid() if options else None
         grid = getattr(self, '_g_infl', None)
+        routine_bounds = getattr(self, '_routine_search_bounds', False)
+        if routine_bounds:
+            from routine_search import routine_point_allowed
+            # Filter before the A* candidate cap: an outer option may not
+            # crowd a lawful inner observation out of the bounded attempts.
+            options = tuple((point, look) for point, look in options
+                            if routine_point_allowed(point, look))
         def priority(option):
             point, look = option
             if preferred_heading is None:
@@ -61,7 +73,8 @@ class SearchSegmentManager:
         for point, look in sorted(options, key=priority)[:max_candidates]:
             if max_path_m is not None and math.dist(origin,point) > max_path_m:
                 continue
-            if not valid_view(raw, grid, look, point, self._segment_flight_waypoint, altitude):
+            if not valid_view(raw, grid, look, point, self._segment_flight_waypoint,
+                              altitude, routine_bounds=routine_bounds):
                 continue
             route = plan(grid, origin, point, connectivity=8,
                          prevent_corner_cutting=True, max_expansions=2500)
@@ -70,7 +83,7 @@ class SearchSegmentManager:
                 continue
             points = [origin]+list(route.points)+[point]
             if all(clear_line(grid, a, b) for a, b in zip(points, points[1:])):
-                return point, look
+                return (point, look, tuple(points)) if with_path else (point, look)
         return None
 
     def _directed_camera_height(self, uid, now):
@@ -91,21 +104,31 @@ class SearchSegmentManager:
             return None
         return altitude
 
-    def _directed_segment(self, uid, candidates, now, heading=None):
+    def _directed_segment(self, uid, candidates, now, heading=None, budget_s=None):
         """Build at most three image viewpoints, preserving safe route order.
 
         A point observes one of the reserved cell's nine samples. Neither a
         proposal nor reaching that point grants the other eight samples.
         """
         altitude = self._directed_camera_height(uid, now)
+        if budget_s is not None and (not math.isfinite(budget_s) or budget_s <= .4):
+            return None
         raw, inflated = self._merged_grid(), getattr(self, '_g_infl', None)
         if altitude is None or raw is None or inflated is None:
             return None
         status = self.status[uid]
         origin = (status.x, status.y)
         cells, points, looks = [], [], []
+        camera = getattr(self, '_processed_camera_poses', {}).get(uid, {})
+        yaw = camera.get('yaw')
+        if budget_s is not None and (isinstance(yaw, bool) or
+                not isinstance(yaw, (int, float)) or not math.isfinite(yaw)):
+            return None  # no invented orientation for a deadline estimate
+        path_m, turn_rad = 0., 0.
         travel_heading = heading
-        for key in candidates[:3]:
+        for key in candidates[:6]:
+            if len(cells) >= 3:
+                break
             cell = self.grid.cell(key)
             if cell is None or self._search_view_job(key) is not None:
                 break  # retain existing assignment-bound candidate views
@@ -120,11 +143,21 @@ class SearchSegmentManager:
             options = measured_view_options(self.grid, key, raw, inflated,
                 self._segment_flight_waypoint, altitude, travel_heading, samples)
             previous = points[-1] if points else origin
+            # A lower-bound rejection avoids spending A* work on a journey
+            # which cannot fit even in a straight, obstacle-free corridor.
+            path_budget = (None if budget_s is None else max(0.,
+                (budget_s-path_m/1.4-turn_rad/SEARCH_LOOK_TURN_RATE-(len(cells)+1)*.4)*1.4))
             view = self._reachable_subpoint_view(key, previous, options,
-                altitude=altitude, preferred_heading=travel_heading, max_candidates=4)
+                altitude=altitude, preferred_heading=travel_heading,
+                max_candidates=4, with_path=True, max_path_m=path_budget)
             if view is None:
                 break
-            point, look = view
+            point, look, route = view
+            if points:
+                forward = ((point[0]-points[-1][0])*math.cos(travel_heading)+
+                           (point[1]-points[-1][1])*math.sin(travel_heading))
+                if forward < .6*self.grid.cell_m or math.dist(look, looks[-1]) < 2.:
+                    continue  # leave the degenerate cell free for actual review
             if points and (not clear_line(inflated, points[-1], point) or
                     (len(points) >= 2 and not aligned(points[-2], points[-1], point))):
                 break
@@ -133,10 +166,48 @@ class SearchSegmentManager:
             dx, dy = point[0]-previous[0], point[1]-previous[1]
             if heading is not None and dx*math.cos(travel_heading)+dy*math.sin(travel_heading) < -.5:
                 break
+            leg_m = sum(math.dist(a, b) for a, b in zip(route, route[1:]))
+            look_heading = math.atan2(look[1]-point[1], look[0]-point[0])
+            prior_heading = (math.atan2(looks[-1][1]-points[-1][1],
+                                       looks[-1][0]-points[-1][0]) if points else yaw)
+            turn = (abs(math.atan2(math.sin(look_heading-prior_heading),
+                                   math.cos(look_heading-prior_heading)))
+                    if prior_heading is not None else 0.)
+            # The checked path includes endpoint offsets omitted by the A*
+            # cell-centre path_length. Use measured own yaw and a conservative
+            # 1.4 m/s estimate; each not-yet-imaged look needs its real frames.
+            eta = ((path_m+leg_m)/1.4+(turn_rad+turn)/SEARCH_LOOK_TURN_RATE+
+                   (len(cells)+1)*.4)
+            if budget_s is not None and eta > budget_s:
+                break  # retain an affordable prefix, never renew the episode
+            path_m += leg_m
+            turn_rad += turn
             cells.append(key)
             points.append(point)
             looks.append(look)
         return (cells, points, looks) if cells else None
+
+    def _road_height_stable(self, uid, stamp):
+        """Do not design a road view during the still-changing takeoff climb.
+
+        Only new processed frames buy stability credit. A missing window
+        leaves this aircraft available to the ordinary existing allocator.
+        """
+        window = getattr(self, '_processed_camera_height_window', {}).get(uid, ())
+        if not isinstance(window, (list, tuple)) or len(window) < 3:
+            return False
+        try:
+            samples, heights = zip(*window)
+            if (any(isinstance(v, bool) or not isinstance(v, (int, float)) or
+                    not math.isfinite(v) for v in (*samples, *heights)) or
+                    not -.05 <= stamp-samples[-1] <= .5 or
+                    samples[-1]-samples[0] < .4-1e-6 or
+                    any(not 0. < b-a <= .5 for a, b in zip(samples, samples[1:])) or
+                    max(heights)-min(heights) > .12+1e-6):
+                return False
+        except (TypeError, ValueError):
+            return False
+        return True
 
     def _allocate_road_first_pass(self, idle, stamp):
         road = getattr(self, '_road_first_pass', None)
@@ -150,9 +221,11 @@ class SearchSegmentManager:
                     stamp-self.allocator.failed_visit.get(key, -1e18) >= 30.)
         for _ in range(4):
             positions = {uid: (self.status[uid].x, self.status[uid].y) for uid in idle
-                         if self._directed_camera_height(uid, stamp) is not None}
+                         if self._directed_camera_height(uid, stamp) is not None and
+                         self._road_height_stable(uid, stamp)}
             proposal = road.choose(self.grid, positions, stamp, eligible,
-                lambda uid, cells, heading: self._directed_segment(uid, cells, stamp, heading))
+                lambda uid, cells, heading: self._directed_segment(uid, cells, stamp, heading,
+                    budget_s=min(self._segment_max_hold, road.remaining(stamp))))
             if proposal is None:
                 break
             lane, uid, cells, points, looks = proposal
@@ -540,6 +613,13 @@ class SearchSegmentManager:
     def _start_search_segment(self, uid, cells, points, stamp, purpose='coverage', publish=True,
                               max_hold=None, look_points=None):
         """Single reservation/lease entry for internal and boundary search."""
+        from routine_search import routine_point_allowed
+        look = ([(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
+                if look_points is None else look_points)
+        if getattr(self, '_routine_search_bounds', False) and (len(points) != len(look) or
+                any(not routine_point_allowed(point, ground)
+                    for point, ground in zip(points, look))):
+            return None  # change neither coordinates, coverage nor leases
         evidence_deadlines=[expires for (kind,key),(ready,expires) in
             self.allocator.revisit_jobs.items() if key in cells and
             kind in ('lost','unconfirmed') and ready<=stamp<expires]
@@ -552,8 +632,6 @@ class SearchSegmentManager:
                 if kind == 'blind' and key in cells and expires > stamp]
             if blind_deadlines:
                 max_hold = min(max_hold, min(blind_deadlines)-stamp)
-        look = ([(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
-                if look_points is None else look_points)
         task = self._segments.reserve(uid,cells,points,stamp,min(20.,max_hold),max_hold,
                                       purpose=purpose, look_points=look)
         if task is None:
