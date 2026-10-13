@@ -3,6 +3,7 @@
 import importlib.util
 from pathlib import Path
 import sys
+import subprocess
 import threading
 import time
 import types
@@ -187,6 +188,61 @@ class TeamTimeROSTests(unittest.TestCase):
         self.assertIs(self.facade.Publisher, self.ros.Publisher)
         self.assertIs(self.ros.Rate, object)
         self.assertEqual(self.ros.Time.now().to_sec(), 1700000000)
+
+    def test_native_header_nanoseconds_survive_provider_and_strict_freshness(self):
+        # A fresh interpreter loads real Noetic types rather than this suite's
+        # fake transport. Importing/serializing messages does not start a node.
+        program = r'''
+import io
+import sys
+sys.path.insert(0, sys.argv[1])
+import rospy
+import team_time_ros as facade
+from geometry_msgs.msg import PoseStamped
+from sensor_time import SensorTimeProvider
+
+checks = 0
+for seconds in (100, 1000, 50000):
+    fractions = sorted({0, 1, 123456789, 987654321, 999999999} |
+                       {index*50000000 for index in range(20)})
+    for nsecs in fractions:
+        header = rospy.Time(seconds, nsecs)
+        provider = SensorTimeProvider(['offline_header'], monotonic=lambda: 0.0)
+        assert provider.observe('offline_header', header.to_sec())
+        facade._provider = provider
+        for current in (facade.Time.now(), facade.get_rostime(),
+                        facade.Time.from_sec(header.to_sec())):
+            assert (current.secs, current.nsecs) == (header.secs, header.nsecs), (
+                header, current)
+            assert 0.0 <= current.to_sec()-header.to_sec() <= .3
+            message = PoseStamped()
+            message.header.stamp = current
+            payload = io.BytesIO()
+            message.serialize(payload)
+            decoded = PoseStamped().deserialize(payload.getvalue())
+            assert decoded.header.stamp == header
+            checks += 1
+        assert facade.get_time() == header.to_sec()
+    wall = [0.0]
+    provider = SensorTimeProvider(['offline_header'], monotonic=lambda: wall[0])
+    facade._provider = provider
+    for index in range(40):
+        wall[0] = index*.05
+        header = rospy.Time(seconds+index//20, (index % 20)*50000000)
+        assert provider.observe('offline_header', header.to_sec())
+        current = facade.Time.now()
+        assert current == header
+        assert 0.0 <= current.to_sec()-header.to_sec() <= .3
+        assert provider.is_valid()
+        assert ((current+facade.Duration(1))-current).to_sec() == 1.0
+        checks += 1
+assert not rospy.core.is_initialized()
+print('native precision checks=%d; ROS node remains uninitialized' % checks)
+'''
+        result = subprocess.run([sys.executable, "-B", "-c", program, str(SCRIPTS)],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("ROS node remains uninitialized", result.stdout)
 
     def test_init_disables_automatic_clock_and_waits_for_allowed_pose_header(self):
         done, errors = self.worker(lambda: self.facade.init_node(

@@ -47,6 +47,17 @@ def _clock():
 
 class Time(_ros.Time):
     @classmethod
+    def from_sec(cls, seconds):
+        # Native genpy truncates the fractional float and can turn an exact
+        # header's 50,000,000 ns into 49,999,999 ns. Round once to ROS's integer
+        # nanosecond representation so an unchanged newest header stays fresh.
+        value = float(seconds)
+        if not math.isfinite(value):
+            raise ValueError("time must be finite")
+        secs, nsecs = divmod(round(value*1000000000), 1000000000)
+        return cls(secs, nsecs)
+
+    @classmethod
     def now(cls):
         return cls.from_sec(get_time())
 
