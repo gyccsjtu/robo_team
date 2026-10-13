@@ -303,11 +303,16 @@ def image_altitude_goal(view, image_local_z, range_m, minimum, maximum):
     return min(maximum, max(minimum, image_local_z+correction))
 
 
-def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
+def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum,
+                         preferred_range=None):
     """Persistent absolute height; slow changes only after sustained edge pressure.
 
     Tilted transient images cannot drive height, and reacquiring a frame does
     not reset the goal to a different geometric/range altitude controller.
+    Optional coupled recovery lowers a persistently cropped, localized view
+    toward the feasible height of its intended observation ring. Distance
+    remains constrained by the measured current height until that height
+    actually changes; image feedback never gains reporting eligibility here.
     """
     sample = view['sample_s']
     if previous is None or previous['target_id'] != view['target_id']:
@@ -335,6 +340,28 @@ def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
                           range_m+.5 if edge_pressure or lower > upper
                           else previous.get('range_floor', range_m))
     proposed = image_altitude_goal(view, goal, range_m, minimum, maximum)
+    coupled_geometry = False
+    if (preferred_range is not None and lower > upper and
+            view.get('geometry_ok') is True and
+            view.get('person_verdict_ok', True) is True and
+            view.get('report_ok') is False and
+            bottom >= .94*height and top > .04*height and
+            bottom-top <= .8*height):
+        try:
+            preferred = float(preferred_range)
+        except (TypeError, ValueError, OverflowError):
+            preferred = float('nan')
+        if math.isfinite(preferred) and preferred > range_m:
+            ring_lower, ring_upper = view_height_window(
+                view, preferred, minimum, maximum)
+            if ring_lower <= ring_upper and goal > ring_upper:
+                # At 6.48 m the flight floor and foot-border reserve have no
+                # common height. Keeping 3.98 m forever asks for a 10.10 m
+                # ring. Slowly lower toward the already intended 8 m ring,
+                # while retaining the present height's safe viewing distance.
+                proposed = max(ring_upper, goal-.35)
+                range_floor = max(range_floor, preferred)
+                coupled_geometry = True
     delta = proposed-goal
     # The image dead band must not leave the goal just outside a hard geometry
     # boundary (e.g. 3.16 m at 8 m still consumes the reserved 2% foot border).
@@ -343,10 +370,14 @@ def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
     if abs(view.get('camera_tilt', math.pi)) > math.radians(8.):
         # Pause accumulation on transient pitch/roll; do not erase a
         # persistent correction direction. Bad frames add no pressure time.
-        return dict(previous, sample_s=sample, goal=goal,
-                    pressure_since=previous['pressure_since']+max(0., dt),
-                    needs_space=needs_space,
-                    range_floor=range_floor)
+        result = dict(previous, sample_s=sample, goal=goal,
+                      pressure_since=previous['pressure_since']+max(0., dt),
+                      needs_space=needs_space, range_floor=range_floor)
+        if coupled_geometry:
+            result['coupled_geometry'] = True
+        elif preferred_range is not None:
+            result.pop('coupled_geometry', None)
+        return result
     since = previous['pressure_since']
     if direction != previous['direction'] or dt > .5:
         since = sample
@@ -354,11 +385,13 @@ def update_altitude_hold(previous, view, altitude, range_m, minimum, maximum):
         step = min(abs(delta), .15*min(max(dt, 0.), .25))
         goal += direction*step
         goal = min(altitude+.25, max(altitude-.25, goal))
-    return dict(target_id=view['target_id'], sample_s=sample,
-                goal=min(maximum, max(minimum, goal)),
-                direction=direction, pressure_since=since,
-                needs_space=needs_space,
-                range_floor=range_floor)
+    result = dict(target_id=view['target_id'], sample_s=sample,
+                  goal=min(maximum, max(minimum, goal)),
+                  direction=direction, pressure_since=since,
+                  needs_space=needs_space, range_floor=range_floor)
+    if coupled_geometry:
+        result['coupled_geometry'] = True
+    return result
 
 
 def view_needs_space(view):

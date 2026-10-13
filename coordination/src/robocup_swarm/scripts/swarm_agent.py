@@ -197,6 +197,9 @@ CAMERA_HANDOFF_HOLD_S = 4.0
 CAMERA_CUE_RETRY_S = 2.0
 PIXEL_VIEW_RECOVERY = os.environ.get('PIXEL_VIEW_RECOVERY', '0') == '1'
 PIXEL_RECOVERY_APPROACH = os.environ.get('PIXEL_RECOVERY_APPROACH', '0') == '1'
+# Control-only candidate; the validated baseline remains the default until
+# paired GUI trials establish whether it improves moving cropped views.
+COUPLED_VIEW_GEOMETRY = os.environ.get('COUPLED_VIEW_GEOMETRY', '0') == '1'
 SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
 SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
 SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '4.0'))
@@ -918,8 +921,8 @@ class SwarmAgent(SearchSegmentAgent):
         self.uav_id = uav_id
         rospy.loginfo('[FINAL_SAFETY_CONFIG] uav=%s enabled=%s decel=%.2f delay=%.2f lidar_margin=%.2f',
                       uav_id,MOTION_SAFETY,BRAKE_DECEL,BRAKE_DELAY,RADAR_STOP_R)
-        rospy.loginfo('[TRACKING_CONFIG] uav=%s early_view_pursuit=%s',
-                      uav_id, EARLY_VIEW_PURSUIT)
+        rospy.loginfo('[TRACKING_CONFIG] uav=%s early_view_pursuit=%s coupled_view_geometry=%s',
+                      uav_id, EARLY_VIEW_PURSUIT, COUPLED_VIEW_GEOMETRY)
         self.model_name = model_name
 
         # ---- 高度层分配（基于 ID，6m 以内）----
@@ -2216,7 +2219,10 @@ class SwarmAgent(SearchSegmentAgent):
             self._tracking_altitude = update_altitude_hold(
                 previous_altitude, view,
                 self.local_z, rng, max(MIN_CRUISE_ALT, 2.6),
-                min(ALT_TARGET_CAP, ALT_HARD_CEIL-ALT_HARD_MARGIN))
+                min(ALT_TARGET_CAP, ALT_HARD_CEIL-ALT_HARD_MARGIN),
+                preferred_range=(ORBIT_RADIUS_CLOSE if COUPLED_VIEW_GEOMETRY and
+                    view.get('geometry_ok') and view.get('person_verdict_ok') and
+                    not view.get('report_ok') else None))
             view['altitude_goal'] = self._tracking_altitude['goal']
             view['needs_space'] = self._tracking_altitude.get('needs_space', False)
             view['range_floor'] = self._tracking_altitude.get('range_floor', 0.)
@@ -2225,11 +2231,12 @@ class SwarmAgent(SearchSegmentAgent):
             quality.observe(view)
             rospy.loginfo_throttle(2.0,
                 '[TRACK_VIEW] uav=%s tid=%s image=%.3f centre_v=%.1f bottom=%.1f '
-                'alt_goal=%.2f range=%.2f local_tid=%s needs_space=%s range_floor=%.2f',
+                'alt_goal=%.2f range=%.2f local_tid=%s needs_space=%s range_floor=%.2f coupled=%s',
                 self.uav_id, tid, view['sample_s'],
                 (view['box'][1]+view['box'][3])/2., view['box'][3],
                 view['altitude_goal'], rng, view.get('local_target_id', tid),
-                view['needs_space'], view['range_floor'])
+                view['needs_space'], view['range_floor'],
+                self._tracking_altitude.get('coupled_geometry', False))
         except (ValueError, TypeError, KeyError, OverflowError):
             return
 

@@ -75,6 +75,7 @@ def main():
         immediate_visible_dispatch=os.environ.get('IMMEDIATE_VISIBLE_DISPATCH','0'),
         pixel_view_recovery=os.environ.get('PIXEL_VIEW_RECOVERY','0'),
         pixel_recovery_approach=os.environ.get('PIXEL_RECOVERY_APPROACH','0'),
+        coupled_view_geometry=os.environ.get('COUPLED_VIEW_GEOMETRY','0'),
         edge_search_review=os.environ.get('EDGE_SEARCH_REVIEW','0'),
         building_subpoint_review=os.environ.get('BUILDING_SUBPOINT_REVIEW','0'),
         routine_search_region={'x_min':-50.0,'x_max':130.0,'y_min':-60.0,'y_max':60.0,
