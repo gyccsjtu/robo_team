@@ -1,0 +1,33 @@
+find actor_1
+find actor_1
+find actor_4
+find actor_1
+actor_1 is OK
+Time usage: 210.41600000000017
+score: 191.9
+find actor_2
+find actor_2
+find actor_2
+actor_2 is OK
+Time usage: 239.2199999999998
+score: 341.9
+find actor_0
+actor_0 is OK
+Time usage: 316.41600000000017
+score: 491.9
+find actor_5
+find actor_3
+find actor_4
+find actor_3
+actor_5 is OK
+Time usage: 372.8000000000002
+score: 691.9
+find actor_3
+find actor_3
+actor_3 is OK
+Time usage: 397.0039999999999
+score: 791.9
+actor_4 is OK
+Time usage: 409.9760000000001
+Mission finished
+score: 2161.8360000000002

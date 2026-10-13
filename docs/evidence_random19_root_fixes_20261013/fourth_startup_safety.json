@@ -1,0 +1,36 @@
+{
+  "datum_commits": [
+    {
+      "file": "04_perception_typhoon_h480_0.log",
+      "line": "[INFO] [1791865642.477542, 1955.940000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3371"
+    },
+    {
+      "file": "04_perception_typhoon_h480_1.log",
+      "line": "[INFO] [1791865642.741672, 1956.204000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2663"
+    },
+    {
+      "file": "04_perception_typhoon_h480_2.log",
+      "line": "[INFO] [1791865643.797663, 1957.248000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3235"
+    },
+    {
+      "file": "04_perception_typhoon_h480_3.log",
+      "line": "[INFO] [1791865643.560419, 1957.016000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2972"
+    },
+    {
+      "file": "04_perception_typhoon_h480_4.log",
+      "line": "[INFO] [1791865644.197073, 1957.644000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2437"
+    },
+    {
+      "file": "04_perception_typhoon_h480_5.log",
+      "line": "[INFO] [1791865644.819867, 1958.260000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2705"
+    }
+  ],
+  "pre_finish_logged_faults": [],
+  "coherent_body_attachment": "1",
+  "official_sha256": {
+    "score_cal.py": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+    "control_actor.py": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7"
+  },
+  "takeoff_and_current_camera_pass": true,
+  "limits": "Log match audit, not proof of no contact or correct absolute target coordinates."
+}

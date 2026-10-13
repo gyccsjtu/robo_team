@@ -1,0 +1,150 @@
+{
+  "trials": [
+    {
+      "round": "01",
+      "completion_s": 311.04800000000023,
+      "under300": false,
+      "source": "025a3d8232adb14a6ae9148579b5376132ac2552",
+      "layout_origin": 18,
+      "targets": {
+        "green": {
+          "first_geometric_candidate_s": 107.70000000000027,
+          "first_report_s": 108.20800000000008,
+          "official_finish_s": 123.82799999999997,
+          "max_gap_s": 0,
+          "gap_categories": {}
+        },
+        "blue": {
+          "first_geometric_candidate_s": 106.83600000000024,
+          "first_report_s": 147.22000000000025,
+          "official_finish_s": 173.54399999999987,
+          "max_gap_s": 2.788000000000011,
+          "gap_categories": {
+            "accepted_official_evidence_without_formal_output": 1,
+            "report_capable_view_before_bridge_acceptance": 1
+          }
+        },
+        "brown": {
+          "first_geometric_candidate_s": 252.04400000000032,
+          "first_report_s": 295.6120000000001,
+          "official_finish_s": 311.04800000000023,
+          "max_gap_s": 0,
+          "gap_categories": {}
+        },
+        "white": {
+          "first_geometric_candidate_s": 134.07600000000025,
+          "first_report_s": 191.62400000000025,
+          "official_finish_s": 294.05200000000013,
+          "max_gap_s": 19.38000000000011,
+          "gap_categories": {
+            "tracked_view_not_report_capable": 6,
+            "report_capable_view_before_bridge_acceptance": 8,
+            "accepted_official_evidence_without_formal_output": 1
+          }
+        }
+      }
+    },
+    {
+      "round": "02",
+      "completion_s": 346.0200000000002,
+      "under300": false,
+      "source": "025a3d8232adb14a6ae9148579b5376132ac2552",
+      "layout_origin": 15,
+      "targets": {
+        "green": {
+          "first_geometric_candidate_s": 239.90000000000032,
+          "first_report_s": 241.24800000000027,
+          "official_finish_s": 292.76800000000026,
+          "max_gap_s": 2.9960000000000946,
+          "gap_categories": {
+            "tracked_view_not_report_capable": 2,
+            "report_capable_view_before_bridge_acceptance": 6
+          }
+        },
+        "blue": {
+          "first_geometric_candidate_s": 131.74000000000046,
+          "first_report_s": 133.05600000000027,
+          "official_finish_s": 165.0200000000002,
+          "max_gap_s": 2.6159999999999854,
+          "gap_categories": {
+            "tracked_view_not_report_capable": 2,
+            "report_capable_view_before_bridge_acceptance": 2
+          }
+        },
+        "brown": {
+          "first_geometric_candidate_s": 330.1080000000004,
+          "first_report_s": 330.64800000000037,
+          "official_finish_s": 346.0200000000002,
+          "max_gap_s": 0,
+          "gap_categories": {}
+        },
+        "white": {
+          "first_geometric_candidate_s": 135.34000000000037,
+          "first_report_s": 136.46000000000026,
+          "official_finish_s": 307.38000000000034,
+          "max_gap_s": 95.07999999999993,
+          "gap_categories": {
+            "report_capable_view_before_bridge_acceptance": 7,
+            "tracked_view_not_report_capable": 3,
+            "accepted_official_evidence_without_formal_output": 3
+          }
+        }
+      }
+    },
+    {
+      "round": "03",
+      "completion_s": 300.03200000000015,
+      "under300": false,
+      "source": "025a3d8232adb14a6ae9148579b5376132ac2552",
+      "layout_origin": "new official random",
+      "targets": {
+        "green": {
+          "first_geometric_candidate_s": 283.73600000000033,
+          "first_report_s": 284.4400000000005,
+          "official_finish_s": 300.03200000000015,
+          "max_gap_s": 0,
+          "gap_categories": {}
+        },
+        "blue": {
+          "first_geometric_candidate_s": 52.2480000000005,
+          "first_report_s": 58.668000000000575,
+          "official_finish_s": 89.92399999999998,
+          "max_gap_s": 9.988000000000284,
+          "gap_categories": {
+            "report_capable_view_before_bridge_acceptance": 3,
+            "tracked_view_not_report_capable": 1
+          }
+        },
+        "brown": {
+          "first_geometric_candidate_s": 156.07200000000057,
+          "first_report_s": 207.26400000000058,
+          "official_finish_s": 232.33200000000033,
+          "max_gap_s": 3.8039999999996326,
+          "gap_categories": {
+            "tracked_view_not_report_capable": 2,
+            "report_capable_view_before_bridge_acceptance": 1
+          }
+        },
+        "white": {
+          "first_geometric_candidate_s": 231.32000000000016,
+          "first_report_s": 231.8640000000005,
+          "official_finish_s": 251.3800000000001,
+          "max_gap_s": 0,
+          "gap_categories": {}
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "First candidate can be a false detection, not physical actor identity proof.",
+    "Same layout is not identical actor random trajectory.",
+    "Intervals alone do not verify XY accuracy or legal continuous15s.",
+    "No collision absence claim from logs alone.",
+    "No global300s reliability established."
+  ],
+  "next_priorities": [
+    "Independent fresh source blocked by expired incumbent: reproduced, targeted patch b7696fe undergoing next trial.",
+    "Late first reliable green/brown candidate in rounds2/3 remains.",
+    "Cropped feet and short complete views persist, do not remove geometry gates."
+  ]
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "round": "01",
+    "commits": [
+      {
+        "file": "04_perception_typhoon_h480_0.log",
+        "line": "[INFO] [1791863980.111256, 1922.372000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3283"
+      },
+      {
+        "file": "04_perception_typhoon_h480_1.log",
+        "line": "[INFO] [1791863980.309756, 1922.568000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2845"
+      },
+      {
+        "file": "04_perception_typhoon_h480_2.log",
+        "line": "[INFO] [1791863981.303167, 1923.548000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3467"
+      },
+      {
+        "file": "04_perception_typhoon_h480_3.log",
+        "line": "[INFO] [1791863983.161370, 1925.384000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3374"
+      },
+      {
+        "file": "04_perception_typhoon_h480_4.log",
+        "line": "[INFO] [1791863981.753073, 1923.996000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2805"
+      },
+      {
+        "file": "04_perception_typhoon_h480_5.log",
+        "line": "[INFO] [1791863982.577600, 1924.804000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2755"
+      }
+    ],
+    "pre_finish_logged_faults": [],
+    "source_count": 64,
+    "takeoff_and_current_camera_pass": true
+  },
+  {
+    "round": "02",
+    "commits": [
+      {
+        "file": "04_perception_typhoon_h480_0.log",
+        "line": "[INFO] [1791864399.608500, 1959.184000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3078"
+      },
+      {
+        "file": "04_perception_typhoon_h480_1.log",
+        "line": "[INFO] [1791864400.036294, 1959.608000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2656"
+      },
+      {
+        "file": "04_perception_typhoon_h480_2.log",
+        "line": "[INFO] [1791864400.233548, 1959.800000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3134"
+      },
+      {
+        "file": "04_perception_typhoon_h480_3.log",
+        "line": "[INFO] [1791864400.887730, 1960.448000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3122"
+      },
+      {
+        "file": "04_perception_typhoon_h480_4.log",
+        "line": "[INFO] [1791864401.766465, 1961.320000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3132"
+      },
+      {
+        "file": "04_perception_typhoon_h480_5.log",
+        "line": "[INFO] [1791864402.348972, 1961.892000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2257"
+      }
+    ],
+    "pre_finish_logged_faults": [],
+    "source_count": 64,
+    "takeoff_and_current_camera_pass": true
+  },
+  {
+    "round": "03",
+    "commits": [
+      {
+        "file": "04_perception_typhoon_h480_0.log",
+        "line": "[INFO] [1791864857.973166, 2465.424000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3117"
+      },
+      {
+        "file": "04_perception_typhoon_h480_1.log",
+        "line": "[INFO] [1791864858.190131, 2465.640000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3090"
+      },
+      {
+        "file": "04_perception_typhoon_h480_2.log",
+        "line": "[INFO] [1791864858.221704, 2465.672000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2859"
+      },
+      {
+        "file": "04_perception_typhoon_h480_3.log",
+        "line": "[INFO] [1791864859.050333, 2466.492000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3263"
+      },
+      {
+        "file": "04_perception_typhoon_h480_4.log",
+        "line": "[INFO] [1791864860.662563, 2467.960000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.3281"
+      },
+      {
+        "file": "04_perception_typhoon_h480_5.log",
+        "line": "[INFO] [1791864860.587319, 2467.888000]: [HEIGHT_DATUM_COMMITTED] offset_z=0.2839"
+      }
+    ],
+    "pre_finish_logged_faults": [],
+    "source_count": 64,
+    "takeoff_and_current_camera_pass": true
+  }
+]

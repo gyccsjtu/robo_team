@@ -1,0 +1,44 @@
+[
+  {
+    "stamp": 2308.592,
+    "tag": "red1",
+    "new_source": "typhoon_h480_1",
+    "log": "[INFO] [1791865998.242794, 2308.592000]: [SOURCE_BLOCKED_HANDOFF] tag=red1 old=typhoon_h480_0 range=12.55 new=typhoon_h480_1 range=6.75 image=2308.456 reason=image_expired",
+    "first_new_source_report": {
+      "event": "published",
+      "target_id": "t5",
+      "tag": "red1",
+      "report_s": 2308.748,
+      "sample_s": 2308.456,
+      "image_age_s": 0.2919999999999163,
+      "report_policy": "fresh",
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_1",
+      "candidate_id": "1ca8ef29819940f982fb5c87734987cf:6",
+      "x": 106.946,
+      "y": 22.299
+    },
+    "handoff_to_report_s": 0.15599999999994907
+  },
+  {
+    "stamp": 2314.364,
+    "tag": "red2",
+    "new_source": "typhoon_h480_0",
+    "log": "[INFO] [1791866004.040328, 2314.364000]: [SOURCE_BLOCKED_HANDOFF] tag=red2 old=typhoon_h480_1 range=8.48 new=typhoon_h480_0 range=9.10 image=2314.224 reason=image_expired",
+    "first_new_source_report": {
+      "event": "published",
+      "target_id": "t4",
+      "tag": "red2",
+      "report_s": 2314.368,
+      "sample_s": 2314.224,
+      "image_age_s": 0.14399999999977808,
+      "report_policy": "fresh",
+      "fresh_image": true,
+      "source_uav": "typhoon_h480_0",
+      "candidate_id": "c6df40f1c5d6434da72cf5edcc459a9c:15",
+      "x": 107.694,
+      "y": 20.901
+    },
+    "handoff_to_report_s": 0.0039999999999054126
+  }
+]
