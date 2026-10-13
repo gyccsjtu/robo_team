@@ -1,0 +1,92 @@
+{
+  "code": "b7cb717",
+  "real_nested_callback_replay": [
+    {
+      "task_type": 1,
+      "target": "t0",
+      "perception_arb_after": "t0"
+    },
+    {
+      "task_type": 1,
+      "target": "t3",
+      "perception_arb_after": "t3"
+    },
+    {
+      "task_type": 255,
+      "target": "t0",
+      "perception_arb_after": null
+    }
+  ],
+  "expected_after_old_target_cancel": "t3",
+  "hypothesis": "Delayed target-scoped cancellation clears a newer perception owner; agent retains newer target.",
+  "observed_round01_old_target_cancel_examples": [
+    {
+      "sample_s": 2138.679999999,
+      "uid": "typhoon_h480_0",
+      "cancel_target": "t5",
+      "current_target": "t2"
+    },
+    {
+      "sample_s": 2174.679999999,
+      "uid": "typhoon_h480_4",
+      "cancel_target": "t5",
+      "current_target": "t2"
+    },
+    {
+      "sample_s": 2235.679999999,
+      "uid": "typhoon_h480_3",
+      "cancel_target": "t0",
+      "current_target": "t1"
+    },
+    {
+      "sample_s": 2256.679999999,
+      "uid": "typhoon_h480_3",
+      "cancel_target": "t1",
+      "current_target": "t3"
+    },
+    {
+      "sample_s": 2290.38,
+      "uid": "typhoon_h480_1",
+      "cancel_target": "t0",
+      "current_target": "t4"
+    },
+    {
+      "sample_s": 2297.179999999,
+      "uid": "typhoon_h480_2",
+      "cancel_target": "t0",
+      "current_target": "t4"
+    }
+  ],
+  "observed_round01_mismatch_intervals": [
+    {
+      "uid": "typhoon_h480_0",
+      "from_s": 2138.679999999,
+      "until_s": 2138.684
+    },
+    {
+      "uid": "typhoon_h480_4",
+      "from_s": 2174.679999999,
+      "until_s": 2174.68
+    },
+    {
+      "uid": "typhoon_h480_3",
+      "from_s": 2235.679999999,
+      "until_s": 2235.68
+    },
+    {
+      "uid": "typhoon_h480_3",
+      "from_s": 2256.679999999,
+      "until_s": 2256.68
+    },
+    {
+      "uid": "typhoon_h480_1",
+      "from_s": 2290.38,
+      "until_s": 2290.384
+    },
+    {
+      "uid": "typhoon_h480_2",
+      "from_s": 2297.179999999,
+      "until_s": 2297.184
+    }
+  ]
+}

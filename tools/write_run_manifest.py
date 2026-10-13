@@ -60,6 +60,7 @@ def main():
         early_view_pursuit=os.environ.get('EARLY_VIEW_PURSUIT','0'),
         pixel_view_recovery=os.environ.get('PIXEL_VIEW_RECOVERY','0'),
         pixel_recovery_approach=os.environ.get('PIXEL_RECOVERY_APPROACH','0'),
+        pixel_recovery_backoff=os.environ.get('PIXEL_RECOVERY_BACKOFF','0'),
         edge_search_review=os.environ.get('EDGE_SEARCH_REVIEW','0'),
         building_subpoint_review=os.environ.get('BUILDING_SUBPOINT_REVIEW','0'),
         routine_search_region={'x_min':-50.0,'x_max':130.0,'y_min':-60.0,'y_max':60.0,

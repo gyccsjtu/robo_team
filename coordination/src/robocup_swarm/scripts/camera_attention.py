@@ -89,6 +89,67 @@ def candidate_velocity(cue, now, yaw, xy, scan, scan_stamp):
     return candidate_decision(cue, now, yaw, xy, scan, scan_stamp)[:2]
 
 
+def pixel_backoff(view, now, yaw, xy, scan, scan_stamp):
+    """Bound cropped-foot recovery to <=1m/6s using a fresh rear laser sector.
+
+    The existing, uniquely bound image recovery supplies the direction only.
+    No depth, target position, report permission or renewed deadline is made.
+    Final flight guards remain responsible for executing this preference.
+    """
+    try:
+        stamp, anchor, bearing, tilt = (float(view[k]) for k in
+            ('sample_s', 'position_sample_s', 'bearing', 'camera_tilt'))
+        x1, y1, x2, y2 = map(float, view['box'])
+        width, height = float(view['width']), float(view['height'])
+        origin = view['recovery_origin']
+        distance = math.hypot(xy[0]-origin[0], xy[1]-origin[1])
+        values = (now, yaw, scan_stamp, stamp, anchor, bearing, tilt,
+                  x1, y1, x2, y2, width, height, *xy, *origin, distance)
+        if (not all(math.isfinite(v) for v in values) or
+                not view.get('image_recovery') or not view.get('geometry_anchor_ok') or
+                view.get('geometry_ok') or view.get('report_ok') or
+                not 0. <= now-stamp <= .35 or not .5 <= now-anchor < 6. or
+                abs(tilt) > math.radians(8.) or
+                not 6. <= x1 < x2 <= width-6. or
+                not 0. <= y1 < y2 <= height+2. or y2-y1 < 12. or
+                y2 < .94*height or width <= 0. or height <= 0.):
+            return 0., 0., 'backoff_ineligible_image'
+        if distance >= .95:
+            return 0., 0., 'backoff_travel_budget'
+        error = math.atan2(math.sin(bearing-yaw), math.cos(bearing-yaw))
+        if abs(error) > math.radians(12.):
+            return 0., 0., 'backoff_turn_first'
+        if scan is None or not 0. <= now-scan_stamp <= .3:
+            return 0., 0., 'backoff_stale_scan'
+        heading = bearing+math.pi
+        clearance, angles = [], []
+        if (not all(math.isfinite(v) for v in
+                    (scan.range_max, scan.angle_min, scan.angle_increment)) or
+                scan.range_max < 3. or abs(scan.angle_increment) < 1e-8):
+            return 0., 0., 'backoff_invalid_scan'
+        for index, raw in enumerate(scan.ranges):
+            ray = yaw+scan.angle_min+index*scan.angle_increment
+            delta = math.atan2(math.sin(ray-heading), math.cos(ray-heading))
+            if abs(delta) > math.radians(25.):
+                continue
+            value = float(raw)
+            if math.isinf(value) and value > 0.:
+                value = scan.range_max
+            if not math.isfinite(value) or not scan.range_min <= value <= scan.range_max:
+                return 0., 0., 'backoff_invalid_scan'
+            clearance.append(value)
+            angles.append(delta)
+        if (len(clearance) < 3 or min(angles) > -math.radians(20.) or
+                max(angles) < math.radians(20.)):
+            return 0., 0., 'backoff_insufficient_scan'
+        if min(clearance) < 3.:
+            return 0., 0., 'backoff_rear_obstacle'
+        speed = min(.6, max(0., 1.-distance))
+        return speed*math.cos(heading), speed*math.sin(heading), 'cropped_backoff'
+    except (KeyError, AttributeError, TypeError, ValueError, IndexError, OverflowError):
+        return 0., 0., 'backoff_invalid_input'
+
+
 def candidate_reposition(cue, now, yaw, xy, scan, scan_stamp, grid):
     """A short side look when forward approach is blocked, using local sensors.
 

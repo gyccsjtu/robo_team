@@ -1,0 +1,31 @@
+{
+  "reference": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+  "stage": "/dev/shm/blue_friend_validation_20261013/round_02/stages/replay",
+  "backup": {
+    "source/map_generator.py": "/dev/shm/robocup_batch19_20261013_084009/round_02/stages/official_map_stage_qjs9aan9/backup/source__map_generator.py",
+    "source/base1.world": "/dev/shm/robocup_batch19_20261013_084009/round_02/stages/official_map_stage_qjs9aan9/backup/source__base1.world",
+    "source/base2.world": "/dev/shm/robocup_batch19_20261013_084009/round_02/stages/official_map_stage_qjs9aan9/backup/source__base2.world",
+    "source/base3.world": "/dev/shm/robocup_batch19_20261013_084009/round_02/stages/official_map_stage_qjs9aan9/backup/source__base3.world",
+    "source/rover_static.world": "/dev/shm/robocup_batch19_20261013_084009/round_02/stages/official_map_stage_qjs9aan9/backup/source__rover_static.world",
+    "world": "/dev/shm/robocup_batch19_20261013_084009/round_02/stages/official_map_stage_qjs9aan9/backup/world",
+    "black_box": "/dev/shm/robocup_batch19_20261013_084009/round_02/stages/official_map_stage_qjs9aan9/backup/black_box",
+    "obstacle": "/dev/shm/robocup_batch19_20261013_084009/round_02/stages/official_map_stage_qjs9aan9/backup/obstacle"
+  },
+  "official_source_sha256": {
+    "map_generator.py": "f9edec80bf539eba2684a513a43f16ee38dacd1a80f92dae8ae4d9d54315ed93",
+    "base1.world": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c",
+    "base2.world": "9d92b17c9c6d9362faa108ec769cdf24f3788f1228b1909ca87a1b3317dd2948",
+    "base3.world": "a0654c4aecaaaf854b9dd58b53a6808cbac441b0d7d9fc26cad3c3443f6ca58f",
+    "rover_static.world": "8b11a4778294eb9758d2d0eccf162eeec3527f341dd7ff4ce60e3523f993bf81"
+  },
+  "generated_sha256": {
+    "world": "e0a339ee464ac36f8f5cce04d910e3c7bbf06d0e9ff412324ebbcb83b240c528",
+    "black_box": "704d2b2ab4aadf5bcee4ee0239a369a968b7a68c42525a4dd83192b39d01cf48",
+    "obstacle": "89b99a4807835d8da584119a6b5bb8c5d88671df217861502827555766f53b75"
+  },
+  "artifact_risks": [
+    "world 有 40 个 rover model 元素，生成器配置 20 组；官方原版 rover_static.world 可能使每组重复两次",
+    "world 中 20 个 rover 名称重复（例如 rover_static_clone_clone_10_clone_clone_1），Gazebo 实际解析有歧义"
+  ],
+  "replay_attempt": 2
+}

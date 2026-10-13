@@ -56,7 +56,7 @@ from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
 from search_segments import clear_line
 from camera_attention import (approach_image, candidate_velocity, candidate_decision,
-                              candidate_reposition, attention_expired)
+                              candidate_reposition, attention_expired, pixel_backoff)
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
@@ -196,6 +196,7 @@ CAMERA_HANDOFF_HOLD_S = 4.0
 CAMERA_CUE_RETRY_S = 2.0
 PIXEL_VIEW_RECOVERY = os.environ.get('PIXEL_VIEW_RECOVERY', '0') == '1'
 PIXEL_RECOVERY_APPROACH = os.environ.get('PIXEL_RECOVERY_APPROACH', '0') == '1'
+PIXEL_RECOVERY_BACKOFF = os.environ.get('PIXEL_RECOVERY_BACKOFF', '0') == '1'
 SEARCH_SCAN_YAW_TOL = math.radians(float(os.environ.get('SEARCH_SCAN_YAW_TOL_DEG', '12')))
 SEARCH_SCAN_HOLD_S = float(os.environ.get('SEARCH_SCAN_HOLD_S', '0.25'))
 SEARCH_SCAN_TIMEOUT_S = float(os.environ.get('SEARCH_SCAN_TIMEOUT_S', '4.0'))
@@ -2245,9 +2246,9 @@ class SwarmAgent(SearchSegmentAgent):
         return None
 
     def _hold_pixel_recovery(self, now):
-        """Bound image-only height recovery suspends stale-coordinate motion.
+        """Bound image-only view recovery suspends stale-coordinate motion.
 
-        There is no inferred actor depth or moving waypoint here. The same
+        Height adjustment and a finite retreat infer no actor depth. The same
         final flight output preserves stop, laser, height and boundary guards.
         """
         view = self._fresh_tracking_view(now)
@@ -2261,7 +2262,10 @@ class SwarmAgent(SearchSegmentAgent):
         self._look_at = (wx+10.*math.cos(view['bearing']),
                          wy+10.*math.sin(view['bearing']))
         vx, vy, reason = 0., 0., 'height_only'
-        if PIXEL_RECOVERY_APPROACH:
+        if PIXEL_RECOVERY_BACKOFF and view_needs_space(view):
+            vx, vy, reason = pixel_backoff(view, now, self.yaw, world,
+                getattr(self, '_scan', None), getattr(self, '_scan_t', -1e18))
+        elif PIXEL_RECOVERY_APPROACH:
             cue=dict(sample_s=view['sample_s'],bearing=view['bearing'],xy=None,
                      started=view['position_sample_s'],
                      approach_origin=view.get('recovery_origin'),
@@ -2271,6 +2275,7 @@ class SwarmAgent(SearchSegmentAgent):
                     getattr(self,'_scan',None),getattr(self,'_scan_t',-1e18))
             else:
                 reason='not_shallow'
+        if PIXEL_RECOVERY_BACKOFF or PIXEL_RECOVERY_APPROACH:
             if math.hypot(vx,vy) > 0. and getattr(self,'_friend_positions',{}):
                 vx,vy=self._apply_friend_avoidance(vx,vy)
             rospy.loginfo_throttle(1., '[PIXEL_RECOVERY_MOTION] uav=%s tid=%s '

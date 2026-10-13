@@ -1,0 +1,11 @@
+{
+  "root": "/home/gycc/桌面/RoboCup_Team",
+  "batch": "/home/gycc/桌面/RoboCup_Team/artifacts/blue_friend_validation_20261013",
+  "ram": "/dev/shm/blue_friend_validation_20261013",
+  "code_commit": "b7cb71746c9fcb4c8b79c572abd0c962d5cba97d",
+  "official_ref": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+  "trials": 3,
+  "gui": true,
+  "flight_archive_location": "/dev/shm/blue_friend_validation_20261013/flight_archives",
+  "policy": "Frozen GUI. Discovery handoff and relief route choice ON all trials. Round1 tracking friend recheck OFF control on archived02; round2 ON same layout; round3 ON new official native random. Early own camera JPEG every2s for180 image seconds, independent of detections. Judge stdout timestamped only in experiment recorder; no contestant consumption or truth queries."
+}

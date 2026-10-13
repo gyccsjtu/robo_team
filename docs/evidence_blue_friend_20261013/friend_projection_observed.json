@@ -1,0 +1,304 @@
+{
+  "1": {
+    "changed_log_samples": 0,
+    "per_slot": {},
+    "matched_after_gate_samples": 0,
+    "nonzero_after_gate_samples": 0,
+    "same_cycle_samples": [],
+    "limits": "Control CSV precedes position-mode command conversion and measured-speed braking. Nonzero here is not proof of actual movement, report accuracy or collision absence; 0.03s pairing may select a neighbouring cycle."
+  },
+  "2": {
+    "changed_log_samples": 46,
+    "per_slot": {
+      "t5": 16,
+      "t1": 9,
+      "t3": 21
+    },
+    "matched_after_gate_samples": 6,
+    "nonzero_after_gate_samples": 6,
+    "same_cycle_samples": [
+      {
+        "sample_s": 2192.976,
+        "elapsed_s": 250.38400000000001,
+        "uid": "typhoon_h480_1",
+        "tid": "t1",
+        "input": [
+          0.662,
+          -0.734
+        ],
+        "projection": [
+          0.772,
+          -0.143
+        ],
+        "sampled_requested_after_gate": [
+          0.7716467640036369,
+          -0.14293139728795223
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2275.724,
+        "elapsed_s": 333.13200000000006,
+        "uid": "typhoon_h480_1",
+        "tid": "t5",
+        "input": [
+          0.058,
+          -0.351
+        ],
+        "projection": [
+          0.057,
+          -0.352
+        ],
+        "sampled_requested_after_gate": [
+          0.05666900787934167,
+          -0.35151131354269954
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2281.728,
+        "elapsed_s": 339.13599999999997,
+        "uid": "typhoon_h480_1",
+        "tid": "t5",
+        "input": [
+          -0.129,
+          0.023
+        ],
+        "projection": [
+          -0.087,
+          -0.051
+        ],
+        "sampled_requested_after_gate": [
+          -0.08677333257597022,
+          -0.05058123782662051
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2289.224,
+        "elapsed_s": 346.63200000000006,
+        "uid": "typhoon_h480_1",
+        "tid": "t3",
+        "input": [
+          0.316,
+          0.329
+        ],
+        "projection": [
+          0.127,
+          0.391
+        ],
+        "sampled_requested_after_gate": [
+          0.12696661071390355,
+          0.3907199215039483
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2416.904,
+        "elapsed_s": 474.3119999999999,
+        "uid": "typhoon_h480_2",
+        "tid": "t5",
+        "input": [
+          0.49,
+          0.175
+        ],
+        "projection": [
+          0.415,
+          -0.11
+        ],
+        "sampled_requested_after_gate": [
+          0.4148672954457696,
+          -0.10954328214937786
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2005.036,
+        "elapsed_s": 62.44399999999996,
+        "uid": "typhoon_h480_3",
+        "tid": "t3",
+        "input": [
+          -0.224,
+          -0.076
+        ],
+        "projection": [
+          -0.024,
+          -0.116
+        ],
+        "sampled_requested_after_gate": [
+          -0.023697876507991433,
+          -0.11638273142449654
+        ],
+        "time_error_s": 0.0039999999999054126
+      }
+    ],
+    "limits": "Control CSV precedes position-mode command conversion and measured-speed braking. Nonzero here is not proof of actual movement, report accuracy or collision absence; 0.03s pairing may select a neighbouring cycle."
+  },
+  "3": {
+    "changed_log_samples": 49,
+    "per_slot": {
+      "t0": 3,
+      "t3": 21,
+      "t5": 23,
+      "t1": 1,
+      "t4": 1
+    },
+    "matched_after_gate_samples": 8,
+    "nonzero_after_gate_samples": 7,
+    "same_cycle_samples": [
+      {
+        "sample_s": 2219.692,
+        "elapsed_s": 276.7600000000002,
+        "uid": "typhoon_h480_0",
+        "tid": "t5",
+        "input": [
+          -0.849,
+          -0.001
+        ],
+        "projection": [
+          -0.333,
+          -0.415
+        ],
+        "sampled_requested_after_gate": [
+          -0.3329095095378727,
+          -0.4148788802176031
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2149.824,
+        "elapsed_s": 206.89200000000028,
+        "uid": "typhoon_h480_1",
+        "tid": "t5",
+        "input": [
+          1.978,
+          0.341
+        ],
+        "projection": [
+          0.849,
+          -0.823
+        ],
+        "sampled_requested_after_gate": [
+          0.8488339776889329,
+          -0.8231239200803997
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2161.976,
+        "elapsed_s": 219.04400000000032,
+        "uid": "typhoon_h480_1",
+        "tid": "t5",
+        "input": [
+          0.082,
+          0.079
+        ],
+        "projection": [
+          0.082,
+          0.08
+        ],
+        "sampled_requested_after_gate": [
+          0.08246081724690797,
+          0.07952594273908452
+        ],
+        "time_error_s": 0.007999999999810825
+      },
+      {
+        "sample_s": 2207.512,
+        "elapsed_s": 264.5800000000004,
+        "uid": "typhoon_h480_2",
+        "tid": "t3",
+        "input": [
+          -0.01,
+          -0.044
+        ],
+        "projection": [
+          -0.01,
+          -0.044
+        ],
+        "sampled_requested_after_gate": [
+          -0.009624870303997776,
+          -0.04350987865969554
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2175.056,
+        "elapsed_s": 232.12400000000025,
+        "uid": "typhoon_h480_4",
+        "tid": "t3",
+        "input": [
+          0.235,
+          -0.086
+        ],
+        "projection": [
+          0.235,
+          -0.086
+        ],
+        "sampled_requested_after_gate": [
+          0.23482111736710215,
+          -0.08578417471663785
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2109.324,
+        "elapsed_s": 166.39200000000028,
+        "uid": "typhoon_h480_5",
+        "tid": "t5",
+        "input": [
+          1.875,
+          0.516
+        ],
+        "projection": [
+          0.045,
+          0.644
+        ],
+        "sampled_requested_after_gate": [
+          0.04507570106998937,
+          0.6438750907283877
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2112.824,
+        "elapsed_s": 169.89200000000028,
+        "uid": "typhoon_h480_5",
+        "tid": "t5",
+        "input": [
+          1.885,
+          0.308
+        ],
+        "projection": [
+          0.569,
+          1.033
+        ],
+        "sampled_requested_after_gate": [
+          0.5693588767386499,
+          1.032906627681938
+        ],
+        "time_error_s": 0.0
+      },
+      {
+        "sample_s": 2162.076,
+        "elapsed_s": 219.14400000000023,
+        "uid": "typhoon_h480_5",
+        "tid": "t3",
+        "input": [
+          0.169,
+          0.162
+        ],
+        "projection": [
+          0.169,
+          0.162
+        ],
+        "sampled_requested_after_gate": [
+          0.16870475839270993,
+          0.16220902328535808
+        ],
+        "time_error_s": 0.0
+      }
+    ],
+    "limits": "Control CSV precedes position-mode command conversion and measured-speed braking. Nonzero here is not proof of actual movement, report accuracy or collision absence; 0.03s pairing may select a neighbouring cycle."
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "config": {
+    "root": "/home/gycc/桌面/RoboCup_Team",
+    "batch": "/home/gycc/桌面/RoboCup_Team/artifacts/blue_friend_validation_20261013",
+    "ram": "/dev/shm/blue_friend_validation_20261013",
+    "code_commit": "b7cb71746c9fcb4c8b79c572abd0c962d5cba97d",
+    "official_ref": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+    "trials": 3,
+    "gui": true,
+    "flight_archive_location": "/dev/shm/blue_friend_validation_20261013/flight_archives",
+    "policy": "Frozen GUI. Discovery handoff and relief route choice ON all trials. Round1 tracking friend recheck OFF control on archived02; round2 ON same layout; round3 ON new official native random. Early own camera JPEG every2s for180 image seconds, independent of detections. Judge stdout timestamped only in experiment recorder; no contestant consumption or truth queries."
+  },
+  "rounds": [
+    {
+      "actors": {
+        "2": 256.5240000000001,
+        "1": 309.7160000000001,
+        "0": 352.01199999999994,
+        "4": 359.5200000000002,
+        "5": 366.8120000000001,
+        "3": 411.8599999999999
+      },
+      "eliminated": 6,
+      "official_complete": true,
+      "official_timeout": false,
+      "completion_s": 411.8599999999999,
+      "find_counts": {
+        "3": 22,
+        "2": 10,
+        "5": 10,
+        "4": 9,
+        "0": 3,
+        "1": 2
+      },
+      "outcome": "official_success",
+      "treatment": {
+        "discovery_blind_handoff": "1",
+        "relief_clear_approach": "1",
+        "tracking_friend_recheck": "0"
+      },
+      "round": 1,
+      "map_sha256": "e0a339ee464ac36f8f5cce04d910e3c7bbf06d0e9ff412324ebbcb83b240c528",
+      "code_commit": "b7cb71746c9fcb4c8b79c572abd0c962d5cba97d",
+      "started_wall": 1791879176.1018717,
+      "finished_wall": 1791879637.9161596,
+      "wall_elapsed_s": 461.8142879009247,
+      "flight_archive": {
+        "path": "/dev/shm/blue_friend_validation_20261013/flight_archives/round_01_ros.tar.xz",
+        "bytes": 151198148,
+        "sha256": "d1737bffc51c4445c111026dbb68812e64b4017f64ebffa61aa14f69d0fe4fb7"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/blue_friend_validation_20261013/rounds/01/core_evidence.tar.xz",
+        "bytes": 56265152,
+        "sha256": "026bf1590d5c4574b196c2b263ac6165e6909e961c178cd4d56ea6ad34a45567"
+      }
+    },
+    {
+      "actors": {
+        "2": 184.73199999999997,
+        "0": 245.24800000000005,
+        "1": 269.43600000000015,
+        "5": 360.328,
+        "3": 375.712
+      },
+      "eliminated": 5,
+      "official_complete": false,
+      "official_timeout": true,
+      "completion_s": null,
+      "find_counts": {
+        "3": 15,
+        "2": 3,
+        "5": 13,
+        "0": 1,
+        "1": 6,
+        "4": 1
+      },
+      "outcome": "official_timeout",
+      "treatment": {
+        "discovery_blind_handoff": "1",
+        "relief_clear_approach": "1",
+        "tracking_friend_recheck": "1"
+      },
+      "round": 2,
+      "map_sha256": "e0a339ee464ac36f8f5cce04d910e3c7bbf06d0e9ff412324ebbcb83b240c528",
+      "code_commit": "b7cb71746c9fcb4c8b79c572abd0c962d5cba97d",
+      "started_wall": 1791879710.1708102,
+      "finished_wall": 1791880358.0735064,
+      "wall_elapsed_s": 647.9026961326599,
+      "flight_archive": {
+        "path": "/dev/shm/blue_friend_validation_20261013/flight_archives/round_02_ros.tar.xz",
+        "bytes": 215512204,
+        "sha256": "5301a7075ca2bda4ddb59e92870e43207e8fff1b17c6ab8ef6ce233c8d7aa965"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/blue_friend_validation_20261013/rounds/02/core_evidence.tar.xz",
+        "bytes": 61231284,
+        "sha256": "43fa87c113d536edd134d42db7c26d8c7e82eb1808e081a9297ba0030ecb71dc"
+      }
+    },
+    {
+      "actors": {
+        "2": 138.27999999999975,
+        "0": 183.96399999999994,
+        "1": 188.56399999999985,
+        "4": 236.29599999999982,
+        "3": 265.34799999999996,
+        "5": 273.3800000000001
+      },
+      "eliminated": 6,
+      "official_complete": true,
+      "official_timeout": false,
+      "completion_s": 273.3800000000001,
+      "find_counts": {
+        "2": 4,
+        "0": 3,
+        "4": 2,
+        "1": 2,
+        "5": 3,
+        "3": 9
+      },
+      "outcome": "official_success",
+      "treatment": {
+        "discovery_blind_handoff": "1",
+        "relief_clear_approach": "1",
+        "tracking_friend_recheck": "1"
+      },
+      "round": 3,
+      "map_sha256": "c985bfe011e518201f549ae55d91fb5afccb14c3e689d8f7405c64956ceba9cf",
+      "code_commit": "b7cb71746c9fcb4c8b79c572abd0c962d5cba97d",
+      "started_wall": 1791880442.8647816,
+      "finished_wall": 1791880759.1333942,
+      "wall_elapsed_s": 316.2686126232147,
+      "flight_archive": {
+        "path": "/dev/shm/blue_friend_validation_20261013/flight_archives/round_03_ros.tar.xz",
+        "bytes": 103013396,
+        "sha256": "c53fac6db36a87825a8f7d7022fa29cf560b6dffdf1f5ea39d62715058dabc8b"
+      },
+      "evidence_archive": {
+        "path": "/home/gycc/桌面/RoboCup_Team/artifacts/blue_friend_validation_20261013/rounds/03/core_evidence.tar.xz",
+        "bytes": 44790196,
+        "sha256": "b190d7a68a4cea6343a48e49c185f06aee282363de0601f3e33d5a0b7cfeb151"
+      }
+    }
+  ],
+  "phase": "finished",
+  "started_wall": 1791879175.924272,
+  "current_round": 3,
+  "round_start_wall": 1791880442.8647816,
+  "live_eliminated": 4,
+  "running_wall_s": 300.2570686340332,
+  "aggregate": {
+    "attempts": 3,
+    "success_6of6": 2,
+    "within300": 1,
+    "timeouts": 1,
+    "nonofficial_failures": 0,
+    "median_success_s": 342.62,
+    "mean_success_s": 342.62,
+    "worst_success_s": 411.8599999999999
+  },
+  "ended_wall": 1791880824.09669,
+  "source_check_final": {
+    "head": "b7cb71746c9fcb4c8b79c572abd0c962d5cba97d",
+    "source_files": 70,
+    "weights": {
+      "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_v3_clean.pt": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+      "/home/gycc/桌面/RoboCup_Team/weights/best_yolo11n_bino_sculpture_v3.pt": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7"
+    }
+  }
+}

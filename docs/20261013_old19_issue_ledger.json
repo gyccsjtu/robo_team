@@ -117,7 +117,8 @@
       "state": "partial_pending",
       "commit": "b7696fe/1702fc8",
       "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。；当前发现机替换盲负责人反例已修，DISCOVERY_BLIND_HANDOFF默认0待GUI验证。",
-      "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/01/issues.json"
+      "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/01/issues.json",
+      "latest_evidence": "Round01 first200 own-search ATTEND: uav0 46.596s/131.344s, uav2 37.052s/99.300s. Image1985.708 blue world candidate is scaffold column, not human."
     },
     {
       "issue_id": "completion_over300",
@@ -533,7 +534,8 @@
       "state": "pending_old_issue",
       "commit": "",
       "note": "优先按原始画面、时间、任务和最终输出复现，未修复不标已完成。",
-      "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/18/issues.json"
+      "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/18/issues.json",
+      "latest_evidence": "docs/evidence_blue_friend_20261013/02/chain_analysis.txt: no formal t4, t5 reused after one official red removal; actor_4 remains at600. Local slots alone do not prove physical identity."
     },
     {
       "issue_id": "report_gap_t0",
@@ -936,7 +938,8 @@
       "state": "partial_pending",
       "commit": "b7696fe/1702fc8",
       "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。",
-      "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/01/issues.json"
+      "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/01/issues.json",
+      "latest_evidence": "Perception nested _arb_cb also discarded newer task on old-target cancellation; exact recorded task sequence reproduced, scoped fix7513758. Recorded recovery ~0.004s; not an explanation for minute-long gaps."
     },
     {
       "issue_id": "view_recovery",
@@ -960,5 +963,33 @@
       "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。",
       "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/01/issues.json"
     }
-  ]
+  ],
+  "latest_frozen_validation": {
+    "source": "artifacts/blue_friend_validation_20261013",
+    "commit": "b7cb717",
+    "results": [
+      {
+        "round": 1,
+        "flags": "friend_recheck=0, discovery=1, ranking=1",
+        "sixof6_s": 411.86,
+        "eliminated_by200": 0
+      },
+      {
+        "round": 2,
+        "flags": "friend_recheck=1, discovery=1, ranking=1",
+        "timeout_s": 600,
+        "official_remaining": [
+          "actor_4"
+        ],
+        "eliminated_by200": 1
+      },
+      {
+        "round": 3,
+        "flags": "friend_recheck=1, discovery=1, ranking=1",
+        "sixof6_s": 273.38,
+        "eliminated_by200": 3
+      }
+    ],
+    "disposition": "Experimental friend recheck remains default off. Failed run preserved; neither reliable 300s nor reliable 3 kills by200s demonstrated."
+  }
 }
