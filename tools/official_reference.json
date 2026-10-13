@@ -1,9 +1,9 @@
 {
-  "repository": "https://github.com/robin-shaun/XTDrone",
-  "commit": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
-  "raw_base": "https://raw.githubusercontent.com/robin-shaun/XTDrone/2783bdb32e43b6c656df9445dd2a855855bc24cd/robocup/",
+  "repository": "https://gitee.com/robin_shaun/XTDrone",
+  "commit": "eac5093dbd9a635fbe37f6a29ffed8bad96ffe45",
+  "raw_base": "https://gitee.com/robin_shaun/XTDrone/raw/eac5093dbd9a635fbe37f6a29ffed8bad96ffe45/robocup/",
   "sha256": {
-    "control_actor.py": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7",
+    "control_actor.py": "da750554fa2018d23b1b89ec13b8b78ecb8b9d7941b69febb4a1a367149b2591",
     "score_cal.py": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
     "map_generator.py": "f9edec80bf539eba2684a513a43f16ee38dacd1a80f92dae8ae4d9d54315ed93",
     "base1.world": "5455e25b30e340adacd9565fc5aed79f66a668b6df2e3906f510ed27fe61e06c",

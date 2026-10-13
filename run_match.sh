@@ -1483,9 +1483,14 @@ esac
 case "$_subcmd" in
     prepare-map)
         python3 "$REPO_ROOT/tools/official_reference.py" --download || exit 2
+        _official_ref="${ROBOCUP_OFFICIAL_REF:-}"
+        if [ -z "$_official_ref" ]; then
+            _official_ref="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["commit"])' \
+                "$REPO_ROOT/tools/official_reference.json")" || exit 2
+        fi
         python3 "$REPO_ROOT/tools/prepare_official_map.py" --apply \
             --xtdrone-root "$XTDRONE_DIR" --world "$OFFICIAL_WORLD" \
-            --official-ref "${ROBOCUP_OFFICIAL_REF:-2783bdb32e43b6c656df9445dd2a855855bc24cd}"
+            --official-ref "$_official_ref"
         ;;
     start-team) do_start ;;
     stop-team) do_stop ;;
