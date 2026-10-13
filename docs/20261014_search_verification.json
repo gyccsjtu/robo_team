@@ -1,0 +1,154 @@
+{
+  "recommended_launch": "./run_search_safety_candidate.sh start --gui",
+  "runs": [
+    {
+      "trial_label": "A_safe_selected_search",
+      "code_commit": "44349a86a9e40f0be29438db54cf4956b1cb1ff4",
+      "map_sha256": "93988c6d63c2d122b531855bfd76a47517cfcd6b0a99c520120e529ffb0f222c",
+      "actors": {
+        "1": 148.53999999999996,
+        "5": 271.13599999999997,
+        "0": 290.52800000000025,
+        "4": 292.904,
+        "3": 320.4839999999999,
+        "2": 329.3960000000002
+      },
+      "official_complete": true,
+      "completion_s": 329.3960000000002,
+      "treatment": {
+        "CANDIDATE_IMAGE_MAX_TILT_DEG": "18",
+        "LOCALIZED_SEARCH_FOLLOW": "1",
+        "IMMEDIATE_VISIBLE_DISPATCH": "1",
+        "DISCOVERY_BLIND_HANDOFF": "0",
+        "BLOCKED_TRACKING_RELIEF": "0",
+        "RELIEF_CLEAR_APPROACH": "0",
+        "TRACKING_FRIEND_RECHECK": "0",
+        "PIXEL_RECOVERY_BACKOFF": "0",
+        "PR_COHERENT_BODY_ATTACH": "1",
+        "ROUTINE_SEARCH_BOUNDS": "1",
+        "ROUTINE_OBSERVATION_HEADING": "1",
+        "TAKEOFF_PROGRESS_RECOVERY_EARLY": "1",
+        "COUPLED_VIEW_GEOMETRY": "1",
+        "REPORT_FLOW_DIAGNOSTICS": "1",
+        "VIEW_SPACE_BACKOFF": "0",
+        "BRIDGE_FRESH_IMAGE_SLOT": "0",
+        "SEARCH_ROAD_FIRST_PASS": "0",
+        "SEARCH_DIRECTED_COVERAGE": "0"
+      },
+      "gui_verified": true,
+      "evidence_path": "/home/gycc/桌面/RoboCup_Team/artifacts/road_search_revised_20261014_014714/rounds/01",
+      "core_archive_sha256": "14e285b4352988a2b8d90ed9747f1d8594b4a639b7ff9bf6ed694fae71019db9"
+    },
+    {
+      "trial_label": "B_limited_road_prefix",
+      "code_commit": "44349a86a9e40f0be29438db54cf4956b1cb1ff4",
+      "map_sha256": "93988c6d63c2d122b531855bfd76a47517cfcd6b0a99c520120e529ffb0f222c",
+      "actors": {
+        "2": 277.5279999999998,
+        "1": 286.02,
+        "0": 313.1680000000001,
+        "5": 327.27199999999993,
+        "4": 335.5279999999998,
+        "3": 393.13200000000006
+      },
+      "official_complete": true,
+      "completion_s": 393.13200000000006,
+      "treatment": {
+        "CANDIDATE_IMAGE_MAX_TILT_DEG": "18",
+        "LOCALIZED_SEARCH_FOLLOW": "1",
+        "IMMEDIATE_VISIBLE_DISPATCH": "1",
+        "DISCOVERY_BLIND_HANDOFF": "0",
+        "BLOCKED_TRACKING_RELIEF": "0",
+        "RELIEF_CLEAR_APPROACH": "0",
+        "TRACKING_FRIEND_RECHECK": "0",
+        "PIXEL_RECOVERY_BACKOFF": "0",
+        "PR_COHERENT_BODY_ATTACH": "1",
+        "ROUTINE_SEARCH_BOUNDS": "1",
+        "ROUTINE_OBSERVATION_HEADING": "1",
+        "TAKEOFF_PROGRESS_RECOVERY_EARLY": "1",
+        "COUPLED_VIEW_GEOMETRY": "1",
+        "REPORT_FLOW_DIAGNOSTICS": "1",
+        "VIEW_SPACE_BACKOFF": "0",
+        "BRIDGE_FRESH_IMAGE_SLOT": "0",
+        "SEARCH_ROAD_FIRST_PASS": "1",
+        "SEARCH_DIRECTED_COVERAGE": "0"
+      },
+      "gui_verified": true,
+      "evidence_path": "/home/gycc/桌面/RoboCup_Team/artifacts/road_search_revised_20261014_014714/rounds/02",
+      "core_archive_sha256": "78ff971810933e89551a87b8db2b79416bc47ddf9724c4d06f1bf00f5c5f665d"
+    },
+    {
+      "trial_label": "safe_baseline_complete_path_bounds",
+      "code_commit": "6d27cb7167b2f47c5d5bf5df42892377ba5f8af7",
+      "map_sha256": "e6646ac9b47af00337d3072c4c979a025b07ada0a2e1c9e09fa1c36da9f62333",
+      "actors": {
+        "0": 183.83200000000033,
+        "1": 289.82000000000016,
+        "2": 292.212,
+        "3": 305.8520000000003,
+        "5": 314.41200000000026,
+        "4": 353.71600000000035
+      },
+      "official_complete": true,
+      "completion_s": 353.71600000000035,
+      "treatment": {
+        "CANDIDATE_IMAGE_MAX_TILT_DEG": "18",
+        "LOCALIZED_SEARCH_FOLLOW": "1",
+        "IMMEDIATE_VISIBLE_DISPATCH": "1",
+        "DISCOVERY_BLIND_HANDOFF": "0",
+        "BLOCKED_TRACKING_RELIEF": "0",
+        "RELIEF_CLEAR_APPROACH": "0",
+        "TRACKING_FRIEND_RECHECK": "0",
+        "PIXEL_RECOVERY_BACKOFF": "0",
+        "PR_COHERENT_BODY_ATTACH": "1",
+        "ROUTINE_SEARCH_BOUNDS": "1",
+        "ROUTINE_OBSERVATION_HEADING": "1",
+        "TAKEOFF_PROGRESS_RECOVERY_EARLY": "1",
+        "COUPLED_VIEW_GEOMETRY": "1",
+        "REPORT_FLOW_DIAGNOSTICS": "1",
+        "VIEW_SPACE_BACKOFF": "0",
+        "BRIDGE_FRESH_IMAGE_SLOT": "0",
+        "SEARCH_ROAD_FIRST_PASS": "0",
+        "SEARCH_DIRECTED_COVERAGE": "0"
+      },
+      "gui_verified": true,
+      "evidence_path": "/home/gycc/桌面/RoboCup_Team/artifacts/routine_search_bounds_20261014_020914/rounds/01",
+      "core_archive_sha256": "e60488ba751b65458a3f835417ca41eaa35d682fad0825c9d453b726a0e6f861"
+    }
+  ],
+  "current_full_gui_source": "6d27cb7167b2f47c5d5bf5df42892377ba5f8af7",
+  "post_gui_change": "Checked inward-entry selection: reject blocked rays before the 32 A* attempt cap; each outside-entry A* limited to 2500 expansions. Dedicated counterexample test; this branch was not exercised in the GUI trial.",
+  "unit_tests_passed": 1708,
+  "claims": {
+    "stable_300_seconds": false,
+    "actor_motion_seeded": false,
+    "collision_absence_verified": false
+  },
+  "disabled_new_strategies": [
+    "SEARCH_ROAD_FIRST_PASS",
+    "SEARCH_DIRECTED_COVERAGE",
+    "VIEW_SPACE_BACKOFF",
+    "BRIDGE_FRESH_IMAGE_SLOT"
+  ],
+  "runtime_rule_limits": "No actor/judge modification, actor truth or backstage remaining-target feedback used by competition algorithms. Native clock permission recorded. Official stdout used solely by independent experiment evaluation.",
+  "new_random_search_metrics": {
+    "time_anchor": "first own processed camera frame; not official start",
+    "middle_east_first_coverage_s": 77.848,
+    "east_first_image_coverage_s": 90.82,
+    "measured_search_stop_fraction": 0.16831,
+    "coverage_cells_60_90_120_180_240_300": [
+      22,
+      36,
+      56,
+      74,
+      91,
+      106
+    ],
+    "routine_task_waypoint_or_groundlook_violations": 0,
+    "routine_actual_position_outside_public_actor_box": 0
+  },
+  "remaining_failures": [
+    "long report gaps and visual-instance qualification delays",
+    "height-setpoint follows measured altitude during safety-held vertical zero; observed in road candidate B2, absent in new random trial"
+  ]
+}

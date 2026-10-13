@@ -71,10 +71,19 @@ def plan_routine(grid, start, goal, **options):
                 distance = math.dist(start, point)
                 if distance <= 20.:
                     entries.append((distance, point))
-    for distance, entry in sorted(entries)[:32]:
+    attempts = 0
+    entry_options = dict(options)
+    entry_options['max_expansions'] = min(options.get('max_expansions', 250000), 2500)
+    for distance, entry in sorted(entries):
         if not clear_line(grid, start, entry):
             continue
-        route = plan(bounded, entry, goal, **options)
+        # A short wall can block the nearest 32 rays while a slightly more
+        # lateral entry remains safe. Cap checked A* attempts, not rejected
+        # rays, and retain the 20 m spatial bound and expansion budget.
+        if attempts >= 32:
+            break
+        attempts += 1
+        route = plan(bounded, entry, goal, **entry_options)
         if route.success:
             return PlanResult(True, route.reason, (start_cell,)+route.cells,
                               (tuple(start),)+route.points,

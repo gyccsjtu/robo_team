@@ -77,6 +77,17 @@ class RoutinePlanningTests(unittest.TestCase):
                    grid.world_to_cell((129., 0.))[0]] = 1
         self.assertEqual(plan_routine(grid, (0., 0.), (129., 0.)).reason, 'GOAL_OCCUPIED')
 
+    def test_blocked_nearest_entry_rays_do_not_hide_safe_lateral_return(self):
+        grid = self.grid()
+        for iy in range(grid.height):
+            _, y = grid.cell_to_world((22, iy))
+            if abs(y) <= 3.5:
+                grid.cells[iy*grid.width+22] = 1  # short x132.5 wall
+        route = plan_routine(grid, (138.5, .5), (121.5, 8.5))
+        self.assertTrue(route.success)
+        self.assertTrue(all(routine_point_allowed(point) for point in route.points[1:]))
+        self.assertGreater(abs(route.points[1][1]), 3.5)
+
     def test_invalid_or_remote_outside_start_and_outside_goal_fail(self):
         grid = self.grid()
         for start, goal in (((float('nan'), 0.), (121.5, 0.5)),
