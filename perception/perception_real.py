@@ -2230,6 +2230,12 @@ def main():
         if str(msg.uav_id) != str(UAV):
             return
         with arb_lock:
+            # Manager retasking publishes the new owner before cancelling its
+            # old target. Match the agent's target-scoped cancellation: an old
+            # cancellation must not erase this camera's newer person task.
+            if (msg.task_type == 255 and msg.target_id and arb['tid'] and
+                    str(msg.target_id) != arb['tid']):
+                return
             if msg.task_type in (1, 2) and msg.target_id:
                 arb["tid"] = str(msg.target_id)
             else:
