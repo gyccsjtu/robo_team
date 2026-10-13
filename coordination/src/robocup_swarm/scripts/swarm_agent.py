@@ -5575,6 +5575,7 @@ class SwarmAgent(SearchSegmentAgent):
         image = self._fresh_tracking_view(now)
         if (not forced and not degraded and not hold_recovery and image is not None and image.get('geometry_ok') and
                 image.get('report_ok', image.get('geometry_ok')) and
+                image.get('person_verdict_ok', True) and
                 not view_needs_space(image)):
             # A pixel-only view cannot veto a request to recover geometry.
             self._reobserve_view = None

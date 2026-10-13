@@ -1591,6 +1591,8 @@ class Track(object):
         # 只供裁判近距裁脚框使用。移动目标的头顶框抖动会造成 >1m
         # 深度误差；静止目标在边界仍需保留可上报的机会。
         self.recent_observed_xy = [(self.observed_s, x, y)]
+        self.body_evidence = []
+        self.remember_body_evidence()
         # v4 新增：外观特征（颜色直方图/深度特征）用于多层次关联
         self.appearance = appearance_feat if appearance_feat is not None else np.zeros(32, dtype=np.float32)
         self.appear_updated = 0         # 外观特征更新帧数
@@ -1705,7 +1707,49 @@ class Track(object):
             self.appear_updated += 1
         self.remember_travel()
         self.remember_parallax()
+        self.remember_body_evidence()
         return True
+
+    def remember_body_evidence(self):
+        """Keep image-quality votes separate from coasted/filter positions."""
+        sample = self.observed_s
+        good = (self.appearance_status == 'actor' and
+                self.distractor_confidence < .30 and not self.secondary_decoy_confirmed and
+                self.observation_loc_ok and self.range_method == 'foot_ground' and
+                self.conf >= .55 and H_MIN <= self.h <= H_MAX and
+                official_view_ok(self.uv, self.wh, IMG_W, IMG_H, self.rng,
+                                 clipped_stable=False))
+        self.body_evidence = [(s, ok) for s, ok in self.body_evidence if sample-s <= 2.5]
+        if not self.body_evidence or sample > self.body_evidence[-1][0]:
+            self.body_evidence.append((sample, bool(good)))
+
+    def coherent_body_observation(self):
+        """A moving person can share the aircraft's velocity and stay centred.
+
+        Camera-relative fixation alone is therefore ambiguous, especially for
+        an unassigned person walking beside the assigned one. Require fresh,
+        complete, geometrically qualified images and plausible raw world
+        motion before overriding this heuristic. This grants no new geometry,
+        range, identity, report time or exemption from the sculpture veto.
+        """
+        if (self.miss or self.loc_suspect or
+                not 0. <= self.t-self.observed_s <= .5):
+            return False
+        quality = dict(self.body_evidence)
+        samples = []
+        for point in reversed(self.recent_observed_xy):
+            if (not quality.get(point[0], False) or
+                    (samples and not 0. < samples[-1][0]-point[0] <= .4+1e-6)):
+                break
+            samples.append(point)
+            if len(samples) >= 4 and samples[0][0]-point[0] >= .6-1e-6:
+                break
+        if len(samples) < 4 or samples[0][0]-samples[-1][0] < .6-1e-6:
+            return False
+        samples.reverse()
+        return all(math.isfinite(v) for p in samples for v in p) and all(
+            math.hypot(b[1]-a[1], b[2]-a[2]) <= 2.5*(b[0]-a[0])+.15
+            for a, b in zip(samples, samples[1:]))
 
     def can_report_image(self):
         """Track longevity cannot make this frame's bad geometry trustworthy."""
@@ -1855,9 +1899,11 @@ class Track(object):
             return False, "localization"
         if self.miss > max_coast:
             return False, "coast"
-        # 视差判据放在几何判据之前：它是"这东西长在机身上"的铁证，
-        # 而机身的归一化身高恰好会落在人头区间（实测 1.63~2.32 m），几何拦不住。
-        if attach_check and VERDICT_ATTACH_ON and self.attached_to_cam():
+        # Relative fixation is ambiguous for a moving person followed by the
+        # aircraft. Independent full-body image evidence can resolve it.
+        if (attach_check and VERDICT_ATTACH_ON and self.attached_to_cam() and
+                not (os.environ.get('PR_COHERENT_BODY_ATTACH', '0') == '1' and
+                     self.coherent_body_observation())):
             return False, "self"
         if not (VERDICT_H_MIN <= self.h <= VERDICT_H_MAX):
             return False, "height"
@@ -2083,7 +2129,11 @@ def person_verdict_fields(track, sample, assigned_target=None):
     ok, reason = track.verdict(sample, max_coast=0, attach_check=not
                               skip_attached_verdict(track.cls, assigned_target, track.rng),
                               motion_independent=True)
-    return dict(person_verdict_ok=bool(ok), person_verdict_reason=reason)
+    fields = dict(person_verdict_ok=bool(ok), person_verdict_reason=reason)
+    if (os.environ.get('PR_COHERENT_BODY_ATTACH', '0') == '1' and
+            track.attached_to_cam() and track.coherent_body_observation()):
+        fields['attachment_coherent_body'] = True
+    return fields
 
 
 def candidate_frame(source, sample, candidates, purpose=None):

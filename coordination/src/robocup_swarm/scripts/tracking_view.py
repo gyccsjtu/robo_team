@@ -16,7 +16,8 @@ class ReportViewWindow:
             self.samples=[]
         if self.samples and sample <= self.samples[-1][0]:
             return
-        good=bool(view.get('geometry_ok') and view.get('report_ok'))
+        good=bool(view.get('geometry_ok') and view.get('report_ok') and
+                  view.get('person_verdict_ok', True))
         self.samples=[p for p in self.samples if sample-p[0] <= 4.]+[(sample,good)]
         self.samples=self.samples[-160:]
 
@@ -78,7 +79,9 @@ def parse_tracking_view(data, source, tid, now):
                 bearing=bearing, x=x, y=y, camera_tilt=tilt,
                 candidate_id=data.get('candidate_id'), position_sample_s=sample,
                 geometry_ok=data.get('geometry_ok') is True,
-                report_ok=data.get('report_ok') is True)
+                report_ok=data.get('report_ok') is True,
+                person_verdict_ok=data.get('person_verdict_ok', True) is True,
+                person_verdict_reason=data.get('person_verdict_reason', ''))
 
 
 def bound_pixel_candidate(cues, cls, box):
