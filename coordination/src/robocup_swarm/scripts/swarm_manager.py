@@ -36,6 +36,7 @@ from swarm_task import (CoverageGrid, TaskAllocator, LeaseManager, coverage_boun
 from cooperative_tracker import CooperativeTracker, CONFIRM_HOLD_TIMEOUT
 from csv_logger import logger
 from visual_evidence import parse_visual_evidence
+from formal_report_flow import ReportFlowHealth
 
 # 地图（用于过滤「格中心落在建筑内」的格子，与 agent 的 A* 膨胀判定一致）
 from robocup_navigation.astar import load_metadata, GridMap, plan
@@ -101,6 +102,9 @@ HOT_TARGET_TTL = float(os.environ.get("HOT_TARGET_TTL", "8.0"))
 
 # ---- 确认期冗余派机（可全用环境变量关掉/调参，无需改代码）----
 BACKUP_ENABLE = int(os.environ.get("BACKUP_ENABLE", "1"))   # 0=关闭
+# Passive matched-publish evidence only. It must never authorize dispatch,
+# coordinate publication, confirmation or elimination.
+REPORT_FLOW_DIAGNOSTICS = os.environ.get('REPORT_FLOW_DIAGNOSTICS', '0') == '1'
 AUTO_LAND = int(os.environ.get("AUTO_LAND", "0"))   # 0=禁止自动降落（默认）
 BACKUP_STALE  = float(os.environ.get("BACKUP_STALE",  "2.0"))  # 断流多少秒后加派（紧迫）
 # === 2026-10-05 国家一等奖修：3.0 → 5.0 ===
@@ -427,6 +431,9 @@ class SwarmManager(SearchSegmentManager):
         self._confirm_timeout_bl = {}
         self._visual_candidate = {}  # tid -> (first_seen, x, y)
         self._visual_observations = {}
+        self._formal_report_flow = (ReportFlowHealth(self.uav_ids)
+                                    if REPORT_FLOW_DIAGNOSTICS else None)
+        self._formal_report_log_s = {}
         self._eligible_observations = {}  # last accepted image, never refreshed by a bad frame
         self._view_recovery = {}          # bounded recovery from unusable imagery
         self._last_detection_sample = {}
@@ -463,6 +470,11 @@ class SwarmManager(SearchSegmentManager):
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._status_cb)
         rospy.Subscriber("/swarm/detection", TargetDetection, self._detection_cb)
         rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb)
+        if REPORT_FLOW_DIAGNOSTICS:
+            rospy.Subscriber('/swarm/report_telemetry', String,
+                             self._formal_report_cb, queue_size=30)
+        rospy.loginfo('[REPORT_FLOW_CONFIG] enabled=%s passive=True; no judge feedback',
+                      REPORT_FLOW_DIAGNOSTICS)
         self._discovery_state_pub = rospy.Publisher(
             '/swarm/discovery_states', TargetState, queue_size=12)
         rospy.Subscriber("/swarm/discovery_observation", String,
@@ -1638,6 +1650,14 @@ class SwarmManager(SearchSegmentManager):
                     return
             self._annotate_distant_view(data, old, distant_accepted)
             self._visual_observations[key] = data
+            report_flow = getattr(self, '_formal_report_flow', None)
+            if report_flow is not None:
+                try:
+                    report_flow.remember_image(data, now)
+                    self._log_formal_report_flow(tid, now)
+                except (TypeError, ValueError, KeyError, OverflowError):
+                    # Optional diagnostics cannot reject a valid observation.
+                    rospy.logwarn_throttle(5., '[FORMAL_REPORT_FLOW] diagnostic sample rejected')
             if data['eligible']:
                 if not hasattr(self, '_seen_target_slots'):
                     self._seen_target_slots = set()
@@ -1700,6 +1720,13 @@ class SwarmManager(SearchSegmentManager):
     def _reset_visual_hypothesis(self, tid, event):
         """Separate disjoint camera hypotheses without inventing observations."""
         self.__dict__.setdefault('_hypothesis_switches', {})[tid] = dict(event)
+        flow = getattr(self, '_formal_report_flow', None)
+        if flow is not None:
+            try:
+                flow.latest(tid, rospy.Time.now().to_sec())
+                flow.reset(tid, event['switch_s'])
+            except (TypeError, ValueError, KeyError, OverflowError):
+                rospy.logwarn_throttle(5., '[FORMAL_REPORT_FLOW] diagnostic reset rejected')
         self._discard_reacquire_site(tid)
         for name in ('_visual_observations', '_eligible_observations',
                      '_last_detection_sample', '_qualified_detection_sample'):
@@ -3085,6 +3112,37 @@ class SwarmManager(SearchSegmentManager):
                           "距离 %.1fm, 原因=%s, observers=%s",
                           best, tid, tx_c, ty_c, best_d, reason,
                           ",".join(sorted(ct.observers)))
+
+    @serialized_tasks
+    def _formal_report_cb(self, msg):
+        """Observe our bridge's actual output, without granting any authority."""
+        flow = getattr(self, '_formal_report_flow', None)
+        if flow is None:
+            return
+        try:
+            now = rospy.Time.now().to_sec()
+            payload = json.loads(msg.data)
+            flow.remember_publish(payload, now)
+            self._log_formal_report_flow(payload.get('target_id'), now)
+        except (TypeError, ValueError, KeyError, OverflowError):
+            return
+
+    def _log_formal_report_flow(self, tid, now):
+        flow = getattr(self, '_formal_report_flow', None)
+        if flow is None or tid not in ('t0', 't1', 't2', 't3', 't4', 't5'):
+            return
+        history = self.__dict__.setdefault('_formal_report_log_s', {})
+        previous = history.get(tid, -1e18)
+        if 0. <= now-previous < 2.:
+            return
+        history[tid] = now
+        record = flow.latest(tid, now)
+        rospy.loginfo('[FORMAL_REPORT_FLOW] tid=%s state=%s source=%s '
+                      'report_age=%s image_age=%s; accuracy_and_elimination=unknown',
+                      tid, 'matched_publish' if record else 'no_matched_publish',
+                      record.get('source_uav') if record else '',
+                      record.get('report_age_s') if record else None,
+                      record.get('sample_age_s') if record else None)
 
     def _camera_view_needs_relief(self, tid, now):
         """Only own-image task health; never read judge success or actor truth."""
