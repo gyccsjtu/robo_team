@@ -1,0 +1,29 @@
+新版官方行人基线：6a3cb91328d14adf567aa312518ec402c9b72caf
+
+官方环境来源：Gitee robin_shaun/XTDrone，固定提交
+eac5093dbd9a635fbe37f6a29ffed8bad96ffe45。control_actor.py 与该提交逐字一致；
+裁判未修改。团队算法与 d3fff9a 相同，只更新官方环境锁和 prepare-map 默认引用。
+
+一次新随机地图、Gazebo GUI，官方六个不同 actor 均消除，443.648 秒。
+顺序：棕 161.144、蓝 196.644、红 310.748 / 325.160、绿 385.752、白 443.648。
+这是一轮通过，不能作为稳定 300 秒的证明。
+
+开关：run_search_safety_candidate.sh；云台 off；ROAD_FIRST_PASS=0；
+DIRECTED_COVERAGE=0；VIEW_SPACE_BACKOFF=0；BRIDGE_FRESH_IMAGE_SLOT=0。
+权重：v3_clean 主检测，sculpture_v3 同帧干扰复核。没有替换模型。
+六机均起飞，比赛期间未记录定位失信或 AUTO.LAND。
+
+四个非红目标最后 15 秒均持续产生新观测，正式坐标累计移动约 13～15 米；
+这是观测链的移动证据，不是把演员真值喂给控制。没有读后台控制目标。
+仍然慢：绿、白分别出现 270.980 / 189.520 秒正式上报间隔。
+首次有效东侧画面约 106.376 秒（自团队首帧算），300 秒完整图像覆盖 112 格。
+
+原始证据：artifacts/new_official_actor_20261014_064308/rounds/01/
+result.json、03_judge.log、core_evidence.tar.xz、
+own_environment_search_final_review.json、formal_completion_review.json。
+地图 SHA256：90fb930ecd0fa5b8a3693195a0f3db0291ca136015c4aa01ac3f8241af891289。
+core_evidence.tar.xz SHA256：
+41a6218fc0e6ae506d332d1ffa878437cdca678aa152a98d96cda1a798fdc866。
+
+后续搜索修改必须单独开关、保留该基线，并以实际搜索机位置、任务和真实图像
+覆盖核对扎堆；不能只凭不同格子的预约宣称没有重复搜索。
