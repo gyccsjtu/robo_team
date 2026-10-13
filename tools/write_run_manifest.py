@@ -79,6 +79,7 @@ def main():
         view_space_backoff=os.environ.get('VIEW_SPACE_BACKOFF','0'),
         bridge_fresh_image_slot=os.environ.get('BRIDGE_FRESH_IMAGE_SLOT','0'),
         search_road_first_pass=os.environ.get('SEARCH_ROAD_FIRST_PASS','0'),
+        search_deconflicted_allocation=os.environ.get('SEARCH_DECONFLICTED_ALLOCATION','0'),
         search_directed_coverage=os.environ.get('SEARCH_DIRECTED_COVERAGE','0'),
         routine_search_bounds=os.environ.get('ROUTINE_SEARCH_BOUNDS','0'),
         routine_observation_heading=os.environ.get('ROUTINE_OBSERVATION_HEADING','0'),

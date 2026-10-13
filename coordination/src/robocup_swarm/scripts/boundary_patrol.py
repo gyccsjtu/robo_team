@@ -51,6 +51,76 @@ class SouthPatrol:
         self._edge_observed = set()
         self._corner_observed = set()
         self._corner_observed_at = {}
+        self._prefer_home_owner = os.environ.get('SEARCH_DECONFLICTED_ALLOCATION', '0') == '1'
+        self._first_owner_started = False
+        self._owner_preference_since = None
+        self._owner_seen_ready = set()
+
+    def _first_owner_candidates(self, manager, candidates, now):
+        """Prefer the existing eastern home zone, with six seconds to take off.
+
+        Zone geometry identifies north/south, not a hard-coded aircraft ID.
+        A fresh, camera-healthy aircraft not yet ready may defer this lane;
+        UavStatus.connected includes takeoff completion, not just the link.
+        Person tasks and other active work never
+        wait or lose their aircraft. Other idle aircraft remain ordinary searchers.
+        """
+        if (not self._prefer_home_owner or self.east_half is None or
+                self.uid is not None or self._first_owner_started):
+            return [], False
+        if self._owner_preference_since is None:
+            self._owner_preference_since = now
+        elapsed = now-self._owner_preference_since
+        if not 0. <= elapsed < 6.:
+            return [], False
+        grid = manager.grid
+        centres = {}
+        for zone, keys in getattr(grid, 'zone_cells', {}).items():
+            cells = [grid.cell(key) for key in keys]
+            cells = [cell for cell in cells if cell is not None and
+                     all(math.isfinite(v) for v in (cell.cx, cell.cy))]
+            if cells:
+                centres[zone] = (sum(c.cx for c in cells)/len(cells),
+                                 sum(c.cy for c in cells)/len(cells))
+        middle_x = .5*(self.bounds[0]+self.bounds[1])
+        eastern = {z:xy for z,xy in centres.items() if xy[0] >= middle_x}
+        if not eastern:
+            return [], False
+        extreme_y = (max if self.east_half == 'north' else min)(
+            xy[1] for xy in eastern.values())
+        zones = {z for z,xy in eastern.items() if math.isclose(xy[1], extreme_y, abs_tol=1e-6)}
+        eligible, pending = [], False
+        busy = set(manager._tracking.values()) | set(manager._backup.values())
+        busy.update(getattr(manager._segments, 'tasks', {}))
+        for uid in getattr(manager, 'uav_ids', manager.status):
+            if grid.get_uav_zone(uid) not in zones or uid in busy:
+                continue
+            st, received = manager.status.get(uid), manager.last_report.get(uid)
+            if st is None or received is None:
+                # Requested agents publish asynchronously during native ROS
+                # startup. No first report is not evidence of a disconnected
+                # aircraft; allow only the same fixed six-second startup wait.
+                pending |= uid not in self._owner_seen_ready
+                continue
+            frames = getattr(manager, '_processed_frame_times', None)
+            camera_fresh = frames is None or 0. <= now-frames.get(uid, -1e18) <= 2.
+            if (not 0. <= now-received.to_sec() < 1. or not camera_fresh or
+                    not all(math.isfinite(v) for v in (st.x, st.y, st.z))):
+                continue
+            if not st.connected:
+                # This is false during normal climb until _takeoff_done.
+                # Once ready has been seen, false is an unavailable aircraft,
+                # not a new startup wait and never a fresh assignment.
+                pending |= uid not in self._owner_seen_ready
+                continue
+            self._owner_seen_ready.add(uid)
+            if not manager._tracking_uav_available(uid, now):
+                continue
+            if uid in candidates and st.z >= 1.:
+                eligible.append(uid)
+            elif st.z < 1.:
+                pending = True
+        return eligible, pending
 
     def accepts_target(self, uid, x, y, has_camera=False):
         """Real local images preempt patrol; blind western errands do not."""
@@ -289,8 +359,21 @@ class SouthPatrol:
             return None  # retain ownership across the real release cooldown
         candidates = [uid for uid in idle if now >= self.owner_retry.get(uid, 0.)]
         grid = getattr(manager, '_g_infl', None)
-        proposal = (self._choose_band(manager, candidates, now, grid, 'east')
-                    if grid is not None else None)
+        proposal = None
+        preferred, pending = self._first_owner_candidates(manager, candidates, now)
+        if preferred and grid is not None:
+            # Prefer home responsibility, but keep the original total bound
+            # of 24 A* probes across preferred and safe fallback aircraft.
+            # A failed preferred ray cannot ban the cell for a healthy peer.
+            proposal = self._choose_band(manager, preferred, now, grid, 'east',
+                                         probe_limit=12, mark_failed=False)
+            if proposal is None:
+                fallback = [uid for uid in candidates if uid not in preferred]
+                proposal = self._choose_band(manager, fallback, now, grid, 'east', probe_limit=12)
+        elif pending:
+            return None  # fixed first-attempt budget; no owner or lease is acquired
+        elif grid is not None:
+            proposal = self._choose_band(manager, candidates, now, grid, 'east')
         if proposal is not None:
             self.unreachable_since = None
             return proposal
@@ -306,7 +389,7 @@ class SouthPatrol:
                 self.unreachable_since = None
         return None
 
-    def _choose_band(self, manager, idle, now, grid, region):
+    def _choose_band(self, manager, idle, now, grid, region, probe_limit=24, mark_failed=True):
         """Check one camera band with safe flight points and real image geometry."""
         keys = []
         viewpoints = {}
@@ -479,12 +562,12 @@ class SouthPatrol:
                 other = [c for c in ordered if not self._edge_needs_first_view(manager, c[2])]
                 # A blocked/unreachable outer strip cannot consume every
                 # bounded planning attempt and pin this aircraft forever.
-                edge_limit = 12 if other else 24
+                edge_limit = min(12, probe_limit) if other else probe_limit
                 selected = spread_candidates(edge, edge_limit)
-                selected += spread_candidates(other, 24-len(selected))
+                selected += spread_candidates(other, probe_limit-len(selected))
                 selected.sort(key=priority)
             else:
-                selected = spread_candidates(ordered, 24)
+                selected = spread_candidates(ordered, probe_limit)
         else:
             selected = ordered[:8]
         # A straight distance is only a lower bound; select by checked path
@@ -510,8 +593,9 @@ class SouthPatrol:
             checked.append((route.path_length_m, uid, key, point))
             reachable_edges.add(key)
             checked_tier = tier(key)
-        for key in failed_edges-reachable_edges:
-            manager.allocator.failed_visit[key] = now
+        if mark_failed:
+            for key in failed_edges-reachable_edges:
+                manager.allocator.failed_visit[key] = now
         if not checked:
             return None
         length, uid, key, point = min(checked)
@@ -562,6 +646,7 @@ class SouthPatrol:
 
     def started(self, task, direction, now):
         if self.east:
+            self._first_owner_started = True
             self.uid, self.task_id = task.uid, task.task_id
             self.direction = direction
             self.deadline = task.deadline  # diagnostic, never extended by ACKs

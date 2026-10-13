@@ -52,7 +52,7 @@ class SearchSegmentManager:
 
     def _reachable_subpoint_view(self, key, origin, options, max_path_m=None,
                                  altitude=4.5, preferred_heading=None, max_candidates=24,
-                                 with_path=False):
+                                 with_path=False, avoid_search_uid=None):
         """A free ground sample is useful only with a checked safe flight path."""
         raw = self._merged_grid() if options else None
         grid = getattr(self, '_g_infl', None)
@@ -63,10 +63,14 @@ class SearchSegmentManager:
             # crowd a lawful inner observation out of the bounded attempts.
             options = tuple((point, look) for point, look in options
                             if routine_point_allowed(point, look))
+        layouts = (self._active_search_layout() if avoid_search_uid is not None and
+                   getattr(getattr(self, 'allocator', None), 'search_deconflict', False) else {})
         def priority(option):
             point, look = option
+            from search_deconfliction import crowding_cost
+            crowded = crowding_cost(point, look, layouts, avoid_search_uid)
             if preferred_heading is None:
-                return (not boundary_corner(self.grid, key, look), math.dist(origin, point))
+                return (not boundary_corner(self.grid, key, look), crowded, math.dist(origin, point))
             bearing = math.atan2(look[1]-point[1], look[0]-point[0])
             error = abs(math.atan2(math.sin(bearing-preferred_heading),
                                    math.cos(bearing-preferred_heading)))
@@ -245,7 +249,27 @@ class SearchSegmentManager:
     def _select_building_view(self, uid, key):
         status = self.status[uid]
         return self._reachable_subpoint_view(key, (status.x, status.y),
-                                             self._subpoint_views(key))
+                                             self._subpoint_views(key), avoid_search_uid=uid)
+
+    def _active_search_layout(self, stamp=None):
+        """Uncompleted task views under the same allocation/reservation lock."""
+        from search_deconfliction import finite_point
+        stamp = rospy.Time.now().to_sec() if stamp is None else stamp
+        layouts = {}
+        for uid, task in self._segments.tasks.items():
+            if (task.index >= len(task.cells) or
+                    not task.created <= stamp < min(task.expires, task.deadline)):
+                continue
+            layout = dict(points=task.points[task.index:],
+                          look_points=task.look_points[task.index:])
+            status = self.status.get(uid)
+            sample = getattr(getattr(status, 'header', None), 'stamp', None)
+            sample_s = sample.to_sec() if sample is not None else -float('inf')
+            if (status is not None and finite_point((status.x, status.y)) and
+                    math.isfinite(sample_s) and 0. <= stamp-sample_s <= .5):
+                layout['position'] = (status.x, status.y)
+            layouts[uid] = layout
+        return layouts
 
     def _west_corner_subpoints(self):
         """The two public actor-area corners, using the existing nine samples."""
@@ -556,7 +580,14 @@ class SearchSegmentManager:
         positions = {uid:(self.status[uid].x,self.status[uid].y) for uid in idle}
         # Outer task lock covers allocator selection, segment extension and
         # whole-segment reservation. No callback can see a half-reserved route.
-        seeds = self.allocator.allocate(positions, blocked=set(self._blocked_cells)|set(self._segments.reserved))
+        kwargs = {}
+        if getattr(self.allocator, 'search_deconflict', False):
+            kwargs = dict(active_search=self._active_search_layout(stamp),
+                          search_points={key:self._segment_point(key)
+                                         for key in self.grid.uncovered_cells()
+                                         if key not in self._blocked_cells})
+        seeds = self.allocator.allocate(positions,
+            blocked=set(self._blocked_cells)|set(self._segments.reserved), **kwargs)
         self._auction_cycle += 1
         for uid,key in seeds.items():
             if key is None:

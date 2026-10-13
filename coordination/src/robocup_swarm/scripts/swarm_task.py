@@ -412,6 +412,7 @@ class TaskAllocator(object):
                  w_novelty=W_NOVELTY, novelty_horizon=NOVELTY_HORIZON,
                  flight_cap=FLIGHT_CAP):
         self.grid = grid
+        self.search_deconflict = os.environ.get('SEARCH_DECONFLICTED_ALLOCATION', '0') == '1'
         self.w_gain = w_gain
         self.w_flight = w_flight
         self.w_overlap = w_overlap
@@ -1076,7 +1077,7 @@ class TaskAllocator(object):
                          home_images=images[self.grid.get_uav_zone(uid)],
                          home_progress=progress[self.grid.get_uav_zone(uid)])}
 
-    def allocate(self, uavs, risk_map=None, blocked=()):
+    def allocate(self, uavs, risk_map=None, blocked=(), active_search=None, search_points=None):
         """集中式分配一轮。uavs: {id: (x,y)}，返回 {id: cell_key 或 None}。
 
         贪心：按当前「收益最高」逐机分配（每机取剩余格中自身效用最大者），
@@ -1126,16 +1127,30 @@ class TaskAllocator(object):
         # 预先获取所有飞机的位置，用于计算机间距离惩罚
         all_uavs = dict(uavs)
 
+        # Search-only snapshots include patrols and leases whose cells became
+        # covered during flight. Cell ownership alone loses those commitments.
+        layouts = dict(active_search or {}) if self.search_deconflict else {}
+        if self.search_deconflict:
+            from search_deconfliction import finite_point, crowding_cost
+            for uid, layout in layouts.items():
+                if finite_point(layout.get('position')):
+                    all_uavs[uid] = layout['position']
+
         # 预先获取正在执行任务的飞机的目标位置（避免多机同时飞向相邻格子）
         executing_uav_targets = {}  # uav_id -> (target_x, target_y)
         for c in self.grid.cells.values():
             if c.state == STATE_ASSIGNED and c.owner:
                 executing_uav_targets[c.owner] = (c.cx, c.cy)
+                if self.search_deconflict and c.owner not in (active_search or {}):
+                    layout = layouts.setdefault(c.owner, dict(points=[], look_points=[]))
+                    layout['points'].append((c.cx, c.cy))
+                    layout['look_points'].append((c.cx, c.cy))
 
         n_prio = 0
         for uav_id, (ux, uy) in uavs.items():
             best_key = None
             best_u = float("-inf")
+            route_primary = None
 
             # 本机分配时，排除已分配格的位置，但不排除其他飞机的当前位置
             other_uavs = {oid: pos for oid, pos in all_uavs.items() if oid != uav_id}
@@ -1222,11 +1237,33 @@ class TaskAllocator(object):
                                    key=lambda key: rank[key])
                     if ahead and math.hypot(self.grid.cell(ahead[0]).cx - ux,
                                             self.grid.cell(ahead[0]).cy - uy) <= 30.0:
-                        candidates = ahead[:1]
+                        primary = ahead[0]
                     else:
                         # Initial entry, wrapped route, or far-away pursuit
                         # return: rejoin at the nearest unfinished segment.
-                        candidates = [nearest]
+                        primary = nearest
+                    candidates = [primary]
+                    route_primary = primary
+                    if self.search_deconflict:
+                        def conflict(key):
+                            cell = self.grid.cell(key)
+                            look = (cell.cx, cell.cy)
+                            point = (search_points or {}).get(key, look)
+                            return crowding_cost(point, look, layouts, uav_id,
+                                flight_radius=MIN_UAV_DIST,
+                                look_radius=1.5*self.grid.cell_m)
+                        # Preserve ordered progress when it is not congested.
+                        # Alternatives stay in this sector and within two cell
+                        # widths of its entry cost. Skipped cells remain debt.
+                        if conflict(primary) > 0.:
+                            limit = entry_cost(primary)+2.*self.grid.cell_m
+                            nearby = sorted((key for key in sector
+                                             if entry_cost(key) <= limit),
+                                            key=lambda key: (entry_cost(key), rank[key]))[:11]
+                            nearby = list(dict.fromkeys([primary]+nearby))
+                            least = min(conflict(key) for key in nearby)
+                            candidates = [key for key in nearby
+                                          if conflict(key) <= least+1e-9]
             for key in candidates:
                 u = self.utility(uav_id, ux, uy, key, assigned_positions, risk_map,
                                  task_counts, other_uavs, other_executing,
@@ -1235,6 +1272,12 @@ class TaskAllocator(object):
                     best_u = u
                     best_key = key
             if best_key is not None:
+                if self.search_deconflict and route_primary is not None and best_key != route_primary:
+                    rospy.loginfo('[SEARCH_DISPERSION] uav=%s primary=%s selected=%s '
+                                  'primary_cost=%.3f selected_cost=%.3f active=%s; '
+                                  'bounded alternate, skipped cells stay unobserved',
+                                  uav_id, route_primary, best_key, conflict(route_primary),
+                                  conflict(best_key), sorted(layouts))
                 assigned[uav_id] = best_key
                 c = self.grid.cell(best_key)
                 c.state = STATE_ASSIGNED
@@ -1265,6 +1308,10 @@ class TaskAllocator(object):
                                   self.search_support_cooldown)
                 remaining.discard(best_key)
                 assigned_positions.append((c.cx, c.cy))
+                if self.search_deconflict:
+                    look = (c.cx, c.cy)
+                    layouts[uav_id] = dict(points=[(search_points or {}).get(best_key, look)],
+                                           look_points=[look], position=(ux, uy))
                 task_counts[uav_id] += 1  # 更新任务计数
                 if self._in_priority(best_key):
                     n_prio += 1
@@ -1290,6 +1337,8 @@ class TaskAllocator(object):
                     "uav_y": uy,
                     "distance_m": math.hypot(cell.cx - ux, cell.cy - uy),
                     "utility": best_u,
+                    "search_deconflict": self.search_deconflict,
+                    "candidate_count": len(candidates),
                 })
             else:
                 assigned[uav_id] = None
