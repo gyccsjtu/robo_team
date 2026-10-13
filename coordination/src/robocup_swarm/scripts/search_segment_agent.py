@@ -5,6 +5,7 @@ import rospy
 from search_segments import (SegmentBook, TRAVEL, LOOK, ATTEND, YIELD, DONE, FAILED,
                              clear_line, path_remaining)
 from robocup_navigation.astar import plan
+from routine_planning import plan_routine
 from search_observation import cell_points, ground_distance_band, in_view
 from swarm_task import ACTOR_SEARCH_BOUNDS
 from building_viewpoints import DIRECTED_PURPOSES, reserved_subpoint
@@ -162,7 +163,8 @@ class SearchSegmentAgent:
             return [],points[-1] if points else (0.,0.),False,1,'NO_START'
         path = [tuple(start)]
         for index,point in enumerate(points):
-            route = plan(grid,start,point,connectivity=8,prevent_corner_cutting=True)
+            route = (plan_routine if getattr(self, '_routine_search_bounds', False) else plan)(
+                grid,start,point,connectivity=8,prevent_corner_cutting=True)
             if not route.success:
                 reason = route.reason
                 leg = None

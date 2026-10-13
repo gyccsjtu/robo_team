@@ -1012,6 +1012,7 @@ class SwarmAgent(SearchSegmentAgent):
             _b.get("x_max", MAP_X_MAX), _b.get("y_max", MAP_Y_MAX),
             _res, INFLATE_M)
         self.grid = self.slam          # is_free 已含膨胀，plan()/grid_guard 直接用
+        self._routine_search_bounds = ROUTINE_SEARCH_BOUNDS
         self._slam_last_t = 0.0        # 上次建图处理的 ROS 时间
         self._slam_replan_t = 0.0      # 上次因新障碍触发重规划的时刻
         self._slam_pub_t = 0.0         # 上次发布占用栅格的时刻
@@ -4529,6 +4530,10 @@ class SwarmAgent(SearchSegmentAgent):
         不修改 self.path / self.path_target（由后台线程调用，提交交给主循环视角）。"""
         if self.world_xy is None:
             return [], goal_xy, False
+        if (getattr(self, '_routine_search_bounds', False) and
+                getattr(getattr(self, 'assignment', None), 'task_type', None) == 0):
+            path, target, ok, _, _ = self._compute_segment_plan([goal_xy])
+            return path, target, ok
         route = plan(self.grid, self.world_xy, goal_xy, connectivity=8)
         free_start = None
         if not route.success and route.reason == "START_OCCUPIED":

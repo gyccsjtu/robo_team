@@ -13,6 +13,7 @@ from building_viewpoints import boundary_corner, valid_view, view_options, measu
 from search_observation import cell_points, ground_distance_band
 from swarm_task import ACTOR_SEARCH_BOUNDS
 from robocup_navigation.astar import plan
+from routine_planning import plan_routine
 
 # The search yaw executor limits the commanded heading to 25 degrees/sec.
 # Deadline estimates must use that limit, not the faster general yaw ceiling.
@@ -76,7 +77,7 @@ class SearchSegmentManager:
             if not valid_view(raw, grid, look, point, self._segment_flight_waypoint,
                               altitude, routine_bounds=routine_bounds):
                 continue
-            route = plan(grid, origin, point, connectivity=8,
+            route = (plan_routine if routine_bounds else plan)(grid, origin, point, connectivity=8,
                          prevent_corner_cutting=True, max_expansions=2500)
             if (not route.success or
                     (max_path_m is not None and route.path_length_m > max_path_m)):
