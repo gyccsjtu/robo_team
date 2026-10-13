@@ -338,6 +338,14 @@ class SwarmManager(SearchSegmentManager):
                           os.environ.get('SEARCH_SEGMENTS', '0') == '1' else None)
         self._segment_max_hold = LEASE_MAX_HOLD
         self._segment_stall_s = LEASE_STALL_S
+        self._directed_coverage = os.environ.get('SEARCH_DIRECTED_COVERAGE', '0') == '1'
+        road_first_pass = os.environ.get('SEARCH_ROAD_FIRST_PASS', '0') == '1'
+        if (self._directed_coverage or road_first_pass) and self._segments is None:
+            raise ValueError('Directed road search requires SEARCH_SEGMENTS=1')
+        if road_first_pass and not self._directed_coverage:
+            raise ValueError('SEARCH_ROAD_FIRST_PASS requires SEARCH_DIRECTED_COVERAGE=1')
+        from road_first_pass import RoadFirstPass
+        self._road_first_pass = RoadFirstPass() if road_first_pass else None
         patrol_enabled = os.environ.get('SOUTH_PATROL', '0') == '1'
         if patrol_enabled and (self._segments is None or os.environ.get('MOTION_SAFETY', '0') != '1'):
             raise ValueError('SOUTH_PATROL requires SEARCH_SEGMENTS=1 and MOTION_SAFETY=1')
@@ -357,6 +365,7 @@ class SwarmManager(SearchSegmentManager):
         # 每机最新状态
         self.status = {}          # uav_id -> UavStatus
         self._processed_frame_times = {}  # actual own-camera health, never a detection
+        self._processed_camera_poses = {}  # fresh sensor geometry for safe viewing points
         # 每机最近一次上报时间（用于租约续租判定）
         self.last_report = {}     # uav_id -> rospy.Time
         self._active_leases = {}  # uav_id -> cell key currently leased to that UAV
@@ -1225,6 +1234,10 @@ class SwarmManager(SearchSegmentManager):
             if not hasattr(self, '_slam_lock'):
                 return
             self.__dict__.setdefault('_processed_frame_times', {})[uid] = sample
+            cameras = self.__dict__.setdefault('_processed_camera_poses', {})
+            if sample > cameras.get(uid, {}).get('sample_s', -1e18):
+                cameras[uid] = dict(sample_s=sample, x=ux, y=uy, z=altitude,
+                                    yaw=yaw, down_pitch=down_pitch)
             if float(getattr(st, 'z', 0.0) or 0.0) < 2.0:
                 return  # coverage altitude gate is not a camera-health gate
             grid_map = self._merged_grid()

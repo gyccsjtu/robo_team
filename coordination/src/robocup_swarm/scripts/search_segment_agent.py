@@ -7,6 +7,7 @@ from robocup_navigation.astar import plan
 from search_observation import cell_points, ground_distance_band, in_view
 from swarm_task import ACTOR_SEARCH_BOUNDS
 from building_viewpoints import DIRECTED_PURPOSES, reserved_subpoint
+from search_transit_view import can_pass_imaged_view
 
 
 def _reserved_patrol_corner(coverage, key, point):
@@ -79,12 +80,12 @@ class SearchSegmentAgent:
                     return False
                 for key, point in zip(cells, looks):
                     cell = coverage.cell(key)
-                    if purpose == 'building_review' and not reserved_subpoint(coverage,key,point):
+                    if purpose in ('building_review', 'coverage_view') and not reserved_subpoint(coverage,key,point):
                         return False
                     if cell is None or (math.dist(point, (cell.cx, cell.cy)) > 1e-6 and
                             not (purpose == 'south_patrol' and
                                  _reserved_patrol_corner(coverage, key, point)) and
-                            not (purpose == 'building_review' and
+                            not (purpose in ('building_review', 'coverage_view') and
                                  reserved_subpoint(coverage, key, point))):
                         return False  # observation region must match its reservation
             if len(msg.search_cell_ix) != len(msg.search_cell_iy) or revision < 1:
@@ -237,6 +238,16 @@ class SearchSegmentAgent:
             return True  # await explicit revision/cancellation of blocked tail
         point = task['points'][i]
         distance = math.dist(self.world_xy,point)
+        if distance < arrive and can_pass_imaged_view(task, now):
+            # Only the observation stop is omitted. The verified full path,
+            # including any obstacle turns, remains the active route.
+            rospy.loginfo('[SEARCH_IMAGE_PASS] uav=%s task=%s index=%d; '
+                          'two processed images, no whole-cell credit',
+                          self.uav_id, task['id'], i)
+            self._segment_next()
+            i = task['index']
+            point = task['points'][i]
+            distance = math.dist(self.world_xy, point)
         directed = (task.get('purpose') in DIRECTED_PURPOSES and
                     i < len(task.get('look_points', ())))
         settle = directed and getattr(self, '_directed_view_settle_enabled', False)
@@ -312,7 +323,7 @@ class SearchSegmentAgent:
                     missing = set(observable)-self._search_scan_seen
             if self._search_scan_done or self._search_scan_failed or (
                     not directed and missing == set()):
-                if task.get('purpose') == 'building_review' and self._search_scan_failed:
+                if task.get('purpose') in ('building_review', 'coverage_view') and self._search_scan_failed:
                     # A failed observation is not a completed route step.
                     # Keep this index so the manager can recover its original
                     # finite blind-view job without granting image credit.
@@ -385,6 +396,13 @@ class SearchSegmentAgent:
         # bounded scan executor observes its explicit ground region. No second
         # yaw publisher or inferred coverage is introduced.
         heading = math.atan2(dy,dx)
+        if task.get('purpose') == 'coverage_view':
+            look = task['look_points'][task['index']]
+            look_heading = math.atan2(look[1]-self.world_xy[1], look[0]-self.world_xy[0])
+            offset = math.atan2(math.sin(look_heading-heading), math.cos(look_heading-heading))
+            if (abs(offset) <= math.radians(35.) and
+                    0. <= now-getattr(self, '_scan_t', -1e18) <= .35):
+                heading = look_heading
         if task.get('purpose') not in DIRECTED_PURPOSES:
             heading = self._search_sweep_bearing(heading,distance)
         self._set_search_heading(heading)

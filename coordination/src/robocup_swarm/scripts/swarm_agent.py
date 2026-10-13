@@ -54,6 +54,7 @@ from fast_tracking_view import fast_yaw_enabled, validate_fast_view
 from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
 from search_segments import clear_line
+from search_transit_view import remember_transit_views
 from camera_attention import (approach_image, candidate_velocity, candidate_decision,
                               candidate_reposition, attention_expired,
                               localized_follow_decision)
@@ -2478,6 +2479,14 @@ class SwarmAgent(SearchSegmentAgent):
             if sample > getattr(self, '_search_view_image_s', -1e18):
                 self._search_view_image_s = sample
                 self._search_view_image_yaw = yaw
+            segment = getattr(self, '_search_segment', None)
+            if (assignment is not None and assignment.task_type == 0 and
+                    segment is not None and segment.get('purpose') == 'coverage_view' and
+                    self.world_xy is not None and self._world_trusted() and
+                    math.dist((x, y), self.world_xy) <= 1.):
+                self._search_camera_pose = (sample, x, y, yaw, altitude, down_pitch)
+                remember_transit_views(segment, (sample, x, y, yaw, altitude, down_pitch),
+                                       self.los.visible)
             if (assignment is None or assignment.task_type != 0 or
                     getattr(self, '_search_scan_key', None) is None or
                     sample <= getattr(self, '_search_last_frame', 0.0)):
@@ -2555,7 +2564,7 @@ class SwarmAgent(SearchSegmentAgent):
             return {}
         samples = cell_points(self.cov_grid, cell)
         segment = getattr(self, '_search_segment', None)
-        if segment is not None and segment.get('purpose') == 'building_review':
+        if segment is not None and segment.get('purpose') in ('building_review', 'coverage_view'):
             index = segment['index']
             if not 0 <= index < len(segment['look_points']):
                 return {}  # images can arrive after DONE, before its cancellation ACK
@@ -4822,7 +4831,7 @@ class SwarmAgent(SearchSegmentAgent):
         now = rospy.Time.now().to_sec()
         segment = getattr(self, '_search_segment', None)
         look = None
-        if (segment is not None and segment.get('purpose') in ('south_patrol', 'building_review') and
+        if (segment is not None and segment.get('purpose') in ('south_patrol', 'building_review', 'coverage_view') and
                 segment['index'] < len(segment.get('look_points', ()))):
             look = segment['look_points'][segment['index']]
         if self._search_scan_yaw0 is None:
@@ -4902,7 +4911,7 @@ class SwarmAgent(SearchSegmentAgent):
                 return
             self._search_scan_directed_done = True
         points = self._search_observable_points(x, y, altitude, down_pitch)
-        if segment is not None and segment.get('purpose') == 'building_review' and not points:
+        if segment is not None and segment.get('purpose') in ('building_review', 'coverage_view') and not points:
             # A newly blocked/missing ground ray cannot be treated as an
             # empty successfully observed region. Keep the same 8 s budget.
             self._send_vel(0.0, 0.0)

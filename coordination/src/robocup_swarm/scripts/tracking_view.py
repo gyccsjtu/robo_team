@@ -430,6 +430,9 @@ def update_cropped_view_pressure(previous, view):
 
 
 def cropped_view_pressure_ready(pressure, view):
-    return (pressure is not None and pressure['last'] == view['sample_s'] and
+    identity = (view['target_id'], view.get('world_candidate_id') or
+                view.get('track_id'))
+    return (pressure is not None and pressure['identity'] == identity and
+            pressure['last'] == view['sample_s'] and
             pressure['count'] >= 3 and
             pressure['last']-pressure['first'] >= .4-1e-6)

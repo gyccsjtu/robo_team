@@ -1,0 +1,12 @@
+Baseline preserved: tag baseline/moving-view-5b0588a-before-road-search-20261014.
+Candidate launcher: run_road_search_candidate.sh start --gui; selected old launcher remains run_moving_view_candidate.sh. New SEARCH_ROAD_FIRST_PASS / SEARCH_DIRECTED_COVERAGE flags default off in runtime. Gimbal stays off.
+
+Public city terrain roads are stable across official templates; sidewalk pieces, houses, parked vehicles and initial actors can vary. RoadFirstPass uses public road directions only as priorities. Actors are not constrained to roads. Existing two eastern patrol owners allocate first; up to four remaining aircraft take mutually complementary west/middle/north/south short prefixes. No runtime world/actor/judge truth inputs.
+
+Every leg reserves <=3 cells atomically in the existing SegmentBook. Flight and look points are separate. Sensed map clearance, LOS, checked A* connections and fresh measured camera height qualify viewpoints. Unknown/stale/impossible height is not coverage or an obstacle failure. A changed height releases an incompatible task; no cell-centre fallback destroys standoff. Road first-pass budget stays90s across interruptions, then normal allocation continues.
+
+coverage_view observes one existing ground sample; full-cell coverage remains actual processed-camera nine-point evidence. Two new frames spanning .2s can skip an intermediate observation stop only within2s and near its already checked waypoint; full obstacle path turns remain. Moving look heading is allowed only <=35 degrees from travel and with fresh scan; otherwise bounded directed observation is used. Person cues and assignments retain their existing priority, cancellation and final safety output.
+
+Reviewed upstream primary code at commit2317e495d221930be4595e573435430699e0a244, https://github.com/lansijian/aerial-vision-system. Borrowed ideas: complementary street corridors, flight/observation headings, navigation pause on stable person, image-space view recovery. Did not copy its repeated4-or-fewer-waypoint loops, guessed45deg geometry, unguarded backward command, old-coordinate republishing, or same point for both red instances.
+
+Checks: full tools suite1656 PASS; focused original/search regression237 PASS; fresh image slot13 PASS; pure/default urgent behavior compared on10000 inputs. GUI candidate/baseline trials pending. No live improvement or6/6 guarantee claimed.

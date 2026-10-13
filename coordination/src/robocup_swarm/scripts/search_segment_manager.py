@@ -9,8 +9,8 @@ from geometry_msgs.msg import Point
 from robocup_swarm.msg import SearchAssignment
 from search_segments import TRAVEL, LOOK, ATTEND, YIELD, DONE, FAILED, aligned, clear_line
 from swarm_task import STATE_FREE, STATE_REVIEW, STATE_COVERED
-from building_viewpoints import boundary_corner, valid_view, view_options
-from search_observation import cell_points
+from building_viewpoints import boundary_corner, valid_view, view_options, measured_view_options
+from search_observation import cell_points, ground_distance_band
 from swarm_task import ACTOR_SEARCH_BOUNDS
 from robocup_navigation.astar import plan
 
@@ -45,16 +45,23 @@ class SearchSegmentManager:
                              if now-seen.get((key, samples.index(look)), -1e18) > 30.)
         return getattr(self, '_building_viewpoints', {}).get(key, ())
 
-    def _reachable_subpoint_view(self, key, origin, options, max_path_m=None):
+    def _reachable_subpoint_view(self, key, origin, options, max_path_m=None,
+                                 altitude=4.5, preferred_heading=None, max_candidates=24):
         """A free ground sample is useful only with a checked safe flight path."""
         raw = self._merged_grid() if options else None
         grid = getattr(self, '_g_infl', None)
-        for point, look in sorted(options,
-                key=lambda option: (not boundary_corner(self.grid, key, option[1]),
-                                    math.dist(origin, option[0])))[:24]:
+        def priority(option):
+            point, look = option
+            if preferred_heading is None:
+                return (not boundary_corner(self.grid, key, look), math.dist(origin, point))
+            bearing = math.atan2(look[1]-point[1], look[0]-point[0])
+            error = abs(math.atan2(math.sin(bearing-preferred_heading),
+                                   math.cos(bearing-preferred_heading)))
+            return (round(error, 6), math.dist(origin, point))
+        for point, look in sorted(options, key=priority)[:max_candidates]:
             if max_path_m is not None and math.dist(origin,point) > max_path_m:
                 continue
-            if not valid_view(raw, grid, look, point, self._segment_flight_waypoint):
+            if not valid_view(raw, grid, look, point, self._segment_flight_waypoint, altitude):
                 continue
             route = plan(grid, origin, point, connectivity=8,
                          prevent_corner_cutting=True, max_expansions=2500)
@@ -65,6 +72,101 @@ class SearchSegmentManager:
             if all(clear_line(grid, a, b) for a, b in zip(points, points[1:])):
                 return point, look
         return None
+
+    def _directed_camera_height(self, uid, now):
+        """Only a recent processed own-camera pose can design a neutral view."""
+        camera = getattr(self, '_processed_camera_poses', {}).get(uid)
+        status = self.status.get(uid)
+        if not isinstance(camera, dict) or status is None:
+            return None
+        try:
+            sample, altitude, aircraft_z = (float(camera['sample_s']),
+                                           float(camera['z']), float(status.z))
+        except (KeyError, TypeError, ValueError):
+            return None
+        if (not all(math.isfinite(v) for v in (sample, altitude, aircraft_z)) or
+                not -.05 <= now-sample <= .75 or altitude < 2. or
+                abs(altitude-aircraft_z) > .5 or
+                ground_distance_band(altitude, 0.) is None):
+            return None
+        return altitude
+
+    def _directed_segment(self, uid, candidates, now, heading=None):
+        """Build at most three image viewpoints, preserving safe route order.
+
+        A point observes one of the reserved cell's nine samples. Neither a
+        proposal nor reaching that point grants the other eight samples.
+        """
+        altitude = self._directed_camera_height(uid, now)
+        raw, inflated = self._merged_grid(), getattr(self, '_g_infl', None)
+        if altitude is None or raw is None or inflated is None:
+            return None
+        status = self.status[uid]
+        origin = (status.x, status.y)
+        cells, points, looks = [], [], []
+        travel_heading = heading
+        for key in candidates[:3]:
+            cell = self.grid.cell(key)
+            if cell is None or self._search_view_job(key) is not None:
+                break  # retain existing assignment-bound candidate views
+            if travel_heading is None:
+                travel_heading = math.atan2(cell.cy-origin[1], cell.cx-origin[0])
+            seen = getattr(self, '_camera_point_seen', {})
+            samples = [point for index, point in enumerate(cell_points(self.grid, cell))
+                       if now-seen.get((key, index), -1e18) > 30.]
+            # Prefer the centre, then nearby still-unobserved ground. Links
+            # retain one travel direction instead of zigzagging between views.
+            samples.sort(key=lambda p: math.dist(p, (cell.cx, cell.cy)))
+            options = measured_view_options(self.grid, key, raw, inflated,
+                self._segment_flight_waypoint, altitude, travel_heading, samples)
+            previous = points[-1] if points else origin
+            view = self._reachable_subpoint_view(key, previous, options,
+                altitude=altitude, preferred_heading=travel_heading, max_candidates=4)
+            if view is None:
+                break
+            point, look = view
+            if points and (not clear_line(inflated, points[-1], point) or
+                    (len(points) >= 2 and not aligned(points[-2], points[-1], point))):
+                break
+            # Avoid a checked but backward first flight leg. A* can detour
+            # around a building; the endpoint must still advance the lane.
+            dx, dy = point[0]-previous[0], point[1]-previous[1]
+            if heading is not None and dx*math.cos(travel_heading)+dy*math.sin(travel_heading) < -.5:
+                break
+            cells.append(key)
+            points.append(point)
+            looks.append(look)
+        return (cells, points, looks) if cells else None
+
+    def _allocate_road_first_pass(self, idle, stamp):
+        road = getattr(self, '_road_first_pass', None)
+        if road is None:
+            return
+        def eligible(key):
+            cell = self.grid.cell(key)
+            return (cell is not None and cell.state == STATE_FREE and cell.owner is None and
+                    key not in self._segments.reserved and key not in self._blocked_cells and
+                    not self._subpoint_views(key) and self._search_view_job(key) is None and
+                    stamp-self.allocator.failed_visit.get(key, -1e18) >= 30.)
+        for _ in range(4):
+            positions = {uid: (self.status[uid].x, self.status[uid].y) for uid in idle
+                         if self._directed_camera_height(uid, stamp) is not None}
+            proposal = road.choose(self.grid, positions, stamp, eligible,
+                lambda uid, cells, heading: self._directed_segment(uid, cells, stamp, heading))
+            if proposal is None:
+                break
+            lane, uid, cells, points, looks = proposal
+            task = self._start_search_segment(uid, cells, points, stamp,
+                purpose='coverage_view', look_points=looks, publish=False,
+                max_hold=min(self._segment_max_hold, road.remaining(stamp)))
+            if task is None:
+                break  # only SegmentBook may acquire the whole route
+            road.started(task, lane)
+            self._send_segment(task)
+            idle.remove(uid)
+            rospy.loginfo('[ROAD_FIRST_PASS] uav=%s task=%s lane=%s cells=%s points=%s looks=%s '
+                          'deadline=%.3f; sensed path, no image credit',
+                          uid, task.task_id, lane, cells, points, looks, task.deadline)
 
     def _select_building_view(self, uid, key):
         status = self.status[uid]
@@ -114,7 +216,9 @@ class SearchSegmentManager:
         status = self.status.get(uid)
         frames = getattr(self, '_processed_frame_times', {})
         frame = frames.get(uid)
-        if (task.purpose != 'coverage' or uid in busy or status is None or
+        road = getattr(self, '_road_first_pass', None)
+        if (task.purpose not in ('coverage', 'coverage_view') or
+                (road is not None and task.task_id in road.bindings) or uid in busy or status is None or
                 status.search_state != TRAVEL or
                 not self._segments.matches(uid, status.search_task_id, status.search_revision) or
                 status.search_index != task.index or task.index >= len(task.cells) or
@@ -146,7 +250,7 @@ class SearchSegmentManager:
             getattr(self.status[uid], 'search_state', None) != ATTEND and
             self._tracking_uav_available(uid, stamp) and
             not self._west_corner_has_person(uid, stamp)]
-        ordinary = sum(task.purpose in ('coverage', 'building_review') and
+        ordinary = sum(task.purpose in ('coverage', 'building_review', 'coverage_view') and
             task.uid not in busy and self._tracking_uav_available(task.uid, stamp) and
             getattr(self.status[task.uid], 'search_state', None) != ATTEND and
             not self._west_corner_has_person(task.uid, stamp)
@@ -305,6 +409,9 @@ class SearchSegmentManager:
                             self.allocator.failed_visit[key] = now
         for patrol in self._regional_search_patrols():
             patrol.ended(task, reason, now)
+        road = getattr(self, '_road_first_pass', None)
+        if road is not None:
+            road.ended(task, reason, now)
         for key in task.cells[task.index:]:
             self.lease.force_expire(uid,key)
             if failed:
@@ -367,6 +474,9 @@ class SearchSegmentManager:
             # when no route could be issued on this particular scheduler tick.
             if patrol.east and patrol.uid in idle:
                 idle.remove(patrol.uid)
+        # Keep the two eastern owners first. Other idle aircraft take at most
+        # four complementary public-road preferences through this same book.
+        self._allocate_road_first_pass(idle, stamp)
         if west_corner_review:
             self._allocate_west_corner_review(idle, stamp)
         positions = {uid:(self.status[uid].x,self.status[uid].y) for uid in idle}
@@ -397,6 +507,23 @@ class SearchSegmentManager:
                               uid, task.task_id, key, point, look)
                 continue
             cells,points = self._segment_cells(uid,key,stamp)
+            if getattr(self, '_directed_coverage', False) and self._search_view_job(key) is None:
+                proposal = self._directed_segment(uid, cells, stamp)
+                if proposal is None:
+                    # Missing/stale height or impossible view remains search
+                    # debt; do not fallback to a supposedly visible centre.
+                    self.lease.force_expire(uid, key)
+                    continue
+                cells, points, looks = proposal
+                task = self._start_search_segment(uid, cells, points, stamp,
+                    purpose='coverage_view', look_points=looks)
+                if task is None:
+                    self.lease.force_expire(uid, key)
+                    continue
+                rospy.loginfo('[DIRECTED_COVERAGE] uav=%s task=%s cells=%s points=%s looks=%s; '
+                              'reserved samples, actual images required',
+                              uid, task.task_id, cells, points, looks)
+                continue
             task = self._start_search_segment(uid,cells,points,stamp)
             if task is None:
                 self.lease.force_expire(uid,key)
@@ -417,7 +544,7 @@ class SearchSegmentManager:
             self.allocator.revisit_jobs.items() if key in cells and
             kind in ('lost','unconfirmed') and ready<=stamp<expires]
         max_hold=self._segment_max_hold if max_hold is None else max_hold
-        if evidence_deadlines and purpose == 'coverage':
+        if evidence_deadlines and purpose in ('coverage', 'coverage_view'):
             max_hold=min(max_hold,min(evidence_deadlines)-stamp)
         if purpose == 'building_review':
             blind_deadlines = [expires for (kind, key), (_, expires) in
@@ -494,7 +621,7 @@ class SearchSegmentManager:
                      st.search_state in (TRAVEL,LOOK,ATTEND,YIELD,DONE,FAILED) and
                      all(math.isfinite(v) for v in (st.x,st.y,st.z,st.search_path_remaining)))
             if valid:
-                if (task.purpose == 'building_review' and st.search_state == FAILED and
+                if (task.purpose in ('building_review', 'coverage_view') and st.search_state == FAILED and
                         st.search_blocked_reason == 'observation_timeout'):
                     if st.search_index != task.index or task.index >= len(task.cells):
                         continue  # this failure cannot advance or complete a leg
@@ -505,6 +632,9 @@ class SearchSegmentManager:
                 if visited is None:
                     continue
                 task.feedback_s = sample
+                road = getattr(self, '_road_first_pass', None)
+                if road is not None:
+                    road.progress(task)
                 for key in visited:
                     self._segment_visit(uid,key,stamp)
                 if st.search_state == FAILED:
@@ -595,10 +725,13 @@ class SearchSegmentManager:
         if review is not None:
             deadlines.append(review['expires_s'])
         expires = min(deadlines)
-        safe = (expires > stamp and key not in self._blocked_cells and
+        altitude = (self._directed_camera_height(task.uid, stamp)
+                    if task.purpose == 'coverage_view' else 4.5)
+        safe = (expires > stamp and key not in self._blocked_cells and altitude is not None and
                 valid_view(self._merged_grid(), getattr(self, '_g_infl', None),
-                           look, point, self._segment_flight_waypoint))
-        self._drop_segment(task.uid, 'observation_timeout', failed=not safe)
+                           look, point, self._segment_flight_waypoint, altitude))
+        # Unavailable height is not evidence that this physical point failed.
+        self._drop_segment(task.uid, 'observation_timeout', failed=not safe and altitude is not None)
         cell = self.grid.cell(key)
         if not safe or cell.state == STATE_COVERED:
             return
@@ -620,6 +753,17 @@ class SearchSegmentManager:
             self.allocator.revisit_jobs[('blind', key)] = (max(job[0], stamp+8.), expires)
 
     def _revise_segment(self, task, cells, points, now, reason):
+        if task.purpose == 'coverage_view':
+            altitude = self._directed_camera_height(task.uid, now)
+            if altitude is None:
+                return  # stale geometry may not authorize a new viewpoint
+            looks = dict(zip(task.cells, task.look_points))
+            raw = self._merged_grid()
+            if any(key not in looks or not valid_view(raw, getattr(self, '_g_infl', None),
+                    looks[key], point, self._segment_flight_waypoint, altitude)
+                    for key, point in zip(cells, points)):
+                self._drop_segment(task.uid, reason+'_invalid_view', failed=False)
+                return
         old = set(task.cells[task.index:])
         changed = self._segments.revise(task.uid,cells,points,now)
         if changed is None:
@@ -642,7 +786,7 @@ class SearchSegmentManager:
             cells = list(task.cells[task.index:])
             points = list(task.points[task.index:])
             if not self._search_point_free(points[0]):
-                if task.purpose in ('south_patrol', 'building_review'):
+                if task.purpose in ('south_patrol', 'building_review', 'coverage_view'):
                     # A normal cell-centre replacement loses the checked
                     # camera standoff. Release it through the same regional
                     # allocator, preserving its original attempt/time budget.
@@ -654,11 +798,14 @@ class SearchSegmentManager:
                     continue
                 self._revise_segment(task,cells[:1],[replacement],now,'new_obstacle')
                 continue
-            if task.purpose == 'building_review':
+            if task.purpose in ('building_review', 'coverage_view'):
                 look = task.look_points[task.index]
-                if not valid_view(self._merged_grid(), grid, look, points[0],
-                                  self._segment_flight_waypoint):
-                    self._drop_segment(uid, 'blocked_ground_view', failed=True)
+                altitude = (self._directed_camera_height(uid, now)
+                            if task.purpose == 'coverage_view' else 4.5)
+                if altitude is not None and not valid_view(self._merged_grid(), grid, look, points[0],
+                                  self._segment_flight_waypoint, altitude):
+                    self._drop_segment(uid, 'blocked_ground_view',
+                                       failed=task.purpose == 'building_review')
                     continue
             for i in range(1,len(points)):
                 if not clear_line(grid,points[i-1],points[i]):

@@ -32,6 +32,10 @@ class CroppedViewPressureTests(unittest.TestCase):
         for _ in range(50):
             state = update_cropped_view_pressure(state, view)
         self.assertEqual(state['count'], 1)
+        for sample in (100.2, 100.4):
+            state = update_cropped_view_pressure(state, self.view(sample))
+        self.assertFalse(cropped_view_pressure_ready(state,
+            self.view(100.4, world_candidate_id='other_instance')))
         changed = self.view(100.4, world_candidate_id='u0:session:7')
         state = update_cropped_view_pressure(state, changed)
         self.assertFalse(cropped_view_pressure_ready(state, changed))
