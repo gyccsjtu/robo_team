@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import xml.etree.ElementTree as ET
 
 try:
@@ -94,7 +95,7 @@ def _stage_official_sources(blobs, stage):
 
 
 def _run_generator(robocup, generated, timeout):
-    generated.mkdir(parents=True)
+    generated.mkdir(parents=True, exist_ok=True)
     source = (robocup / "map_generator.py").read_text(encoding="utf-8")
     if source.count(OUTPUT_LINE) != 1:
         raise ValueError("官方生成器输出路径语句已变化，拒绝改写运行副本")
@@ -141,6 +142,53 @@ def _validate_generated(world, black_box, obstacle):
             raise ValueError("%s 缺少官方运动插件或初始位姿" % actor.get("name"))
     if not read_boxes(black_box) or not read_obstacle_points(obstacle):
         raise ValueError("black_box.txt 或 obstacle.txt 没有有效数据")
+
+
+def _generate_validated(robocup, generated, stage, timeout, max_attempts=3):
+    """Retry only an empty official world, within one total time budget.
+
+    The official generator and its choices remain unchanged. Every failed
+    generation is retained; no simulation starts from an invalid artifact.
+    """
+    if not isinstance(max_attempts, int) or not 1 <= max_attempts <= 5:
+        raise ValueError("generation attempts must be between 1 and 5")
+    started = time.monotonic()
+    attempts = []
+    world = generated / "robocup.world"
+    black_box = robocup / "black_box.txt"
+    obstacle = robocup / "obstacle.txt"
+    for number in range(1, max_attempts+1):
+        remaining = timeout-(time.monotonic()-started)
+        if remaining <= 0.:
+            raise RuntimeError("地图生成总时间预算耗尽；原文件未切换")
+        _run_generator(robocup, generated, remaining)
+        log = stage / ("generator_attempt_%02d.log" % number)
+        shutil.copy2(stage / "generator.log", log)
+        row = {"attempt": number, "log": str(log)}
+        try:
+            _validate_generated(world, black_box, obstacle)
+        except (ValueError, ET.ParseError) as exc:
+            row.update(valid=False, error=str(exc),
+                       empty_world=not world.is_file() or world.stat().st_size == 0)
+            attempts.append(row)
+            (stage / "generation_attempts.json").write_text(
+                json.dumps(attempts, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+            if not row['empty_world']:
+                raise
+            failed = stage / ('generation_failure_%02d' % number)
+            failed.mkdir()
+            for path in (world, black_box, obstacle):
+                if path.is_file():
+                    shutil.copy2(path, failed / path.name)
+                    path.unlink()  # staged outputs only; never reuse another attempt's metadata
+            if number == max_attempts:
+                raise RuntimeError("官方生成器连续%d次产生空地图；原文件未切换" % number) from exc
+            continue
+        row.update(valid=True, world_sha256=_sha(world))
+        attempts.append(row)
+        (stage / "generation_attempts.json").write_text(
+            json.dumps(attempts, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+        return world, black_box, obstacle, attempts
 
 
 def install_one(staged, destination):
@@ -201,16 +249,14 @@ def prepare(xtdrone_root, world_path, official_ref="origin/master",
         backup = _back_up(destinations, stage)
         robocup = _stage_official_sources(blobs, stage)
         generated = stage / "generated"
-        _run_generator(robocup, generated, timeout)
-        world = generated / "robocup.world"
-        black_box = robocup / "black_box.txt"
-        obstacle = robocup / "obstacle.txt"
-        _validate_generated(world, black_box, obstacle)
+        world, black_box, obstacle, generation_attempts = _generate_validated(
+            robocup, generated, stage, timeout)
         risks = check_artifacts(world, black_box, obstacle)
         sources = {"source/" + name: robocup / name for name in SOURCE_FILES}
         sources.update(world=world, black_box=black_box, obstacle=obstacle)
         manifest = {
             "reference": official_ref,
+            "generation_attempts": generation_attempts,
             "stage": str(stage),
             "backup": {key: str(path) if path else None for key, path in backup.items()},
             "official_source_sha256": {name: _sha(robocup / name) for name in SOURCE_FILES},

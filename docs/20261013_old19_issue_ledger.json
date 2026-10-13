@@ -116,7 +116,7 @@
       ],
       "state": "partial_pending",
       "commit": "b7696fe/1702fc8",
-      "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。",
+      "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。；当前发现机替换盲负责人反例已修，DISCOVERY_BLIND_HANDOFF默认0待GUI验证。",
       "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/01/issues.json"
     },
     {
@@ -291,7 +291,7 @@
       ],
       "state": "partial_pending",
       "commit": "b7696fe/1702fc8",
-      "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。",
+      "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。；当前发现机替换盲负责人反例已修，DISCOVERY_BLIND_HANDOFF默认0待GUI验证。",
       "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/03/issues.json"
     },
     {
@@ -326,7 +326,7 @@
       ],
       "state": "partial_pending",
       "commit": "b7696fe/1702fc8",
-      "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。",
+      "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。；当前发现机替换盲负责人反例已修，DISCOVERY_BLIND_HANDOFF默认0待GUI验证。",
       "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/12/issues.json"
     },
     {
@@ -376,9 +376,9 @@
         7,
         11
       ],
-      "state": "pending_old_issue",
+      "state": "specific_counterexample_fixed",
       "commit": "",
-      "note": "优先按原始画面、时间、任务和最终输出复现，未修复不标已完成。",
+      "note": "原官方生成器布局重试失败后重复readlines读取EOF，原块离线复现为空；准备工具有限3次只重试空world、总90秒预算、成套验证，失败日志/输出保留。非空XML破损/命令异常不重试，原源文件不改。",
       "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/07/issues.json"
     },
     {
@@ -406,7 +406,7 @@
       ],
       "state": "partial_pending",
       "commit": "b7696fe/1702fc8",
-      "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。",
+      "note": "过期来源、受阻反馈已修；长断报/晚发现未完成，仍逐段归因。；当前发现机替换盲负责人反例已修，DISCOVERY_BLIND_HANDOFF默认0待GUI验证。",
       "first_evidence": "/home/gycc/桌面/RoboCup_Team/artifacts/random_19_e4b9f82_20261013_084009/rounds/01/issues.json"
     },
     {
