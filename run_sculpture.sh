@@ -20,6 +20,8 @@ export PIXEL_RECOVERY_APPROACH="${PIXEL_RECOVERY_APPROACH:-1}"
 export TAKEOFF_REQUIRE_CAMERA=1
 # Validated on three official layouts; set 0 for the preserved baseline veto.
 export PR_COHERENT_BODY_ATTACH="${PR_COHERENT_BODY_ATTACH:-1}"
+# Qualified early relief tested on one replay and one new official layout.
+export BLOCKED_TRACKING_RELIEF="${BLOCKED_TRACKING_RELIEF:-1}"
 export BRIDGE_REPORT_POLICY=fresh
 export PR_DISTRACTOR_MODE=enforce GIMBAL_AUX_MODE=off FAST_VISUAL_YAW=0
 export CANDIDATE_VIEW_RECOVERY=0 GAZEBO_GUI=true
@@ -34,5 +36,5 @@ if [ "${ACTUAL%% *}" != "$EXPECTED" ]; then
     exit 1
 fi
 cd "$ROOT"
-echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; search_segments=1 motion_safety=1 south_patrol=1 east_persistent=$EAST_PATROL east_split=${EAST_SPLIT_PATROL:-0} edge_review=${EDGE_SEARCH_REVIEW:-0} building_review=$BUILDING_SUBPOINT_REVIEW pixel_recovery=${PIXEL_VIEW_RECOVERY:-0} pixel_approach=${PIXEL_RECOVERY_APPROACH:-0} southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
+echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; search_segments=1 motion_safety=1 south_patrol=1 east_persistent=$EAST_PATROL east_split=${EAST_SPLIT_PATROL:-0} edge_review=${EDGE_SEARCH_REVIEW:-0} building_review=$BUILDING_SUBPOINT_REVIEW pixel_recovery=${PIXEL_VIEW_RECOVERY:-0} pixel_approach=${PIXEL_RECOVERY_APPROACH:-0} blocked_relief=$BLOCKED_TRACKING_RELIEF southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
 exec "$ROOT/run_match.sh" "$@"

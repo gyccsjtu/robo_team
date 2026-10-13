@@ -1,0 +1,9 @@
+{
+  "wall": 1791868431.766634,
+  "last_simulation_stamp": 2031.896,
+  "physics_service_pause": false,
+  "clock_probe_timeout_s": 5,
+  "clock_messages": 0,
+  "px4_log": "ERROR [simulator] poll timeout 0, 25",
+  "note": "Physics says not paused but /clock stopped and processed-camera logs stopped advancing; freeze predates debugger attempt. No target or judge payload read. Preserve this failed experiment, stop and retry frozen source."
+}

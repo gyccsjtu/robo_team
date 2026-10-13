@@ -1,0 +1,33 @@
+{
+  "round": "02",
+  "runtime_commit": "1702fc82722ba190b51ab0c518000fe5edf6402e",
+  "completion_s": 292.82000000000016,
+  "official_6of6": true,
+  "under300": true,
+  "blocked_tracking_relief": "1",
+  "source_snapshot_count": 65,
+  "startup_pass": true,
+  "height_commits": 6,
+  "prefinish_fault_log_matches": [],
+  "motion_counts": {
+    "t0 blocked=True": 6,
+    "t0 blocked=False": 325,
+    "t2 blocked=False": 692,
+    "t5 blocked=False": 631,
+    "t5 blocked=True": 37,
+    "t1 blocked=False": 138,
+    "t2 blocked=True": 86,
+    "t3 blocked=False": 283,
+    "t1 blocked=True": 1,
+    "t3 blocked=True": 24,
+    "t4 blocked=True": 37,
+    "t4 blocked=False": 241
+  },
+  "motion_relief_events": [],
+  "graph_samples": 11,
+  "forbidden_graph_findings": [],
+  "official_sha256": {
+    "score_cal.py": "557166fa9c126008c00c395fa1fb02cc19b79f2fd3856da1394f0055e50cc8f1",
+    "control_actor.py": "03d13c7c331cef8b8cf408babf5c6773326e932c7942e7137d53571bb4ad8cd7"
+  }
+}
