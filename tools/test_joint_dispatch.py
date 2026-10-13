@@ -438,15 +438,16 @@ class JointDispatchTests(unittest.TestCase):
         self.assertEqual(m._tracking['t3'], 'u3')
         m.assign_pub.publish.assert_not_called()
 
-    def test_free_aircraft_still_needs_qualified_images_for_handoff(self):
+    def test_free_aircraft_can_handoff_with_coherent_bridge_accepted_far_images(self):
         m = self._east_visual_owner_scenario()
         m.status['u2'].x, m.status['u2'].y = 135., 20.
         for accepted in (False, True):
             for sample in (100., 100.4, 100.8):
                 self._east_white_frame(m, sample + (1. if accepted else 0.),
                                        source='u2', accepted=accepted)
-        self.assertEqual(m._tracking['t3'], 'u3')
-        m.assign_pub.publish.assert_not_called()
+        self.assertEqual(m._tracking['t3'], 'u2')
+        self.assertNotIn(('u2', 't3'), m._eligible_observations)
+        self.assertIsNone(m.tracker.targets['t3'].confirm_since)
 
     def test_distant_same_frame_upgrade_does_not_create_extra_evidence(self):
         m = self._east_visual_owner_scenario()

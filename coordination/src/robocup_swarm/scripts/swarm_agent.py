@@ -2143,10 +2143,13 @@ class SwarmAgent(SearchSegmentAgent):
             return
         cue['localized_search_view'] = True
         history = cue.setdefault('follow_samples', [])
-        if history and (sample-history[-1][0] > .5 or
-                math.hypot(view['x']-history[-1][1], view['y']-history[-1][2]) >
-                2.5*(sample-history[-1][0])+.2):
-            history.clear()
+        if history:
+            dt = sample-history[-1][0]
+            jump = math.hypot(view['x']-history[-1][1], view['y']-history[-1][2]) > 2.5*dt+.2
+            if dt > .5 or jump:
+                history.clear()
+                if jump and dt <= .5:
+                    cue['follow_jump_rejected_s'] = sample
         history.append((sample, view['x'], view['y']))
         cue['follow_samples'] = [item for item in history if sample-item[0] <= .6]
         cue.setdefault('follow_origin', self.world_xy)

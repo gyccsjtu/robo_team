@@ -100,34 +100,36 @@ def localized_follow_decision(cue, now, yaw, xy, scan, scan_stamp, radius=8.):
     """
     history = cue.get('follow_samples', [])
     origin = cue.get('follow_origin')
-    if (not cue.get('localized_search_view') or origin is None or len(history) < 3
+    if (not cue.get('localized_search_view') or origin is None or not history
             or not 0. <= now-cue['sample_s'] <= .35
             or now >= cue['until'] or math.dist(xy, origin) >= 4.):
         return 0., 0., 'localized_follow_wait'
     first, last = history[0], history[-1]
     dt = last[0]-first[0]
-    if not .3-1e-6 <= dt <= .8:
-        return 0., 0., 'localized_follow_window'
-    tvx, tvy = (last[1]-first[1])/dt, (last[2]-first[2])/dt
+    motion_ready = len(history) >= 3 and .3-1e-6 <= dt <= .8
+    if cue.get('follow_jump_rejected_s') is not None and not motion_ready:
+        return 0., 0., 'localized_follow_jump'
+    tvx, tvy = ((last[1]-first[1])/dt, (last[2]-first[2])/dt) if motion_ready else (0., 0.)
     if math.hypot(tvx, tvy) > 2.5:
         return 0., 0., 'localized_follow_jump'
-    if math.hypot(tvx, tvy) < .35:
-        return 0., 0., 'localized_stationary'
     image = cue.get('image') or {}
     box = image.get('box', ())
     if len(box) != 4 or box[3] >= image.get('height', 0)-2:
         return 0., 0., 'localized_cropped'
     dx, dy = last[1]-xy[0], last[2]-xy[1]
     distance = math.hypot(dx, dy)
-    if not 0. < distance <= 12.:
+    if not math.isfinite(distance) or distance <= 0.:
         return 0., 0., 'localized_range'
+    if math.hypot(tvx, tvy) < .35 and distance <= radius+.5:
+        return 0., 0., 'localized_stationary'
     if box[3] >= .94*image['height']:
         radius = max(radius, distance+.5)
     vx, vy = tvx+.7*(distance-radius)*dx/distance, tvy+.7*(distance-radius)*dy/distance
     speed = math.hypot(vx, vy)
     if speed < .05:
         return 0., 0., 'localized_standoff'
-    vx, vy = vx*min(1., 2.6/speed), vy*min(1., 2.6/speed)
+    cap = 2.6 if motion_ready else .95
+    vx, vy = vx*min(1., cap/speed), vy*min(1., cap/speed)
     if scan is None or not 0. <= now-scan_stamp <= .3:
         return 0., 0., 'scan_expired'
     error = math.atan2(vy, vx)-yaw

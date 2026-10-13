@@ -413,6 +413,7 @@ class TaskAllocator(object):
                  flight_cap=FLIGHT_CAP):
         self.grid = grid
         self.search_deconflict = os.environ.get('SEARCH_DECONFLICTED_ALLOCATION', '0') == '1'
+        self.normal_partition_search = os.environ.get('NORMAL_PARTITION_SEARCH', '0') == '1'
         self.w_gain = w_gain
         self.w_flight = w_flight
         self.w_overlap = w_overlap
@@ -923,7 +924,7 @@ class TaskAllocator(object):
           PRIORITY_BONUS   效用偏置，默认 60（约等于「多飞 60 秒也值得」）
           PRIORITY_DECAY   偏置在多少秒内线性衰减到 0，默认 300
         """
-        if not _PRIORITY_ON:
+        if not _PRIORITY_ON or self.normal_partition_search:
             return 0.0
         # 优先角落的巨额奖励只能给其责任区飞机。飞机是分批起飞/逐架进入
         # 拍卖的，按「本轮最多 N 架」计数会在每轮清零，导致六架先后奔向同一角落。
@@ -950,7 +951,7 @@ class TaskAllocator(object):
                     best = b
         return best * (1.0 - age / _PRIORITY_DECAY)
 
-    def _orphaned_zone_takeovers(self, uavs, remaining, now):
+    def _orphaned_zone_takeovers(self, uavs, remaining, now, active_search=None):
         """Give one nearby free UAV each unattended first-pass sector.
 
         A sector is attended when an idle aircraft belongs to it or an active
@@ -966,13 +967,20 @@ class TaskAllocator(object):
         fresh = {zone: [] for zone in self.grid.zone_cells}
         for key in remaining:
             cell = self.grid.cell(key)
-            if (cell is not None and cell.state == STATE_FREE and
-                    self.visit_time.get(key, 0.0) <= 0.0):
+            fresh_view = (cell is not None and
+                          cell.state in (STATE_FREE, STATE_REVIEW) and
+                          key not in self._search_image_first)
+            legacy_new = (cell is not None and cell.state == STATE_FREE and
+                          self.visit_time.get(key, 0.0) <= 0.0)
+            if (fresh_view if self.normal_partition_search else legacy_new):
                 fresh[self.grid.get_zone_id(key)].append(key)
         attended = {self.grid.get_uav_zone(uid) for uid in uavs}
         for key, cell in self.grid.cells.items():
             if cell.state == STATE_ASSIGNED and cell.owner is not None:
                 attended.add(self.grid.get_zone_id(key))
+        for layout in (active_search or {}).values():
+            attended.update(self.grid.get_zone_id(key) for key in layout.get('cells', ())
+                            if self.grid.cell(key) is not None)
         orphaned = [zone for zone, keys in fresh.items()
                     if zone not in attended and len(keys) >= self.orphan_min_new]
         orphaned.sort(key=lambda zone: len(fresh[zone]), reverse=True)
@@ -995,7 +1003,7 @@ class TaskAllocator(object):
                 takeover[min(choices)[1]] = zone
         return takeover
 
-    def _slow_zone_support(self, uavs, remaining, now, orphan_takeover):
+    def _slow_zone_support(self, uavs, remaining, now, orphan_takeover, active_search=None):
         """Lend one idle aircraft one viewpoint when a staffed sector lags.
 
         Entry travel gets its own conservative allowance. During the next
@@ -1034,6 +1042,13 @@ class TaskAllocator(object):
         for key, cell in self.grid.cells.items():
             if cell.state == STATE_ASSIGNED and cell.owner is not None:
                 owners[self.grid.get_zone_id(key)][cell.owner] = (cell.cx, cell.cy)
+        for uid, layout in (active_search or {}).items():
+            for index, key in enumerate(layout.get('cells', ())):
+                cell = self.grid.cell(key)
+                if cell is not None:
+                    points = layout.get('points', ())
+                    point = points[index] if index < len(points) else (cell.cx, cell.cy)
+                    owners[self.grid.get_zone_id(key)][uid] = point
         choices = []
         for zone, keys in fresh.items():
             entry = self._search_entry_ready.get(zone)
@@ -1112,8 +1127,20 @@ class TaskAllocator(object):
                     (key not in self.failed_visit or
                      now-self.failed_visit[key]>=self.failed_novelty_ttl)):
                 remaining.add(key)
-        takeover = self._orphaned_zone_takeovers(uavs, remaining, now)
-        support = self._slow_zone_support(uavs, remaining, now, takeover)
+        layouts = (dict(active_search or {}) if
+                   (self.search_deconflict or self.normal_partition_search) else {})
+        takeover = self._orphaned_zone_takeovers(uavs, remaining, now,
+            layouts if self.normal_partition_search else None)
+        support = self._slow_zone_support(uavs, remaining, now, takeover,
+            layouts if self.normal_partition_search else None)
+        sector_owners = {zone:set() for zone in self.grid.zone_cells}
+        for key, cell in self.grid.cells.items():
+            if cell.state == STATE_ASSIGNED and cell.owner is not None:
+                sector_owners[self.grid.get_zone_id(key)].add(cell.owner)
+        for uid, layout in layouts.items():
+            for key in layout.get('cells', ()):
+                if self.grid.cell(key) is not None:
+                    sector_owners[self.grid.get_zone_id(key)].add(uid)
         # Boundary cells remain in the first-pass candidate pool. A camera
         # frame from an inner row may cover them; if it does not, they are
         # still reachable by a later route waypoint.
@@ -1129,7 +1156,6 @@ class TaskAllocator(object):
 
         # Search-only snapshots include patrols and leases whose cells became
         # covered during flight. Cell ownership alone loses those commitments.
-        layouts = dict(active_search or {}) if self.search_deconflict else {}
         if self.search_deconflict:
             from search_deconfliction import finite_point, crowding_cost
             for uid, layout in layouts.items():
@@ -1169,7 +1195,30 @@ class TaskAllocator(object):
             home_new = [key for key in home
                         if self.grid.cell(key).state == STATE_FREE and
                         self.visit_time.get(key, 0.0) <= 0.0]
+            if self.normal_partition_search:
+                # Passing/scanning a waypoint does not discharge first-pass
+                # image debt. A healthy searcher retains its home route past
+                # 30 s; an explicit person recovery/support may still preempt.
+                home_debt = any(key not in self._search_image_first for key in home)
+                home_taken = bool(sector_owners[home_zone]-{uav_id})
+                hard_home = home_debt and not home_taken
+                home_new = home if hard_home else []
             candidates = home if hard_home and home_new else remaining
+            if self.normal_partition_search and not hard_home:
+                unattended = [key for key in candidates
+                              if not (sector_owners[self.grid.get_zone_id(key)]-{uav_id})]
+                if unattended:
+                    candidates = unattended
+                else:
+                    # When only attended sectors have debt, one separated
+                    # helper may contribute. Never gather every idle aircraft
+                    # in the last remaining sector or reopen old coverage.
+                    candidates = [key for key in candidates
+                        if len(sector_owners[self.grid.get_zone_id(key)]-{uav_id}) < 2
+                        and all(math.hypot(self.grid.cell(key).cx-x,
+                                           self.grid.cell(key).cy-y) >= 2.*self.grid.cell_m
+                                for owner, layout in layouts.items() if owner != uav_id
+                                for x, y in layout.get('look_points', ()))]
             rescue_zone = takeover.get(uav_id)
             if rescue_zone is not None:
                 candidates = [key for key in remaining
@@ -1283,6 +1332,7 @@ class TaskAllocator(object):
                 c.state = STATE_ASSIGNED
                 c.owner = uav_id
                 zone = self.grid.get_zone_id(best_key)
+                sector_owners[zone].add(uav_id)
                 if zone not in self._search_entry_ready:
                     # 1.5 m/s is a conservative transit estimate, including
                     # the launch acceleration stage; 15 s leaves time to scan.

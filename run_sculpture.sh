@@ -5,14 +5,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PR_WEIGHTS="$ROOT/weights/best_yolo11n_bino_v3_clean.pt"
 export PR_DISTRACTOR_WEIGHTS="$ROOT/weights/best_yolo11n_bino_sculpture_v3.pt"
-export SEARCH_SEGMENTS=1 MOTION_SAFETY=1 SOUTH_PATROL=1
+export SEARCH_SEGMENTS=1 MOTION_SAFETY=1
+export NORMAL_PARTITION_SEARCH="${NORMAL_PARTITION_SEARCH:-1}"
+export SOUTH_PATROL="${SOUTH_PATROL:-0}"
 export SOUTH_PATROL_SOUTHEAST="${SOUTH_PATROL_SOUTHEAST:-0}"
 export SOUTH_PATROL_NORTHEAST="${SOUTH_PATROL_NORTHEAST:-0}"
-export EAST_PATROL="${EAST_PATROL:-1}"
-# Reproduce the enabled settings of the audited 252.756 s GUI trial.
-# Each module can still be disabled explicitly for a controlled comparison.
-export EAST_SPLIT_PATROL="${EAST_SPLIT_PATROL:-1}"
-export EDGE_SEARCH_REVIEW="${EDGE_SEARCH_REVIEW:-1}"
+export EAST_PATROL="${EAST_PATROL:-0}"
+export EAST_SPLIT_PATROL="${EAST_SPLIT_PATROL:-0}"
+export EDGE_SEARCH_REVIEW="${EDGE_SEARCH_REVIEW:-0}"
+export PRIORITY_CORNER="${PRIORITY_CORNER:-0}" HOT_TARGET_ENABLE=0
 export BUILDING_SUBPOINT_REVIEW="${BUILDING_SUBPOINT_REVIEW:-1}"
 export EARLY_VIEW_PURSUIT="${EARLY_VIEW_PURSUIT:-1}"
 export PIXEL_VIEW_RECOVERY="${PIXEL_VIEW_RECOVERY:-1}"
@@ -32,5 +33,5 @@ if [ "${ACTUAL%% *}" != "$EXPECTED" ]; then
     exit 1
 fi
 cd "$ROOT"
-echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; search_segments=1 motion_safety=1 south_patrol=1 east_persistent=$EAST_PATROL east_split=${EAST_SPLIT_PATROL:-0} edge_review=${EDGE_SEARCH_REVIEW:-0} building_review=$BUILDING_SUBPOINT_REVIEW pixel_recovery=${PIXEL_VIEW_RECOVERY:-0} pixel_approach=${PIXEL_RECOVERY_APPROACH:-0} southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
+echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; normal_partition=$NORMAL_PARTITION_SEARCH search_segments=1 motion_safety=1 south_patrol=$SOUTH_PATROL east_persistent=$EAST_PATROL east_split=${EAST_SPLIT_PATROL:-0} edge_review=${EDGE_SEARCH_REVIEW:-0} building_review=$BUILDING_SUBPOINT_REVIEW pixel_recovery=${PIXEL_VIEW_RECOVERY:-0} pixel_approach=${PIXEL_RECOVERY_APPROACH:-0} southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
 exec "$ROOT/run_match.sh" "$@"

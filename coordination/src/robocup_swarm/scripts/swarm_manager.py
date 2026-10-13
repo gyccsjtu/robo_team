@@ -354,12 +354,15 @@ class SwarmManager(SearchSegmentManager):
             raise ValueError('Directed road search requires SEARCH_SEGMENTS=1')
         from road_first_pass import RoadFirstPass
         self._road_first_pass = RoadFirstPass() if road_first_pass else None
-        patrol_enabled = os.environ.get('SOUTH_PATROL', '0') == '1'
+        self._normal_partition_search = os.environ.get('NORMAL_PARTITION_SEARCH', '0') == '1'
+        patrol_enabled = (not self._normal_partition_search and
+                          os.environ.get('SOUTH_PATROL', '0') == '1')
         if patrol_enabled and (self._segments is None or os.environ.get('MOTION_SAFETY', '0') != '1'):
             raise ValueError('SOUTH_PATROL requires SEARCH_SEGMENTS=1 and MOTION_SAFETY=1')
         self._south_patrol = (SouthPatrol(_search_bounds())
                               if patrol_enabled else None)
-        split_east = os.environ.get('EAST_SPLIT_PATROL', '0') == '1'
+        split_east = (not self._normal_partition_search and
+                      os.environ.get('EAST_SPLIT_PATROL', '0') == '1')
         self._regional_patrols = None
         if split_east:
             if not patrol_enabled or not self._south_patrol.east:
@@ -1956,7 +1959,7 @@ class SwarmManager(SearchSegmentManager):
                 continue
             st = self.status[uid]
             distance = math.hypot(st.x - tx, st.y - ty)
-            if distance <= 20.0:
+            if math.isfinite(distance):
                 candidates.append((uid, distance))
         return sorted(candidates, key=lambda pair: (pair[1], pair[0]))
 
@@ -1981,8 +1984,7 @@ class SwarmManager(SearchSegmentManager):
             distance = float(packet['range_m'])
         except (KeyError, ValueError, TypeError, OverflowError):
             return False
-        near_limit = float(os.environ.get('HANDOFF_NEAR_M', '20.0'))
-        return math.isfinite(distance) and 12.0 < distance <= near_limit
+        return math.isfinite(distance) and distance > 12.0
 
     def _annotate_distant_view(self, image, previous, distant_accepted):
         """Record bridge-accepted far frames on the existing image record.
@@ -2520,7 +2522,7 @@ class SwarmManager(SearchSegmentManager):
                 math.hypot(raw['x']-tx, raw['y']-ty) <= 4.0):
             return
         busy = set(self._tracking.values()) | set(self._backup.values())
-        best, best_d = None, float(os.environ.get("HANDOFF_NEAR_M", "20.0"))
+        best, best_d = None, float('inf')
         borrowed_from = None
         borrowed_primary = None
         best_sample = None
@@ -2546,16 +2548,16 @@ class SwarmManager(SearchSegmentManager):
                                   image['sample_s'] - image.get('since_s', image['sample_s'])
                                   >= 0.4 - 1e-6 and
                                   math.hypot(image['x'] - tx, image['y'] - ty) <= 4.0)
-            if old_primary_tid is not None:
-                # Only a blind primary may use the bridge-approved distant
-                # sequence. Free aircraft and backups retain the old formal
-                # qualified-image requirement.
-                view = self._visual_observations.get((uid, tid))
-                distant_sequence = (self._sustained_distant_view(uid, tid, now_s) and
-                                    math.hypot(view['x']-tx, view['y']-ty) <= 4.0)
-                if not (qualified_sequence or distant_sequence):
-                    continue
-            elif not qualified_sequence:
+            # A searching discovery camera may take a blind approach over
+            # before it enters the reporting range. Same-source/instance
+            # continuity is still required; another live primary stays busy.
+            view = getattr(self, '_visual_observations', {}).get((uid, tid))
+            distant_sequence = (old_backup_tid is None and
+                                self._sustained_distant_view(uid, tid, now_s) and
+                                math.hypot(view['x']-tx, view['y']-ty) <= 4.0)
+            discovery = (self._continuous_discovery_view(uid, tid, now_s, tx, ty)
+                         if old_backup_tid is None else None)
+            if not (qualified_sequence or distant_sequence or discovery is not None):
                 continue
             if float(getattr(st, "z", 0.0) or 0.0) < 1.0:
                 continue
@@ -2568,7 +2570,8 @@ class SwarmManager(SearchSegmentManager):
                 best, best_d = uid, d
                 borrowed_from = old_backup_tid
                 borrowed_primary = old_primary_tid
-                best_sample = (image if qualified_sequence else view)['sample_s']
+                best_sample = (image if qualified_sequence else
+                               view if distant_sequence else discovery)['sample_s']
         if best is None:
             return
         if borrowed_from is not None:
@@ -3643,7 +3646,9 @@ class SwarmManager(SearchSegmentManager):
         """只给空闲机拍卖分配未搜索格 → 授租约 → 发布 assignment。"""
         now = rospy.Time.now()
         if getattr(self, '_segments', None) is not None:
-            return self._allocate_segments(now, west_corner_review=BUILDING_SUBPOINT_REVIEW)
+            return self._allocate_segments(now, west_corner_review=(
+                BUILDING_SUBPOINT_REVIEW and
+                not getattr(self.allocator, 'normal_partition_search', False)))
 
         # 到期租约先回退（掉线/卡死的机占用的格释放回候选池）
         expired = self.lease.expire(now.to_sec())

@@ -61,6 +61,8 @@ def main():
             'note':'source_sha256 records exact working-tree files; git_head may additionally contain orchestration fixes.'},
         sensor_inventory=inventory,
         search_segments=os.environ.get('SEARCH_SEGMENTS','0'),
+        normal_partition_search=os.environ.get('NORMAL_PARTITION_SEARCH','0'),
+        priority_corner=os.environ.get('PRIORITY_CORNER','1'),
         motion_safety=os.environ.get('MOTION_SAFETY','0'),
         south_patrol=os.environ.get('SOUTH_PATROL','0'),
         southeast_inner_patrol=os.environ.get('SOUTH_PATROL_SOUTHEAST','0'),

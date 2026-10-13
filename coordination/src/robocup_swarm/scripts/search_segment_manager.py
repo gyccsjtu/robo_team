@@ -22,6 +22,8 @@ SEARCH_LOOK_TURN_RATE = math.radians(25.)
 
 class SearchSegmentManager:
     def _regional_search_patrols(self):
+        if getattr(getattr(self, 'allocator', None), 'normal_partition_search', False):
+            return ()  # all search workload enters the ordinary six-sector allocator
         """One default patrol or complementary jobs using the same task book."""
         patrols = getattr(self, '_regional_patrols', None)
         if patrols is not None:
@@ -261,6 +263,7 @@ class SearchSegmentManager:
                     not task.created <= stamp < min(task.expires, task.deadline)):
                 continue
             layout = dict(points=task.points[task.index:],
+                          cells=task.cells[task.index:],
                           look_points=task.look_points[task.index:])
             status = self.status.get(uid)
             sample = getattr(getattr(status, 'header', None), 'stamp', None)
@@ -581,7 +584,8 @@ class SearchSegmentManager:
         # Outer task lock covers allocator selection, segment extension and
         # whole-segment reservation. No callback can see a half-reserved route.
         kwargs = {}
-        if getattr(self.allocator, 'search_deconflict', False):
+        if (getattr(self.allocator, 'search_deconflict', False) or
+                getattr(self.allocator, 'normal_partition_search', False)):
             kwargs = dict(active_search=self._active_search_layout(stamp),
                           search_points={key:self._segment_point(key)
                                          for key in self.grid.uncovered_cells()
@@ -640,7 +644,13 @@ class SearchSegmentManager:
                           uid,task.task_id,task.revision,cells,points)
         self._last_alloc_t = now
         if any(key is None for key in seeds.values()):
-            self._reopen_covered_cells(force=True)
+            if not getattr(self.allocator, 'normal_partition_search', False):
+                self._reopen_covered_cells(force=True)
+            elif not self._segments.tasks:
+                # Sector waiting and temporary failures are not proof that
+                # every unseen region has been searched. The existing normal
+                # reopen checks remaining FREE/REVIEW work before resetting.
+                self._reopen_covered_cells(force=False)
 
     def _start_search_segment(self, uid, cells, points, stamp, purpose='coverage', publish=True,
                               max_hold=None, look_points=None):
