@@ -36,6 +36,7 @@ from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDe
 from robocup_navigation.astar import load_metadata, GridMap, plan
 from slam_grid import SlamGrid
 from flight_execution import bounded_step
+from tracking_motion import relief_enabled, motion_feedback
 from motion_safety import braking_cap, boundary_constraints, scan_constraints, HeightClearanceHold
 from swarm_task import (LineOfSight, DETECT_RADIUS, CoverageGrid, GRID_SIZE_M,
                         coverage_bounds, ACTOR_SEARCH_BOUNDS)
@@ -1133,6 +1134,8 @@ class SwarmAgent(SearchSegmentAgent):
 
         # ---- 发布 ----
         self.status_pub = rospy.Publisher("/swarm/uav_status", UavStatus, queue_size=5)
+        if relief_enabled():
+            self._tracking_motion_pub = rospy.Publisher('/swarm/tracking_motion', String, queue_size=5)
         self.detect_pub = rospy.Publisher("/swarm/detection", TargetDetection, queue_size=10)
         self._candidate_missed_pub = rospy.Publisher(
             "/swarm/visual_candidate_missed", String, queue_size=10)
@@ -4012,6 +4015,16 @@ class SwarmAgent(SearchSegmentAgent):
         # A safe stop is correct, but the view planner must know that its
         # observation point cannot be maintained. Never override this stop.
         now_control = rospy.Time.now().to_sec()
+        if relief_enabled():
+            # ORCA may already have stopped the input to _send_vel. Preserve
+            # that same-task, same-cycle intention rather than losing it here.
+            intent = self.__dict__.pop('_friend_motion_intent', None)
+            assignment = getattr(self, 'assignment', None)
+            if (intent is not None and assignment is not None and
+                    intent[1] == assignment.target_id and 0. <= now_control-intent[0] <= .15):
+                requested_speed = max(requested_speed, intent[2])
+            self._tracking_motion_sample = motion_feedback(
+                self.uav_id, assignment, now_control, requested_speed, math.hypot(vx, vy))
         obstructed = (getattr(self, '_orbit_target', None) is not None and
                       requested_speed > .3 and math.hypot(vx, vy) < .2)
         if obstructed:
@@ -6014,6 +6027,11 @@ class SwarmAgent(SearchSegmentAgent):
         # Both routed approach and orbit pass here. Form the visual preference
         # before ORCA/radar/map safety may replace or stop it.
         vx, vy = self._view_follow_velocity(vx, vy)
+        if relief_enabled():
+            assignment = getattr(self, 'assignment', None)
+            if assignment is not None and assignment.task_type == 1:
+                self._friend_motion_intent = (rospy.Time.now().to_sec(),
+                                             assignment.target_id, math.hypot(vx, vy))
         _w = self.world_xy
         if _w is None:
             self._last_orca_v = (vx, vy)
@@ -6412,6 +6430,14 @@ class SwarmAgent(SearchSegmentAgent):
 
         self._segment_status(st)
         self.status_pub.publish(st)
+        publisher = getattr(self, '_tracking_motion_pub', None)
+        sample = getattr(self, '_tracking_motion_sample', None)
+        if publisher is not None and st.connected and sample is not None:
+            now = st.header.stamp.to_sec()
+            if (0. <= now-sample['sample_s'] <= .2 and
+                    now-getattr(self, '_tracking_motion_sent', -1e18) >= .2):
+                publisher.publish(String(data=json.dumps(sample)))
+                self._tracking_motion_sent = now
 
     # ---------------- 主循环 ----------------
     def run(self):

@@ -24,6 +24,7 @@ from functools import wraps
 from swarm_task import LineOfSight
 import re
 import traceback
+from tracking_motion import TrackingMotionWindow, relief_enabled
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from std_msgs.msg import String
@@ -463,6 +464,10 @@ class SwarmManager(SearchSegmentManager):
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._status_cb)
         rospy.Subscriber("/swarm/detection", TargetDetection, self._detection_cb)
         rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb)
+        if relief_enabled():
+            self._tracking_motion = TrackingMotionWindow()
+            rospy.Subscriber('/swarm/tracking_motion', String,
+                             self._tracking_motion_cb, queue_size=30)
         self._discovery_state_pub = rospy.Publisher(
             '/swarm/discovery_states', TargetState, queue_size=12)
         rospy.Subscriber("/swarm/discovery_observation", String,
@@ -2969,6 +2974,28 @@ class SwarmManager(SearchSegmentManager):
             msg2.task_type = 1
             self.assign_pub.publish(msg2)
 
+    @serialized_tasks
+    def _tracking_motion_cb(self, msg):
+        try:
+            data = json.loads(msg.data)
+            tid = data['target_id']
+            owner = self._tracking.get(tid)
+            now = rospy.Time.now().to_sec()
+            if not self._tracking_uav_available(owner, now):
+                return
+            self._tracking_motion.offer(data, now, owner,
+                                        self._tracking_since.get(tid, now))
+        except (ValueError, KeyError, TypeError, AttributeError):
+            return
+
+    def _motion_needs_relief(self, tid, now):
+        window = getattr(self, '_tracking_motion', None)
+        owner = self._tracking.get(tid)
+        return bool(relief_enabled() and window is not None and owner is not None and
+                    self._tracking_uav_available(owner, now) and
+                    window.blocked(owner, tid, now, self._tracking_since.get(tid, now)) and
+                    self._recent_eligible(tid, now, .5))
+
     def _dispatch_backup(self):
         """按本队图像断流、反复短观察及补看超时请求第二视角。
 
@@ -2986,6 +3013,9 @@ class SwarmManager(SearchSegmentManager):
                       set(getattr(self, '_tenure_recovery', {})))
         needs += [(tid, 'view_recovery') for tid in recovering
                   if tid not in {item[0] for item in needs}]
+        needs += [(tid, 'motion_blocked') for tid in self._tracking
+                  if self._motion_needs_relief(tid, now) and
+                  tid not in {item[0] for item in needs}]
         if not needs:
             return
 
@@ -3012,7 +3042,8 @@ class SwarmManager(SearchSegmentManager):
             # Fresh images are not evidence of successful coordinate reports.
             # Several *current* short failed streaks warrant a second angle;
             # one old reset must never pull a healthy searcher off its route.
-            relief = self._camera_view_needs_relief(tid, now)
+            relief = (self._camera_view_needs_relief(tid, now) or
+                      self._motion_needs_relief(tid, now))
             if now - last_primary < BACKUP_STALE and not relief:
                 continue
             if len(self._backup) >= BACKUP_MAX:
