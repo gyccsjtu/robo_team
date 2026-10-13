@@ -53,6 +53,8 @@ def main():
         takeoff_require_camera=os.environ.get('TAKEOFF_REQUIRE_CAMERA','0'),
         orbit_radius_close_m=os.environ.get('ORBIT_RADIUS_CLOSE','8.0'),
         early_view_pursuit=os.environ.get('EARLY_VIEW_PURSUIT','0'),
+        localized_search_follow=os.environ.get('LOCALIZED_SEARCH_FOLLOW','0'),
+        immediate_visible_dispatch=os.environ.get('IMMEDIATE_VISIBLE_DISPATCH','0'),
         pixel_view_recovery=os.environ.get('PIXEL_VIEW_RECOVERY','0'),
         pixel_recovery_approach=os.environ.get('PIXEL_RECOVERY_APPROACH','0'),
         edge_search_review=os.environ.get('EDGE_SEARCH_REVIEW','0'),

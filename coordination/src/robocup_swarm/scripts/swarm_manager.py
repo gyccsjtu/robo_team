@@ -1678,6 +1678,14 @@ class SwarmManager(SearchSegmentManager):
             detection.x, detection.y = data['x'], data['y']
             detection.confidence, detection.source = data['confidence'], 1
             self._detection_cb(detection)
+            if (os.environ.get('IMMEDIATE_VISIBLE_DISPATCH', '0') == '1' and
+                    tid not in self._tracking and tid not in self._eliminated and
+                    now >= self._confirm_timeout_bl.get(tid, 0.) and
+                    (data['eligible'] or (data['discovery_only'] and
+                     packet.get('appearance_status') == 'actor'))):
+                # The normal batch allocator excludes every current primary
+                # and backup. A busy discovery camera keeps its current actor.
+                self._dispatch_target_batch([(tid, data['x'], data['y'])], now)
             return True
         except (ValueError, KeyError, TypeError, AttributeError):
             return

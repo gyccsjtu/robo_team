@@ -54,7 +54,8 @@ from search_view_hint import CameraOrigins, SearchViewInbox, failed_view
 from search_segment_agent import SearchSegmentAgent
 from search_segments import clear_line
 from camera_attention import (approach_image, candidate_velocity, candidate_decision,
-                              candidate_reposition, attention_expired)
+                              candidate_reposition, attention_expired,
+                              localized_follow_decision)
 # 2026-10-03：飞控参数读回校验（取自队友 codex/radar-coordination-20261003 分支）
 from fcu_configuration import configure as configure_fcu_parameters
 
@@ -2064,6 +2065,19 @@ class SwarmAgent(SearchSegmentAgent):
         have no global identity here and deliberately retain their old path.
         """
         tid = raw.get('target_id')
+        cue = getattr(self, '_camera_cue', None)
+        sample = raw.get('sample_s')
+        if (os.environ.get('LOCALIZED_SEARCH_FOLLOW', '0') == '1' and
+                cue is not None and cue.get('localized_search_view') and
+                raw.get('source_uav') == self.uav_id and
+                cue.get('candidate_id') == 'target:%s:%s' % (tid, raw.get('world_candidate_id')) and
+                isinstance(sample, (int, float)) and math.isfinite(sample) and
+                sample > cue['sample_s'] and 0. <= now-sample <= .5 and
+                not (raw.get('geometry_ok') is True and raw.get('report_ok') is True and
+                     raw.get('person_verdict_ok') is True and
+                     raw.get('appearance_status') == 'actor')):
+            cue['follow_samples'] = []
+            cue['image'] = None
         if (getattr(getattr(self, 'assignment', None), 'task_type', None) != 0 or
                 tid not in ('t0', 't1', 't2', 't3') or
                 raw.get('geometry_ok') is not True or raw.get('report_ok') is not True or
@@ -2104,9 +2118,16 @@ class SwarmAgent(SearchSegmentAgent):
         if cue is None or cue['candidate_id'] != cid or cue['sample_s'] != sample:
             return
         cue['localized_search_view'] = True
-        # This already localized image authorizes yaw/hold only. The existing
-        # candidate_decision returns before exploratory motion whenever xy is
-        # present; its upright/unclipped pixel-approach gate is unchanged.
+        history = cue.setdefault('follow_samples', [])
+        if history and (sample-history[-1][0] > .5 or
+                math.hypot(view['x']-history[-1][1], view['y']-history[-1][2]) >
+                2.5*(sample-history[-1][0])+.2):
+            history.clear()
+        history.append((sample, view['x'], view['y']))
+        cue['follow_samples'] = [item for item in history if sample-item[0] <= .6]
+        cue.setdefault('follow_origin', self.world_xy)
+        # Coherent new own-camera positions can sustain the existing finite
+        # attention while dispatch catches up. They confer no report credit.
         cue['image'] = dict(box=view['box'], width=view['width'],
                             height=view['height'], camera_tilt=view['camera_tilt'])
         self.__dict__.setdefault('_camera_frame_origins', CameraOrigins()).attach(cue)
@@ -2578,6 +2599,11 @@ class SwarmAgent(SearchSegmentAgent):
                                     getattr(self, '_scan_t', -1e18))
                   if cue.get('image') is not None and self._world_trusted()
                   else (0., 0., 'untrusted_pose_or_image'))
+        if (os.environ.get('LOCALIZED_SEARCH_FOLLOW', '0') == '1' and
+                cue.get('localized_search_view') and self._world_trusted()):
+            vx, vy, reason = localized_follow_decision(cue, now, self.yaw, wx,
+                getattr(self, '_scan', None), getattr(self, '_scan_t', -1e18),
+                ORBIT_RADIUS_CLOSE)
         if reason == 'obstacle':
             vx, vy, reason = candidate_reposition(
                 cue, now, self.yaw, wx, getattr(self, '_scan', None),

@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Reproduce the three complete official trials on the 025a3d8 runtime sources.
+# 025a3d8 base with bounded visible-person following and immediate normal dispatch.
+# This candidate still requires complete-match validation.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PR_COHERENT_BODY_ATTACH=1
+export LOCALIZED_SEARCH_FOLLOW=1 IMMEDIATE_VISIBLE_DISPATCH=1
 export BLOCKED_TRACKING_RELIEF=0 RELIEF_CLEAR_APPROACH=0 DISCOVERY_BLIND_HANDOFF=0
 export TRACKING_FRIEND_RECHECK=0 PIXEL_RECOVERY_BACKOFF=0
 export SOUTH_PATROL_SOUTHEAST=0 SOUTH_PATROL_NORTHEAST=0
