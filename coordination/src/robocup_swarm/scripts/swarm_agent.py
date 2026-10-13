@@ -94,12 +94,14 @@ def serialized_sensor_sample(method):
     @wraps(method)
     def call(self, *args, **kwargs):
         epoch = rospy.time_epoch()
+        received = rospy.wall_monotonic()
         lock = self.__dict__.setdefault('_visual_task_lock', threading.RLock())
         with lock:
             if (epoch != rospy.time_epoch() or
                     epoch != getattr(self, '_flight_epoch', epoch)):
                 return
-            return method(self, *args, _sample_epoch=epoch, **kwargs)
+            return method(self, *args, _sample_epoch=epoch,
+                          _sample_received=received, **kwargs)
     return call
 
 # 覆盖栅格参数（与 manager 一致）
@@ -819,6 +821,8 @@ FLIGHT_WALL_RATE = 20.0
 FLIGHT_COMMAND_WALL_MAX_AGE = 0.25
 FLIGHT_POSE_WALL_MAX_AGE = 0.3
 FLIGHT_VELOCITY_WALL_MAX_AGE = 0.3
+SENSOR_PENDING_FUTURE_NS = 50000000  # observed legal pose/scan ordering skew, <=50ms
+SENSOR_PENDING_MAX = 8  # keep the oldest eligible sample; never overwrite it
 # EKF 局部原点跳变判定阈值 m：单帧 local_xy 位移超过此值（且超过物理速度上限）
 # 判定为 EKF 原点重置而非真实运动，触发 offset 重锚定保持 world_xy 连续。
 EKF_JUMP_MIN_M  = float(os.environ.get('EKF_JUMP_MIN_M', '3.0'))
@@ -960,6 +964,7 @@ class SwarmAgent(SearchSegmentAgent):
         self._wall_hold_anchor = None
         self._flight_stop = threading.Event()
         self._flight_epoch = rospy.time_epoch()
+        self._pending_time_samples = {'scan': [], 'velocity': []}
         self._epoch_pose_samples = 0
         self._epoch_pose_required = 1
         self._prestream_requested = False
@@ -1397,6 +1402,7 @@ class SwarmAgent(SearchSegmentAgent):
         lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
         with lock:
             self._flight_cache = None
+            self._pending_time_samples = {'scan': [], 'velocity': []}
             self._flight_epoch = rospy.time_epoch()
             self._wall_hold_anchor = getattr(self, '_trusted_local_hold', None)
             self._epoch_pose_samples = 0
@@ -1553,7 +1559,7 @@ class SwarmAgent(SearchSegmentAgent):
         self.state = msg
 
     @serialized_sensor_sample
-    def _local_cb(self, msg, _sample_epoch=None):
+    def _local_cb(self, msg, _sample_epoch=None, _sample_received=None):
         if MOTION_SAFETY or getattr(self, '_flight_clock_active', False):
             sample = msg.header.stamp.to_sec()
             now = rospy.Time.now().to_sec()
@@ -1650,24 +1656,88 @@ class SwarmAgent(SearchSegmentAgent):
         if not getattr(self, '_localization_fault', False):
             lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
             with lock:
-                self._wall_pose_received = rospy.wall_monotonic()
+                self._wall_pose_received = _sample_received
                 self._wall_pose_epoch = _sample_epoch
                 self._epoch_pose_samples = getattr(self, '_epoch_pose_samples', 0)+1
                 self._trusted_local_hold = (*new_xy, self.local_z, self.yaw)
+        self._consume_pending_time_samples()
+
+    def _accept_timed_sensor(self, source, msg, sample, epoch, received):
+        """Accept only after pose time catches up, retaining the original receipt."""
+        now = rospy.Time.now().to_sec()
+        wall_age = rospy.wall_monotonic()-received
+        sim_limit = RADAR_FRESH_S if source == 'scan' else .5
+        wall_limit = RADAR_FRESH_S if source == 'scan' else FLIGHT_VELOCITY_WALL_MAX_AGE
+        if (epoch != rospy.time_epoch() or not 0. <= now-sample <= sim_limit or
+                not 0. <= wall_age <= wall_limit):
+            return
+        if source == 'velocity':
+            velocity = (msg.twist.linear.x, msg.twist.linear.y)
+            old = getattr(self, '_measured_velocity', None)
+            if (not all(math.isfinite(v) for v in velocity) or
+                    old is not None and sample <= old[0]):
+                return
+            self._measured_velocity = (sample, velocity)
+        else:
+            if sample <= getattr(self, '_scan_t', -1e18):
+                return
+            self._scan, self._scan_t = msg, sample
+        lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
+        with lock:
+            setattr(self, '_wall_%s_received' % source, received)
+            setattr(self, '_wall_%s_epoch' % source, epoch)
+        if source == 'scan':
+            self._slam_update()
+
+    @serialized_visual_task
+    def _consume_pending_time_samples(self):
+        pending = getattr(self, '_pending_time_samples', None)
+        if not pending:
+            return
+        epoch, wall_now = rospy.time_epoch(), rospy.wall_monotonic()
+        now = rospy.Time.now().to_sec()
+        for source, queue in pending.items():
+            wall_limit = RADAR_FRESH_S if source == 'scan' else FLIGHT_VELOCITY_WALL_MAX_AGE
+            while queue:
+                saved_epoch, received, sample, msg = queue[0]
+                if saved_epoch != epoch or not 0. <= wall_now-received <= wall_limit:
+                    queue.pop(0)
+                    continue
+                if not rospy.is_time_valid() or sample > now:
+                    break
+                queue.pop(0)
+                self._accept_timed_sensor(source, msg, sample, saved_epoch, received)
+
+    def _offer_timed_sensor(self, source, msg, epoch, received):
+        self._consume_pending_time_samples()
+        sample = msg.header.stamp.to_sec()
+        if not math.isfinite(sample) or sample <= 0. or epoch != rospy.time_epoch():
+            return
+        if source == 'velocity' and not all(math.isfinite(v) for v in (
+                msg.twist.linear.x, msg.twist.linear.y)):
+            return
+        queue = getattr(self, '_pending_time_samples', {}).get(source, [])
+        if queue and sample <= queue[-1][2]:
+            return  # preserve monotonic packet order across accepted and pending data
+        stamp = rospy.Time.now()
+        if sample <= stamp.to_sec():
+            self._accept_timed_sensor(source, msg, sample, epoch, received)
+            return
+        # A future header never becomes active and never refreshes wall age.
+        # Preserve FIFO order so a stream of newer future scans cannot starve
+        # the first sample that the next pose will make eligible.
+        wall_limit = RADAR_FRESH_S if source == 'scan' else FLIGHT_VELOCITY_WALL_MAX_AGE
+        if (msg.header.stamp.to_nsec()-stamp.to_nsec() > SENSOR_PENDING_FUTURE_NS or
+                not 0. <= rospy.wall_monotonic()-received <= wall_limit):
+            return
+        pending = self.__dict__.setdefault('_pending_time_samples', {'scan': [], 'velocity': []})
+        queue = pending[source]
+        if len(queue) < SENSOR_PENDING_MAX:
+            queue.append((epoch, received, sample, copy.deepcopy(msg)))
 
     @serialized_sensor_sample
-    def _measured_velocity_cb(self,msg,_sample_epoch=None):
-        sample=msg.header.stamp.to_sec()
-        velocity=(msg.twist.linear.x,msg.twist.linear.y)
-        old=getattr(self,'_measured_velocity',None)
-        now=rospy.Time.now().to_sec()
-        if (0. <= now-sample <= .5 and all(math.isfinite(v) for v in velocity) and
-                (old is None or sample>old[0])):
-            self._measured_velocity=(sample,velocity)
-            lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
-            with lock:
-                self._wall_velocity_received = rospy.wall_monotonic()
-                self._wall_velocity_epoch = _sample_epoch
+    def _measured_velocity_cb(self,msg,_sample_epoch=None,_sample_received=None):
+        self._offer_timed_sensor('velocity', msg, _sample_epoch, _sample_received)
 
     def _est_track(self, xy, now):
         """维护最近 EST_WIN_S 秒的位置轨迹（判位置估计是否可信）。"""
@@ -1718,20 +1788,8 @@ class SwarmAgent(SearchSegmentAgent):
         return v <= MAX_SPEED * EST_V_RATIO
 
     @serialized_sensor_sample
-    def _scan_cb(self, msg, _sample_epoch=None):
-        if MOTION_SAFETY:
-            sample=msg.header.stamp.to_sec()
-            if (not 0. <= rospy.Time.now().to_sec()-sample <= RADAR_FRESH_S or
-                    sample <= getattr(self,'_scan_t',-1e18)):
-                return
-        self._scan = msg
-        stamped = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
-        self._scan_t = stamped if stamped > 0.0 else rospy.Time.now().to_sec()
-        lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
-        with lock:
-            self._wall_scan_received = rospy.wall_monotonic()
-            self._wall_scan_epoch = _sample_epoch
-        self._slam_update()
+    def _scan_cb(self, msg, _sample_epoch=None, _sample_received=None):
+        self._offer_timed_sensor('scan', msg, _sample_epoch, _sample_received)
 
     def _slam_update(self):
         """合规 SLAM：把最新雷达帧射线投射进占用栅格（节流）。
@@ -4184,6 +4242,7 @@ class SwarmAgent(SearchSegmentAgent):
         vz=None 时按当前高度竖直 P 控制爬升到自适应高度；预热/悬停阶段显式传
         vz=0.0 发纯零速，避免 EKF 未收敛时带爬升速度导致 OFFBOARD 被拒。
         """
+        self._consume_pending_time_samples()
         if getattr(self, '_prestream_requested', False):
             # Prestream cannot inherit a queued camera yaw, map recovery turn
             # or altitude goal. Its only accepted message is actual zero speed.
@@ -5316,6 +5375,7 @@ class SwarmAgent(SearchSegmentAgent):
     @flight_time_step
     def _control(self):
         """有任务 → A* 绕障飞向格中心；无任务 → 原地悬停。"""
+        self._consume_pending_time_samples()
         if (not getattr(self, '_localization_fault', False) and
                 not self._business_time_ready()):
             return

@@ -92,6 +92,27 @@ class HeaderClockFlightTests(unittest.TestCase):
     def tick(self):
         return self.a._publish_wall_setpoint_once()
 
+    def raw_scan(self, stamp, invalid=False):
+        message = LaserScan()
+        message.header.stamp = sa.rospy.Time.from_sec(stamp)
+        message.angle_min, message.angle_increment = -math.pi, math.pi/180.
+        message.range_min, message.range_max = .1, 20.
+        message.ranges = [float('nan') if invalid else float('inf')]*361
+        return message
+
+    def raw_velocity(self, stamp):
+        message = TwistStamped()
+        message.header.stamp = sa.rospy.Time.from_sec(stamp)
+        return message
+
+    def pose_only(self, stamp, z=3.):
+        self.clock.sim = stamp
+        message = PoseStamped()
+        message.header.stamp = sa.rospy.Time.from_sec(stamp)
+        message.pose.position.z = z
+        message.pose.orientation.z, message.pose.orientation.w = math.sin(.2), math.cos(.2)
+        self.a._local_cb(message)
+
     def assert_local_hold(self, result, expected=None):
         channel, message = result
         self.assertEqual(channel, 'pos')
@@ -452,6 +473,177 @@ class HeaderClockFlightTests(unittest.TestCase):
         for value in ('', 'typhoon_h480_6', 'uav_1', 'typhoon_h480_0,typhoon_h480_1', '/clock'):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 resolve([], {'TEAM_TIME_UAVS': value})
+
+    def test_twenty_hz_lidar_and_thirty_hz_pose_ordering_keeps_actual_takeoff_climb(self):
+        a, c = self.a, self.clock
+        a.grid = NS(origin=(-50., -60.), width=400, height=240, resolution=.5,
+                    world_to_cell=lambda point: (100, 120), is_free=lambda cell: True)
+        a._orbit_target = a._look_at = a.assignment = None
+        a._confirm_close = False
+        a._last_csv_t = 1e9
+        a.state = NS(connected=True, armed=True, mode='OFFBOARD')
+        for header_offset in (-.005, 0., .02, .0229):
+            with self.subTest(header_offset=header_offset), patch.object(sa, 'FLIGHT_OUTPUT', 'vel'):
+                base, wall_base = c.sim+.1, c.wall+.1
+                c.sim, c.wall = base, wall_base
+                a.local_z, a._takeoff_done = .7, False
+                a._trusted_local_hold = (0., 0., .7, .4)
+                a._scan, a._measured_velocity = None, None
+                a._scan_t = base-1.
+                a._pending_time_samples = {'scan': [], 'velocity': []}
+                a._flight_cache = a._wall_hold_anchor = None
+                a._climb_progress = None
+                climbs, future_ages = [], []
+                height, executed_vz = .7, 0.
+                for step in range(1201):  # 2s; shared 600Hz event grid avoids rounding of event order
+                    elapsed = step/600.
+                    c.wall = wall_base+elapsed
+                    height += executed_vz/600.
+                    if step % 20 == 0:
+                        self.pose_only(base+elapsed, height)  # 30Hz authoritative pose time
+                    if step % 30 == 0:
+                        stamped = base+elapsed+header_offset
+                        future_ages.append(stamped-c.sim)
+                        a._scan_cb(self.raw_scan(stamped))  # 20Hz radar delivered before control
+                        a._measured_velocity_cb(self.raw_velocity(stamped))
+                        a._control()  # original takeoff -> _send_vel -> safety -> cached output
+                        channel, message = self.tick()
+                        executed_vz = message.twist.linear.z if channel == 'vel' else 0.
+                        if elapsed >= .1:
+                            climbs.append(executed_vz)
+                self.assertTrue(all(vz > 0. for vz in climbs), 'live takeoff was eaten by holding')
+                self.assertGreaterEqual(height, .7+sa.CLIMB_VZ*1.9-1e-8)
+                self.assertLessEqual(max(future_ages), .04)
+                if header_offset > 0.:
+                    self.assertTrue(all(age > 0. for age in future_ages))
+                a.arm_srv.assert_not_called()
+                a.mode_srv.assert_not_called()
+
+    def test_real_zero_prestream_arms_with_future_twenty_hz_radar_and_thirty_hz_pose(self):
+        a, c = self.a, self.clock
+        base, wall_base = c.sim+.1, c.wall+.1
+        c.sim, c.wall = base, wall_base
+        a.local_z, a._takeoff_done, a._anchor_done = 0., False, False
+        a.state = NS(connected=True, armed=False, mode='MANUAL')
+        a._scan = a._measured_velocity = None
+        a._scan_t = base-1.
+        a._pending_time_samples = {'scan': [], 'velocity': []}
+        step, calls = [0], []
+
+        def mode(*args):
+            calls.append(('mode', c.wall-wall_base))
+            a.state.mode = 'OFFBOARD'
+            return NS(mode_sent=True)
+
+        def arm(*args):
+            calls.append(('arm', c.wall-wall_base))
+            a.state.armed = True
+            return NS(success=True)
+
+        def sleep():
+            stop = step[0]+30  # 20Hz simulated business wait
+            for current in range(step[0]+1, stop+1):
+                elapsed = current/600.
+                c.wall = wall_base+elapsed
+                if current % 20 == 0:
+                    self.pose_only(base+elapsed, 0.)
+                if current % 30 == 0:
+                    stamped = base+elapsed+.0229
+                    a._scan_cb(self.raw_scan(stamped))
+                    a._measured_velocity_cb(self.raw_velocity(stamped))
+            step[0] = stop
+            a._publish_wall_setpoint_once()
+            self.assertLess(c.wall-wall_base, 4., 'pending radar kept resetting EKF stability')
+
+        a.mode_srv, a.arm_srv = Mock(side_effect=mode), Mock(side_effect=arm)
+        a.ctrl_rate = NS(sleep=sleep)
+        self.assertTrue(a._arm_and_offboard())
+        self.assertEqual([name for name, elapsed in calls], ['mode', 'arm'])
+        self.assertGreaterEqual(calls[0][1], sa.OFFBOARD_PRESTREAM_S)
+        self.assertLess(calls[0][1], 2.5)
+        a.pos_pub.publish.assert_not_called()
+        self.assertGreaterEqual(a.vel_pub.publish.call_count, 40)
+        for call in a.vel_pub.publish.call_args_list:
+            message = call.args[0]
+            self.assertEqual((message.twist.linear.x, message.twist.linear.y,
+                              message.twist.linear.z, message.twist.angular.z), (0., 0., 0., 0.))
+
+    def test_pending_fifo_survives_new_future_samples_and_preserves_first_eligibility(self):
+        a, c = self.a, self.clock
+        a._scan = a._measured_velocity = None
+        for index in range(1, 41):
+            sample = 100.+index*.001
+            a._scan_cb(self.raw_scan(sample))
+            a._measured_velocity_cb(self.raw_velocity(sample))
+        for source in ('scan', 'velocity'):
+            queue = a._pending_time_samples[source]
+            self.assertEqual(len(queue), sa.SENSOR_PENDING_MAX)
+            self.assertAlmostEqual(queue[0][2], 100.001)
+        c.wall += .01
+        self.pose_only(100.009)
+        self.assertAlmostEqual(a._scan_t, 100.008)
+        self.assertAlmostEqual(a._measured_velocity[0], 100.008)
+        self.assertTrue(a._flight_sources_ready())
+        self.assertEqual(a._pending_time_samples, {'scan': [], 'velocity': []})
+
+    def test_pending_duplicate_and_old_packets_cannot_extend_original_wall_receipt(self):
+        a, c = self.a, self.clock
+        a._scan = a._measured_velocity = None
+        a._scan_cb(self.raw_scan(100.04))
+        a._measured_velocity_cb(self.raw_velocity(100.04))
+        c.wall += .2
+        for sample in (100.04, 100.03, 99.9):
+            a._scan_cb(self.raw_scan(sample))
+            a._measured_velocity_cb(self.raw_velocity(sample))
+        for queue in a._pending_time_samples.values():
+            self.assertEqual(len(queue), 1)
+            self.assertEqual(queue[0][1], 1000.)
+        c.wall = 1000.51
+        self.pose_only(100.05)
+        self.assertIsNone(a._scan)
+        self.assertIsNone(a._measured_velocity)
+        self.assertEqual(a._pending_time_samples, {'scan': [], 'velocity': []})
+        a._flight_output(0., 0., .6, target_alt=4.)
+        self.assert_local_hold(self.tick())
+
+    def test_pending_acceptance_keeps_sensor_receipt_and_header_instead_of_catchup_time(self):
+        a, c = self.a, self.clock
+        a._scan_cb(self.raw_scan(100.04))
+        a._measured_velocity_cb(self.raw_velocity(100.04))
+        c.wall += .1
+        self.pose_only(100.05)
+        self.assertAlmostEqual(a._scan_t, 100.04)
+        self.assertAlmostEqual(a._measured_velocity[0], 100.04)
+        self.assertEqual((a._wall_scan_received, a._wall_velocity_received), (1000., 1000.))
+        c.wall = 1000.31
+        self.assertFalse(a._flight_sources_ready())
+
+    def test_pending_rejects_over_fifty_ms_future_and_discards_old_epoch(self):
+        a, c = self.a, self.clock
+        for callback, message in ((a._scan_cb, self.raw_scan),
+                                  (a._measured_velocity_cb, self.raw_velocity)):
+            callback(message(100.04))
+            callback(message(100.050000001))
+        self.assertEqual([len(queue) for queue in a._pending_time_samples.values()], [1, 1])
+        c.epoch, c.sim = 1, 5.
+        a._reset_flight_time(1)
+        self.assertEqual(a._pending_time_samples, {'scan': [], 'velocity': []})
+        for _ in range(3):
+            c.wall += .05
+            self.pose_only(c.sim+.05)
+        self.assertFalse(a._flight_sources_ready())
+        a._flight_output(0., 0., .6, target_alt=4.)
+        self.assert_local_hold(self.tick())
+
+    def test_pending_nan_radar_never_authorizes_climb_after_clock_catches_up(self):
+        a, c = self.a, self.clock
+        a._scan_cb(self.raw_scan(100.04, invalid=True))
+        a._measured_velocity_cb(self.raw_velocity(100.04))
+        c.wall += .05
+        self.pose_only(100.05)
+        self.assertFalse(a._flight_sources_ready())
+        a._flight_output(0., 0., .6, .4, target_alt=4.)
+        self.assert_local_hold(self.tick())
 
 
 if __name__ == '__main__':

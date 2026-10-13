@@ -1,0 +1,49 @@
+{
+  "head": "a112a1f3ef7230a7a3957c2e99b59b9dc8fe2b8c",
+  "outcome": "migration_startup_validation_failed_user_stopped",
+  "airborne_gate": "4/6 missing 0,1",
+  "perception_gate": "4/6 missing 0,1",
+  "clock_graph_audit": "passed, no team Clock subscription",
+  "official_eliminations": 0,
+  "cause": "Strict nonfuture scan gate rejects valid lidar headers arriving 0-40ms ahead of sampled MAVROS pose time. Final wall output holds, suppressing climb and tracking.",
+  "raw_sensor_summary": {
+    "0": {
+      "max_altitude_m": 0.2186230719089508,
+      "raw_scan_ahead_fraction": 0.9974806550296923,
+      "raw_scan_ahead_max_s": 0.04362082400029976,
+      "sample_count": 5557
+    },
+    "1": {
+      "max_altitude_m": 2.943925619125366,
+      "raw_scan_ahead_fraction": 0.7946733849199208,
+      "raw_scan_ahead_max_s": 0.11713710599997285,
+      "sample_count": 5557
+    },
+    "2": {
+      "max_altitude_m": 4.066059112548828,
+      "raw_scan_ahead_fraction": 0.9924419650890769,
+      "raw_scan_ahead_max_s": 0.08925960300030056,
+      "sample_count": 5557
+    },
+    "3": {
+      "max_altitude_m": 4.648563385009766,
+      "raw_scan_ahead_fraction": 0.9879431347849559,
+      "raw_scan_ahead_max_s": 0.12109535300032803,
+      "sample_count": 5557
+    },
+    "4": {
+      "max_altitude_m": 4.526242733001709,
+      "raw_scan_ahead_fraction": 0.9749865035090877,
+      "raw_scan_ahead_max_s": 0.09708364100015388,
+      "sample_count": 5557
+    },
+    "5": {
+      "max_altitude_m": 3.7978813648223877,
+      "raw_scan_ahead_fraction": 0.9559035277177825,
+      "raw_scan_ahead_max_s": 0.10105831300006685,
+      "sample_count": 5556
+    }
+  },
+  "limits": "Read-only own sensor samples; stale last snapshot values after stop are retained. This is not an actor truth accuracy or collision assessment.",
+  "complete_match": false
+}

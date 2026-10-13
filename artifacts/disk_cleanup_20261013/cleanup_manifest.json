@@ -1,0 +1,63 @@
+{
+  "time": "2026-10-13T21:24:22.883505",
+  "root_free_before": 15831040,
+  "root_free_after": 1207992320,
+  "actions": [
+    {
+      "cache": "/home/gycc/.cache/mozilla",
+      "freed_allocated_bytes": 91082752
+    },
+    {
+      "cache": "/home/gycc/.cache/thumbnails",
+      "freed_allocated_bytes": 872448
+    },
+    {
+      "cache": "/home/gycc/.npm/_cacache",
+      "freed_allocated_bytes": 119980032
+    },
+    {
+      "cache": "/home/gycc/.config/Code/CachedExtensionVSIXs",
+      "freed_allocated_bytes": 639225856
+    },
+    {
+      "cache": "/home/gycc/.config/Cursor/CachedData",
+      "freed_allocated_bytes": 51593216
+    },
+    {
+      "cache": "/home/gycc/.config/Trae CN/CachedData",
+      "freed_allocated_bytes": 60084224
+    },
+    {
+      "cache": "/home/gycc/.cache/thunderbird",
+      "freed_allocated_bytes": 8376320
+    },
+    {
+      "cache": "/home/gycc/.cache/nvidia/GLCache",
+      "freed_allocated_bytes": 5255168
+    },
+    {
+      "lossless_log_compression": "/home/gycc/.gazebo/server-11345/default.log",
+      "compressed": "/home/gycc/.gazebo/server-11345/default.log.closed_cleanup_20261013.gz",
+      "source_bytes": 263745536,
+      "compressed_bytes": 30149520,
+      "raw_sha256": "7faafd5cdebae1c575600240ae01362ba6d2af44a273c9d07f7f1cdc84ac8d4f"
+    }
+  ],
+  "inventory_gib_approx": {
+    "six_uav_historical_ros_logs": 15,
+    "training_python_environment": 6.8,
+    "user_python_packages": 5.3,
+    "downloads": 5.8,
+    "desktop": 8.4,
+    "team_project_including_artifacts": 4.4,
+    "qwen2.5_coder_7b_model": 4.4,
+    "sculpture_training_dataset": 2.7,
+    "system_journal_logs": 4.1,
+    "XTDrone": 2.9,
+    "PX4_Firmware": 2.2,
+    "duplicate_XTDrone_installer_directories_each": 2.7
+  },
+  "system_cleanup_blocked": "System journal/cache require root. sudo -n unavailable; no root-owned files altered.",
+  "preserved": "Code, model weights, training data, historical flight logs, bookmarks, chats and current failed-trial evidence retained. Gazebo text log losslessly compressed and SHA256 verified.",
+  "other_partitions": "Data has 71GiB free and Windows-SSD 56GiB free but both are currently read-only."
+}
