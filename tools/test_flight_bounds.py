@@ -13,6 +13,8 @@ from unittest.mock import PropertyMock, patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'coordination/src/robocup_swarm/scripts'))
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from header_clock_test_support import install_clock_fixture, prepare_flight_fixture
 import swarm_agent
 import swarm_manager
 
@@ -38,6 +40,7 @@ class FlightBoundsTests(unittest.TestCase):
                        capture_output=True,text=True,timeout=15.)
 
     def setUp(self):
+        install_clock_fixture(self, swarm_agent.rospy)
         self.now_patch = patch.object(
             swarm_agent.rospy.Time, 'now',
             return_value=swarm_agent.rospy.Time(100.0))
@@ -156,11 +159,15 @@ class FlightBoundsTests(unittest.TestCase):
         agent._landing = False
         agent._takeoff_done = False
         agent.pos_pub = _Publisher()
+        prepare_flight_fixture(agent, swarm_agent.rospy)
         agent._publish_pos_output(0.0, 0.0, 2.5, 0.0)
+        agent._publish_wall_setpoint_once()
         self.assertEqual(agent.pos_pub.messages[-1].pose.position.x, 0.0)
         agent._takeoff_done = True
         agent.local_xy = (199.0, 0.0)  # world x=149, near east edge
+        prepare_flight_fixture(agent, swarm_agent.rospy)
         agent._publish_pos_output(6.0, 0.0, 2.5, 0.0)
+        agent._publish_wall_setpoint_once()
         sp = agent.pos_pub.messages[-1]
         self.assertEqual(sp.pose.position.x + agent.offset[0], 149.0)
 
@@ -172,11 +179,15 @@ class FlightBoundsTests(unittest.TestCase):
         agent._scan = SimpleNamespace(ranges=[12.]*720, range_min=.1, range_max=12.,
             angle_min=-math.radians(135), angle_increment=math.radians(270)/719.)
         agent.pos_pub = _Publisher()
+        prepare_flight_fixture(agent, swarm_agent.rospy)
         agent._publish_pos_output(0., .1, 3., 0.)
+        agent._publish_wall_setpoint_once()
         point = agent.pos_pub.messages[-1].pose.position
         self.assertEqual((point.x, point.y), (149., .1))
         agent.local_xy = (150.5, 0.)
+        prepare_flight_fixture(agent, swarm_agent.rospy)
         agent._publish_pos_output(0., 0., 3., 0.)
+        agent._publish_wall_setpoint_once()
         point = agent.pos_pub.messages[-1].pose.position
         self.assertEqual((point.x, point.y), (150.5, 0.))
 

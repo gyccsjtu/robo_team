@@ -21,8 +21,9 @@ import os
 import re
 import json
 import threading
+import copy
 from functools import wraps
-import rospy
+import team_time_ros as rospy
 import math
 import traceback
 from geometry_msgs.msg import PoseStamped, TwistStamped
@@ -69,6 +70,36 @@ def serialized_visual_task(method):
         lock = self.__dict__.setdefault('_visual_task_lock', threading.RLock())
         with lock:
             return method(self, *args, **kwargs)
+    return call
+
+
+def flight_time_step(method):
+    """Fence an entire simulated calculation with its starting clock epoch."""
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        state = self.__dict__.setdefault('_flight_step_state', threading.local())
+        previous = getattr(state, 'epoch', None)
+        if previous is None:
+            state.epoch = rospy.time_epoch()
+        try:
+            return method(self, *args, **kwargs)
+        finally:
+            if previous is None:
+                del state.epoch
+    return call
+
+
+def serialized_sensor_sample(method):
+    """Retire a sensor callback queued before the clock-reset transaction."""
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        epoch = rospy.time_epoch()
+        lock = self.__dict__.setdefault('_visual_task_lock', threading.RLock())
+        with lock:
+            if (epoch != rospy.time_epoch() or
+                    epoch != getattr(self, '_flight_epoch', epoch)):
+                return
+            return method(self, *args, _sample_epoch=epoch, **kwargs)
     return call
 
 # 覆盖栅格参数（与 manager 一致）
@@ -351,7 +382,7 @@ def _alt_guard_hit(tag, z, ceil, vz, vx, vy):
     # 原 time.time() 在 RTF=0.15 仿真下,墙钟 5s ≈ 仿真 0.75s,
     # 节流窗口设的 5s 实际过密,日志刷屏,排查时看不到节奏。
     # 改成仿真钟后,日志密度与业务秒数一致,节流策略才符合最初设计意图。
-    import rospy as _rospy
+    import team_time_ros as _rospy
     _now = _rospy.Time.now().to_sec()
     _n = _ALT_GUARD_STATE.get(tag + '_n', 0) + 1
     _ALT_GUARD_STATE[tag + '_n'] = _n
@@ -782,8 +813,12 @@ LOOKAHEAD       = 3.0     # 路径跟踪前瞻距离 m（> 刹停距离 v²/2a=2
 # 关闭（=0）：保持原行为，到点交回 PX4 自管偏航。
 DWELL_LOOKAHEAD = os.environ.get("DWELL_LOOKAHEAD", "1") not in ("0", "false", "False", "")
 STABLE_NEEDED   = 40      # EKF 稳定判定：连续多少次 20Hz 采样高度达标（40 = 2s）
-OFFBOARD_PRESTREAM_S = 2.0  # 与定位稳定检查重叠，按仿真时间累计连续零速输出
+OFFBOARD_PRESTREAM_S = 2.0  # 同时满足仿真稳定样本和实际墙钟连续零速输出
 OFFBOARD_PRESTREAM_MAX_GAP_S = 0.25  # 输出间隔过大时重新预热
+FLIGHT_WALL_RATE = 20.0
+FLIGHT_COMMAND_WALL_MAX_AGE = 0.25
+FLIGHT_POSE_WALL_MAX_AGE = 0.3
+FLIGHT_VELOCITY_WALL_MAX_AGE = 0.3
 # EKF 局部原点跳变判定阈值 m：单帧 local_xy 位移超过此值（且超过物理速度上限）
 # 判定为 EKF 原点重置而非真实运动，触发 offset 重锚定保持 world_xy 连续。
 EKF_JUMP_MIN_M  = float(os.environ.get('EKF_JUMP_MIN_M', '3.0'))
@@ -916,6 +951,19 @@ class SwarmAgent(SearchSegmentAgent):
 
     def __init__(self, uav_id, model_name):
         self.uav_id = uav_id
+        # Created before subscribers: callbacks and the sole MAVROS writer
+        # exchange complete messages under this lock, never partial setpoints.
+        self._flight_lock = threading.RLock()
+        self._flight_clock_active = True
+        self._flight_cache = None
+        self._trusted_local_hold = None
+        self._wall_hold_anchor = None
+        self._flight_stop = threading.Event()
+        self._flight_epoch = rospy.time_epoch()
+        self._epoch_pose_samples = 0
+        self._epoch_pose_required = 1
+        self._prestream_requested = False
+        self._zero_stream_start = self._zero_stream_last = None
         rospy.loginfo('[FINAL_SAFETY_CONFIG] uav=%s enabled=%s decel=%.2f delay=%.2f lidar_margin=%.2f',
                       uav_id,MOTION_SAFETY,BRAKE_DECEL,BRAKE_DELAY,RADAR_STOP_R)
         rospy.loginfo('[TRACKING_CONFIG] uav=%s early_view_pursuit=%s',
@@ -1170,6 +1218,262 @@ class SwarmAgent(SearchSegmentAgent):
         self._plan_thread = threading.Thread(target=self._planner_loop, name="astar_worker")
         self._plan_thread.daemon = True
         self._plan_thread.start()
+        rospy.add_time_reset_callback(self._reset_flight_time)
+        self._flight_thread = threading.Thread(target=self._wall_flight_loop,
+                                                name="flight_setpoint_wall")
+        self._flight_thread.daemon = True
+        self._flight_thread.start()
+        rospy.on_shutdown(self._stop_wall_flight)
+
+    def _flight_sources_ready(self, wall_now=None, epoch=None):
+        """Only current samples authorize motion; wall time is never mission time."""
+        if not rospy.is_time_valid():
+            return False
+        wall_now = rospy.wall_monotonic() if wall_now is None else wall_now
+        epoch = rospy.time_epoch() if epoch is None else epoch
+        if (getattr(self, '_localization_fault', False) or
+                getattr(self, '_epoch_pose_samples', 0) <
+                getattr(self, '_epoch_pose_required', 1)):
+            return False
+        now = rospy.Time.now().to_sec()
+        if not 0. <= now-getattr(self, '_pose_sample_s', -1e18) <= .3:
+            return False
+        if MOTION_SAFETY:
+            measured = getattr(self, '_measured_velocity', None)
+            if measured is None or not 0. <= now-measured[0] <= .3:
+                return False
+        if ((RADAR_GUARD or MOTION_SAFETY) and
+                not 0. <= now-getattr(self, '_scan_t', -1e18) <= RADAR_FRESH_S):
+            return False
+        if RADAR_GUARD or MOTION_SAFETY:
+            scan = getattr(self, '_scan', None)
+            if scan is None:
+                return False
+            try:
+                if (not all(math.isfinite(v) for v in (
+                        scan.angle_min, scan.angle_increment, scan.range_min, scan.range_max)) or
+                        scan.angle_increment <= 0. or not 0. <= scan.range_min < scan.range_max or
+                        not any((distance == math.inf or
+                                 math.isfinite(distance) and scan.range_min <= distance <= scan.range_max)
+                                and abs(scan.angle_min+index*scan.angle_increment) <= math.radians(95.)
+                                for index, distance in enumerate(scan.ranges))):
+                    return False
+            except (AttributeError, TypeError, ValueError):
+                return False
+        sources = [('pose', FLIGHT_POSE_WALL_MAX_AGE)]
+        if MOTION_SAFETY:
+            sources.append(('velocity', FLIGHT_VELOCITY_WALL_MAX_AGE))
+        if RADAR_GUARD or MOTION_SAFETY:
+            sources.append(('scan', RADAR_FRESH_S))
+        for source, max_age in sources:
+            if (getattr(self, '_wall_%s_epoch' % source, None) != epoch or
+                    not 0. <= wall_now-getattr(self, '_wall_%s_received' % source,
+                                               -1e18) <= max_age):
+                return False
+        return True
+
+    def _business_time_ready(self):
+        # __new__ fixtures do not start a clock or a publisher thread. Their
+        # safety entry can still be exercised; sending requires explicit ticks.
+        return (not getattr(self, '_flight_clock_active', False) or
+                self._flight_sources_ready())
+
+    def _cache_flight_setpoint(self, channel, message, epoch):
+        """Commit one fully encoded command. This method never publishes."""
+        lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
+        with lock:
+            if epoch != rospy.time_epoch():
+                return  # a reset occurred while the old control step ran
+            self._flight_cache = (epoch, rospy.wall_monotonic(), channel,
+                                  copy.deepcopy(message))
+
+    def _hold_setpoint(self):
+        """Freeze the last accepted local pose, never an old look-ahead goal."""
+        if getattr(self, '_prestream_requested', False):
+            return 'vel', TwistStamped()
+        anchor = getattr(self, '_wall_hold_anchor', None)
+        if anchor is None:
+            anchor = getattr(self, '_trusted_local_hold', None)
+            self._wall_hold_anchor = anchor
+        if anchor is None or getattr(self, '_localization_fault', False):
+            # A real positioning fault retains the original AUTO.LAND policy;
+            # a last pose cannot authorize a position controller in that frame.
+            return 'vel', TwistStamped()
+        x, y, z, yaw = anchor
+        message = PoseStamped()
+        message.header.frame_id = 'map'
+        message.pose.position.x, message.pose.position.y, message.pose.position.z = x, y, z
+        message.pose.orientation.z = math.sin(yaw*.5)
+        message.pose.orientation.w = math.cos(yaw*.5)
+        return 'pos', message
+
+    def _publish_wall_setpoint_once(self):
+        """The only MAVROS writer. Replays do not run any control/safety counters."""
+        lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
+        with lock:
+            wall_now = rospy.wall_monotonic()
+            epoch = rospy.time_epoch()
+            cached = getattr(self, '_flight_cache', None)
+            fresh = (cached is not None and cached[0] == epoch and
+                     0. <= wall_now-cached[1] <= FLIGHT_COMMAND_WALL_MAX_AGE and
+                     self._flight_sources_ready(wall_now, epoch))
+            if fresh:
+                _, _, channel, original = cached
+                message = copy.deepcopy(original)
+                self._wall_hold_anchor = None
+            else:
+                # Discarding is essential: merely masking a command until a
+                # source recovers could revive its stale climb or position goal.
+                self._flight_cache = None
+                channel, message = self._hold_setpoint()
+            try:
+                message.header.stamp = rospy.Time.now()
+            except rospy.ROSException:
+                # Before the first legal header there is no simulation stamp.
+                # Unstamped zero output is harmless and cannot authorize arming.
+                message.header.stamp = rospy.Time(0)
+            if fresh and (epoch != rospy.time_epoch() or not rospy.is_time_valid()):
+                # Reset callbacks do not hold the provider lock while waiting
+                # for our flight lock. Recheck after copying/stamping so an
+                # old target cannot get published with the new epoch's stamp.
+                self._flight_cache = None
+                channel, message = self._hold_setpoint()
+                try:
+                    message.header.stamp = rospy.Time.now()
+                except rospy.ROSException:
+                    message.header.stamp = rospy.Time(0)
+            if channel == 'pos':
+                self.pos_pub.publish(message)
+            else:
+                message.header.frame_id = 'world'
+                self.vel_pub.publish(message)
+            if getattr(self, '_prestream_requested', False):
+                zero = (channel == 'vel' and all(v == 0. for v in (
+                    message.twist.linear.x, message.twist.linear.y,
+                    message.twist.linear.z, message.twist.angular.z)))
+                last = getattr(self, '_zero_stream_last', None)
+                if not zero:
+                    self._zero_stream_start = self._zero_stream_last = None
+                else:
+                    if last is None or wall_now-last > OFFBOARD_PRESTREAM_MAX_GAP_S:
+                        self._zero_stream_start = wall_now
+                    self._zero_stream_last = wall_now
+            return channel, message
+
+    def _wall_prestream_ready(self):
+        with self._flight_lock:
+            start, last = self._zero_stream_start, self._zero_stream_last
+            now = rospy.wall_monotonic()
+            return (start is not None and last is not None and
+                    0. <= now-last <= OFFBOARD_PRESTREAM_MAX_GAP_S and
+                    last-start >= OFFBOARD_PRESTREAM_S)
+
+    def _wall_flight_loop(self):
+        rate = rospy.WallRate(FLIGHT_WALL_RATE)
+        while not self._flight_stop.is_set() and not rospy.is_shutdown():
+            try:
+                self._publish_wall_setpoint_once()
+            except Exception as exc:
+                # Drop the old command after a failed write as well. The next
+                # tick can only retry a local hold, never an old moving target.
+                with self._flight_lock:
+                    self._flight_cache = None
+                    self._zero_stream_start = self._zero_stream_last = None
+                rospy.logerr('[%s] 墙钟飞控输出异常: %s', self.uav_id, exc)
+            try:
+                rate.sleep()
+            except rospy.ROSInterruptException:
+                break
+
+    def _stop_wall_flight(self):
+        self._flight_stop.set()
+        thread = getattr(self, '_flight_thread', None)
+        if thread is not None and thread is not threading.current_thread():
+            thread.join(timeout=0.5)
+
+    @serialized_visual_task
+    def _reset_flight_time(self, *unused):
+        """A new header epoch must reacquire samples and a new task from scratch."""
+        lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
+        with lock:
+            self._flight_cache = None
+            self._flight_epoch = rospy.time_epoch()
+            self._wall_hold_anchor = getattr(self, '_trusted_local_hold', None)
+            self._epoch_pose_samples = 0
+            self._epoch_pose_required = 3
+            self._epoch_pose_pending = True
+            self._zero_stream_start = self._zero_stream_last = None
+            for source in ('pose', 'velocity', 'scan'):
+                self.__dict__.pop('_wall_%s_received' % source, None)
+                self.__dict__.pop('_wall_%s_epoch' % source, None)
+        plan_lock = self.__dict__.setdefault('_plan_lock', threading.Lock())
+        with plan_lock:
+            self._plan_epoch = getattr(self, '_plan_epoch', 0)+1
+            self._plan_pending = None
+            self.path = []
+            self.path_target = None
+        # Keep the fixed origin, measured map and sticky physical failure
+        # flags. All old image/candidate/task data and their timing are retired.
+        for name in ('targets', '_target_state', '_t_seen', '_team_tracks', '_team_visual',
+                     '_visual_observations', '_eligible_observations', '_last_eligible_image',
+                     '_giveup_until', '_stale_search_until', '_claims', '_friend_positions',
+                     '_friend_seen', '_detect_log_t', '_flee_run_t', '_walk_since',
+                     '_pending_red_views', '_red_view_bindings', '_camera_cue_retry_after',
+                     '_report_state_sample',
+                     '_hypothesis_switch_s', '_camera_instance', '_localized_search_view_samples',
+                     '_closed_search_segments', '_search_scan_first'):
+            setattr(self, name, {})
+        for name in ('assignment', '_search_segment', '_segment_path_key', '_camera_cue',
+                     '_interrupted_camera_cue', '_tracking_image', '_fast_tracking_image',
+                     '_tracking_altitude', '_observation_detour', '_orbit_target',
+                     '_orbit_center', '_orbit_prev', '_track_assigned_id', '_target_to_orbit',
+                     '_look_at', '_last_local_goal', '_last_track_goal', '_search_scan_key',
+                     '_search_scan_yaw0', '_search_camera_pose', '_search_start_progress',
+                     '_search_sweep_state', '_edge_review', '_reobserve_view', '_reobserve_forced',
+                     '_climb_progress', '_takeoff_recovery', '_measured_velocity',
+                     '_takeoff_camera_frames', '_height_clearance_hold', '_report_view_window',
+                     '_camera_attention_attempts', '_radar_prev', '_osc_prev',
+                     '_search_view_image_s', '_search_view_image_yaw', '_search_heading',
+                     '_scan', '_pos_sp'):
+            self.__dict__.pop(name, None)
+        # Fields used directly (without getattr) retain their declared shape.
+        self.assignment = self._orbit_target = self._orbit_center = None
+        self._target_to_orbit = self._look_at = self._last_local_goal = None
+        self._last_track_goal = self._search_scan_key = self._search_scan_yaw0 = None
+        self._scan = self._pos_sp = None
+        self._search_scan_settle_t = self._search_scan_started_t = None
+        self._search_scan_directed_first = self._search_scan_directed_last = None
+        self._confirm_close = self._search_scan_done = self._search_scan_failed = False
+        self._search_scan_directed_done = False
+        self._confirm_close_tid = self._close_chase_tid = self._close_range_ref = None
+        self._search_scan_seen = set()
+        self._search_scan_phase = 0
+        self._search_last_frame = 0.
+        self._crash_flagged = False
+        self._crash_cnt = self._est_hold_n = 0
+        self._radar_retreating = self._radar_strict = False
+        self._escape_spent = set()
+        self._spend_mode = set()
+        self._takeoff_ground_samples = []
+        self._ekf_window = []
+        self._est_hist = []
+        self._pose_sample_s = -1e18
+        self._local_prev_t = 0.
+        self._scan_t = 0.
+        self._last_task_stamp = -1.
+        self._search_view_inbox = SearchViewInbox()
+        self._camera_frame_origins = CameraOrigins()
+        self._last_cmd_v = self._last_flight_v = self._last_orca_v = (0., 0.)
+        self._last_heading = None
+        self._last_speed = self._world_cmd_peak = 0.
+        for name, value in list(self.__dict__.items()):
+            if (name.endswith(('_t', '_t0', '_until', '_since', '_next')) and
+                    isinstance(value, (int, float)) and not isinstance(value, bool)):
+                setattr(self, name, 0.)
+        self._climb_t0 = self._crash_t0 = self._ekf_recover_since = None
+        self._last_status_t = rospy.Time.now()
+        # Match completion/landing from a previous epoch is also an old task.
+        self._mission_finished = self._landing = False
 
     @property
     def world_xy(self):
@@ -1248,8 +1552,9 @@ class SwarmAgent(SearchSegmentAgent):
                           getattr(self, 'local_z', None))
         self.state = msg
 
-    def _local_cb(self, msg):
-        if MOTION_SAFETY:
+    @serialized_sensor_sample
+    def _local_cb(self, msg, _sample_epoch=None):
+        if MOTION_SAFETY or getattr(self, '_flight_clock_active', False):
             sample = msg.header.stamp.to_sec()
             now = rospy.Time.now().to_sec()
             q = msg.pose.orientation
@@ -1273,7 +1578,11 @@ class SwarmAgent(SearchSegmentAgent):
         new_xy = (msg.pose.position.x, msg.pose.position.y)
         # Freshness above uses receipt time; displacement and velocity must
         # use the sampled pose time. Queued callbacks can arrive together.
-        now = sample if MOTION_SAFETY else rospy.Time.now().to_sec()
+        now = sample if MOTION_SAFETY or getattr(self, '_flight_clock_active', False) else rospy.Time.now().to_sec()
+        if (getattr(self, '_epoch_pose_pending', False) and self.local_xy is not None and
+                math.hypot(new_xy[0]-self.local_xy[0], new_xy[1]-self.local_xy[1]) > EKF_JUMP_MIN_M):
+            self._mark_localization_fault('clock epoch changed with a discontinuous local pose')
+        self._epoch_pose_pending = False
         # The camera and the agent use the same official spawn offset. A pose
         # jump has no legal independent world reference, so do not rewrite that
         # offset to make an impossible MAVROS trajectory look continuous.
@@ -1338,8 +1647,16 @@ class SwarmAgent(SearchSegmentAgent):
         self.pitch = math.asin(max(-1.0, min(1.0, 2.0 * (q.w * q.y - q.z * q.x))))
         self.roll = math.atan2(2.0 * (q.w * q.x + q.y * q.z),
                                1.0 - 2.0 * (q.x * q.x + q.y * q.y))
+        if not getattr(self, '_localization_fault', False):
+            lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
+            with lock:
+                self._wall_pose_received = rospy.wall_monotonic()
+                self._wall_pose_epoch = _sample_epoch
+                self._epoch_pose_samples = getattr(self, '_epoch_pose_samples', 0)+1
+                self._trusted_local_hold = (*new_xy, self.local_z, self.yaw)
 
-    def _measured_velocity_cb(self,msg):
+    @serialized_sensor_sample
+    def _measured_velocity_cb(self,msg,_sample_epoch=None):
         sample=msg.header.stamp.to_sec()
         velocity=(msg.twist.linear.x,msg.twist.linear.y)
         old=getattr(self,'_measured_velocity',None)
@@ -1347,6 +1664,10 @@ class SwarmAgent(SearchSegmentAgent):
         if (0. <= now-sample <= .5 and all(math.isfinite(v) for v in velocity) and
                 (old is None or sample>old[0])):
             self._measured_velocity=(sample,velocity)
+            lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
+            with lock:
+                self._wall_velocity_received = rospy.wall_monotonic()
+                self._wall_velocity_epoch = _sample_epoch
 
     def _est_track(self, xy, now):
         """维护最近 EST_WIN_S 秒的位置轨迹（判位置估计是否可信）。"""
@@ -1396,7 +1717,8 @@ class SwarmAgent(SearchSegmentAgent):
             return False
         return v <= MAX_SPEED * EST_V_RATIO
 
-    def _scan_cb(self, msg):
+    @serialized_sensor_sample
+    def _scan_cb(self, msg, _sample_epoch=None):
         if MOTION_SAFETY:
             sample=msg.header.stamp.to_sec()
             if (not 0. <= rospy.Time.now().to_sec()-sample <= RADAR_FRESH_S or
@@ -1405,6 +1727,10 @@ class SwarmAgent(SearchSegmentAgent):
         self._scan = msg
         stamped = msg.header.stamp.to_sec() if msg.header.stamp else 0.0
         self._scan_t = stamped if stamped > 0.0 else rospy.Time.now().to_sec()
+        lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
+        with lock:
+            self._wall_scan_received = rospy.wall_monotonic()
+            self._wall_scan_epoch = _sample_epoch
         self._slam_update()
 
     def _slam_update(self):
@@ -1559,6 +1885,11 @@ class SwarmAgent(SearchSegmentAgent):
 
     @serialized_visual_task
     def _assign_cb(self, msg):
+        if getattr(self, '_flight_clock_active', False):
+            stamp = getattr(getattr(msg, 'header', None), 'stamp', None)
+            if (not self._flight_sources_ready() or stamp is None or
+                    not -.05 <= rospy.Time.now().to_sec()-stamp.to_sec() <= 1.):
+                return  # queued assignments from a previous epoch cannot revive a target
         if not self._accept_segment_message(msg):
             return
         # Every agent sees the shared assignment topic. Remember ownership so
@@ -2865,6 +3196,17 @@ class SwarmAgent(SearchSegmentAgent):
         return False
 
     def _arm_and_offboard(self):
+        lock = self.__dict__.setdefault('_flight_lock', threading.RLock())
+        with lock:
+            self._prestream_requested = True
+            self._zero_stream_start = self._zero_stream_last = None
+        try:
+            return self._arm_and_offboard_prestream()
+        finally:
+            with lock:
+                self._prestream_requested = False
+
+    def _arm_and_offboard_prestream(self):
         """预热 setpoint → 切 OFFBOARD → 解锁。与单机避障已验证的时序一致。
 
         多机 SITL 注意：第二架及以后的机 EKF 收敛更慢，local_position 可能
@@ -2887,6 +3229,8 @@ class SwarmAgent(SearchSegmentAgent):
             return False
 
         stable = 0
+        stable_sample = None
+        stable_epoch = rospy.time_epoch()
         stream_start = last_setpoint = None
         while not rospy.is_shutdown():
             if getattr(self, '_localization_fault', False):
@@ -2895,15 +3239,24 @@ class SwarmAgent(SearchSegmentAgent):
             # EKF 等待同时完成预热；不能把断流或时钟回退前的时间算进去。
             now = rospy.Time.now().to_sec()
             if (last_setpoint is None or now < last_setpoint or
-                    now - last_setpoint > OFFBOARD_PRESTREAM_MAX_GAP_S):
+                    now - last_setpoint > OFFBOARD_PRESTREAM_MAX_GAP_S or
+                    rospy.time_epoch() != stable_epoch or not rospy.is_time_valid()):
                 stream_start = now
                 stable = 0
+                stable_sample = None
+                stable_epoch = rospy.time_epoch()
             self._send_vel(0.0, 0.0, vz=0.0)
             last_setpoint = now
-            if self.local_z is not None and abs(self.local_z) < 1.5:
-                stable += 1
+            sample = getattr(self, '_pose_sample_s', -1e18)
+            if (self._business_time_ready() and rospy.is_time_valid() and
+                    self.local_z is not None and abs(self.local_z) < 1.5 and
+                    0. <= now-sample <= .3):
+                if stable_sample is None or sample > stable_sample:
+                    stable += 1
+                    stable_sample = sample
                 if (stable >= STABLE_NEEDED and
                         now - stream_start >= OFFBOARD_PRESTREAM_S and
+                        self._wall_prestream_ready() and
                         self._camera_takeoff_ready(now)):
                     break
             else:
@@ -2912,6 +3265,7 @@ class SwarmAgent(SearchSegmentAgent):
                                            self.uav_id,
                                            self.local_z if self.local_z is not None else -999)
                 stable = 0
+                stable_sample = None
             self.ctrl_rate.sleep()
         if rospy.is_shutdown():
             return False
@@ -2938,6 +3292,10 @@ class SwarmAgent(SearchSegmentAgent):
             if getattr(self, '_localization_fault', False):
                 rospy.logerr('[%s] OFFBOARD 等待期间定位失信，终止起飞', self.uav_id)
                 return False
+            if not self._flight_sources_ready() or not self._wall_prestream_ready():
+                self._send_vel(0.0, 0.0, vz=0.0)
+                self.ctrl_rate.sleep()
+                continue
             attempt += 1
             if not self.mode_srv(0, "OFFBOARD").mode_sent:
                 rospy.logwarn_throttle(10, "[%s] 切换 OFFBOARD 请求失败（第 %d 次）",
@@ -2964,6 +3322,10 @@ class SwarmAgent(SearchSegmentAgent):
         # Roll failure 拒解锁，等 EKF 稳了自然会成功。
         attempt = 0
         while not rospy.is_shutdown() and not self.state.armed:
+            if not self._flight_sources_ready() or not self._wall_prestream_ready():
+                self._send_vel(0.0, 0.0, vz=0.0)
+                self.ctrl_rate.sleep()
+                continue
             if not self._camera_takeoff_ready(rospy.Time.now().to_sec()):
                 rospy.logwarn_throttle(3., '[TAKEOFF_CAMERA_WAIT] uav=%s '
                                        'waiting for current calibrated image sequence', self.uav_id)
@@ -2974,6 +3336,8 @@ class SwarmAgent(SearchSegmentAgent):
                 self._send_vel(0.0, 0.0, vz=0.0)
                 self.ctrl_rate.sleep()
                 continue
+            if not self._flight_sources_ready():
+                continue  # service response cannot bridge a lost clock/pose
             attempt += 1
             if not self.arm_srv(True).success:
                 rospy.logwarn_throttle(10, "[%s] 解锁请求失败（第 %d 次），等待 EKF 稳定后重试",
@@ -3813,13 +4177,22 @@ class SwarmAgent(SearchSegmentAgent):
                 vx, vy, limited[0], limited[1])
         return limited
 
+    @flight_time_step
     def _send_vel(self, vx, vy, vz=None):
         """下发 ENU 水平速度 + 自适应高度。
 
         vz=None 时按当前高度竖直 P 控制爬升到自适应高度；预热/悬停阶段显式传
         vz=0.0 发纯零速，避免 EKF 未收敛时带爬升速度导致 OFFBOARD 被拒。
         """
+        if getattr(self, '_prestream_requested', False):
+            # Prestream cannot inherit a queued camera yaw, map recovery turn
+            # or altitude goal. Its only accepted message is actual zero speed.
+            self._flight_output(0., 0., 0., 0.)
+            return
         requested_speed = math.hypot(vx, vy)
+        if (not getattr(self, '_localization_fault', False) and
+                not self._business_time_ready()):
+            return  # the independent writer holds; frozen time is not an EKF failure
         if getattr(self, '_localization_fault', False):
             # Neither crash recovery nor takeoff may override a lost position
             # frame. Keep zero horizontal output until AUTO.LAND takes over.
@@ -4322,22 +4695,25 @@ class SwarmAgent(SearchSegmentAgent):
         return vz
 
     def _flight_output(self,vx,vy,vz,yaw_rate=0.,target_alt=None,monitor_climb=False):
-        """Sole flight-output entry; stale positions use zero velocity holding."""
+        """Simulated control entry: validate and encode once, then cache."""
+        epoch = getattr(getattr(self, '_flight_step_state', None), 'epoch', rospy.time_epoch())
         now=rospy.Time.now().to_sec()
         pose_ok=(not MOTION_SAFETY or (not getattr(self,'_localization_fault',False) and
                  0. <= now-getattr(self,'_pose_sample_s',-1e18) <= .3))
-        if (FLIGHT_OUTPUT == 'pos' and pose_ok):
-            self._publish_pos_output(vx,vy,target_alt,vz,yaw_rate,monitor_climb)
+        if (FLIGHT_OUTPUT == 'pos' and pose_ok and
+                not getattr(self, '_prestream_requested', False)):
+            self._publish_pos_output(vx,vy,target_alt,vz,yaw_rate,monitor_climb,epoch)
             return
-        self._publish_velocity_output(vx,vy,vz,yaw_rate,target_alt,monitor_climb)
+        self._publish_velocity_output(vx,vy,vz,yaw_rate,target_alt,monitor_climb,epoch)
 
-    def _publish_velocity_output(self,vx,vy,vz,yaw_rate,target_alt=None,monitor_climb=False):
+    def _publish_velocity_output(self,vx,vy,vz,yaw_rate,target_alt=None,monitor_climb=False,_epoch=None):
+        epoch = rospy.time_epoch() if _epoch is None else _epoch
         vx,vy,vz,yaw_rate=self._output_motion_safety(vx,vy,vz,yaw_rate)
         vz=self._guard_executed_climb(vz,target_alt,monitor_climb)
         cmd=TwistStamped();cmd.header.stamp=rospy.Time.now();cmd.header.frame_id='world'
         cmd.twist.linear.x,cmd.twist.linear.y,cmd.twist.linear.z=vx,vy,vz
         cmd.twist.angular.z=yaw_rate
-        self.vel_pub.publish(cmd)
+        self._cache_flight_setpoint('vel', cmd, epoch)
 
     def _final_motion_gate(self, vx, vy):
         """Validate the direction actually sent, after all direction changes.
@@ -4379,7 +4755,7 @@ class SwarmAgent(SearchSegmentAgent):
                 escaped = escaped or grid.is_free(cell)
         return vx, vy
 
-    def _publish_pos_output(self, vx, vy, target_alt, vz=None, yaw_rate=0.0, monitor_climb=False):
+    def _publish_pos_output(self, vx, vy, target_alt, vz=None, yaw_rate=0.0, monitor_climb=False,_epoch=None):
         """速度 → 位置设定点。
 
         速度指令本身已经过加速度限幅 / 雷达 / 栅格 / 地图边界四层守卫，这里只做
@@ -4391,10 +4767,11 @@ class SwarmAgent(SearchSegmentAgent):
         积分漂移；单帧增量再夹在 POS_SP_STEP_MAX 内，防止守卫给出的速度很大时
         一步跳太远。高度直接用 target_alt（官方 >6m 判 0，这里目标 2.8m）。
         """
+        epoch = rospy.time_epoch() if _epoch is None else _epoch
         lxy = self.local_xy
         if lxy is None or self.local_z is None:
             # 位置还没就绪 → 退回速度通道保持 offboard 流不断
-            self._publish_velocity_output(vx,vy,0. if vz is None else vz,yaw_rate,target_alt,monitor_climb)
+            self._publish_velocity_output(vx,vy,0. if vz is None else vz,yaw_rate,target_alt,monitor_climb,epoch)
             return
         step_x = vx * POS_SP_LEAD
         step_y = vy * POS_SP_LEAD
@@ -4440,7 +4817,7 @@ class SwarmAgent(SearchSegmentAgent):
         sp.pose.orientation.w = math.cos(yaw * 0.5)
         self._pos_sp = (sp.pose.position.x, sp.pose.position.y, sp.pose.position.z)
         self._pos_sp_t = rospy.Time.now().to_sec()
-        self.pos_pub.publish(sp)
+        self._cache_flight_setpoint('pos', sp, epoch)
         # === 诊断埋点（POS_SPV 开启时打印，验证方向与限幅是否符合预期） ===
         if POS_SPV:
             rospy.loginfo_throttle(
@@ -4936,8 +5313,12 @@ class SwarmAgent(SearchSegmentAgent):
         return vx, vy
 
     @serialized_visual_task
+    @flight_time_step
     def _control(self):
         """有任务 → A* 绕障飞向格中心；无任务 → 原地悬停。"""
+        if (not getattr(self, '_localization_fault', False) and
+                not self._business_time_ready()):
+            return
         self._finish_interrupted_camera_cue()
         # === 降落模式 ===
         if self._landing:
@@ -6443,6 +6824,12 @@ class SwarmAgent(SearchSegmentAgent):
 
     # ---------------- 主循环 ----------------
     def run(self):
+        try:
+            self._run_mission()
+        finally:
+            self._stop_wall_flight()
+
+    def _run_mission(self):
         # 等待连接
         while not rospy.is_shutdown() and not self.state.connected:
             self.ctrl_rate.sleep()
@@ -6475,6 +6862,16 @@ class SwarmAgent(SearchSegmentAgent):
             self.ctrl_rate.sleep()
 
 
+def _clock_sources_from_startup(argv, environ):
+    """Resolve only this aircraft before ROS init; never default to another UAV."""
+    remapped = [arg.split(':=', 1)[1] for arg in argv if arg.startswith('_uav_id:=')]
+    raw = remapped[-1] if remapped else environ.get('TEAM_TIME_UAVS', '')
+    sources = [part for part in re.split(r'[\s,]+', raw.strip()) if part]
+    if len(sources) != 1 or re.fullmatch(r'typhoon_h480_[0-5]', sources[0]) is None:
+        raise ValueError('swarm_agent needs one explicit _uav_id:= or TEAM_TIME_UAVS aircraft')
+    return sources
+
+
 if __name__ == "__main__":
     import sys
     # 从 sys.argv 获取 __name:= 重映射的节点名，确保参数命名空间一致
@@ -6483,8 +6880,11 @@ if __name__ == "__main__":
         if arg.startswith("__name:="):
             node_name = arg.split(":=")[1]
             break
-    rospy.init_node(node_name, anonymous=False)
+    clock_sources = _clock_sources_from_startup(sys.argv, os.environ)
+    rospy.init_node(node_name, anonymous=False, clock_sources=clock_sources, clock_timeout=30)
     uav_id = rospy.get_param("~uav_id", "uav_1")
+    if uav_id != clock_sources[0]:
+        raise ValueError('uav_id parameter and header clock source must refer to the same aircraft')
     model_name = rospy.get_param("~model_name", "iris_1")
     rospy.loginfo("swarm_agent 启动: uav_id=%s model=%s node=%s", uav_id, model_name, node_name)
     SwarmAgent(uav_id, model_name).run()

@@ -7,12 +7,15 @@ from types import SimpleNamespace as NS
 from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'coordination/src/robocup_swarm/scripts'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from header_clock_test_support import install_clock_fixture, prepare_flight_fixture
 import swarm_agent as sa
 from slam_grid import SlamGrid
 
 
 class ObstacleHeightSafetyTests(unittest.TestCase):
     def setUp(self):
+        install_clock_fixture(self, sa.rospy)
         clock = patch.object(sa.rospy.Time, 'now', return_value=sa.rospy.Time(100))
         clock.start()
         self.addCleanup(clock.stop)
@@ -94,12 +97,15 @@ class ObstacleHeightSafetyTests(unittest.TestCase):
         a._climb_t0=None
         a._alt_sag=0.
         a.pos_pub=Mock()
+        prepare_flight_fixture(a, sa.rospy)
         return a
 
     def test_actual_position_output_holds_height_beside_scaffold(self):
         a=self.output_agent()
         with patch.object(sa,'FLIGHT_OUTPUT','pos'),patch.object(sa,'CRASH_DETECT',False):
+            prepare_flight_fixture(a, sa.rospy, renew_pose=True)
             a._send_vel(1.,0.)
+            a._publish_wall_setpoint_once()
         point=a.pos_pub.publish.call_args.args[0].pose.position
         self.assertEqual((point.x,point.y,point.z),(0.,0.,a.local_z))
 
@@ -108,7 +114,9 @@ class ObstacleHeightSafetyTests(unittest.TestCase):
         a.local_z=4.3
         with patch.object(sa,'FLIGHT_OUTPUT','pos'),patch.object(sa,'CRASH_DETECT',False), \
              patch.object(sa,'ALT_HARD_CEIL',4.2):
+            prepare_flight_fixture(a, sa.rospy, renew_pose=True)
             a._send_vel(0.,0.)
+            a._publish_wall_setpoint_once()
         point=a.pos_pub.publish.call_args.args[0].pose.position
         self.assertLess(point.z,a.local_z)
 
@@ -121,7 +129,9 @@ class ObstacleHeightSafetyTests(unittest.TestCase):
             for t in range(100,105):
                 a._scan_t=float(t)
                 with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(t)):
+                    prepare_flight_fixture(a, sa.rospy, renew_pose=True)
                     a._send_vel(0.,0.)
+                    a._publish_wall_setpoint_once()
         self.assertFalse(a._climb_latch)
         self.assertEqual(a._alt_sag,0.)
         self.assertEqual(a.pos_pub.publish.call_args.args[0].pose.position.z,3.5)
@@ -136,7 +146,9 @@ class ObstacleHeightSafetyTests(unittest.TestCase):
             for t in range(100,104):
                 a._scan_t=float(t)
                 with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(t)):
+                    prepare_flight_fixture(a, sa.rospy, renew_pose=True)
                     a._send_vel(0.,0.)
+                    a._publish_wall_setpoint_once()
         self.assertTrue(a._climb_latch)
         self.assertLessEqual(a.pos_pub.publish.call_args.args[0].pose.position.z,3.5)
 
@@ -173,6 +185,7 @@ class ObstacleHeightSafetyTests(unittest.TestCase):
             for t in range(100,105):
                 with patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(t)):
                     a._flight_output(0.,0.,.6,target_alt=4.1,monitor_climb=True)
+                    a._publish_wall_setpoint_once()
         self.assertFalse(a._climb_latch)
         self.assertEqual(a._alt_sag,0.)
         self.assertEqual(a.vel_pub.publish.call_args.args[0].twist.linear.z,0.)

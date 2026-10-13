@@ -266,7 +266,8 @@ def main(argv=None):
     import cv2
     cv2.setNumThreads(1)
     cv2.ocl.setUseOpenCL(False)
-    import rospy
+    sys.path.insert(0, str(ROOT/'coordination/src/robocup_swarm/scripts'))
+    import team_time_ros as rospy
     from cv_bridge import CvBridge
     from geometry_msgs.msg import PoseStamped
     from sensor_msgs.msg import Image
@@ -290,7 +291,7 @@ def main(argv=None):
                   calibration=calibration.__dict__, created_wall_s=time.time(),
                   source_sha256={name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in paths})
     (args.output/'config.json').write_text(json.dumps(config, indent=2)+'\n')
-    rospy.init_node('fast_visual_yaw', anonymous=True)
+    rospy.init_node('fast_visual_yaw', anonymous=True, clock_sources=args.sources)
     publisher = rospy.Publisher(OUTPUT_TOPIC, String, queue_size=12) if args.publish_yaw else None
     buffers = {source: FrameBuffer() for source in args.sources}
     poses = {source: PoseBuffer() for source in args.sources}
@@ -362,12 +363,25 @@ def main(argv=None):
                            PoseStamped, pose, callback_args=source, queue_size=100))
     subscribers.append(rospy.Subscriber(SEED_TOPIC, String, seeds, queue_size=16))
     deadline, stop_reason = time.monotonic()+args.duration, 'duration'
+    time_epoch = rospy.time_epoch()
     try:
         with (args.output/'events.jsonl').open('x') as output:
             def write(row):
                 output.write(json.dumps(row, allow_nan=False, default=lambda x: x.item() if hasattr(x, 'item') else str(x))+'\n')
             write(dict(event='sensor_contract', **config))
             while not rospy.is_shutdown() and time.monotonic() < deadline:
+                if rospy.time_epoch() != time_epoch:
+                    with lock:
+                        for source in args.sources:
+                            buffers[source] = FrameBuffer()
+                            poses[source] = PoseBuffer()
+                            pending[source].clear()
+                            states[source] = ShadowState(lambda: FastVisualTracker(max_tracks=6), decode)
+                        next_processing = {source: 0. for source in args.sources}
+                        time_epoch = rospy.time_epoch()
+                if not rospy.is_time_valid():
+                    time.sleep(.05)
+                    continue
                 with lock:
                     queued_events = list(events)
                     events.clear()
@@ -410,7 +424,9 @@ def main(argv=None):
                                                          frame.payload.width, frame.payload.height)
                             if reason == 'pose_unavailable':
                                 reason = pose_reason or reason
-                            published = bool(payload is not None and publisher is not None)
+                            published = bool(payload is not None and publisher is not None
+                                             and rospy.is_time_valid()
+                                             and rospy.time_epoch() == time_epoch)
                             if published:
                                 publisher.publish(String(data=json.dumps(payload, allow_nan=False)))
                             stats['yaw_published' if published else 'yaw_eligible_shadow' if payload else 'yaw_rejected'] += 1

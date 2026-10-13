@@ -8,12 +8,15 @@ from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'coordination/src/robocup_swarm/scripts'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from header_clock_test_support import install_clock_fixture, prepare_flight_fixture
 import swarm_agent as sa
 from tracking_view import update_altitude_hold, view_height_window
 
 
 class ViewMotionEnvelopeTests(unittest.TestCase):
     def setUp(self):
+        install_clock_fixture(self, sa.rospy)
         self.now = 100.
         p = patch.object(sa.rospy.Time, 'now',
                          side_effect=lambda: sa.rospy.Time.from_sec(self.now))
@@ -55,6 +58,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
         a._scan = NS(angle_min=-math.pi, angle_increment=math.pi/180,
                      range_min=.1, range_max=20., ranges=[20.]*361)
         a.pos_pub, a.vel_pub = Mock(), Mock()
+        prepare_flight_fixture(a, sa.rospy)
         return a
 
     def refresh(self, a):
@@ -62,6 +66,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
         a._t_seen['t1'] = stamp
         a._tracking_image.update(sample_s=stamp, position_sample_s=stamp)
         a._scan_t = stamp
+        prepare_flight_fixture(a, sa.rospy, renew_pose=True)
 
     def test_recorded_reversal_reaches_position_output_with_visual_slew(self):
         a = self.agent()
@@ -73,6 +78,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
             self.refresh(a)
             with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'):
                 a._send_vel(*requested)
+                a._publish_wall_setpoint_once()
             result = a._last_flight_v
             self.assertLessEqual(math.dist(previous, result), 1.2/20.+1e-9)
             position = a.pos_pub.publish.call_args.args[0].pose.position
@@ -91,6 +97,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
                 requested = (0., 0.) if guard == 'requested_zero' else (1., .2)
                 with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'):
                     a._send_vel(*requested)
+                    a._publish_wall_setpoint_once()
                 self.assertEqual(a._last_flight_v, (0., 0.))
                 p = a.pos_pub.publish.call_args.args[0].pose.position
                 self.assertEqual((p.x, p.y), a.local_xy)
@@ -107,6 +114,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
             with self.subTest(change=change):
                 self.assertIsNone(a._view_motion_context(self.now))
                 a._send_vel(1., 0.)
+                a._publish_wall_setpoint_once()
                 self.assertAlmostEqual(a._last_flight_v[0], sa.MAX_ACC/sa.CTRL_RATE)
 
     def test_safety_turn_and_close_friend_keep_existing_response(self):
@@ -121,10 +129,12 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
             else:
                 a._bounds_recovery_velocity = lambda: (.5, .5)
             a._send_vel(.5, .5)
+            a._publish_wall_setpoint_once()
             # Radar guard identical to the request is still explicit safety.
             if obstacle == 'radar':
                 a._last_cmd_v = (2., 0.)
                 a._send_vel(.9, .1)
+                a._publish_wall_setpoint_once()
             self.assertGreater(math.dist((2., 0.), a._last_flight_v), 1.2/20.+1e-5)
 
     def test_relative_braking_preserves_translation_and_tangent(self):
@@ -172,6 +182,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
         a._last_csv_t, a._last_orca_v, a._csv = 0., (0., 0.), Mock()
         a._tracking_image.update(needs_space=True, range_floor=9.)
         a._send_vel(1., .1)
+        a._publish_wall_setpoint_once()
         row = a._csv.write.call_args.kwargs
         self.assertTrue(row['visual_slew'])
         self.assertFalse(row['horizontal_stop'])
@@ -181,6 +192,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
         self.refresh(a)
         a._map_guard_velocity = lambda x, y: (0., 0.)
         a._send_vel(1., .1)
+        a._publish_wall_setpoint_once()
         row = a._csv.write.call_args.kwargs
         self.assertFalse(row['visual_slew'])
         self.assertTrue(row['horizontal_stop'])
@@ -227,6 +239,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
             self.refresh(a)
             with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'):
                 a._control()
+                a._publish_wall_setpoint_once()
             p = a.pos_pub.publish.call_args.args[0].pose.position
             velocity = (p.x-a.local_xy[0])/sa.POS_SP_LEAD
             self.assertAlmostEqual(velocity, a._last_flight_v[0])
@@ -261,6 +274,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
         a._orbit_target, a._confirm_close = None, False
         a._last_cmd_v = (6., 0.)
         a._send_vel(0., 2.)
+        a._publish_wall_setpoint_once()
         # Desired radial speed is zero, but last command still needs 15.3 m.
         self.assertAlmostEqual(math.dist((6., 0.), a._last_flight_v),
                                sa.MAX_ACC/sa.CTRL_RATE)
@@ -273,6 +287,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
                 a._orbit_target, a._confirm_close = None, False
                 a._last_cmd_v = (previous, 0.)
                 a._send_vel(desired, 0.)
+                a._publish_wall_setpoint_once()
                 self.assertAlmostEqual(abs(a._last_flight_v[0]-previous),
                                        sa.VIEW_MAX_ACC/sa.CTRL_RATE)
 
@@ -302,6 +317,7 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
             a._scan_t = self.now
             with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'):
                 a._send_vel(.6, .7)
+                a._publish_wall_setpoint_once()
             point = a.pos_pub.publish.call_args.args[0].pose.position
             self.assertGreaterEqual(point.z, a.local_z-1e-9)
             a.local_z += (point.z-a.local_z)/sa.POS_SP_LEAD/sa.CTRL_RATE
@@ -316,11 +332,13 @@ class ViewMotionEnvelopeTests(unittest.TestCase):
         a._scan.ranges[180] = .6
         with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'), patch.object(sa, 'RADAR_GUARD', True):
             a._send_vel(0., 0.)
+            a._publish_wall_setpoint_once()
         self.assertEqual(a.pos_pub.publish.call_args.args[0].pose.position.z, a.local_z)
         a.local_z = 4.3
         with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'), patch.object(sa, 'RADAR_GUARD', True), \
                 patch.object(sa, 'ALT_HARD_CEIL', 4.2):
             a._send_vel(0., 0.)
+            a._publish_wall_setpoint_once()
         self.assertLess(a.pos_pub.publish.call_args.args[0].pose.position.z, a.local_z)
 
     def test_altitude_hold_cannot_transfer_to_a_new_assignment(self):

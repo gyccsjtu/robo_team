@@ -7,6 +7,8 @@ from types import SimpleNamespace as NS
 from unittest.mock import Mock,patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'coordination/src/robocup_swarm/scripts'))
 from motion_safety import braking_cap,boundary_constraints,HeightClearanceHold
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from header_clock_test_support import install_clock_fixture, prepare_flight_fixture
 import swarm_agent as sa
 from geometry_msgs.msg import TwistStamped,PoseStamped
 
@@ -41,6 +43,7 @@ class BrakingTests(unittest.TestCase):
 
 class OutputTests(unittest.TestCase):
     def setUp(self):
+        install_clock_fixture(self, sa.rospy)
         for patcher in (patch.object(sa,'MOTION_SAFETY',True),
                         patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time(100))):
             patcher.start();self.addCleanup(patcher.stop)
@@ -52,20 +55,24 @@ class OutputTests(unittest.TestCase):
             range_min=.1,range_max=20.,ranges=[float('inf')]*361)
         a._scan.ranges[180]=4.5
         a.pos_pub=Mock();a.vel_pub=Mock()
+        prepare_flight_fixture(a, sa.rospy)
 
     def test_position_and_velocity_modes_use_same_measured_brake(self):
         a=self.a
         with patch.object(sa,'FLIGHT_OUTPUT','vel'):
             a._flight_output(.5,0.,0.)
+            a._publish_wall_setpoint_once()
         self.assertEqual(a.vel_pub.publish.call_args.args[0].twist.linear.x,0.)
         with patch.object(sa,'FLIGHT_OUTPUT','pos'):
             a._flight_output(.5,0.,0.)
+            a._publish_wall_setpoint_once()
         self.assertEqual(a.pos_pub.publish.call_args.args[0].pose.position.x,0.)
 
     def test_stale_pose_uses_zero_velocity_not_a_stale_position_target(self):
         a=self.a;a._pose_sample_s=99.
         with patch.object(sa,'FLIGHT_OUTPUT','pos'):
             a._flight_output(2.,0.,.6,.4,4.)
+            a._publish_wall_setpoint_once()
         a.pos_pub.publish.assert_not_called()
         cmd=a.vel_pub.publish.call_args.args[0]
         self.assertEqual((cmd.twist.linear.x,cmd.twist.linear.z,cmd.twist.angular.z),(0.,0.,0.))
@@ -74,6 +81,7 @@ class OutputTests(unittest.TestCase):
         a=self.a;a._scan.ranges[180]=.8
         with patch.object(sa,'FLIGHT_OUTPUT','pos'):
             a._flight_output(0.,0.,.6,target_alt=4.)
+            a._publish_wall_setpoint_once()
         self.assertEqual(a.pos_pub.publish.call_args.args[0].pose.position.z,3.)
 
     def test_stale_velocity_cannot_authorize_horizontal_motion(self):
@@ -111,6 +119,9 @@ class OutputTests(unittest.TestCase):
 
 
 class HeightHoldTests(unittest.TestCase):
+    def setUp(self):
+        install_clock_fixture(self, sa.rospy)
+
     def test_vanished_return_cannot_release_hold_without_horizontal_escape(self):
         h=HeightClearanceHold()
         self.assertTrue(h.update(100.,(0.,0.),True,False,1.6))

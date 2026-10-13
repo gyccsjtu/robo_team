@@ -10,6 +10,8 @@ from unittest.mock import Mock, patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / 'coordination/src/robocup_swarm/scripts'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from header_clock_test_support import install_clock_fixture, prepare_flight_fixture
 import swarm_agent as sa
 from tracking_view import (box_from_foot, parse_tracking_view, image_altitude_goal,
                            view_needs_space, update_altitude_hold,
@@ -204,7 +206,9 @@ class TrackingViewTests(unittest.TestCase):
                 with patch.object(sa,'PIXEL_VIEW_RECOVERY',True), \
                      patch.object(sa,'FLIGHT_OUTPUT','pos'), \
                      patch.object(sa.rospy.Time,'now',return_value=sa.rospy.Time.from_sec(103.9)):
+                    prepare_flight_fixture(a, sa.rospy)
                     self.assertTrue(a._hold_pixel_recovery(103.9))
+                    a._publish_wall_setpoint_once()
                 output=a.pos_pub.publish.call_args.args[0].pose
                 self.assertEqual((output.position.x,output.position.y),a.local_xy)
                 if obstacle:
@@ -259,6 +263,7 @@ class TrackingViewTests(unittest.TestCase):
         self.assertGreater(state['goal'], 2.7)
 
     def setUp(self):
+        install_clock_fixture(self, sa.rospy)
         clock = patch.object(sa.rospy.Time, 'now',
                              return_value=sa.rospy.Time.from_sec(100.1))
         clock.start()
@@ -527,8 +532,10 @@ class TrackingViewTests(unittest.TestCase):
         a._scan = NS(angle_min=-math.pi, angle_increment=math.pi/180.,
                      range_min=.1, range_max=20., ranges=[20.]*361)
         a.pos_pub = Mock()
+        prepare_flight_fixture(a, sa.rospy)
         with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'):
             a._send_vel(1., 0.)
+            a._publish_wall_setpoint_once()
         output = a.pos_pub.publish.call_args.args[0].pose
         self.assertEqual((output.position.x, output.position.y), a.local_xy)
         self.assertLess(output.position.z, a.local_z)

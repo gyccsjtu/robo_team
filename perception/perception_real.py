@@ -53,7 +53,11 @@ import uuid
 
 import cv2
 import numpy as np
-import rospy
+_CSV_HELPER = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', 'coordination', 'src', 'robocup_swarm', 'scripts'))
+if _CSV_HELPER not in sys.path:
+    sys.path.insert(0, _CSV_HELPER)
+import team_time_ros as rospy
 from cv_bridge import CvBridge
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import Image
@@ -1313,9 +1317,8 @@ def camera_pose_from_local(msg, world_offset):
 def on_pose(msg, world_offset):
     global _pose_fault
     stamp = msg.header.stamp.to_sec()
-    if stamp <= 0.0:
-        stamp = rospy.Time.now().to_sec()
-    if stamp <= 0.0:
+    if (not math.isfinite(stamp) or stamp <= 0.0 or not rospy.is_time_valid()
+            or stamp > rospy.Time.now().to_sec()+0.05):
         return
     try:
         offset = world_offset
@@ -1369,19 +1372,44 @@ def on_pose(msg, world_offset):
 
 
 def on_img(msg):
+    stamp = msg.header.stamp.to_sec()
+    if not math.isfinite(stamp) or stamp <= 0.0 or not rospy.is_time_valid():
+        return  # A missing capture time cannot be replaced with receipt time.
+    epoch = rospy.time_epoch()
     received_wall = time.time()
     received_ros = rospy.Time.now().to_sec()
     try:
         img = CvBridge().imgmsg_to_cv2(msg, "bgr8")
     except Exception:
         return
+    if not rospy.is_time_valid() or rospy.time_epoch() != epoch:
+        return
     with _lock:
         _latest["img"] = img
-        _latest["stamp"] = (msg.header.stamp.to_sec()
-                             if msg.header.stamp.to_sec() > 0.0
-                             else rospy.Time.now().to_sec())
+        _latest["stamp"] = stamp
+        _latest['time_epoch'] = epoch
         _latest["recv_wall"] = received_wall
         _latest["recv_ros"] = received_ros
+
+
+def sampled_image_ready(latest, pending, now, epoch):
+    """Wait for at most the existing 50ms pose slack; never freshen a frame.
+
+    Pose and image callbacks need not arrive in timestamp order. Hold one
+    immutable image until the MAVROS clock reaches its capture time instead
+    of interpreting a small negative age as zero or continually skipping it.
+    """
+    frame = pending if pending is not None else latest
+    stamp = frame.get('stamp', 0.0)
+    if (frame.get('time_epoch') != epoch or not math.isfinite(stamp)
+            or stamp <= 0.0 or frame.get('img') is None):
+        return None, None
+    age = now-stamp
+    if -0.05 <= age < 0.0:
+        return None, frame
+    if not 0.0 <= age <= 0.5:
+        return None, None
+    return frame, None
 
 
 def pose_at_stamp(stamp, fallback=None):
@@ -2205,7 +2233,7 @@ def discovery_candidate_frame(entries, source, sample, session):
 
 def main():
     global _model
-    rospy.init_node("perception_real", anonymous=True)
+    rospy.init_node("perception_real", anonymous=True, clock_sources=[UAV])
     try:
         world_offset = tuple(float(os.environ[key]) for key in (
             "PR_WORLD_OFFSET_X", "PR_WORLD_OFFSET_Y")) + (
@@ -2370,10 +2398,12 @@ def main():
         'geometry_end_wall_s', 'report_wall_s', 'inference_s', 'image_age_s',
         'secondary_inference_s', 'candidate_count', 'qualified_count'])
     candidate_session = uuid.uuid4().hex
+    current_time_epoch = rospy.time_epoch()
     annot_img = None          # 最近一次参与检测的图像，供标注帧使用
     annot_z = 0.0             # 该帧对应的相机高度
     frame_stamp = 0.0         # 当前检测图像的 ROS 采集时间
     processed_image_stamp = 0.0
+    pending_image = None
     cue_tracker = PixelCueTracker()
     distant_cue_tracker = DistantSmallCueTracker()
     print('[pr] DISTANT_SMALL_CUES enabled=%s; same-image dual-model evidence; attention only'
@@ -2408,6 +2438,36 @@ def main():
             print("[pr] 建标注目录失败: %s" % e, flush=True)
 
     while not rospy.is_shutdown():
+        epoch = rospy.time_epoch()
+        if epoch != current_time_epoch:
+            # Reset image/association evidence, keeping the frozen height datum
+            # and any genuine localization fault. No old frame crosses epochs.
+            with _lock:
+                _pose_history.clear()
+                _latest.update(img=None, stamp=0.0, recv_wall=0.0, recv_ros=0.0,
+                               time_epoch=epoch)
+            tracks.clear()
+            red_slots[:] = [None] * len(red_slots)
+            red_slot_xy[:] = [None] * len(red_slot_xy)
+            red_prev_tid[:] = [None] * len(red_prev_tid)
+            red_silent_t[:] = [None] * len(red_silent_t)
+            red_diag_t[:] = [0.0] * len(red_diag_t)
+            with arb_lock:
+                arb['tid'] = None
+            with tstate_lock:
+                tstates.clear()
+            candidate_session = uuid.uuid4().hex
+            processed_image_stamp = frame_stamp = 0.0
+            pending_image = None
+            annot_img = None
+            coord_clock = ImagePublishClock(COORD_HZ)
+            cue_tracker, distant_cue_tracker = PixelCueTracker(), DistantSmallCueTracker()
+            appearance_resolver = ActorDistractorResolver()
+            active_appearance_rejections.clear()
+            current_time_epoch = epoch
+        if not rospy.is_time_valid():
+            rate.sleep()
+            continue
         n_loop += 1
         now = rospy.Time.now().to_sec()
         dets = []
@@ -2419,12 +2479,20 @@ def main():
         # ---------- 1) 检测 + 几何过滤 ----------
         if n_loop % DETECT_EVERY == 0:
             with _lock:
-                img = None if _latest["img"] is None else _latest["img"].copy()
-                frame_stamp = _latest["stamp"]
-                frame_receive_wall = _latest['recv_wall']
-                frame_receive_ros = _latest['recv_ros']
-            frame_age = max(0.0, now - frame_stamp) if frame_stamp > 0.0 else None
-            if frame_stamp <= processed_image_stamp or frame_age is None or frame_age > 0.5:
+                snapshot = dict(_latest)
+            ready_frame, pending_image = sampled_image_ready(
+                snapshot, pending_image, now, current_time_epoch)
+            if ready_frame is None:
+                img = None
+            else:
+                img = ready_frame['img'].copy()
+                frame_stamp = ready_frame['stamp']
+                frame_receive_wall = ready_frame['recv_wall']
+                frame_receive_ros = ready_frame['recv_ros']
+            frame_epoch = (ready_frame or {}).get('time_epoch', -1)
+            frame_age = now - frame_stamp if frame_stamp > 0.0 else None
+            if (frame_epoch != current_time_epoch or frame_stamp <= processed_image_stamp
+                    or frame_age is None or not 0.0 <= frame_age <= 0.5):
                 img = None
             else:
                 processed_image_stamp = frame_stamp
@@ -2457,6 +2525,8 @@ def main():
                                  agnostic_nms=False, verbose=False)[0]
                     frame_was_processed = True
                     inference_end_wall = time.time()
+                    if not rospy.is_time_valid() or rospy.time_epoch() != current_time_epoch:
+                        continue  # Inference finished across a stopped/restarted time source.
                     inference_s = inference_end_wall - _infer_t0
                     if not _first_inference_logged:
                         print("[pr] FIRST_INFERENCE image_stamp=%.3f latency_s=%.3f"
@@ -2722,6 +2792,8 @@ def main():
                             range_method='head_height' if t is None else 'foot_ground',
                             source="yolo_raw")
 
+        if not rospy.is_time_valid() or rospy.time_epoch() != current_time_epoch:
+            continue
         if frame_was_processed:
             geometry_end_wall = time.time()
             frame_pub.publish(String(data=json.dumps({
@@ -2945,6 +3017,8 @@ def main():
         # Control sees all associated real images, before person/report verdicts
         # and per-colour winner selection. The assigned agent associates by
         # world position and keeps the nearest matching image for this frame.
+        if not rospy.is_time_valid() or rospy.time_epoch() != current_time_epoch:
+            continue
         control_views = control_tracks(tracks, red_slots, frame_stamp)
         if frame_was_processed:
             rejected = appearance_rejection_events(
@@ -3058,7 +3132,8 @@ def main():
                         _sx, _sy = _prev[0] + _dx * k, _prev[1] + _dy * k
                     _pub_smooth[_key] = (_sx, _sy)
                 m = ActorInfo(cls=cls, x=round(_sx, 2), y=round(_sy, 2))
-                pubs[cls][si].publish(m)
+                if rospy.is_time_valid() and rospy.time_epoch() == current_time_epoch:
+                    pubs[cls][si].publish(m)
             tag = ("%s%d" % (cls, si + 1)) if NSLOTS[cls] > 1 else cls
             snap.append({"cls": cls, "slot": si, "tag": tag, "conf": round(tk.conf, 3),
                          "uv": tk.uv, "wh": tk.wh,
@@ -3139,6 +3214,8 @@ def main():
             report_batch = report_candidate_frame(
                 report_pool, UAV, frame_stamp, candidate_session, uav_last,
                 assigned_target=cur_tid)
+            if not rospy.is_time_valid() or rospy.time_epoch() != current_time_epoch:
+                continue
             coord.publish(String(data=json.dumps(report_batch)))
             report_wall = time.time()
             report_ros = rospy.Time.now().to_sec()
