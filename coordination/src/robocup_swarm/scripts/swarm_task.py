@@ -1430,7 +1430,9 @@ class LineOfSight(object):
 
         # 逐格步进，直到抵达目标格（含端点豁免逻辑）
         guard = 0
-        max_steps = int(math.hypot(gx - ix, gy - iy)) + 4
+        # Each DDA iteration crosses ONE axis, not one diagonal cell.
+        # A Euclidean bound misses obstacles near the far end of diagonals.
+        max_steps = abs(gx - ix) + abs(gy - iy)
         while (ix, iy) != (gx, gy) and guard < max_steps:
             guard += 1
             if t_max_x < t_max_y:
@@ -1443,7 +1445,7 @@ class LineOfSight(object):
                 break          # 到达目标格，不算遮挡
             if self.is_blocked(ix, iy):
                 return False   # 中途撞障碍 → 被遮挡
-        return True
+        return (ix, iy) == (gx, gy)
 
 
 class TargetTracker(object):

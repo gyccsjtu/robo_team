@@ -33,7 +33,8 @@ def load_pose_functions(pz_scale=None):
                      PZ_SCALE=settings['PZ_SCALE'] if pz_scale is None else pz_scale,
                      _lock=threading.Lock(), _pose_history=[],
                      _pose_fault=None,
-                     rospy=SimpleNamespace(logerr=lambda *args: None))
+                     rospy=SimpleNamespace(logerr=lambda *args: None,
+                                           logwarn_throttle=lambda *args: None))
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SOURCE), "exec"),
          namespace)
     return namespace

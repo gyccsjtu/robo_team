@@ -19,6 +19,23 @@ class GroundHeightDatum:
         self.last_valid_sample = None
         self._last_stamp = None
         self._last_clock = None
+        self._last_ground = None
+
+    def commit_for_takeoff(self, now):
+        """Pin an already qualified ground datum BEFORE issuing the arm command.
+
+        Called under the perception callback lock. Never derives a reference
+        from an armed pose. Repeated requests still require a current grounded
+        measurement; failed arming must not authorize use of stale calibration.
+        """
+        ground = self._last_ground
+        if (ground is None or self.offset is None or not math.isfinite(now) or
+                not 0. <= now-ground[0] <= .2 or
+                abs(ground[1]+self.offset-self.body_height) > .05 or
+                abs(ground[2]) > math.radians(3.)):
+            return False
+        self.frozen = True
+        return True
 
     def observe(self, stamp, z, armed, tilt, now=None):
         clock = stamp if now is None else now
@@ -31,11 +48,16 @@ class GroundHeightDatum:
             # An old ground reference has no freshness across a clock reset.
             self.samples = []
             self.offset = self.last_valid_offset = self.last_valid_sample = None
+            self._last_ground = None
             self._last_stamp = None
         self._last_clock = clock
         if self._last_stamp is not None and stamp <= self._last_stamp:
             return None  # duplicate/reordered poses cannot renew qualification
         self._last_stamp = stamp
+        if armed is False:
+            self._last_ground = (stamp, z, tilt)
+        else:
+            self._last_ground = None
         if self.frozen:
             return self.offset
         if armed is True:

@@ -30,6 +30,7 @@ from sensor_msgs.msg import LaserScan
 from mavros_msgs.msg import State
 from mavros_msgs.srv import CommandBool, SetMode, ParamSet
 from std_msgs.msg import String
+from std_srvs.srv import Trigger
 
 from robocup_swarm.msg import UavStatus, SearchAssignment, TargetState, TargetDetection
 from robocup_navigation.astar import load_metadata, GridMap, plan
@@ -2820,6 +2821,21 @@ class SwarmAgent(SearchSegmentAgent):
                          max(abs(p[2]) for p in samples) <= math.radians(3.))
         return stable_ground and 0. <= now-last <= .3 and last-first >= 1.
 
+    def _commit_camera_datum(self):
+        """Close the image-ready -> arming race with the owning perception node."""
+        if os.environ.get('TAKEOFF_REQUIRE_CAMERA', '0') != '1':
+            return True
+        try:
+            response = rospy.ServiceProxy('/%s/perception/prepare_takeoff' % self.uav_id,
+                                          Trigger)()
+            if response.success:
+                return True
+            rospy.logwarn_throttle(3., '[TAKEOFF_DATUM_WAIT] %s: %s',
+                                   self.uav_id, response.message)
+        except rospy.ServiceException as exc:
+            rospy.logwarn_throttle(3., '[TAKEOFF_DATUM_WAIT] %s: %s', self.uav_id, exc)
+        return False
+
     def _arm_and_offboard(self):
         """预热 setpoint → 切 OFFBOARD → 解锁。与单机避障已验证的时序一致。
 
@@ -2923,6 +2939,10 @@ class SwarmAgent(SearchSegmentAgent):
             if not self._camera_takeoff_ready(rospy.Time.now().to_sec()):
                 rospy.logwarn_throttle(3., '[TAKEOFF_CAMERA_WAIT] uav=%s '
                                        'waiting for current calibrated image sequence', self.uav_id)
+                self._send_vel(0.0, 0.0, vz=0.0)
+                self.ctrl_rate.sleep()
+                continue
+            if not self._commit_camera_datum():
                 self._send_vel(0.0, 0.0, vz=0.0)
                 self.ctrl_rate.sleep()
                 continue

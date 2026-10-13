@@ -1324,10 +1324,15 @@ def on_pose(msg, world_offset):
             o = msg.pose.orientation
             rotation = quat_to_R(o.x, o.y, o.z, o.w)
             tilt = math.acos(max(-1., min(1., float(rotation[2, 2]))))
-            z_offset = datum.observe(stamp, msg.pose.position.z,
-                                     globals().get('_height_armed'), tilt,
-                                     now=rospy.Time.now().to_sec())
+            with _lock:
+                z_offset = datum.observe(stamp, msg.pose.position.z,
+                                         globals().get('_height_armed'), tilt,
+                                         now=rospy.Time.now().to_sec())
             if z_offset is None:
+                rospy.logwarn_throttle(3., '[HEIGHT_DATUM_WAIT] armed=%s frozen=%s '
+                    'pose=%.3f last_valid=%s offset=%s',
+                    globals().get('_height_armed'), datum.frozen, stamp,
+                    datum.last_valid_sample, datum.offset)
                 return  # ground reference not established; no invented range
             offset = (world_offset[0], world_offset[1], z_offset)
             if not globals().get('_height_logged'):
@@ -2254,10 +2259,23 @@ def main():
     rospy.Subscriber(CAM_TOPIC, Image, on_img, queue_size=1)
     if int(os.environ.get('PR_HEIGHT_CALIBRATE', '0')):
         from mavros_msgs.msg import State
+        from std_srvs.srv import Trigger, TriggerResponse
         globals()['_height_datum'] = GroundHeightDatum(float(os.environ['PR_GROUND_BODY_HEIGHT']))
         def height_state(msg):
-            globals()['_height_armed'] = bool(msg.armed)
+            with _lock:
+                globals()['_height_armed'] = bool(msg.armed)
+        def prepare_takeoff(_request):
+            with _lock:
+                datum = globals()['_height_datum']
+                ok = (globals().get('_height_armed') is False and
+                      _pose_fault is None and
+                      datum.commit_for_takeoff(rospy.Time.now().to_sec()))
+                message = 'ground datum committed' if ok else 'current qualified ground datum unavailable'
+            if ok:
+                rospy.loginfo('[HEIGHT_DATUM_COMMITTED] offset_z=%.4f', datum.offset)
+            return TriggerResponse(success=ok, message=message)
         rospy.Subscriber('/%s/mavros/state' % UAV, State, height_state, queue_size=1)
+        rospy.Service('/%s/perception/prepare_takeoff' % UAV, Trigger, prepare_takeoff)
     rospy.Subscriber(POSE_TOPIC, PoseStamped, on_pose,
                      callback_args=world_offset, queue_size=100)
 
