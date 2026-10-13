@@ -1,9 +1,14 @@
 """Public road preference remains bounded, sensor-checked and image-based."""
 import math
+import sys
 import unittest
+from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import Mock
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT/'tools'))
+sys.path.insert(0, str(ROOT/'coordination/src/robocup_swarm/scripts'))
 import test_search_segments as fixture
 import swarm_manager as sm
 import swarm_task as st
