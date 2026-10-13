@@ -3042,8 +3042,10 @@ class SwarmManager(SearchSegmentManager):
             # Fresh images are not evidence of successful coordinate reports.
             # Several *current* short failed streaks warrant a second angle;
             # one old reset must never pull a healthy searcher off its route.
-            relief = (self._camera_view_needs_relief(tid, now) or
-                      self._motion_needs_relief(tid, now))
+            motion_relief = self._motion_needs_relief(tid, now)
+            clear_approach = (motion_relief and
+                              os.environ.get('RELIEF_CLEAR_APPROACH', '0') == '1')
+            relief = self._camera_view_needs_relief(tid, now) or motion_relief
             if now - last_primary < BACKUP_STALE and not relief:
                 continue
             if len(self._backup) >= BACKUP_MAX:
@@ -3059,7 +3061,7 @@ class SwarmManager(SearchSegmentManager):
             if self._failed_place(tid, tx, ty, now, active_only=True) is not None:
                 continue
 
-            best, best_d, best_seen = None, None, False
+            best, best_d, best_cost, best_loan = None, None, None, False
             for uid, st in self.status.items():
                 if not self._tracking_uav_available(uid, now) or uid in busy:
                     continue
@@ -3068,6 +3070,8 @@ class SwarmManager(SearchSegmentManager):
                 if now < getattr(self, '_release_cooldown', {}).get(uid, rospy.Time(0)).to_sec():
                     continue
                 d = math.hypot(st.x - tx, st.y - ty)
+                if not math.isfinite(d):
+                    continue
                 if (self._sole_first_pass_zone_searcher(uid, busy) and
                         not (relief and d <= BACKUP_MAX_DIST)):
                     continue
@@ -3078,11 +3082,13 @@ class SwarmManager(SearchSegmentManager):
                 visual = self._last_eligible(uid, tid)
                 seen = bool(visual is not None and visual.get('eligible') and
                             0.0 <= now - visual['sample_s'] <= 2.0)
-                if not self._patrol_accepts_target(uid, tx, ty, seen):
+                loan = not self._patrol_accepts_target(uid, tx, ty, seen)
+                if loan and not (clear_approach and self._patrol_motion_loan(uid, tx, ty, now)):
                     continue
-                if best_d is None or (seen and not best_seen) or \
-                        (seen == best_seen and d < best_d):
-                    best, best_d, best_seen = uid, d, seen
+                conflicts = self._backup_approach_conflicts(uid, tx, ty, now) if clear_approach else 0
+                cost = (conflicts, not seen, d)
+                if best_cost is None or cost < best_cost:
+                    best, best_d, best_cost, best_loan = uid, d, cost, loan
             if best is None:
                 continue
 
@@ -3104,10 +3110,61 @@ class SwarmManager(SearchSegmentManager):
             if hasattr(msg, "target_id"):
                 msg.target_id = tid
             self.assign_pub.publish(msg)
+            if clear_approach:
+                rospy.loginfo('[RELIEF_ROUTE_CHOICE] tid=%s primary=%s backup=%s '
+                              'approach_friend_conflicts=%d patrol_loan=%s distance=%.2f; '
+                              'ranking only, ordinary flight guards retain authority',
+                              tid, main, best, best_cost[0], best_loan, best_d)
             rospy.loginfo("[manager] 冗余派机：%s 协同确认 %s @ (%.1f,%.1f), "
                           "距离 %.1fm, 原因=%s, observers=%s",
                           best, tid, tx_c, ty_c, best_d, reason,
                           ",".join(sorted(ct.observers)))
+
+    def _backup_approach_conflicts(self, uid, tx, ty, now):
+        """Rank transit interference from current own positions, not safety proof."""
+        st = self.status[uid]
+        vx, vy = tx-st.x, ty-st.y
+        if math.hypot(vx, vy) <= DETECT_RADIUS:
+            return 0  # already nearby; no long approach assumed
+        count = 0
+        for peer, other in self.status.items():
+            if peer == uid or not self._tracking_uav_available(peer, now):
+                continue
+            dx, dy = other.x-st.x, other.y-st.y
+            dz = float(getattr(other, 'z', 0.) or 0.)-float(getattr(st, 'z', 0.) or 0.)
+            if (math.hypot(math.hypot(dx, dy), dz) < float(os.environ.get('SAFE_3D', '5.0')) and
+                    vx*dx+vy*dy > 1e-8):
+                count += 1
+        return count
+
+    def _patrol_motion_loan(self, uid, tx, ty, now):
+        """A near emergency backup may borrow one of two live east patrols.
+
+        The normal task cancellation releases its route. Another uncommitted,
+        available aircraft must still own a live eastern task in the same book.
+        No coverage or camera evidence is inferred from that reservation.
+        """
+        if math.hypot(self.status[uid].x-tx, self.status[uid].y-ty) > 12.:
+            return False
+        patrols = self._regional_search_patrols()
+        if not any(p.east and p.uid == uid for p in patrols):
+            return False
+        book = getattr(self, '_segments', None)
+        own_task = None if book is None else book.tasks.get(uid)
+        if (own_task is None or own_task.purpose != 'south_patrol' or
+                now >= min(own_task.deadline, own_task.expires) or
+                not any(p.uid == uid and p.task_id == own_task.task_id for p in patrols)):
+            return False
+        busy = set(self._tracking.values()) | set(self._backup.values())
+        for patrol in patrols:
+            other = patrol.uid
+            task = None if book is None else book.tasks.get(other)
+            if (patrol.east and other != uid and other not in busy and
+                    self._tracking_uav_available(other, now) and task is not None and
+                    task.task_id == patrol.task_id and task.purpose == 'south_patrol' and
+                    now < min(task.deadline, task.expires)):
+                return True
+        return False
 
     def _camera_view_needs_relief(self, tid, now):
         """Only own-image task health; never read judge success or actor truth."""
