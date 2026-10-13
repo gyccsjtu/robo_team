@@ -26,6 +26,9 @@ def main():
     args = ap.parse_args()
     root = args.root.resolve()
     paths = [root/'run_match.sh', root/'launch/robocup_with_laser.launch']
+    paths.extend(root/'tools'/name for name in (
+        'audit_match_graph.py', 'wait_match_ready.py', 'match_sensor_inventory.py',
+        'record_search_segments.py', 'record_motion_safety.py', 'record_tracking_images.py'))
     paths.extend(sorted((root/'coordination/src/robocup_swarm/msg').glob('*.msg')))
     for folder in ('perception', 'coordination/src/robocup_swarm/scripts',
                    'coordination/src/robocup_navigation/src/robocup_navigation'):
@@ -34,6 +37,8 @@ def main():
                [root/'weights/best_yolo11n_bino_sculpture_v3.pt',
                 Path.home()/'catkin_ws/src/yolov11_ros/weights/best.pt'])
     chosen = next((p for p in weights if p.is_file()), None)
+    inventory_path = os.environ.get('ROBOCUP_SENSOR_INVENTORY')
+    inventory = json.loads(Path(inventory_path).read_text()) if inventory_path else None
     result = dict(
         script_started_wall_s=args.started,
         snapshot_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -43,6 +48,15 @@ def main():
                          for name in ('score_cal.py','control_actor.py')
                          if (args.official/name).is_file()},
         team_only=os.environ.get('ROBOCUP_TEAM_ONLY') == '1',
+        clock_permission={'status':os.environ.get('CLOCK_PERMISSION','forbidden'),
+            'reference':os.environ.get('CLOCK_PERMISSION_REFERENCE',''),
+            'note':'Team ROS initialization disables automatic Clock subscriptions; official environment is unchanged.'},
+        team_time={'source':os.environ.get('TEAM_TIME_SOURCE','mavros_header'),
+            'progress_wall_timeout_s':float(os.environ.get('TEAM_TIME_PROGRESS_TIMEOUT','1.0')),
+            'max_sim_seconds_per_wall_second':float(os.environ.get('TEAM_TIME_MAX_RATE','100.0')),
+            'flight_transport':'independent monotonic wall scheduling',
+            'business_timers':'MAVROS pose header time; no wall-time position extrapolation'},
+        sensor_inventory=inventory,
         search_segments=os.environ.get('SEARCH_SEGMENTS','0'),
         motion_safety=os.environ.get('MOTION_SAFETY','0'),
         south_patrol=os.environ.get('SOUTH_PATROL','0'),

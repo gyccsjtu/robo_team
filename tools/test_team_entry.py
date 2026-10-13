@@ -12,7 +12,8 @@ SCRIPT = (ROOT/'run_match.sh').read_text().split('# ============================
 class TeamEntryTests(unittest.TestCase):
     def run_shell(self, body):
         with tempfile.TemporaryDirectory() as td:
-            env = dict(os.environ, RUN_DIR=td, MATCH_HARD_CAP='0')
+            env = dict(os.environ, RUN_DIR=td, MATCH_HARD_CAP='0',
+                       TEAM_TIME_SOURCE='mavros_header', CLOCK_PERMISSION='allowed')
             # Source only declarations, then replace every side-effect command.
             script = SCRIPT + '''
 TEAM_ONLY=1
@@ -21,6 +22,10 @@ COORD_WS_SETUP="$REPO_ROOT/coordination/devel/setup.bash"
 REG="$RUN_DIR/components.tsv"
 LOGDIR="$RUN_DIR/test"
 team_preflight(){ :; }
+sensor_inventory_check(){
+    printf '{"counts":{"mono_cam":6,"stereo_cam":6,"laser2d":6,"gimbal":6},"cost":16200}\n' > "$RUN_DIR/sensor_inventory.json"
+    echo '_mono_cam:=6 _stereo_cam:=6 _laser1d:=0 _laser2d:=6 _laser3d:=0 _gimbal:=6 _bino_cam:=0'
+}
 ros_env(){ :; }
 start_group(){ echo "START:$1"; }
 stop_group(){ echo "STOP:$1"; }
@@ -52,6 +57,34 @@ rosservice(){ echo FORBIDDEN_SERVICE; return 99; }
         self.assertFalse(set(started) & {'scene','actors','judge','comm_0'})
         self.assertIn('swarm_agent_5', started)
         self.assertNotIn('PARAM:set /score_cal/', output)
+        self.assertIn('_mono_cam:=6 _stereo_cam:=6', output)
+
+    def test_invalid_time_source_blocks_before_creating_runtime_or_flight_processes(self):
+        for command in ('start', 'start-team'):
+            for source in ('clock', 'wall', 'clock_relay', 'invalid'):
+                for force in ('0', '1'):
+                    with self.subTest(command=command, source=source, force=force), \
+                            tempfile.TemporaryDirectory() as td:
+                        runtime = Path(td)/'not_created'
+                        env = dict(os.environ, RUN_DIR=str(runtime), FORCE=force,
+                                   TEAM_TIME_SOURCE=source, CLOCK_PERMISSION='allowed')
+                        result = subprocess.run(['bash', str(ROOT/'run_match.sh'), command],
+                                                cwd=ROOT, env=env, capture_output=True,
+                                                text=True, timeout=5)
+                        self.assertEqual(result.returncode, 2, result.stdout+result.stderr)
+                        self.assertFalse(runtime.exists(), 'Rejected time source must precede startup')
+                        self.assertNotIn('已启动', result.stdout)
+                        self.assertRegex(result.stderr, '/clock|TEAM_TIME_SOURCE')
+
+    def test_formal_start_forces_no_clock_and_agent_own_namespace(self):
+        output = self.run_shell('''
+echo "CLOCK:$CLOCK_PERMISSION TIME:$TEAM_TIME_SOURCE"
+start_group(){ printf 'COMMAND:%s\\n' "$*"; }
+do_start
+''')
+        self.assertIn('CLOCK:forbidden TIME:mavros_header', output)
+        for index in range(6):
+            self.assertIn("TEAM_TIME_UAVS='typhoon_h480_%d'" % index, output)
 
     def test_team_stop_only_uses_registered_groups(self):
         output = self.run_shell('''

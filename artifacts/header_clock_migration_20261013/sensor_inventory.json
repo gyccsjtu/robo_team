@@ -1,0 +1,582 @@
+{
+  "schema_version": 1,
+  "scene_path": "/home/gycc/桌面/RoboCup_Team/launch/robocup_with_laser.launch",
+  "scene_sha256": "5e74fc157358ad3a8912303f9b1c17e846f4f38f9082f4a346248b8d3bcc3012",
+  "models_path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models",
+  "count_basis": "installed logical devices across all six aircraft",
+  "aircraft": [
+    {
+      "uav": "typhoon_h480_0",
+      "model": "typhoon_h480_laser",
+      "sdf_path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+      "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8",
+      "counts": {
+        "mono_cam": 1,
+        "stereo_cam": 1,
+        "laser1d": 0,
+        "laser2d": 1,
+        "laser3d": 0,
+        "gimbal": 1,
+        "bino_cam": 0
+      },
+      "cost": 2700,
+      "devices": [
+        {
+          "type": "stereo_cam",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "stereo_camera_left",
+            "stereo_camera_right"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "laser2d",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "laser_2d"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "mono_cam",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link",
+          "sensors": [
+            "camera"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "gimbal",
+          "model": "typhoon_h480_laser",
+          "link": null,
+          "sensors": [
+            "gimbal_controller"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        }
+      ],
+      "unpriced_stock_sensors": [
+        {
+          "type": "imu",
+          "sensor": "camera_imu",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link"
+        },
+        {
+          "type": "sonar",
+          "sensor": "sonar",
+          "model": "sonar",
+          "link": "link"
+        },
+        {
+          "type": "gps",
+          "sensor": "gps",
+          "model": "gps",
+          "link": "link"
+        }
+      ],
+      "model_resources": [
+        {
+          "model": "typhoon_h480_laser",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+          "sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "model": "sonar",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/sonar/model.sdf",
+          "sha256": "89a3ffd33f484888a8f1b2e5d0adba13a641b3dd7deb74bd77a2c16152c1492e"
+        },
+        {
+          "model": "gps",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/gps/gps.sdf",
+          "sha256": "ed28b2b88fb667218d2e9c360fac77bd7cd73b4c620a1bd4237b690ddb146a99"
+        }
+      ]
+    },
+    {
+      "uav": "typhoon_h480_1",
+      "model": "typhoon_h480_laser",
+      "sdf_path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+      "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8",
+      "counts": {
+        "mono_cam": 1,
+        "stereo_cam": 1,
+        "laser1d": 0,
+        "laser2d": 1,
+        "laser3d": 0,
+        "gimbal": 1,
+        "bino_cam": 0
+      },
+      "cost": 2700,
+      "devices": [
+        {
+          "type": "stereo_cam",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "stereo_camera_left",
+            "stereo_camera_right"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "laser2d",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "laser_2d"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "mono_cam",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link",
+          "sensors": [
+            "camera"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "gimbal",
+          "model": "typhoon_h480_laser",
+          "link": null,
+          "sensors": [
+            "gimbal_controller"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        }
+      ],
+      "unpriced_stock_sensors": [
+        {
+          "type": "imu",
+          "sensor": "camera_imu",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link"
+        },
+        {
+          "type": "sonar",
+          "sensor": "sonar",
+          "model": "sonar",
+          "link": "link"
+        },
+        {
+          "type": "gps",
+          "sensor": "gps",
+          "model": "gps",
+          "link": "link"
+        }
+      ],
+      "model_resources": [
+        {
+          "model": "typhoon_h480_laser",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+          "sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "model": "sonar",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/sonar/model.sdf",
+          "sha256": "89a3ffd33f484888a8f1b2e5d0adba13a641b3dd7deb74bd77a2c16152c1492e"
+        },
+        {
+          "model": "gps",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/gps/gps.sdf",
+          "sha256": "ed28b2b88fb667218d2e9c360fac77bd7cd73b4c620a1bd4237b690ddb146a99"
+        }
+      ]
+    },
+    {
+      "uav": "typhoon_h480_2",
+      "model": "typhoon_h480_laser",
+      "sdf_path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+      "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8",
+      "counts": {
+        "mono_cam": 1,
+        "stereo_cam": 1,
+        "laser1d": 0,
+        "laser2d": 1,
+        "laser3d": 0,
+        "gimbal": 1,
+        "bino_cam": 0
+      },
+      "cost": 2700,
+      "devices": [
+        {
+          "type": "stereo_cam",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "stereo_camera_left",
+            "stereo_camera_right"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "laser2d",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "laser_2d"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "mono_cam",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link",
+          "sensors": [
+            "camera"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "gimbal",
+          "model": "typhoon_h480_laser",
+          "link": null,
+          "sensors": [
+            "gimbal_controller"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        }
+      ],
+      "unpriced_stock_sensors": [
+        {
+          "type": "imu",
+          "sensor": "camera_imu",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link"
+        },
+        {
+          "type": "sonar",
+          "sensor": "sonar",
+          "model": "sonar",
+          "link": "link"
+        },
+        {
+          "type": "gps",
+          "sensor": "gps",
+          "model": "gps",
+          "link": "link"
+        }
+      ],
+      "model_resources": [
+        {
+          "model": "typhoon_h480_laser",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+          "sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "model": "sonar",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/sonar/model.sdf",
+          "sha256": "89a3ffd33f484888a8f1b2e5d0adba13a641b3dd7deb74bd77a2c16152c1492e"
+        },
+        {
+          "model": "gps",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/gps/gps.sdf",
+          "sha256": "ed28b2b88fb667218d2e9c360fac77bd7cd73b4c620a1bd4237b690ddb146a99"
+        }
+      ]
+    },
+    {
+      "uav": "typhoon_h480_3",
+      "model": "typhoon_h480_laser",
+      "sdf_path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+      "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8",
+      "counts": {
+        "mono_cam": 1,
+        "stereo_cam": 1,
+        "laser1d": 0,
+        "laser2d": 1,
+        "laser3d": 0,
+        "gimbal": 1,
+        "bino_cam": 0
+      },
+      "cost": 2700,
+      "devices": [
+        {
+          "type": "stereo_cam",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "stereo_camera_left",
+            "stereo_camera_right"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "laser2d",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "laser_2d"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "mono_cam",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link",
+          "sensors": [
+            "camera"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "gimbal",
+          "model": "typhoon_h480_laser",
+          "link": null,
+          "sensors": [
+            "gimbal_controller"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        }
+      ],
+      "unpriced_stock_sensors": [
+        {
+          "type": "imu",
+          "sensor": "camera_imu",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link"
+        },
+        {
+          "type": "sonar",
+          "sensor": "sonar",
+          "model": "sonar",
+          "link": "link"
+        },
+        {
+          "type": "gps",
+          "sensor": "gps",
+          "model": "gps",
+          "link": "link"
+        }
+      ],
+      "model_resources": [
+        {
+          "model": "typhoon_h480_laser",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+          "sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "model": "sonar",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/sonar/model.sdf",
+          "sha256": "89a3ffd33f484888a8f1b2e5d0adba13a641b3dd7deb74bd77a2c16152c1492e"
+        },
+        {
+          "model": "gps",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/gps/gps.sdf",
+          "sha256": "ed28b2b88fb667218d2e9c360fac77bd7cd73b4c620a1bd4237b690ddb146a99"
+        }
+      ]
+    },
+    {
+      "uav": "typhoon_h480_4",
+      "model": "typhoon_h480_laser",
+      "sdf_path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+      "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8",
+      "counts": {
+        "mono_cam": 1,
+        "stereo_cam": 1,
+        "laser1d": 0,
+        "laser2d": 1,
+        "laser3d": 0,
+        "gimbal": 1,
+        "bino_cam": 0
+      },
+      "cost": 2700,
+      "devices": [
+        {
+          "type": "stereo_cam",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "stereo_camera_left",
+            "stereo_camera_right"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "laser2d",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "laser_2d"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "mono_cam",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link",
+          "sensors": [
+            "camera"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "gimbal",
+          "model": "typhoon_h480_laser",
+          "link": null,
+          "sensors": [
+            "gimbal_controller"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        }
+      ],
+      "unpriced_stock_sensors": [
+        {
+          "type": "imu",
+          "sensor": "camera_imu",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link"
+        },
+        {
+          "type": "sonar",
+          "sensor": "sonar",
+          "model": "sonar",
+          "link": "link"
+        },
+        {
+          "type": "gps",
+          "sensor": "gps",
+          "model": "gps",
+          "link": "link"
+        }
+      ],
+      "model_resources": [
+        {
+          "model": "typhoon_h480_laser",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+          "sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "model": "sonar",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/sonar/model.sdf",
+          "sha256": "89a3ffd33f484888a8f1b2e5d0adba13a641b3dd7deb74bd77a2c16152c1492e"
+        },
+        {
+          "model": "gps",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/gps/gps.sdf",
+          "sha256": "ed28b2b88fb667218d2e9c360fac77bd7cd73b4c620a1bd4237b690ddb146a99"
+        }
+      ]
+    },
+    {
+      "uav": "typhoon_h480_5",
+      "model": "typhoon_h480_laser",
+      "sdf_path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+      "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8",
+      "counts": {
+        "mono_cam": 1,
+        "stereo_cam": 1,
+        "laser1d": 0,
+        "laser2d": 1,
+        "laser3d": 0,
+        "gimbal": 1,
+        "bino_cam": 0
+      },
+      "cost": 2700,
+      "devices": [
+        {
+          "type": "stereo_cam",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "stereo_camera_left",
+            "stereo_camera_right"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "laser2d",
+          "model": "typhoon_h480_laser",
+          "link": "base_link",
+          "sensors": [
+            "laser_2d"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "mono_cam",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link",
+          "sensors": [
+            "camera"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "type": "gimbal",
+          "model": "typhoon_h480_laser",
+          "link": null,
+          "sensors": [
+            "gimbal_controller"
+          ],
+          "sdf_sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        }
+      ],
+      "unpriced_stock_sensors": [
+        {
+          "type": "imu",
+          "sensor": "camera_imu",
+          "model": "typhoon_h480_laser",
+          "link": "cgo3_camera_link"
+        },
+        {
+          "type": "sonar",
+          "sensor": "sonar",
+          "model": "sonar",
+          "link": "link"
+        },
+        {
+          "type": "gps",
+          "sensor": "gps",
+          "model": "gps",
+          "link": "link"
+        }
+      ],
+      "model_resources": [
+        {
+          "model": "typhoon_h480_laser",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/typhoon_h480_laser/typhoon_h480_laser.sdf",
+          "sha256": "16f43eef1f5351e42362df19b765fef3278b4af8c1401c68294f8cf0e97ae7e8"
+        },
+        {
+          "model": "sonar",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/sonar/model.sdf",
+          "sha256": "89a3ffd33f484888a8f1b2e5d0adba13a641b3dd7deb74bd77a2c16152c1492e"
+        },
+        {
+          "model": "gps",
+          "path": "/home/gycc/PX4_Firmware/Tools/sitl_gazebo/models/gps/gps.sdf",
+          "sha256": "ed28b2b88fb667218d2e9c360fac77bd7cd73b4c620a1bd4237b690ddb146a99"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "mono_cam": 6,
+    "stereo_cam": 6,
+    "laser1d": 0,
+    "laser2d": 6,
+    "laser3d": 0,
+    "gimbal": 6,
+    "bino_cam": 0
+  },
+  "unit_prices": {
+    "mono_cam": 500,
+    "stereo_cam": 1000,
+    "laser1d": 200,
+    "laser2d": 1000,
+    "laser3d": 2000,
+    "gimbal": 200,
+    "bino_cam": 1000
+  },
+  "total_cost": 16200,
+  "sensor_penalty": 48.6,
+  "judge_args": "_mono_cam:=6 _stereo_cam:=6 _laser1d:=0 _laser2d:=6 _laser3d:=0 _gimbal:=6 _bino_cam:=0"
+}

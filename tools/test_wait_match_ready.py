@@ -8,16 +8,51 @@ import json
 import sys
 import unittest
 from pathlib import Path
-from types import SimpleNamespace
+from types import SimpleNamespace, ModuleType
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from wait_match_ready import (DEFAULT_UAVS, ReadyTracker, expected_topics,
                               is_real_message, parse_arguments, positive_seconds)
+import wait_match_ready as probe
 
 
 class ReadyProbeTest(unittest.TestCase):
+    def test_connection_probe_needs_no_pose_clock_and_disables_clock_subscription(self):
+        transport = ModuleType('rospy')
+        calls = []
+        transport.init_node = lambda *args, **kwargs: calls.append(kwargs)
+        transport.ROSException = RuntimeError
+        transport.is_shutdown = lambda: False
+        def subscribe(topic, cls, callback, callback_args, **kwargs):
+            self.assertEqual(topic, '/typhoon_h480_0/mavros/state')
+            callback(SimpleNamespace(connected=True), callback_args)
+            return SimpleNamespace(unregister=lambda: None)
+        transport.Subscriber = subscribe
+        with patch.dict(sys.modules, rospy=transport), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(probe.main(['--kind', 'state', '--uavs', 'typhoon_h480_0']), 0)
+        self.assertTrue(calls[0]['disable_rostime'])
+        self.assertNotIn('clock_sources', calls[0])
+
+    def test_airborne_probe_compares_original_status_with_header_time(self):
+        transport = ModuleType('team_time_ros')
+        calls = []
+        transport.init_node = lambda *args, **kwargs: calls.append(kwargs)
+        transport.ROSException = RuntimeError
+        transport.is_shutdown = lambda: False
+        transport.get_time = lambda: 100.
+        def subscribe(topic, cls, callback, callback_args, **kwargs):
+            self.assertEqual(topic, '/swarm/uav_status')
+            callback(SimpleNamespace(uav_id='typhoon_h480_0', connected=True, z=2.5,
+                header=SimpleNamespace(stamp=SimpleNamespace(to_sec=lambda: 99.9))), callback_args)
+            return SimpleNamespace(unregister=lambda: None)
+        transport.Subscriber = subscribe
+        with patch.dict(sys.modules, team_time_ros=transport), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(probe.main(['--kind', 'airborne', '--uavs', 'typhoon_h480_0']), 0)
+        self.assertEqual(calls[0]['clock_sources'], ('typhoon_h480_0',))
+        self.assertLessEqual(calls[0]['clock_timeout'], 30.)
+
     def test_default_topics_cover_six_uavs_and_three_kinds(self):
         args = parse_arguments([])
         topics = expected_topics(args.kinds, args.uavs)

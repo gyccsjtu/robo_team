@@ -24,6 +24,12 @@ BRIDGE_NODE = "/yolo_target_bridge"
 JUDGE_NODE = "/score_cal"
 TARGET_TOPIC = "/swarm/target_states"
 OFFICIAL_NODE = re.compile(r"^/actor_[0-5]$")
+CLOCK_TOPIC = "/clock"
+CLOCK_TYPE = "rosgraph_msgs/Clock"
+OFFICIAL_CLOCK_NODE = re.compile(
+    r"^/(?:gazebo|gazebo_gui|score_cal|actor_[0-5]|typhoon_h480_[0-5]/mavros)$"
+)
+CLOCK_PERMISSIONS = ("unconfirmed", "allowed", "forbidden")
 FORBIDDEN_TOPIC = re.compile(
     r"^/(?:score|time_usage|left_actors|find_actor_\d+)$"
     r"|^/gazebo/(?:model|link)_states$"
@@ -118,7 +124,7 @@ def _topic_types(entries):
     return result
 
 
-def audit_graph(state, topic_types):
+def audit_graph(state, topic_types, allow_clock=False):
     """Return precise rule/registration failures from a master snapshot."""
     if not isinstance(state, (list, tuple)) or len(state) != 3:
         raise GraphError("getSystemState must contain publishers, subscribers and services")
@@ -154,6 +160,37 @@ def audit_graph(state, topic_types):
                   hint_topic, '/perception/fast_tracking_view'):
         if BRIDGE_NODE in subscribers.get(topic, set()):
             failures.append('%s subscribes to discovery-only topic %s' % (BRIDGE_NODE, topic))
+
+    # rospy/roscpp automatically register /clock when /use_sim_time is true.
+    # Framework-created subscriptions still require explicit rule permission.
+    # A Clock message on another name cannot use canonical /clock permission.
+    clock_topics = {CLOCK_TOPIC} | {
+        topic for topic, type_name in types.items() if type_name == CLOCK_TYPE
+    }
+    for topic in sorted(clock_topics):
+        if topic == CLOCK_TOPIC:
+            if subscribers.get(topic):
+                if types.get(topic) != CLOCK_TYPE:
+                    failures.append("%s type is %s; expected %s" % (
+                        topic, types.get(topic, "missing"), CLOCK_TYPE))
+                if publishers.get(topic, set()) != {"/gazebo"}:
+                    failures.append("%s publishers are %s; expected only /gazebo" % (
+                        topic, sorted(publishers.get(topic, ()))))
+            for node in sorted(subscribers.get(topic, ())):
+                if not OFFICIAL_CLOCK_NODE.fullmatch(node) and allow_clock is not True:
+                    failures.append("%s subscribes to forbidden simulation clock %s" % (
+                        node, topic))
+            for node in sorted(publishers.get(topic, ())):
+                if node != "/gazebo":
+                    failures.append("%s publishes forbidden simulation clock %s" % (
+                        node, topic))
+        else:
+            for node in sorted(subscribers.get(topic, ())):
+                failures.append("%s subscribes to forbidden simulation clock alias %s (%s)" % (
+                    node, topic, CLOCK_TYPE))
+            for node in sorted(publishers.get(topic, ())):
+                failures.append("%s publishes forbidden simulation clock alias %s (%s)" % (
+                    node, topic, CLOCK_TYPE))
 
     for topic, nodes in sorted(subscribers.items()):
         if FORBIDDEN_TOPIC.search(topic):
@@ -196,11 +233,28 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--timeout", type=positive_seconds, default=8.0,
                         metavar="SECONDS", help="ROS master socket deadline (default: 8)")
+    parser.add_argument("--clock-permission", choices=CLOCK_PERMISSIONS,
+                        default=os.environ.get("CLOCK_PERMISSION", "unconfirmed"),
+                        help="explicit rule permission for team /clock subscriptions (default: CLOCK_PERMISSION or unconfirmed)")
+    parser.add_argument("--clock-permission-reference",
+                        default=os.environ.get("CLOCK_PERMISSION_REFERENCE", ""),
+                        help="rule or teacher confirmation reference; required when clock permission is allowed")
     args = parser.parse_args(argv)
+    # argparse does not validate choices supplied by an environment default.
+    if args.clock_permission not in CLOCK_PERMISSIONS:
+        print("[graph-audit] ERROR invalid CLOCK_PERMISSION: %s" % args.clock_permission,
+              file=sys.stderr)
+        return 2
+    reference = args.clock_permission_reference.strip()
+    if args.clock_permission == "allowed" and not reference:
+        print("[graph-audit] ERROR allowed /clock permission requires a nonempty rule or teacher confirmation reference",
+              file=sys.stderr)
+        return 2
     master_uri = os.environ.get("ROS_MASTER_URI", "http://localhost:11311")
     try:
         state, topic_types = fetch_graph(master_uri, args.timeout)
-        failures = audit_graph(state, topic_types)
+        failures = audit_graph(state, topic_types,
+                               allow_clock=args.clock_permission == "allowed")
     except GraphError as exc:
         print("[graph-audit] ERROR %s" % exc, file=sys.stderr)
         return 2
@@ -208,7 +262,11 @@ def main(argv=None):
         for failure in failures:
             print("[graph-audit] FAIL %s" % failure, file=sys.stderr)
         return 1
-    print("[graph-audit] PASS six ActorInfo channels, target source, judge subscription, truth/feedback subscriptions and environment command publishers (service clients/files not observable)")
+    print("[graph-audit] PASS six ActorInfo channels, target source, judge subscription, truth/feedback subscriptions and environment command publishers; clock_permission=%s%s; team /clock subscriptions %s; Clock aliases and foreign clock publishers forbidden (master registration snapshot only; other topic authorization, service clients/files and future subscriptions not certified)" % (
+        args.clock_permission,
+        "; clock_permission_reference=%s" % reference if reference else "",
+        "explicitly authorized" if args.clock_permission == "allowed" else "forbidden",
+    ))
     return 0
 
 

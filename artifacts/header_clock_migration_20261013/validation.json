@@ -1,0 +1,12 @@
+{
+  "baseline": "721927c5c948e22b956f91a7fdec1394e29ade98",
+  "captured_head": "3538877a02295c8c5b1e9322bc81ab85c4993a45",
+  "source_state": "time/flight integration committed; startup and billing pending final commit",
+  "offline_test_count": 1631,
+  "test_seconds": 22.168,
+  "result": "passed",
+  "simulator_started": false,
+  "ros_node_started": false,
+  "tested_command": "source /opt/ros/noetic/setup.bash && source coordination/devel/setup.bash; PYTHONPATH includes repository, tools, swarm scripts, navigation; python3 -B -m unittest discover -s tools -p test_*.py",
+  "captured_utc": "2026-10-13T13:04:11.099934+00:00"
+}

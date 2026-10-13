@@ -136,7 +136,7 @@ def main():
     from std_msgs.msg import String
 
     args.output.mkdir(parents=True, exist_ok=True)
-    rospy.init_node('tracking_images_read_only', anonymous=True)
+    rospy.init_node('tracking_images_read_only', anonymous=True, disable_rostime=True)
     bridge, lock = CvBridge(), threading.Lock()
     cache, stats = {}, Counter()
     quota = ImageQuota(args.limit, args.seconds, args.fair_quota,

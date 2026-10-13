@@ -12,6 +12,10 @@ import re
 import sys
 import threading
 import time
+from pathlib import Path
+
+SCRIPTS = Path(__file__).resolve().parents[1]/'coordination/src/robocup_swarm/scripts'
+sys.path.insert(0, str(SCRIPTS))
 
 
 DEFAULT_UAVS = tuple("typhoon_h480_%d" % index for index in range(6))
@@ -174,8 +178,12 @@ def main(argv=None):
     args = parse_arguments(argv)
     deadline = time.monotonic() + args.timeout
     topics = expected_topics(args.kinds, args.uavs)
+    needs_header_time = AIRBORNE_KIND in args.kinds or PERCEPTION_KIND in args.kinds
     try:
-        import rospy
+        if needs_header_time:
+            import team_time_ros as rospy
+        else:
+            import rospy
         from mavros_msgs.msg import State
         from sensor_msgs.msg import Image, LaserScan
         if AIRBORNE_KIND in args.kinds:
@@ -187,13 +195,19 @@ def main(argv=None):
               file=sys.stderr)
         return 2
 
-    tracker = ReadyTracker(topics, ros_now=rospy.get_time)
     subscribers = []
     try:
-        rospy.init_node("wait_match_ready", anonymous=True, disable_signals=False,
-                        disable_rostime=not any(k in args.kinds for k in
-                                               (AIRBORNE_KIND, PERCEPTION_KIND)),
-                        disable_rosout=True)
+        if needs_header_time:
+            rospy.init_node("wait_match_ready", anonymous=True, disable_signals=False,
+                            clock_sources=args.uavs,
+                            clock_timeout=max(.001, deadline-time.monotonic()),
+                            disable_rosout=True)
+        else:
+            # FCU connection and first sensor frames must not wait for EKF pose.
+            # This transport-only probe never reads native ROS time.
+            rospy.init_node("wait_match_ready", anonymous=True, disable_signals=False,
+                            disable_rostime=True, disable_rosout=True)
+        tracker = ReadyTracker(topics, ros_now=rospy.get_time if needs_header_time else None)
         classes = {"state": State, "camera": Image, "scan": LaserScan}
         if AIRBORNE_KIND in args.kinds:
             classes[AIRBORNE_KIND] = UavStatus

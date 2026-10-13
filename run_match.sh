@@ -23,6 +23,8 @@
 #   ALT_HARD_CEIL=5.7         飞行高度硬护栏 m（规则 §2.5(3)：限高 6m，留 0.3m 抖动空间）
 #   RADAR_WARN_R=5.5          雷达预警半径 m（规则 §2.5(7)：碰撞扣30/次，扩到车体级）
 #   FRIEND_SAFE_DIST=3.5      友机避碰起点 m（6 机密集 + 碰撞扣30/次）
+#   TEAM_TIME_SOURCE=mavros_header  从允许的 MAVROS 位姿消息取得仿真时间
+#   TEAM_TIME_PROGRESS_TIMEOUT=1.0  时间源停止推进时的墙钟超时秒数
 #   SKIP_RADAR=2 / REQUIRE_SWARM=1 / FORCE=0   正式链路要求 2D 激光与协同层
 # ============================================================================
 
@@ -54,14 +56,24 @@ export PR_DISTRACTOR_MODE PR_DISTRACTOR_WEIGHTS
 OFFICIAL_WORLD="$PX4_ROOT/Tools/sitl_gazebo/worlds/robocup.world"
 MAP_GENERATOR="$ROBO_DIR/map_generator.py"
 ACTOR_MODEL_DIR="$XTDRONE_DIR/sitl_config/models/actor"
-COMM_BRIDGE="$XTDRONE_DIR/communication/multirotor_communication.py"
 
 # 协同工作空间：默认猜测仓库内 devel；可由环境变量指定
 COORD_WS_SETUP="${COORD_WS_SETUP:-$REPO_ROOT/coordination/devel/setup.bash}"
 SWARM_SCRIPTS="$REPO_ROOT/coordination/src/robocup_swarm/scripts"
+COMM_BRIDGE="$SWARM_SCRIPTS/multirotor_communication.py"
 BRIDGE_SCRIPT="$SWARM_SCRIPTS/yolo_target_bridge.py"
 READY_SCRIPT="$REPO_ROOT/tools/wait_match_ready.py"
 GRAPH_AUDIT_SCRIPT="$REPO_ROOT/tools/audit_match_graph.py"
+SENSOR_INVENTORY_SCRIPT="$REPO_ROOT/tools/match_sensor_inventory.py"
+# Team ROS initialization disables automatic /clock subscriptions. Global ROS
+# simulation time and the official environment remain untouched.
+TEAM_TIME_SOURCE="${TEAM_TIME_SOURCE:-mavros_header}"
+TEAM_TIME_PROGRESS_TIMEOUT="${TEAM_TIME_PROGRESS_TIMEOUT:-1.0}"
+TEAM_TIME_MAX_RATE="${TEAM_TIME_MAX_RATE:-100.0}"
+CLOCK_PERMISSION=forbidden
+CLOCK_PERMISSION_REFERENCE="Team input whitelist: sensors and MAVROS; internal swarm communication allowed"
+export TEAM_TIME_SOURCE TEAM_TIME_PROGRESS_TIMEOUT TEAM_TIME_MAX_RATE
+export CLOCK_PERMISSION CLOCK_PERMISSION_REFERENCE PYTHONDONTWRITEBYTECODE=1
 # Optional measured image-ray feedback. Disabled until explicitly selected;
 # separate from both world coordinates and official observation evidence.
 FAST_VISUAL_YAW="${FAST_VISUAL_YAW:-0}"
@@ -199,6 +211,23 @@ err(){
 }
 step(){ echo; echo "${C_B}==== $* ====${C_0}"; }
 
+clock_permission_check(){
+    [ "$TEAM_TIME_SOURCE" = mavros_header ] || {
+        err "TEAM_TIME_SOURCE 必须为 mavros_header；禁止队伍订阅 /clock，FORCE 不能绕过"; return 1; }
+    local file
+    for file in sensor_time.py team_time_ros.py multirotor_communication.py; do
+        [ -f "$SWARM_SCRIPTS/$file" ] || {
+            err "合法时间依赖缺失：$SWARM_SCRIPTS/$file"; return 1; }
+    done
+    ok "队伍计时：MAVROS header；独立墙钟保活；禁止 /clock"
+}
+
+sensor_inventory_check(){
+    python3 "$SENSOR_INVENTORY_SCRIPT" --scene "$SCENE_LAUNCH" \
+        --models "$PX4_ROOT/Tools/sitl_gazebo/models" \
+        --output "$RUN_DIR/sensor_inventory.json" --judge-args
+}
+
 # 判断某个 X 显示号对应的 socket 是否真实存在（:0 / :95 -> X0 / X95）
 _x_socket_exists(){
     local full="$1" num
@@ -255,6 +284,9 @@ ros_env(){
     # 同理：ENV_SCRIPT 可能覆盖 PYTHONPATH（丢掉 catkin_ws 的 Python 模块）
     # gazebo_ros Python 模块（spawn_model 依赖）在 catkin_ws/devel 下
     ensure_colon_path PYTHONPATH "$HOME/catkin_ws/devel/lib/python3/dist-packages"
+    ensure_colon_path PYTHONPATH "$REPO_ROOT"
+    ensure_colon_path PYTHONPATH "$NAV_SRC"
+    ensure_colon_path PYTHONPATH "$SWARM_SCRIPTS"
     # 同理补 CMAKE_PREFIX_PATH：协同层 workspace 编译时未以 catkin_ws 为父工作空间，
     # 其 devel/setup.bash 会把 CMAKE_PREFIX_PATH 里的 catkin_ws/devel 替换为
     # coordination/devel。gzserver wrapper 用 `catkin_find libgazebo_ros_paths_plugin.so`
@@ -341,17 +373,6 @@ has_service(){
     [ "$limit" -gt 8 ] && limit=8
     timeout "${limit}s" rosservice list 2>/dev/null | grep -q "$1"
 }
-mavros_connected(){
-    local limit="${2:-8}"
-    [ "$limit" -gt 8 ] && limit=8
-    [ "$(timeout "${limit}s" rostopic echo -n1 "/$1/mavros/state" 2>/dev/null \
-        | grep -c 'connected: True')" = "1" ]
-}
-first_msg(){
-    local limit="${2:-10}"
-    [ "$limit" -gt 10 ] && limit=10
-    timeout "${limit}s" rostopic echo -n1 "$1" >/dev/null 2>&1
-}
 count_pattern(){ pgrep -fc "$1" 2>/dev/null || true; }
 # 判断话题的发布者中是否有节点名匹配片段（身份卡关，不只看有没有发布者）
 topic_publisher_match(){  # topic_publisher_match <topic> <节点名片段>
@@ -408,6 +429,7 @@ fast_visual_config_valid(){
 }
 
 preflight(){
+    clock_permission_check || return 1
     mkdir -p "$RUN_DIR"
     local hard_miss=0 _collect_preflight_errors=1
     local -a _preflight_errors=()
@@ -681,6 +703,12 @@ preflight(){
         err "传感器参数与 XTDrone 原生模型不一致，正式启动中止"
         hard_miss=$((hard_miss+1))
     fi
+    if sensor_inventory_check; then
+        ok "六机实际安装设备已汇总；裁判参数使用全队总数量（不是单机一套）"
+    else
+        err "无法清点六机传感器，停止启动以避免漏报数量"
+        hard_miss=$((hard_miss+1))
+    fi
 
     # 需要 ROS 环境才能验证的项
     if [ -f "$ROS_SETUP" ]; then
@@ -716,6 +744,7 @@ preflight(){
 
 # Existing official environment: no local world/plugin/actor ownership.
 team_preflight(){
+    clock_permission_check || return 1
     local file nodes
     fast_visual_config_valid || return 1
     for file in "$ROS_SETUP" "$WS_SETUP" "$COORD_WS_SETUP" "$WEIGHTS" \
@@ -737,6 +766,8 @@ team_preflight(){
         [ "$REQUIRE_SWARM" = 1 ] && [ "$SKIP_RADAR" = 2 ] && [ "$MATCH_HARD_CAP" = 0 ] \
         || { err "队伍入口要求六机、视觉桥、协同与雷达，禁止环境硬停计时器"; return 1; }
     ros_env
+    sensor_inventory_check || return 1
+    ok "队伍设备申报清单：$RUN_DIR/sensor_inventory.json；组委会裁判参数由组委会核定，本入口不改"
     python3 "$REPO_ROOT/tools/check_search_protocol.py" || return 1
     python3 "$BB2MD" --verify "$FORMAL_METADATA_FILE" || return 1
     nodes="$(timeout 8s rosnode list 2>/dev/null)" || { err "官方ROS环境未就绪"; return 1; }
@@ -750,6 +781,9 @@ team_preflight(){
 
 # ============================ 启动全场 ======================================
 do_start(){
+    # Check before creating components/registry: graph audit used to run after
+    # OFFBOARD entry, when killing the team would withdraw active setpoints.
+    clock_permission_check || exit 2
     local match_started_wall
     match_started_wall="$(date +%s.%N)"
     mkdir -p "$RUN_DIR" "$LOGDIR"
@@ -769,6 +803,12 @@ do_start(){
     : > "$REG"
     grep -E '^\[!\]|^----|无法' "$RUN_DIR/preflight.out" || true
     ros_env
+    local sensor_judge_args
+    sensor_judge_args="$(sensor_inventory_check)" || {
+        err "传感器申报复核失败，尚未启动任何比赛组件"; exit 2; }
+    cp "$RUN_DIR/sensor_inventory.json" "$LOGDIR/sensor_inventory.json" || exit 2
+    export ROBOCUP_SENSOR_INVENTORY="$LOGDIR/sensor_inventory.json"
+    info "全队传感器申报参数：$sensor_judge_args"
     # 正式执行的环境与 preflight 核对值保持一致，防止外部 shell 配置渗入子进程。
     export FLIGHT_OUTPUT=pos FLIGHT_X_MIN=-50.0 FLIGHT_X_MAX=150.0
     export FLIGHT_Y_MIN=-60.0 FLIGHT_Y_MAX=60.0
@@ -814,8 +854,8 @@ do_start(){
         step "Gazebo 服务就绪后统一 unpause（避免 SITL simulator start 卡死）"
         ucommon=0; out=""
         for n in $(seq 1 12); do
-            out="$(rosservice call /gazebo/unpause_physics 2>&1)" || true
-            if echo "$out" | grep -q "success: True"; then
+            # std_srvs/Empty succeeds with an empty response, not a bool field.
+            if out="$(timeout 4s rosservice call /gazebo/unpause_physics 2>&1)"; then
                 ucommon=1; break
             fi
             sleep 0.3
@@ -867,7 +907,7 @@ do_start(){
     # ---------------- ③ 裁判计分 ----------------
     step "③ 起裁判 score_cal.py typhoon_h480"
     start_group judge "$LOGDIR/03_judge.log" bash -c \
-        "cd '$ROBO_DIR' && python3 -u score_cal.py typhoon_h480 _mono_cam:=1 _stereo_cam:=1 _laser2d:=1 _gimbal:=1"
+        "cd '$ROBO_DIR' && python3 -u score_cal.py typhoon_h480 $sensor_judge_args"
     wait_gate "裁判发布者就绪" 30 topic_publisher_match /score score_cal \
         || partial_fail "裁判没起来，看 $LOGDIR/03_judge.log"
 
@@ -946,8 +986,8 @@ do_start(){
                 || err "感知节点 $u 已退出"
             # 逐机诊断：节点活但没帧 = 话题发布者为空 = 双目补丁没打
             if [ "$START_PAUSED" != "1" ]; then
-                if ! timeout 8 rostopic echo -n1 "/$u/stereo_camera/left/image_raw" \
-                        >/dev/null 2>&1; then
+                if ! timeout 9s python3 -u "$READY_SCRIPT" --kind camera \
+                        --timeout 8 --uavs "$u" >/dev/null 2>&1; then
                     _npub="$(timeout 8 rostopic info "/$u/stereo_camera/left/image_raw" 2>/dev/null \
                         | awk '/Publishers:/{f=1;next}/Subscribers:/{f=0}f' | wc -l)"
                     if [ "$_npub" = "0" ]; then
@@ -1138,6 +1178,14 @@ do_start(){
         wait_gate "swarm_manager 任务发布者就绪" 30 manager_ready \
             || partial_fail "swarm_manager 未就绪（metadata？看 $LOGDIR/06_swarm_manager.log）"
 
+        # Audit registered team inputs before any agent can arm. A second
+        # audit below includes all flight nodes after registration.
+        if ! timeout 12s python3 -u "$GRAPH_AUDIT_SCRIPT" --timeout 8 \
+                --clock-permission forbidden >"$LOGDIR/06_preflight_graph_audit.log" 2>&1; then
+            cat "$LOGDIR/06_preflight_graph_audit.log" >&2
+            partial_fail "起飞前订阅审计失败；禁止继续启动 agent"
+        fi
+
         # 6 个 agent：__name 对齐私有参数命名空间（等价 swarm.launch 的逐节点编排）
         i=0
         for u in "${UAVS[@]}"; do
@@ -1147,7 +1195,7 @@ do_start(){
             rosparam set "/swarm_agent_$i/world_offset_x" "${TAKEOFF_X[$i]}"
             rosparam set "/swarm_agent_$i/world_offset_y" "${TAKEOFF_Y[$i]}"
             start_group "swarm_agent_$i" "$LOGDIR/06_swarm_agent_$i.log" bash -c "
-                cd '$SWARM_SCRIPTS' && python3 -u swarm_agent.py __name:=swarm_agent_$i"
+                cd '$SWARM_SCRIPTS' && TEAM_TIME_UAVS='$u' python3 -u swarm_agent.py __name:=swarm_agent_$i"
             sleep 0.3
             i=$((i+1))
         done
@@ -1189,8 +1237,10 @@ do_start(){
     # ROS master 两次有界查询一次核验六路裁判链和所有节点订阅。
     # 不订阅尚未发现目标的 ActorInfo 消息，也不读取裁判反馈内容。
     if timeout 12s python3 -u "$GRAPH_AUDIT_SCRIPT" --timeout 8 \
+            --clock-permission "$CLOCK_PERMISSION" \
+            --clock-permission-reference "$CLOCK_PERMISSION_REFERENCE" \
             >"$LOGDIR/07_graph_audit.log" 2>&1; then
-        ok "ROS 注册审计通过：六路 ActorInfo、禁用数据订阅与环境指令发布；文件/服务客户端另行审查"
+        ok "ROS 注册审计通过：六路 ActorInfo、禁用数据订阅、队伍无 Clock 订阅、环境指令发布；文件/服务客户端另行审查"
     else
         cat "$LOGDIR/07_graph_audit.log" >&2
         partial_fail "正式 ROS 图审计失败；检查 $LOGDIR/07_graph_audit.log"
