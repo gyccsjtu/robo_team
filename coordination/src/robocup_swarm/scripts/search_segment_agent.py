@@ -1,6 +1,6 @@
 """Aircraft execution of versioned short search segments; no gimbal coupling."""
 import math
-import team_time_ros as rospy
+import rospy
 from search_segments import (SegmentBook, TRAVEL, LOOK, ATTEND, YIELD, DONE, FAILED,
                              clear_line, path_remaining)
 from robocup_navigation.astar import plan

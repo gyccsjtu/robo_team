@@ -1,0 +1,27 @@
+{
+  "baseline": "721927c5c948e22b956f91a7fdec1394e29ade98",
+  "baseline_time": "2026-10-13 18:35:25 +0800",
+  "exact_baseline_files": {
+    "coordination/src/robocup_swarm/scripts/swarm_agent.py": "6df66f12140b49e15b2260fced5893fc8b66a7bb1c2b6a19fef0664ee5e490b5",
+    "coordination/src/robocup_swarm/scripts/swarm_manager.py": "214eb1695ca393eef2027a1eca43150d4ab4eb281bef566ee9f13b151a9ab0a0",
+    "coordination/src/robocup_swarm/scripts/yolo_target_bridge.py": "ecc8108ce801ecdc59d118966e0330e78466e652eed9cc10e936ac484df648ef",
+    "coordination/src/robocup_swarm/scripts/swarm_task.py": "49d566b32b029064d8d3b6207bc55a8b6c574e678d8a94fd0cbaf54e21c0dbfb",
+    "coordination/src/robocup_swarm/scripts/search_segment_agent.py": "de4ff51a4eda471058c7d50ef856d389d4acf6b119a17db599acbbb2dbcb4df6",
+    "coordination/src/robocup_swarm/scripts/search_segment_manager.py": "1aea59049396a2665e8f83c13cfa10a5e36c29a45a3e94aab5327693c85d43c8",
+    "perception/perception_real.py": "a0655e1397efb46a7945a5850d451ca1233ce824fdfadab15c31c1aeccf29706",
+    "perception/fast_visual_node.py": "cd8e02624c4da89fa90b17ee9f7d7f49e9479c7863ff2e5accdcbf3a21749388",
+    "run_stable_6.sh": "4bf3f9b2679bc40bf66419511827fd44d48327f7ebae7430c68065cb7ba312b3",
+    "run_sculpture.sh": "d05459011d3f35ab85a3846600748272136d89055428ba9fb883d404f701dd27",
+    "launch/robocup_with_laser.launch": "5e74fc157358ad3a8912303f9b1c17e846f4f38f9082f4a346248b8d3bcc3012",
+    "coordination/src/robocup_swarm/scripts/motion_safety.py": "dc580a2217c0ad543f241409abfbfa7003df47e893bb2779c72ccc24bcc17231",
+    "coordination/src/robocup_swarm/scripts/slam_grid.py": "ae4c24648da9c828e61eee45b0d1a0e6a765c818663c4f66b93097c0b6bd4cd4",
+    "coordination/src/robocup_swarm/scripts/tracking_view.py": "af6d53b7e737d4ebffc2f51cb5516b10d0c96532e226615f44bac001eab28325",
+    "coordination/src/robocup_swarm/scripts/search_segments.py": "8800b06954ff0c8728ba18df720b5ebd1187e957c5cad090ed535aaa4905f27f",
+    "coordination/src/robocup_swarm/scripts/camera_attention.py": "e57543e460ec8c0c1a031b82ac394b86768163c1ab3acc0bcbacdb94184481c0",
+    "perception/distractor_verifier.py": "7d84f70fab2cb312e13f333722303aac6e5e8d3826ecbccf328f9506aa32695e",
+    "coordination/src/robocup_swarm/scripts/cooperative_tracker.py": "8e08aafee317abda234b7586f545c464a3e2a29b34b4aec02be7840b3380fb5a",
+    "coordination/src/robocup_swarm/scripts/fcu_configuration.py": "9a619cd0dd436e1cbaa7b9e162701575f75db9a02f1e2c82d0e5f6c360b00942",
+    "weights/best_yolo11n_bino_v3_clean.pt": "e5249e3b6310e16ac95ea20c1c39f270d6cf63390450ca1a645d175239a0b27a",
+    "weights/best_yolo11n_bino_sculpture_v3.pt": "af2aaeab9682ec958e5712f64681e51dd9a41c55d3e766d661339b971bdbf0b7"
+  }
+}

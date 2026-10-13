@@ -17,8 +17,6 @@ sys.path.insert(0, str(ROOT / 'coordination/src/robocup_swarm/scripts'))
 
 from perception import perception_real as vision
 import cooperative_tracker
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from header_clock_test_support import install_clock_fixture, prepare_flight_fixture
 import swarm_agent
 import swarm_manager
 import swarm_task
@@ -27,9 +25,6 @@ from slam_grid import SlamGrid
 
 
 class MatchBlockers(unittest.TestCase):
-    def setUp(self):
-        install_clock_fixture(self, swarm_agent.rospy)
-
     def test_fast_camera_still_establishes_official_source(self):
         for hz in (5, 10, 20):
             core = yolo_target_bridge.TargetBridgeCore()
@@ -2211,13 +2206,10 @@ class MatchBlockers(unittest.TestCase):
         agent.pos_pub = SimpleNamespace(publish=sent.append)
         with patch.object(swarm_agent.rospy.Time, 'now',
                           return_value=swarm_agent.rospy.Time(100)):
-            prepare_flight_fixture(agent, swarm_agent.rospy)
             agent._publish_pos_output(0.0, 0.0, 4.2, 0.0, 0.6)
-            agent._publish_wall_setpoint_once()
             self.assertAlmostEqual(sent[-1].pose.position.z, 4.0)
             self.assertGreater(sent[-1].pose.orientation.z, 0.0)
             agent._publish_pos_output(0.0, 0.0, 4.2, -1.0, 0.0)
-            agent._publish_wall_setpoint_once()
             self.assertLess(sent[-1].pose.position.z, 4.0)
 
     def test_friend_guard_rejects_velocity_toward_peer_at_cruise_height(self):

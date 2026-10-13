@@ -11,14 +11,11 @@ from unittest.mock import Mock, patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] /
                      'coordination/src/robocup_swarm/scripts'))
 from fast_tracking_view import fast_yaw_enabled, validate_fast_view
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from header_clock_test_support import install_clock_fixture, prepare_flight_fixture
 import swarm_agent as sa
 
 
 class FastYawTests(unittest.TestCase):
     def setUp(self):
-        install_clock_fixture(self, sa.rospy)
         self.now = 100.14
         clock = patch.object(sa.rospy.Time, 'now',
                              side_effect=lambda: sa.rospy.Time.from_sec(self.now))
@@ -182,7 +179,6 @@ class FastYawTests(unittest.TestCase):
         a._last_cmd_v, a._last_csv_t = (1., 0.), self.now
         a._climb_latch, a._climb_t0, a._alt_sag = False, None, 0.
         a.pos_pub, a.vel_pub = Mock(), Mock()
-        prepare_flight_fixture(a, sa.rospy)
         self.send(a)
         a._fast_yaw_enabled = enable
         return a
@@ -194,7 +190,6 @@ class FastYawTests(unittest.TestCase):
             a.yaw = 0.
             with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'), patch.object(sa, 'CRASH_DETECT', False):
                 a._send_vel(1., 0.)
-                a._publish_wall_setpoint_once()
             outputs.append(a.pos_pub.publish.call_args.args[0].pose)
         for output in outputs:
             self.assertEqual((output.position.x, output.position.y, output.position.z), (0., 0., 3.))
@@ -208,7 +203,6 @@ class FastYawTests(unittest.TestCase):
             a.yaw = -2.
             with patch.object(sa, 'FLIGHT_OUTPUT', mode), patch.object(sa, 'CRASH_DETECT', False):
                 a._send_vel(1., 0.)
-                a._publish_wall_setpoint_once()
             if mode == 'vel':
                 rate = a.vel_pub.publish.call_args.args[0].twist.angular.z
             else:
@@ -222,7 +216,6 @@ class FastYawTests(unittest.TestCase):
         a._fast_yaw_csv.write.side_effect = OSError('no space')
         with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'), patch.object(sa, 'CRASH_DETECT', False):
             a._send_vel(1., 0.)
-            a._publish_wall_setpoint_once()
         a.pos_pub.publish.assert_called_once()
         self.assertIsNone(a._fast_yaw_csv)
 

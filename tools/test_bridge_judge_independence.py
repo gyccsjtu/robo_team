@@ -201,8 +201,6 @@ class BridgeJudgeIndependenceTests(unittest.TestCase):
         rospy.Timer = lambda *_args, **_kwargs: None
         rospy.Duration = lambda duration: duration
         rospy.loginfo = lambda *_args, **_kwargs: None
-        rospy.time_epoch = lambda: 0
-        rospy.add_time_reset_callback = lambda callback: None
 
         team = types.ModuleType('robocup_swarm')
         team.msg = types.ModuleType('robocup_swarm.msg')
@@ -215,7 +213,7 @@ class BridgeJudgeIndependenceTests(unittest.TestCase):
         standard.msg.String = bridge._FakeString
 
         with patch.dict(sys.modules, {
-            'team_time_ros': rospy,
+            'rospy': rospy,
             'robocup_swarm': team, 'robocup_swarm.msg': team.msg,
             'ros_actor_cmd_pose_plugin_msgs': actor,
             'ros_actor_cmd_pose_plugin_msgs.msg': actor.msg,

@@ -2,13 +2,9 @@
 import argparse
 import gzip
 import json
-from pathlib import Path
-import sys
 import threading
 import time
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] /
-                       'coordination/src/robocup_swarm/scripts'))
-import team_time_ros as rospy
+import rospy
 from std_msgs.msg import String
 from robocup_swarm.msg import SearchAssignment, UavStatus
 
@@ -18,9 +14,7 @@ parser.add_argument('--seconds',type=float,default=800.)
 parser.add_argument('--occupancy-snapshots', action='store_true',
                     help='Record legal lidar maps for offline reachability analysis')
 args=parser.parse_args()
-rospy.init_node('search_segments_read_only',anonymous=True,
-                clock_sources=tuple('typhoon_h480_%d' % i for i in range(6)),
-                clock_timeout=30.)
+rospy.init_node('search_segments_read_only',anonymous=True)
 lock=threading.Lock()
 output=gzip.open(args.output,'wt',encoding='utf-8')
 def write(event,data):

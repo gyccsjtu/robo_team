@@ -19,7 +19,7 @@
 import math
 import os
 import time
-import team_time_ros as rospy
+import rospy
 
 
 def _now():
@@ -27,15 +27,15 @@ def _now():
 
     仿真钟 vs 墙钟:
       - 墙钟 `time.time()`: 真实时间,仿真下走得快(慢)
-      - 仿真钟: 从允许的 MAVROS pose header 采样，与任务逻辑秒数一致
+      - 仿真钟 `rospy.get_time()`: Gazebo 内部时间,与代码逻辑秒数(8/45/90/300 等)一一对应
 
-    不订阅 /clock，也不将缺失的采样时间替换成墙钟。
+    /use_sim_time=true 时 rospy.get_time() 返回仿真钟,否则返回墙钟,等价安全。
     2026-10-05 修复:所有驻留计时统一改用 _now(),消除 RTF 偏差带来的:
       - _hot_target_ttl=8s 几乎瞬间过期(目标接力失效)
       - novelty_horizon=90s / _PRIORITY_DECAY=300s 阈值偏移
       - visit_time 写入/读取时钟不同源导致新颖性永久=1.0
     """
-    return rospy.Time.now().to_sec()
+    return rospy.get_time()
 
 # ============================ 参数 ============================
 GRID_SIZE_M   = float(os.environ.get("GRID_SIZE_M", "7.0"))   # 搜索格边长 m（batch10 实测 7.0 优于 10.0：中位 157.5s vs 286.1s）

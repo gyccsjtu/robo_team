@@ -3,13 +3,9 @@ import argparse
 import gzip
 import json
 import math
-from pathlib import Path
-import sys
 import threading
 import time
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] /
-                       'coordination/src/robocup_swarm/scripts'))
-import team_time_ros as rospy
+import rospy
 from geometry_msgs.msg import PoseStamped,TwistStamped
 from sensor_msgs.msg import LaserScan
 from mavros_msgs.msg import State
@@ -18,9 +14,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument('output')
 parser.add_argument('--seconds',type=float,default=300.)
 args=parser.parse_args()
-rospy.init_node('motion_safety_read_only',anonymous=True,
-                clock_sources=tuple('typhoon_h480_%d' % i for i in range(6)),
-                clock_timeout=30.)
+rospy.init_node('motion_safety_read_only',anonymous=True)
 lock=threading.Lock();data={}
 
 def receive(msg,uid,kind):

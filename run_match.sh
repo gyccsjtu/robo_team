@@ -23,8 +23,8 @@
 #   ALT_HARD_CEIL=5.7         飞行高度硬护栏 m（规则 §2.5(3)：限高 6m，留 0.3m 抖动空间）
 #   RADAR_WARN_R=5.5          雷达预警半径 m（规则 §2.5(7)：碰撞扣30/次，扩到车体级）
 #   FRIEND_SAFE_DIST=3.5      友机避碰起点 m（6 机密集 + 碰撞扣30/次）
-#   TEAM_TIME_SOURCE=mavros_header  从允许的 MAVROS 位姿消息取得仿真时间
-#   TEAM_TIME_PROGRESS_TIMEOUT=1.0  时间源停止推进时的墙钟超时秒数
+#   TEAM_TIME_SOURCE=ros_clock     使用原生 ROS 仿真时间（用户确认 /clock 可用）
+#   CLOCK_PERMISSION=forbidden     若现场明确禁用 /clock，则拒绝启动
 #   SKIP_RADAR=2 / REQUIRE_SWARM=1 / FORCE=0   正式链路要求 2D 激光与协同层
 # ============================================================================
 
@@ -60,19 +60,18 @@ ACTOR_MODEL_DIR="$XTDRONE_DIR/sitl_config/models/actor"
 # 协同工作空间：默认猜测仓库内 devel；可由环境变量指定
 COORD_WS_SETUP="${COORD_WS_SETUP:-$REPO_ROOT/coordination/devel/setup.bash}"
 SWARM_SCRIPTS="$REPO_ROOT/coordination/src/robocup_swarm/scripts"
-COMM_BRIDGE="$SWARM_SCRIPTS/multirotor_communication.py"
+COMM_BRIDGE="$XTDRONE_DIR/communication/multirotor_communication.py"
 BRIDGE_SCRIPT="$SWARM_SCRIPTS/yolo_target_bridge.py"
 READY_SCRIPT="$REPO_ROOT/tools/wait_match_ready.py"
 GRAPH_AUDIT_SCRIPT="$REPO_ROOT/tools/audit_match_graph.py"
 SENSOR_INVENTORY_SCRIPT="$REPO_ROOT/tools/match_sensor_inventory.py"
-# Team ROS initialization disables automatic /clock subscriptions. Global ROS
-# simulation time and the official environment remain untouched.
-TEAM_TIME_SOURCE="${TEAM_TIME_SOURCE:-mavros_header}"
-TEAM_TIME_PROGRESS_TIMEOUT="${TEAM_TIME_PROGRESS_TIMEOUT:-1.0}"
-TEAM_TIME_MAX_RATE="${TEAM_TIME_MAX_RATE:-100.0}"
-CLOCK_PERMISSION=forbidden
-CLOCK_PERMISSION_REFERENCE="Team input whitelist: sensors and MAVROS; internal swarm communication allowed"
-export TEAM_TIME_SOURCE TEAM_TIME_PROGRESS_TIMEOUT TEAM_TIME_MAX_RATE
+# Restore the tested native ROS simulation-time path following user confirmation.
+# Keep auditing Clock aliases and forbidden actor/judge/Gazebo state inputs.
+TEAM_TIME_SOURCE="${TEAM_TIME_SOURCE-ros_clock}"
+CLOCK_PERMISSION="${CLOCK_PERMISSION-allowed}"
+CLOCK_PERMISSION_REFERENCE="${CLOCK_PERMISSION_REFERENCE-用户于2026-10-13本次会话确认 /clock 可用并要求回退原生计时}"
+ROBOCUP_RUNTIME_BASELINE="${ROBOCUP_RUNTIME_BASELINE:-721927c5c948e22b956f91a7fdec1394e29ade98}"
+export TEAM_TIME_SOURCE ROBOCUP_RUNTIME_BASELINE
 export CLOCK_PERMISSION CLOCK_PERMISSION_REFERENCE PYTHONDONTWRITEBYTECODE=1
 # Optional measured image-ray feedback. Disabled until explicitly selected;
 # separate from both world coordinates and official observation evidence.
@@ -212,14 +211,13 @@ err(){
 step(){ echo; echo "${C_B}==== $* ====${C_0}"; }
 
 clock_permission_check(){
-    [ "$TEAM_TIME_SOURCE" = mavros_header ] || {
-        err "TEAM_TIME_SOURCE 必须为 mavros_header；禁止队伍订阅 /clock，FORCE 不能绕过"; return 1; }
-    local file
-    for file in sensor_time.py team_time_ros.py multirotor_communication.py; do
-        [ -f "$SWARM_SCRIPTS/$file" ] || {
-            err "合法时间依赖缺失：$SWARM_SCRIPTS/$file"; return 1; }
-    done
-    ok "队伍计时：MAVROS header；独立墙钟保活；禁止 /clock"
+    [ "$TEAM_TIME_SOURCE" = ros_clock ] || {
+        err "TEAM_TIME_SOURCE 必须为 ros_clock；已恢复原生 ROS 计时，FORCE 不能绕过"; return 1; }
+    [ "$CLOCK_PERMISSION" = allowed ] || {
+        err "/clock 使用状态为 ${CLOCK_PERMISSION:-空}；禁止或未确认时不启动，FORCE 不能绕过"; return 1; }
+    [ -n "$CLOCK_PERMISSION_REFERENCE" ] || {
+        err "/clock 允许依据不能为空；必须如实记录确认来源"; return 1; }
+    ok "队伍计时：原生 ROS /clock；允许依据：$CLOCK_PERMISSION_REFERENCE"
 }
 
 sensor_inventory_check(){
@@ -284,9 +282,6 @@ ros_env(){
     # 同理：ENV_SCRIPT 可能覆盖 PYTHONPATH（丢掉 catkin_ws 的 Python 模块）
     # gazebo_ros Python 模块（spawn_model 依赖）在 catkin_ws/devel 下
     ensure_colon_path PYTHONPATH "$HOME/catkin_ws/devel/lib/python3/dist-packages"
-    ensure_colon_path PYTHONPATH "$REPO_ROOT"
-    ensure_colon_path PYTHONPATH "$NAV_SRC"
-    ensure_colon_path PYTHONPATH "$SWARM_SCRIPTS"
     # 同理补 CMAKE_PREFIX_PATH：协同层 workspace 编译时未以 catkin_ws 为父工作空间，
     # 其 devel/setup.bash 会把 CMAKE_PREFIX_PATH 里的 catkin_ws/devel 替换为
     # coordination/devel。gzserver wrapper 用 `catkin_find libgazebo_ros_paths_plugin.so`
@@ -1181,7 +1176,9 @@ do_start(){
         # Audit registered team inputs before any agent can arm. A second
         # audit below includes all flight nodes after registration.
         if ! timeout 12s python3 -u "$GRAPH_AUDIT_SCRIPT" --timeout 8 \
-                --clock-permission forbidden >"$LOGDIR/06_preflight_graph_audit.log" 2>&1; then
+                --clock-permission "$CLOCK_PERMISSION" \
+                --clock-permission-reference "$CLOCK_PERMISSION_REFERENCE" \
+                >"$LOGDIR/06_preflight_graph_audit.log" 2>&1; then
             cat "$LOGDIR/06_preflight_graph_audit.log" >&2
             partial_fail "起飞前订阅审计失败；禁止继续启动 agent"
         fi
@@ -1195,7 +1192,7 @@ do_start(){
             rosparam set "/swarm_agent_$i/world_offset_x" "${TAKEOFF_X[$i]}"
             rosparam set "/swarm_agent_$i/world_offset_y" "${TAKEOFF_Y[$i]}"
             start_group "swarm_agent_$i" "$LOGDIR/06_swarm_agent_$i.log" bash -c "
-                cd '$SWARM_SCRIPTS' && TEAM_TIME_UAVS='$u' python3 -u swarm_agent.py __name:=swarm_agent_$i"
+                cd '$SWARM_SCRIPTS' && python3 -u swarm_agent.py __name:=swarm_agent_$i"
             sleep 0.3
             i=$((i+1))
         done
@@ -1240,7 +1237,7 @@ do_start(){
             --clock-permission "$CLOCK_PERMISSION" \
             --clock-permission-reference "$CLOCK_PERMISSION_REFERENCE" \
             >"$LOGDIR/07_graph_audit.log" 2>&1; then
-        ok "ROS 注册审计通过：六路 ActorInfo、禁用数据订阅、队伍无 Clock 订阅、环境指令发布；文件/服务客户端另行审查"
+        ok "ROS 注册审计通过：六路 ActorInfo、禁用数据订阅、原生 /clock（已记录用户确认）、无 Clock 别名、环境指令发布；文件/服务客户端另行审查"
     else
         cat "$LOGDIR/07_graph_audit.log" >&2
         partial_fail "正式 ROS 图审计失败；检查 $LOGDIR/07_graph_audit.log"

@@ -10,8 +10,6 @@ from unittest.mock import patch, Mock, PropertyMock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] /
                        'coordination/src/robocup_swarm/scripts'))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from header_clock_test_support import install_clock_fixture, prepare_flight_fixture
 import swarm_agent
 
 
@@ -53,20 +51,14 @@ class TakeoffReadinessTests(unittest.TestCase):
         agent.local_z, agent.local_xy = 0.0, origin
         agent.state = SimpleNamespace(armed=False, mode='MANUAL')
         agent._anchor_done = False
-        clock = SimpleNamespace(now=10.0, wall=10.0, steps=0, shutdown=False)
-        agent.pos_pub, agent.vel_pub = Mock(), Mock()
+        clock = SimpleNamespace(now=10.0, steps=0, shutdown=False)
         outputs, modes, arms = [], [], []
 
         def sleep():
-            before = clock.now
             clock.now += 0.05
             clock.steps += 1
             if hook:
                 hook(agent, clock)
-            clock.wall += max(.05, clock.now-before)
-            prepare_flight_fixture(agent, swarm_agent.rospy, renew_pose=True)
-            agent._scan_t = swarm_agent.rospy.Time.now().to_sec()
-            agent._publish_wall_setpoint_once()
             if clock.steps > 500:
                 self.fail('takeoff loop did not finish')
 
@@ -89,15 +81,10 @@ class TakeoffReadinessTests(unittest.TestCase):
         with ExitStack() as stack:
             stack.enter_context(patch.object(swarm_agent.rospy.Time, 'now',
                 side_effect=lambda: swarm_agent.rospy.Time.from_sec(clock.now)))
-            stack.enter_context(patch.object(swarm_agent.rospy, 'is_time_valid', return_value=True))
-            stack.enter_context(patch.object(swarm_agent.rospy, 'time_epoch', return_value=0))
-            stack.enter_context(patch.object(swarm_agent.rospy, 'wall_monotonic',
-                                            side_effect=lambda: clock.wall))
             stack.enter_context(patch.object(swarm_agent.rospy, 'is_shutdown',
                                             side_effect=lambda: clock.shutdown))
             for name in ('loginfo', 'logerr', 'logwarn_throttle'):
                 stack.enter_context(patch.object(swarm_agent.rospy, name))
-            prepare_flight_fixture(agent, swarm_agent.rospy)
             result = agent._arm_and_offboard()
         self.assertTrue(all(item[1:] == (0.0, 0.0, 0.0) for item in outputs))
         return result, modes, arms, outputs

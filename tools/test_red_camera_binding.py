@@ -9,15 +9,12 @@ from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] /
                      'coordination/src/robocup_swarm/scripts'))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from header_clock_test_support import install_clock_fixture, prepare_flight_fixture
 import swarm_agent as sa
 import yolo_target_bridge as bridge
 
 
 class RedCameraBindingTests(unittest.TestCase):
     def setUp(self):
-        install_clock_fixture(self, sa.rospy)
         clock = patch.object(sa.rospy.Time, 'now',
                              return_value=sa.rospy.Time.from_sec(100.1))
         clock.start()
@@ -156,10 +153,8 @@ class RedCameraBindingTests(unittest.TestCase):
         a._scan = NS(angle_min=-math.pi, angle_increment=math.pi/180.,
                      range_min=.1, range_max=20., ranges=[20.]*361)
         a.pos_pub = Mock()
-        prepare_flight_fixture(a, sa.rospy)
         with patch.object(sa, 'FLIGHT_OUTPUT', 'pos'):
             a._send_vel(1., 0.)
-            a._publish_wall_setpoint_once()
         output = a.pos_pub.publish.call_args.args[0].pose
         self.assertEqual((output.position.x, output.position.y), a.local_xy)
         self.assertLess(output.orientation.z, 0.)

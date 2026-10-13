@@ -16,7 +16,7 @@
 
 import os
 import json
-import team_time_ros as rospy
+import rospy
 import math
 import time
 import threading
@@ -125,7 +125,6 @@ COVER_MARK = float(os.environ.get("COVER_MARK", "1.0"))
 COVER_MARK_RATIO = float(os.environ.get("COVER_MARK_RATIO", "1.0"))
 REOPEN_MIN_DIST = float(os.environ.get("REOPEN_MIN_DIST", "30.0"))  # 重开时跳过飞机脚下这个半径内的格
 DEFAULT_UAV_IDS = ["uav_1", "uav_2"]  # 默认两机
-DEFAULT_CLOCK_SOURCES = ["typhoon_h480_%d" % i for i in range(6)]
 
 METADATA_PATH = os.environ.get(
     "ROBOCUP_METADATA",
@@ -322,12 +321,6 @@ def serialized_tasks(method):
         if lock is None:
             lock = self.__dict__.setdefault('_task_lock', threading.RLock())
         with lock:
-            if not self._time_ready():
-                return
-            if (getattr(self, '_time_gate_enabled', False) and
-                    method.__name__.endswith('_cb') and args and
-                    not self._message_time_current(args[0])):
-                return
             return method(self, *args, **kwargs)
     return call
 
@@ -337,12 +330,6 @@ class SwarmManager(SearchSegmentManager):
 
     def __init__(self, uav_ids):
         self._task_lock = threading.RLock()
-        self._time_gate_enabled = True
-        self._time_gate_initializing = True
-        self._time_epoch = rospy.time_epoch()
-        self._pending_time_epoch = None
-        self._time_epoch_started_s = rospy.Time.now().to_sec()
-        rospy.add_time_reset_callback(self._on_time_reset)
         self._segments = (SegmentBook(self._task_lock) if
                           os.environ.get('SEARCH_SEGMENTS', '0') == '1' else None)
         self._segment_max_hold = LEASE_MAX_HOLD
@@ -386,7 +373,6 @@ class SwarmManager(SearchSegmentManager):
                       _bx0, _bx1, _by0, _by1,
                       "官方演员区域与地图/飞行范围交集")
         self.grid = CoverageGrid(_bx0, _bx1, _by0, _by1, GRID_SIZE_M, len(uav_ids))
-        self._coverage_reset_spec = (_bx0, _bx1, _by0, _by1, GRID_SIZE_M, len(uav_ids))
         self.allocator = TaskAllocator(self.grid, W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE,
                                        w_distance=W_DISTANCE, w_zone=W_ZONE, cruise_speed=CRUISE_SPEED)
         self.lease = LeaseManager(self.grid, duration=LEASE_DURATION)
@@ -505,141 +491,6 @@ class SwarmManager(SearchSegmentManager):
         self._last_lease_t = rospy.Time.now()
         self._last_target_t = rospy.Time.now()
         self._mission_finished = False  # 任务完成标志
-        self._time_gate_initializing = False
-
-    def _on_time_reset(self, epoch):
-        """Provider callbacks only signal work; never acquire manager/SLAM locks."""
-        self._pending_time_epoch = epoch
-
-    def _time_ready(self):
-        # Older pure-logic tests construct __new__ objects without a clock gate.
-        if not getattr(self, '_time_gate_enabled', False):
-            return True
-        return (not getattr(self, '_time_gate_initializing', False) and
-                getattr(self, '_pending_time_epoch', None) is None and
-                rospy.is_time_valid() and rospy.time_epoch() == self._time_epoch)
-
-    def _message_time_current(self, msg):
-        """Keep original source timestamps; never freshen queued data on receipt."""
-        try:
-            header = getattr(msg, 'header', None)
-            if header is not None:
-                samples = [float(header.stamp.to_sec())]
-            else:
-                data = json.loads(msg.data)
-                samples = [float(data['sample_s'])]
-                # Failed-view jobs can carry an older original camera image.
-                samples.extend(float(data[key]) for key in
-                               ('image_sample_s', 'origin_sample_s') if key in data)
-            now = rospy.Time.now().to_sec()
-            start = self._time_epoch_started_s
-            return all(math.isfinite(sample) and sample > 0. and
-                       start <= sample <= now for sample in samples)
-        except (AttributeError, KeyError, TypeError, ValueError, OverflowError):
-            return False
-
-    def _publish_current(self, publisher, msg):
-        # A provider reset can arrive during a long route/vision calculation
-        # while its callback only marks pending. Recheck at the output boundary.
-        if not self._time_ready():
-            return False
-        publisher.publish(msg)
-        return True
-
-    def _service_time_epoch(self):
-        """Discard the old attempt atomically, without recreating ROS transport."""
-        if not getattr(self, '_time_gate_enabled', False):
-            return False
-        with self._task_lock:
-            epoch = rospy.time_epoch()
-            pending = self._pending_time_epoch
-            if epoch == self._time_epoch and pending is None:
-                return False
-            if pending is not None:
-                epoch = max(epoch, pending)
-            now = rospy.Time.now()
-            old_owners = (set(self._tracking.values()) | set(self._backup.values()) |
-                          set(self._active_leases) |
-                          set(getattr(self, '_search_dispatched', {})))
-            old_owners.update(cell.owner for cell in self.grid.cells.values()
-                              if cell.owner is not None)
-            segments = getattr(self, '_segments', None)
-            if segments is not None:
-                old_owners.update(segments.tasks)
-
-            # Do not call release/complete: those paths create cooldowns, revisit
-            # jobs or image-success bookkeeping belonging to the old epoch.
-            for name in (
-                    'status', 'last_report', '_processed_frame_times',
-                    '_dispatch_status_samples', '_active_leases', '_lease_hold_since',
-                    '_lease_motion', '_release_cooldown', '_truth_cache', '_cur_targets',
-                    '_backup', '_confirm_timeout_bl', '_visual_candidate',
-                    '_visual_observations', '_eligible_observations', '_view_recovery',
-                    '_last_detection_sample', '_qualified_detection_sample',
-                    '_visual_source', '_hypothesis_switches', '_reacquire_sites',
-                    '_visual_near_seen', '_visual_quarantine', '_appearance_rejections',
-                    '_last_detect', '_confirm_done_t', '_tracking', '_tracking_since',
-                    '_target_hist', '_discovery_pool', '_discovery_selected_s',
-                    '_candidate_looks', '_failed_views', '_lost_view_attempts',
-                    '_tenure_recovery', '_reobserve_sent', '_approach_leases',
-                    '_backup_approach_leases', '_camera_cell_evidence',
-                    '_camera_point_seen', '_search_view_jobs', '_search_dispatched',
-                    '_west_corner_seen', '_review_subpoint_views', '_cell_waypoint',
-                    '_blind_viewpoints', '_cell_edge', '_building_viewpoints', '_vis_set'):
-                setattr(self, name, {})
-            self._eliminated, self._backup_noted, self._seen_target_slots = set(), set(), set()
-            self._visual_conflict_sites = []
-            self._search_view_budget = ViewRevisitBudget()
-            self.__dict__.pop('_west_corner_allocation_started_s', None)
-            self.tracker.targets.clear()
-            self.tracker.eliminated = []
-
-            # The original public empty-map search bounds survive the reset;
-            # every image credit, lease, route cursor and map-evidence age does not.
-            spec = getattr(self, '_coverage_reset_spec', None)
-            if spec is None:
-                spec = (self.grid.x_min, self.grid.x_max, self.grid.y_min,
-                        self.grid.y_max, self.grid.cell_m, len(self.uav_ids))
-            self.grid = CoverageGrid(*spec)
-            self.allocator = TaskAllocator(
-                self.grid, W_GAIN, W_FLIGHT, W_OVERLAP, W_RISK, W_BALANCE,
-                w_distance=W_DISTANCE, w_zone=W_ZONE, cruise_speed=CRUISE_SPEED)
-            self.lease = LeaseManager(self.grid, duration=LEASE_DURATION)
-            self._segments = SegmentBook(self._task_lock) if segments is not None else None
-            patrols = tuple(SouthPatrol(
-                p.bounds, max_hold=p.max_hold, max_segments=p.max_segments,
-                southeast=p.southeast, northeast=p.northeast, east=p.east,
-                east_half=p.east_half) for p in self._regional_search_patrols())
-            if getattr(self, '_regional_patrols', None) is not None:
-                self._regional_patrols = patrols
-            self._south_patrol = patrols[0] if patrols else None
-            with self._slam_lock:
-                self._slam_cells, self._slam_sources = None, {}
-                self._slam_w = self._slam_h = 0
-                self._slam_res, self._slam_origin = 0.5, (0., 0.)
-                self._slam_dirty = False
-                self._map_evidence = None
-            self._g_infl, self._blocked_cells = None, set()
-            self.allocator.cell_edge = self._cell_edge
-            self._slam_rebuild_t = self._last_force_reopen = now.to_sec()
-            self._last_dispatch_s = now.to_sec()
-            self._last_alloc_t = self._last_lease_t = self._last_target_t = self._dbg_last_t = now
-            self._mission_finished, self._auction_cycle = False, 0
-
-            # A generic cancellation also clears a versioned search task. Empty
-            # target_id prevents an old person identity from blocking the cancel.
-            for uid in sorted(old_owners):
-                msg = SearchAssignment()
-                msg.header.stamp = now
-                msg.uav_id, msg.task_type = uid, 255
-                msg.cell_ix = msg.cell_iy = -1
-                self.assign_pub.publish(msg)
-            self._time_epoch, self._time_epoch_started_s = epoch, now.to_sec()
-            if self._pending_time_epoch == pending:
-                self._pending_time_epoch = None
-            rospy.logwarn('[manager] header-time epoch=%d: cancelled %d old aircraft tasks; '
-                          'waiting for new status/images/map evidence', epoch, len(old_owners))
-            return True
 
     def _find_blocked_cells(self):
         """按 SLAM 占用栅格膨胀，给每格找一个「可达代表航点」，并算临楼度。
@@ -741,7 +592,6 @@ class SwarmManager(SearchSegmentManager):
         return blocked
 
     # ---------------- SLAM 栅格合并（合规建图 2026-10-07）----------------
-    @serialized_tasks
     def _occ_grid_cb(self, msg):
         """Fuse dated hits/clear rays; an undated zero is never a free ray."""
         try:
@@ -895,7 +745,7 @@ class SwarmManager(SearchSegmentManager):
             msg.uav_id = uid
             msg.cell_ix = msg.cell_iy = -1
             msg.task_type = 255
-            self._publish_current(self.assign_pub, msg)
+            self.assign_pub.publish(msg)
             self._free_search_lease(uid)
             sent.pop(uid, None)
             self.allocator.failed_visit[key] = now.to_sec()
@@ -1039,12 +889,6 @@ class SwarmManager(SearchSegmentManager):
         # Only the new dispatch-attention guard uses this high-water mark.
         # Preserve existing status/receive-time semantics for flight health.
         now = rospy.Time.now()
-        if getattr(self, '_time_gate_enabled', False):
-            sample = float(msg.header.stamp.to_sec())
-            previous = self.last_report.get(msg.uav_id)
-            if (msg.uav_id not in self.uav_ids or not 0. <= now.to_sec()-sample <= 1. or
-                    (previous is not None and sample <= previous.to_sec())):
-                return
         try:
             sample = float(msg.header.stamp.to_sec())
             if (msg.uav_id in self.uav_ids and math.isfinite(sample) and
@@ -1057,8 +901,7 @@ class SwarmManager(SearchSegmentManager):
         except (AttributeError, TypeError, ValueError, OverflowError):
             pass
         self.status[msg.uav_id] = msg
-        self.last_report[msg.uav_id] = (msg.header.stamp
-                                       if getattr(self, '_time_gate_enabled', False) else now)
+        self.last_report[msg.uav_id] = now
 
     @staticmethod
     def _tid_to_actor(tid):
@@ -1742,7 +1585,7 @@ class SwarmManager(SearchSegmentManager):
                 state.target_id, state.x, state.y = tid, selected['x'], selected['y']
                 state.vx = state.vy = 0.
                 state.state, state.eliminated = 0, False
-                self._publish_current(self._discovery_state_pub, state)
+                self._discovery_state_pub.publish(state)
         except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
             return
 
@@ -1885,7 +1728,6 @@ class SwarmManager(SearchSegmentManager):
             ct.confirmation_pending = False
         ct.set_observers([])
 
-    @serialized_tasks
     def _dispatch_hypothesis_switch(self, tid, tx, ty, now):
         """Reallocate a new place atomically, protecting every other primary."""
         clean = self._sanitize_dispatch_xy(tx, ty, tid)
@@ -1946,13 +1788,12 @@ class SwarmManager(SearchSegmentManager):
                       'xy=(%.2f,%.2f); other primaries preserved',
                       tid, chosen, sorted(old_owners), tx, ty)
 
-    @serialized_tasks
     def _publish_target_cancel(self, uid, tid, now):
         msg = SearchAssignment()
         msg.header.stamp = rospy.Time.from_sec(now)
         msg.uav_id, msg.target_id, msg.task_type = uid, tid, 255
         msg.cell_ix = msg.cell_iy = -1
-        self._publish_current(self.assign_pub, msg)
+        self.assign_pub.publish(msg)
 
     def _discard_reacquire_site(self, tid):
         site = getattr(self, '_reacquire_sites', {}).pop(tid, None)
@@ -2190,7 +2031,7 @@ class SwarmManager(SearchSegmentManager):
             msg.header.stamp = rospy.Time.from_sec(now)
             msg.uav_id, msg.target_id, msg.task_type = uid, old_tid, 255
             msg.cell_ix = msg.cell_iy = -1
-            self._publish_current(self.assign_pub, msg)
+            self.assign_pub.publish(msg)
             rospy.loginfo('[manager] 相机 %s 发现新目标 %s，解除 %s 备份占用；'
                           '原主追机仍有新鲜图像', uid, tid, old_tid)
             return True
@@ -2484,7 +2325,7 @@ class SwarmManager(SearchSegmentManager):
             if sent is None:
                 sent = self._reobserve_sent = {}
             if pub is not None and now - sent.get(tid, -1e18) >= VISUAL_STREAK_MAX_HOLD_S:
-                self._publish_current(pub, String(json.dumps(dict(
+                pub.publish(String(json.dumps(dict(
                     target_id=tid, uav_id=main, sample_s=now, reason=reason))))
                 sent[tid] = now
             # Do not reset image continuity or manufacture a new observation.
@@ -2585,7 +2426,6 @@ class SwarmManager(SearchSegmentManager):
             pending.append((tid, tx, ty))
         self._dispatch_target_batch(pending, now)
 
-    @serialized_tasks
     def _handoff_distant_tracker(self, tid, tx, ty, ct):
         """已追踪目标旁出现更近的空闲机时，及时接棒远处的主追机。
 
@@ -2699,7 +2539,7 @@ class SwarmManager(SearchSegmentManager):
         new_msg.uav_id, new_msg.target_id, new_msg.task_type = best, tid, 1
         new_msg.cell_ix = new_msg.cell_iy = -1
         new_msg.target_x, new_msg.target_y = tx, ty
-        self._publish_current(self.assign_pub, new_msg)
+        self.assign_pub.publish(new_msg)
         if borrowed_from is not None:
             # New ownership is already reserved and its task sent. The
             # target-scoped cancellation cannot erase the new camera task.
@@ -2724,7 +2564,7 @@ class SwarmManager(SearchSegmentManager):
         msg.target_y = 0.0
         msg.target_id = tid
         msg.task_type = 255
-        self._publish_current(self.assign_pub, msg)
+        self.assign_pub.publish(msg)
         rospy.loginfo("[manager] 近机接棒 %s：%s(%.1fm) → %s(%.1fm)",
                       tid, old, old_d, best, best_d)
 
@@ -2763,7 +2603,6 @@ class SwarmManager(SearchSegmentManager):
             lease['anchor'], lease['progress_s'] = (st.x, st.y), now
         return 0.0 <= now - lease['progress_s'] <= 5.0
 
-    @serialized_tasks
     def _release_tracker(self, tid, reason=""):
         """国家一等奖：明确释放追踪/备份机，立即 publish cancel (-1)。
 
@@ -2827,7 +2666,7 @@ class SwarmManager(SearchSegmentManager):
                 if hasattr(msg, "target_id"):
                     msg.target_id = tid
                 msg.task_type = 255  # uint8 消息；255 专用取消码
-                self._publish_current(self.assign_pub, msg)
+                self.assign_pub.publish(msg)
             except Exception:
                 pass
         if reason:
@@ -3025,7 +2864,6 @@ class SwarmManager(SearchSegmentManager):
             costs[tid][uid] += penalty
         return costs
 
-    @serialized_tasks
     def _commit_target_assignment(self, tid, uid, tx, ty, now):
         # Reserve ownership before publishing; callbacks cannot observe an
         # unreserved aircraft between assignment messages.
@@ -3041,7 +2879,7 @@ class SwarmManager(SearchSegmentManager):
         msg.uav_id, msg.target_id, msg.task_type = uid, tid, 1
         msg.cell_ix = msg.cell_iy = -1
         msg.target_x, msg.target_y = tx, ty
-        self._publish_current(self.assign_pub, msg)
+        self.assign_pub.publish(msg)
 
     def _record_target_observation(self, tid, source, sample, x, y):
         """Only original qualified image callbacks may extend motion history."""
@@ -3091,7 +2929,6 @@ class SwarmManager(SearchSegmentManager):
         horizon = min(1., now-h[-1][2]+max(0., lead_s))
         return h[-1][0]+vx*horizon, h[-1][1]+vy*horizon
 
-    @serialized_tasks
     def _update_tracker_position(self, target_id, tx, ty):
         """更新追踪机的目标位置。
 
@@ -3125,7 +2962,7 @@ class SwarmManager(SearchSegmentManager):
         if hasattr(msg, "target_id"):
             msg.target_id = target_id
         msg.task_type = 1  # 目标确认/追踪
-        self._publish_current(self.assign_pub, msg)
+        self.assign_pub.publish(msg)
         # 备份机同步更新目标位置，否则它会飞向旧坐标
         bid = self._backup.get(target_id)
         if bid is not None:
@@ -3138,9 +2975,8 @@ class SwarmManager(SearchSegmentManager):
             if hasattr(msg2, "target_id"):
                 msg2.target_id = target_id
             msg2.task_type = 1
-            self._publish_current(self.assign_pub, msg2)
+            self.assign_pub.publish(msg2)
 
-    @serialized_tasks
     def _dispatch_backup(self):
         """按本队图像断流、反复短观察及补看超时请求第二视角。
 
@@ -3244,7 +3080,7 @@ class SwarmManager(SearchSegmentManager):
             msg.task_type = 1
             if hasattr(msg, "target_id"):
                 msg.target_id = tid
-            self._publish_current(self.assign_pub, msg)
+            self.assign_pub.publish(msg)
             rospy.loginfo("[manager] 冗余派机：%s 协同确认 %s @ (%.1f,%.1f), "
                           "距离 %.1fm, 原因=%s, observers=%s",
                           best, tid, tx_c, ty_c, best_d, reason,
@@ -3378,7 +3214,7 @@ class SwarmManager(SearchSegmentManager):
         if hasattr(msg, 'target_id'):
             msg.target_id = tid
         msg.task_type = 255
-        self._publish_current(self.assign_pub, msg)
+        self.assign_pub.publish(msg)
 
     def _release_unavailable_trackers(self, now):
         """Free dead tracking owners before the next dispatch in this tick."""
@@ -3475,7 +3311,7 @@ class SwarmManager(SearchSegmentManager):
                 # 2026-10-06 国家一等奖: 通知 swarm_agent 切贴脸模式
                 # (只有当前 _orbit_target == tid 的那架 UAV 会响应)
                 try:
-                    self._publish_current(self.confirm_pub, String("tid:%s" % tid))
+                    self.confirm_pub.publish(String("tid:%s" % tid))
                 except Exception as e:
                     rospy.logwarn("[manager] confirm_pub.publish 失败: %s", e)
                 rospy.loginfo("[manager] 目标 %s 独立图像连续观测 %.0fs（绝对定位误差未验证），"
@@ -3957,7 +3793,6 @@ class SwarmManager(SearchSegmentManager):
         self._last_lease_t = now
 
     # ---------------- 发布 ----------------
-    @serialized_tasks
     def _publish_assignment(self, uid, key, cell):
         msg = SearchAssignment()
         msg.header.stamp = rospy.Time.now()
@@ -3967,7 +3802,7 @@ class SwarmManager(SearchSegmentManager):
         _wp = self._search_waypoint(key, cell)
         msg.target_x, msg.target_y = flight_waypoint(*_wp)
         msg.task_type = 0  # 搜索
-        self._publish_current(self.assign_pub, msg)
+        self.assign_pub.publish(msg)
         self.__dict__.setdefault('_search_dispatched', {})[uid] = (
             key, (msg.target_x, msg.target_y), msg.header.stamp.to_sec())
         view = self._search_view_job(key)
@@ -3976,14 +3811,13 @@ class SwarmManager(SearchSegmentManager):
                 math.hypot(msg.target_x-view['x'], msg.target_y-view['y']) <= 1e-6):
             hint = make_hint(view, msg)
             if hint is not None:
-                self._publish_current(publisher, String(data=json.dumps(hint)))
+                publisher.publish(String(data=json.dumps(hint)))
                 rospy.loginfo('[SEARCH_VIEW_HINT_ASSIGN] uav=%s cell=%s image=%.3f '
                               'assignment=%.3f; original camera position only',
                               uid, key, view['image_sample_s'], msg.header.stamp.to_sec())
         rospy.loginfo("[manager] 分配 %s → 格 (%d,%d) 中心 (%.1f,%.1f)",
                       uid, key[0], key[1], cell.cx, cell.cy)
 
-    @serialized_tasks
     def _publish_rtl(self, uavs):
         """发布 RTL 返航任务（发给所有连接的飞机，不只是 idle 的）
 
@@ -4001,10 +3835,9 @@ class SwarmManager(SearchSegmentManager):
             msg.target_x = 0.0
             msg.target_y = 0.0
             msg.task_type = 2  # RTL
-            self._publish_current(self.assign_pub, msg)
+            self.assign_pub.publish(msg)
         rospy.loginfo("[manager] RTL 返航: %s", rtl_uavs)
 
-    @serialized_tasks
     def _publish_land(self, uavs):
         """发布降落任务（发给所有连接的飞机，不只是 idle 的）
 
@@ -4022,7 +3855,7 @@ class SwarmManager(SearchSegmentManager):
             msg.target_x = 0.0
             msg.target_y = 0.0
             msg.task_type = 3  # 降落
-            self._publish_current(self.assign_pub, msg)
+            self.assign_pub.publish(msg)
         rospy.loginfo("[manager] 降落: %s", uavs)
 
     # ---------------- 主循环 ----------------
@@ -4030,12 +3863,9 @@ class SwarmManager(SearchSegmentManager):
         rate = rospy.Rate(10)
         rospy.loginfo("[manager] 集群管理器启动，机队: %s", self.uav_ids)
         while not rospy.is_shutdown():
+            now = rospy.Time.now()
+
             try:
-                self._service_time_epoch()
-                if not self._time_ready():
-                    rate.sleep()
-                    continue
-                now = rospy.Time.now()
                 # 任务已完成，跳过分配
                 if self._mission_finished:
                     rate.sleep()
@@ -4087,7 +3917,7 @@ class SwarmManager(SearchSegmentManager):
 
 
 if __name__ == "__main__":
-    rospy.init_node("swarm_manager", clock_sources=DEFAULT_CLOCK_SOURCES, clock_timeout=30.)
+    rospy.init_node("swarm_manager")
     uav_ids = rospy.get_param("~uav_ids", DEFAULT_UAV_IDS)
     if isinstance(uav_ids, str):
         uav_ids = uav_ids.split(",")

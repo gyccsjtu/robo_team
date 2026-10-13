@@ -4,7 +4,7 @@ Methods run under SwarmManager's existing serialized task lock. All search
 sources use the same allocator and SegmentBook; coverage never releases a task.
 """
 import math
-import team_time_ros as rospy
+import rospy
 from geometry_msgs.msg import Point
 from robocup_swarm.msg import SearchAssignment
 from search_segments import TRAVEL, LOOK, ATTEND, YIELD, DONE, FAILED, aligned, clear_line

@@ -1389,13 +1389,11 @@ class TargetBridgeCore(object):
 class YoloTargetBridge(object):
 
     def __init__(self):
-        import team_time_ros as rospy
+        import rospy
         from robocup_swarm.msg import TargetState
         # 裁判官方接口仅有 cls/x/y 三字段；内部 TargetState 仍使用本队消息。
         from ros_actor_cmd_pose_plugin_msgs.msg import ActorInfo
         self._rospy = rospy
-        self._time_gate_enabled = True
-        self._time_epoch = rospy.time_epoch()
         self._TargetState = TargetState
         self._ActorInfo = ActorInfo
         self.core = TargetBridgeCore()
@@ -1445,7 +1443,6 @@ class YoloTargetBridge(object):
         # 2026-10-08 消除 actor 冲刺：PUB_HZ 10→15（间隔 0.067s ≪ 裁判 1s 阈值，
         # 防止 tick 抖动导致 discontinuous 清零 15s 计数）。
         pub_hz = float(os.environ.get("BRIDGE_PUB_HZ", "15"))
-        rospy.add_time_reset_callback(self._on_time_reset)
         self._timer = rospy.Timer(rospy.Duration(1.0 / max(1.0, pub_hz)),
                                   self._tick)
         rospy.loginfo("yolo_target_bridge 启动：target_report → /swarm/target_states"
@@ -1453,27 +1450,6 @@ class YoloTargetBridge(object):
 
     def _now(self):
         return self._rospy.Time.now().to_sec()
-
-    def _clock_output_allowed(self):
-        # Pure __new__ offline fixtures explicitly opt into clock gating when
-        # testing it. Every real constructor enables this gate before inputs.
-        return (not getattr(self, '_time_gate_enabled', False) or
-                (self._rospy.is_time_valid() and
-                 self._rospy.time_epoch() == self._time_epoch))
-
-    def _on_time_reset(self, epoch):
-        with self.__dict__.setdefault('_report_lock', threading.RLock()):
-            self.core = TargetBridgeCore()
-            self.conflict_guard = CrossColorLocationGuard()
-            for field in ('_gate_live', '_pub_last', '_pub_stats', '_last_source_sample',
-                          '_candidate_sample_s', '_red_source_map', '_red_source_observations',
-                          '_rejected_visual', '_appearance_rejected'):
-                getattr(self, field, {}).clear()
-            self._red_consumed.clear()
-            self._red_focus = None
-            self._pub_dbg_last = 0.0
-            _BRIDGE_DBG_LAST.clear()
-            self._time_epoch = epoch
 
     def _rejected_visual_cb(self, msg):
         with self.__dict__.setdefault('_report_lock', threading.RLock()):
@@ -1668,8 +1644,6 @@ class YoloTargetBridge(object):
             self._report_frame_cb(msg)
 
     def _report_frame_cb(self, msg):
-        if not self._clock_output_allowed():
-            return
         try:
             now = self._now()
             rows = parse_report_frame(msg.data, now)
@@ -1748,8 +1722,7 @@ class YoloTargetBridge(object):
                     if (source_accepted and switch is not None and
                             switch['switch_s'] <= sample < switch['trial_until_s']):
                         evidence['hypothesis_switch'] = dict(switch)
-                    if self._clock_output_allowed():
-                        pub.publish(_msg_string_cls()(data=json.dumps(evidence)))
+                    pub.publish(_msg_string_cls()(data=json.dumps(evidence)))
                 # Every qualified new image can use the one publishing exit.
                 # That exit still enforces the unchanged .45/.75 s rate cap;
                 # a separate .75 s callback wait delayed a due moving report
@@ -1956,7 +1929,7 @@ class YoloTargetBridge(object):
         · cls 必须取官方 actor_id_dict 的键（红球是 'red'，不是 'red1'）。
         · RED_DUAL 时 red1/red2 各自只发对应 red 流，避免两球坐标交替污染累计状态。
         """
-        if not self._clock_output_allowed() or tag not in self._actor_pubs:
+        if tag not in self._actor_pubs:
             return
         now = self._now()
         if self.conflict_guard.blocked(tag, x, y, now):
@@ -1987,8 +1960,6 @@ class YoloTargetBridge(object):
                            now-tr.good_t, am.x, am.y, tr.official_rejects)
         # red1/red2 remain separate judge streams.  Their internal names do
         # not assert which official red actor was observed.
-        if not self._clock_output_allowed():
-            return
         self._actor_pubs[tag].publish(am)
         self._pub_last[tag] = now
         self._note_pub(tag, now)
@@ -2016,8 +1987,6 @@ class YoloTargetBridge(object):
         pub.publish(self._String(data=json.dumps(payload, separators=(',', ':'))))
 
     def _emit(self, ev):
-        if not self._clock_output_allowed():
-            return
         m = self._TargetState()
         # TargetState 时间戳表示最后一次真实视觉观测。桥接可短时保活，
         # 但保活帧不能伪装为新检测，否则 agent/manager 会无限追冻结位置。
@@ -2031,8 +2000,6 @@ class YoloTargetBridge(object):
         m.tracked_time = 0.0
         m.confirm_time = 0.0
         m.eliminated = ev["eliminated"]
-        if not self._clock_output_allowed():
-            return
         self.pub.publish(m)
 
         # 向官方话题发布 ActorInfo（用融合坐标，10Hz 连续上报）。
@@ -2115,8 +2082,6 @@ class YoloTargetBridge(object):
             self._tick_locked(_evt)
 
     def _tick_locked(self, _evt):
-        if not self._clock_output_allowed():
-            return
         now = self._now()
         if RED_DUAL:
             self._pick_red_focus()
@@ -2415,8 +2380,7 @@ if __name__ == "__main__":
     if "--selftest" in sys.argv:
         _self_test()
     else:
-        import team_time_ros as rospy
-        rospy.init_node("yolo_target_bridge", clock_sources=[
-            'typhoon_h480_%d' % i for i in range(6)])
+        import rospy
+        rospy.init_node("yolo_target_bridge")
         YoloTargetBridge()
         rospy.spin()

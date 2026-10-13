@@ -34,9 +34,7 @@ def load_pose_functions(pz_scale=None):
                      _lock=threading.Lock(), _pose_history=[],
                      _pose_fault=None,
                      rospy=SimpleNamespace(logerr=lambda *args: None,
-                                           logwarn_throttle=lambda *args: None,
-                                           is_time_valid=lambda: True,
-                                           Time=SimpleNamespace(now=lambda: Stamp(102.))))
+                                           logwarn_throttle=lambda *args: None))
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SOURCE), "exec"),
          namespace)
     return namespace
