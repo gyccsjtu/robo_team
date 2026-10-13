@@ -1,0 +1,44 @@
+{
+  "actors": {
+    "0": 203.5239999999999,
+    "5": 266.13599999999997,
+    "4": 277.52,
+    "2": 305.37199999999984,
+    "1": 533.384
+  },
+  "eliminated": 5,
+  "official_complete": false,
+  "official_timeout": true,
+  "completion_s": null,
+  "find_counts": {
+    "3": 22,
+    "5": 6,
+    "2": 15,
+    "0": 1,
+    "4": 18,
+    "1": 60
+  },
+  "outcome": "official_timeout",
+  "treatment": {
+    "pixel_recovery_backoff": "1",
+    "discovery_blind_handoff": "1",
+    "relief_clear_approach": "0",
+    "tracking_friend_recheck": "0"
+  },
+  "round": 1,
+  "map_sha256": "e0a339ee464ac36f8f5cce04d910e3c7bbf06d0e9ff412324ebbcb83b240c528",
+  "code_commit": "e7a5d97fb3de64ec4c4d9870bc6f2437e14ebe87",
+  "started_wall": 1791882601.2907279,
+  "finished_wall": 1791883255.8434007,
+  "wall_elapsed_s": 654.5526728630066,
+  "flight_archive": {
+    "path": "/dev/shm/pixel_backoff_validation_20261013/flight_archives/round_01_ros.tar.xz",
+    "bytes": 215183160,
+    "sha256": "da13662eb141939fd8f26fab02b73aacba6e67435f6612fdae2cc3dd36de034e"
+  },
+  "evidence_archive": {
+    "path": "/home/gycc/桌面/RoboCup_Team/artifacts/pixel_backoff_validation_20261013/rounds/01/core_evidence.tar.xz",
+    "bytes": 65760312,
+    "sha256": "a5f80954faf7935c428e4317e408c29c61a22c85c96ba28fc5fa8e5392cb6f17"
+  }
+}

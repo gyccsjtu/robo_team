@@ -1,0 +1,4 @@
+e7a5d97裁脚像素后退候选，DISCOVERY_BLIND_HANDOFF=1，RELIEF_CLEAR_APPROACH=0，TRACKING_FRIEND_RECHECK=0。
+第一轮官方600秒超时5/6，剩白色；蓝色533.384秒才消除。像素后退只触发1次，不能证明整体有效，保持默认关闭。
+用户改为优先稳定完整6/6，停止第二轮（正式裁判启动之前）；原始记录另存，不冒充失败成绩。
+按用户选择恢复025a3d8＋原试验PR_COHERENT_BODY_ATTACH=1，保留当前代码及所有失败证据。

@@ -1,0 +1,296 @@
+{
+  "official_start_ros_estimate": 1942.8960000000002,
+  "finish_wall_clock_match_error_s": 0.013008832931518555,
+  "clock_source": "Own UavStatus.header.stamp nearest official judge completion stdout mtime; report intervals from report_telemetry.report_s, never recorder wall-clock ros field. Offset estimation includes status transport/sampling latency.",
+  "first_geometric_candidate": {
+    "t3": {
+      "ros": 1967.688,
+      "source": "typhoon_h480_0",
+      "elapsed_estimate_s": 24.791999999999916
+    },
+    "t2": {
+      "ros": 2072.728,
+      "source": "typhoon_h480_2",
+      "elapsed_estimate_s": 129.83199999999988
+    },
+    "t0": {
+      "ros": 2130.18,
+      "source": "typhoon_h480_5",
+      "elapsed_estimate_s": 187.28399999999965
+    },
+    "t1": {
+      "ros": 2173.528,
+      "source": "typhoon_h480_2",
+      "elapsed_estimate_s": 230.6319999999996
+    }
+  },
+  "first_pixel_candidate": {
+    "blue": {
+      "ros": 1963.9,
+      "source": "typhoon_h480_2",
+      "elapsed_estimate_s": 21.003999999999905
+    },
+    "white": {
+      "ros": 1967.288,
+      "source": "typhoon_h480_0",
+      "elapsed_estimate_s": 24.391999999999825
+    },
+    "green": {
+      "ros": 1972.292,
+      "source": "typhoon_h480_3",
+      "elapsed_estimate_s": 29.39599999999973
+    },
+    "red": {
+      "ros": 2015.544,
+      "source": "typhoon_h480_1",
+      "elapsed_estimate_s": 72.64799999999991
+    },
+    "brown": {
+      "ros": 2047.116,
+      "source": "typhoon_h480_2",
+      "elapsed_estimate_s": 104.2199999999998
+    }
+  },
+  "first_official_report": {
+    "t3": {
+      "ros": 1967.796,
+      "elapsed_estimate_s": 24.899999999999864
+    },
+    "t5": {
+      "ros": 2068.86,
+      "elapsed_estimate_s": 125.96399999999994
+    },
+    "t2": {
+      "ros": 2073.248,
+      "elapsed_estimate_s": 130.35199999999986
+    },
+    "t0": {
+      "ros": 2131.312,
+      "elapsed_estimate_s": 188.4159999999997
+    },
+    "t4": {
+      "ros": 2160.812,
+      "elapsed_estimate_s": 217.9159999999997
+    },
+    "t1": {
+      "ros": 2174.464,
+      "elapsed_estimate_s": 231.56799999999976
+    }
+  },
+  "official_report_streams": {
+    "t3": {
+      "count": 131,
+      "max_gap_s": 336.81600000000003,
+      "over_1s": 23
+    },
+    "t5": {
+      "count": 88,
+      "max_gap_s": 45.80399999999963,
+      "over_1s": 27
+    },
+    "t2": {
+      "count": 140,
+      "max_gap_s": 87.0039999999999,
+      "over_1s": 17
+    },
+    "t0": {
+      "count": 38,
+      "max_gap_s": 0.6439999999997781,
+      "over_1s": 0
+    },
+    "t4": {
+      "count": 27,
+      "max_gap_s": 11.807999999999993,
+      "over_1s": 7
+    },
+    "t1": {
+      "count": 455,
+      "max_gap_s": 30.463999999999942,
+      "over_1s": 49
+    }
+  },
+  "first_east_x95": {
+    "typhoon_h480_2": 88.53199999999993,
+    "typhoon_h480_0": 133.99599999999964,
+    "typhoon_h480_5": 157.89999999999964,
+    "typhoon_h480_4": 203.46799999999985,
+    "typhoon_h480_1": 255.64399999999978,
+    "typhoon_h480_3": 532.8999999999996
+  },
+  "takeoff_z2": {
+    "typhoon_h480_0": 21.995999999999867,
+    "typhoon_h480_1": 23.143999999999778,
+    "typhoon_h480_2": 23.383999999999787,
+    "typhoon_h480_3": 24.299999999999727,
+    "typhoon_h480_5": 24.699999999999818,
+    "typhoon_h480_4": 25.019999999999754
+  },
+  "max_status_z": {
+    "typhoon_h480_0": 4.616443634033203,
+    "typhoon_h480_2": 3.874983072280884,
+    "typhoon_h480_1": 3.395388603210449,
+    "typhoon_h480_3": 4.41259241104126,
+    "typhoon_h480_5": 3.2224085330963135,
+    "typhoon_h480_4": 4.432459354400635
+  },
+  "last_status": {
+    "typhoon_h480_0": {
+      "uav": "typhoon_h480_0",
+      "stamp": 2542.844,
+      "connected": true,
+      "x": 118.43000793457031,
+      "y": 55.328163146972656,
+      "z": 4.1520304679870605,
+      "task": "",
+      "version": 0,
+      "index": 0,
+      "state": 0,
+      "path_version": 0,
+      "remaining": -1.0,
+      "blocked": 0,
+      "blocked_reason": "",
+      "cell": [
+        -1,
+        -1
+      ],
+      "point": [
+        0.0,
+        0.0
+      ]
+    },
+    "typhoon_h480_2": {
+      "uav": "typhoon_h480_2",
+      "stamp": 2542.88,
+      "connected": true,
+      "x": 104.76160430908203,
+      "y": 41.59210968017578,
+      "z": 3.3631396293640137,
+      "task": "588faed055f6471f972099d9ab6f0151",
+      "version": 1,
+      "index": 0,
+      "state": 1,
+      "path_version": 25,
+      "remaining": 4.365157604217529,
+      "blocked": 0,
+      "blocked_reason": "",
+      "cell": [
+        21,
+        14
+      ],
+      "point": [
+        100.5,
+        41.5
+      ]
+    },
+    "typhoon_h480_1": {
+      "uav": "typhoon_h480_1",
+      "stamp": 2542.84,
+      "connected": true,
+      "x": 36.606117248535156,
+      "y": 41.89403533935547,
+      "z": 2.8001887798309326,
+      "task": "e78a919a7e854ab58dc940dede5f44a3",
+      "version": 1,
+      "index": 1,
+      "state": 1,
+      "path_version": 25,
+      "remaining": 13.916777610778809,
+      "blocked": 0,
+      "blocked_reason": "",
+      "cell": [
+        11,
+        14
+      ],
+      "point": [
+        30.5,
+        41.5
+      ]
+    },
+    "typhoon_h480_3": {
+      "uav": "typhoon_h480_3",
+      "stamp": 2542.896,
+      "connected": true,
+      "x": 83.81371307373047,
+      "y": 13.72757625579834,
+      "z": 3.5443055629730225,
+      "task": "3cd2507ab25642c8a5dc6455fcb0e272",
+      "version": 1,
+      "index": 0,
+      "state": 1,
+      "path_version": 45,
+      "remaining": 11.84989070892334,
+      "blocked": 0,
+      "blocked_reason": "",
+      "cell": [
+        18,
+        10
+      ],
+      "point": [
+        79.5,
+        13.5
+      ]
+    },
+    "typhoon_h480_5": {
+      "uav": "typhoon_h480_5",
+      "stamp": 2542.848,
+      "connected": true,
+      "x": 78.56166076660156,
+      "y": -49.20548629760742,
+      "z": 2.755880355834961,
+      "task": "488e8a11ad584647a30b39508fccbf41",
+      "version": 1,
+      "index": 0,
+      "state": 1,
+      "path_version": 24,
+      "remaining": 8.77212905883789,
+      "blocked": 0,
+      "blocked_reason": "",
+      "cell": [
+        19,
+        1
+      ],
+      "point": [
+        77.55000305175781,
+        -49.5
+      ]
+    },
+    "typhoon_h480_4": {
+      "uav": "typhoon_h480_4",
+      "stamp": 2542.864,
+      "connected": true,
+      "x": 112.13182067871094,
+      "y": -23.21186065673828,
+      "z": 4.252136707305908,
+      "task": "eb12e6d0d988433b83e4302088279695",
+      "version": 1,
+      "index": 0,
+      "state": 1,
+      "path_version": 30,
+      "remaining": 7.870828151702881,
+      "blocked": 0,
+      "blocked_reason": "",
+      "cell": [
+        22,
+        2
+      ],
+      "point": [
+        110.98999786376953,
+        -30.059999465942383
+      ]
+    }
+  },
+  "assignment_counts": {
+    "0": 5821,
+    "1": 9728,
+    "255": 207
+  },
+  "view_flags": {
+    "(True, True, True)": 3564,
+    "(True, False, True)": 1868,
+    "(False, False, True)": 252,
+    "(True, True, False)": 163,
+    "(False, False, False)": 32,
+    "(True, False, False)": 158
+  },
+  "limits": "Model hypotheses can contain distractors; aliases of red do not identify individual official red actors. Relative times are estimates; final official completion time is directly from judge."
+}

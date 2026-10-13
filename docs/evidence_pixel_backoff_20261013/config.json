@@ -1,0 +1,11 @@
+{
+  "root": "/home/gycc/桌面/RoboCup_Team",
+  "batch": "/home/gycc/桌面/RoboCup_Team/artifacts/pixel_backoff_validation_20261013",
+  "ram": "/dev/shm/pixel_backoff_validation_20261013",
+  "code_commit": "e7a5d97fb3de64ec4c4d9870bc6f2437e14ebe87",
+  "official_ref": "2783bdb32e43b6c656df9445dd2a855855bc24cd",
+  "trials": 2,
+  "gui": true,
+  "flight_archive_location": "/dev/shm/pixel_backoff_validation_20261013/flight_archives",
+  "policy": "Frozen GUI cropped-view retreat1, discovery handoff1, friend recheck0, relief ranking0. Round1 archived02 (last red600 failure map), round2 new official native random. Own sensor snapshots; judge stdout offline only."
+}
