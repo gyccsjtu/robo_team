@@ -1735,22 +1735,24 @@ class YoloTargetBridge(object):
             self._rospy.logwarn_throttle(5, "丢弃 target_report：%s", exc)
 
     def _handoff_range_blocked_source(self, tr, row, now):
-        """A range-blocked reporter cannot monopolize independently valid images.
+        """A blocked or expired reporter cannot monopolize valid images.
 
         This does not widen the report range or qualify a rejected observation.
-        Keep a live incumbent (including its range hysteresis); only a blocked
-        one can yield to an already associated, fresh, coherent camera segment.
+        Keep an incumbent that can still report, including range hysteresis.
+        Otherwise require an associated, fresh, coherent camera segment.
         """
         sample = row['sample_s']
         key = self.core._source_key(row['source_uav'], row['candidate_id'])
         incumbent = self.core._source_key(tr.official_source, tr.official_candidate_id)
         rng = row['range_m']
+        limit = FRESH_REPORT_MAX_AGE if REPORT_POLICY == 'fresh' else OFFICIAL_IMAGE_MAX_AGE
         if (key == incumbent or not tr.alive or
                 tr.accepted_source_samples.get(key) != sample or
                 sample < tr.good_t or not 0. <= now-sample <= FRESH_REPORT_MAX_AGE or
                 rng is None or not 0. < rng <= ACTOR_PUB_MAX_RANGE_M or
-                self._pub_gate_ok(tr.tag)):
+                (self._pub_gate_ok(tr.tag) and now-tr.good_t <= limit)):
             return False
+        gate_ok = self._gate_live.get(tr.tag, False)
         segment = _confirmed_official_segment(tr.source_history.get(key, []))
         if segment is None or segment[-1][0] != sample:
             return False
@@ -1770,9 +1772,10 @@ class YoloTargetBridge(object):
         tr.segment_anchor_t = None
         tr.range_m = rng
         self._rospy.loginfo('[SOURCE_BLOCKED_HANDOFF] tag=%s old=%s range=%s '
-                            'new=%s range=%.2f image=%.3f reason=range_gate_closed',
+                            'new=%s range=%.2f image=%.3f reason=%s',
                             tr.tag, previous_source, previous_range,
-                            tr.official_source, rng, sample)
+                            tr.official_source, rng, sample,
+                            'image_expired' if gate_ok else 'range_gate_closed')
         return True
 
     # ---- 红球双流：焦点选择 ----

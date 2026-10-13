@@ -58,6 +58,39 @@ class BlockedReportSourceTests(unittest.TestCase):
         self.assertFalse(node._handoff_range_blocked_source(tr, row, node._now()))
         self.assertFalse(node._gate_live['blue'])
 
+    def test_expired_image_yields_to_three_fresh_coherent_images(self):
+        node, t = self.incumbent()
+        for i in range(3):
+            self.send(node, t+.2*(i+1), [self.candidate('new', 0., range_m=7.)],
+                      source='u1')
+        tr = node.core.tracks['blue']
+        self.assertEqual(tr.official_source, 'u1')
+        self.assertEqual(tr.good_t, t+.6)
+        self.assertEqual(tr.good_history, tr.source_history[('u1', 'new')])
+        self.assertEqual(len(tr.good_history), 3)
+        self.assertEqual(node._pub_last['blue'], node._now())
+
+    def test_valid_incumbent_is_not_replaced_by_secondary_images(self):
+        node, t = self.incumbent()
+        for i in range(3):
+            sample = t+.2*(i+1)
+            self.send(node, sample, [self.candidate('old', 0.)])
+            self.send(node, sample, [self.candidate('new', 0., range_m=7.)], source='u1')
+        self.assertEqual(node.core.tracks['blue'].official_source, 'u0')
+
+    def test_expiry_does_not_qualify_disagreeing_or_invalid_observations(self):
+        for kwargs in ({'x': 1.2}, {'official_view_ok': False}, {'range_m': 10.}):
+            with self.subTest(**kwargs):
+                node, t = self.incumbent()
+                for i in range(3):
+                    row = self.candidate('new', 0., range_m=7.)
+                    if 'x' in kwargs:
+                        row['xyz'][0] = kwargs['x']
+                    else:
+                        row.update(kwargs)
+                    self.send(node, t+.2*(i+1), [row], source='u1')
+                self.assertEqual(node.core.tracks['blue'].official_source, 'u0')
+
 
 if __name__ == '__main__':
     unittest.main()
