@@ -49,11 +49,11 @@ def selected(path):
             p.parent.name == 'msg' and p.suffix == '.msg') or (
             p.parent.name == 'scripts' and p.suffix == '.py')
     if path.startswith('coordination/src/robocup_navigation/'):
-        return p.name in {'package.xml', 'CMakeLists.txt', 'astar.py', '__init__.py'} or (
-            p.parent.name in {'msg', 'srv'} and p.suffix in {'.msg', '.srv'})
+        return path.startswith('coordination/src/robocup_navigation/src/robocup_navigation/') and \
+            p.name in {'astar.py', '__init__.py'}
     if path.startswith('coordination/src/robocup_training_worlds/'):
         return path.endswith('worlds/generated/robocup_base.json') or (
-            p.name in {'package.xml', 'CMakeLists.txt', 'black_box_to_metadata.py'})
+            p.name == 'black_box_to_metadata.py')
     return False
 
 
