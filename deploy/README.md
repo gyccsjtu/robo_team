@@ -10,6 +10,19 @@ PLAYER_IMAGE="robocup-player:e77c3a2-$(git rev-parse --short=12 HEAD)"
 docker save "$PLAYER_IMAGE" -o robocup-player.tar
 ```
 
+如果收到的是 `player_algo-build-context-*.tar.gz`，先在有 Docker 的构建机解包，再从解包目录直接构建（无需 git）：
+
+```bash
+mkdir player-build && cd player-build
+tar -xzf /path/to/player_algo-build-context-*.tar.gz
+SOURCE_COMMIT="$(cat deploy/source_commit.txt)"
+PLAYER_IMAGE="robocup-player:e77c3a2-${SOURCE_COMMIT:0:12}"
+DOCKER_BUILDKIT=1 docker build --platform linux/amd64 \
+  -f deploy/Dockerfile.player --build-arg "SOURCE_COMMIT=$SOURCE_COMMIT" \
+  -t "$PLAYER_IMAGE" .
+docker save "$PLAYER_IMAGE" -o robocup-player.tar
+```
+
 在选手机器上导入镜像并创建容器一次；若赛场已提供 `player_algo` 容器，应先核对其中是否装入此镜像，不能直接覆盖已有容器：
 
 ```bash
