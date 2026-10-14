@@ -83,6 +83,15 @@ RED_ASSOC_ANCHOR_S = float(os.environ.get("BRIDGE_RED_ASSOC_ANCHOR", "15.0"))
 RED_LOCAL_DUP_M = 0.8
 RED_LOCAL_DUP_S = 1.0
 RED_LOCAL_DUP_MIN_CONF = 0.7
+# Two fresh, independently identified red observations this far apart are
+# strong evidence of two people. This is not a minimum separation: two real
+# actors may pass closer than this, and distance alone never qualifies a report.
+RED_PAIR_DISTINCT_M = 4.0
+RED_PAIR_DISTINCT_S = 0.8
+# A second camera may agree spatially while carrying a 0.5-1 m calibration
+# offset.  Keep a recently reporting red camera through one normal image
+# period instead of resetting its fit on every alternating camera frame.
+RED_SOURCE_STICKY_S = 1.1
 
 # ---- 融合 / 计时参数 ----
 OBS_WINDOW = 0.6        # 多感知节点近帧融合窗 s（2Hz/节点 × 最多 6 节点）
@@ -1019,8 +1028,10 @@ class TargetBridgeCore(object):
         if not valid and quality_segment is None:
             return
         tr.accepted_source_samples[key] = float(t)
+        source_lock_s = (max(OFFICIAL_IMAGE_MAX_AGE, RED_SOURCE_STICKY_S)
+                         if tr.tag in RED_TAGS else OFFICIAL_IMAGE_MAX_AGE)
         if (key != incumbent and tr.good_x is not None and
-                0. <= t-tr.good_t <= OFFICIAL_IMAGE_MAX_AGE and quality_segment is None):
+                0. <= t-tr.good_t <= source_lock_s and quality_segment is None):
             return
         if quality_segment is not None:
             tr.quality_switch_s = t
@@ -1572,6 +1583,9 @@ class YoloTargetBridge(object):
         other_mapped = self._red_source_map.get((source, other_local))
         other_sample = self._last_source_sample.get((source, other_local))
         other_obs = observations.get((source, other_local))
+        distinct_pair = (other_obs is not None and
+                         0.0 <= sample-other_obs[0] <= RED_PAIR_DISTINCT_S and
+                         math.hypot(x-other_obs[1], y-other_obs[2]) >= RED_PAIR_DISTINCT_M)
         # Both local slots can be observed less often than once per second on
         # a loaded CPU.  Keep them mutually exclusive for the same freshness
         # window used by the global red tracks; the old 1 s check let two
@@ -1634,7 +1648,7 @@ class YoloTargetBridge(object):
         if candidates:
             # A detector cannot assign its two simultaneous local slots to
             # one global person while the other local slot is still active.
-            if other_active:
+            if other_active or distinct_pair:
                 candidates = [c for c in candidates if c[1] != other_mapped]
             if candidates:
                 chosen = candidates[0][1]
@@ -1662,11 +1676,30 @@ class YoloTargetBridge(object):
             # use the same-named empty slot for deterministic startup.
             chosen = mapped if mapped in free else (
                 local_tag if local_tag in free else free[0])
-            if chosen != other_mapped or not other_active:
+            if chosen != other_mapped or not (other_active or distinct_pair):
                 self._red_source_map[key] = chosen
                 observations[key] = (sample, x, y)
                 return chosen
         return None
+
+    def _report_red_hold(self, tag, reason, now):
+        """Report a fresh red camera blockage without creating judge evidence."""
+        if tag not in RED_TAGS:
+            return
+        tr = self.core.tracks.get(tag)
+        pub = getattr(self, 'report_pub', None)
+        if tr is None or pub is None or not tr.alive or not 0.0 <= now-tr.t_obs <= 1.0:
+            return
+        last = self.__dict__.setdefault('_red_hold_last', {}).get(tag, -1e18)
+        if now-last < 0.75:
+            return
+        self._red_hold_last[tag] = now
+        payload = dict(event='red_hold', target_id=TAG_TO_TID[tag], tag=tag,
+                       reason=reason, sample_s=float(tr.t_obs), report_s=float(now),
+                       source_uav=tr.tracking_source or '',
+                       candidate_id=tr.tracking_candidate_id or '',
+                       range_m=tr.range_m, x=float(tr.x), y=float(tr.y))
+        pub.publish(self._String(data=json.dumps(payload, separators=(',', ':'))))
 
     def _report_cb(self, msg):
         # ROS invokes different camera publishers concurrently. Parsing,
@@ -2054,16 +2087,16 @@ class YoloTargetBridge(object):
         if ev.get("official_x") is None or ev.get("official_y") is None:
             _dbg_now = self._now()
             _dbg_key = "official_hold_" + tag
+            _tr = self.core.tracks.get(tag)
+            _reason = 'no_qualified_image'
+            if _tr is not None and _tr.good_x is not None:
+                _limit = FRESH_REPORT_MAX_AGE if REPORT_POLICY=='fresh' else OFFICIAL_IMAGE_MAX_AGE
+                _age = _dbg_now-_tr.good_t
+                _reason = 'image_expired' if _age > _limit else 'motion_or_inlier_rejected'
+                if _age < 0.:
+                    _reason = 'future_image'
             if _dbg_now - _BRIDGE_DBG_LAST.get(_dbg_key, -1e18) >= 5.0:
                 _BRIDGE_DBG_LAST[_dbg_key] = _dbg_now
-                _tr = self.core.tracks.get(tag)
-                _reason = 'no_qualified_image'
-                if _tr is not None and _tr.good_x is not None:
-                    _limit = FRESH_REPORT_MAX_AGE if REPORT_POLICY=='fresh' else OFFICIAL_IMAGE_MAX_AGE
-                    _age = _dbg_now-_tr.good_t
-                    _reason = 'image_expired' if _age > _limit else 'motion_or_inlier_rejected'
-                    if _age < 0.:
-                        _reason = 'future_image'
                 self._rospy.loginfo(
                     "[OFFICIAL_HOLD] tag=%s range=%s real_obs_age=%.2fs "
                     "eligible_xy=(%.2f,%.2f) policy=%s reason=%s",
@@ -2072,6 +2105,13 @@ class YoloTargetBridge(object):
                     _tr.range_m is not None else "None",
                     _dbg_now - _tr.good_t if _tr is not None else float('inf'),
                     ev["x"], ev["y"], REPORT_POLICY, _reason)
+            _hold_reason = _reason
+            if (tag in RED_TAGS and _tr is not None and
+                    _tr.range_m is not None and
+                    _tr.range_m > ACTOR_PUB_MAX_RANGE_M and
+                    not self._gate_live.get(tag, False)):
+                _hold_reason = 'range_gate'
+            self._report_red_hold(tag, _hold_reason, _dbg_now)
             return
         official_sample = ev.get("official_sample_s", _sample)
         # 红衣人移动且两条本地 red 槽会交叉。旧坐标继续向裁判播 8s 会
@@ -2095,6 +2135,7 @@ class YoloTargetBridge(object):
                     ("%.1fm" % rng) if rng is not None else "None",
                     bool(self._gate_live.get(tag, False)),
                     ACTOR_PUB_MAX_RANGE_M, ACTOR_PUB_HOLD_RANGE_M)
+            self._report_red_hold(tag, 'range_gate', _gn)
             return
         self._publish_actor(tag, ev["official_x"], ev["official_y"])
 

@@ -14,6 +14,50 @@ import yolo_target_bridge as bridge
 
 
 class BridgeJudgeIndependenceTests(unittest.TestCase):
+    def test_red_report_source_stays_on_fresh_camera_then_allows_handoff(self):
+        node = bridge._mk_bridge()
+        red = node.core.tracks['red1']
+        red.good_x, red.good_y, red.good_t = 10., 0., 10.
+        red.official_source, red.official_candidate_id = 'u0', 'person-a'
+        blue = node.core.tracks['blue']
+        blue.good_x, blue.good_y, blue.good_t = 10., 0., 10.
+        blue.official_source, blue.official_candidate_id = 'u0', 'person-b'
+        with patch.object(node.core, '_official_source_ok', return_value=True), \
+             patch.object(node.core, '_better_geometry_segment', return_value=None):
+            node.core._accept_official_sample(red, 10.8, 'u2', 10.55, 0., 8., 'person-a')
+            self.assertEqual(red.official_source, 'u0')
+            node.core._accept_official_sample(blue, 10.8, 'u2', 10.55, 0., 8., 'person-b')
+            self.assertEqual(blue.official_source, 'u2')
+            node.core._accept_official_sample(red, 11.2, 'u2', 11., 0., 8., 'person-a')
+            self.assertEqual(red.official_source, 'u2')
+
+    def test_two_fresh_red_people_four_metres_apart_keep_distinct_streams(self):
+        node = bridge._mk_bridge()
+        node.core.report(10.0, 'red1', 0., 0., .95, 8.)
+        node.core.report(10.0, 'red2', 6., 0., .95, 8.)
+        node._red_source_map[('u0', 'red1')] = 'red1'
+        node._red_source_observations[('u0', 'red1')] = (10.2, 0., 0.)
+        node._last_source_sample[('u0', 'red1')] = 10.2
+        # A swapped local label cannot pull the second person into red1.
+        self.assertEqual(node._associate_red('u0', 'red2', 10.3, 6., 0.), 'red2')
+        self.assertEqual(node._red_source_map[('u0', 'red2')], 'red2')
+
+    def test_red_hold_is_camera_evidence_only_and_non_red_is_unchanged(self):
+        node = bridge._mk_bridge()
+        tr = node.core.tracks['red2']
+        tr.alive, tr.t_obs, tr.x, tr.y = True, 10., 6., 0.
+        tr.tracking_source, tr.tracking_candidate_id, tr.range_m = 'u0', 'red:2', 8.2
+        node._report_red_hold('red2', 'motion_or_inlier_rejected', 10.2)
+        self.assertEqual(len(node.report_pub.msgs), 1)
+        event = json.loads(node.report_pub.msgs[0].data)
+        self.assertEqual((event['event'], event['target_id'], event['sample_s']),
+                         ('red_hold', 't4', 10.))
+        self.assertEqual(len(node._actor_pubs['red2'].msgs), 0)
+        node._report_red_hold('red2', 'motion_or_inlier_rejected', 10.6)
+        node._report_red_hold('blue', 'motion_or_inlier_rejected', 10.9)
+        node._report_red_hold('red2', 'motion_or_inlier_rejected', 12.)
+        self.assertEqual(len(node.report_pub.msgs), 1)
+
     def test_recorded_slot_rename_keeps_one_global_red_trajectory(self):
         fixture = json.loads((ROOT/'tools/fixtures/red_slot_rename_093017.json').read_text())
         node = bridge._mk_bridge()

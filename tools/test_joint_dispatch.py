@@ -403,6 +403,84 @@ class JointDispatchTests(unittest.TestCase):
         self.assertEqual(m._tracking['t3'], 'u3')
         m.assign_pub.publish.assert_not_called()
 
+    def test_red_owner_keeps_a_recent_unreportable_view_while_approaching(self):
+        m = self._east_visual_owner_scenario()
+        m._visual_observations[('u0', 't4')] = dict(
+            sample_s=98.2, x=122., y=33., candidate_id='red2-person')
+        self.assertFalse(m._redeployable_blind_primary('u0', 't4', 't3', 100.))
+        # The same grace is not silently applied to other colours.
+        m._tracking['t2'] = 'u0'
+        m._tracking_since['t2'] = 90.
+        m.tracker.add_target('t2', now=90.)
+        m._visual_observations[('u0', 't2')] = dict(
+            sample_s=98.2, x=122., y=33., candidate_id='brown-person')
+        self.assertTrue(m._redeployable_blind_primary('u0', 't2', 't3', 100.))
+
+    def test_red_quality_hold_requests_bounded_view_without_report_credit(self):
+        m = self.m
+        m._tracking = {'t4': 'u0'}
+        m.reobserve_pub = Mock()
+        for now in (100., 100.8, 101.6, 102.4):
+            m._visual_observations[('u0', 't4')] = dict(
+                sample_s=now-.1, candidate_id='red:2')
+            m._red_report_event(dict(
+                event='red_hold', target_id='t4', source_uav='u0',
+                candidate_id='red:2', sample_s=now-.1,
+                reason='motion_or_inlier_rejected'), now)
+        self.assertEqual(m.reobserve_pub.publish.call_count, 1)
+        request = json.loads(m.reobserve_pub.publish.call_args.args[0].data)
+        self.assertEqual((request['target_id'], request['uav_id']), ('t4', 'u0'))
+        self.assertNotIn('t4', getattr(m, '_red_last_published_s', {}))
+        m._red_report_event(dict(event='red_hold', target_id='t3',
+            source_uav='u0', candidate_id='white:1', sample_s=102.5,
+            reason='motion_or_inlier_rejected'), 102.6)
+        self.assertEqual(m.reobserve_pub.publish.call_count, 1)
+
+    def test_red_range_hold_never_asks_for_unnecessary_side_step(self):
+        m = self.m
+        m._tracking = {'t4': 'u0'}
+        m.reobserve_pub = Mock()
+        for now in (100., 100.8, 101.6, 102.4):
+            m._visual_observations[('u0', 't4')] = dict(
+                sample_s=now-.1, candidate_id='red:2')
+            m._red_report_event(dict(
+                event='red_hold', target_id='t4', source_uav='u0',
+                candidate_id='red:2', sample_s=now-.1,
+                reason='range_gate'), now)
+        m.reobserve_pub.publish.assert_not_called()
+
+    def test_red_continuous_fresh_reports_trigger_one_safe_view_check(self):
+        m = self.m
+        m._tracking = {'t4': 'u0'}
+        m.reobserve_pub = Mock()
+        for i in range(25):
+            now = 100. + .8*i
+            m._visual_observations[('u0', 't4')] = dict(
+                sample_s=now-.1, candidate_id='red:2')
+            m._red_report_event(dict(
+                event='published', target_id='t4', source_uav='u0',
+                candidate_id='red:2', sample_s=now-.1), now)
+        self.assertEqual(m.reobserve_pub.publish.call_count, 1)
+        request = json.loads(m.reobserve_pub.publish.call_args.args[0].data)
+        self.assertEqual((request['target_id'], request['uav_id'], request['reason']),
+                         ('t4', 'u0', 'red_persistent_report'))
+        self.assertEqual(m._tracking, {'t4': 'u0'})
+
+    def test_red_stall_does_not_inherit_another_camera_or_instance(self):
+        m = self.m
+        m._tracking = {'t4': 'u0'}
+        m.reobserve_pub = Mock()
+        for i in range(30):
+            now = 100. + .8*i
+            source = 'u0' if i < 15 else 'u1'
+            candidate = 'red:a' if i < 15 else 'red:b'
+            m._visual_observations[(source, 't4')] = dict(
+                sample_s=now-.1, candidate_id=candidate)
+            m._red_report_event(dict(
+                event='published', target_id='t4', source_uav=source,
+                candidate_id=candidate, sample_s=now-.1), now)
+        m.reobserve_pub.publish.assert_not_called()
+
     def test_changed_camera_instance_or_jump_cannot_retake_owner(self):
         m = self._east_visual_owner_scenario()
         self._east_white_frame(m, 100., candidate='person-A')

@@ -492,9 +492,10 @@ class SwarmManager(SearchSegmentManager):
         rospy.Subscriber("/swarm/uav_status", UavStatus, self._status_cb)
         rospy.Subscriber("/swarm/detection", TargetDetection, self._detection_cb)
         rospy.Subscriber("/swarm/visual_source", String, self._visual_source_cb)
-        if REPORT_FLOW_DIAGNOSTICS:
-            rospy.Subscriber('/swarm/report_telemetry', String,
-                             self._formal_report_cb, queue_size=30)
+        # Red-only view recovery consumes hold reasons even when passive flow
+        # diagnostics are disabled. Other colours retain their old behaviour.
+        rospy.Subscriber('/swarm/report_telemetry', String,
+                         self._formal_report_cb, queue_size=30)
         rospy.loginfo('[REPORT_FLOW_CONFIG] enabled=%s passive=True; no judge feedback',
                       REPORT_FLOW_DIAGNOSTICS)
         self._discovery_state_pub = rospy.Publisher(
@@ -2038,7 +2039,8 @@ class SwarmManager(SearchSegmentManager):
         if last_ok is not None and 0.0 <= now-last_ok <= 2.0:
             return False
         raw = getattr(self, '_visual_observations', {}).get((uid, old_tid))
-        if raw is not None and 0.0 <= now-raw['sample_s'] <= 1.5:
+        raw_grace = 3.0 if old_tid in ('t4', 't5') else 1.5
+        if raw is not None and 0.0 <= now-raw['sample_s'] <= raw_grace:
             return False  # give this camera its own current person first
         return True  # the caller applies its existing qualified-image gate
 
@@ -3162,16 +3164,127 @@ class SwarmManager(SearchSegmentManager):
     @serialized_tasks
     def _formal_report_cb(self, msg):
         """Observe our bridge's actual output, without granting any authority."""
-        flow = getattr(self, '_formal_report_flow', None)
-        if flow is None:
-            return
         try:
             now = rospy.Time.now().to_sec()
             payload = json.loads(msg.data)
+            self._red_report_event(payload, now)
+            flow = getattr(self, '_formal_report_flow', None)
+            if flow is None:
+                return
             flow.remember_publish(payload, now)
             self._log_formal_report_flow(payload.get('target_id'), now)
         except (TypeError, ValueError, KeyError, OverflowError):
             return
+
+    def _red_report_event(self, payload, now):
+        """Use current red-camera hold evidence only to request a safer view.
+
+        A hold is not a detection or an official report. It never changes the
+        target position, tracking ownership, judge progress, or non-red tasks.
+        """
+        if not isinstance(payload, dict):
+            return
+        tid = payload.get('target_id')
+        if tid not in ('t4', 't5'):
+            return
+        event = payload.get('event')
+        if event == 'published':
+            self.__dict__.setdefault('_red_last_published_s', {})[tid] = now
+            self.__dict__.setdefault('_red_hold_start_s', {}).pop(tid, None)
+            self._red_persistent_report(payload, now)
+            return
+        if event != 'red_hold':
+            return
+        reason = payload.get('reason')
+        if reason not in ('no_qualified_image', 'image_expired',
+                          'motion_or_inlier_rejected', 'range_gate'):
+            return
+        owner = getattr(self, '_tracking', {}).get(tid)
+        if owner is None or payload.get('source_uav') != owner:
+            return
+        try:
+            sample = float(payload['sample_s'])
+        except (TypeError, ValueError, KeyError):
+            return
+        if not math.isfinite(sample) or not 0.0 <= now-sample <= 1.0:
+            return
+        view = getattr(self, '_visual_observations', {}).get((owner, tid))
+        if (view is None or abs(view.get('sample_s', -1e18)-sample) > 0.5 or
+                view.get('candidate_id') != payload.get('candidate_id')):
+            return
+        # The existing tracking assignment already approaches range-blocked
+        # people. A side-step is for sustained bad image geometry only.
+        starts = self.__dict__.setdefault('_red_hold_start_s', {})
+        last = self.__dict__.setdefault('_red_hold_sample_s', {})
+        if reason == 'range_gate':
+            starts.pop(tid, None)
+            last.pop(tid, None)
+            return
+        if sample <= last.get(tid, -1e18):
+            return
+        if sample-last.get(tid, sample) > 1.2:
+            starts.pop(tid, None)
+        last[tid] = sample
+        first = starts.setdefault(tid, now)
+        published = self.__dict__.setdefault('_red_last_published_s', {}).get(tid, -1e18)
+        requested = self.__dict__.setdefault('_red_reobserve_s', {}).get(tid, -1e18)
+        if (now-first < 2.0 or now-published < 1.0 or now-requested < 10.0):
+            return
+        pub = getattr(self, 'reobserve_pub', None)
+        if pub is None:
+            return
+        pub.publish(String(json.dumps(dict(target_id=tid, uav_id=owner,
+                                          sample_s=now, reason='red_report_hold'))))
+        self._red_reobserve_s[tid] = now
+        rospy.loginfo('[RED_REPORT_RECOVERY] tid=%s owner=%s reason=%s '
+                      'image=%.3f; request bounded safe reobserve',
+                      tid, owner, reason, sample)
+
+    def _red_persistent_report(self, payload, now):
+        """Change view when one red image keeps reporting past judge duration.
+
+        This uses only our own fresh camera and publisher evidence. A real
+        person should disappear after a qualified 15 s report; persistent
+        visibility can mean biased geometry or a static lookalike. It never
+        claims an official result or suppresses either red report stream.
+        """
+        tid = payload['target_id']
+        owner = getattr(self, '_tracking', {}).get(tid)
+        source, candidate = payload.get('source_uav'), payload.get('candidate_id')
+        streaks = self.__dict__.setdefault('_red_report_streak', {})
+        if owner is None or source != owner or not candidate:
+            streaks.pop(tid, None)
+            return
+        try:
+            sample = float(payload['sample_s'])
+        except (TypeError, ValueError, KeyError):
+            streaks.pop(tid, None)
+            return
+        view = getattr(self, '_visual_observations', {}).get((owner, tid))
+        if (not math.isfinite(sample) or not 0. <= now-sample <= 1. or
+                view is None or view.get('candidate_id') != candidate or
+                abs(view.get('sample_s', -1e18)-sample) > .6):
+            streaks.pop(tid, None)
+            return
+        old = streaks.get(tid)
+        if (old is None or old['source'] != source or old['candidate'] != candidate or
+                not 0. < now-old['last'] < 1. or sample <= old['sample']):
+            streaks[tid] = dict(source=source, candidate=candidate,
+                                first=now, last=now, sample=sample)
+            return
+        old['last'], old['sample'] = now, sample
+        requested = self.__dict__.setdefault('_red_reobserve_s', {}).get(tid, -1e18)
+        if now-old['first'] < 18. or now-requested < 20.:
+            return
+        pub = getattr(self, 'reobserve_pub', None)
+        if pub is None:
+            return
+        pub.publish(String(json.dumps(dict(target_id=tid, uav_id=owner,
+                                          sample_s=now, reason='red_persistent_report'))))
+        self._red_reobserve_s[tid] = now
+        old['first'] = now
+        rospy.loginfo('[RED_REPORT_RECOVERY] tid=%s owner=%s reason=persistent_fresh_report '
+                      'image=%.3f; request bounded safe reobserve', tid, owner, sample)
 
     def _log_formal_report_flow(self, tid, now):
         flow = getattr(self, '_formal_report_flow', None)
