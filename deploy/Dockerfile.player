@@ -1,0 +1,50 @@
+# syntax=docker/dockerfile:1
+# Build from deploy/prepare_context.py. World, actors and judge stay in robocup.
+ARG ROS_BASE=ros:noetic-ros-base-focal@sha256:72b8bc59035dc0a5b8e07aae28c16caa84192971d72d207c72ed734fb1d5e97d
+FROM ${ROS_BASE} AS python-wheels
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY deploy/build_network_env.sh /opt/build_network_env.sh
+RUN --mount=type=secret,id=proxy_ca \
+    source /opt/build_network_env.sh && \
+    apt-get "${PLAYER_APT_CA[@]}" update && \
+    DEBIAN_FRONTEND=noninteractive apt-get "${PLAYER_APT_CA[@]}" install --no-install-recommends -y \
+      build-essential python3-pip python3-dev && \
+    rm -rf /var/lib/apt/lists/*
+COPY deploy/requirements.lock deploy/verify_wheelhouse.py /opt/locks/
+RUN --mount=type=secret,id=proxy_ca \
+    source /opt/build_network_env.sh && \
+    python3 -m pip install --no-cache-dir pip==25.0.1 setuptools==70.0.0 wheel==0.45.1 Cython==0.29.36 packaging==26.2 && \
+    python3 -m pip wheel --no-cache-dir --no-deps --no-build-isolation \
+      --extra-index-url https://download.pytorch.org/whl/cpu \
+      --wheel-dir /wheelhouse -r /opt/locks/requirements.lock && \
+    python3 /opt/locks/verify_wheelhouse.py --lock /opt/locks/requirements.lock --wheelhouse /wheelhouse
+
+FROM ${ROS_BASE} AS player
+ARG SOURCE_COMMIT
+LABEL org.robocup.algorithm-base="e77c3a2cd72ff25c237a12728f29b852f5c14d0e" \
+      org.robocup.source-commit="${SOURCE_COMMIT}" \
+      org.robocup.formal-environment="unverified"
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+COPY deploy/build_network_env.sh deploy/apt-packages.txt /opt/build/
+RUN --mount=type=secret,id=proxy_ca \
+    source /opt/build/build_network_env.sh && \
+    apt-get "${PLAYER_APT_CA[@]}" update && \
+    DEBIAN_FRONTEND=noninteractive apt-get "${PLAYER_APT_CA[@]}" install --no-install-recommends -y $(cat /opt/build/apt-packages.txt) && \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /opt/robocup/algorithm
+COPY . /opt/robocup/algorithm/
+RUN --mount=from=python-wheels,source=/wheelhouse,target=/wheelhouse,readonly \
+    python3 -m pip install --no-cache-dir --no-index --no-deps --find-links /wheelhouse -r deploy/requirements.lock && \
+    python3 -m pip check
+RUN cp -a deploy/vendor/ros_actor_cmd_pose_plugin_msgs coordination/src/ && \
+    source /opt/ros/noetic/setup.bash && \
+    catkin_make -C coordination -DCMAKE_BUILD_TYPE=Release && \
+    chmod +x start_player.sh stop_player.sh deploy/container_entrypoint.sh && \
+    mkdir -p /var/log/robocup
+ENV ROBOCUP_PLAYER_IMAGE=1 ROBOCUP_TEAM_ONLY=1 PYTHONDONTWRITEBYTECODE=1 \
+    RUN_DIR=/var/log/robocup ROBOCUP_LOG_DIR=/var/log/robocup/csv \
+    YOLO_CONFIG_DIR=/var/log/robocup/ultralytics MPLCONFIGDIR=/var/log/robocup/matplotlib \
+    YOLO_AUTOINSTALL=false
+RUN --network=none source deploy/player_env.sh && python3 deploy/smoke_image.py
+ENTRYPOINT ["/usr/bin/tini", "-g", "--", "/opt/robocup/algorithm/deploy/container_entrypoint.sh"]
+CMD ["hold"]

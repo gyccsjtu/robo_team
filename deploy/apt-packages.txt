@@ -1,0 +1,13 @@
+build-essential
+ca-certificates
+libgl1
+libglib2.0-0
+python3-catkin-tools
+python3-pip
+python3-six
+python3-yaml
+ros-noetic-cv-bridge
+ros-noetic-gazebo-msgs
+ros-noetic-mavros-msgs
+ros-noetic-nav-msgs
+tini

@@ -61,7 +61,8 @@ rosservice(){ echo FORBIDDEN_SERVICE; return 99; }
         self.assertFalse(set(started) & {'scene','actors','judge','comm_0'})
         self.assertIn('swarm_agent_5', started)
         self.assertNotIn('PARAM:set /score_cal/', output)
-        self.assertIn('_mono_cam:=6 _stereo_cam:=6', output)
+        self.assertIn('传感器计费由裁判核定', output)
+        self.assertNotIn('_mono_cam:=6', output)
 
     def test_invalid_time_source_blocks_before_creating_runtime_or_flight_processes(self):
         for command in ('start', 'start-team'):

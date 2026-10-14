@@ -42,7 +42,8 @@ def main():
     result = dict(
         script_started_wall_s=args.started,
         snapshot_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        git_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=str(root),text=True).strip(),
+        git_head=(os.environ.get('ROBOCUP_SOURCE_COMMIT') or
+                  subprocess.check_output(['git','rev-parse','HEAD'],cwd=str(root),text=True).strip()),
         source_sha256={str(p.relative_to(root)):digest(p) for p in paths if p.is_file()},
         official_sha256={name:digest(args.official/name)
                          for name in ('score_cal.py','control_actor.py')

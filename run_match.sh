@@ -260,7 +260,10 @@ ros_env(){
     [ -f "$WS_SETUP" ]  && source "$WS_SETUP"
     # 感知组的环境脚本：Xvfb :95 / GAZEBO_* / ROS_PACKAGE_PATH / 模型库 URI 置空
     # shellcheck disable=SC1090
-    [ -f "$ENV_SCRIPT" ] && source "$ENV_SCRIPT" >/dev/null 2>&1
+    # The player container does not render Gazebo and must not start Xvfb.
+    if [ "$TEAM_ONLY" != 1 ] && [ -f "$ENV_SCRIPT" ]; then
+        source "$ENV_SCRIPT" >/dev/null 2>&1
+    fi
     # 协同层工作空间（提供 robocup_swarm 消息）
     # shellcheck disable=SC1090
     [ -f "$COORD_WS_SETUP" ] && source "$COORD_WS_SETUP"
@@ -751,7 +754,7 @@ team_preflight(){
     local file nodes
     fast_visual_config_valid || return 1
     for file in "$ROS_SETUP" "$WS_SETUP" "$COORD_WS_SETUP" "$WEIGHTS" \
-                "$PERC_DIR/perception_real.py" "$BRIDGE_SCRIPT" "$COMM_BRIDGE" \
+                "$PERC_DIR/perception_real.py" "$BRIDGE_SCRIPT" \
                 "$SWARM_SCRIPTS/swarm_agent.py" "$SWARM_SCRIPTS/swarm_manager.py" \
                 "$SWARM_SCRIPTS/search_segments.py" "$SWARM_SCRIPTS/search_segment_manager.py" \
                 "$SWARM_SCRIPTS/search_segment_agent.py" "$SWARM_SCRIPTS/motion_safety.py" \
@@ -769,8 +772,9 @@ team_preflight(){
         [ "$REQUIRE_SWARM" = 1 ] && [ "$SKIP_RADAR" = 2 ] && [ "$MATCH_HARD_CAP" = 0 ] \
         || { err "队伍入口要求六机、视觉桥、协同与雷达，禁止环境硬停计时器"; return 1; }
     ros_env
-    sensor_inventory_check || return 1
-    ok "队伍设备申报清单：$RUN_DIR/sensor_inventory.json；组委会裁判参数由组委会核定，本入口不改"
+    # The judge owns the world/model files. A separate player container cannot
+    # inspect its filesystem; actual scan/image frames are checked below.
+    ok "选手容器不读取裁判侧模型文件；设备以现场申报和真实传感器帧核验"
     python3 "$REPO_ROOT/tools/check_search_protocol.py" || return 1
     python3 "$BB2MD" --verify "$FORMAL_METADATA_FILE" || return 1
     nodes="$(timeout 8s rosnode list 2>/dev/null)" || { err "官方ROS环境未就绪"; return 1; }
@@ -807,11 +811,16 @@ do_start(){
     grep -E '^\[!\]|^----|无法' "$RUN_DIR/preflight.out" || true
     ros_env
     local sensor_judge_args
-    sensor_judge_args="$(sensor_inventory_check)" || {
-        err "传感器申报复核失败，尚未启动任何比赛组件"; exit 2; }
-    cp "$RUN_DIR/sensor_inventory.json" "$LOGDIR/sensor_inventory.json" || exit 2
-    export ROBOCUP_SENSOR_INVENTORY="$LOGDIR/sensor_inventory.json"
-    info "全队传感器申报参数：$sensor_judge_args"
+    if [ "$TEAM_ONLY" = 1 ]; then
+        sensor_judge_args=""
+        info "传感器计费由裁判核定；队伍入口不读取或修改裁判模型与计分参数"
+    else
+        sensor_judge_args="$(sensor_inventory_check)" || {
+            err "传感器申报复核失败，尚未启动任何比赛组件"; exit 2; }
+        cp "$RUN_DIR/sensor_inventory.json" "$LOGDIR/sensor_inventory.json" || exit 2
+        export ROBOCUP_SENSOR_INVENTORY="$LOGDIR/sensor_inventory.json"
+        info "全队传感器申报参数：$sensor_judge_args"
+    fi
     # 正式执行的环境与 preflight 核对值保持一致，防止外部 shell 配置渗入子进程。
     export FLIGHT_OUTPUT=pos FLIGHT_X_MIN=-50.0 FLIGHT_X_MAX=150.0
     export FLIGHT_Y_MIN=-60.0 FLIGHT_Y_MAX=60.0
@@ -877,17 +886,18 @@ do_start(){
 
     # ---------------- ② XTDrone 通信桥 + 6 个恐怖分子 ----------------
     step "② 起 XTDrone 通信桥 + control_actors"
-    if [ -f "$COMM_BRIDGE" ]; then
-        local existing_nodes=""
-        if [ "$TEAM_ONLY" = 1 ]; then
-            existing_nodes="$(timeout 8s rosnode list 2>/dev/null)" \
-                || partial_fail "读取通信桥注册失败"
-        fi
+    if [ "$TEAM_ONLY" = 1 ]; then
+        # Official Docker procedure starts multi_vehicle_communication in the
+        # judge container. Never start a competing bridge from player_algo.
+        existing_nodes="$(timeout 8s rosnode list 2>/dev/null)" \
+            || partial_fail "读取官方通信桥注册失败"
         for i in 0 1 2 3 4 5; do
-            if [ "$TEAM_ONLY" = 1 ] && printf '%s\n' "$existing_nodes" \
-                    | grep -qx "/typhoon_h480_${i}_communication"; then
-                info "沿用官方通信桥 $i"; continue
-            fi
+            printf '%s\n' "$existing_nodes" | grep -qx "/typhoon_h480_${i}_communication" \
+                || partial_fail "官方通信桥 typhoon_h480_$i 未就绪，请裁判核对 multi_vehicle_communication.sh"
+        done
+        ok "沿用官方六路通信桥"
+    elif [ -f "$COMM_BRIDGE" ]; then
+        for i in 0 1 2 3 4 5; do
             start_group "comm_$i" "$LOGDIR/02_comm_$i.log" \
                 python3 -u "$COMM_BRIDGE" typhoon_h480 "$i"
             sleep 0.3
