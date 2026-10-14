@@ -119,6 +119,22 @@ class EastCornerCheckTests(unittest.TestCase):
         name = 'southeast' if look[1] < 0 else 'northeast'
         self.assertAlmostEqual(self.m._east_corner_seen[name], self.now)
 
+    def test_reconcile_uses_measured_height_of_east_corner_view(self):
+        uid = self.m.uav_ids[0]
+        self.m.status[uid].z = 3.0
+        self.m._processed_camera_poses[uid]['z'] = 3.1
+        idle = [uid]
+        self.m._allocate_east_corner_check(idle, self.now)
+        task = self.m._segments.tasks[uid]
+        self.assertAlmostEqual(task.view_altitude, 3.1)
+        self.assertFalse(valid_view(self.raw, self.m._g_infl,
+                                    task.look_points[0], task.points[0],
+                                    self.m._segment_flight_waypoint, 4.5))
+        self.now += .2
+        self.m._processed_camera_poses[uid]['sample_s'] = self.now
+        self.m._reconcile_segments()
+        self.assertIs(self.m._segments.tasks.get(uid), task)
+
 
 if __name__ == '__main__':
     unittest.main()

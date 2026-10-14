@@ -381,7 +381,7 @@ class SearchSegmentManager:
             point, sample = view
             task = self._start_search_segment(
                 uid, [key], [point], stamp, purpose='building_review',
-                look_points=[sample])
+                look_points=[sample], view_altitude=altitude)
             if task is not None:
                 idle.remove(uid)
                 rospy.loginfo('[EAST_CORNER_CHECK] uav=%s task=%s corner=%s '
@@ -757,7 +757,7 @@ class SearchSegmentManager:
                 self._reopen_covered_cells(force=False)
 
     def _start_search_segment(self, uid, cells, points, stamp, purpose='coverage', publish=True,
-                              max_hold=None, look_points=None):
+                              max_hold=None, look_points=None, view_altitude=None):
         """Single reservation/lease entry for internal and boundary search."""
         from routine_search import routine_point_allowed
         look = ([(self.grid.cell(key).cx, self.grid.cell(key).cy) for key in cells]
@@ -782,6 +782,11 @@ class SearchSegmentManager:
                                       purpose=purpose, look_points=look)
         if task is None:
             return None
+        # Ordinary building reviews use their established 4.5 m geometry.
+        # East-corner views are selected from the aircraft's measured camera
+        # height; keep that distinction for the later safety reconciliation.
+        if view_altitude is not None:
+            task.view_altitude = view_altitude
         for cell in cells:
             # SegmentBook already excludes other routes. A revisit must not
             # erase historical image coverage merely by reserving a cell.
@@ -950,7 +955,8 @@ class SearchSegmentManager:
             deadlines.append(review['expires_s'])
         expires = min(deadlines)
         altitude = (self._directed_camera_height(task.uid, stamp)
-                    if task.purpose == 'coverage_view' else 4.5)
+                    if task.purpose == 'coverage_view' or
+                       getattr(task, 'view_altitude', None) is not None else 4.5)
         safe = (expires > stamp and key not in self._blocked_cells and altitude is not None and
                 valid_view(self._merged_grid(), getattr(self, '_g_infl', None),
                            look, point, self._segment_flight_waypoint, altitude))
@@ -1025,7 +1031,8 @@ class SearchSegmentManager:
             if task.purpose in ('building_review', 'coverage_view'):
                 look = task.look_points[task.index]
                 altitude = (self._directed_camera_height(uid, now)
-                            if task.purpose == 'coverage_view' else 4.5)
+                            if task.purpose == 'coverage_view' or
+                               getattr(task, 'view_altitude', None) is not None else 4.5)
                 if altitude is not None and not valid_view(self._merged_grid(), grid, look, points[0],
                                   self._segment_flight_waypoint, altitude):
                     self._drop_segment(uid, 'blocked_ground_view',
