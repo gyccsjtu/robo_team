@@ -35,6 +35,16 @@ def clock_graph(nodes, topic="/clock", publishers=("/gazebo",),
 
 
 class GraphAuditTests(unittest.TestCase):
+    def test_judge_may_start_after_first_takeoff_without_relaxing_other_checks(self):
+        state, types = valid_graph()
+        state[1] = [entry for entry in state[1] if not entry[0].endswith('_info')]
+        self.assertTrue(any('has no /score_cal subscriber' in failure
+                            for failure in audit.audit_graph(state, types)))
+        self.assertEqual(audit.audit_graph(state, types, allow_judge_pending=True), [])
+        state[1].append(['/gazebo/model_states', ['/swarm_manager']])
+        self.assertIn('/swarm_manager subscribes to forbidden topic /gazebo/model_states',
+                      audit.audit_graph(state, types, allow_judge_pending=True))
+
     def test_automatic_team_clock_subscriptions_require_permission(self):
         nodes = ["/swarm_manager", "/swarm_agent_0", "/yolo_target_bridge",
                  "/perception_real_123", "/fast_visual_yaw_123",

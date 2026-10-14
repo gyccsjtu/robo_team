@@ -124,7 +124,7 @@ def _topic_types(entries):
     return result
 
 
-def audit_graph(state, topic_types, allow_clock=False):
+def audit_graph(state, topic_types, allow_clock=False, allow_judge_pending=False):
     """Return precise rule/registration failures from a master snapshot."""
     if not isinstance(state, (list, tuple)) or len(state) != 3:
         raise GraphError("getSystemState must contain publishers, subscribers and services")
@@ -141,7 +141,7 @@ def audit_graph(state, topic_types, allow_clock=False):
         if publishers.get(topic, set()) != {BRIDGE_NODE}:
             failures.append("%s publishers are %s; expected only %s" % (
                 topic, sorted(publishers.get(topic, ())), BRIDGE_NODE))
-        if JUDGE_NODE not in subscribers.get(topic, ()):
+        if not allow_judge_pending and JUDGE_NODE not in subscribers.get(topic, ()):
             failures.append("%s has no %s subscriber" % (topic, JUDGE_NODE))
 
     if publishers.get(TARGET_TOPIC, set()) != {BRIDGE_NODE}:
@@ -239,6 +239,8 @@ def main(argv=None):
     parser.add_argument("--clock-permission-reference",
                         default=os.environ.get("CLOCK_PERMISSION_REFERENCE", ""),
                         help="rule or teacher confirmation reference; required when clock permission is allowed")
+    parser.add_argument("--allow-judge-pending", action="store_true",
+                        help="official judge starts after first takeoff; defer subscriber check")
     args = parser.parse_args(argv)
     # argparse does not validate choices supplied by an environment default.
     if args.clock_permission not in CLOCK_PERMISSIONS:
@@ -254,7 +256,8 @@ def main(argv=None):
     try:
         state, topic_types = fetch_graph(master_uri, args.timeout)
         failures = audit_graph(state, topic_types,
-                               allow_clock=args.clock_permission == "allowed")
+                               allow_clock=args.clock_permission == "allowed",
+                               allow_judge_pending=args.allow_judge_pending)
     except GraphError as exc:
         print("[graph-audit] ERROR %s" % exc, file=sys.stderr)
         return 2
@@ -262,7 +265,8 @@ def main(argv=None):
         for failure in failures:
             print("[graph-audit] FAIL %s" % failure, file=sys.stderr)
         return 1
-    print("[graph-audit] PASS six ActorInfo channels, target source, judge subscription, truth/feedback subscriptions and environment command publishers; clock_permission=%s%s; team /clock subscriptions %s; Clock aliases and foreign clock publishers forbidden (master registration snapshot only; other topic authorization, service clients/files and future subscriptions not certified)" % (
+    print("[graph-audit] PASS six ActorInfo channels, target source, judge subscription %s, truth/feedback subscriptions and environment command publishers; clock_permission=%s%s; team /clock subscriptions %s; Clock aliases and foreign clock publishers forbidden (master registration snapshot only; other topic authorization, service clients/files and future subscriptions not certified)" % (
+        "deferred" if args.allow_judge_pending else "confirmed",
         args.clock_permission,
         "; clock_permission_reference=%s" % reference if reference else "",
         "explicitly authorized" if args.clock_permission == "allowed" else "forbidden",

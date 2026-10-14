@@ -1193,7 +1193,10 @@ do_start(){
 
         # Audit registered team inputs before any agent can arm. A second
         # audit below includes all flight nodes after registration.
+        local -a judge_pending_arg=()
+        [ "$TEAM_ONLY" = 1 ] && judge_pending_arg=(--allow-judge-pending)
         if ! timeout 12s python3 -u "$GRAPH_AUDIT_SCRIPT" --timeout 8 \
+                "${judge_pending_arg[@]}" \
                 --clock-permission "$CLOCK_PERMISSION" \
                 --clock-permission-reference "$CLOCK_PERMISSION_REFERENCE" \
                 >"$LOGDIR/06_preflight_graph_audit.log" 2>&1; then
@@ -1251,11 +1254,18 @@ do_start(){
 
     # ROS master 两次有界查询一次核验六路裁判链和所有节点订阅。
     # 不订阅尚未发现目标的 ActorInfo 消息，也不读取裁判反馈内容。
+    local -a judge_pending_arg=()
+    [ "$TEAM_ONLY" = 1 ] && judge_pending_arg=(--allow-judge-pending)
     if timeout 12s python3 -u "$GRAPH_AUDIT_SCRIPT" --timeout 8 \
+            "${judge_pending_arg[@]}" \
             --clock-permission "$CLOCK_PERMISSION" \
             --clock-permission-reference "$CLOCK_PERMISSION_REFERENCE" \
             >"$LOGDIR/07_graph_audit.log" 2>&1; then
-        ok "ROS 注册审计通过：六路 ActorInfo、禁用数据订阅、原生 /clock（已记录用户确认）、无 Clock 别名、环境指令发布；文件/服务客户端另行审查"
+        if [ "$TEAM_ONLY" = 1 ]; then
+            ok "队伍 ROS 注册审计通过；裁判按官方流程在首机起飞时启动，裁判订阅需启动后复核"
+        else
+            ok "ROS 注册审计通过：六路 ActorInfo、禁用数据订阅、原生 /clock（已记录用户确认）、无 Clock 别名、环境指令发布；文件/服务客户端另行审查"
+        fi
     else
         cat "$LOGDIR/07_graph_audit.log" >&2
         partial_fail "正式 ROS 图审计失败；检查 $LOGDIR/07_graph_audit.log"
