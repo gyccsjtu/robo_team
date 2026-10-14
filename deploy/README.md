@@ -5,11 +5,23 @@
 在有 Docker 和网络的 Linux x86-64 主机上，提交当前部署改动后执行：
 
 ```bash
+PLAYER_IMAGE="robocup-player:e77c3a2-$(git rev-parse --short=12 HEAD)"
 ./deploy/build_player.sh
-docker save robocup-player:e77c3a2-<提交前12位> -o robocup-player.tar
+docker save "$PLAYER_IMAGE" -o robocup-player.tar
 ```
 
-单机运行时，由裁判先启动官方世界、演员及六路通信，然后在选手容器内执行：
+在选手机器上导入镜像并创建容器一次；若赛场已提供 `player_algo` 容器，应先核对其中是否装入此镜像，不能直接覆盖已有容器：
+
+```bash
+PLAYER_IMAGE="$(docker load -i robocup-player.tar | sed -n 's/^Loaded image: //p' | tail -1)"
+test -n "$PLAYER_IMAGE"
+docker create --name player_algo --network host \
+  -e ROS_MASTER_URI="${ROS_MASTER_URI:-http://127.0.0.1:11311}" \
+  -e ROS_IP="${ROS_IP:-127.0.0.1}" \
+  -v player_algo_logs:/var/log/robocup "$PLAYER_IMAGE"
+```
+
+单机运行时，由裁判先启动官方世界、演员及六路通信，然后 `docker start player_algo`、`docker exec -it player_algo bash`，在选手容器内执行：
 
 ```bash
 cd /opt/robocup/algorithm
