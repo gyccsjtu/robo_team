@@ -13,6 +13,7 @@ export SOUTH_PATROL_NORTHEAST="${SOUTH_PATROL_NORTHEAST:-0}"
 export EAST_PATROL="${EAST_PATROL:-0}"
 export EAST_SPLIT_PATROL="${EAST_SPLIT_PATROL:-0}"
 export EDGE_SEARCH_REVIEW="${EDGE_SEARCH_REVIEW:-0}"
+export EAST_CORNER_CHECK="${EAST_CORNER_CHECK:-1}"
 export PRIORITY_CORNER="${PRIORITY_CORNER:-0}" HOT_TARGET_ENABLE=0
 export BUILDING_SUBPOINT_REVIEW="${BUILDING_SUBPOINT_REVIEW:-1}"
 export EARLY_VIEW_PURSUIT="${EARLY_VIEW_PURSUIT:-1}"
@@ -33,5 +34,5 @@ if [ "${ACTUAL%% *}" != "$EXPECTED" ]; then
     exit 1
 fi
 cd "$ROOT"
-echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; normal_partition=$NORMAL_PARTITION_SEARCH search_segments=1 motion_safety=1 south_patrol=$SOUTH_PATROL east_persistent=$EAST_PATROL east_split=${EAST_SPLIT_PATROL:-0} edge_review=${EDGE_SEARCH_REVIEW:-0} building_review=$BUILDING_SUBPOINT_REVIEW pixel_recovery=${PIXEL_VIEW_RECOVERY:-0} pixel_approach=${PIXEL_RECOVERY_APPROACH:-0} southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
+echo "[c37-sculpture] v3 actor primary + same-frame sculpture verifier; normal_partition=$NORMAL_PARTITION_SEARCH search_segments=1 motion_safety=1 south_patrol=$SOUTH_PATROL east_persistent=$EAST_PATROL east_split=${EAST_SPLIT_PATROL:-0} east_corner_check=$EAST_CORNER_CHECK edge_review=${EDGE_SEARCH_REVIEW:-0} building_review=$BUILDING_SUBPOINT_REVIEW pixel_recovery=${PIXEL_VIEW_RECOVERY:-0} pixel_approach=${PIXEL_RECOVERY_APPROACH:-0} southeast_inner=$SOUTH_PATROL_SOUTHEAST northeast_inner=$SOUTH_PATROL_NORTHEAST reports=fresh flight_inset=$FLIGHT_INSET orbit_radius_close=$ORBIT_RADIUS_CLOSE"
 exec "$ROOT/run_match.sh" "$@"

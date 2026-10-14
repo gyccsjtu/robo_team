@@ -355,6 +355,7 @@ class SwarmManager(SearchSegmentManager):
         from road_first_pass import RoadFirstPass
         self._road_first_pass = RoadFirstPass() if road_first_pass else None
         self._normal_partition_search = os.environ.get('NORMAL_PARTITION_SEARCH', '0') == '1'
+        self._east_corner_check = os.environ.get('EAST_CORNER_CHECK', '0') == '1'
         patrol_enabled = (not self._normal_partition_search and
                           os.environ.get('SOUTH_PATROL', '0') == '1')
         if patrol_enabled and (self._segments is None or os.environ.get('MOTION_SAFETY', '0') != '1'):
@@ -1279,6 +1280,8 @@ class SwarmManager(SearchSegmentManager):
                 seen = self._camera_point_seen = {}
             west_corners = {(key, point): name for name, key, point, _ in
                             self._west_corner_subpoints()} if BUILDING_SUBPOINT_REVIEW else {}
+            east_corners = {(key, point): name for name, key, point, _ in
+                            self._east_corner_subpoints()} if getattr(self, '_east_corner_check', False) else {}
             # Independent subpoints preserve the unseen far edge of a cell.
             # Credit expires so an old pass cannot complete a new blind sweep.
             for book in (evidence, seen):
@@ -1318,6 +1321,11 @@ class SwarmManager(SearchSegmentManager):
                             prior_corner = self._west_corner_image_time(corner, now)
                             if prior_corner is None or sample > prior_corner:
                                 self.__dict__.setdefault('_west_corner_seen', {})[corner] = sample
+                        corner = east_corners.get((key, point))
+                        if corner is not None:
+                            prior_corner = self._east_corner_image_time(corner, now)
+                            if prior_corner is None or sample > prior_corner:
+                                self.__dict__.setdefault('_east_corner_seen', {})[corner] = sample
                 if not required or any((key, p) not in seen for p in required):
                     continue
                 owner = cell.owner if cell.state == STATE_ASSIGNED else None

@@ -62,6 +62,7 @@ def main():
         sensor_inventory=inventory,
         search_segments=os.environ.get('SEARCH_SEGMENTS','0'),
         normal_partition_search=os.environ.get('NORMAL_PARTITION_SEARCH','0'),
+        east_corner_check=os.environ.get('EAST_CORNER_CHECK','0'),
         priority_corner=os.environ.get('PRIORITY_CORNER','1'),
         motion_safety=os.environ.get('MOTION_SAFETY','0'),
         south_patrol=os.environ.get('SOUTH_PATROL','0'),

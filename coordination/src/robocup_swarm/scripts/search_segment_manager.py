@@ -287,6 +287,109 @@ class SearchSegmentManager:
                 result.append((name, key, samples.index(look), look))
         return tuple(result)
 
+    def _east_corner_subpoints(self):
+        """Actual east corners of the public actor area, never flight points."""
+        _, xmax, ymin, ymax = ACTOR_SEARCH_BOUNDS
+        result = []
+        for name, look in (('southeast', (xmax-.01, ymin+.01)),
+                           ('northeast', (xmax-.01, ymax-.01))):
+            key = self.grid.world_to_cell(*look)
+            cell = self.grid.cell(key) if key is not None else None
+            samples = cell_points(self.grid, cell) if cell is not None else ()
+            if look in samples and boundary_corner(self.grid, key, look):
+                result.append((name, key, samples.index(look), look))
+        return tuple(result)
+
+    def _east_corner_image_time(self, name, now):
+        book = self.__dict__.setdefault('_east_corner_seen', {})
+        sample = book.get(name)
+        if (sample is not None and
+                (isinstance(sample, bool) or not isinstance(sample, (int, float)) or
+                 not math.isfinite(sample) or not 0. < sample <= now+.05)):
+            book.pop(name, None)
+            sample = None
+        return sample
+
+    def _allocate_east_corner_check(self, idle, stamp):
+        """Let one already eastern idle searcher inspect an unobserved corner.
+
+        This is a short normal search lease. It never borrows a tracking UAV,
+        recruits a cross-map aircraft, or credits coverage before real images.
+        """
+        if (not getattr(self, '_east_corner_check', False) or not idle or
+                getattr(self, '_g_infl', None) is None):
+            return
+        corners = self._east_corner_subpoints()
+        if not corners or any(
+                task.purpose == 'building_review' and any(
+                    look in task.look_points for _, _, _, look in corners)
+                for task in self._segments.tasks.values()):
+            return
+        raw = self._merged_grid()
+        if raw is None:
+            return
+        busy = set(self._tracking.values()) | set(self._backup.values())
+        frames = getattr(self, '_processed_frame_times', {})
+        eastern = []
+        for uid in idle:
+            st = self.status.get(uid)
+            frame = frames.get(uid)
+            if (uid in busy or st is None or st.search_state == ATTEND or
+                    not self._tracking_uav_available(uid, stamp) or
+                    self._west_corner_has_person(uid, stamp) or
+                    not math.isfinite(st.x) or not math.isfinite(st.y) or
+                    st.x < self.grid.x_max-40. or
+                    isinstance(frame, bool) or not isinstance(frame, (int, float)) or
+                    not math.isfinite(frame) or not 0. <= stamp-frame <= 2.):
+                continue
+            eastern.append(uid)
+        if not eastern:
+            return
+        attempts = self.__dict__.setdefault('_east_corner_attempts', {})
+        choices = []
+        for name, key, _, look in corners:
+            last = self._east_corner_image_time(name, stamp)
+            if (key in self._blocked_cells or key in self._segments.reserved or
+                    (last is not None and stamp-last < 60.) or
+                    stamp-attempts.get(name, -1e18) < 30.):
+                continue
+            for uid in eastern:
+                distance = math.dist((self.status[uid].x, self.status[uid].y), look)
+                if distance <= 45.:
+                    choices.append((last is not None, distance, name, key, look, uid))
+        for _, _, name, key, look, uid in sorted(choices):
+            altitude = self._directed_camera_height(uid, stamp)
+            band = ground_distance_band(altitude, 0.) if altitude is not None else None
+            if band is None:
+                continue
+            # Stay beyond the 7 m actor push radius while keeping the ground
+            # point inside this camera's measured vertical field of view.
+            near = max(7.6, band[0])
+            far = min(band[1], altitude*math.sqrt(1.-.30**2)/.30)
+            if far <= near:
+                continue
+            options = tuple((point, sample) for point, sample in view_options(
+                self.grid, key, raw, self._g_infl, self._segment_flight_waypoint,
+                altitude=altitude, radius=(near+far)*.5, samples=(look,))
+                if sample == look)
+            attempts[name] = stamp
+            view = self._reachable_subpoint_view(
+                key, (self.status[uid].x, self.status[uid].y), options,
+                max_path_m=55., altitude=altitude)
+            if view is None:
+                continue
+            point, sample = view
+            task = self._start_search_segment(
+                uid, [key], [point], stamp, purpose='building_review',
+                look_points=[sample])
+            if task is not None:
+                idle.remove(uid)
+                rospy.loginfo('[EAST_CORNER_CHECK] uav=%s task=%s corner=%s '
+                              'cell=%s point=%s look=%s last_image=%s; '
+                              'existing eastern idle aircraft, actual image required',
+                              uid, task.task_id, name, key, point, sample, last)
+                return
+
     def _west_corner_image_time(self, name, now):
         book = self.__dict__.setdefault('_west_corner_seen', {})
         sample = book.get(name)
@@ -580,6 +683,7 @@ class SearchSegmentManager:
         self._allocate_road_first_pass(idle, stamp)
         if west_corner_review:
             self._allocate_west_corner_review(idle, stamp)
+        self._allocate_east_corner_check(idle, stamp)
         positions = {uid:(self.status[uid].x,self.status[uid].y) for uid in idle}
         # Outer task lock covers allocator selection, segment extension and
         # whole-segment reservation. No callback can see a half-reserved route.

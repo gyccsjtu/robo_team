@@ -1,0 +1,41 @@
+2026-10-14 official random-map comparison, frozen commit 0d146bb
+
+Evidence: artifacts/normal_visible_follow_random3_20261014_075800
+Official judge outcomes by distinct generated map:
+  round 1: 5/6, 600 s timeout; white remains
+  round 2: 3/6, 600 s timeout; white and both red actors remain
+  round 3: 4/6, 600 s timeout; green and white remain
+All six aircraft passed the takeoff and processed-camera gate in each round.
+
+The white stream had 181/158/67 formal messages, but its longest interval
+with every adjacent report <=1 s was only 9.184/11.592/6.980 s. The judge
+requires 15 s, every position error <1 m, and every adjacent report <=1 s.
+These report intervals alone prove a discontinuity, not absolute accuracy.
+White perception also logged many sin_down_below_0.30 projections. This is
+evidence for observation geometry/following work; do not lower the geometry
+gate without proving the resulting coordinates are accurate.
+
+The first own-status crossing of x>=95 happened at official-estimated
+175.468 / 476.976 / 339.376 s. East-side arrival was late in all three
+layouts. This metric does not prove no earlier east-looking image existed.
+Round 3 green had no captured own pixel candidate, world view, or formal
+report in the retained diagnostic trace. A conditional corner look cannot
+by itself guarantee a missing aircraft reaches the east early.
+
+This commit adds a bounded east-corner check to ordinary segment allocation.
+It selects only an already eastern idle aircraft with fresh processed-camera
+geometry, checks a collision-free inner viewpoint/path to one of the two
+actual actor-area corners, and credits the corner only after real processed
+images. A current person view, tracking task, stale camera, blocked endpoint,
+or already recent corner image prevents diversion. It never publishes actor
+commands or uses actor truth. It does not alter formal reporting/YOLO/official
+code. EAST_CORNER_CHECK=0 disables the addition; selected stable wrapper uses 1.
+
+Open-source waypoint_navigator from lansijian/aerial-vision-system commit
+2317e495 offers the useful ordered-waypoint/mode-pause pattern. Its separate
+MAVROS publisher, fixed-angle height projection, and duplicate red reports
+are unsuitable for the current single-output/official-report architecture.
+
+Validation: focused east-corner tests (6), existing corner/normal tests,
+full tools suite (1793), bash -n, git diff --check. No live performance
+claim until a post-change official random-map match finishes.
