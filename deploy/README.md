@@ -10,16 +10,14 @@ PLAYER_IMAGE="robocup-player:e77c3a2-$(git rev-parse --short=12 HEAD)"
 docker save "$PLAYER_IMAGE" -o robocup-player.tar
 ```
 
-如果收到的是 `player_algo-build-context-*.tar.gz`，先在有 Docker 的构建机解包，再从解包目录直接构建（无需 git）：
+如果收到的是完整 `player_algo_docker/` 文件夹，进入该目录执行 `./deploy/build_player.sh` 即可，无需 git。收到 `player_algo-build-context.tar.gz` 时先解包，再用相同命令：
 
 ```bash
 mkdir player-build && cd player-build
-tar -xzf /path/to/player_algo-build-context-*.tar.gz
+tar -xzf /path/to/player_algo-build-context.tar.gz
 SOURCE_COMMIT="$(cat deploy/source_commit.txt)"
 PLAYER_IMAGE="robocup-player:e77c3a2-${SOURCE_COMMIT:0:12}"
-DOCKER_BUILDKIT=1 docker build --platform linux/amd64 \
-  -f deploy/Dockerfile.player --build-arg "SOURCE_COMMIT=$SOURCE_COMMIT" \
-  -t "$PLAYER_IMAGE" .
+./deploy/build_player.sh
 docker save "$PLAYER_IMAGE" -o robocup-player.tar
 ```
 
