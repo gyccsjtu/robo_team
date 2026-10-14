@@ -27,7 +27,8 @@ OFFICIAL_NODE = re.compile(r"^/actor_[0-5]$")
 CLOCK_TOPIC = "/clock"
 CLOCK_TYPE = "rosgraph_msgs/Clock"
 OFFICIAL_CLOCK_NODE = re.compile(
-    r"^/(?:gazebo|gazebo_gui|score_cal|actor_[0-5]|typhoon_h480_[0-5]/mavros)$"
+    r"^/(?:gazebo|gazebo_gui|score_cal|actor_[0-5]|typhoon_h480_[0-5]/mavros"
+    r"|typhoon_h480_[0-5]_communication)$"
 )
 CLOCK_PERMISSIONS = ("unconfirmed", "allowed", "forbidden")
 FORBIDDEN_TOPIC = re.compile(

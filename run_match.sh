@@ -347,7 +347,9 @@ wait_gate(){
             return 0
         fi
         elapsed=$((SECONDS - started))
-        if [ "$desc" != "Gazebo 服务就绪" ] && [ "$elapsed" -ge 2 ] && \
+        if [ "$TEAM_ONLY" != 1 ] && \
+                [ "$desc" != "Gazebo 服务就绪" ] && \
+                [ "$elapsed" -ge 2 ] && \
                 ! pgrep -x gzserver >/dev/null 2>&1; then
             err "$desc —— Gazebo 已退出；检查 $LOGDIR/01_scene.log"
             return 1
@@ -880,9 +882,12 @@ do_start(){
     fi
 
     fi  # TEAM_ONLY never starts/unpauses/resets Gazebo.
+    # 报错提示按模式区分：team 模式下本容器没有 01_scene.log（场景在裁判侧）。
+    _scene_hint="$LOGDIR/01_scene.log"
+    [ "$TEAM_ONLY" = 1 ] && _scene_hint="（选手容器内无场景日志；世界与六路通信由裁判侧负责，请核对裁判侧）"
     timeout 305s python3 -u "$READY_SCRIPT" --kind state --timeout 300 \
         --uavs "${UAVS[@]}" \
-        || partial_fail "六机 MAVROS 未全部连接；检查上面的缺失机清单及 $LOGDIR/01_scene.log"
+        || partial_fail "六机 MAVROS 未全部连接；检查上面的缺失机清单及 $_scene_hint"
 
     # ---------------- ② XTDrone 通信桥 + 6 个恐怖分子 ----------------
     step "② 起 XTDrone 通信桥 + control_actors"
