@@ -1,0 +1,3377 @@
+[
+  {
+    "path": "artifacts/red_corner_fix_20261015/trial_05_partition/team/latest",
+    "mode": 511,
+    "mtime_ns": 1792020960000000000,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/var/log/robocup/team/logs_20261014_233600",
+    "available": false
+  },
+  {
+    "path": "artifacts/red_corner_fix_20261015/trial_07_viewfix_random/team/latest",
+    "mode": 511,
+    "mtime_ns": 1792022042000000000,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/var/log/robocup/team/logs_20261014_235402",
+    "available": false
+  },
+  {
+    "path": "artifacts/red_corner_fix_20261015/trial_01/team/latest",
+    "mode": 511,
+    "mtime_ns": 1792019854000000000,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/var/log/robocup/team/logs_20261014_231734",
+    "available": false
+  },
+  {
+    "path": "artifacts/red_corner_fix_20261015/trial_06_partition_guard/team/latest",
+    "mode": 511,
+    "mtime_ns": 1792021118000000000,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/var/log/robocup/team/logs_20261014_233838",
+    "available": false
+  },
+  {
+    "path": "artifacts/red_corner_fix_20261015/trial_04_partition/team/latest",
+    "mode": 511,
+    "mtime_ns": 1792020842000000000,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/var/log/robocup/team/logs_20261014_233402",
+    "available": false
+  },
+  {
+    "path": "artifacts/red_corner_fix_20261015/trial_02/team/latest",
+    "mode": 511,
+    "mtime_ns": 1792019923000000000,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/var/log/robocup/team/logs_20261014_231843",
+    "available": false
+  },
+  {
+    "path": "artifacts/red_corner_fix_20261015/trial_03/team/latest",
+    "mode": 511,
+    "mtime_ns": 1792020055000000000,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/var/log/robocup/team/logs_20261014_232055",
+    "available": false
+  },
+  {
+    "path": "artifacts/random5_721927c_20261013_190433/rounds/02/core_evidence.tar.xz",
+    "mode": 511,
+    "mtime_ns": 1791890817923552995,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/dev/shm/random5_721927c_20261013_190433/core_archives/02/core_evidence.tar.xz",
+    "available": false
+  },
+  {
+    "path": "artifacts/header_clock_gui_trial_20261013_211134/csv",
+    "mode": 511,
+    "mtime_ns": 1791897094837610783,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/dev/shm/robocup_header_trial_20261013_211134/csv",
+    "available": false
+  },
+  {
+    "path": "artifacts/header_clock_gui_trial_20261013_211134/ram",
+    "mode": 511,
+    "mtime_ns": 1791897094837610783,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/dev/shm/robocup_header_trial_20261013_211134",
+    "available": false
+  },
+  {
+    "path": "artifacts/header_clock_gui_trial_20261013_211134/runtime",
+    "mode": 511,
+    "mtime_ns": 1791897094837610783,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/dev/shm/robocup_header_trial_20261013_211134/runtime",
+    "available": false
+  },
+  {
+    "path": "artifacts/visible_follow_46273af_20261013/runtime",
+    "mode": 511,
+    "mtime_ns": 1791887104165471255,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/dev/shm/visible_follow_46273af_20261013",
+    "available": false
+  },
+  {
+    "path": "artifacts/visible_follow_721927c_restart_20261013_184547/runtime",
+    "mode": 511,
+    "mtime_ns": 1791888347786334170,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/dev/shm/visible_follow_721927c_restart_20261013_184547",
+    "available": false
+  },
+  {
+    "path": "artifacts/visible_follow_721927c_20261013/runtime",
+    "mode": 511,
+    "mtime_ns": 1791887919593641853,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/dev/shm/visible_follow_721927c_20261013",
+    "available": false
+  },
+  {
+    "path": "artifacts/boundary_search_review_20261013/runtime",
+    "mode": 511,
+    "mtime_ns": 1791885877457109657,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/dev/shm/boundary_search_review_20261013",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0000.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00004.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0001.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00011.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0002.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00012.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0003.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00016.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0004.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00017.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0005.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00018.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0006.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00022.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0007.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00027.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0008.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00029.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0009.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00030.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0010.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00033.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0011.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00034.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0012.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00037.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0013.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00043.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0014.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00044.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0015.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00046.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0016.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00048.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0017.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00049.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0018.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00050.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0019.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00053.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0020.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00056.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0021.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00057.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0022.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00063.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0023.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00066.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0024.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00067.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0025.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00068.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0026.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00073.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0027.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00076.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0028.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00081.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0029.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00089.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0030.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00091.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0031.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00092.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0032.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00097.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0033.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00098.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0034.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00103.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0035.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00104.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0036.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00107.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0037.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00113.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0038.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00115.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0039.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00116.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0040.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00117.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0041.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00119.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0042.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00120.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0043.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00121.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0044.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494216441829,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00125.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0045.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00132.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0046.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00140.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0047.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00144.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0048.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00145.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0049.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00147.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0050.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00148.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0051.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00149.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0052.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00153.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0053.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00155.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0054.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00157.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0055.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00160.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0056.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00164.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0057.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00171.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0058.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00175.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0059.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00176.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0060.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00184.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0061.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00193.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0062.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00195.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0063.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00200.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0064.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00202.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0065.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00210.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0066.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00211.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0067.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00213.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0068.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00217.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0069.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00220.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0070.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00226.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0071.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00229.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0072.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00231.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0073.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00237.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0074.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00241.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0075.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00247.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0076.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00251.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0077.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00256.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0078.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00258.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0079.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00261.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0080.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00262.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0081.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00263.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0082.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00264.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0083.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00266.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0084.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00274.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0085.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00277.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0086.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00280.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0087.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00282.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0088.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00284.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0089.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00286.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0090.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00287.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0091.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00295.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0092.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00297.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0093.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00298.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0094.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00301.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0095.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00304.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0096.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00320.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0097.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00322.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0098.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00328.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0099.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00330.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0100.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00335.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0101.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00337.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0102.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00344.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0103.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00345.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0104.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00348.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0105.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00349.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0106.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00352.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0107.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00354.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0108.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00355.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0109.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00360.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0110.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00361.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0111.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00363.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0112.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00364.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0113.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00365.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0114.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00368.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0115.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00369.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0116.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00374.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0117.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00375.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0118.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00377.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0119.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00379.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0120.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00380.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0121.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00381.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0122.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00384.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0123.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00390.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0124.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00395.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0125.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00396.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0126.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00397.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0127.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00398.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0128.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00400.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0129.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00401.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0130.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00403.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0131.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00404.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0132.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00406.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0133.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00411.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0134.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00414.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0135.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00419.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0136.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00423.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0137.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00428.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0138.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00431.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0139.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00434.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0140.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00442.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0141.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00454.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0142.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00458.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0143.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00461.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0144.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00470.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0145.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00472.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0146.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00474.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0147.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00479.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0148.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00480.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0149.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00483.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0150.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00485.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0151.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00489.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0152.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00490.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0153.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00491.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0154.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00493.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0155.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00502.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0156.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00503.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0157.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00504.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0158.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00507.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0159.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00508.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0160.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00509.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0161.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00510.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0162.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00511.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0163.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00522.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0164.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00524.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0165.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00525.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0166.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00528.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0167.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00534.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0168.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00536.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0169.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00537.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0170.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00539.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0171.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00544.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0172.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00547.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0173.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00557.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0174.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00559.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0175.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00570.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0176.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00572.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0177.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00575.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0178.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00577.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0179.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00579.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0180.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00581.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0181.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00585.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0182.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00588.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0183.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00599.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0184.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00603.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0185.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00604.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0186.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00605.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0187.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00606.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0188.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00607.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0189.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00612.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0190.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00615.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0191.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00616.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0192.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00617.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0193.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00622.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0194.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00624.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0195.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00628.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0196.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00630.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0197.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00637.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0198.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00638.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0199.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00639.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0200.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00643.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0201.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00647.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0202.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00648.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0203.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00655.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0204.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00656.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0205.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00657.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0206.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00658.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0207.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00662.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0208.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00666.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0209.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00670.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0210.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00671.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0211.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00672.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0212.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00676.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0213.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00678.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0214.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00680.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0215.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00684.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0216.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00688.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0217.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00697.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0218.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00698.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0219.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00699.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0220.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00701.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0221.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00705.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0222.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00708.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0223.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00709.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0224.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00710.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0225.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00712.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0226.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00716.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0227.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00717.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0228.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00718.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0229.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00722.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0230.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00723.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0231.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00726.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0232.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00729.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0233.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00737.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0234.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00738.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0235.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00743.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0236.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00750.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0237.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00751.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0238.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00752.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0239.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00755.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0240.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00756.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0241.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00757.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0242.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00761.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0243.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00762.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0244.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00766.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0245.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00769.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0246.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00770.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0247.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00772.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0248.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00774.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0249.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00790.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0250.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00792.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0251.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00793.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0252.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00794.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0253.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00801.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0254.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00809.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0255.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00811.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0256.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00816.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0257.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00820.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0258.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00825.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0259.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00830.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0260.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00834.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0261.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00839.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0262.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00841.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0263.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00842.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0264.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00843.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0265.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00845.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0266.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00848.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0267.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00853.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0268.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00854.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0269.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00856.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0270.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00862.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0271.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00866.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0272.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00873.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0273.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00875.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0274.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00879.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0275.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00881.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0276.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00885.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0277.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00886.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0278.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00890.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0279.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00892.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0280.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00901.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0281.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00902.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0282.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00910.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0283.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00912.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0284.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00915.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0285.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00917.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0286.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00923.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0287.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494220441896,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00924.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0288.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00933.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0289.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00934.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0290.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00936.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0291.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00942.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0292.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00944.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0293.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00946.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0294.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00949.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0295.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00951.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0296.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00955.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0297.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00958.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0298.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00960.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0299.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00961.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0300.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00965.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0301.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00967.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0302.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00968.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0303.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00969.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0304.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00971.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0305.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00973.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0306.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00975.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0307.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00976.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0308.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00980.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0309.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00983.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0310.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00991.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0311.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_00999.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0312.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01001.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0313.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01003.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0314.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01004.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0315.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01005.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0316.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01013.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0317.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01019.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0318.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01021.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0319.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01022.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0320.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01027.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0321.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01030.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0322.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01033.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0323.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01038.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0324.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01041.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0325.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01043.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0326.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01045.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0327.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01071.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0328.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01074.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0329.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01081.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0330.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01090.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0331.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01092.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0332.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01095.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0333.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01097.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0334.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01099.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0335.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01108.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0336.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01109.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0337.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01113.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0338.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01120.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0339.jpg",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/legacy/yolo_ds/images/val/label_01125.jpg",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0374.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_b/raw_0000.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0375.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_b/raw_0003.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0376.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_b/raw_0004.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0377.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_b/raw_0006.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0378.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_b/raw_0007.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0379.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_b/raw_0009.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0380.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_b/raw_0015.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0381.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_b/raw_0021.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0382.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0000.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0383.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0001.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0384.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0004.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0385.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0006.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0386.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0007.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0387.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0010.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0388.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0012.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0389.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0013.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0390.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0018.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0391.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/mixed_all_d/raw_0019.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0394.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/flight_rollback_beb82fd/0013_typhoon_h480_3.png",
+    "available": false
+  },
+  {
+    "path": "artifacts/yolo_direct_compare_20261012/images/0395.png",
+    "mode": 511,
+    "mtime_ns": 1791793494224441963,
+    "tracked": false,
+    "type": "symlink",
+    "target": "/home/gycc/robocup_distractor_data/flight_rollback_beb82fd/0037_typhoon_h480_4.png",
+    "available": false
+  }
+]

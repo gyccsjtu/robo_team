@@ -1,0 +1,14 @@
+RoboCup experiment evidence archive
+
+Source: /home/gycc/桌面/RoboCup_Team/artifacts
+Source commit: b9a049072b650e6ec936d564d1e5ecc84f419d13
+Original regular files are all included. Existing symlinks to readable files were materialized.
+Already unavailable links are listed separately; their missing targets were never backed up.
+
+Download all release assets to one empty folder, then run:
+sha256sum -c SHA256SUMS
+cat experiments.tar.gz.part* | gzip -t
+cat experiments.tar.gz.part* | tar -xz -C /YOUR/RESTORE/DIRECTORY
+
+Extraction creates artifacts/. The archive does not include the rest of the team source tree.
+Today's records and Git-tracked files are retained locally during cleanup.
